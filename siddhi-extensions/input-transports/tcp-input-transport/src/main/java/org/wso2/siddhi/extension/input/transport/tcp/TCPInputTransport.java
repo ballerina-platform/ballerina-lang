@@ -37,6 +37,7 @@ import java.util.Map;
 )
 public class TCPInputTransport extends InputTransport {
     static String CONTEXT = "context";
+    static String QUEUE_SIZE = "queueSize";
 
     private SourceEventListener sourceEventListener;
     private String context;
@@ -80,6 +81,16 @@ public class TCPInputTransport extends InputTransport {
     @Override
     public void destroy() {
         TCPServer.getInstance().stop();
+    }
+
+    @Override
+    public void pause() {
+        TCPServer.getInstance().isPaused(true);
+    }
+
+    @Override
+    public void resume() {
+        TCPServer.getInstance().isPaused(false);
     }
 
     @Override

@@ -23,7 +23,7 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
 import java.util.Collection;
@@ -121,31 +121,31 @@ public class CollectionOperator implements Operator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object storeEvents,
-                                                    UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object storeEvents,
+                                                    UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
 
-        overwritingOrAddingEventChunk.reset();
-        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(overwritingOrAddingEventChunk.isBatch());
-        while (overwritingOrAddingEventChunk.hasNext()) {
-            StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+        updatingOrAddingEventChunk.reset();
+        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(updatingOrAddingEventChunk.isBatch());
+        while (updatingOrAddingEventChunk.hasNext()) {
+            StateEvent updateOrAddingEvent = updatingOrAddingEventChunk.next();
             try {
                 boolean updated = false;
                 if (((Collection<StreamEvent>) storeEvents).size() > 0) {
                     for (StreamEvent storeEvent : ((Collection<StreamEvent>) storeEvents)) {
-                        overwritingOrAddingEvent.setEvent(storeEventPosition, storeEvent);
-                        if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
+                        updateOrAddingEvent.setEvent(storeEventPosition, storeEvent);
+                        if ((Boolean) expressionExecutor.execute(updateOrAddingEvent)) {
                             for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                                updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, storeEvent);
+                                updateAttributeMapper.mapOutputData(updateOrAddingEvent, storeEvent);
                             }
                             updated = true;
                         }
                     }
                 }
                 if (!updated) {
-                    failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
+                    failedEventChunk.add(addingStreamEventExtractor.getAddingStreamEvent(updateOrAddingEvent));
                 }
             } finally {
-                overwritingOrAddingEvent.setEvent(storeEventPosition, null);
+                updateOrAddingEvent.setEvent(storeEventPosition, null);
             }
         }
         return failedEventChunk;

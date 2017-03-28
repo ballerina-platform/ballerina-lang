@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.EventHolder;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
@@ -109,13 +109,13 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, CompiledCondition compiledCondition,
-                               UpdateAttributeMapper[] updateAttributeMappers,
-                               OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+    public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk, CompiledCondition compiledCondition,
+                            UpdateAttributeMapper[] updateAttributeMappers,
+                            AddingStreamEventExtractor addingStreamEventExtractor) {
         try {
             readWriteLock.writeLock().lock();
-            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).overwrite(overwritingOrAddingEventChunk,
-                    eventHolder, updateAttributeMappers, overwritingStreamEventExtractor);
+            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate(updateOrAddingEventChunk,
+                    eventHolder, updateAttributeMappers, addingStreamEventExtractor);
             eventHolder.add(failedEvents);
         } finally {
             readWriteLock.writeLock().unlock();

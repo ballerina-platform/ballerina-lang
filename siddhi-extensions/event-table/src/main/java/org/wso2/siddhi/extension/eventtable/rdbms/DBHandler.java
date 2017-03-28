@@ -229,7 +229,7 @@ public class DBHandler {
         }
     }
 
-    public void overwriteOrAddEvent(List<Object[]> updateEventList, ExecutionInfo executionInfo) {
+    public void updateOrAddEvent(List<Object[]> updateEventList, ExecutionInfo executionInfo) {
 
         PreparedStatement updatePreparedStatement = null;
         PreparedStatement insertionPreparedStatement = null;

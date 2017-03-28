@@ -397,7 +397,7 @@ public class IndexedByTableTestCase {
 
     @Test
     public void indexedTableTest6() throws InterruptedException {
-        log.info("insertOverwriteIndexedTableTest1");
+        log.info("updateOrInsertIndexedTableTest1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
@@ -415,7 +415,7 @@ public class IndexedByTableTestCase {
                 "from UpdateStockStream left outer join StockTable " +
                 "   on UpdateStockStream.comp == StockTable.symbol " +
                 "select symbol, ifThenElse(price is null,0f,price) as price, vol as volume " +
-                "insert overwrite StockTable " +
+                "update or insert into StockTable " +
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
@@ -476,7 +476,7 @@ public class IndexedByTableTestCase {
 
     @Test
     public void indexedTableTest7() throws InterruptedException {
-        log.info("insertOverwriteIndexedTableTest2");
+        log.info("updateOrInsertIndexedTableTest2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
@@ -494,7 +494,7 @@ public class IndexedByTableTestCase {
                 "from UpdateStockStream left outer join StockTable " +
                 "   on UpdateStockStream.comp == StockTable.symbol " +
                 "select comp as symbol, ifThenElse(price is null,0f,price) as price, vol as volume " +
-                "insert overwrite StockTable " +
+                "update or insert into StockTable " +
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +

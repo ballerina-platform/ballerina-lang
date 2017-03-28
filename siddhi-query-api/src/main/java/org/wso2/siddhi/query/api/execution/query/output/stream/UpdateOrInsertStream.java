@@ -19,45 +19,45 @@ package org.wso2.siddhi.query.api.execution.query.output.stream;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
-public class InsertOverwriteStream extends OutputStream {
-    protected Expression onOverwriteExpression;
+public class UpdateOrInsertStream extends OutputStream {
+    protected Expression onUpdateExpression;
 
-    public InsertOverwriteStream(String tableId, OutputEventType outputEventType, Expression onOverwriteExpression) {
+    public UpdateOrInsertStream(String tableId, OutputEventType outputEventType, Expression onUpdateExpression) {
         this.id = tableId;
         this.outputEventType = outputEventType;
-        this.onOverwriteExpression = onOverwriteExpression;
+        this.onUpdateExpression = onUpdateExpression;
     }
 
-    public InsertOverwriteStream(String tableId, Expression onOverwriteExpression) {
+    public UpdateOrInsertStream(String tableId, Expression onUpdateExpression) {
         this.id = tableId;
         this.outputEventType = OutputEventType.CURRENT_EVENTS;
-        this.onOverwriteExpression = onOverwriteExpression;
+        this.onUpdateExpression = onUpdateExpression;
     }
 
-    public void setOnOverwriteExpression(Expression onOverwriteExpression) {
-        this.onOverwriteExpression = onOverwriteExpression;
+    public void setOnUpdateExpression(Expression onUpdateExpression) {
+        this.onUpdateExpression = onUpdateExpression;
     }
 
-    public Expression getOnOverwriteExpression() {
-        return onOverwriteExpression;
+    public Expression getOnUpdateExpression() {
+        return onUpdateExpression;
     }
 
     @Override
     public String toString() {
         return "UpdateStream{" +
-                "onOverwriteExpression=" + onOverwriteExpression +
+                "onUpdateExpression=" + onUpdateExpression +
                 "} " + super.toString();
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof InsertOverwriteStream)) return false;
+        if (!(o instanceof UpdateOrInsertStream)) return false;
         if (!super.equals(o)) return false;
 
-        InsertOverwriteStream that = (InsertOverwriteStream) o;
+        UpdateOrInsertStream that = (UpdateOrInsertStream) o;
 
-        if (onOverwriteExpression != null ? !onOverwriteExpression.equals(that.onOverwriteExpression) : that.onOverwriteExpression != null)
+        if (onUpdateExpression != null ? !onUpdateExpression.equals(that.onUpdateExpression) : that.onUpdateExpression != null)
             return false;
 
         return true;
@@ -66,7 +66,7 @@ public class InsertOverwriteStream extends OutputStream {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (onOverwriteExpression != null ? onOverwriteExpression.hashCode() : 0);
+        result = 31 * result + (onUpdateExpression != null ? onUpdateExpression.hashCode() : 0);
         return result;
     }
 }

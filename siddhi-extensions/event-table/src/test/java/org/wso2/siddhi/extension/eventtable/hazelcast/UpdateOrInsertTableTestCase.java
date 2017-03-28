@@ -33,8 +33,8 @@ import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class InsertOverwriteTableTestCase {
-    private static final Logger log = Logger.getLogger(InsertOverwriteTableTestCase.class);
+public class UpdateOrInsertTableTestCase {
+    private static final Logger log = Logger.getLogger(UpdateOrInsertTableTestCase.class);
     private static final long RESULT_WAIT = 500;
     private AtomicInteger inEventCount = new AtomicInteger(0);
     private AtomicInteger removeEventCount = new AtomicInteger(0);
@@ -48,12 +48,12 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest1() throws InterruptedException {
-        log.info("insertOverwriteTableTest1");
+    public void updateOrInsertTableTest1() throws InterruptedException {
+        log.info("updateOrInsertTableTest1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
+                "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
                 "@from(eventtable = 'hazelcast') " +
@@ -65,7 +65,7 @@ public class InsertOverwriteTableTestCase {
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
-                "insert overwrite StockTableT011 " +
+                "update or insert into StockTableT011 " +
                 "   on StockTableT011.symbol=='IBM' ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -85,19 +85,19 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest2() throws InterruptedException {
-        log.info("insertOverwriteTableTest2");
+    public void updateOrInsertTableTest2() throws InterruptedException {
+        log.info("updateOrInsertTableTest2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
+                "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "@from(eventtable = 'hazelcast') " +
                 "define table StockTableT021 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query2') " +
                 "from StockStream " +
-                "insert overwrite StockTableT021 " +
+                "update or insert into StockTableT021 " +
                 "   on StockTableT021.symbol==symbol ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -116,12 +116,12 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest3() throws InterruptedException {
-        log.info("insertOverwriteTableTest3");
+    public void updateOrInsertTableTest3() throws InterruptedException {
+        log.info("updateOrInsertTableTest3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
+                "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
@@ -134,7 +134,7 @@ public class InsertOverwriteTableTestCase {
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
-                "insert overwrite StockTableT031 " +
+                "update or insert into StockTableT031 " +
                 "   on StockTableT031.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
@@ -197,12 +197,12 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest4() throws InterruptedException {
-        log.info("insertOverwriteTableTest4");
+    public void updateOrInsertTableTest4() throws InterruptedException {
+        log.info("updateOrInsertTableTest4");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
+                "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "@from(eventtable = 'hazelcast') " +
@@ -210,7 +210,7 @@ public class InsertOverwriteTableTestCase {
         String query = "" +
                 "@info(name = 'query2') " +
                 "from StockStream " +
-                "insert overwrite StockTableT041 " +
+                "update or insert into StockTableT041 " +
                 "   on StockTableT041.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
@@ -272,12 +272,12 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test(expected = DuplicateDefinitionException.class)
-    public void insertOverwriteTableTest5() throws InterruptedException {
-        log.info("insertOverwriteTableTest5");
+    public void updateOrInsertTableTest5() throws InterruptedException {
+        log.info("updateOrInsertTableTest5");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
+                "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
@@ -291,7 +291,7 @@ public class InsertOverwriteTableTestCase {
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
                 "select comp as symbol, vol as volume " +
-                "insert overwrite StockTableT051 " +
+                "update or insert into StockTableT051 " +
                 "   on StockTableT051.symbol==symbol;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -327,12 +327,12 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest6() throws InterruptedException {
-        log.info("insertOverwriteTableTest6");
+    public void updateOrInsertTableTest6() throws InterruptedException {
+        log.info("updateOrInsertTableTest6");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
+                "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
@@ -341,13 +341,13 @@ public class InsertOverwriteTableTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert overwrite StockTableT061 " +
+                "update or insert into StockTableT061 " +
                 "   on StockTableT061.symbol==symbol;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
                 "select comp as symbol, 0f as price, vol as volume " +
-                "insert overwrite StockTableT061 " +
+                "update or insert into StockTableT061 " +
                 "   on StockTableT061.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
@@ -412,12 +412,12 @@ public class InsertOverwriteTableTestCase {
 
 
     @Test
-    public void insertOverwriteTableTest7() throws InterruptedException {
-        log.info("insertOverwriteTableTest7");
+    public void updateOrInsertTableTest7() throws InterruptedException {
+        log.info("updateOrInsertTableTest7");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
+                "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
@@ -431,7 +431,7 @@ public class InsertOverwriteTableTestCase {
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
                 "select comp as symbol,  0f as price, vol as volume " +
-                "insert overwrite StockTableT071 " +
+                "update or insert into StockTableT071 " +
                 "   on StockTableT071.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
@@ -491,12 +491,12 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest8() throws InterruptedException {
-        log.info("insertOverwriteTableTest8");
+    public void updateOrInsertTableTest8() throws InterruptedException {
+        log.info("updateOrInsertTableTest8");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
+                "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "@from(eventtable = 'hazelcast') " +
@@ -505,7 +505,7 @@ public class InsertOverwriteTableTestCase {
                 "@info(name = 'query2') " +
                 "from StockStream " +
                 "select symbol, price, volume " +
-                "insert overwrite StockTableT081 " +
+                "update or insert into StockTableT081 " +
                 "   on StockTableT081.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
@@ -564,12 +564,12 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest9() throws InterruptedException {
-        log.info("insertOverwriteTableTest9");
+    public void updateOrInsertTableTest9() throws InterruptedException {
+        log.info("updateOrInsertTableTest9");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
+                "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
@@ -584,7 +584,7 @@ public class InsertOverwriteTableTestCase {
                 "from UpdateStockStream left outer join StockTableT091 " +
                 "   on UpdateStockStream.comp == StockTableT091.symbol " +
                 "select symbol, ifThenElse(price is null,0f,price) as price, vol as volume " +
-                "insert overwrite StockTableT091 " +
+                "update or insert into StockTableT091 " +
                 "   on StockTableT091.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
@@ -644,12 +644,12 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest10() throws InterruptedException {
-        log.info("insertOverwriteTableTest10");
+    public void updateOrInsertTableTest10() throws InterruptedException {
+        log.info("updateOrInsertTableTest10");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
+                "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
@@ -664,7 +664,7 @@ public class InsertOverwriteTableTestCase {
                 "from UpdateStockStream left outer join StockTableT101 " +
                 "   on UpdateStockStream.comp == StockTableT101.symbol " +
                 "select comp as symbol, ifThenElse(price is null,0f,price) as price, vol as volume " +
-                "insert overwrite StockTableT101 " +
+                "update or insert into StockTableT101 " +
                 "   on StockTableT101.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +

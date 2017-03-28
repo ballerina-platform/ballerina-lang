@@ -1890,7 +1890,7 @@ public class PrimaryKeyTableTestCase {
                 "from UpdateStockStream left outer join StockTable " +
                 "   on UpdateStockStream.comp == StockTable.symbol " +
                 "select comp as symbol, ifThenElse(price is null,0f,price) as price, vol as volume " +
-                "insert overwrite StockTable " +
+                "update or insert into StockTable " +
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +

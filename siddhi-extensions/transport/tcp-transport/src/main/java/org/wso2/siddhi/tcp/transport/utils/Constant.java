@@ -27,6 +27,7 @@ public final class Constant {
     public static final String DEFAULT_CHARSET = "UTF-8";
     public static final int DEFAULT_RECEIVER_THREADS = 10;
     public static final int DEFAULT_WORKER_THREADS = 10;
+    public static final int DEFAULT_QUEUE_SIZE_OF_TCP_TRANSPORT = 65525;
     public static final int DEFAULT_PORT = 9892;
     public static final String DEFAULT_HOST = "0.0.0.0";
 }

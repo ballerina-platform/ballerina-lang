@@ -103,7 +103,7 @@ public class CachingTable {
         }
     }
 
-    public void overwriteOrAdd(StreamEvent updatingEvent) {
+    public void updateOrAdd(StreamEvent updatingEvent) {
         if (cacheManager.isContains(updatingEvent)) {
             StreamEvent streamEvent = streamEventPool.borrowEvent();
             eventConverter.convertComplexEvent(updatingEvent, streamEvent);

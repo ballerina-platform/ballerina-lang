@@ -23,7 +23,7 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.executor.CollectionExecutor;
 
@@ -82,16 +82,16 @@ public class IndexOperator implements Operator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
+    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk,
                                                     Object storeEvents,
                                                     UpdateAttributeMapper[] updateAttributeMappers,
-                                                    OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        overwritingOrAddingEventChunk.reset();
-        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(overwritingOrAddingEventChunk.isBatch());
+                                                    AddingStreamEventExtractor addingStreamEventExtractor) {
+        updatingOrAddingEventChunk.reset();
+        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(updatingOrAddingEventChunk.isBatch());
 
-        overwritingOrAddingEventChunk.reset();
-        while (overwritingOrAddingEventChunk.hasNext()) {
-            StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+        updatingOrAddingEventChunk.reset();
+        while (updatingOrAddingEventChunk.hasNext()) {
+            StateEvent overwritingOrAddingEvent = updatingOrAddingEventChunk.next();
             StreamEvent streamEvents = collectionExecutor.find(overwritingOrAddingEvent, (IndexedEventHolder) storeEvents, null);
             ComplexEventChunk<StreamEvent> foundEventChunk = new ComplexEventChunk<>(false);
             foundEventChunk.add(streamEvents);
@@ -100,7 +100,7 @@ public class IndexOperator implements Operator {
                 //to reduce number of passes needed to update the events
                 update((IndexedEventHolder) storeEvents, updateAttributeMappers, overwritingOrAddingEvent, foundEventChunk);
             } else {
-                failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
+                failedEventChunk.add(addingStreamEventExtractor.getAddingStreamEvent(overwritingOrAddingEvent));
             }
         }
         return failedEventChunk;

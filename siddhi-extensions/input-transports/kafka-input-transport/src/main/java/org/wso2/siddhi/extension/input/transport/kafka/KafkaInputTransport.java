@@ -59,7 +59,8 @@ public class KafkaInputTransport extends InputTransport{
     private static final String ENTRY_SEPARATOR = ":";
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
+                     ExecutionPlanContext executionPlanContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
         this.executorService = executionPlanContext.getScheduledExecutorService();
@@ -77,8 +78,10 @@ public class KafkaInputTransport extends InputTransport{
         String topicList = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_TOPIC);
         String topics[] = topicList.split(HEADER_SEPARATOR);
         String optionalConfigs = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES, null);
-        consumerKafkaGroup = new ConsumerKafkaGroup(topics, partitions, KafkaInputTransport.createConsumerConfig(zkServerList, groupID, optionalConfigs),
-                topicOffsetMap, threadingOption, this.executorService);
+        consumerKafkaGroup = new ConsumerKafkaGroup(topics, partitions,
+                                                    KafkaInputTransport.createConsumerConfig(zkServerList, groupID,
+                                                                                            optionalConfigs),
+                                                    topicOffsetMap, threadingOption, this.executorService);
         consumerKafkaGroup.run(sourceEventListener);
     }
 
@@ -86,15 +89,35 @@ public class KafkaInputTransport extends InputTransport{
     public void disconnect() {
         if (consumerKafkaGroup != null) {
             consumerKafkaGroup.shutdown();
-            log.debug("Kafka Adapter disconnected for topic/s" + optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_TOPIC));
+            log.debug("Kafka Adapter disconnected for topic/s" +
+                        optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_TOPIC));
         }
     }
 
     @Override
     public void destroy() {
+        consumerKafkaGroup = null;
+    }
+
+    @Override
+    public void pause() {
         if (consumerKafkaGroup != null) {
-            consumerKafkaGroup.shutdown();
-            log.debug("Kafka Adapter disconnected for topic/s" + optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_TOPIC));
+            consumerKafkaGroup.pause();
+            if (log.isDebugEnabled()) {
+                log.debug("Kafka Adapter paused for topic/s" + optionHolder.validateAndGetStaticValue
+                        (ADAPTOR_SUBSCRIBER_TOPIC));
+            }
+        }
+    }
+
+    @Override
+    public void resume() {
+        if (consumerKafkaGroup != null) {
+            consumerKafkaGroup.resume();
+            if (log.isDebugEnabled()) {
+                log.debug("Kafka Adapter resumed for topic/s" + optionHolder.validateAndGetStaticValue
+                        (ADAPTOR_SUBSCRIBER_TOPIC));
+            }
         }
     }
 

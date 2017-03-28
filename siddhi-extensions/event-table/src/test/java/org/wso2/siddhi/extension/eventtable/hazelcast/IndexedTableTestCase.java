@@ -427,7 +427,7 @@ public class IndexedTableTestCase {
                 "from UpdateStockStream left outer join StockTableT061 " +
                 "   on UpdateStockStream.comp == StockTableT061.symbol " +
                 "select symbol, ifThenElse(price is null,0f,price) as price, vol as volume " +
-                "insert overwrite StockTableT061 " +
+                "update or insert into StockTableT061 " +
                 "   on StockTableT061.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
@@ -508,7 +508,7 @@ public class IndexedTableTestCase {
                 "from UpdateStockStream left outer join StockTableT071 " +
                 "   on UpdateStockStream.comp == StockTableT071.symbol " +
                 "select comp as symbol, ifThenElse(price is null,0f,price) as price, vol as volume " +
-                "insert overwrite StockTableT071 " +
+                "update or insert into StockTableT071 " +
                 "   on StockTableT071.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +

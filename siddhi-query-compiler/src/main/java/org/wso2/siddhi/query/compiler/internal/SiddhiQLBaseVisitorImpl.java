@@ -1143,7 +1143,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public OutputStream visitQuery_output(@NotNull SiddhiQLParser.Query_outputContext ctx) {
 //        query_output
-//        :INSERT OVERWRITE? output_event_type? INTO target
+//        :INSERT output_event_type? INTO target
+//        |UPDATE OR INTO INSERT INTO output_event_type? INTO target
 //        |DELETE target (FOR output_event_type)? (ON expression)?
 //        |UPDATE target (FOR output_event_type)? (ON expression)?
 //        |RETURN output_event_type?
@@ -1151,16 +1152,16 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
         if (ctx.INSERT() != null) {
             Source source = (Source) visit(ctx.target());
-            if (ctx.OVERWRITE() != null) {
+            if (ctx.UPDATE() != null && ctx.OR() != null) {
                 if (source.isInnerStream) {
-                    throw newSiddhiParserException(ctx, "INSERT OVERWRITE INTO can be only used with EventTables!");
+                    throw newSiddhiParserException(ctx, "UPDATE OR INTO INSERT be only used with EventTables!");
                 }
                 if (ctx.output_event_type() != null) {
-                    return new InsertOverwriteStream(source.streamId,
+                    return new UpdateOrInsertStream(source.streamId,
                             (OutputStream.OutputEventType) visit(ctx.output_event_type()),
                             (Expression) visit(ctx.expression()));
                 } else {
-                    return new InsertOverwriteStream(source.streamId, (Expression) visit(ctx.expression()));
+                    return new UpdateOrInsertStream(source.streamId, (Expression) visit(ctx.expression()));
                 }
             } else {
                 if (ctx.output_event_type() != null) {

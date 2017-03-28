@@ -34,7 +34,7 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
@@ -265,14 +265,14 @@ public class RDBMSEventTable implements EventTable {
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
-                               CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers,
-                               OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        ((Operator) compiledCondition).overwrite(overwritingOrAddingEventChunk, null, null,
-                overwritingStreamEventExtractor);
+    public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
+                            CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers,
+                            AddingStreamEventExtractor addingStreamEventExtractor) {
+        ((Operator) compiledCondition).tryUpdate(updateOrAddingEventChunk, null, null,
+                addingStreamEventExtractor);
         if (isCachingEnabled) {
-            ((RDBMSOperator) compiledCondition).getInMemoryEventTableOperator().overwrite(overwritingOrAddingEventChunk,
-                    cachedTable.getCacheList(), updateAttributeMappers, overwritingStreamEventExtractor);
+            ((RDBMSOperator) compiledCondition).getInMemoryEventTableOperator().tryUpdate(updateOrAddingEventChunk,
+                    cachedTable.getCacheList(), updateAttributeMappers, addingStreamEventExtractor);
         }
     }
 

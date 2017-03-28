@@ -4,7 +4,7 @@ package org.wso2.siddhi.core.table.record;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.condition.*;
 
-interface ConditionVisitor {
+public interface ConditionVisitor {
 
     enum MathOperator {ADD, DIVIDE, MULTIPLY, SUBTRACT, MOD}
 
