@@ -26,9 +26,7 @@ import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.tcp.transport.TcpNettyServer;
 import org.wso2.siddhi.tcp.transport.callback.StreamListener;
-import org.wso2.siddhi.tcp.transport.config.ServerConfig;
 
 import java.util.Map;
 
@@ -37,32 +35,29 @@ import java.util.Map;
         namespace = "inputtransport",
         description = ""
 )
-public class TcpInputTransport extends InputTransport {
-    static String HOST = "host";
-    static String PORT = "port";
-    static String WORKER_THREADS = "workerThreads";
-    static String RECEIVER_THREADS = "receiverThreads";
+public class TCPInputTransport extends InputTransport {
+    static String CONTEXT = "context";
 
-    private ServerConfig serverConfig;
-    private TcpNettyServer tcpNettyServer;
     private SourceEventListener sourceEventListener;
+    private String context;
+    private StreamDefinition streamDefinition;
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
         this.sourceEventListener = sourceEventListener;
-        serverConfig = new ServerConfig();
-        serverConfig.setHost(optionHolder.validateAndGetStaticValue(HOST, serverConfig.getHost()));
-        serverConfig.setPort(Integer.parseInt(optionHolder.validateAndGetStaticValue(PORT,
-                Integer.toString(serverConfig.getPort()))));
-        serverConfig.setReceiverThreads(Integer.parseInt(optionHolder.validateAndGetStaticValue(RECEIVER_THREADS,
-                Integer.toString(serverConfig.getReceiverThreads()))));
-        serverConfig.setWorkerThreads(Integer.parseInt(optionHolder.validateAndGetStaticValue(WORKER_THREADS,
-                Integer.toString(serverConfig.getWorkerThreads()))));
-        tcpNettyServer = new TcpNettyServer();
-        tcpNettyServer.addStreamListener(new StreamListener() {
+        context = optionHolder.validateAndGetStaticValue(CONTEXT,
+                executionPlanContext.getName() + "/" + sourceEventListener.getStreamDefinition().getId());
+        streamDefinition = StreamDefinition.id(context);
+        streamDefinition.getAttributeList().addAll(sourceEventListener.getStreamDefinition().getAttributeList());
+    }
+
+    @Override
+    public void connect() throws ConnectionUnavailableException {
+        TCPServer.getInstance().start();
+        TCPServer.getInstance().addStreamListener(new StreamListener() {
             @Override
             public StreamDefinition getStreamDefinition() {
-                return sourceEventListener.getStreamDefinition();
+                return streamDefinition;
             }
 
             @Override
@@ -78,19 +73,13 @@ public class TcpInputTransport extends InputTransport {
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
-        tcpNettyServer.bootServer(serverConfig);
-    }
-
-    @Override
     public void disconnect() {
-        tcpNettyServer.shutdownGracefully();
+        TCPServer.getInstance().removeStreamListener(streamDefinition.getId());
     }
 
     @Override
     public void destroy() {
-        tcpNettyServer.removeStreamListener(sourceEventListener.getStreamDefinition().getId());
-        tcpNettyServer = null;
+        TCPServer.getInstance().stop();
     }
 
     @Override

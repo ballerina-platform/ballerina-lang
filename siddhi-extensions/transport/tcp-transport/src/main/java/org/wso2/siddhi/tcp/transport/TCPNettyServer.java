@@ -30,8 +30,8 @@ import org.wso2.siddhi.tcp.transport.config.ServerConfig;
 import org.wso2.siddhi.tcp.transport.handlers.EventDecoder;
 import org.wso2.siddhi.tcp.transport.utils.StreamTypeHolder;
 
-public class TcpNettyServer {
-    private static final Logger log = Logger.getLogger(TcpNettyServer.class);
+public class TCPNettyServer {
+    private static final Logger log = Logger.getLogger(TCPNettyServer.class);
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private StreamTypeHolder streamInfoHolder = new StreamTypeHolder();
@@ -42,7 +42,7 @@ public class TcpNettyServer {
         StreamDefinition streamDefinition = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.INT);
 
-        TcpNettyServer tcpNettyServer = new TcpNettyServer();
+        TCPNettyServer tcpNettyServer = new TCPNettyServer();
         tcpNettyServer.addStreamListener(new LogStreamListener(streamDefinition));
 //        tcpNettyServer.addStreamListener(new StatisticsStreamListener(streamDefinition));
 
@@ -92,13 +92,16 @@ public class TcpNettyServer {
 
     }
 
-    public void addStreamListener(StreamListener streamListener) {
+    public synchronized void addStreamListener(StreamListener streamListener) {
         streamInfoHolder.putStreamCallback(streamListener);
     }
 
-    public void removeStreamListener(String streamId) {
+    public synchronized void removeStreamListener(String streamId) {
         streamInfoHolder.removeStreamCallback(streamId);
+    }
 
+    public synchronized int getNoOfRegisteredStreamListeners() {
+        return streamInfoHolder.getNoOfRegisteredStreamListeners();
     }
 
 }

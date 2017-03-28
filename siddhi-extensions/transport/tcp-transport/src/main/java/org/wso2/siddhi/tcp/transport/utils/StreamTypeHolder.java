@@ -41,4 +41,7 @@ public class StreamTypeHolder {
         this.streamInfoMap.remove(streamId);
     }
 
+    public int getNoOfRegisteredStreamListeners() {
+        return streamInfoMap.size();
+    }
 }
