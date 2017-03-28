@@ -22,18 +22,14 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class OptionHolder {
 
-    private  Map<String, Option> options = new HashMap<>();
-    private  Extension extension;
-    private  Set<String> dynamicOptionsKeys = new HashSet<>();
-    private  Set<String> staticOptionsKeys = new HashSet<>();
-
+    private Map<String, Option> options = new HashMap<>();
+    private Extension extension;
+    private Set<String> dynamicOptionsKeys = new HashSet<>();
+    private Set<String> staticOptionsKeys = new HashSet<>();
 
     public OptionHolder(StreamDefinition streamDefinition, Map<String, String> staticOptions,
                         Map<String, String> dynamicOptions, Extension extension) {
@@ -63,6 +59,16 @@ public class OptionHolder {
         Option option = options.get(optionKey);
         if (option == null) {
             option = new Option(optionKey, defaultValue, null);
+        }
+        return option;
+    }
+
+    public Option getOrAddStaticOption(String optionKey, String value) {
+        Option option = options.get(optionKey);
+        if (option == null) {
+            option = new Option(optionKey, value, null);
+            options.put(optionKey, option);
+
         }
         return option;
     }

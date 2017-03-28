@@ -128,6 +128,7 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
 
     public void shutdown() {
         tryConnect = false;
+        isConnected = false;
         disconnect();
         destroy();
     }

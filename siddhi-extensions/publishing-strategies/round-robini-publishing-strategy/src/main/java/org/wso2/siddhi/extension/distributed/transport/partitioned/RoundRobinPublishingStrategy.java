@@ -43,6 +43,7 @@ public class RoundRobinPublishingStrategy extends PublishingStrategy {
     private int count = 0;
     private int destinationCount;
     private List<Integer> returnValue = new ArrayList<>();
+    private static final List<Integer> EMPTY_RETURN_VALUE = new ArrayList<>();
 
     /**
      * Initialize actual publishingStrategy implementations. Required information for publishingStrategy implementation can be fetched
@@ -64,6 +65,10 @@ public class RoundRobinPublishingStrategy extends PublishingStrategy {
      */
     @Override
     public List<Integer> getDestinationsToPublish(Object payload, DynamicOptions transportOptions) {
+        if (isSuspended){
+            return EMPTY_RETURN_VALUE;
+        }
+
         int currentDestinationCount = destinationIds.size();
         if (destinationCount != currentDestinationCount){
             destinationCount = currentDestinationCount;
