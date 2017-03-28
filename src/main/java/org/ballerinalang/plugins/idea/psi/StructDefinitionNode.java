@@ -36,7 +36,7 @@ public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeN
     @Override
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//structField/Identifier");
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
         }
         return null;
     }

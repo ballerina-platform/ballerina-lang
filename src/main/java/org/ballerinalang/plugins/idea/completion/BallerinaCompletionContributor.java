@@ -448,7 +448,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 if (":".equals(prevToken.getText())) {
 
                     PsiElement prevElement = file.findElementAt(parameters.getOffset() - 2);
-
+                    if (prevElement == null) {
+                        return;
+                    }
                     // Get all imported packages in current file
                     List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
                     for (PsiElement pack : packages) {
@@ -541,10 +543,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 PsiElement temp = prevToken;
                 while (temp != null && !(temp instanceof PsiFile)) {
                     temp = temp.getParent();
-//                    if (temp instanceof MapStructInitKeyValueNode) {
-//                        //Todo - Get all fields from struct or map
-//                        return;
-//                    }
+                    //Todo - Get all fields from struct or map
                 }
 
                 // prevToken.getParent().getFirstChild()

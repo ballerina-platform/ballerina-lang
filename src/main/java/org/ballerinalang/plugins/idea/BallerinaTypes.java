@@ -64,18 +64,12 @@ public class BallerinaTypes {
     public static RuleIElementType TYPE_MAPPER_BODY = ruleIElementTypes.get(BallerinaParser.RULE_typeMapperBody);
     public static RuleIElementType WORKER_DECLARATION = ruleIElementTypes.get(BallerinaParser.RULE_workerDeclaration);
 
-//    public static RuleIElementType ARGUMENT_LIST = ruleIElementTypes.get(BallerinaParser.RULE_argumentList);
     public static RuleIElementType PARAMETER_LIST = ruleIElementTypes.get(BallerinaParser.RULE_parameterList);
     public static RuleIElementType EXPRESSION_LIST = ruleIElementTypes.get(BallerinaParser.RULE_expressionList);
     public static RuleIElementType RETURN_TYPE_LIST = ruleIElementTypes.get(BallerinaParser.RULE_returnTypeList);
     public static RuleIElementType TYPE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_typeName);
-//    public static RuleIElementType ANNOTATION_NAME = ruleIElementTypes.get(BallerinaParser.RULE_annotationName);
-//    public static RuleIElementType ANNOTATION = ruleIElementTypes.get(BallerinaParser.RULE_annotation);
     public static RuleIElementType EXPRESSION = ruleIElementTypes.get(BallerinaParser.RULE_expression);
     public static RuleIElementType RETURN_PARAMETERS = ruleIElementTypes.get(BallerinaParser.RULE_returnParameters);
-//    public static RuleIElementType TYPE_MAPPER_TYPE = ruleIElementTypes.get(BallerinaParser.RULE_typeMapperType);
-
-//    public static RuleIElementType ELEMENT_VALUE_PAIR = ruleIElementTypes.get(BallerinaParser.RULE_elementValuePair);
 
     // Keywords
     public static TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);

@@ -58,13 +58,6 @@ public class NameReference extends BallerinaElementReference {
         return new Object[0];
     }
 
-//    @Nullable
-//    @Override
-//    public PsiElement resolve() {
-//        ResolveResult[] resolveResults = multiResolve(false);
-//        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
-//    }
-
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {

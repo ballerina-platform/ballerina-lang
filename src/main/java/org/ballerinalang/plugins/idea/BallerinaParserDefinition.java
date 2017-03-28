@@ -128,8 +128,6 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 //                if ( root instanceof IFileElementType ) {
                 return ((BallerinaParser) parser).compilationUnit();
                 //                }
-                // let's hope it's an ID as needed by "rename function"
-                //                return ((BallerinaParser) parser).primary();
             }
         };
     }
@@ -204,16 +202,12 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ExpressionNode(node);
             case BallerinaParser.RULE_functionInvocationStatement:
                 return new FunctionInvocationStatementNode(node);
-//            case BallerinaParser.RULE_argumentList:
-//                return new ArgumentListNode(node);
             case BallerinaParser.RULE_compilationUnit:
                 return new CompilationUnitNode(node);
             case BallerinaParser.RULE_packageDeclaration:
                 return new PackageDeclarationNode(node);
             case BallerinaParser.RULE_annotationAttachment:
                 return new AnnotationAttachmentNode(node);
-//            case BallerinaParser.RULE_annotationName:
-//                return new AnnotationNameNode(node);
             case BallerinaParser.RULE_serviceBody:
                 return new ServiceBodyNode(node);
             case BallerinaParser.RULE_importDeclaration:
@@ -222,42 +216,26 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new StatementNode(node);
             case BallerinaParser.RULE_typeName:
                 return new TypeNameNode(node);
-//            case BallerinaParser.RULE_qualifiedTypeName:
-//                return new QualifiedTypeNameNode(node);
             case BallerinaParser.RULE_actionInvocation:
                 return new ActionInvocationNode(node);
             case BallerinaParser.RULE_constantDefinition:
                 return new ConstantDefinitionNode(node);
             case BallerinaParser.RULE_structDefinition:
                 return new StructDefinitionNode(node);
-//            case BallerinaParser.RULE_namedParameter:
-//                return new NamedParameterNode(node);
             case BallerinaParser.RULE_simpleLiteral:
                 return new SimpleLiteralNode(node);
             case BallerinaParser.RULE_alias:
                 return new AliasNode(node);
-//            case BallerinaParser.RULE_mapStructInitKeyValueList:
-//                return new MapStructInitKeyValueListNode(node);
-//            case BallerinaParser.RULE_mapStructInitKeyValue:
-//                return new MapStructInitKeyValueNode(node);
             case BallerinaParser.RULE_parameterList:
                 return new ParameterListNode(node);
-//            case BallerinaParser.RULE_functionName:
-//                return new FunctionName(node);
-//            case BallerinaParser.RULE_typeName:
-//                return new TypeNameNode(node);
             case BallerinaParser.RULE_typeMapperDefinition:
                 return new TypeMapperNode(node);
             case BallerinaParser.RULE_typeMapperBody:
                 return new TypeMapperBodyNode(node);
             case BallerinaParser.RULE_fieldDefinition:
                 return new FieldDefinitionNode(node);
-//            case BallerinaParser.RULE_typeName:
-//                return new TypeName(node);
             case BallerinaParser.RULE_returnTypeList:
                 return new ReturnTypeListNode(node);
-//            case BallerinaParser.RULE_nameReference:
-//                return new NameReferenceNode(node);
             case BallerinaParser.RULE_connectorInitExpression:
                 return new ConnectorInitExpressionNode(node);
             default:

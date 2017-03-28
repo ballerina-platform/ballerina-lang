@@ -166,9 +166,6 @@ public class BallerinaPsiImplUtil {
     public static List<PsiElement> getAllFunctions(PsiElement element) {
         ArrayList<PsiElement> results = new ArrayList<>();
         PsiFile file = element.getContainingFile();
-        //        Collection ruleSpecNodes =
-        //                PsiTreeUtil.findChildrenOfAnyType(file,
-        //                        FunctionDefinitionNode.class);
         Collection<? extends PsiElement> all = XPath.findAll(BallerinaLanguage.INSTANCE, file,
                 "//functionDefinition/Identifier");
 
@@ -177,14 +174,13 @@ public class BallerinaPsiImplUtil {
                 results.add(psiElement);
             }
         }
-        //        IntellijIdeaRulezzz
         return results;
     }
 
     public static ArrayList<PsiElement> getAllImportedPackages(PsiElement element) {
         PsiFile file = element.getContainingFile();
 
-        Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfAnyType(file,
+        Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfType(file,
                 ImportDeclarationNode.class);
         ArrayList<PsiElement> filteredPackages = new ArrayList<>();
 
@@ -379,7 +375,7 @@ public class BallerinaPsiImplUtil {
     @Nullable
     private static List<VirtualFile> suggestDirectory(VirtualFile root, List<PsiElement> packages) {
         List<VirtualFile> results = new ArrayList<>();
-        VirtualFile match = null;
+        VirtualFile match;
         int count = 1;
         for (PsiElement element : packages) {
             if (count == packages.size()) {
