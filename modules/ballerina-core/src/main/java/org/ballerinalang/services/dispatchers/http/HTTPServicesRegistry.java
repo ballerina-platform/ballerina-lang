@@ -90,7 +90,8 @@ public class HTTPServicesRegistry {
                     listenerInterface = sourceInterfaceVal;
                 }
             } else if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
-                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH) &&
+                       annotation.getValue() != null && !annotation.getValue().trim().isEmpty()) {
                 basePath = annotation.getValue();
             }
         }
@@ -144,7 +145,8 @@ public class HTTPServicesRegistry {
                     listenerInterface = sourceInterfaceVal;
                 }
             } else if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
-                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH) &&
+                       annotation.getValue() != null && !annotation.getValue().trim().isEmpty()) {
                 basePath = annotation.getValue();
             }
         }
@@ -188,7 +190,8 @@ public class HTTPServicesRegistry {
                     listenerInterface = sourceInterfaceVal;
                 }
             } else if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
-                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH) &&
+                       annotation.getValue() != null && !annotation.getValue().trim().isEmpty()) {
                 basePath = annotation.getValue();
             }
         }
