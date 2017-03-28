@@ -18,15 +18,12 @@
 
 package org.wso2.siddhi.extension.output.transport.kafka;
 
-import org.apache.kafka.clients.producer.Producer;
-import kafka.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
@@ -36,7 +33,8 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
 
 @Extension(
         name = "kafka",
@@ -125,7 +123,7 @@ public class KafkaOutputTransport extends OutputTransport {
 
     @Override
     public String[] getSupportedDynamicOptions() {
-        return new String[0];
+        return new String[]{ADAPTOR_PUBLISH_TOPIC, KAFKA_PARTITION_NO};
     }
 
     @Override
