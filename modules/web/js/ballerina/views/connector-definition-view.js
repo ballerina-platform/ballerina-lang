@@ -48,7 +48,7 @@ class ConnectorDefinitionView extends SVGCanvas {
         this._viewOptions.LifeLineCenterGap = 180;
         this._actionViewList = _.get(args, 'actionViewList', []);
         this._parentView = _.get(args, 'parentView');
-        this._viewOptions.offsetTop = _.get(args, 'viewOptionsOffsetTop', 50);
+        this._viewOptions.offsetTop = _.get(args, 'viewOptionsOffsetTop', 75);
         this._viewOptions.topBottomTotalGap = _.get(args, 'viewOptionsTopBottomTotalGap', 100);
         //set panel icon for the connector
         this._viewOptions.panelIcon = _.get(args.viewOptions, 'cssClass.connector_icon');
@@ -56,6 +56,7 @@ class ConnectorDefinitionView extends SVGCanvas {
         this._totalHeight = 170;
         //set initial connector margin for the connector definition
         this._lifelineMargin = new Axis(210, false);
+        this._topHorizontalMargin = new Axis(35, true);
         this._viewOptions.minLifeLinePosition = 700;
 
         if (_.isNil(this._model) || !(this._model instanceof ConnectorDefinition)) {
@@ -267,6 +268,12 @@ class ConnectorDefinitionView extends SVGCanvas {
 
         var variableDefinitionsPaneView = new VariableDefinitionsPaneView(variableProperties);
         variableDefinitionsPaneView.createVariablePane();
+        $('.variables-content-wrapper').on('contentWrapperShown', (event, data) => {
+            this.getTopHorizontalMargin().setPosition(this.getTopHorizontalMargin().getPosition() + data);
+        });
+        $('.variables-content-wrapper').on('contentWrapperHidden', (event) => {
+            this.getTopHorizontalMargin().setPosition(35);
+        });
 
         var argumentsProperties = {
             model: this._model,
@@ -367,6 +374,9 @@ class ConnectorDefinitionView extends SVGCanvas {
         else {
             connectorActionView = new ConnectorActionView({model: connectorAction, container: actionContainer,
                 toolPalette: this.toolPalette,messageManager: this.messageManager, parentView: this});
+            connectorActionView.listenTo(this.getTopHorizontalMargin(), 'moved', function (offset) {
+                connectorActionView.getBoundingBox().move(0, offset);
+            });
         }
         this.diagramRenderingContext.getViewModelMap()[connectorAction.id] = connectorActionView;
 
@@ -420,6 +430,10 @@ class ConnectorDefinitionView extends SVGCanvas {
         this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
 
         connectorDeclarationView.render();
+
+        connectorDeclarationView.listenTo(this.getTopHorizontalMargin(), 'moved', function (offset) {
+            connectorDeclarationView.getBoundingBox().move(0, offset);
+        });
 
         connectorDeclarationView.createPropertyPane();
 
@@ -513,7 +527,12 @@ class ConnectorDefinitionView extends SVGCanvas {
                     // as well as the unPlugView does. If this event is not un registered before the lifeLineMargin
                     // re positioning twice we will try to adjust the container widths by throwing errors
                     childView.stopListening(this.getLifeLineMargin());
+                    childView.stopListening(this.getTopHorizontalMargin());
                     this.getLifeLineMargin().setPosition(0);
+                } else {
+                    nextAction.listenTo(this.getTopHorizontalMargin(), 'moved', function (offset) {
+                        nextAction.getBoundingBox().move(0, offset);
+                    });
                 }
             } else if (_.isNil(nextAction)) {
                 // We have deleted the last action having a previous action
@@ -587,7 +606,15 @@ class ConnectorDefinitionView extends SVGCanvas {
             return !_.isNil(lifeline) ? lifeline.getBoundingBox().getRight() : -1;
         });
         return _.last(sortedFarthestLifeLineArr);
-    };
+    }
+
+    getTopHorizontalMargin() {
+        return this._topHorizontalMargin;
+    }
+
+    setTopHorizontalMargin(position) {
+        this._topHorizontalMargin.setPosition(position);
+    }
 }
 
 export default ConnectorDefinitionView;

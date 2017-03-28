@@ -46,7 +46,7 @@ class ServiceDefinitionView extends SVGCanvas {
         this._viewOptions.LifeLineCenterGap = 180;
         this._resourceViewList = _.get(args, 'resourceViewList', []);
         this._parentView = _.get(args, 'parentView');
-        this._viewOptions.offsetTop = _.get(args, 'viewOptionsOffsetTop', 50);
+        this._viewOptions.offsetTop = _.get(args, 'viewOptionsOffsetTop', 75);
         this._viewOptions.topBottomTotalGap = _.get(args, 'viewOptionsTopBottomTotalGap', 100);
         this._viewOptions.panelIcon = _.get(args.viewOptions, 'cssClass.service_icon');
         this._viewOptions.minHeight = _.get(args, 'minHeight', 300);
@@ -54,6 +54,7 @@ class ServiceDefinitionView extends SVGCanvas {
         this._totalHeight = 170;
         //set initial connector margin for the service
         this._lifelineMargin = new Axis(0, false);
+        this._topHorizontalMargin = new Axis(35, true);
         this._viewOptions.minLifeLinePosition = _.get(args, 'minLifeLinePosition', 700);
 
         if (_.isNil(this._model) || !(this._model instanceof ServiceDefinition)) {
@@ -251,6 +252,12 @@ class ServiceDefinitionView extends SVGCanvas {
 
         var variableDefinitionsPaneView = new VariableDefinitionsPaneView(variableProperties);
         variableDefinitionsPaneView.createVariablePane();
+        $('.variables-content-wrapper').on('contentWrapperShown', (event, data) => {
+            this.getTopHorizontalMargin().setPosition(this.getTopHorizontalMargin().getPosition() + data);
+        });
+        $('.variables-content-wrapper').on('contentWrapperHidden', (event) => {
+            this.getTopHorizontalMargin().setPosition(35);
+        });
 
         this.setSVGWidth(this._container.width());
         new AnnotationView().createAnnotationPane(annotationProperties);
@@ -345,6 +352,9 @@ class ServiceDefinitionView extends SVGCanvas {
         else {
             resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition, container: resourceContainer,
                 toolPalette: this.toolPalette,messageManager: this.messageManager, parentView: this});
+            resourceDefinitionView.listenTo(this.getTopHorizontalMargin(), 'moved', function (offset) {
+                resourceDefinitionView.getBoundingBox().move(0, offset);
+            });
         }
         this.diagramRenderingContext.getViewModelMap()[resourceDefinition.id] = resourceDefinitionView;
 
@@ -403,6 +413,10 @@ class ServiceDefinitionView extends SVGCanvas {
         connectorDeclarationView.setParent(this);
 
         connectorDeclarationView.render();
+
+        connectorDeclarationView.listenTo(this.getTopHorizontalMargin(), 'moved', function (offset) {
+            connectorDeclarationView.getBoundingBox().move(0, offset);
+        });
 
         if (this._connectorViewList.length === 0) {
             // Always the first connector is listening to the lifeline margin
@@ -493,7 +507,12 @@ class ServiceDefinitionView extends SVGCanvas {
                     // as well as the unPlugView does. If this event is not un registered before the lifeLineMargin
                     // re positioning twice we will try to adjust the container widths by throwing errors
                     childView.stopListening(this.getLifeLineMargin());
+                    childView.stopListening(this.getTopHorizontalMargin());
                     this.getLifeLineMargin().setPosition(0);
+                } else {
+                    nextResource.listenTo(this.getTopHorizontalMargin(), 'moved', function (offset) {
+                        nextResource.getBoundingBox().move(0, offset);
+                    });
                 }
             } else if (_.isNil(nextResource)) {
                 // We have deleted the last resource having a previous resource
@@ -570,6 +589,14 @@ class ServiceDefinitionView extends SVGCanvas {
             return !_.isNil(lifeline) ? lifeline.getBoundingBox().getRight() : -1;
         });
         return _.last(sortedFarthestLifeLineArr);
+    }
+
+    getTopHorizontalMargin() {
+        return this._topHorizontalMargin;
+    }
+
+    setTopHorizontalMargin(position) {
+        this._topHorizontalMargin.setPosition(position);
     }
 }
 

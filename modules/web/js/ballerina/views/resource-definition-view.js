@@ -68,7 +68,7 @@ class ResourceDefinitionView extends BallerinaView {
         }
 
         // Center point of the resource
-        this._viewOptions.topLeft = _.get(args, "viewOptions.topLeft", new Point(50, 100));
+        this._viewOptions.topLeft = _.get(args, "viewOptions.topLeft", new Point(50, 125));
         this._viewOptions.startActionOffSet = _.get(args, "viewOptions.startActionOffSet", 60);
 
         // center point for the client lifeline
