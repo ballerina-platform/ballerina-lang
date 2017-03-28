@@ -811,7 +811,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rExpr == null) {
             return;
         }
-
+        //todo any type support for RefTypeInitExpr
         if (rExpr instanceof RefTypeInitExpr) {
             RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
 
@@ -856,6 +856,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         visitSingleValueExpr(rExpr);
+        if (varBType == BTypes.typeAny) {
+            return;
+        }
         BType rType = rExpr.getType();
         if (rExpr instanceof TypeCastExpression && rType == null) {
             rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
@@ -892,6 +895,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = assignStmt.getLExprs()[0];
         BType lExprType = lExpr.getType();
 
+        //todo any type support for RefTypeInitExpr
         if (rExpr instanceof RefTypeInitExpr) {
             RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
 
@@ -909,6 +913,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         visitSingleValueExpr(rExpr);
+        if (lExprType == BTypes.typeAny) {
+            return;
+        }
         BType rType = rExpr.getType();
         if (rExpr instanceof TypeCastExpression && rType == null) {
             rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
@@ -2094,7 +2101,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (int i = 0; i < lExprs.length; i++) {
             Expression lExpr = lExprs[i];
             BType returnType = returnTypes[i];
-            if (!lExpr.getType().equals(returnType)) {
+            if ((lExpr.getType() != BTypes.typeAny) && (!lExpr.getType().equals(returnType))) {
                 String varName = getVarNameFromExpression(lExpr);
                 BLangExceptionHelper.throwSemanticError(assignStmt,
                         SemanticErrors.CANNOT_ASSIGN_IN_MULTIPLE_ASSIGNMENT, returnType, varName, lExpr.getType());
