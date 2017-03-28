@@ -36,8 +36,8 @@ import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
+import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
-import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -122,13 +122,35 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         if (")".equals(element.getText())) {
             element = context.getFile().findElementAt(context.getOffset() - 1);
         }
-        PsiElement expressionListNode = PsiTreeUtil.getParentOfType(element, ExpressionListNode.class);
+        PsiElement node = PsiTreeUtil.getParentOfType(element, ExpressionListNode.class);
         // ExpressionListNode can be null if there are no arguments provided.
-        if (expressionListNode != null) {
-            return expressionListNode;
+        if (node != null) {
+            return node;
         }
-        // So we return the FunctionInvocationStatementNode in that case.
-        return PsiTreeUtil.getParentOfType(element, FunctionInvocationStatementNode.class);
+        // So we check return the FunctionInvocationStatementNode in that case.
+        node = PsiTreeUtil.getParentOfType(element, FunctionInvocationStatementNode.class);
+        if (node != null) {
+            return node;
+        }
+        // If FunctionInvocationStatementNode is null, we check return the ActionInvocationNode in that case.
+        node = PsiTreeUtil.getParentOfType(element, ActionInvocationNode.class);
+        if (node != null) {
+            return node;
+        }
+        // If ActionInvocationNode is null, we check return the ConnectorInitExpressionNode in that case.
+        node = PsiTreeUtil.getParentOfType(element, ConnectorInitExpressionNode.class);
+        if (node != null) {
+            return node;
+        }
+        // If the node is still null and the current element is (, that means we are at a empty (). So we check for
+        // any expression node parent.
+        if (element != null && "(".equals(element.getText())) {
+            node = PsiTreeUtil.getParentOfType(element, ExpressionNode.class);
+        }
+        if (node != null) {
+            return node;
+        }
+        return null;
     }
 
     @Override
@@ -157,14 +179,31 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 // So if the parent is null, we consider the ActionInvocationNode as the parent node.
                 parent = PsiTreeUtil.getParentOfType(expressionListNode, ConnectorInitExpressionNode.class);
             }
-            // Still if the parent is null, we return from the method since we cannot process the current node.
             if (parent == null) {
-                return;
+                // So if the parent is null, we consider the ActionInvocationNode as the parent node.
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionNode.class);
             }
+
+            if (parent == null) {
+                parent = expressionListNode;
+            }
+            // Still if the parent is null, we return from the method since we cannot process the current node.
+//            if (parent == null) {
+//                return;
+//            }
             setItemsToShow(expressionListNode, parent, context);
         } else if (element instanceof FunctionInvocationStatementNode) {
             FunctionInvocationStatementNode functionInvocationStatementNode = (FunctionInvocationStatementNode) element;
             setItemsToShow(functionInvocationStatementNode, functionInvocationStatementNode, context);
+        } else if (element instanceof ActionInvocationNode) {
+            ActionInvocationNode actionInvocationNode = (ActionInvocationNode) element;
+            setItemsToShow(actionInvocationNode, actionInvocationNode, context);
+        } else if (element instanceof ConnectorInitExpressionNode) {
+            ConnectorInitExpressionNode connectorInitExpressionNode = (ConnectorInitExpressionNode) element;
+            setItemsToShow(connectorInitExpressionNode, connectorInitExpressionNode, context);
+        } else if (element instanceof ExpressionNode) {
+            ExpressionNode expressionNode = (ExpressionNode) element;
+            setItemsToShow(expressionNode, expressionNode, context);
         }
     }
 
@@ -179,7 +218,9 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
         } else if (parent instanceof ActionInvocationNode) {
             namedIdentifierDefNode = parent;
-        }else if(parent instanceof ConnectorInitExpressionNode){
+        } else if (parent instanceof ConnectorInitExpressionNode) {
+            namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
+        } else if (parent instanceof ExpressionNode) {
             namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
         }
 
@@ -289,13 +330,35 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         if (")".equals(element.getText())) {
             element = context.getFile().findElementAt(context.getOffset() - 1);
         }
-        PsiElement expressionListNode = PsiTreeUtil.getParentOfType(element, ExpressionListNode.class);
+        PsiElement node = PsiTreeUtil.getParentOfType(element, ExpressionListNode.class);
         // ExpressionListNode can be null if there are no arguments provided.
-        if (expressionListNode != null) {
-            return expressionListNode;
+        if (node != null) {
+            return node;
         }
-        // So we return the FunctionInvocationStatementNode in that case.
-        return PsiTreeUtil.getParentOfType(element, FunctionInvocationStatementNode.class);
+        // So we check return the FunctionInvocationStatementNode in that case.
+        node = PsiTreeUtil.getParentOfType(element, FunctionInvocationStatementNode.class);
+        if (node != null) {
+            return node;
+        }
+        // If FunctionInvocationStatementNode is null, we check return the ActionInvocationNode in that case.
+        node = PsiTreeUtil.getParentOfType(element, ActionInvocationNode.class);
+        if (node != null) {
+            return node;
+        }
+        // If ActionInvocationNode is null, we check return the ConnectorInitExpressionNode in that case.
+        node = PsiTreeUtil.getParentOfType(element, ConnectorInitExpressionNode.class);
+        if (node != null) {
+            return node;
+        }
+        // If the node is still null and the current element is (, that means we are at a empty (). So we check for
+        // any expression node parent.
+        if (element != null && "(".equals(element.getText())) {
+            node = PsiTreeUtil.getParentOfType(element, ExpressionNode.class);
+        }
+        if (node != null) {
+            return node;
+        }
+        return null;
     }
 
     @Override
