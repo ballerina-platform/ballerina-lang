@@ -26,7 +26,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createResourceDefTool = {
             id: "resource",
             name: "Resource",
-            icon: "images/tool-icons/resource.svg",
+            iconSrc: require("images/tool-icons/resource.svg"),
             title: "Resource",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createResourceDefinition
         };
@@ -34,7 +34,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createServiceDefTool = {
             id: "service",
             name: "Service",
-            icon: "images/tool-icons/service.svg",
+            iconSrc: require("images/tool-icons/service.svg"),
             title: "Service",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createServiceDefinition
         };
@@ -42,7 +42,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createFunctionDefTool = {
             id: "function",
             name: "Function",
-            icon: "images/tool-icons/function.svg",
+            iconSrc: require("images/tool-icons/function.svg"),
             title: "Function",
             nodeFactoryMethod:  BallerinaASTFactory.createFunctionDefinition
         };
@@ -59,7 +59,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
                     }
                 ]
             },
-            icon: "images/tool-icons/main-function.svg",
+            iconSrc: require("images/tool-icons/main-function.svg"),
             title: "Main Function",
             nodeFactoryMethod:  DefaultBallerinaASTFactory.createMainFunctionDefinition
         };
@@ -67,7 +67,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createConnectorDefTool = {
             id: "connectorDefinition",
             name: "Connector Definition",
-            icon: "images/tool-icons/connector.svg",
+            iconSrc: require("images/tool-icons/connector.svg"),
             title: "Connector Definition",
             nodeFactoryMethod:  DefaultBallerinaASTFactory.createConnectorDefinition
         };
@@ -75,7 +75,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createConnectorActionTool = {
             id: "connectorAction",
             name: "Connector Action",
-            icon: "images/tool-icons/action.svg",
+            iconSrc: require("images/tool-icons/action.svg"),
             title: "Connector Action",
             nodeFactoryMethod:  DefaultBallerinaASTFactory.createConnectorAction
         };
@@ -83,7 +83,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createStructsDefTool = {
             id: "struct",
             name: "Struct",
-            icon: "images/tool-icons/struct.svg",
+            iconSrc: require("images/tool-icons/struct.svg"),
             title: "Struct",
             nodeFactoryMethod: BallerinaASTFactory.createStructDefinition
         };
@@ -91,7 +91,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createTypeMapperDefTool = {
             id: "typeMapper",
             name: "Type Mapper",
-            icon: "images/tool-icons/type-converter.svg",
+            iconSrc: require("images/tool-icons/type-converter.svg"),
             title: "Type Mapper",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createTypeMapperDefinition
         };
@@ -99,7 +99,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createWorkerDecTool = {
             id: "worker",
             name: "Worker",
-            icon: "images/tool-icons/worker.svg",
+            iconSrc: require("images/tool-icons/worker.svg"),
             title: "Worker",
             nodeFactoryMethod: BallerinaASTFactory.createWorkerDeclaration
         };
@@ -118,7 +118,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createIfStatementTool = {
             id: "if",
             name: "If",
-            icon: "images/tool-icons/dgm-if-else.svg",
+            iconSrc: require("images/tool-icons/dgm-if-else.svg"),
             title: "If",
             nodeFactoryMethod: BallerinaASTFactory.createIfElseStatement
         };
@@ -126,7 +126,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createWhileStatementTool = {
             id: "while",
             name: "While",
-            icon: "images/tool-icons/dgm-while.svg",
+            iconSrc: require("images/tool-icons/dgm-while.svg"),
             title: "While",
             nodeFactoryMethod: BallerinaASTFactory.createWhileStatement
         };
@@ -134,7 +134,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createBreakStatementTool = {
             id: "break",
             name: "Break",
-            icon: "images/tool-icons/break.svg",
+            iconSrc: require("images/tool-icons/break.svg"),
             title: "Break",
             nodeFactoryMethod: BallerinaASTFactory.createBreakStatement
         };
@@ -142,7 +142,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createTryCatchStatementTool = {
             id: "try-catch",
             name: "Try-Catch",
-            icon: "images/tool-icons/try-catch.svg",
+            iconSrc: require("images/tool-icons/try-catch.svg"),
             title: "Try-Catch",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createTryCatchStatement
         };
@@ -150,7 +150,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createAssignmentExpressionTool = {
             id: "Assignment",
             name: "Assignment",
-            icon: "images/tool-icons/assign.svg",
+            iconSrc: require("images/tool-icons/assign.svg"),
             title: "Assignment",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createAggregatedAssignmentStatement
         };
@@ -159,7 +159,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createVariableDefinitionStatementTool = {
             id: "VariableDefinition",
             name: "VariableDefinition",
-            icon: "images/variable.svg",
+            iconSrc: require("images/variable.svg"),
             title: "Variable Definition",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createVariableDefinitionStatement
         };
@@ -167,7 +167,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createFunctionInvocationTool = {
             id: "FunctionInvocation",
             name: "FunctionInvocation",
-            icon: "images/tool-icons/function-invoke.svg",
+            iconSrc: require("images/tool-icons/function-invoke.svg"),
             title: "Function Invocation",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement
         };
@@ -175,7 +175,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createReplyStatementTool = {
             id: "Reply",
             name: "Reply",
-            icon: "images/tool-icons/reply.svg",
+            iconSrc: require("images/tool-icons/reply.svg"),
             title: "Reply",
             nodeFactoryMethod: BallerinaASTFactory.createReplyStatement
         };
@@ -183,7 +183,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createReturnStatementTool = {
             id: "Return",
             name: "Return",
-            icon: "images/tool-icons/return.svg",
+            iconSrc: require("images/tool-icons/return.svg"),
             title: "Return",
             nodeFactoryMethod: BallerinaASTFactory.createReturnStatement
         };
@@ -191,7 +191,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createWorkerInvocationStatementTool = {
             id: "WorkerInvocation",
             name: "Worker Invocation",
-            icon: "images/tool-icons/worker-invoke.svg",
+            iconSrc: require("images/tool-icons/worker-invoke.svg"),
             title: "Worker Invoke",
             nodeFactoryMethod: BallerinaASTFactory.createWorkerInvocationStatement
         };
@@ -199,7 +199,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createWorkerReplyStatementTool = {
             id: "WorkerReply",
             name: "Worker Reply",
-            icon: "images/tool-icons/worker-reply.svg",
+            iconSrc: require("images/tool-icons/worker-reply.svg"),
             title: "Worker Receive",
             nodeFactoryMethod: BallerinaASTFactory.createWorkerReplyStatement
         };
@@ -207,7 +207,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createThrowStatementTool = {
             id: "Throw",
             name: "Throw",
-            icon: "images/tool-icons/throw.svg",
+            iconSrc: require("images/tool-icons/throw.svg"),
             title: "Throw",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createThrowStatement
         };
@@ -233,6 +233,12 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         //creating a one gourp for constructs
         var constructsToolDefArray = _.union(mainToolDefArray, [ seperator ] , statementToolDefArray);
 
+        constructsToolDefArray.forEach(tool => {
+            var icon = document.createElement('img');
+            icon.setAttribute('src', tool.iconSrc);
+            tool.icon = icon;
+        });
+
         var constructs = new ToolGroup({
             toolGroupName: "Constructs",
             toolGroupID: "constructs-tool-group",
@@ -241,6 +247,4 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         });
 
         ToolPalette.push(constructs);
-
         export default ToolPalette;
-
