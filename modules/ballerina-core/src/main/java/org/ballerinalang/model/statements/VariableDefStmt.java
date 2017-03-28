@@ -28,16 +28,14 @@ import org.ballerinalang.model.expressions.Expression;
  *
  * @since 0.8.0
  */
-public class VariableDefStmt extends AbstractStatement {
+public class VariableDefStmt extends AbstractAssignStatement {
     private VariableDef variableDef;
     private Expression lhrExpr;
-    private Expression rhsExpr;
 
     public VariableDefStmt(NodeLocation location, VariableDef variableDef, Expression lExpr, Expression rExpr) {
-        super(location);
+        super(location, rExpr);
         this.variableDef = variableDef;
         this.lhrExpr = lExpr;
-        this.rhsExpr = rExpr;
     }
 
     public VariableDef getVariableDef() {
@@ -46,14 +44,6 @@ public class VariableDefStmt extends AbstractStatement {
 
     public Expression getLExpr() {
         return lhrExpr;
-    }
-
-    public Expression getRExpr() {
-        return rhsExpr;
-    }
-
-    public void setRExpr(Expression rhsExpr) {
-        this.rhsExpr = rhsExpr;
     }
 
     @Override

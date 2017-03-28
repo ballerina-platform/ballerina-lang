@@ -321,7 +321,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     @Override
     public void visit(VariableDefStmt varDefStmt) {
         // Flow : AssignStmt -> (RHS Expr) -> LHS Expr(s) -> AssignStmtEndNode -> AssignStmt.nextSibling. -> ...
-        Expression rExpr = varDefStmt.getRExpr();
+        Expression rExpr = varDefStmt.getRhsExpr();
         Expression lExpr = varDefStmt.getLExpr();
         if (rExpr != null) {
             varDefStmt.setNext(rExpr);
@@ -360,7 +360,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         // Flow : AssignStmt -> RHS Expr -> LHS Expr(s) -> AssignStmtEndNode -> AssignStmt.nextSibling. -> ...
-        Expression rExpr = assignStmt.getRExpr();
+        Expression rExpr = assignStmt.getRhsExpr();
         assignStmt.setNext(rExpr);
         rExpr.setParent(assignStmt);
 

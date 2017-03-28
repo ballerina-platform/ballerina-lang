@@ -672,10 +672,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing AssignStmt EndNode - L size{},R type:{}",
                     assignStmt.getLExprs().length,
-                    assignStmt.getRExpr().getType() != null ? assignStmt.getRExpr().getType().toString() : null);
+                    assignStmt.getRhsExpr().getType() != null ? assignStmt.getRhsExpr().getType().toString() : null);
         }
         next = assignStmtEndNode.next;
-        Expression rExpr = assignStmt.getRExpr();
+        Expression rExpr = assignStmt.getRhsExpr();
         Expression[] lExprs = assignStmt.getLExprs();
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             for (int i = 0; i < lExprs.length; i++) {
@@ -909,12 +909,12 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing VariableDefStmt EndNode - L size{},R type:{}",
                     varDefStmt.getLExpr().getType().toString(),
-                    varDefStmt.getRExpr() != null ? varDefStmt.getLExpr().getType().toString() : null);
+                    varDefStmt.getRhsExpr() != null ? varDefStmt.getLExpr().getType().toString() : null);
         }
         next = variableDefStmtEndNode.next;
         BValue rValue;
         Expression lExpr = varDefStmt.getLExpr();
-        Expression rExpr = varDefStmt.getRExpr();
+        Expression rExpr = varDefStmt.getRhsExpr();
         if (rExpr == null) {
             if (BTypes.isValueType(lExpr.getType())) {
                 rValue = lExpr.getType().getDefaultValue();

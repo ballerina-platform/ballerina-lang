@@ -146,7 +146,7 @@ public class BLangExecutor implements NodeExecutor {
         // TODO Remove the following duplicate code segments soon.
         BValue rValue;
         Expression lExpr = varDefStmt.getLExpr();
-        Expression rExpr = varDefStmt.getRExpr();
+        Expression rExpr = varDefStmt.getRhsExpr();
         if (rExpr == null) {
             if (BTypes.isValueType(lExpr.getType())) {
                 rValue = lExpr.getType().getDefaultValue();
@@ -173,7 +173,7 @@ public class BLangExecutor implements NodeExecutor {
         // TODO WARN: Implementation of this method is inefficient
         // TODO We are in the process of refactoring this method, please bear with us.
         BValue[] rValues;
-        Expression rExpr = assignStmt.getRExpr();
+        Expression rExpr = assignStmt.getRhsExpr();
 
         Expression[] lExprs = assignStmt.getLExprs();
         if (lExprs.length > 1) {
