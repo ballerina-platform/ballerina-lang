@@ -633,7 +633,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Visit and validate attributes of an annotation attachment.
      * 
      * @param annotation Annotation attachment to validate attributes
-     * @param annotationDef Definition of the annotation 
+     * @param annotationDef Definition of the annotation
      */
     private void validateAttributes(AnnotationAttachment annotation, AnnotationDef annotationDef) {
         annotation.getAttributeNameValuePairs().forEach((attributeName, attributeValue) -> {
@@ -698,55 +698,59 @@ public class SemanticAnalyzer implements NodeVisitor {
     /**
      * Populate default values to the annotation attributes.
      * 
-     * @param annotation
-     * @param annotationDef
+     * @param annotation Annotation attachment to populate default values
+     * @param annotationDef Definition of the annotation corresponds to the provided annotation attachment
      */
     private void populateDefaultValues(AnnotationAttachment annotation, AnnotationDef annotationDef) {
-        /*
         Map<String, AnnotationAttributeValue> attributeValPairs = annotation.getAttributeNameValuePairs();
-        for(AnnotationAttributeDef attributeDef : annotationDef.getAttributeDefs()) {
+        for (AnnotationAttributeDef attributeDef : annotationDef.getAttributeDefs()) {
             String attributeName = attributeDef.getName();
             
-            // If the annotation attribute contains the key, and if the value is another annotationAttachment,
-            // then recursively populate its default values
-            if (attributeValPairs.containsKey(attributeName)) {
-                AnnotationAttributeValue attributeValue = attributeValPairs.get(attributeName);
+            // if the current attribute is not defined in the annotation attachment, populate it with default value
+            if (!attributeValPairs.containsKey(attributeName)) {
+                BasicLiteral defaultValue = attributeDef.getAttributeValue();
+                if (defaultValue != null) {
+                    annotation.addAttributeNameValuePair(attributeName,
+                        new AnnotationAttributeValue(defaultValue.getBValue(), defaultValue.getTypeName(), null));
+                }
+                continue;
+            }
+
+            // If the annotation attachment contains the current attribute, and if the value is another 
+            // annotationAttachment, then recursively populate its default values
+            AnnotationAttributeValue attributeValue = attributeValPairs.get(attributeName);
+            SimpleTypeName valueType = attributeValue.getType();
+            if (valueType.isArrayType()) {
+                AnnotationAttributeValue[] valuesArray = attributeValue.getValueArray();
+                for (AnnotationAttributeValue value : valuesArray) {
+                    AnnotationAttachment annotationTypeVal = value.getAnnotationValue();
+
+                    // skip if the array element is not an annotation
+                    if (annotationTypeVal == null) {
+                        continue;
+                    }
+
+                    SimpleTypeName attributeType = attributeDef.getTypeName();
+                    BLangSymbol attributeTypeSymbol = annotationDef.resolve(
+                            new SymbolName(attributeType.getName(), attributeType.getPackagePath()));
+                    if (attributeTypeSymbol instanceof AnnotationDef) {
+                        populateDefaultValues(annotationTypeVal, (AnnotationDef) attributeTypeSymbol);
+                    }
+                }
+            } else {
                 AnnotationAttachment annotationTypeVal = attributeValue.getAnnotationValue();
+
+                // skip if the value is not an annotation
                 if (annotationTypeVal == null) {
                     continue;
                 }
-                
-                BLangSymbol attributeSymbol = currentScope.resolve(attributeDef.getTypeName().getSymbolName());
-                if (attributeSymbol instanceof AnnotationDef) {
-                    populateDefaultValues(annotationTypeVal, (AnnotationDef) attributeSymbol);
+
+                BLangSymbol attributeTypeSymbol = annotationDef.resolve(attributeDef.getTypeName().getSymbolName());
+                if (attributeTypeSymbol instanceof AnnotationDef) {
+                    populateDefaultValues(annotationTypeVal, (AnnotationDef) attributeTypeSymbol);
                 }
-                continue;
-            }
-            
-            BasicLiteral defaultValue = attributeDef.getAttributeValue();
-            if (defaultValue != null) {
-                annotation.addAttributeNameValuePair(attributeName,
-                    new AnnotationAttributeValue(defaultValue.getBValue(), defaultValue.getTypeName()));
-                continue;
-            }
-
-            // If the default value null means, the attribute is an annotation.
-            // Hence, construct a new empty annotation with of given type
-            BLangSymbol attributeSymbol = currentScope.resolve(attributeDef.getTypeName().getSymbolName());
-            if (attributeSymbol instanceof AnnotationDef) {
-                AnnotationDef childAnnotationDef = (AnnotationDef) attributeSymbol;
-                AnnotationAttachment defaultAnnotation = new AnnotationAttachment(annotation.getNodeLocation(),
-                        childAnnotationDef.getName(), childAnnotationDef.getPkgName(),
-                        childAnnotationDef.getPkgPath(), new HashMap<String, AnnotationAttributeValue>());
-                populateDefaultValues(defaultAnnotation, childAnnotationDef);
-
-                SimpleTypeName valueType = new SimpleTypeName(defaultAnnotation.getName(),
-                        defaultAnnotation.getPkgName(), defaultAnnotation.getPkgPath());
-                annotation.addAttributeNameValuePair(attributeName, 
-                        new AnnotationAttributeValue(defaultAnnotation, valueType));
             }
         }
-        */
     }
     
     @Override

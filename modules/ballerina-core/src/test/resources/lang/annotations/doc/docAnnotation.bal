@@ -1,7 +1,7 @@
 package lang.annotations.doc;
 
 @Description{value:"Self annotating an annotation",
-                 paramValue:@Param{value:" some parameter value"},
+                 paramValue:@Param{value:"some parameter value"},
                  queryParamValue:[@QueryParam{
                     name:"first query param name", 
                     value:"first query param value"}],
@@ -32,5 +32,5 @@ annotation Doc attach service, function, connector {
 }
 
 annotation Args attach parameter {
-    string value;
+    string value = "default value for 'Args' annotation in doc package";
 }
