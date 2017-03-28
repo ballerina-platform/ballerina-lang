@@ -124,6 +124,17 @@
                 <artifactId>connectors</artifactId>
                 <version>${ballerina.connectors.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${org.snakeyaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-all</artifactId>
+                <version>${activemq.broker.vesion}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

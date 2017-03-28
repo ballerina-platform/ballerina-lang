@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -110,11 +112,11 @@ public class Utils {
      * @param port - port number
      * @throws Exception if port is already in use
      */
-    public static void checkPortAvailability(int port) throws Exception {
+    public static void checkPortAvailability(int port) throws BallerinaTestException {
 
         //check whether http port is already occupied
         if (isPortOpen(port)) {
-            throw new Exception("Unable to start carbon server on port " +
+            throw new BallerinaTestException("Unable to start carbon server on port " +
                                 (port) + " : Port already in use");
         }
     }
@@ -227,5 +229,41 @@ public class Utils {
      */
     public static String getOSName() {
         return System.getProperty("os.name");
+    }
+
+    /**
+     * Copy a file.
+     *
+     * @param source The source file
+     * @param target The target file
+     * @throws BallerinaTestException if copying failed
+     */
+    public static void copyFile(Path source, Path target) throws BallerinaTestException {
+        try {
+            Files.copy(source, target);
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error copying file " + source + " to " + target, e);
+        }
+    }
+
+    /**
+     * Delete a given folder and all it's content.
+     *
+     * @param folder The folder to delete.
+     */
+    public static void deleteFolder(File folder) {
+        File[] files = folder.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteFolder(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+
+        folder.delete();
     }
 }

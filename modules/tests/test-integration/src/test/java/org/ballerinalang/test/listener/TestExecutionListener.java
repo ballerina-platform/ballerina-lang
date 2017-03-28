@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.listener;
 
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.Server;
 import org.ballerinalang.test.context.ServerInstance;
@@ -45,6 +46,9 @@ public class TestExecutionListener implements IExecutionListener {
     public void onExecutionStart() {
         //path of the zip file distribution
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+
+        try {
+
         newServer = new ServerInstance(serverZipPath) {
             //config the service files need to be deployed
             @Override
@@ -56,9 +60,9 @@ public class TestExecutionListener implements IExecutionListener {
                 setArguments(serviceFilesArr);
             }
         };
-        try {
-            newServer.start();
-        } catch (Exception e) {
+
+            newServer.startServer();
+        } catch (BallerinaTestException e) {
             log.error("Server failed to start. " + e.getMessage(), e);
             throw new RuntimeException("Server failed to start. " + e.getMessage(), e);
         }
@@ -73,7 +77,7 @@ public class TestExecutionListener implements IExecutionListener {
     public void onExecutionFinish() {
         if (newServer != null && newServer.isRunning()) {
             try {
-                newServer.stop();
+                newServer.stopServer();
             } catch (Exception e) {
                 log.error("Server failed to stop. " + e.getMessage(), e);
                 throw new RuntimeException("Server failed to stop. " + e.getMessage(), e);
