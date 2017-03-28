@@ -47,7 +47,12 @@ public class TCPNettyServer {
 //        tcpNettyServer.addStreamListener(new StatisticsStreamListener(streamDefinition));
 
         tcpNettyServer.bootServer(new ServerConfig());
-        tcpNettyServer.shutdownGracefully();
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+        } finally {
+            tcpNettyServer.shutdownGracefully();
+        }
     }
 
     public void bootServer(ServerConfig serverConfig) {
