@@ -51,7 +51,7 @@ class VariableDefinitionView extends BallerinaView {
             class: 'variable-wrapper variable-wrapper-message'
         }).data('model', this.getModel()).appendTo(this.getContainer());
 
-        this._variableDefinitionWrapper = variableDefinitionWrapper.get(0);
+        this._variableDefinitionWrapper = variableDefinitionWrapper;
 
         var variableDefinitionTypeWrapper = $('<div/>', {
             text: this.getModel().getBType().trim(),
@@ -83,10 +83,10 @@ class VariableDefinitionView extends BallerinaView {
         this._deleteButton = deleteButton.get(0);
 
         // Removes the value of the argument in the model and rebind the arguments to the arguments view.
-        $(deleteButton).click(function () {
-            $(variableDefinitionWrapper).remove();
-            self.getParent().removeVariableDefinitionStatement(self.getModel().getID());
-        });
+        // $(deleteButton).click(function () {
+        //     $(variableDefinitionWrapper).remove();
+        //     self.getParent().removeVariableDefinitionStatement(self.getModel().getID());
+        // });
     }
 
     getVariableDefinitionWrapper() {
@@ -95,6 +95,11 @@ class VariableDefinitionView extends BallerinaView {
 
     getDeleteButton() {
         return this._deleteButton;
+    }
+
+    removeVariableDefinition() {
+        $(this.getVariableDefinitionWrapper()).remove();
+        this.getParent().removeVariableDefinitionStatement(this.getModel().getID());
     }
 }
 
