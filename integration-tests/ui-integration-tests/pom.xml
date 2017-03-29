@@ -208,30 +208,30 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.2</version>
-                <executions>
-                    <execution>
-                        <id>distribution</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>attached</goal>
-                        </goals>
-                        <configuration>
-                            <filters>
-                                <filter>${basedir}/src/test/assembly/filter.properties</filter>
-                            </filters>
-                            <descriptors>
-                                <descriptor>${basedir}/src/test/assembly/bin.xml</descriptor>
-                            </descriptors>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-assembly-plugin</artifactId>-->
+                <!--<version>2.5.2</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>distribution</id>-->
+                        <!--<phase>compile</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>attached</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<filters>-->
+                                <!--<filter>${basedir}/src/test/assembly/filter.properties</filter>-->
+                            <!--</filters>-->
+                            <!--<descriptors>-->
+                                <!--<descriptor>${basedir}/src/test/assembly/bin.xml</descriptor>-->
+                            <!--</descriptors>-->
+                            <!--<finalName>${project.artifactId}-${project.version}</finalName>-->
+                            <!--<appendAssemblyId>false</appendAssemblyId>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -242,7 +242,8 @@
                         <configuration>
                             <tasks>
                                 <echo message="prepare phase" />
-                                <unzip src="target/ui-integration-tests-0.8.15-SNAPSHOT.zip" dest="target/" />
+                                <unzip src="ballerina-composer-0.8.15-SNAPSHOT.zip" dest="target/"/>
+                                <!--<unzip src="target/ui-integration-tests-0.8.15-SNAPSHOT.zip" dest="target/" />-->
                             </tasks>
                         </configuration>
                         <goals>
@@ -354,7 +355,7 @@
                             <executable>npm</executable>
                             <arguments>
                                 <argument>run</argument>
-                                <argument>uiTest</argument>
+                                <argument>ui-test</argument>
                                 <argument>--</argument>
                                 <argument>--skipTests=${maven.test.skip}</argument>
                             </arguments>

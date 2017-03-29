@@ -19,7 +19,7 @@ if (argv.skipTests === "true") {
     console.log('Skipping Tests');
     return;
 } else {
-    console.log('Running Tests');
+    console.log('Running Integration Tests');
     shell.exec("NODE_ENV=test mocha-webpack --require js/tests/js/spec/setup.js --webpack-config webpack.config.js js/tests/js/spec/BallerinaTest.js", function(code) {
         shell.exit(code);
     });

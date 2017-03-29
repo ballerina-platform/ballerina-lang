@@ -15,7 +15,7 @@
  */
 var selenium = require('selenium-standalone');
 
-console.log('Installing Selenium');
+console.log('Installing Selenium Standalone Server...');
 selenium.install({
     logger: function (message) {
         console.log(message);
@@ -23,7 +23,7 @@ selenium.install({
 }, function (err) {
     if (err) console.log(err);
 
-    console.log('Starting Selenium');
+    console.log('Starting Selenium Standalone Server...');
     selenium.start(function (err, child) {
         if (err) return done(err);
         selenium.child = child;

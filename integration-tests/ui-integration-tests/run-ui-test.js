@@ -27,26 +27,8 @@ if (argv.skipTests === "true") {
         detached: true
     }).unref();
 
-    console.log('Running Selenium Tests');
-    shell.exec("NODE_ENV=test mocha-webpack --webpack-config webpack.config.js ui-tests/startPageTest.js", function(code) {
+    console.log('Running UI Integration Tests');
+    shell.exec("NODE_ENV=test mocha src/test-suits/*.js", function(code) {
         shell.exit(code);
     });
-    //var options = {
-    //    desiredCapabilities: {
-    //        browserName: 'firefox'
-    //    }
-    //};
-    //
-    //webdriverio
-    //    .remote(options)
-    //    .init()
-    //    .url('http://localhost:9091/') // navigate to the web page
-    //    //.setValue('#orb-search-q', ['surfing'], function () {
-    //    //}) // find the element and enter the query
-    //    //.submitForm('#orb-search-form') // submit the form
-    //    //.title(function (err, res) {
-    //    //    console.log('Title was: ' + res.value); // Confirm the page title
-    //    //})
-    //    .saveScreenshot('./snapshot.png') // Save the screenshot to disk
-    //    .end();
 }
