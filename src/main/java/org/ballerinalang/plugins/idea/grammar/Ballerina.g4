@@ -257,7 +257,7 @@ forkJoinStatement
 
 // below typeName is only 'message[]'
 joinClause
-    :   'join' '(' joinConditions ')' '(' typeName Identifier ')' '{' statement* '}'
+    :   'join' ('(' joinConditions ')')? '(' typeName Identifier ')' '{' statement* '}'
     ;
 
 joinConditions
