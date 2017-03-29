@@ -21,6 +21,8 @@ import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.Resource;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -230,7 +232,37 @@ public class AnnotationTest {
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "invalid-constant-annotation.bal:3: incompatible types: expected " +
                 "'string', found 'int'")
-    public void testInvalidConstanttAnnotation() {
+    public void testInvalidConstantAnnotation() {
         BTestUtils.parseBalFile("lang/annotations/invalid-constant-annotation.bal");
+    }
+    
+    @Test(description = "Test default values for annotation")
+    public void testDefaultValues() {
+        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/annotations/default-values.bal");
+        AnnotationAttachment[] annotations = bLangProgram.getLibraryPackages()[0].getFunctions()[0].getAnnotations();
+        
+        // check for default values for basic literal attributes
+        Assert.assertEquals(annotations[0].getAttribute("value").getLiteralValue().stringValue(),
+            "Description of the service/function");
+
+        // check for default values for non-literal attributes
+        Assert.assertEquals(annotations[0].getAttribute("queryParamValue"), null);
+
+        // check for default values for nested annotations
+        AnnotationAttachment nestedArgAnnot = annotations[0].getAttribute("args").getAnnotationValue();
+        Assert.assertEquals(nestedArgAnnot.getValue(), "default value for 'Args' annotation in doc package");
+
+        // check for default values for nested annotations arrays
+        AnnotationAttachment nestedAnnot = annotations[0].getAttribute("queryParamValue2").getValueArray()[0]
+                .getAnnotationValue();
+        Assert.assertEquals(nestedAnnot.getAttribute("name").getLiteralValue().stringValue(), "default name");
+        Assert.assertEquals(nestedAnnot.getAttribute("value").getLiteralValue().stringValue(), "default value");
+
+        // check for default values for a local annotations
+        Assert.assertEquals(annotations[1].getValue(), "default value for local 'Args' annotation");
+
+        BValue status = annotations[3].getAttribute("status").getLiteralValue();
+        Assert.assertTrue(status instanceof BInteger);
+        Assert.assertEquals(((BInteger) status).intValue(), 200);
     }
 }
