@@ -99,16 +99,17 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     public static final TokenSet WHITESPACE = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE, WS);
 
-    public static final TokenSet STRING = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
+    public static final TokenSet STRING_LITERALS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             QuotedStringLiteral, BacktickStringLiteral);
 
     public static final TokenSet NUMBER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             IntegerLiteral, FloatingPointLiteral, BooleanLiteral, NullLiteral);
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            ACTION, ALL, ANY, AS, BREAK, CATCH, CONNECTOR, CONST, CREATE, ELSE, FORK, FUNCTION, IF, IMPORT, ITERATE,
-            JOIN, NULL, PACKAGE, REPLY, RESOURCE, RETURN, SERVICE, STRUCT, THROW, THROWS, TIMEOUT, TRY,
-            TYPEMAPPER, WHILE, WORKER);
+            ACTION, ALL, ANY, AS, BREAK, CATCH, CONNECTOR, CONST, CONTINUE, CREATE, ELSE, FORK, FUNCTION, IF, IMPORT,
+            ITERATE, JOIN, NATIVE, NULL, PACKAGE, REPLY, RESOURCE, RETURN, SERVICE, SOME, STRUCT, THROW, THROWS,
+            TIMEOUT, TRY, TYPEMAPPER, WHILE, WORKER, BOOLEAN, INT, FLOAT, STRING, MESSAGE, MAP, EXCEPTION, XML,
+            XML_DOCUMENT, JSON, DATATABLE);
 
     @NotNull
     @Override
@@ -144,7 +145,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     @NotNull
     public TokenSet getStringLiteralElements() {
-        return STRING;
+        return STRING_LITERALS;
     }
 
     @Override
