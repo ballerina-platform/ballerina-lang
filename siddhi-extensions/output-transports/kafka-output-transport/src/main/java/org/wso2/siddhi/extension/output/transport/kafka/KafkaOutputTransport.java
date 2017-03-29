@@ -124,7 +124,7 @@ public class KafkaOutputTransport extends OutputTransport {
 
     @Override
     public String[] getSupportedDynamicOptions() {
-        return new String[]{ADAPTOR_PUBLISH_TOPIC, KAFKA_PARTITION_NO};
+        return new String[]{KAFKA_PUBLISH_TOPIC, KAFKA_PARTITION_NO};
     }
 
     @Override
