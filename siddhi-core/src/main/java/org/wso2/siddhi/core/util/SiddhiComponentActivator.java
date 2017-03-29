@@ -18,4 +18,5 @@ package org.wso2.siddhi.core.util;
 
 
 public class SiddhiComponentActivator {
+
 }
