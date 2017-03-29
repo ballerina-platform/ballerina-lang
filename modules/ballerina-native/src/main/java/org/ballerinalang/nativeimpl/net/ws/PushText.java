@@ -34,7 +34,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import javax.websocket.Session;
 
 /**
- * Send text to the same user who sent the message to the given WebSocket Upgrade Path.
+ * Send text to the same client who sent the message to the given WebSocket Upgrade Path.
  */
 
 @BallerinaFunction(

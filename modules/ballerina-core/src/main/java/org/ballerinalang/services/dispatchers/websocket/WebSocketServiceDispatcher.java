@@ -43,7 +43,6 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
     @Override
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
         String interfaceId = getInterface(cMsg);
-
         String serviceUri = (String) cMsg.getProperty(Constants.TO);
         serviceUri = refactorUri(serviceUri);
         if (serviceUri == null) {
@@ -52,7 +51,6 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         String basePath = URIUtil.getFirstPathSegment(serviceUri);
         Service service = HTTPServicesRegistry.getInstance().
                 getService(interfaceId, Constants.DEFAULT_BASE_PATH + basePath);
-
         if (service == null) {
             throw new BallerinaException("No service found to handle message for " + serviceUri);
         }
@@ -95,13 +93,10 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
             if (basePathAnnotation == null) {
                 throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
             }
-
             String basePath = refactorUri(basePathAnnotation.getValue());
             String websocketUpgradePath = refactorUri(websocketUpgradePathAnnotation.getValue());
-
             return refactorUri(basePath.concat(websocketUpgradePath));
         }
-
         return null;
     }
 
@@ -109,11 +104,9 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         if (uri.startsWith("\"")) {
             uri = uri.substring(1, uri.length() - 1);
         }
-
         if (!uri.startsWith("/")) {
             uri = "/".concat(uri);
         }
-
         if (uri.endsWith("/")) {
             uri = uri.substring(0, uri.length() - 1);
         }
