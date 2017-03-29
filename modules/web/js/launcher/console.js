@@ -17,6 +17,7 @@
  */
 import $ from 'jquery';
 import EventChannel from 'event_channel';
+import _ from 'lodash';
 
 class Console extends EventChannel {
     constructor() {
@@ -44,7 +45,8 @@ class Console extends EventChannel {
     }
 
     println(message) {
-        this.console.append(`<span class="${message.type}">${message.message}<span>`);
+        var specialCharsEscapedStr = _.escape(message.message);
+        this.console.append(`<span class="${message.type}">${specialCharsEscapedStr}<span>`);
         this.console.append('<br />');
         //todo need a proper fix
         this.console.scrollTop(100000);
