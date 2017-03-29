@@ -1187,9 +1187,9 @@ public class BLangExecutor implements NodeExecutor {
     private void setUnitValue(BValue rValue, BStruct lExprValue, int memoryLocation,
                               StructFieldAccessExpr fieldExpr) {
 
-        Expression[] exprs;
+        Expression[] indexExprs;
         if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            exprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExprs();
+            indexExprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExprs();
         } else {
             // If the lExprValue value is not a struct arrays/map, then set the value to the struct
             lExprValue.setValue(memoryLocation, rValue);
@@ -1201,15 +1201,15 @@ public class BLangExecutor implements NodeExecutor {
 
         // Set the value to arrays/map's index location
         if (fieldExpr.getRefVarType() instanceof BMapType) {
-            BValue indexValue = exprs[0].execute(this);
+            BValue indexValue = indexExprs[0].execute(this);
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
             BArray arrayVal = (BArray) arrayMapValue;
-            if (exprs.length > 1) {
-                arrayVal = retrieveArray(arrayVal, exprs);
+            if (indexExprs.length > 1) {
+                arrayVal = retrieveArray(arrayVal, indexExprs);
             }
 
-            BInteger indexVal = (BInteger) exprs[0].execute(this);
+            BInteger indexVal = (BInteger) indexExprs[0].execute(this);
             arrayVal.add(indexVal.intValue(), rValue);
         }
     }
