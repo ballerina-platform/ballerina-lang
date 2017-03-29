@@ -107,9 +107,11 @@ public class KafkaConsumerThread implements Runnable {
                     sourceEventListener.onEvent(event);
                 }
                 try {
-                    consumer.commitAsync();
+                    if (!records.isEmpty()) {
+                        consumer.commitAsync();
+                    }
                 } catch (CommitFailedException e) {
-                    log.error("Kafka commit failed for topic/s" + Arrays.toString(topics), e);
+                    log.error("Kafka commit failed for topic kafka_result_topic", e);
                 }
             }
             try {
