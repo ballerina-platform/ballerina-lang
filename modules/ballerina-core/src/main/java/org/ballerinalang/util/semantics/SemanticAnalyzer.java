@@ -240,6 +240,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ConstDef constDef) {
+        for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
+            annotationAttachment.accept(this);
+        }
+        
         SimpleTypeName typeName = constDef.getTypeName();
         BType bType = BTypes.resolveType(typeName, currentScope, constDef.getNodeLocation());
         constDef.setType(bType);
@@ -410,6 +415,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(typeMapper);
         currentCallableUnit = typeMapper;
 
+        for (AnnotationAttachment annotationAttachment : typeMapper.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.TYPEMAPPER);
+            annotationAttachment.accept(this);
+        }
+        
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
@@ -463,6 +473,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(action);
         currentCallableUnit = action;
 
+        for (AnnotationAttachment annotationAttachment : action.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.ACTION);
+            annotationAttachment.accept(this);
+        }
+        
         for (ParameterDef parameterDef : action.getParameterDefs()) {
             parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             parameterDef.accept(this);
@@ -570,6 +585,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(StructDef structDef) {
+        for (AnnotationAttachment annotationAttachment : structDef.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.STRUCT);
+            annotationAttachment.accept(this);
+        }
+        
         for (VariableDef field : structDef.getFields()) {
             MemoryLocation location = new StructVarLocation(++structMemAddrOffset);
             field.setMemoryLocation(location);
@@ -646,6 +666,13 @@ public class SemanticAnalyzer implements NodeVisitor {
                         BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
                             attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
                     }
+                    
+                    // If the value of the attribute is another annotation, then recursively
+                    // traverse to its attributes and validate
+                    AnnotationAttachment childAnnotation = value.getAnnotationValue();
+                    if (childAnnotation != null && valueTypeSymbol instanceof AnnotationDef) {
+                        validateAttributes(childAnnotation, (AnnotationDef) valueTypeSymbol);
+                    }
                 }
             } else {
                 if (valueType.isArrayType()) {
@@ -657,10 +684,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                     BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
                         attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
                 }
+                
+                // If the value of the attribute is another annotation, then recursively
+                // traverse to its attributes and validate
+                AnnotationAttachment childAnnotation = attributeValue.getAnnotationValue();
+                if (childAnnotation != null && valueTypeSymbol instanceof AnnotationDef) {
+                    validateAttributes(childAnnotation, (AnnotationDef) valueTypeSymbol);
+                }
             }
         });
     }
-    
     
     /**
      * Populate default values to the annotation attributes.
@@ -764,6 +797,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(AnnotationDef annotationDef) {
         for (AnnotationAttributeDef fields : annotationDef.getAttributeDefs()) {
             fields.accept(this);
+        }
+        
+        for (AnnotationAttachment annotationAttachment : annotationDef.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.ANNOTATION);
+            annotationAttachment.accept(this);
         }
     }
     
