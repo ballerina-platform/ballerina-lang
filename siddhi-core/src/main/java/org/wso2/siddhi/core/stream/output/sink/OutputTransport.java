@@ -98,7 +98,7 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
         tryConnect = true;
         try {
             connect();
-        } catch (ConnectionUnavailableException e) {
+        } catch (ConnectionUnavailableException | RuntimeException e) {
             log.error(e.getMessage(), e);
         }
         //// TODO: 2/9/17 implement exponential retry connection

@@ -21,6 +21,7 @@ package org.wso2.siddhi.extension.output.transport.tcp;
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -613,38 +614,36 @@ public class TCPOutputTransportTestCase {
 
     }
 
+    @Ignore
     @Test
+    //todo validate log
     public void testTcpOutputTransport10() throws InterruptedException {
-        try {
-            log.info("tcpInputTransport TestCase 10");
-            SiddhiManager siddhiManager = new SiddhiManager();
+        log.info("tcpInputTransport TestCase 10");
+        SiddhiManager siddhiManager = new SiddhiManager();
 
-            String inStreamDefinition = "" +
-                    "define stream inputStream (a string, b int, c float, d long, e double, f bool); " +
-                    "@sink(type='tcp', context='bar', @map(type='passThrough')) " +
-                    "define stream outputStream (a string, b int, c float, d long, e double, f bool);";
-            String query = ("@info(name = 'query1') " +
-                    "from inputStream " +
-                    "select *  " +
-                    "insert into outputStream;");
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        String inStreamDefinition = "" +
+                "define stream inputStream (a string, b int, c float, d long, e double, f bool); " +
+                "@sink(type='tcp', context='bar', @map(type='passThrough')) " +
+                "define stream outputStream (a string, b int, c float, d long, e double, f bool);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
-            InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-            executionPlanRuntime.start();
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
 
-            ArrayList<Event> arrayList = new ArrayList<Event>();
-            arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
-            arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test1", 361, 31.0f, 3801l, 231.0, false}));
-            arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test2", 362, 32.0f, 3802l, 232.0, true}));
-            inputHandler.send(arrayList.toArray(new Event[3]));
+        ArrayList<Event> arrayList = new ArrayList<Event>();
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test1", 361, 31.0f, 3801l, 231.0, false}));
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test2", 362, 32.0f, 3802l, 232.0, true}));
+        inputHandler.send(arrayList.toArray(new Event[3]));
 
-            Thread.sleep(300);
+        Thread.sleep(300);
 
-            Assert.assertFalse(eventArrived);
-            executionPlanRuntime.shutdown();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
+        Assert.assertFalse(eventArrived);
+        executionPlanRuntime.shutdown();
 
     }
 
