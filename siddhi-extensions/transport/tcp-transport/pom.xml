@@ -91,11 +91,4 @@
             <artifactId>json</artifactId>
         </dependency>
     </dependencies>
-
-<!--    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        &lt;!&ndash;<siddhi.version>3.1.3-SNAPSHOT</siddhi.version>&ndash;&gt;
-        <gson.version>2.5</gson.version>
-        <orbit.version.json>2.0.0.wso2v1</orbit.version.json>
-    </properties>-->
 </project>
