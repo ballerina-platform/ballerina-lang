@@ -419,7 +419,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: "newResource",
+                defaultValue: 'Resource',
                 setter: this.setResourceName,
                 getter: this.getResourceName,
                 parents: [{
