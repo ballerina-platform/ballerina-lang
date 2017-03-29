@@ -28,7 +28,6 @@ import com.intellij.util.FunctionUtil;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,13 +47,8 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
             if (parent == null) {
                 return null;
             }
-            // Get the TypeNameNode child because the function name is inside the TypeNameNode child.
-            TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(parent, TypeNameNode.class);
-            if (typeNameNode == null) {
-                return null;
-            }
             // Get the identifier.
-            PsiElement identifier = typeNameNode.getNameIdentifier();
+            PsiElement identifier = parent.getNameIdentifier();
             if (identifier == null) {
                 return null;
             }
