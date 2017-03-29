@@ -27,9 +27,9 @@ import org.ballerinalang.model.types.BTypes;
  */
 public final class BFloat extends BValueType {
 
-    private float value;
+    private double value; //todo is this correct?
 
-    public BFloat(float value) {
+    public BFloat(double value) {
         this.value = value;
     }
 
@@ -45,12 +45,12 @@ public final class BFloat extends BValueType {
 
     @Override
     public float floatValue() {
-        return this.value;
+        return (float) this.value;
     }
 
     @Override
     public double doubleValue() {
-        return (double) this.value;
+        return this.value;
     }
 
     @Override
@@ -60,7 +60,7 @@ public final class BFloat extends BValueType {
 
     @Override
     public String stringValue() {
-        return Float.toString(value);
+        return Double.toString(value);
     }
 
     @Override

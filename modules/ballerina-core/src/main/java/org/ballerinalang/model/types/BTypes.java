@@ -38,9 +38,7 @@ import static org.ballerinalang.model.util.LangModelUtils.getNodeLocationStr;
  */
 public class BTypes {
     public static BType typeInt;
-    public static BType typeLong;
     public static BType typeFloat;
-    public static BType typeDouble;
     public static BType typeBoolean;
     public static BType typeString;
     public static BType typeXML;
@@ -64,9 +62,7 @@ public class BTypes {
         }
 
         globalScope.define(typeInt.getSymbolName(), typeInt);
-        globalScope.define(typeLong.getSymbolName(), typeLong);
         globalScope.define(typeFloat.getSymbolName(), typeFloat);
-        globalScope.define(typeDouble.getSymbolName(), typeDouble);
         globalScope.define(typeBoolean.getSymbolName(), typeBoolean);
         globalScope.define(typeString.getSymbolName(), typeString);
         globalScope.define(typeXML.getSymbolName(), typeXML);
@@ -99,9 +95,7 @@ public class BTypes {
 
     private static void createBuiltInTypes(GlobalScope globalScope) {
         typeInt = new BIntegerType(TypeConstants.INT_TNAME, null, globalScope);
-        typeLong = new BLongType(TypeConstants.LONG_TNAME, null, globalScope);
         typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, null, globalScope);
-        typeDouble = new BDoubleType(TypeConstants.DOUBLE_TNAME, null, globalScope);
         typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, null, globalScope);
         typeString = new BStringType(TypeConstants.STRING_TNAME, null, globalScope);
         typeXML = new BXMLType(TypeConstants.XML_TNAME, null, globalScope);
@@ -158,9 +152,7 @@ public class BTypes {
     public static boolean isValueType(BType type) {
         if (type == BTypes.typeInt ||
                 type == BTypes.typeString ||
-                type == BTypes.typeLong ||
                 type == BTypes.typeFloat ||
-                type == BTypes.typeDouble ||
                 type == BTypes.typeBoolean) {
             return true;
         }

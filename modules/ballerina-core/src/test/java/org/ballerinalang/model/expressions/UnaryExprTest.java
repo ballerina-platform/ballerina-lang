@@ -20,10 +20,8 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -75,38 +73,6 @@ public class UnaryExprTest {
         Assert.assertEquals(y.intValue(), +5, "Invalid value returned.");
     }
 
-    @Test(description = "Test long unary negative expression")
-    public void longUnaryExprTest() {
-        BValue[] args = {new BLong(5)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeLongTest", args);
-
-        Assert.assertEquals(returns.length, 2);
-
-        BLong x = (BLong) returns[0];
-        Assert.assertSame(x.getClass(), BLong.class, "Invalid class type returned.");
-        Assert.assertEquals(x.longValue(), (-5), "Invalid value returned.");
-
-        BLong y = (BLong) returns[1];
-        Assert.assertSame(y.getClass(), BLong.class, "Invalid class type returned.");
-        Assert.assertEquals(y.longValue(), 5, "Invalid value returned.");
-    }
-
-    @Test(description = "Test long positive unary expression")
-    public void positiveLongUnaryExprTest() {
-        BValue[] args = {new BLong(5)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "positiveLongTest", args);
-
-        Assert.assertEquals(returns.length, 2);
-
-        BLong x = (BLong) returns[0];
-        Assert.assertSame(x.getClass(), BLong.class, "Invalid class type returned.");
-        Assert.assertEquals(x.longValue(), (+5), "Invalid value returned.");
-
-        BLong y = (BLong) returns[1];
-        Assert.assertSame(y.getClass(), BLong.class, "Invalid class type returned.");
-        Assert.assertEquals(y.longValue(), +5, "Invalid value returned.");
-    }
-
     @Test(description = "Test float unary negative expression")
     public void floatUnaryExprTest() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeFloatTest");
@@ -135,38 +101,6 @@ public class UnaryExprTest {
         BFloat y = (BFloat) returns[1];
         Assert.assertSame(y.getClass(), BFloat.class, "Invalid class type returned.");
         Assert.assertEquals(y.floatValue(), +5f, "Invalid value returned.");
-    }
-
-    @Test(description = "Test long unary negative expression")
-    public void doubleUnaryExprTest() {
-        BValue[] args = {new BDouble(5.0)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeDoubleTest", args);
-
-        Assert.assertEquals(returns.length, 2);
-
-        BDouble x = (BDouble) returns[0];
-        Assert.assertSame(x.getClass(), BDouble.class, "Invalid class type returned.");
-        Assert.assertEquals(x.doubleValue(), -5.0, "Invalid value returned.");
-
-        BDouble y = (BDouble) returns[1];
-        Assert.assertSame(y.getClass(), BDouble.class, "Invalid class type returned.");
-        Assert.assertEquals(y.doubleValue(), 5.0, "Invalid value returned.");
-    }
-
-    @Test(description = "Test long positive unary expression")
-    public void positiveDoubleUnaryExprTest() {
-        BValue[] args = {new BDouble(5.0)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "positiveDoubleTest", args);
-
-        Assert.assertEquals(returns.length, 2);
-
-        BDouble x = (BDouble) returns[0];
-        Assert.assertSame(x.getClass(), BDouble.class, "Invalid class type returned.");
-        Assert.assertEquals(x.doubleValue(), +5.0, "Invalid value returned.");
-
-        BDouble y = (BDouble) returns[1];
-        Assert.assertSame(y.getClass(), BDouble.class, "Invalid class type returned.");
-        Assert.assertEquals(y.doubleValue(), +5.0, "Invalid value returned.");
     }
 
     @Test(description = "Test unary boolean not expression")

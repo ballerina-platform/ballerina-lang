@@ -6,12 +6,6 @@ function testPrintAndPrintlnString(string s1, string s2){
     // output is equal to s1\ns2
 }
 
-function testPrintAndPrintlnLong(long v1, long v2){
-    system:println(v1);
-    system:print(v2);
-    // output is equal to v1\nv2
-}
-
 function testPrintAndPrintlnInt(int v1, int v2){
     system:println(v1);
     system:print(v2);
@@ -25,12 +19,6 @@ function testPrintAndPrintlnFloat(float v1, float v2){
 }
 
 function testPrintAndPrintlnBoolean(double v1, double v2){
-    system:println(v1);
-    system:print(v2);
-    // output is equal to v1\nv2
-}
-
-function testPrintAndPrintlnDouble(boolean v1, boolean v2){
     system:println(v1);
     system:print(v2);
     // output is equal to v1\nv2

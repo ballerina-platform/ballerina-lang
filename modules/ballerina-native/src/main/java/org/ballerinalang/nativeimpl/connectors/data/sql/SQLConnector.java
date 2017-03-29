@@ -23,7 +23,6 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -261,7 +260,7 @@ public class SQLConnector extends AbstractNativeConnector {
                     config.addDataSourceProperty(keyValue, value.stringValue());
                 } else if (value instanceof BInteger) {
                     config.addDataSourceProperty(keyValue, Integer.parseInt(value.stringValue()));
-                } else if (value instanceof BLong) {
+                } else if (value instanceof BInteger) {
                     config.addDataSourceProperty(keyValue, Long.parseLong(value.stringValue()));
                 } else if (value instanceof BBoolean) {
                     config.addDataSourceProperty(keyValue, Boolean.parseBoolean(value.stringValue()));

@@ -22,10 +22,8 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -371,9 +369,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.DECIMAL: {
                 BigDecimal value = stmt.getBigDecimal(index + 1);
                 if (value == null) {
-                    paramValue.setValue(1, new BDouble(0));
+                    paramValue.setValue(1, new BFloat(0));
                 } else {
-                    paramValue.setValue(1, new BDouble(value.doubleValue()));
+                    paramValue.setValue(1, new BFloat(value.doubleValue()));
                 }
             }
             break;
@@ -395,7 +393,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             break;
             case Constants.SQLDataTypes.BIGINT: {
                 long value = stmt.getLong(index + 1);
-                paramValue.setValue(1, new BLong(value));
+                paramValue.setValue(1, new BInteger(value));
             }
             break;
             case Constants.SQLDataTypes.REAL:
@@ -406,7 +404,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             break;
             case Constants.SQLDataTypes.DOUBLE: {
                 double value = stmt.getDouble(index + 1);
-                paramValue.setValue(1, new BDouble(value));
+                paramValue.setValue(1, new BFloat(value));
             }
             break;
             case Constants.SQLDataTypes.CLOB: {
