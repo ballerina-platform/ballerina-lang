@@ -145,16 +145,24 @@ public class BTypes {
         // If bType is not null, then element type of this arrays type is available.
         // We should define the arrays type here.
         if (bType != null) {
-            SimpleTypeName childSimpleType = new SimpleTypeName(typeName.getName(), typeName.getPackagePath(), true);
-            childSimpleType.setPkgPath(typeName.getPackagePath());
-            childSimpleType.setArrayType(typeName.getDimensions() - 1);
+            if (typeName.getDimensions() == 1) {
+                BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
+                        bType, typeName.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
+                bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
+                return bArrayType;
+            } else {
+                SimpleTypeName childSimpleType = new SimpleTypeName(typeName.getName(),
+                        typeName.getPackagePath(), true);
+                childSimpleType.setPkgPath(typeName.getPackagePath());
+                childSimpleType.setArrayType(typeName.getDimensions() - 1);
 
-            BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
-                    BTypes.resolveType(childSimpleType, symbolScope, location),
-                    typeName.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
-            bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
+                BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
+                        BTypes.resolveType(childSimpleType, symbolScope, location), typeName.getPackagePath(),
+                        bType.getSymbolScope(), typeName.getDimensions());
+                bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
 
-            return bArrayType;
+                return bArrayType;
+            }
         }
 
 
