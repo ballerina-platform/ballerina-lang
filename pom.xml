@@ -653,6 +653,12 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-all</artifactId>
+                <version>${activemq.broker.vesion}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.commons.wso2</groupId>
                 <artifactId>commons-vfs2</artifactId>
                 <version>${commons-vfs2.wso2.version}</version>
@@ -940,7 +946,7 @@
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <jcommander.version>1.60</jcommander.version>
-        <activemq.broker.vesion>5.14.3</activemq.broker.vesion>
+        <activemq.broker.vesion>5.14.4</activemq.broker.vesion>
         <javax.jms.version>2.0.1</javax.jms.version>
         <com.zaxxer.hikaricp.version>2.5.1</com.zaxxer.hikaricp.version>
         <hyperSQL.version>2.3.4</hyperSQL.version>
