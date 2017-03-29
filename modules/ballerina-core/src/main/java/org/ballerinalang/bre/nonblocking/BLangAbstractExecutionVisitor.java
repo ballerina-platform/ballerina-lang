@@ -1599,9 +1599,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             return;
         }
 
-        // Evaluate the index expression and get the value.
-//        BValue indexValue = getTempValue(indexExpr);
-
         // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
 
@@ -1688,9 +1685,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         } else {
             return currentVal;
         }
-
-        // Evaluate the index expression and get the value
-//        BValue indexValue = getTempValue(indexExpr);
 
         BValue indexValue;
         BValue unitVal;
