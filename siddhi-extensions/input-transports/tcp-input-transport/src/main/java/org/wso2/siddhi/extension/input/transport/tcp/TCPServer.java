@@ -52,11 +52,14 @@ public class TCPServer {
 
 
     public synchronized void addStreamListener(StreamListener streamListener) {
+        start();
         tcpNettyServer.addStreamListener(streamListener);
     }
 
     public synchronized void removeStreamListener(String streamId) {
-        tcpNettyServer.removeStreamListener(streamId);
+        if (tcpNettyServer != null) {
+            tcpNettyServer.removeStreamListener(streamId);
+        }
     }
 
     public void isPaused(boolean paused) {

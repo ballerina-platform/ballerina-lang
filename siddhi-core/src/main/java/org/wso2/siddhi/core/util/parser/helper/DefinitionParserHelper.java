@@ -213,41 +213,42 @@ public class DefinitionParserHelper {
             if (SiddhiConstants.ANNOTATION_SOURCE.equalsIgnoreCase(sourceAnnotation.getName())) {
                 Annotation mapAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_MAP,
                         sourceAnnotation.getAnnotations());
-                if (mapAnnotation != null) {
-                    final String sourceType = sourceAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-                    final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-                    if (sourceType != null && mapType != null) {
-                        // load input transport extension
-                        Extension source = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SOURCE,
-                                sourceType, sourceAnnotation, SiddhiConstants.NAMESPACE_INPUT_TRANSPORT);
-                        InputTransport inputTransport = (InputTransport) SiddhiClassLoader.loadExtensionImplementation(
-                                source, InputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
+                if (mapAnnotation == null) {
+                    mapAnnotation = Annotation.annotation(SiddhiConstants.ANNOTATION_MAP).element(SiddhiConstants.ANNOTATION_ELEMENT_TYPE, "passThrough");
+                }
+                final String sourceType = sourceAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                if (sourceType != null && mapType != null) {
+                    // load input transport extension
+                    Extension source = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SOURCE,
+                            sourceType, sourceAnnotation, SiddhiConstants.NAMESPACE_INPUT_TRANSPORT);
+                    InputTransport inputTransport = (InputTransport) SiddhiClassLoader.loadExtensionImplementation(
+                            source, InputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
 
-                        // load input mapper extension
-                        Extension mapper = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
-                                mapType, sourceAnnotation, SiddhiConstants.NAMESPACE_INPUT_MAPPER);
-                        InputMapper inputMapper = (InputMapper) SiddhiClassLoader.loadExtensionImplementation(
-                                mapper, InputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
+                    // load input mapper extension
+                    Extension mapper = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
+                            mapType, sourceAnnotation, SiddhiConstants.NAMESPACE_INPUT_MAPPER);
+                    InputMapper inputMapper = (InputMapper) SiddhiClassLoader.loadExtensionImplementation(
+                            mapper, InputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
 
-                        OptionHolder sourceOptionHolder = constructOptionProcessor(streamDefinition, sourceAnnotation,
-                                inputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
-                        OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
-                                inputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
+                    OptionHolder sourceOptionHolder = constructOptionProcessor(streamDefinition, sourceAnnotation,
+                            inputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
+                    OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
+                            inputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
 
-                        inputMapper.init(streamDefinition, mapType, mapOptionHolder, getAttributeMappings(mapAnnotation));
-                        inputTransport.init(sourceOptionHolder, inputMapper, executionPlanContext);
+                    inputMapper.init(streamDefinition, mapType, mapOptionHolder, getAttributeMappings(mapAnnotation));
+                    inputTransport.init(sourceOptionHolder, inputMapper, executionPlanContext);
 
-                        List<InputTransport> eventSources = eventSourceMap.get(streamDefinition.getId());
-                        if (eventSources == null) {
-                            eventSources = new ArrayList<InputTransport>();
-                            eventSources.add(inputTransport);
-                            eventSourceMap.put(streamDefinition.getId(), eventSources);
-                        } else {
-                            eventSources.add(inputTransport);
-                        }
+                    List<InputTransport> eventSources = eventSourceMap.get(streamDefinition.getId());
+                    if (eventSources == null) {
+                        eventSources = new ArrayList<InputTransport>();
+                        eventSources.add(inputTransport);
+                        eventSourceMap.put(streamDefinition.getId(), eventSources);
                     } else {
-                        throw new ExecutionPlanCreationException("Both @Sink(type=) and @map(type=) are required.");
+                        eventSources.add(inputTransport);
                     }
+                } else {
+                    throw new ExecutionPlanCreationException("Both @Sink(type=) and @map(type=) are required.");
                 }
             }
         }
@@ -260,90 +261,91 @@ public class DefinitionParserHelper {
             if (SiddhiConstants.ANNOTATION_SINK.equalsIgnoreCase(sinkAnnotation.getName())) {
                 Annotation mapAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_MAP,
                         sinkAnnotation.getAnnotations());
+                if (mapAnnotation == null) {
+                    mapAnnotation = Annotation.annotation(SiddhiConstants.ANNOTATION_MAP).element(SiddhiConstants.ANNOTATION_ELEMENT_TYPE, "passThrough");
+                }
                 Annotation distributionAnnotation =
                         AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_DISTRIBUTION,
                                 sinkAnnotation.getAnnotations());
 
-                if (mapAnnotation != null) {
-                    boolean isDistributedTransport = (distributionAnnotation != null);
-                    String sinkType;
+                boolean isDistributedTransport = (distributionAnnotation != null);
+                String sinkType;
 
+                if (isDistributedTransport) {
+                    // All distributed transports falls under two generalized extensions. Here we instantiate the generalised extension and
+                    // the actual underlying transport is instantiated inside the generalized extensions depending on the 'type' parameter
+                    // in Sink options.
+                    sinkType = (distributionAnnotation.getElement("channels") == null) ?
+                            SiddhiConstants.EXTENSION_MULTI_ENDPOINT_TRANSPORT :
+                            SiddhiConstants.EXTENSION_PARTITIONED_TRANSPORT;
+                } else {
+                    sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                }
+
+                final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                if (sinkType != null && mapType != null) {
+                    // load output transport extension
+                    Extension sink = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,
+                            sinkType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_TRANSPORT);
+                    OutputTransport outputTransport = (OutputTransport) SiddhiClassLoader.loadExtensionImplementation(
+                            sink, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
+
+                    // load output mapper extension
+                    Extension mapper = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
+                            mapType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_MAPPER);
+                    OutputMapper outputMapper = (OutputMapper) SiddhiClassLoader.loadExtensionImplementation(
+                            mapper, OutputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
+
+                    OptionHolder transportOptionHolder = constructOptionProcessor(streamDefinition, sinkAnnotation,
+                            outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class),
+                            outputTransport.getSupportedDynamicOptions());
+                    OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
+                            outputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class),
+                            outputMapper.getSupportedDynamicOptions());
+                    String payload = getPayload(mapAnnotation);
+
+                    outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
+                            mapOptionHolder, payload, executionPlanContext);
+
+                    // Initializing output transport with distributed configurations
+                    OptionHolder distributionOptionHolder = null;
+                    List<OptionHolder> endpointOptionHolders = new ArrayList<>();
                     if (isDistributedTransport) {
-                        // All distributed transports falls under two generalized extensions. Here we instantiate the generalised extension and
-                        // the actual underlying transport is instantiated inside the generalized extensions depending on the 'type' parameter
-                        // in Sink options.
-                        sinkType = (distributionAnnotation.getElement("channels") == null) ?
-                                SiddhiConstants.EXTENSION_MULTI_ENDPOINT_TRANSPORT :
-                                SiddhiConstants.EXTENSION_PARTITIONED_TRANSPORT;
-                    } else {
-                        sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                        distributionOptionHolder = constructOptionProcessor(streamDefinition,
+                                distributionAnnotation,
+                                outputTransport.getClass().
+                                        getAnnotation(org.wso2.siddhi.annotation.Extension.class), outputTransport.getSupportedDynamicOptions());
+
+                        distributionAnnotation.getAnnotations().stream()
+                                .filter(annotation ->
+                                        SiddhiConstants.ANNOTATION_ENDPOINT.equalsIgnoreCase(annotation.getName()))
+                                .forEach(annotation ->
+                                        endpointOptionHolders
+                                                .add(constructOptionProcessor(streamDefinition, annotation,
+                                                        outputTransport
+                                                                .getClass()
+                                                                .getAnnotation(org.wso2.siddhi.annotation.Extension.class), outputTransport.getSupportedDynamicOptions())));
+
+                        ((DistributedTransport) outputTransport).
+                                initDistributedTransportOptions(distributionOptionHolder, endpointOptionHolders);
                     }
 
-                    final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-                    if (sinkType != null && mapType != null) {
-                        // load output transport extension
-                        Extension sink = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,
-                                sinkType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_TRANSPORT);
-                        OutputTransport outputTransport = (OutputTransport) SiddhiClassLoader.loadExtensionImplementation(
-                                sink, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
-
-                        // load output mapper extension
-                        Extension mapper = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
-                                mapType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_MAPPER);
-                        OutputMapper outputMapper = (OutputMapper) SiddhiClassLoader.loadExtensionImplementation(
-                                mapper, OutputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
-
-                        OptionHolder transportOptionHolder = constructOptionProcessor(streamDefinition, sinkAnnotation,
-                                outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class),
-                                outputTransport.getSupportedDynamicOptions());
-                        OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
-                                outputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class),
-                                outputMapper.getSupportedDynamicOptions());
-                        String payload = getPayload(mapAnnotation);
-
-                        outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
-                                mapOptionHolder, payload, executionPlanContext);
-
-                        // Initializing output transport with distributed configurations
-                        OptionHolder distributionOptionHolder = null;
-                        List<OptionHolder> endpointOptionHolders = new ArrayList<>();
-                        if (isDistributedTransport) {
-                            distributionOptionHolder = constructOptionProcessor(streamDefinition,
-                                    distributionAnnotation,
-                                    outputTransport.getClass().
-                                            getAnnotation(org.wso2.siddhi.annotation.Extension.class), outputTransport.getSupportedDynamicOptions());
-
-                            distributionAnnotation.getAnnotations().stream()
-                                    .filter(annotation ->
-                                            SiddhiConstants.ANNOTATION_ENDPOINT.equalsIgnoreCase(annotation.getName()))
-                                    .forEach(annotation ->
-                                            endpointOptionHolders
-                                                    .add(constructOptionProcessor(streamDefinition, annotation,
-                                                            outputTransport
-                                                                    .getClass()
-                                                                    .getAnnotation(org.wso2.siddhi.annotation.Extension.class), outputTransport.getSupportedDynamicOptions())));
-
-                            ((DistributedTransport) outputTransport).
-                                    initDistributedTransportOptions(distributionOptionHolder, endpointOptionHolders);
-                        }
-
-                        OutputGroupDeterminer groupDeterminer = constructOutputGroupDeterminer(transportOptionHolder,
-                                distributionOptionHolder, streamDefinition, endpointOptionHolders.size());
-                        if (groupDeterminer != null) {
-                            outputTransport.getMapper().setGroupDeterminer(groupDeterminer);
-                        }
-
-                        List<OutputTransport> eventSinks = eventSinkMap.get(streamDefinition.getId());
-                        if (eventSinks == null) {
-                            eventSinks = new ArrayList<OutputTransport>();
-                            eventSinks.add(outputTransport);
-                            eventSinkMap.put(streamDefinition.getId(), eventSinks);
-                        } else {
-                            eventSinks.add(outputTransport);
-                        }
-                    } else {
-                        throw new ExecutionPlanCreationException("Both @sink(type=) and @map(type=) are required.");
+                    OutputGroupDeterminer groupDeterminer = constructOutputGroupDeterminer(transportOptionHolder,
+                            distributionOptionHolder, streamDefinition, endpointOptionHolders.size());
+                    if (groupDeterminer != null) {
+                        outputTransport.getMapper().setGroupDeterminer(groupDeterminer);
                     }
+
+                    List<OutputTransport> eventSinks = eventSinkMap.get(streamDefinition.getId());
+                    if (eventSinks == null) {
+                        eventSinks = new ArrayList<OutputTransport>();
+                        eventSinks.add(outputTransport);
+                        eventSinkMap.put(streamDefinition.getId(), eventSinks);
+                    } else {
+                        eventSinks.add(outputTransport);
+                    }
+                } else {
+                    throw new ExecutionPlanCreationException("Both @sink(type=) and @map(type=) are required.");
                 }
             }
         }
