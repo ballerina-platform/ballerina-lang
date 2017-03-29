@@ -102,16 +102,18 @@ public class BallerinaBlock extends AbstractBlock {
                         indent = Indent.getSpaceIndent(4);
                     }
                 }
-
-                Block block = new BallerinaBlock(
-                        child,
-                        Alignment.createAlignment(),
-                        indent,
-                        null,
-                        mySettings,
-                        spacingBuilder
-                );
-                blocks.add(block);
+                // If the child node text is empty, the IDEA core will throw an exception.
+                if (!child.getText().isEmpty()) {
+                    Block block = new BallerinaBlock(
+                            child,
+                            Alignment.createAlignment(),
+                            indent,
+                            null,
+                            mySettings,
+                            spacingBuilder
+                    );
+                    blocks.add(block);
+                }
             }
             child = child.getTreeNext();
         }
