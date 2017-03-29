@@ -64,7 +64,7 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
      * Will be called for initialing the {@link OutputTransport}
      *
      * @param outputStreamDefinition
-     * @param optionHolder         Option holder containing static and dynamic options related to the {@link OutputTransport}
+     * @param optionHolder           Option holder containing static and dynamic options related to the {@link OutputTransport}
      * @param executionPlanContext
      */
     protected abstract void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext);
