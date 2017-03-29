@@ -59,11 +59,13 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
     @Test
     public void testXMLOutputMapperWithDefaultMapping() throws InterruptedException {
         log.info("Test default xml mapping with Siddhi Query API");
+        List<Object> onMessageList = new ArrayList<Object>();
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object msg) {
                 wso2Count.incrementAndGet();
+                onMessageList.add(msg);
             }
 
             @Override
@@ -76,6 +78,7 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
             @Override
             public void onMessage(Object msg) {
                 ibmCount.incrementAndGet();
+                onMessageList.add(msg);
             }
 
             @Override
@@ -108,7 +111,8 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
                 InputStream.stream("FooStream")
         );
         query.select(
-                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
+                Selector.selector().select(new Variable("symbol")).select(new Variable(
+                        "price")).select(new Variable("volume"))
         );
         query.insertInto("BarStream");
 
@@ -130,6 +134,13 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
         //assert event count
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
+        //assert default mapping
+        Assert.assertEquals("Incorrect mapping!","<events><event><symbol>WSO2</symbol>" +
+                "<price>55.6</price><volume>100</volume></event></events>", onMessageList.get(0).toString());
+        Assert.assertEquals("Incorrect mapping!","<events><event><symbol>IBM</symbol>" +
+                "<price>75.6</price><volume>100</volume></event></events>", onMessageList.get(1).toString());
+        Assert.assertEquals("Incorrect mapping!","<events><event><symbol>WSO2</symbol>" +
+                "<price>57.6</price><volume>100</volume></event></events>", onMessageList.get(2).toString());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -191,14 +202,16 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
                         .annotation(Annotation.annotation("map")
                                 .element("type", "xml")
                                 .annotation(Annotation.annotation("payload")
-                                        .element("<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}</Price></StockData>"))));
+                                        .element("<StockData><Symbol>{{symbol}}</Symbol><Price>" +
+                                                "{{price}}</Price></StockData>"))));
 
         Query query = Query.query();
         query.from(
                 InputStream.stream("FooStream")
         );
         query.select(
-                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
+                Selector.selector().select(new Variable("symbol")).select(new Variable(
+                        "price")).select(new Variable("volume"))
         );
         query.insertInto("BarStream");
 
@@ -221,9 +234,299 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom xml
-        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>WSO2</Symbol><Price>55.6</Price></StockData>", onMessageList.get(0).toString());
-        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>IBM</Symbol><Price>75.6</Price></StockData>", onMessageList.get(1).toString());
-        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>WSO2</Symbol><Price>57.6</Price></StockData>", onMessageList.get(2).toString());
+        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>WSO2</Symbol>" +
+                "<Price>55.6</Price></StockData>", onMessageList.get(0).toString());
+        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>IBM</Symbol>" +
+                "<Price>75.6</Price></StockData>", onMessageList.get(1).toString());
+        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>WSO2</Symbol>" +
+                "<Price>57.6</Price></StockData>", onMessageList.get(2).toString());
+        executionPlanRuntime.shutdown();
+
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriberWSO2);
+        InMemoryBroker.unsubscribe(subscriberIBM);
+    }
+
+    @Test
+    public void testXMLOutputCustomMappingWithXMLPrefix() throws InterruptedException {
+        log.info("Test custom xml mapping with SiddhiQL. Here, XML prefix and a suffix is being provided for mapping.");
+        List<Object> onMessageList = new ArrayList<Object>();
+
+        InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                wso2Count.incrementAndGet();
+                onMessageList.add(msg);
+            }
+
+            @Override
+            public String getTopic() {
+                return "WSO2";
+            }
+        };
+
+        InMemoryBroker.Subscriber subscriberIBM = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                ibmCount.incrementAndGet();
+                onMessageList.add(msg);
+            }
+
+            @Override
+            public String getTopic() {
+                return "IBM";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriberWSO2);
+        InMemoryBroker.subscribe(subscriberIBM);
+
+        StreamDefinition streamDefinition = StreamDefinition.id("FooStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.FLOAT)
+                .attribute("volume", Attribute.Type.INT);
+
+        StreamDefinition outputDefinition = StreamDefinition.id("BarStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.FLOAT)
+                .attribute("volume", Attribute.Type.INT)
+                .annotation(Annotation.annotation("sink")
+                        .element("type", "inMemory")
+                        .element("topic", "{{symbol}}")
+                        .annotation(Annotation.annotation("map")
+                                .element("type", "xml")
+                                .element("prefixXml", "<portfolio>")
+                                .element("suffixXml", "</portfolio>")
+                                .annotation(Annotation.annotation("payload")
+                                        .element("<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}" +
+                                                "</Price></StockData>"))));
+
+        Query query = Query.query();
+        query.from(
+                InputStream.stream("FooStream")
+        );
+        query.select(
+                Selector.selector().select(new Variable("symbol")).select(new Variable(
+                        "price")).select(new Variable("volume"))
+        );
+        query.insertInto("BarStream");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
+        executionPlan.defineStream(streamDefinition);
+        executionPlan.defineStream(outputDefinition);
+        executionPlan.addQuery(query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+
+        executionPlanRuntime.start();
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
+        //assert custom xml
+        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>WSO2</Symbol>" +
+                "<Price>55.6</Price></StockData></portfolio>", onMessageList.get(0).toString());
+        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>IBM</Symbol>" +
+                "<Price>75.6</Price></StockData></portfolio>", onMessageList.get(1).toString());
+        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>WSO2</Symbol>" +
+                "<Price>57.6</Price></StockData></portfolio>", onMessageList.get(2).toString());
+        executionPlanRuntime.shutdown();
+
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriberWSO2);
+        InMemoryBroker.unsubscribe(subscriberIBM);
+    }
+
+    @Test
+    public void testXMLOutputCustomMappingWithXMLValidation() throws InterruptedException {
+        log.info("Test custom xml mapping where XML validation is enabled.");
+        List<Object> onMessageList = new ArrayList<Object>();
+
+        InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                wso2Count.incrementAndGet();
+                onMessageList.add(msg);
+            }
+
+            @Override
+            public String getTopic() {
+                return "WSO2";
+            }
+        };
+
+        InMemoryBroker.Subscriber subscriberIBM = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                ibmCount.incrementAndGet();
+                onMessageList.add(msg);
+            }
+
+            @Override
+            public String getTopic() {
+                return "IBM";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriberWSO2);
+        InMemoryBroker.subscribe(subscriberIBM);
+
+        StreamDefinition streamDefinition = StreamDefinition.id("FooStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.FLOAT)
+                .attribute("volume", Attribute.Type.INT);
+
+        StreamDefinition outputDefinition = StreamDefinition.id("BarStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.FLOAT)
+                .attribute("volume", Attribute.Type.INT)
+                .annotation(Annotation.annotation("sink")
+                        .element("type", "inMemory")
+                        .element("topic", "{{symbol}}")
+                        .annotation(Annotation.annotation("map")
+                                .element("type", "xml")
+                                .element("prefixXml", "<portfolio>")
+                                .element("suffixXml", "</portfolio>")
+                                .element("validateXml", "true")
+                                .annotation(Annotation.annotation("payload")
+                                        .element("<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}" +
+                                                "</Price></StockData>"))));
+
+        Query query = Query.query();
+        query.from(
+                InputStream.stream("FooStream")
+        );
+        query.select(
+                Selector.selector().select(new Variable("symbol")).select(new Variable(
+                        "price")).select(new Variable("volume"))
+        );
+        query.insertInto("BarStream");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
+        executionPlan.defineStream(streamDefinition);
+        executionPlan.defineStream(outputDefinition);
+        executionPlan.addQuery(query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+
+        executionPlanRuntime.start();
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
+        //assert custom xml
+        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>WSO2</Symbol>" +
+                "<Price>55.6</Price></StockData></portfolio>", onMessageList.get(0).toString());
+        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>IBM</Symbol>" +
+                "<Price>75.6</Price></StockData></portfolio>", onMessageList.get(1).toString());
+        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>WSO2</Symbol>" +
+                "<Price>57.6</Price></StockData></portfolio>", onMessageList.get(2).toString());
+        executionPlanRuntime.shutdown();
+
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriberWSO2);
+        InMemoryBroker.unsubscribe(subscriberIBM);
+    }
+
+    @Test
+    public void negativeTestXMLOutputCustomMappingWithXMLValidation() throws InterruptedException {
+        log.info("Negative test case for testing whether events are dropped when XML validation is enabled" +
+                " and a malformed XML event is generated as a result of output mapping.");
+        List<Object> onMessageList = new ArrayList<Object>();
+
+        InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                wso2Count.incrementAndGet();
+                onMessageList.add(msg);
+            }
+
+            @Override
+            public String getTopic() {
+                return "WSO2";
+            }
+        };
+
+        InMemoryBroker.Subscriber subscriberIBM = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                ibmCount.incrementAndGet();
+                onMessageList.add(msg);
+            }
+
+            @Override
+            public String getTopic() {
+                return "IBM";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriberWSO2);
+        InMemoryBroker.subscribe(subscriberIBM);
+
+        StreamDefinition streamDefinition = StreamDefinition.id("FooStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.FLOAT)
+                .attribute("volume", Attribute.Type.INT);
+
+        StreamDefinition outputDefinition = StreamDefinition.id("BarStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.FLOAT)
+                .attribute("volume", Attribute.Type.INT)
+                .annotation(Annotation.annotation("sink")
+                        .element("type", "inMemory")
+                        .element("topic", "{{symbol}}")
+                        .annotation(Annotation.annotation("map")
+                                .element("type", "xml")
+                                .element("prefixXml", "<portfolioo>")
+                                .element("suffixXml", "</portfolio>")
+                                .element("validateXml", "true")
+                                .annotation(Annotation.annotation("payload")
+                                        .element("<StockData><Symbol>{{symbol}}</Symbol><Price>" +
+                                                "{{price}}</Price></StockData>"))));
+
+        Query query = Query.query();
+        query.from(
+                InputStream.stream("FooStream")
+        );
+        query.select(
+                Selector.selector().select(new Variable("symbol")).select(new Variable(
+                        "price")).select(new Variable("volume"))
+        );
+        query.insertInto("BarStream");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
+        executionPlan.defineStream(streamDefinition);
+        executionPlan.defineStream(outputDefinition);
+        executionPlan.addQuery(query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+
+        executionPlanRuntime.start();
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Incorrect number of events consumed!", 0, wso2Count.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 0, ibmCount.get());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic

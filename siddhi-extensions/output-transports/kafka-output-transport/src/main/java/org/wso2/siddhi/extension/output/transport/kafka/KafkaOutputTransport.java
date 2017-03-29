@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.extension.output.transport.kafka;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
@@ -50,9 +50,9 @@ public class KafkaOutputTransport extends OutputTransport {
     private String optionalConfigs;
     private Option partitionOption;
 
-    private final static String ADAPTOR_PUBLISH_TOPIC = "topic";
-    private final static String ADAPTOR_META_BROKER_LIST = "bootstrap.servers";
-    private final static String ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
+    private static final String KAFKA_PUBLISH_TOPIC = "topic";
+    private static final String KAFKA_BROKER_LIST = "bootstrap.servers";
+    private static final String KAFKA_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
     private static final String HEADER_SEPARATOR = ",";
     private static final String ENTRY_SEPARATOR = ":";
     private static final String KAFKA_PARTITION_NO = "partition.no";
@@ -60,11 +60,12 @@ public class KafkaOutputTransport extends OutputTransport {
     private static final Logger log = Logger.getLogger(KafkaOutputTransport.class);
 
     @Override
-    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
-        kafkaConnect = optionHolder.validateAndGetStaticValue(ADAPTOR_META_BROKER_LIST);
-        optionalConfigs = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES, null);
-        topicOption = optionHolder.validateAndGetOption(ADAPTOR_PUBLISH_TOPIC);
-        partitionOption = optionHolder.validateAndGetOption(KAFKA_PARTITION_NO);
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
+                        ExecutionPlanContext executionPlanContext) {
+        kafkaConnect = optionHolder.validateAndGetStaticValue(KAFKA_BROKER_LIST);
+        optionalConfigs = optionHolder.validateAndGetStaticValue(KAFKA_OPTIONAL_CONFIGURATION_PROPERTIES, null);
+        topicOption = optionHolder.validateAndGetOption(KAFKA_PUBLISH_TOPIC);
+        partitionOption = optionHolder.getOrCreateOption(KAFKA_PARTITION_NO, null);
         executorService = executionPlanContext.getScheduledExecutorService();
     }
 

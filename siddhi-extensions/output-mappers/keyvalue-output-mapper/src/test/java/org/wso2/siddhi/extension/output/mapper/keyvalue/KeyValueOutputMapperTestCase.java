@@ -38,8 +38,8 @@ import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MapOutputMapperTestCase {
-    static final Logger log = Logger.getLogger(MapOutputMapperTestCase.class);
+public class KeyValueOutputMapperTestCase {
+    static final Logger log = Logger.getLogger(KeyValueOutputMapperTestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
@@ -97,7 +97,7 @@ public class MapOutputMapperTestCase {
                 .annotation(Annotation.annotation("sink")
                         .element("type", "inMemory")
                         .element("topic", "{{symbol}}")
-                        .annotation(Annotation.annotation("map").element("type", "map")));
+                        .annotation(Annotation.annotation("map").element("type", "keyvalue")));
 
         Query query = Query.query();
         query.from(
@@ -172,7 +172,7 @@ public class MapOutputMapperTestCase {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
-                "@sink(type='inMemory', topic='{{symbol}}', @map(type='map')) " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='keyvalue')) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
         String query = "" +

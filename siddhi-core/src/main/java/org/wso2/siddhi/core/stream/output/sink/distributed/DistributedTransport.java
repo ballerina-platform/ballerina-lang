@@ -71,7 +71,6 @@ public abstract class DistributedTransport extends OutputTransport {
             }
         }
 
-        // Throwing an exception to notify that connection to some destinations have failed
         if (errorCount > 0){
             throw new ConnectionUnavailableException(errorCount + "/" + destinationsToPublish.size() + " connections failed " +
                     "while trying to publish with following error messages:" + errorMessages.toString());

@@ -2,8 +2,11 @@ package org.wso2.siddhi.extension.output.mapper.wso2event;
 
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.publisher.OutputMapper;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransportCallback;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.ArrayList;
@@ -13,64 +16,62 @@ import java.util.Map;
 @Extension(
         name = "wso2event",
         namespace = "outputmapper",
-        description = ""
+        description = "Event to WSO2Event output mapper."
 )
 public class WSO2EventOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
-    Map<String, String> options;
+    private OptionHolder optionHolder;
     private static final String PROPERTY_META_PREFIX = "meta_";
     private static final String PROPERTY_CORRELATION_PREFIX = "correlation_";
     private static final String STREAM_ID = "streamID";
-    private boolean isDynamicStreamID;
 
     /**
      * Initialize the mapper and the mapping configurations.
      *
      * @param streamDefinition       The stream definition
-     * @param options                Additional mapping options
-     * @param unmappedDynamicOptions Unmapped dynamic options
+     * @param optionHolder           Option holder containing static and dynamic options
+     * @param payloadTemplateBuilder Unmapped payload for reference
      */
     @Override
-    public void init(StreamDefinition streamDefinition, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
         this.streamDefinition = streamDefinition;
-        this.options = options;
+        this.optionHolder = optionHolder;
+    }
 
-        //streamID is expected to receive as an option/dynamic option
-        List<String> availableOptions = new ArrayList<>();
-        availableOptions.addAll(options.keySet());
-        availableOptions.addAll(unmappedDynamicOptions.keySet());
-        //validate for mandatory field streamID
-        if (availableOptions.contains(STREAM_ID)) {
-            isDynamicStreamID = unmappedDynamicOptions.containsKey(STREAM_ID);
-        } else {
-            throw new ExecutionPlanCreationException(String.format("{{%s}} configuration " +
-                    "could not be found in provided configs.", STREAM_ID));
+    /**
+     * Map and publish the given {@link Event} array
+     *
+     * @param events                  Event object array
+     * @param outputTransportCallback output transport callback
+     * @param optionHolder            option holder containing static and dynamic options
+     * @param payloadTemplateBuilder  Unmapped payload for reference
+     */
+    @Override
+    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback,
+                           OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder)
+            throws ConnectionUnavailableException {
+        //TODO add support to publish multiple events
+        for (Event event : events) {
+            outputTransportCallback.publish(constructDefaultMapping(event), event);
         }
     }
 
     /**
      * Convert the given {@link Event} to WSO2Event Object
      *
-     * @param event          Event object
-     * @param dynamicOptions Dynamic options
-     * @return the constructed Event Object in WSO2Event format
+     * @param event Event object
+     * @return the constructed WSO2Event
      */
-    @Override
-    public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {
+    private Object constructDefaultMapping(Event event) {
         org.wso2.carbon.databridge.commons.Event eventObject = new org.wso2.carbon.databridge.commons.Event();
         Object[] eventData = event.getData();
         List<Object> metaData = new ArrayList<Object>();
         List<Object> correlationData = new ArrayList<Object>();
         List<Object> payloadData = new ArrayList<Object>();
 
-        // Construct WSO2Event
-        if (!isDynamicStreamID) {
-            eventObject.setStreamId(options.get(STREAM_ID));
-        } else {
-            eventObject.setStreamId(dynamicOptions.get(STREAM_ID));
-        }
+        //streamID is expected to receive as an option
+        eventObject.setStreamId(optionHolder.validateAndGetOption(STREAM_ID).getValue());
         eventObject.setTimeStamp(event.getTimestamp());
-
         for (int i = 0; i < eventData.length; i++) {
             String attributeName = streamDefinition.getAttributeNameArray()[i];
             if (attributeName.startsWith(PROPERTY_META_PREFIX)) {
@@ -91,26 +92,14 @@ public class WSO2EventOutputMapper extends OutputMapper {
             eventObject.setPayloadData(payloadData.toArray());
         }
 
-        // Get arbitrary data from event
+        // TODO remove if we are not going to support arbitraryDataMap
+/*        // Get arbitrary data from event
         Map map = event.getArbitraryDataMap();
         if (map != null) {
             // Add arbitrary data map to the default template
             eventObject.setArbitraryDataMap(map);
-        }
+        }*/
 
         return eventObject;
-    }
-
-    /**
-     * @param event            Event object
-     * @param mappedAttributes Event mapping string array
-     * @param dynamicOptions   Dynamic options
-     * @return null
-     */
-    // Note: Currently, we do not support custom mapping for "wso2event" type since the expected usecases can be
-    // handled by writing siddhi queries
-    @Override
-    public Object convertToMappedInputEvent(Event event, String[] mappedAttributes, Map<String, String> dynamicOptions) {
-        return null;
     }
 }

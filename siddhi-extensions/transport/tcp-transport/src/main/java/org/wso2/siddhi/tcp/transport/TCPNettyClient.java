@@ -31,8 +31,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
-public class TcpNettyClient {
-    private static final Logger log = Logger.getLogger(TcpNettyClient.class);
+public class TCPNettyClient {
+    private static final Logger log = Logger.getLogger(TCPNettyClient.class);
 
     private EventLoopGroup group;
     private Bootstrap bootstrap;
@@ -41,7 +41,7 @@ public class TcpNettyClient {
     private String hostAndPort;
 
 
-    public TcpNettyClient() {
+    public TCPNettyClient() {
         group = new NioEventLoopGroup();
         bootstrap = new Bootstrap();
         bootstrap.group(group)
@@ -109,18 +109,18 @@ public class TcpNettyClient {
 
 
     public static void main(String[] args) {
-        TcpNettyClient tcpNettyClient = new TcpNettyClient();
-        tcpNettyClient.connect("localhost", 8080);
+        TCPNettyClient TCPNettyClient = new TCPNettyClient();
+        TCPNettyClient.connect("localhost", 9892);
         for (int i = 0; i < 10000; i++) {
             ArrayList<Event> arrayList = new ArrayList<Event>(100);
             for (int j = 0; j < 5; j++) {
                 arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"WSO2", i, 10}));
                 arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"IBM", i, 10}));
             }
-            tcpNettyClient.send("StockStream", arrayList.toArray(new Event[10]));
+            TCPNettyClient.send("StockStream", arrayList.toArray(new Event[10]));
         }
-        tcpNettyClient.disconnect();
-        tcpNettyClient.shutdown();
+        TCPNettyClient.disconnect();
+        TCPNettyClient.shutdown();
     }
 
 }

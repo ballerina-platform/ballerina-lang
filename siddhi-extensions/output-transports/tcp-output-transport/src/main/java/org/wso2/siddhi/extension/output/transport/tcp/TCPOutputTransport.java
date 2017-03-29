@@ -28,7 +28,7 @@ import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.tcp.transport.TcpNettyClient;
+import org.wso2.siddhi.tcp.transport.TCPNettyClient;
 
 import java.util.Map;
 
@@ -37,53 +37,54 @@ import java.util.Map;
         namespace = "outputtransport",
         description = ""
 )
-public class TcpOutputTransport extends OutputTransport {
+public class TCPOutputTransport extends OutputTransport {
 
     public static final String HOST = "host";
     public static final String PORT = "port";
-    public static final String TCP_STREAM_ID = "tcp.stream.id";
-    private static final Logger log = Logger.getLogger(TcpOutputTransport.class);
-    private TcpNettyClient tcpNettyClient;
+    public static final String CONTEXT = "context";
+    private static final Logger log = Logger.getLogger(TCPOutputTransport.class);
+    private TCPNettyClient TCPNettyClient;
     private String host;
     private int port;
     private Option streamIdOption;
 
     @Override
     public String[] getSupportedDynamicOptions() {
-        return new String[]{TCP_STREAM_ID};
+        return new String[]{CONTEXT};
     }
 
     @Override
     protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
-        tcpNettyClient = new TcpNettyClient();
+        TCPNettyClient = new TCPNettyClient();
         host = optionHolder.validateAndGetStaticValue(HOST, "localhost");
-        port = Integer.parseInt(optionHolder.validateAndGetStaticValue(PORT, "8080"));
-        streamIdOption = optionHolder.getOrCreateOption(TCP_STREAM_ID, outputStreamDefinition.getId());
+        port = Integer.parseInt(optionHolder.validateAndGetStaticValue(PORT, "9892"));
+        streamIdOption = optionHolder.validateAndGetOption(CONTEXT);
     }
 
     @Override
     public void connect() throws ConnectionUnavailableException {
-        tcpNettyClient.connect(host, port);
+        log.info("TCPOutputTransport:connect()");
+        TCPNettyClient.connect(host, port);
     }
 
     @Override
     public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
         String streamId = streamIdOption.getValue(dynamicOptions);
-        tcpNettyClient.send(streamId, (Event[]) payload);
+        TCPNettyClient.send(streamId, (Event[]) payload);
     }
 
     @Override
     public void disconnect() {
-        if (tcpNettyClient != null) {
-            tcpNettyClient.disconnect();
+        if (TCPNettyClient != null) {
+            TCPNettyClient.disconnect();
         }
     }
 
     @Override
     public void destroy() {
-        if (tcpNettyClient != null) {
-            tcpNettyClient.shutdown();
-            tcpNettyClient = null;
+        if (TCPNettyClient != null) {
+            TCPNettyClient.shutdown();
+            TCPNettyClient = null;
         }
     }
 

@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.util;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
@@ -32,6 +33,7 @@ import org.osgi.service.component.annotations.Component;
 )
 public class SiddhiManagerComponent {
     private static BundleContext bundleContext;
+    private ServiceRegistration serviceRegistration;
 
     /**
      * This is the activation method of SiddhiManagerService. This will be initilize the Siddhi Manager and register the
@@ -43,6 +45,8 @@ public class SiddhiManagerComponent {
     @Activate
     protected void start(BundleContext bundleContext) throws Exception {
         SiddhiManagerComponent.bundleContext = bundleContext;
+        serviceRegistration = bundleContext.registerService(SiddhiComponentActivator.class.getName(),
+                                                            new SiddhiComponentActivator(), null);
     }
 
     /**
@@ -52,4 +56,11 @@ public class SiddhiManagerComponent {
     public static BundleContext getBundleContext() {
         return bundleContext;
     }
+
+    protected void stop() throws Exception {
+        serviceRegistration.unregister();
+    }
 }
+
+
+
