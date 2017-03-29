@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "install-app-deps",
-    "pack": "build --dir",
-    "dist": "build",
-    "dist-all": "build --mac --win --linux",
+    "pack": "npm run pre-build && build --dir",
+    "dist": "npm run pre-build && build",
+    "dist-all": "npm run pre-build && build --mac --win --linux",
     "pre-build": "node pre-build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,16 +16,16 @@
     "asar": false,
     "mac": {
       "category": "public.app-category.productivity",
-      "target": "dmg"
+      "target": "zip"
     },
     "win": {
       "target": [
-        "nsis"
+        "zip"
       ]
     },
     "linux": {
       "target": [
-        "deb"
+        "zip"
       ]
     }
   },
@@ -34,13 +34,14 @@
     "url": "git+https://github.com/ballerinalang/composer.git"
   },
   "keywords": [
-    "Ballerina", "BallerinaLang",
+    "Ballerina",
+    "BallerinaLang",
     "Composer"
   ],
   "author": {
-    "name" : "ballerinalang.org",
-    "email" : "https://groups.google.com/forum/#!forum/ballerina-dev",
-    "url" : "https://groups.google.com/forum/#!forum/ballerina-dev"
+    "name": "ballerinalang.org",
+    "email": "https://groups.google.com/forum/#!forum/ballerina-dev",
+    "url": "https://groups.google.com/forum/#!forum/ballerina-dev"
   },
   "license": "Apache-2.0",
   "bugs": {
@@ -48,8 +49,9 @@
   },
   "homepage": "https://github.com/ballerinalang/composer#readme",
   "devDependencies": {
+    "decompress": "^4.0.0",
     "electron": "^1.6.2",
     "electron-builder": "^16.4.2",
-    "unzip2": "^0.2.5"
+    "glob": "^7.1.1"
   }
 }
