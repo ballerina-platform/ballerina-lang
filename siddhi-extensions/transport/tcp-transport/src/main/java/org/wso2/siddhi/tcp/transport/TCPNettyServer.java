@@ -134,6 +134,7 @@ public class TCPNettyServer {
  * an internal {@link CircularFifoQueue} with a user defined size (default is
  * {@link org.wso2.siddhi.tcp.transport.utils.Constant#DEFAULT_QUEUE_SIZE_OF_TCP_TRANSPORT}).
  */
+
 class FlowController extends ChannelInboundHandlerAdapter {
     private ChannelHandlerContext channelHandlerContext;
     private final CircularFifoQueue<Object> queue;
@@ -172,5 +173,10 @@ class FlowController extends ChannelInboundHandlerAdapter {
             });
             queue.clear();
         }
+    }
+
+    @Override
+    public boolean isSharable() {
+        return true;
     }
 }

@@ -262,10 +262,18 @@ public class TCPInputTransportTestCase {
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test2", 362, 32.0f, 3802l, 232.0, true}));
         tcpNettyClient.send("inputStream", arrayList.toArray(new Event[3]));
 
+        TCPNettyClient tcpNettyClient2 = new TCPNettyClient();
+        tcpNettyClient2.connect("localhost", 9892);
+        ArrayList<Event> arrayList2 = new ArrayList<Event>(1);
+
+        arrayList2.add(new Event(System.currentTimeMillis(), new Object[]{"test2", 36, 3.0f, 380l, 23.0, true}));
+        Thread.sleep(1000);
+        tcpNettyClient2.send("inputStream", arrayList2.toArray(new Event[1]));
+
 
         Thread.sleep(1000);
         Assert.assertTrue(eventArrived);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(4, count);
         count = 0;
         eventArrived = false;
 
@@ -277,6 +285,8 @@ public class TCPInputTransportTestCase {
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test1", 361, 31.0f, 3801l, 231.0, false}));
         tcpNettyClient.send("inputStream", arrayList.toArray(new Event[2]));
+        Thread.sleep(100);
+        tcpNettyClient2.send("inputStream", arrayList2.toArray(new Event[1]));
 
         Thread.sleep(1000);
         Assert.assertFalse(eventArrived);
@@ -290,7 +300,7 @@ public class TCPInputTransportTestCase {
         tcpNettyClient.send("inputStream", arrayList.toArray(new Event[2]));
         Thread.sleep(1000);
         // once resumed, we should be able to access the data sent while the transport is paused
-        Assert.assertEquals(4, count);
+        Assert.assertEquals(5, count);
         Assert.assertTrue(eventArrived);
 
         count = 0;
@@ -305,7 +315,9 @@ public class TCPInputTransportTestCase {
         Assert.assertEquals(2, count);
 
         tcpNettyClient.disconnect();
+        tcpNettyClient2.disconnect();
         tcpNettyClient.shutdown();
+        tcpNettyClient2.shutdown();
         Thread.sleep(300);
         executionPlanRuntime.shutdown();
     }
