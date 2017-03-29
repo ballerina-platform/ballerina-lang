@@ -1050,9 +1050,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             previous = indexExpr;
         }
         previous.setNextSibling(endNode);
-//        rExp.setNextSibling(indexExpr);
-//        indexExpr.setParent(arrayMapAccessExpr);
-//        indexExpr.setNextSibling(endNode);
         rExp.accept(this);
         for (Expression indexExpr : indexExprs) {
             indexExpr.accept(this);
