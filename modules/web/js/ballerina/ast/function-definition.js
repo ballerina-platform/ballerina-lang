@@ -421,7 +421,7 @@ class FunctionDefinition extends CallableDefinition {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: "newFunction",
+                defaultValue: 'Function',
                 setter: this.setFunctionName,
                 getter: this.getFunctionName,
                 parents: [{

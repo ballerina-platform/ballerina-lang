@@ -57,14 +57,14 @@ class CommonUtils {
                 log.debug("Existing identifiers: " + existingIdentifiers);
 
                 // Generating the ID.
-                var counter = 0;
+                var counter = 1;
                 var currentAttributeValue = attribute.defaultValue;
                 while (true) {
-                    var tempNewValue = counter > 0 ? currentAttributeValue + counter : currentAttributeValue;
+                    var tempNewValue = currentAttributeValue + counter;
                     if (!_.includes(existingIdentifiers, tempNewValue)) {
                         break;
                     }
-                    counter++
+                    counter++;
                 }
 
                 if (_.isEqual(counter, 0)) {
