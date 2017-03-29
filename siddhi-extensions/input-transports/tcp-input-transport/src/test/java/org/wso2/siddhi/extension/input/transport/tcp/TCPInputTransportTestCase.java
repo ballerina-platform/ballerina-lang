@@ -48,7 +48,6 @@ public class TCPInputTransportTestCase {
         eventArrived = false;
     }
 
-
     @Test
     public void testTcpInputTransport1() throws InterruptedException {
         log.info("tcpInputTransport TestCase 1");
@@ -323,8 +322,7 @@ public class TCPInputTransportTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Ignore
-    @Test(expected = ExecutionPlanCreationException.class)
+    @Test
     public void testTcpInputTransport4() throws InterruptedException {
         ExecutionPlanRuntime executionPlanRuntime = null;
         try {
@@ -342,9 +340,9 @@ public class TCPInputTransportTestCase {
                     "select *  " +
                     "insert into outputStream;");
             executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
-
-
             executionPlanRuntime.start();
+        } catch (ExecutionPlanCreationException e) {
+            Assert.assertNotNull(e);
         } finally {
             if (executionPlanRuntime != null) {
                 executionPlanRuntime.shutdown();
