@@ -275,7 +275,7 @@ class ServiceDefinition extends ASTNode {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: "newService",
+                defaultValue: 'Service',
                 setter: this.setServiceName,
                 getter: this.getServiceName,
                 parents: [{
