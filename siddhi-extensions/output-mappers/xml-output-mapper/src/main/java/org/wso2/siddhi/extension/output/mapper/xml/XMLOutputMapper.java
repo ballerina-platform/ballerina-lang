@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransportCallback;
 import org.wso2.siddhi.core.util.transport.Option;
@@ -57,6 +58,8 @@ public class XMLOutputMapper extends OutputMapper {
     private String prefixXml;
     private String suffixXml;
     private boolean xmlValidationEnabled = false;
+    private DocumentBuilderFactory factory;
+    private DocumentBuilder builder;
 
     /**
      * Initialize the mapper and the mapping configurations.
@@ -89,6 +92,17 @@ public class XMLOutputMapper extends OutputMapper {
         Option validateXmlOption = optionHolder.getOrCreateOption(OPTION_VALIDATE_XML, null);
         if (validateXmlOption != null) {
             xmlValidationEnabled = Boolean.parseBoolean(validateXmlOption.getValue());
+            if (xmlValidationEnabled) {
+                factory = DocumentBuilderFactory.newInstance();
+                factory.setValidating(false);
+                factory.setNamespaceAware(true);
+
+                try {
+                    builder = factory.newDocumentBuilder();
+                } catch (ParserConfigurationException e) {
+                   throw new ExecutionPlanCreationException("Error occurred when initializing XML validator", e);
+                }
+            }
         }
     }
 
@@ -119,17 +133,9 @@ public class XMLOutputMapper extends OutputMapper {
                 sb.append(suffixXml);
             }
             if (xmlValidationEnabled) {
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                factory.setValidating(false);
-                factory.setNamespaceAware(true);
-
                 try {
-                    DocumentBuilder builder = factory.newDocumentBuilder();
                     builder.parse(new ByteArrayInputStream(sb.toString().getBytes()));
-                } catch (ParserConfigurationException e) {
-                    log.error("Error occurred when trying to validate output XML event for well-formedness. " +
-                            "Dropping event: " + sb.toString());
-                    return;
+                    builder.reset();
                 } catch (SAXException e) {
                     log.error("Parse error occurred when validating output XML event for well-formedness. " +
                             "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
