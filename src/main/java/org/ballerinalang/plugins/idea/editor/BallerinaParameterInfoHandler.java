@@ -110,6 +110,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
     @Nullable
     @Override
     public Object findElementForParameterInfo(@NotNull CreateParameterInfoContext context) {
+        // Todo - Add util methods to get these elements
         // Get the element at offset.
         PsiElement element = context.getFile().findElementAt(context.getOffset());
         // If there is no element, return null.
@@ -187,10 +188,6 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             if (parent == null) {
                 parent = expressionListNode;
             }
-            // Still if the parent is null, we return from the method since we cannot process the current node.
-//            if (parent == null) {
-//                return;
-//            }
             setItemsToShow(expressionListNode, parent, context);
         } else if (element instanceof FunctionInvocationStatementNode) {
             FunctionInvocationStatementNode functionInvocationStatementNode = (FunctionInvocationStatementNode) element;
@@ -225,6 +222,9 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         }
 
         if (namedIdentifierDefNode != null) {
+            // Sometimes we might not be able to resolve elements. In that case, we should not show "No parameters"
+            // message. To identify this situation, we use this variable.
+            boolean isResolved = false;
             // Get the identifier of this node.
             PsiElement nameIdentifier = ((IdentifierDefSubtree) namedIdentifierDefNode).getNameIdentifier();
             if (nameIdentifier != null) {
@@ -235,6 +235,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                     // Resolve the reference
                     PsiElement resolvedElement = reference.resolve();
                     if (resolvedElement != null) {
+                        isResolved = true;
                         // Resolved element will be the identifier of the function node. So we get the parent
                         // node (FunctionNode).
                         PsiElement functionNode = resolvedElement.getParent();
@@ -267,6 +268,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                             if (resolvedElement == null) {
                                 continue;
                             }
+                            isResolved = true;
                             // Get the parent node (FunctionNode).
                             PsiElement parentElement = resolvedElement.getParent();
                             // Get the ParameterListNode.
@@ -291,6 +293,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                             if (resolvedElement == null) {
                                 continue;
                             }
+                            isResolved = true;
                             // Get the parent node (FunctionNode).
                             PsiElement parentElement = resolvedElement.getParent();
                             // Get the ParameterListNode.
@@ -305,7 +308,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 }
             }
             // If there are no items to show, set a custom object. Otherwise set the list as an array.
-            if (list.isEmpty()) {
+            if (list.isEmpty() && isResolved) {
                 // Todo - change how to identify no parameter situation
                 context.setItemsToShow(new Object[]{"Empty"});
             } else {
