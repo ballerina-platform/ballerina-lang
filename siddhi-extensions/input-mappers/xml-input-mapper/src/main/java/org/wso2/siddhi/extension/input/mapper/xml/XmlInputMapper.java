@@ -51,7 +51,7 @@ import java.util.Map;
 @Extension(
         name = "xml",
         namespace = "inputmapper",
-        description = ""
+        description = "XML to Event input mapper"
 )
 public class XmlInputMapper extends InputMapper {
 

@@ -30,8 +30,8 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
 
-    <artifactId>siddhi-extension-map-output-mapper</artifactId>
-    <name>Siddhi Extension - MAP Output Mapper</name>
+    <artifactId>siddhi-extension-keyvalue-output-mapper</artifactId>
+    <name>Siddhi Extension - Key Value Output Mapper</name>
 
     <dependencies>
         <dependency>
