@@ -36,7 +36,10 @@
         <module>event-table</module>
         <!--<module>output-transports/test-output-transport</module>-->
         <!--<module>output-transports/http-output-transport</module>-->
+        <module>publishing-strategies/round-robin-publishing-strategy</module>
         <module>output-transports/kafka-output-transport</module>
+        <module>distributed-transports/multi-client-distributed-transport</module>
+        <module>distributed-transports/single-client-distributed-transport</module>
         <module>output-mappers/text-output-mapper</module>
         <!--<module>output-mappers/json-output-mapper</module>-->
         <!--<module>output-mappers/keyvalue-output-mapper</module>-->
