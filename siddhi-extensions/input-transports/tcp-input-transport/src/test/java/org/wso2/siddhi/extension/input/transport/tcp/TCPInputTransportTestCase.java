@@ -503,4 +503,30 @@ public class TCPInputTransportTestCase {
 
     }
 
+    @Test(expected = ExecutionPlanCreationException.class)
+    public void testTcpInputTransport8() throws InterruptedException {
+        ExecutionPlanRuntime executionPlanRuntime = null;
+        try {
+            log.info("tcpInputTransport TestCase 8");
+            SiddhiManager siddhiManager = new SiddhiManager();
+
+            String inStreamDefinition = "" +
+                    "@plan:name('foo')" +
+                    "@source(type='tcp')" +
+                    "@source(type='tcp')" +
+                    "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
+            String query = ("@info(name = 'query1') " +
+                    "from inputStream " +
+                    "select *  " +
+                    "insert into outputStream;");
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+
+            executionPlanRuntime.start();
+        } finally {
+            if (executionPlanRuntime != null) {
+                executionPlanRuntime.shutdown();
+            }
+        }
+    }
+
 }
