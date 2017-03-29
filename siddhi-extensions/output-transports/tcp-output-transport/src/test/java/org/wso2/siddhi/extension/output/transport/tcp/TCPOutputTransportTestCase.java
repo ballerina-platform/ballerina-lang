@@ -21,7 +21,6 @@ package org.wso2.siddhi.extension.output.transport.tcp;
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -643,7 +642,7 @@ public class TCPOutputTransportTestCase {
 
             Assert.assertFalse(eventArrived);
             executionPlanRuntime.shutdown();
-        }catch (Throwable t){
+        } catch (Throwable t) {
             t.printStackTrace();
         }
 
@@ -701,7 +700,6 @@ public class TCPOutputTransportTestCase {
         }
     }
 
-    @Ignore
     @Test
     // till flow control is fixed
     public void testTcpOutputTransport13() throws InterruptedException {
@@ -925,7 +923,7 @@ public class TCPOutputTransportTestCase {
                 "@plan:name('foo') " +
                 "define stream inputStream (a string, b int, c float, d long, e double, f bool); " +
                 "@sink(type='tcp', context='foo/inputStream1') " +
-                "define stream outputStream(a string, b int, c float, d long, e double, f bool);" ;
+                "define stream outputStream(a string, b int, c float, d long, e double, f bool);";
         String query = ("@info(name = 'query1') " +
                 "" +
                 "from inputStream " +
@@ -992,6 +990,82 @@ public class TCPOutputTransportTestCase {
         executionPlanRuntime.shutdown();
 
         tcpNettyServer1.shutdownGracefully();
+
+    }
+
+    @Test
+    public void testTcpOutputTransport16() throws InterruptedException {
+        log.info("tcpInputTransport TestCase 16");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String inStreamDefinition = "" +
+                "define stream inputStream (a string, b int, c float, d long, e double, f bool); " +
+                "@sink(type='tcp', context='foo', @map(type='passThrough')) " +
+                "define stream outputStream (a string, b int, c float, d long, e double, f bool);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+
+        StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
+
+        TCPNettyServer tcpNettyServer = new TCPNettyServer();
+        tcpNettyServer.addStreamListener(new StreamListener() {
+            @Override
+            public StreamDefinition getStreamDefinition() {
+                return streamDefinition;
+            }
+
+            @Override
+            public void onEvent(Event event) {
+                System.out.println(event);
+                eventArrived = true;
+                count++;
+                switch (count) {
+                    case 1:
+                        Assert.assertEquals("test", event.getData(0));
+                        break;
+                    case 2:
+                        Assert.assertEquals("test1", event.getData(0));
+                        break;
+                    case 3:
+                        Assert.assertEquals("test2", event.getData(0));
+                        break;
+                    default:
+                        org.junit.Assert.fail();
+                }
+            }
+
+            @Override
+            public void onEvents(Event[] events) {
+                for (Event event : events) {
+                    onEvent(event);
+                }
+            }
+        });
+
+
+        executionPlanRuntime.start();
+        Thread.sleep(2000);
+        tcpNettyServer.bootServer(new ServerConfig());
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+
+        ArrayList<Event> arrayList = new ArrayList<Event>();
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test1", 361, 31.0f, 3801l, 231.0, false}));
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test2", 362, 32.0f, 3802l, 232.0, true}));
+        inputHandler.send(arrayList.toArray(new Event[3]));
+
+        Thread.sleep(300);
+
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+        tcpNettyServer.shutdownGracefully();
 
     }
 

@@ -31,6 +31,7 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.tcp.transport.TCPNettyClient;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Extension(
         name = "tcp",
@@ -47,6 +48,7 @@ public class TCPOutputTransport extends OutputTransport {
     private String host;
     private int port;
     private Option streamIdOption;
+    private AtomicBoolean connected = new AtomicBoolean(false);
 
     @Override
     public String[] getSupportedDynamicOptions() {
@@ -63,20 +65,26 @@ public class TCPOutputTransport extends OutputTransport {
 
     @Override
     public void connect() throws ConnectionUnavailableException {
-        log.info("TCPOutputTransport:connect()");
-        TCPNettyClient.connect(host, port);
+
     }
 
     @Override
     public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+        if (connected.compareAndSet(false, true)) {
+            log.info("TCPOutputTransport:connect()");
+            TCPNettyClient.connect(host, port);
+        }
         String streamId = streamIdOption.getValue(dynamicOptions);
         TCPNettyClient.send(streamId, (Event[]) payload);
     }
 
     @Override
     public void disconnect() {
-        if (TCPNettyClient != null) {
-            TCPNettyClient.disconnect();
+        if (connected.compareAndSet(true, false)) {
+            if (TCPNettyClient != null) {
+                log.info("TCPOutputTransport:disconnect()");
+                TCPNettyClient.disconnect();
+            }
         }
     }
 

@@ -323,6 +323,7 @@ public class TCPInputTransportTestCase {
         executionPlanRuntime.shutdown();
     }
 
+    @Ignore
     @Test(expected = ExecutionPlanCreationException.class)
     public void testTcpInputTransport4() throws InterruptedException {
         ExecutionPlanRuntime executionPlanRuntime = null;
