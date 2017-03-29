@@ -106,8 +106,8 @@ public class SimpleTypeName {
         return dimensions;
     }
 
-    public void setArrayType(int dimentions) {
+    public void setArrayType(int dimensions) {
         this.isArrayType = true;
-        this.dimensions =  dimentions;
+        this.dimensions =  dimensions;
     }
 }
