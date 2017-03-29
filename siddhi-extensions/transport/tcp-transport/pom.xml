@@ -41,7 +41,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.siddhi.extension.tcp.transport.*
+                            org.wso2.siddhi.tcp.transport.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional
