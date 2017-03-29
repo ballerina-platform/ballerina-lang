@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.test.util;
+package org.wso2.siddhi.core.util;
 
 import java.util.Arrays;
 import java.util.Collection;
