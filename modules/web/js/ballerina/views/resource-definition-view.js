@@ -68,7 +68,7 @@ class ResourceDefinitionView extends BallerinaView {
         }
 
         // Center point of the resource
-        this._viewOptions.topLeft = _.get(args, "viewOptions.topLeft", new Point(50, 100));
+        this._viewOptions.topLeft = _.get(args, "viewOptions.topLeft", new Point(50, 125));
         this._viewOptions.startActionOffSet = _.get(args, "viewOptions.startActionOffSet", 60);
 
         // center point for the client lifeline
@@ -127,6 +127,7 @@ class ResourceDefinitionView extends BallerinaView {
         // Gap between the last statement of a worker/ default worker
         // and the worker/ default worker's BBox's bottom edge
         this._offsetLastStatementGap = 100;
+        this._offsetLastLifeLineGap = 60;
         this._startActionRect = undefined;
         this._startActionText = undefined;
         this._startActionMessageView = undefined;
@@ -423,7 +424,8 @@ class ResourceDefinitionView extends BallerinaView {
                 workerDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
                 // Worker is added as the last element for the ConnectorWorkerViewList.
                 // Only Workers are there at the moment
-                this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition() + this._viewOptions.LifeLineCenterGap);
+                this._parentView.getLifeLineMargin().setPosition(workerDeclarationView.getBoundingBox().getRight()
+                    + this._offsetLastLifeLineGap);
                 this.setContentMinWidth(workerDeclarationView.getBoundingBox().getRight());
                 this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
             }
@@ -719,6 +721,13 @@ class ResourceDefinitionView extends BallerinaView {
             if (e.keyCode === 13) {
                 return false;
             }
+        }).on('blur', function (event) {
+            if ($(this).text().length > 50) {
+                var textToDisplay = $(this).text().substring(0, 47) + '...';
+                nameSpan.text(textToDisplay);
+            }
+        }).on('focus', function (event) {
+            nameSpan.text(self._model.getResourceName());
         });
 
         this._contentGroup = contentGroup;
@@ -1082,8 +1091,8 @@ class ResourceDefinitionView extends BallerinaView {
         /* If the adding connector (connectorDeclarationView) goes out of this resource definition's view,
          then we need to expand this resource definition's view. */
         if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
-            this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition()
-                                                             + this._viewOptions.LifeLineCenterGap);
+            this._parentView.getLifeLineMargin().setPosition(connectorDeclarationView.getBoundingBox().getRight()
+                + this._offsetLastLifeLineGap);
             this.setContentMinWidth(connectorDeclarationView.getBoundingBox().getRight());
             this.setHeadingMinWidth(connectorDeclarationView.getBoundingBox().getRight());
         }
@@ -1091,7 +1100,8 @@ class ResourceDefinitionView extends BallerinaView {
         var connectorBBox = connectorDeclarationView.getBoundingBox();
         connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function (offset) {
             if (connectorBBox.getRight() > self.getBoundingBox().getRight()) {
-                self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition() + self._viewOptions.LifeLineCenterGap);
+                self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition()
+                    + offset);
                 self.setContentMinWidth(connectorBBox.getRight());
                 self.setHeadingMinWidth(connectorBBox.getRight());
             }

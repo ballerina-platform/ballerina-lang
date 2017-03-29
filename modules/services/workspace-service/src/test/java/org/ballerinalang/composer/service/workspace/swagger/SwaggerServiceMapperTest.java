@@ -33,6 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,10 +43,10 @@ public class SwaggerServiceMapperTest {
     public void testBallerinaToSwaggerConversion() {
         String ballerinaServiceDefinition = "import ballerina.net.http;\n" +
                 "\n" +
-                "@BasePath (\"/echo\")\n" +
+                "@http:BasePath {value: \"/echo\"}\n" +
                 "service echo {\n" +
                 "\n" +
-                "    @http:POST\n" +
+                "    @http:POST{}\n" +
                 "    resource echo (message m) {\n" +
                 "        http:convertToResponse(m);\n" +
                 "        reply m;\n" +
@@ -66,7 +67,7 @@ public class SwaggerServiceMapperTest {
         BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
         BLangModelBuilder modelBuilder = new BLangModelBuilder(packageBuilder, "");
     
-        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
+        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder, Paths.get("temp/temp.bal"));
         ballerinaParser.addParseListener(langModelBuilder);
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = modelBuilder.build();

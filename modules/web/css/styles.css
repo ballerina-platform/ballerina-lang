@@ -1243,11 +1243,25 @@ button.variable-list {
 }
 
 #modalAbout a {
-    color: #337ab7;
+    color: #f47a1e;
 }
 
 #modalAbout .modal-dialog {
-    width: 30%;
+    width: 35%;
+}
+
+#modalAbout .modal-footer {
+    text-align: left;
+    padding-top: 5px;
+}
+
+#modalAbout .modal-footer .icon {
+    font-size: 35px;
+    vertical-align: middle;
+}
+
+#modalAbout .modal-footer a {
+    text-decoration: none;
 }
 
 #modalSearch .modal-dialog {

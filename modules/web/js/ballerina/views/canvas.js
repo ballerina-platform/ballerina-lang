@@ -35,8 +35,7 @@ class Canvas extends BallerinaView {
     constructor(args) {
         super(args);
         var mMArgs = {'canvas': this};
-        args.messageManager = new MessageManager(mMArgs);
-
+        this.messageManager = new MessageManager(mMArgs);
         /**
          * The icon of the icon position at top left corner.
          * @type {HTMLElement}

@@ -319,7 +319,7 @@ class WorkspaceManager {
         if (undoManager.hasUndo()) {
             undoManager.undo();
         }
-        self.updateUndoRedoMenus();
+        this.updateUndoRedoMenus();
     }
 
     handleRedo() {
@@ -328,7 +328,7 @@ class WorkspaceManager {
         if (undoManager.hasRedo()) {
             undoManager.redo();
         }
-        self.updateUndoRedoMenus();
+        this.updateUndoRedoMenus();
     }
 
     handleSave(options) {
@@ -337,7 +337,7 @@ class WorkspaceManager {
             var file = activeTab.getFile();
             if(file.isPersisted()){
                 if(file.isDirty()){
-                    var response = self._serviceClient.writeFile(file);
+                    var response = this._serviceClient.writeFile(file);
                     if(response.error){
                         alerts.error(response.message);
                         return;
@@ -362,8 +362,8 @@ class WorkspaceManager {
     }
 
     showAboutDialog(){
-        var aboutModal = $(_.get(this.app, 'config.about_dialog.selector'));
-        aboutModal.modal('show');
+        var aboutDialog = $(_.get(this, 'config.about_dialog.selector'));
+        aboutDialog.modal('show');
     }
 
     showUserGuide() {

@@ -44,6 +44,7 @@ class VariableDeclarationsPaneView {
 
         this._constantDefinitionsButton = undefined;
         this._constantsDefinitionsMainWrapper = undefined;
+        this._minHeight = 23;
     }
 
     createVariablePane() {
@@ -116,6 +117,10 @@ class VariableDeclarationsPaneView {
                                 data.results.push(item);
                             }
                         });
+                        // Adding user typed string when there is no any matching item in the list
+                        if(data.results.length == 0){
+                            data.results.push({id: query.term, text: query.term});
+                        }
                     } else {
                         data.results = self._getTypeDropdownValues();
                     }
@@ -198,6 +203,7 @@ class VariableDeclarationsPaneView {
             try {
                 self._model.addVariableDefinitionStatement(typeOfNewVariable, identifierOfNewVariable,
                     valueOfNewVariable);
+                var oldWrapperSize = $(variablesContentWrapper).height();
 
                 // Recreating the arguments details view.
                 self._renderVariables(variablesContentWrapper, collapserWrapper);
@@ -211,6 +217,10 @@ class VariableDeclarationsPaneView {
                 // Clearing values in inputs.
                 variableIdentifier.val('');
                 variableValueExpression.val('');
+
+                // Trigger the event to inform that a new variable has been added and the height of the variable pane
+                // has been changed
+                $(variablesContentWrapper).trigger('contentWrapperShown', $(variablesContentWrapper).height() - oldWrapperSize);
             } catch (error) {
                 log.error(error);
                 Alerts.error(error);
@@ -222,10 +232,15 @@ class VariableDeclarationsPaneView {
             $(collapserWrapper).empty();
             $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
             variablesContentWrapper.find('.variable-wrapper').show();
+            var dh = $(variablesContentWrapper).height() !== this._minHeight ?
+                $(variablesContentWrapper).height() - this._minHeight : 0;
+            $(variablePaneWrapper).trigger('contentWrapperShown', dh);
         } else {
             $(collapserWrapper).empty();
             $('<i class=\'fw fw-right\'></i>').appendTo(collapserWrapper);
             variablesContentWrapper.find('.variable-wrapper').hide();
+            var height = $(variablesContentWrapper).height();
+            $(variablePaneWrapper).trigger('contentWrapperHidden', height);
         }
 
         // The click event for hiding and showing variables.
@@ -235,10 +250,14 @@ class VariableDeclarationsPaneView {
                 $(this).data('collapsed', 'true');
                 $('<i class=\'fw fw-right\'></i>').appendTo(this);
                 variablesContentWrapper.find('.variable-wrapper').hide();
+                $(variablesContentWrapper).trigger('contentWrapperHidden');
             } else {
                 $(this).data('collapsed', 'false');
                 $('<i class=\'fw fw-left\'></i>').appendTo(this);
                 variablesContentWrapper.find('.variable-wrapper').show();
+                var dh = $(variablesContentWrapper).height() !== self._minHeight ?
+                    $(variablesContentWrapper).height() - self._minHeight : 0;
+                $(variablesContentWrapper).trigger('contentWrapperShown', dh);
             }
         });
 
@@ -294,8 +313,11 @@ class VariableDeclarationsPaneView {
 
             variableDefinitionStatementView.render(self._viewOfModel.getDiagramRenderingContext());
 
-            $(variableDefinitionStatementView.getDeleteButton()).click(function () {
+            $(variableDefinitionStatementView.getDeleteButton()).click(() => {
+                var oldWrapperSize = $('.variables-content-wrapper').height();
+                variableDefinitionStatementView.removeVariableDefinition();
                 self._renderVariables(variablePaneWrapper, collapserWrapper);
+                $('.variables-content-wrapper').trigger('contentWrapperShown', $('.variables-content-wrapper').height() - oldWrapperSize);
             });
         });
     }

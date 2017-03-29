@@ -41,6 +41,17 @@ import MenuItem from './menu-item';
         title.text(_.get(this, 'definition.label'));
         title.addClass(_.get(this, 'options.cssClass.toggle'));
         title.attr("data-toggle", "dropdown");
+        title.on('mouseover', function(e){
+            var thisElem = $(e.target).parent();
+            var toggleClass = 'open';
+            _.some(thisElem.siblings(), function (el) {
+                if($(el).hasClass(toggleClass)){
+                    thisElem.addClass(toggleClass);
+                    $(el).removeClass(toggleClass);
+                    return;
+                }
+            });
+        });
         toolBarDiv.append(title);
 
         var menu = $('<ul></ul>');

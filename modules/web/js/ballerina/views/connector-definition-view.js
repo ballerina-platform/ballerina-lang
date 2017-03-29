@@ -48,7 +48,7 @@ class ConnectorDefinitionView extends SVGCanvas {
         this._viewOptions.LifeLineCenterGap = 180;
         this._actionViewList = _.get(args, 'actionViewList', []);
         this._parentView = _.get(args, 'parentView');
-        this._viewOptions.offsetTop = _.get(args, 'viewOptionsOffsetTop', 50);
+        this._viewOptions.offsetTop = _.get(args, 'viewOptionsOffsetTop', 75);
         this._viewOptions.topBottomTotalGap = _.get(args, 'viewOptionsTopBottomTotalGap', 100);
         //set panel icon for the connector
         this._viewOptions.panelIcon = _.get(args.viewOptions, 'cssClass.connector_icon');
@@ -56,6 +56,8 @@ class ConnectorDefinitionView extends SVGCanvas {
         this._totalHeight = 170;
         //set initial connector margin for the connector definition
         this._lifelineMargin = new Axis(210, false);
+        this._topHorizontalMargin = new Axis(35, true);
+        this._viewOptions.minLifeLinePosition = 700;
 
         if (_.isNil(this._model) || !(this._model instanceof ConnectorDefinition)) {
             log.error('Connector definition is undefined or is of different type.' + this._model);
@@ -197,6 +199,13 @@ class ConnectorDefinitionView extends SVGCanvas {
                 self.getModel().setConnectorName($(this).text());
             }).on('click', function (event) {
                 event.stopPropagation();
+            }).on('blur', function (event) {
+                if ($(this).text().length > 50) {
+                    var textToDisplay = $(this).text().substring(0, 47) + '...';
+                    $(this).text(textToDisplay);
+                }
+            }).on('focus', function (event) {
+                $(this).text(self._model.getConnectorName());
             }).keypress(function (e) {
                 /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
                  (Chrome and IE ignore keypress event of these keys in browser level)*/
@@ -259,6 +268,12 @@ class ConnectorDefinitionView extends SVGCanvas {
 
         var variableDefinitionsPaneView = new VariableDefinitionsPaneView(variableProperties);
         variableDefinitionsPaneView.createVariablePane();
+        $('.variables-content-wrapper').on('contentWrapperShown', (event, data) => {
+            this.getTopHorizontalMargin().setPosition(this.getTopHorizontalMargin().getPosition() + data);
+        });
+        $('.variables-content-wrapper').on('contentWrapperHidden', (event) => {
+            this.getTopHorizontalMargin().setPosition(35);
+        });
 
         var argumentsProperties = {
             model: this._model,
@@ -359,6 +374,9 @@ class ConnectorDefinitionView extends SVGCanvas {
         else {
             connectorActionView = new ConnectorActionView({model: connectorAction, container: actionContainer,
                 toolPalette: this.toolPalette,messageManager: this.messageManager, parentView: this});
+            connectorActionView.listenTo(this.getTopHorizontalMargin(), 'moved', function (offset) {
+                connectorActionView.getBoundingBox().move(0, offset);
+            });
         }
         this.diagramRenderingContext.getViewModelMap()[connectorAction.id] = connectorActionView;
 
@@ -413,6 +431,10 @@ class ConnectorDefinitionView extends SVGCanvas {
 
         connectorDeclarationView.render();
 
+        connectorDeclarationView.listenTo(this.getTopHorizontalMargin(), 'moved', function (offset) {
+            connectorDeclarationView.getBoundingBox().move(0, offset);
+        });
+
         connectorDeclarationView.createPropertyPane();
 
         connectorDeclarationView.setParent(this);
@@ -434,8 +456,11 @@ class ConnectorDefinitionView extends SVGCanvas {
         this._connectorViewList.push(connectorDeclarationView);
 
         if (this.getActionViewList().length > 0) {
-            // If we have added actions
-            var newLifeLineMarginPosition = this.getLifeLineMargin().getPosition() - this._viewOptions.LifeLineCenterGap;
+            // If we have added resources
+            var lifeLineMarginPosition = this.getLifeLineMargin().getPosition() - this._viewOptions.LifeLineCenterGap;
+            var farthestLifeLine = this.getFarthestLifeLineOfActions();
+            var farthestLifeLineMargin = !_.isNil(farthestLifeLine) ? farthestLifeLine.getBoundingBox().getRight() + 60 : -1;
+            var newLifeLineMarginPosition = _.max([lifeLineMarginPosition, farthestLifeLineMargin, this._viewOptions.minLifeLinePosition]);
             this.getLifeLineMargin().setPosition(newLifeLineMarginPosition);
         } else {
             // When there are no actions added
@@ -502,7 +527,12 @@ class ConnectorDefinitionView extends SVGCanvas {
                     // as well as the unPlugView does. If this event is not un registered before the lifeLineMargin
                     // re positioning twice we will try to adjust the container widths by throwing errors
                     childView.stopListening(this.getLifeLineMargin());
+                    childView.stopListening(this.getTopHorizontalMargin());
                     this.getLifeLineMargin().setPosition(0);
+                } else {
+                    nextAction.listenTo(this.getTopHorizontalMargin(), 'moved', function (offset) {
+                        nextAction.getBoundingBox().move(0, offset);
+                    });
                 }
             } else if (_.isNil(nextAction)) {
                 // We have deleted the last action having a previous action
@@ -564,6 +594,26 @@ class ConnectorDefinitionView extends SVGCanvas {
             // Add an offset of 60 to the current connector's BBox's right value
             this.setSVGWidth(connectorView.getBoundingBox().getRight() + 60);
         }
+    }
+
+    getFarthestLifeLineOfActions() {
+        var farthestLifeLine = [];
+        var sortedFarthestLifeLineArr;
+        _.forEach(this.getActionViewList(), function (action) {
+            farthestLifeLine.push(_.last(action.getConnectorWorkerViewList()));
+        });
+        sortedFarthestLifeLineArr = _.sortBy(farthestLifeLine, function (lifeline) {
+            return !_.isNil(lifeline) ? lifeline.getBoundingBox().getRight() : -1;
+        });
+        return _.last(sortedFarthestLifeLineArr);
+    }
+
+    getTopHorizontalMargin() {
+        return this._topHorizontalMargin;
+    }
+
+    setTopHorizontalMargin(position) {
+        this._topHorizontalMargin.setPosition(position);
     }
 }
 
