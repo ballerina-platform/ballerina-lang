@@ -34,21 +34,21 @@ import org.ballerinalang.model.values.BValue;
 public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr {
     private String varName;
     private SymbolName symbolName;
-    private Expression[] indexExpr;
+    private Expression[] indexExprs;
     private boolean isLHSExpr;
 
     private ArrayMapAccessExpr(NodeLocation location, SymbolName symbolName,
-                               Expression arrayVarRefExpr, Expression[] indexExpr) {
+                               Expression arrayVarRefExpr, Expression[] indexExprs) {
         super(location, null, arrayVarRefExpr);
         this.symbolName = symbolName;
-        this.indexExpr = indexExpr;
+        this.indexExprs = indexExprs;
     }
 
     private ArrayMapAccessExpr(NodeLocation location, String varName,
-                               Expression arrayVarRefExpr, Expression[] indexExpr) {
+                               Expression arrayVarRefExpr, Expression[] indexExprs) {
         super(location, null, arrayVarRefExpr);
         this.varName = varName;
-        this.indexExpr = indexExpr;
+        this.indexExprs = indexExprs;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
     }
 
     public Expression[] getIndexExprs() {
-        return indexExpr;
+        return indexExprs;
     }
 
     public boolean isLHSExpr() {
@@ -90,7 +90,7 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
         private NodeLocation location;
         private SymbolName varName;
         private Expression arrayMapVarRefExpr;
-        private Expression[] indexExpr;
+        private Expression[] indexExprs;
 
         public void setNodeLocation(NodeLocation location) {
             this.location = location;
@@ -105,11 +105,11 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
         }
 
         public void setIndexExprs(Expression[] rExpr) {
-            this.indexExpr = rExpr;
+            this.indexExprs = rExpr;
         }
 
         public ArrayMapAccessExpr build() {
-            return new ArrayMapAccessExpr(location, varName, arrayMapVarRefExpr, indexExpr);
+            return new ArrayMapAccessExpr(location, varName, arrayMapVarRefExpr, indexExprs);
         }
     }
 }
