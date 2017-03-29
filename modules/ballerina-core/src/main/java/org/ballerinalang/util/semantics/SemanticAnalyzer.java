@@ -2251,6 +2251,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (pkgSymbol == null) {
             return null;
         }
+        Expression[] exprs = funcIExpr.getArgExprs();
+        Expression[] newExprs = new Expression[exprs.length];
         for (Map.Entry entry : ((SymbolScope) pkgSymbol).getSymbolMap().entrySet()) {
             if (!(entry.getKey() instanceof FunctionSymbolName)) {
                 continue;
@@ -2261,8 +2263,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             boolean implicitCastPossible = true;
-            Expression[] exprs = funcIExpr.getArgExprs();
+
             for (int i = 0; i < exprs.length; i++) {
+                newExprs[i] = exprs[i];
                 BType lhsType;
                 if (entry.getValue() instanceof NativeUnitProxy) {
                     NativeUnit nativeUnit = ((NativeUnitProxy) entry.getValue()).load();
@@ -2284,7 +2287,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
                 TypeCastExpression newExpr = checkWideningPossible(lhsType, exprs[i]);
                 if (newExpr != null) {
-                    exprs[i] = newExpr;
+                    newExprs[i] = newExpr;
                 } else {
                     implicitCastPossible = false;
                     break;
@@ -2306,6 +2309,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                     break;
                 }
             }
+        }
+        for (int i = 0; i < newExprs.length; i++) {
+            funcIExpr.getArgExprs()[i] = newExprs[i];
         }
         return functionSymbol;
     }
