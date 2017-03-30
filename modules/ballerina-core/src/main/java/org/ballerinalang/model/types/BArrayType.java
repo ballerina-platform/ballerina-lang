@@ -33,15 +33,17 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BArrayType extends BType implements BIndexedType {
     private BType elementType;
+    private int dimensions = 1;
 
     /**
      * Create a type from the given name.
      *
      * @param typeName string name of the type
      */
-    BArrayType(String typeName, BType elementType, String pkgPath, SymbolScope symbolScope) {
+    BArrayType(String typeName, BType elementType, String pkgPath, SymbolScope symbolScope, int dimensions) {
         super(typeName, pkgPath, symbolScope, BArray.class);
         this.elementType = elementType;
+        this.dimensions = dimensions;
     }
 
     public BType getElementType() {
@@ -60,5 +62,9 @@ public class BArrayType extends BType implements BIndexedType {
         }
 
         return false;
+    }
+
+    public int getDimensions() {
+        return this.dimensions;
     }
 }

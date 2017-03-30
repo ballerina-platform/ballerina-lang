@@ -1040,14 +1040,20 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         // Handle this as non-blocking manner.
         ArrayMapAccessExprEndNode endNode = new ArrayMapAccessExprEndNode(arrayMapAccessExpr);
         Expression rExp = arrayMapAccessExpr.getRExpr();
-        Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
+        Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
         arrayMapAccessExpr.setNext(rExp);
         rExp.setParent(arrayMapAccessExpr);
-        indexExpr.setParent(arrayMapAccessExpr);
-        rExp.setNextSibling(indexExpr);
-        indexExpr.setNextSibling(endNode);
+        LinkedNode previous = rExp;
+        for (Expression indexExpr : indexExprs) {
+            previous.setNextSibling(indexExpr);
+            indexExpr.setParent(arrayMapAccessExpr);
+            previous = indexExpr;
+        }
+        previous.setNextSibling(endNode);
         rExp.accept(this);
-        indexExpr.accept(this);
+        for (Expression indexExpr : indexExprs) {
+            indexExpr.accept(this);
+        }
         endNode.setNext(findNext(endNode));
     }
 
@@ -1068,21 +1074,28 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             calculateTempOffSet(current);
             ReferenceExpr varRefExpr = current.getVarRef();
             if (varRefExpr instanceof ArrayMapAccessExpr) {
-                Expression indexExpr = ((ArrayMapAccessExpr) varRefExpr).getIndexExpr();
-                lastLinkedNode.setNext(indexExpr);
-                indexExpr.setParent(structFieldAccessExpr);
+                Expression[] indexExprs = ((ArrayMapAccessExpr) varRefExpr).getIndexExprs();
+                lastLinkedNode.setNext(indexExprs[0]);
+                for (int i = 1; i < indexExprs.length; i++) {
+                    indexExprs[i - 1].setParent(structFieldAccessExpr);
+                    indexExprs[i - 1].setNextSibling(indexExprs[i]);
+                }
+                // Last Index.
+                indexExprs[indexExprs.length - 1].setParent(structFieldAccessExpr);
                 if (current.getFieldExpr() != null) {
-                    indexExpr.setNextSibling(current.getFieldExpr());
+                    indexExprs[indexExprs.length - 1].setNextSibling(current.getFieldExpr());
                     lastLinkedNode = current.getFieldExpr();
                 } else {
                     if (structFieldAccessExpr.isLHSExpr()) {
                         lastLinkedNode = null;
                     } else {
-                        indexExpr.setNextSibling(endNode);
+                        indexExprs[indexExprs.length - 1].setNextSibling(endNode);
                         lastLinkedNode = endNode;
                     }
                 }
-                indexExpr.accept(this);
+                for (Expression indexExpr: indexExprs) {
+                    indexExpr.accept(this);
+                }
             } else {
                 if (current.getFieldExpr() != null) {
                     lastLinkedNode.setNext(current.getFieldExpr());

@@ -98,8 +98,10 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
                 websocketUpgradePathAnnotation = annotation;
             }
         }
-        if (websocketUpgradePathAnnotation != null && websocketUpgradePathAnnotation.getValue() != null) {
-            if (basePathAnnotation == null || basePathAnnotation.getValue() == null) {
+        if (websocketUpgradePathAnnotation != null && websocketUpgradePathAnnotation.getValue() != null && 
+                !websocketUpgradePathAnnotation.getValue().trim().isEmpty()) {
+            if (basePathAnnotation == null || basePathAnnotation.getValue() == null || 
+                    basePathAnnotation.getValue().trim().isEmpty()) {
                 throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
             }
 
