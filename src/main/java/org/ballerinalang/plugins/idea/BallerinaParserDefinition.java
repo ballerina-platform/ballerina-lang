@@ -66,13 +66,12 @@ import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.SimpleTypeArrayNode;
-import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperBodyNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
+import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
@@ -242,10 +241,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ReturnTypeListNode(node);
             case BallerinaParser.RULE_connectorInitExpression:
                 return new ConnectorInitExpressionNode(node);
-            case BallerinaParser.RULE_simpleTypeArray:
-                return new SimpleTypeArrayNode(node);
             case BallerinaParser.RULE_serviceDefinition:
                 return new ServiceDefinitionNode(node);
+            case BallerinaParser.RULE_valueTypeName:
+                return new ValueTypeNameNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
