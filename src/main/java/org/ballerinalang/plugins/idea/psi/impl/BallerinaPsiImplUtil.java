@@ -816,6 +816,30 @@ public class BallerinaPsiImplUtil {
                 resolved = SymtabUtils.resolve(scope, BallerinaLanguage.INSTANCE, element, xpath);
             }
         }
+        // If the resolved element is still null, it might be located in another file in the same package.
+        if (resolved == null) {
+            // Get the parent directory which is the package.
+            PsiDirectory parentDirectory = element.getContainingFile().getParent();
+            // Iterate through all xpaths.
+            for (String xpath : xpaths) {
+                // Get all matching elements from a package (functions, etc).
+                List<PsiElement> matchingElements = getAllMatchingElementsFromPackage(parentDirectory, xpath);
+                // If there are no matching elements for the current xpath, continue with next xpath.
+                if (!matchingElements.isEmpty()) {
+                    // If there are matching elements, iterate through them and check.
+                    for (PsiElement matchingElement : matchingElements) {
+                        // Check the name.
+                        if (element.getText().equals(matchingElement.getText())) {
+                            // If the name matches, we found the element. So we assign the matching element to
+                            // resolved and break the loop.
+                            resolved = matchingElement;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        // Return the resolved element.
         return resolved;
     }
 }
