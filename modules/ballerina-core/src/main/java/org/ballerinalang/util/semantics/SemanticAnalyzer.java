@@ -2257,6 +2257,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (pkgSymbol == null) {
             return null;
         }
+        Expression[] argExprs = funcIExpr.getArgExprs();
+        Expression[] updatedArgExprs = new Expression[argExprs.length];
         for (Map.Entry entry : ((SymbolScope) pkgSymbol).getSymbolMap().entrySet()) {
             if (!(entry.getKey() instanceof FunctionSymbolName)) {
                 continue;
@@ -2267,8 +2269,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             boolean implicitCastPossible = true;
-            Expression[] exprs = funcIExpr.getArgExprs();
-            for (int i = 0; i < exprs.length; i++) {
+
+            for (int i = 0; i < argExprs.length; i++) {
+                updatedArgExprs[i] = argExprs[i];
                 BType lhsType;
                 if (entry.getValue() instanceof NativeUnitProxy) {
                     NativeUnit nativeUnit = ((NativeUnitProxy) entry.getValue()).load();
@@ -2281,16 +2284,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                     lhsType = ((Function) entry.getValue()).getParameterDefs()[i].getType();
                 }
 
-                BType rhsType = exprs[i].getType();
+                BType rhsType = argExprs[i].getType();
                 if (rhsType != null && lhsType.equals(rhsType)) {
                     continue;
                 }
                 if (lhsType == BTypes.typeAny) { //if left hand side is any, then no need for casting
                     continue;
                 }
-                TypeCastExpression newExpr = checkWideningPossible(lhsType, exprs[i]);
+                TypeCastExpression newExpr = checkWideningPossible(lhsType, argExprs[i]);
                 if (newExpr != null) {
-                    exprs[i] = newExpr;
+                    updatedArgExprs[i] = newExpr;
                 } else {
                     implicitCastPossible = false;
                     break;
@@ -2312,6 +2315,10 @@ public class SemanticAnalyzer implements NodeVisitor {
                     break;
                 }
             }
+        }
+        
+        for (int i = 0; i < updatedArgExprs.length; i++) {
+            funcIExpr.getArgExprs()[i] = updatedArgExprs[i];
         }
         return functionSymbol;
     }
