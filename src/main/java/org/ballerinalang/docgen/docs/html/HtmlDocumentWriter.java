@@ -27,6 +27,8 @@ import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeDef;
+import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
@@ -36,8 +38,10 @@ import org.ballerinalang.model.Function;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.types.BType;
 
 import java.io.File;
@@ -61,6 +65,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
     private static final String HTML = ".html";
     private static final String INDEX_HTML = "index.html";
     private static final String UTF_8 = "UTF-8";
+    private static final String DOC_PACKAGE_NAME = "ballerina.doc";
 
     private static PrintStream out = System.out;
 
@@ -68,6 +73,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
     private String outputFilePath;
     private String packageTemplateName;
     private String indexTemplateName;
+    private String currentPkgPath;
 
     public HtmlDocumentWriter() {
         String userDir = System.getProperty("user.dir");
@@ -110,12 +116,13 @@ public class HtmlDocumentWriter implements DocumentWriter {
 
         // Write <package>.html files
         for (BLangPackage balPackage : packageList) {
-            // Sort functions, connectors, structs and type mappers
+            // Sort functions, connectors, structs, type mappers and annotationDefs
             Arrays.sort(balPackage.getFunctions(), Comparator.comparing(Function::getName));
             Arrays.sort(balPackage.getConnectors(), Comparator.comparing(BallerinaConnectorDef::getName));
             Arrays.sort(balPackage.getStructDefs(), Comparator.comparing(StructDef::getName));
             Arrays.sort(balPackage.getTypeMappers(), Comparator.comparing(TypeMapper::getName));
-
+            Arrays.sort(balPackage.getAnnotationDefs(), Comparator.comparing(AnnotationDef::getName));
+            
             // Sort connector actions
             if ((balPackage.getConnectors() != null) && (balPackage.getConnectors().length > 0)) {
                 for (BallerinaConnectorDef connector : balPackage.getConnectors()) {
@@ -176,6 +183,12 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         }
                         return options.inverse(null);
                     })
+                    .registerHelper("hasAnnotations", (Helper<BLangPackage>) (balPackage, options) -> {
+                        if (balPackage.getAnnotationDefs().length > 0) {
+                            return options.fn(balPackage);
+                        }
+                        return options.inverse(null);
+                    })
                     // usage: {{currentObject this}}
                     .registerHelper("currentObject", (Helper<Object>) (obj, options) -> {
                         dataHolder.setCurrentObject(obj);
@@ -207,6 +220,57 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                 }
                                 return "";
                             })
+                    // for struct field annotations
+                    .registerHelper(
+                        "fieldAnnotation",
+                        (Helper<VariableDefStmt>) (param, options) -> {
+                            VariableDef varDef = param.getVariableDef();
+                            String annotationName = options.param(0);
+                            if (annotationName == null) {
+                                return "";
+                            }
+                            String subName = varDef.getName() == null ? varDef.getTypeName().getName() :
+                                varDef.getName();
+                            for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                                if (isNameEqual(annotationName, annotation) && 
+                                        annotation.getValue().startsWith(subName + ":")) {
+                                    return annotation.getValue().split(subName + ":")[1].trim();
+                                }
+                            }
+                            // if the annotation values cannot be found still, return the first matching
+                            // annotation's value
+                            for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                                if (isNameEqual(annotationName, annotation)) {
+                                    return annotation.getValue();
+                                }
+                            }
+                            return "";
+                        })
+                    // for annotation attribute annotations
+                    .registerHelper(
+                        "attributeAnnotation",
+                        (Helper<AnnotationAttributeDef>) (param, options) -> {
+                            String annotationName = options.param(0);
+                            if (annotationName == null) {
+                                return "";
+                            }
+                            String subName = param.getName() == null ? param.getTypeName().getName() :
+                                param.getName();
+                            for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                                if (isNameEqual(annotationName, annotation) && 
+                                        annotation.getValue().startsWith(subName + ":")) {
+                                    return annotation.getValue().split(subName + ":")[1].trim();
+                                }
+                            }
+                            // if the annotation values cannot be found still, return the first matching
+                            // annotation's value
+                            for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                                if (isNameEqual(annotationName, annotation)) {
+                                    return annotation.getValue();
+                                }
+                            }
+                            return "";
+                        })
                     // usage: {{oneValueAnnotation "<annotationName>"}}
                     // eg: {{oneValueAnnotation "description"}} - this would retrieve the description annotation of the
                     // currentObject
@@ -284,9 +348,9 @@ public class HtmlDocumentWriter implements DocumentWriter {
      * @return Flag indicating whether the annotation has the provided fully qualified name
      */
     private boolean isNameEqual(String annotationName, AnnotationAttachment annotation) {
-        String [] pkgAndName = annotationName.split(":");
-        return pkgAndName[0].equalsIgnoreCase(annotation.getPkgName()) && 
-                pkgAndName[1].equalsIgnoreCase(annotation.getName());
+        String pkgPath = annotation.getPkgPath() == null ? currentPkgPath : annotation.getPkgPath();
+        return DOC_PACKAGE_NAME.equalsIgnoreCase(pkgPath) && 
+                annotationName.equalsIgnoreCase(annotation.getName());
     }
 
     /**
@@ -309,15 +373,29 @@ public class HtmlDocumentWriter implements DocumentWriter {
 
     private AnnotationAttachment[] getAnnotations(DataHolder dataHolder) {
         if (dataHolder.getCurrentObject() instanceof BallerinaFunction) {
-            return ((BallerinaFunction) dataHolder.getCurrentObject()).getAnnotations();
+            BallerinaFunction function = (BallerinaFunction) dataHolder.getCurrentObject();
+            currentPkgPath = getPackagePath(function);
+            return function.getAnnotations();
         } else if (dataHolder.getCurrentObject() instanceof BallerinaConnectorDef) {
-            return ((BallerinaConnectorDef) dataHolder.getCurrentObject()).getAnnotations();
+            BallerinaConnectorDef connector = (BallerinaConnectorDef) dataHolder.getCurrentObject();
+            currentPkgPath = getPackagePath(connector);
+            return connector.getAnnotations();
         } else if (dataHolder.getCurrentObject() instanceof BallerinaAction) {
-            return ((BallerinaAction) dataHolder.getCurrentObject()).getAnnotations();
+            BallerinaAction action = (BallerinaAction) dataHolder.getCurrentObject();
+            currentPkgPath = getPackagePath(action);
+            return action.getAnnotations();
         } else if (dataHolder.getCurrentObject() instanceof BTypeMapper) {
-            return ((BTypeMapper) dataHolder.getCurrentObject()).getAnnotations();
+            BTypeMapper typemapper = (BTypeMapper) dataHolder.getCurrentObject();
+            currentPkgPath = getPackagePath(typemapper);
+            return typemapper.getAnnotations();
         } else if (dataHolder.getCurrentObject() instanceof StructDef) {
-            return ((StructDef) dataHolder.getCurrentObject()).getAnnotations();
+            StructDef struct = (StructDef) dataHolder.getCurrentObject();
+            currentPkgPath = getPackagePath(struct);
+            return struct.getAnnotations();
+        } else if (dataHolder.getCurrentObject() instanceof AnnotationDef) {
+            AnnotationDef annotation = (AnnotationDef) dataHolder.getCurrentObject();
+            currentPkgPath = getPackagePath(annotation);
+            return annotation.getAnnotations();
         } else {
             return new AnnotationAttachment[0];
         }
@@ -342,5 +420,19 @@ public class HtmlDocumentWriter implements DocumentWriter {
         public void setCurrentObject(Object currentObject) {
             this.currentObject = currentObject;
         }
+    }
+    
+    /**
+     * Get the package to which the current scope belongs to.
+     * 
+     * @param scope Current scope
+     * @return Package path to which current scope belongs to.
+     */
+    private String getPackagePath(SymbolScope scope) {
+        if (scope instanceof BLangPackage) {
+            return ((BLangPackage) scope).getPackagePath();
+        }
+        
+        return getPackagePath(scope.getEnclosingScope());
     }
 }
