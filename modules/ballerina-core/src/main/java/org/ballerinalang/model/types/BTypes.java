@@ -142,7 +142,7 @@ public class BTypes {
         if (bType != null) {
             if (typeName.getDimensions() == 1) {
                 BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
-                        bType, typeName.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
+                        bType, bType.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
                 bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
                 return bArrayType;
             } else {
