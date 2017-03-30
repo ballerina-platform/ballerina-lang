@@ -4,10 +4,9 @@ struct Department {
 }
 
 struct Person {
-    string name = "default first name";
-    string lname;
+    string name;
     map adrs;
-    int age = 999;
+    int age;
     Family family;
 }
 
@@ -37,8 +36,7 @@ function testStructOfStruct() (string) {
 
 function testReturnStructAttributes () (string) {
 	map address = {"country":"USA","state":"CA"};
-	string[] chldrn = [];
-	Family fmly= {children:chldrn};
+	Family fmly= {};
 	Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
     Person emp2;
     Person[] employees = [emp1, emp2];
@@ -90,7 +88,6 @@ function testStructExpressionAsIndex() (string) {
     string country;
     Department dpt= {};
     Family fmly = {};
-    fmly.children = [];
     Person emp2;
     map address = {"country":"USA","state":"CA"};
     Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
@@ -103,16 +100,4 @@ function testStructExpressionAsIndex() (string) {
     dpt.employees[0].family.noOfChildren = 1;
 
     return dpt.employees[0].family.children[dpt.employees[0].family.noOfChildren - 1];
-}
-
-function testDefaultVal() (string, string, int) {
-    Person p = {};
-    return p.name, p.lname, p.age;
-}
-
-function testNestedFieldDefaultVal() (string, string, int) {
-    Department dpt = {};
-    dpt.employees = [];
-    dpt.employees[0] = {lname:"Smith"};
-    return dpt.employees[0].name, dpt.employees[0].lname, dpt.employees[0].age;
 }
