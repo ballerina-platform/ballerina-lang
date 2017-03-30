@@ -89,7 +89,7 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
             Map<String, String> annotationKeyValuePairs = jmsSource.getAttributeNameValuePairs().entrySet().stream()
                     .collect(Collectors.toMap(
                             entry -> entry.getKey(),
-                            entry -> entry.getValue().toString()
+                            entry -> entry.getValue().getLiteralValue().stringValue()
                     ));
 
             connectionProperties.stream().map(property -> property.getAttributeNameValuePairs()).forEach(
