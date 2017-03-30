@@ -94,8 +94,9 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
 
             connectionProperties.stream().map(property -> property.getAttributeNameValuePairs()).forEach(
                     keyValuePair -> {
-                        annotationKeyValuePairs.put(keyValuePair.get(Constants.CONNECTION_PROPERTY_KEY).toString(),
-                                keyValuePair.get(Constants.CONNECTION_PROPERTY_VALUE).toString());
+                        annotationKeyValuePairs.put(
+                                keyValuePair.get(Constants.CONNECTION_PROPERTY_KEY).getLiteralValue().stringValue(),
+                                keyValuePair.get(Constants.CONNECTION_PROPERTY_VALUE).getLiteralValue().stringValue());
                     }
             );
 
