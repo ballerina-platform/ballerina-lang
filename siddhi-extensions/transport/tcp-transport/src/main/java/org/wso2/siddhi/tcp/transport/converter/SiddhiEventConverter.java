@@ -22,10 +22,10 @@ import io.netty.buffer.ByteBuf;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.tcp.transport.utils.StreamInfo;
-import org.wso2.siddhi.tcp.transport.utils.StreamTypeHolder;
 import org.wso2.siddhi.tcp.transport.exception.MalformedEventException;
 import org.wso2.siddhi.tcp.transport.utils.BinaryMessageConverterUtil;
+import org.wso2.siddhi.tcp.transport.utils.StreamInfo;
+import org.wso2.siddhi.tcp.transport.utils.StreamTypeHolder;
 
 import java.nio.ByteBuffer;
 
@@ -54,13 +54,18 @@ public class SiddhiEventConverter {
         String streamId = BinaryMessageConverterUtil.getString(byteBuffer, streamIdSize);
 
         StreamInfo streamInfo = streamTypeHolder.getStreamInfo(streamId);
-        if(streamInfo ==null){
+        int numberOfEvents = byteBuffer.readInt();
+
+        if (streamInfo == null) {
+            for (int i = 0; i < numberOfEvents; i++) {
+                int eventSize = byteBuffer.readInt();
+                byte[] bytes = new byte[eventSize];
+                byteBuffer.readBytes(bytes);
+            }
             byteBuffer.markReaderIndex();
-            log.error("Events with unknown streamId : '"+streamId+"' hence dropping the events!");
+            log.error("Events with unknown streamId : '" + streamId + "' hence dropping the events!");
             return;
         }
-
-        int numberOfEvents = byteBuffer.readInt();
 
         Event[] events = new Event[numberOfEvents];
         for (int i = 0; i < numberOfEvents; i++) {

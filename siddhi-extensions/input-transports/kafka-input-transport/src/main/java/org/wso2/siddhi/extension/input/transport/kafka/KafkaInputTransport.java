@@ -69,7 +69,7 @@ public class KafkaInputTransport extends InputTransport{
     @Override
     public void connect() throws ConnectionUnavailableException {
         String zkServerList = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS);
-        String groupID = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_GROUP_ID);
+        String groupID = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_GROUP_ID, null);
         String threadingOption = optionHolder.validateAndGetStaticValue(THREADING_OPTION);
         String partitionList;
         String partitions[];
@@ -124,7 +124,9 @@ public class KafkaInputTransport extends InputTransport{
     private static Properties createConsumerConfig(String zkServerList, String groupId, String optionalConfigs) {
         Properties props = new Properties();
         props.put(ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS, zkServerList);
-        props.put(ADAPTOR_SUBSCRIBER_GROUP_ID, groupId);
+        if (null != groupId) {
+            props.put(ADAPTOR_SUBSCRIBER_GROUP_ID, groupId);
+        }
         //If it stops heart-beating for a period of time longer than session.timeout.ms then it will be considered dead
         // and its partitions will be assigned to another process
         props.put("session.timeout.ms", "30000");

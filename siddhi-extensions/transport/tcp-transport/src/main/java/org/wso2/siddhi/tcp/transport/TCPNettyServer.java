@@ -165,12 +165,17 @@ class FlowController extends ChannelInboundHandlerAdapter {
 
         if (!paused) {
             // deque the messages if the transport is not paused
-            queue.forEach(e -> {
+            Object e;
+            while ((e = queue.poll()) != null) {
                 if (!(e instanceof EmptyByteBuf)) {
                     ctx.fireChannelRead(e);
                 }
-            });
-            queue.clear();
+            }
         }
+    }
+
+    @Override
+    public boolean isSharable() {
+        return true;
     }
 }
