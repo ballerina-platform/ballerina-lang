@@ -27,27 +27,16 @@ import org.ballerinalang.model.expressions.Expression;
  *
  * @since 0.8.0
  */
-public class AssignStmt extends AbstractStatement {
+public class AssignStmt extends AbstractAssignStatement {
     private Expression[] lhsExprs;
 
-    private Expression rhsExpr;
-
     public AssignStmt(NodeLocation location, Expression[] lhsExprs, Expression rhsExpr) {
-        super(location);
+        super(location, rhsExpr);
         this.lhsExprs = lhsExprs;
-        this.rhsExpr = rhsExpr;
     }
 
     public Expression[] getLExprs() {
         return lhsExprs;
-    }
-
-    public Expression getRExpr() {
-        return rhsExpr;
-    }
-
-    public void setRExpr(Expression rhsExpr) {
-        this.rhsExpr = rhsExpr;
     }
 
     @Override
@@ -58,9 +47,5 @@ public class AssignStmt extends AbstractStatement {
     @Override
     public void execute(NodeExecutor executor) {
         executor.visit(this);
-    }
-
-    public void setRhsExpr(Expression rhsExpr) {
-        this.rhsExpr = rhsExpr;
     }
 }

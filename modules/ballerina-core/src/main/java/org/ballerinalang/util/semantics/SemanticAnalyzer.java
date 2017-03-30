@@ -93,6 +93,7 @@ import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
+import org.ballerinalang.model.statements.AbstractAssignStatement;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -849,27 +850,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Set memory location
         setMemoryLocation(varDef);
 
-        Expression rExpr = varDefStmt.getRExpr();
+        Expression rExpr = varDefStmt.getRhsExpr();
         if (rExpr == null) {
             return;
         }
-        //todo any type support for RefTypeInitExpr
-        if (rExpr instanceof RefTypeInitExpr) {
-            RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
-
-            if (varBType instanceof BMapType) {
-                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                varDefStmt.setRExpr(refTypeInitExpr);
-            } else if (varBType instanceof StructDef) {
-                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                varDefStmt.setRExpr(refTypeInitExpr);
-            }
-
-            refTypeInitExpr.setInheritedType(varBType);
-            refTypeInitExpr.accept(this);
-            return;
-        }
-
 
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
@@ -887,7 +871,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
                 if (newExpr != null) {
                     newExpr.accept(this);
-                    varDefStmt.setRExpr(newExpr);
+                    varDefStmt.setRhsExpr(newExpr);
                 } else {
                     BLangExceptionHelper.throwSemanticError(rExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
                             returnTypes[0], varBType);
@@ -897,28 +881,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
 
-        visitSingleValueExpr(rExpr);
-        if (varBType == BTypes.typeAny) {
-            return;
-        }
-        BType rType = rExpr.getType();
-        if (rExpr instanceof TypeCastExpression && rType == null) {
-            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
-        }
-
-        // TODO Remove the MAP related logic when type casting is implemented
-        if ((varBType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
-                (!varBType.equals(rType))) {
-
-            TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
-            if (newExpr != null) {
-                newExpr.accept(this);
-                varDefStmt.setRExpr(newExpr);
-            } else {
-                BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                        rExpr.getType(), varBType);
-            }
-        }
+        leftRightTypeMatching(rExpr, varBType, varDefStmt);
     }
 
     @Override
@@ -926,7 +889,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression[] lExprs = assignStmt.getLExprs();
         visitLExprsOfAssignment(assignStmt, lExprs);
 
-        Expression rExpr = assignStmt.getRExpr();
+        Expression rExpr = assignStmt.getRhsExpr();
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
             checkForMultiAssignmentErrors(assignStmt, lExprs, (CallableUnitInvocationExpr) rExpr);
@@ -936,6 +899,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Now we know that this is a single value assignment statement.
         Expression lExpr = assignStmt.getLExprs()[0];
         BType lExprType = lExpr.getType();
+        leftRightTypeMatching(rExpr, lExprType, assignStmt);
+    }
+
+    private void leftRightTypeMatching(Expression rExpr, BType lExprType, AbstractAssignStatement assignStmt) {
 
         //todo any type support for RefTypeInitExpr
         if (rExpr instanceof RefTypeInitExpr) {
@@ -943,10 +910,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             if (lExprType instanceof BMapType) {
                 refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                assignStmt.setRExpr(refTypeInitExpr);
+                assignStmt.setRhsExpr(refTypeInitExpr);
             } else if (lExprType instanceof StructDef) {
                 refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                assignStmt.setRExpr(refTypeInitExpr);
+                assignStmt.setRhsExpr(refTypeInitExpr);
             }
 
             refTypeInitExpr.setInheritedType(lExprType);
@@ -955,6 +922,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         visitSingleValueExpr(rExpr);
+
         if (lExprType == BTypes.typeAny) {
             return;
         }
@@ -965,15 +933,15 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // TODO Remove the MAP related logic when type casting is implemented
         if ((lExprType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
-                (!lExprType.equals(rType))) {
+            (!lExprType.equals(rType))) {
 
-            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr);
+            TypeCastExpression newExpr = checkWideningPossible(lExprType, rExpr);
             if (newExpr != null) {
                 newExpr.accept(this);
                 assignStmt.setRhsExpr(newExpr);
             } else {
-                BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                        rExpr.getType(), lExpr.getType());
+                BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
+                                                        rExpr.getType(), lExprType);
             }
         }
     }
