@@ -41,6 +41,8 @@ import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
+import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
@@ -611,21 +613,19 @@ public class BallerinaPsiImplUtil {
      * @return all functions in the given directory(package)
      */
     public static List<PsiElement> getAllMatchingElementsFromPackage(PsiDirectory directory, String xpath) {
-
         Project project = directory.getProject();
-
         List<PsiElement> results = new ArrayList<>();
-
         VirtualFile virtualFile = directory.getVirtualFile();
         VirtualFile[] children = virtualFile.getChildren();
-
         for (VirtualFile child : children) {
             if (child.isDirectory()) {
                 continue;
             }
             PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
-            Collection<? extends PsiElement> functions =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, xpath);
+            if (!(psiFile instanceof BallerinaFile)) {
+                continue;
+            }
+            Collection<? extends PsiElement> functions = XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, xpath);
 
             results.addAll(functions);
         }
@@ -853,6 +853,30 @@ public class BallerinaPsiImplUtil {
                 resolved = SymtabUtils.resolve(scope, BallerinaLanguage.INSTANCE, element, xpath);
             }
         }
+        // If the resolved element is still null, it might be located in another file in the same package.
+        if (resolved == null) {
+            // Get the parent directory which is the package.
+            PsiDirectory parentDirectory = element.getContainingFile().getParent();
+            // Iterate through all xpaths.
+            for (String xpath : xpaths) {
+                // Get all matching elements from a package (functions, etc).
+                List<PsiElement> matchingElements = getAllMatchingElementsFromPackage(parentDirectory, xpath);
+                // If there are no matching elements for the current xpath, continue with next xpath.
+                if (!matchingElements.isEmpty()) {
+                    // If there are matching elements, iterate through them and check.
+                    for (PsiElement matchingElement : matchingElements) {
+                        // Check the name.
+                        if (element.getText().equals(matchingElement.getText())) {
+                            // If the name matches, we found the element. So we assign the matching element to
+                            // resolved and break the loop.
+                            resolved = matchingElement;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        // Return the resolved element.
         return resolved;
     }
 }

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.run.configuration.application;
+package org.ballerinalang.plugins.idea.run.configuration.file;
 
 import com.intellij.execution.configurations.ConfigurationTypeBase;
 import com.intellij.execution.configurations.RunConfiguration;
@@ -25,24 +25,24 @@ import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaConfigurationFactoryBase;
 import org.jetbrains.annotations.NotNull;
 
-public class BallerinaApplicationRunConfigurationType extends ConfigurationTypeBase {
+public class BallerinaRunServiceFileConfigurationType extends ConfigurationTypeBase {
 
-    public BallerinaApplicationRunConfigurationType() {
-        super("BallerinaApplicationRunConfiguration", "Ballerina Application",
-                "Ballerina Application Run Configuration", BallerinaIcons.APPLICATION_RUN);
+    public BallerinaRunServiceFileConfigurationType() {
+        super("BallerinaRunFileConfiguration", "Ballerina File", "Ballerina File Run Configuration",
+                BallerinaIcons.APPLICATION_RUN);
 
         addFactory(new BallerinaConfigurationFactoryBase(this) {
 
             @Override
             @NotNull
             public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-                return new BallerinaApplicationConfiguration(project, BallerinaConstants.BALLERINA, getInstance());
+                return new BallerinaRunFileConfiguration(project, BallerinaConstants.BALLERINA, getInstance());
             }
         });
     }
 
     @NotNull
-    public static BallerinaApplicationRunConfigurationType getInstance() {
-        return Extensions.findExtension(CONFIGURATION_TYPE_EP, BallerinaApplicationRunConfigurationType.class);
+    public static BallerinaRunServiceFileConfigurationType getInstance() {
+        return Extensions.findExtension(CONFIGURATION_TYPE_EP, BallerinaRunServiceFileConfigurationType.class);
     }
 }

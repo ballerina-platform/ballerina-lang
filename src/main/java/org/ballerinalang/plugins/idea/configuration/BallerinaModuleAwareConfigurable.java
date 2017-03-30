@@ -34,6 +34,6 @@ public abstract class BallerinaModuleAwareConfigurable extends ModuleAwareProjec
             return false;
         }
         Project project = module.getProject();
-        return !project.isDisposed() && BallerinaSdkService.isBallerinaModule(module);
+        return !project.isDisposed() && BallerinaSdkService.getInstance(project).isBallerinaModule(module);
     }
 }

@@ -14,30 +14,25 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.run.configuration.application;
+package org.ballerinalang.plugins.idea.run.configuration;
 
+import com.intellij.compiler.options.CompileStepBeforeRun;
+import com.intellij.execution.BeforeRunTask;
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
-import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.util.Key;
 
-public class BallerinaApplicationConfigurationFactory extends ConfigurationFactory {
+public abstract class BallerinaConfigurationFactoryBase extends ConfigurationFactory {
 
-    private static final String FACTORY_NAME = "Ballerina application configuration factory";
-
-    protected BallerinaApplicationConfigurationFactory(ConfigurationType type) {
+    protected BallerinaConfigurationFactoryBase(ConfigurationType type) {
         super(type);
     }
 
-    @NotNull
     @Override
-    public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-        return new BallerinaApplicationRunConfiguration(project, this, "Ballerina Application");
-    }
-
-    @Override
-    public String getName() {
-        return FACTORY_NAME;
+    public void configureBeforeRunTaskDefaults(Key<? extends BeforeRunTask> providerID, BeforeRunTask task) {
+        super.configureBeforeRunTaskDefaults(providerID, task);
+        if (providerID == CompileStepBeforeRun.ID) {
+            task.setEnabled(false);
+        }
     }
 }

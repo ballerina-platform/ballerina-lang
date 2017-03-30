@@ -16,30 +16,64 @@
 
 package org.ballerinalang.plugins.idea.run.configuration.ui;
 
+import com.intellij.application.options.ModulesComboBox;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.LabeledComponent;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.ui.EditorTextField;
+import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.RawCommandLineEditor;
-import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationBase;
+import org.ballerinalang.plugins.idea.run.configuration.RunConfigurationKind;
+import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationConfiguration;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JPanel;
 
-public class BallerinaApplicationSettingsEditor extends SettingsEditor<BallerinaRunConfigurationBase> {
+public class BallerinaApplicationSettingsEditor extends SettingsEditor<BallerinaApplicationConfiguration> {
 
     private JPanel myPanel;
-    private LabeledComponent<RawCommandLineEditor> params;
+    private LabeledComponent<RawCommandLineEditor> myParamsField;
+    private LabeledComponent<JComboBox<RunConfigurationKind>> myRunKindComboBox;
+    private LabeledComponent<EditorTextField> myPackageField;
+    private LabeledComponent<ModulesComboBox> myModulesComboBox;
+    private LabeledComponent<TextFieldWithBrowseButton> myWorkingDirectoryField;
+    private Project myProject;
 
-    @Override
-    protected void resetEditorFrom(@NotNull BallerinaRunConfigurationBase ballerinaRunConfigurationBase) {
-        params.getComponent().setText(ballerinaRunConfigurationBase.getParams());
+    public BallerinaApplicationSettingsEditor(Project project) {
+        myProject = project;
+        installRunKindComboBox();
     }
 
     @Override
-    protected void applyEditorTo(@NotNull BallerinaRunConfigurationBase ballerinaRunConfigurationBase)
+    protected void resetEditorFrom(@NotNull BallerinaApplicationConfiguration configuration) {
+        myPackageField.getComponent().setText(configuration.getPackage());
+        myRunKindComboBox.getComponent().setSelectedItem(configuration.getRunKind());
+
+        myModulesComboBox.getComponent().setModules(configuration.getValidModules());
+        myModulesComboBox.getComponent().setSelectedModule(configuration.getConfigurationModule().getModule());
+
+        myParamsField.getComponent().setText(configuration.getParams());
+        myWorkingDirectoryField.getComponent().setText(configuration.getWorkingDirectory());
+    }
+
+    @Override
+    protected void applyEditorTo(@NotNull BallerinaApplicationConfiguration configuration)
             throws ConfigurationException {
-        ballerinaRunConfigurationBase.setParams(params.getComponent().getText());
+        configuration.setPackage(myPackageField.getComponent().getText());
+        configuration.setRunKind((RunConfigurationKind) myRunKindComboBox.getComponent().getSelectedItem());
+
+        configuration.setModule(myModulesComboBox.getComponent().getSelectedModule());
+        configuration.setParams(myParamsField.getComponent().getText());
+        configuration.setWorkingDirectory(myWorkingDirectoryField.getComponent().getText());
     }
 
     @NotNull
@@ -49,7 +83,42 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
     }
 
     private void createUIComponents() {
-        params = new LabeledComponent<RawCommandLineEditor>();
-        params.setComponent(new RawCommandLineEditor());
+        myRunKindComboBox = new LabeledComponent<>();
+        myRunKindComboBox.setComponent(new JComboBox<>());
+
+        myPackageField = new LabeledComponent<>();
+        myPackageField.setComponent(new BallerinaPackageFieldCompletionProvider(
+                () -> myModulesComboBox.getComponent().getSelectedModule()).createEditor(myProject));
+
+        myWorkingDirectoryField = new LabeledComponent<>();
+        myWorkingDirectoryField.setComponent(new TextFieldWithBrowseButton());
+
+        myParamsField = new LabeledComponent<>();
+        myParamsField.setComponent(new RawCommandLineEditor());
+
+        myModulesComboBox = new LabeledComponent<>();
+        myModulesComboBox.setComponent(new ModulesComboBox());
+    }
+
+    @Nullable
+    private static ListCellRendererWrapper<RunConfigurationKind> getRunKindListCellRendererWrapper() {
+        return new ListCellRendererWrapper<RunConfigurationKind>() {
+            @Override
+            public void customize(JList list, @Nullable RunConfigurationKind kind, int index,
+                                  boolean selected, boolean hasFocus) {
+                if (kind != null) {
+                    String kindName = StringUtil.capitalize(kind.toString().toLowerCase(Locale.US));
+                    setText(kindName);
+                }
+            }
+        };
+    }
+
+    private void installRunKindComboBox() {
+        myRunKindComboBox.getComponent().removeAllItems();
+        myRunKindComboBox.getComponent().setRenderer(getRunKindListCellRendererWrapper());
+        for (RunConfigurationKind kind : RunConfigurationKind.values()) {
+            myRunKindComboBox.getComponent().addItem(kind);
+        }
     }
 }

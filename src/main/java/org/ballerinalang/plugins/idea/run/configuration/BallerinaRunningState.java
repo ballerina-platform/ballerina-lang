@@ -16,29 +16,55 @@
 
 package org.ballerinalang.plugins.idea.run.configuration;
 
+import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.CommandLineState;
+import com.intellij.execution.configurations.GeneralCommandLine;
+import com.intellij.execution.process.KillableColoredProcessHandler;
+import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.process.ProcessTerminatedListener;
 import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.module.Module;
+import org.ballerinalang.plugins.idea.util.BallerinaExecutor;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class BallerinaRunningState extends CommandLineState {
+public abstract class BallerinaRunningState<T extends BallerinaRunConfigurationBase<?>> extends CommandLineState {
 
-    private Project project;
-    private String params;
+    @NotNull
+    protected final Module myModule;
 
-    protected BallerinaRunningState(Project project, String params, ExecutionEnvironment environment) {
-        super(environment);
-        this.project = project;
-        this.params = params;
-        addConsoleFilters(new BallerinaConsoleFilter(project));
+    @NotNull
+    public T getConfiguration() {
+        return myConfiguration;
     }
 
-    public abstract String getCommand();
+    @NotNull protected final T myConfiguration;
 
-    public Project getProject() {
-        return project;
+    public BallerinaRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module, @NotNull T configuration) {
+        super(env);
+        myModule = module;
+        myConfiguration = configuration;
+        addConsoleFilters(new BallerinaConsoleFilter(myConfiguration.getProject(), myModule,
+                myConfiguration.getWorkingDirectoryUrl()));
     }
 
-    public String getParams() {
-        return params;
+    @NotNull
+    @Override
+    protected ProcessHandler startProcess() throws ExecutionException {
+        BallerinaExecutor executor = patchExecutor(createCommonExecutor());
+        GeneralCommandLine commandLine = executor.withParameterString(myConfiguration.getParams()).createCommandLine();
+        KillableColoredProcessHandler handler = new KillableColoredProcessHandler(commandLine, true);
+        ProcessTerminatedListener.attach(handler);
+        return handler;
+    }
+
+    @NotNull
+    public BallerinaExecutor createCommonExecutor() {
+        return BallerinaExecutor.in(myModule).withWorkDirectory(myConfiguration.getWorkingDirectory())
+                .withExtraEnvironment(myConfiguration.getCustomEnvironment())
+                .withPassParentEnvironment(myConfiguration.isPassParentEnvironment());
+    }
+
+    protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
+        return executor;
     }
 }

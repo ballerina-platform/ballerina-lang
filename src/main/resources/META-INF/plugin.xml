@@ -123,14 +123,24 @@
         <library.presentationProvider implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkLibraryPresentationProvider"/>
         <applicationService serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaPathModificationTracker"/>
 
+        <projectService serviceInterface="org.ballerinalang.plugins.idea.sdk.BallerinaSdkService"
+                        serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkService"
+                        overrides="false"/>
+
         <!-- module -->
         <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>
 
-        <!--run configurations-->
-        <configurationType
-                implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType"/>
-        <configurationType
-                implementation="org.ballerinalang.plugins.idea.run.configuration.service.BallerinaServiceRunConfigurationType"/>
+        <!-- run single file -->
+        <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.file.BallerinaRunServiceFileConfigurationType"/>
+        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.file.BallerinaRunServiceFileConfigurationProducer"/>
+
+        <!-- run application -->
+        <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunner"/>
+
+        <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType"/>
+        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationProducer"/>
+
+        <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunLineMarkerProvider"/>
 
         <!--project-->
         <applicationService serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService"/>
