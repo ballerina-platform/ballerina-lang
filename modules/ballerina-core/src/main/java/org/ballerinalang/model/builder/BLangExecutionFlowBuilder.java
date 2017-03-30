@@ -101,7 +101,6 @@ import org.ballerinalang.model.nodes.fragments.expressions.MapInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.RefTypeInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructFieldAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprEndNode;
-import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.UnaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.AssignStmtEndNode;
@@ -1305,46 +1304,12 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     @Override
     public void visit(StructInitExpr structInitExpr) {
         calculateTempOffSet(structInitExpr);
-        StructInitExprStartNode startNode = new StructInitExprStartNode(structInitExpr);
         StructInitExprEndNode endNode = new StructInitExprEndNode(structInitExpr);
         Expression[] argExprs = structInitExpr.getArgExprs();
-        
-        // Create flow for populating default values
-        StructDef structDef = (StructDef) structInitExpr.getType();
-        BlockStmt blockStmt = structDef.getInitFunction().getCallableUnitBody();
-        structInitExpr.setNext(startNode);
-        startNode.setParent(structInitExpr);
-        
-        startNode.setNext(blockStmt);
-        CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(structInitExpr);
-        blockStmt.setNextSibling(callableUnitEndNode);
-        GotoNode gotoNode;
-        // Setup MultiLink Statement for this block Statement.
-        if (blockStmt.getGotoNode() != null) {
-            gotoNode = blockStmt.getGotoNode();
-        } else {
-            gotoNode = new GotoNode();
-            blockStmt.setGotoNode(gotoNode);
-            blockStmt.setNextSibling(gotoNode);
-        }
-        // Get Branching ID for above multi link.
-        int branchID = gotoNode.addNext(callableUnitEndNode);
-        startNode.setHasGotoBranchID(true);
-        startNode.setGotoBranchID(branchID);
-        if (!structDef.getInitFunction().isFlowBuilderVisited()) {
-            returningBlockStmtStack.push(blockStmt);
-            offSetCounterStack.push(new OffSetCounter());
-            structDef.getInitFunction().setFlowBuilderVisited(true);
-            blockStmt.accept(this);
-            structDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getCount());
-            returningBlockStmtStack.pop();
-        }
-        
-        //  Create flow for arguments in struct initializer expression
+        endNode.setParent(structInitExpr);
         if (argExprs != null && argExprs.length > 0) {
             LinkedNode previous = null;
-            callableUnitEndNode.setNext(argExprs[0]);
-            
+            structInitExpr.setNext(argExprs[0]);
             for (Expression arg : argExprs) {
                 if (previous != null) {
                     previous.setNextSibling(arg);
@@ -1356,7 +1321,9 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             }
             Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
         } else {
-            callableUnitEndNode.setNext(endNode);
+            if (structInitExpr.next == null) {
+                structInitExpr.setNext(endNode);
+            }
         }
         endNode.setNext(findNext(endNode));
     }
