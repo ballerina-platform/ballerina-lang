@@ -41,4 +41,10 @@ public class BAnyTypeInvalidCastError {
     public void testInvalidDirectCastFromAnyToDouble() {
         BLangFunctions.invoke(bLangProgram, "invalidCastingError");
     }
+
+    @Test(expectedExceptions = {BallerinaException.class},
+          expectedExceptionsMessageRegExp = "cannot cast 'any' with 'null' value to value type 'int'")
+    public void testCastingUndefinedAnyValue() {
+        BLangFunctions.invoke(bLangProgram, "undefinedCasting");
+    }
 }
