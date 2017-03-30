@@ -109,7 +109,6 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
-import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.BValueUtils;
@@ -1008,7 +1007,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             // Check whether this collection access expression is in the left hand of an assignment expression
             // If yes skip setting the value;
             BValue result;
-            if (arrayMapAccessExpr.getType() != BTypes.typeMap) {
+            if (arrayMapAccessExpr.getRExpr().getType() != BTypes.typeMap) {
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
                     BArray bArray = (BArray) collectionValue;
@@ -1452,7 +1451,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
         ArrayMapAccessExpr accessExpr = lExpr;
-        if (!(accessExpr.getType() == BTypes.typeMap)) {
+        if (!(accessExpr.getRExpr().getType() == BTypes.typeMap)) {
             BArray arrayVal = (BArray) getTempValue(accessExpr.getRExpr());
 
             Expression[] exprs = accessExpr.getIndexExprs();
@@ -1603,7 +1602,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
 
         // Set the value to arrays/map's index location
-        if (fieldExpr.getRefVarType() instanceof BMapType) {
+        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+        if (varRef.getRExpr().getType() == BTypes.typeMap) {
             BValue indexValue = getTempValue(exprs[0]);
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
@@ -1689,7 +1689,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BValue indexValue;
         BValue unitVal;
         // Get the value from arrays/map's index location
-        if (fieldExpr.getRefVarType() instanceof BMapType) {
+        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+        if (varRef.getRExpr().getType() == BTypes.typeMap) {
             indexValue = getTempValue(indexExpr[0]);
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {

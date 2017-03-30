@@ -906,9 +906,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
         }
 
-        // TODO Remove the MAP related logic when type casting is implemented
-        if ((varBType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
-                (!varBType.equals(rType))) {
+        if (!varBType.equals(rType)) {
 
             TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
             if (newExpr != null) {
@@ -963,9 +961,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
         }
 
-        // TODO Remove the MAP related logic when type casting is implemented
-        if ((lExprType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
-                (!lExprType.equals(rType))) {
+        if (!lExprType.equals(rType)) {
 
             TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr);
             if (newExpr != null) {
@@ -2022,8 +2018,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             // Set type of the map access expression
-            BType typeOfMap = arrayMapVarRefExpr.getType();
-            arrayMapAccessExpr.setType(typeOfMap);
+            BMapType typeOfMap = (BMapType) arrayMapVarRefExpr.getType();
+            arrayMapAccessExpr.setType(typeOfMap.getElementType());
 
         } else {
             BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr,
