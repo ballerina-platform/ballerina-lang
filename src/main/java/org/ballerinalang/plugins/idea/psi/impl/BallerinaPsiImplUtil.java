@@ -57,6 +57,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 public class BallerinaPsiImplUtil {
@@ -525,6 +526,9 @@ public class BallerinaPsiImplUtil {
     }
 
     public static List<PsiElement> getAllConnectorsInCurrentPackage(PsiElement element) {
+        if (element instanceof PsiDirectory) {
+            return getAllConnectorsInPackage((PsiDirectory) element);
+        }
         PsiElement parent = element.getParent();
         return getAllConnectorsInPackage((PsiDirectory) parent);
     }
@@ -542,6 +546,9 @@ public class BallerinaPsiImplUtil {
     }
 
     public static List<PsiElement> getAllAnnotationsInCurrentPackage(PsiElement element) {
+        if (element instanceof PsiDirectory) {
+            return getAllAnnotationsInPackage((PsiDirectory) element);
+        }
         PsiElement parent = element.getParent();
         return getAllAnnotationsInPackage((PsiDirectory) parent);
     }

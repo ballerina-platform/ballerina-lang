@@ -17,6 +17,7 @@
 package org.ballerinalang.plugins.idea.codeinsight.editoractions;
 
 import com.intellij.codeInsight.editorActions.SimpleTokenSetQuoteHandler;
+import com.intellij.openapi.editor.highlighter.HighlighterIterator;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 
 public class BallerinaQuoteHandler extends SimpleTokenSetQuoteHandler {
@@ -24,5 +25,11 @@ public class BallerinaQuoteHandler extends SimpleTokenSetQuoteHandler {
     public BallerinaQuoteHandler() {
         super(BallerinaTypes.DOUBLE_QUOTE, BallerinaTypes.BACK_TICK, //Needed to identify start tokens
                 BallerinaTypes.QUOTED_STRING, BallerinaTypes.BACKTICKED_STRING);//Need to identify ending tokens
+    }
+
+    @Override
+    protected boolean isNonClosedLiteral(HighlighterIterator iterator, CharSequence chars) {
+        // Todo - Fix properly. If true is not returned, ending quote will not be added automatically.
+        return true;
     }
 }
