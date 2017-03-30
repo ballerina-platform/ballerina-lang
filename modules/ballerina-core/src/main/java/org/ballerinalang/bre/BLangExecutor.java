@@ -89,7 +89,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -802,47 +801,22 @@ public class BLangExecutor implements NodeExecutor {
         BValue[] connectorMemBlock;
         Connector connector = (Connector) connectorInitExpr.getType();
 
-        if (connector instanceof AbstractNativeConnector) {
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
 
-            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
-            Expression[] argExpressions = connectorInitExpr.getArgExprs();
-            connectorMemBlock = new BValue[argExpressions.length];
-            for (int j = 0; j < argExpressions.length; j++) {
-                connectorMemBlock[j] = argExpressions[j].execute(this);
-            }
-
-            nativeConnector.init(connectorMemBlock);
-            bConnector = new BConnector(nativeConnector, connectorMemBlock);
-
-//            //TODO Fix Issue#320
-//            NativeUnit nativeUnit = ((NativeUnitProxy) connector).load();
-//            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) connector).load();
-//            Expression[] argExpressions = connectorDcl.getArgExprs();
-//            connectorMemBlock = new BValue[argExpressions.length];
-//
-//            for (int j = 0; j < argExpressions.length; j++) {
-//                connectorMemBlock[j] = argExpressions[j].execute(this);
-//            }
-//
-//            nativeConnector.init(connectorMemBlock);
-//            connector = nativeConnector;
-
-        } else {
-            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
-
-            int offset = 0;
-            connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
-            for (Expression expr : connectorInitExpr.getArgExprs()) {
-                connectorMemBlock[offset] = expr.execute(this);
-                offset++;
-            }
-
-            bConnector = new BConnector(connector, connectorMemBlock);
-
-            // Invoke the <init> function
-            invokeConnectorInitFunction(connectorDef, bConnector);
-
+        int offset = 0;
+        connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
+        for (Expression expr : connectorInitExpr.getArgExprs()) {
+            connectorMemBlock[offset] = expr.execute(this);
+            offset++;
         }
+
+        bConnector = new BConnector(connector, connectorMemBlock);
+
+        // Invoke the <init> function
+        invokeConnectorInitFunction(connectorDef, bConnector);
+
+        // Invoke the <init> action
+        invokeConnectorInitAction(connectorDef, bConnector);
 
         return bConnector;
     }
@@ -1302,4 +1276,29 @@ public class BLangExecutor implements NodeExecutor {
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
     }
+
+    private void invokeConnectorInitAction(BallerinaConnectorDef connectorDef, BConnector bConnector) {
+        Action action = connectorDef.getInitAction();
+        if (action == null) {
+            return;
+        }
+
+        BValue[] localVals = new BValue[1];
+        localVals[0] = bConnector;
+
+        // Create an arrays in the stack frame to hold return values;
+        BValue[] returnVals = new BValue[0];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and function invocation location;
+        CallableUnitInfo functionInfo = new CallableUnitInfo(action.getName(), action.getPackagePath(),
+                action.getNodeLocation());
+
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        controlStack.pushFrame(stackFrame);
+        AbstractNativeAction nativeAction = (AbstractNativeAction) action;
+        nativeAction.execute(bContext);
+        controlStack.popFrame();
+    }
+
 }

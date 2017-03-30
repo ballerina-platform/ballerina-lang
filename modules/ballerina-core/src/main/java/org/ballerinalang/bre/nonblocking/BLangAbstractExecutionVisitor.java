@@ -74,6 +74,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.ArrayMapAccessExprEnd
 import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitActionStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
@@ -126,7 +127,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
@@ -1246,64 +1246,64 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BValue[] connectorMemBlock;
         Connector connector = (Connector) connectorInitExpr.getType();
 
-        if (connector instanceof AbstractNativeConnector) {
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
 
-            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
-            Expression[] argExpressions = connectorInitExpr.getArgExprs();
-            connectorMemBlock = new BValue[argExpressions.length];
-            for (int j = 0; j < argExpressions.length; j++) {
-                connectorMemBlock[j] = getTempValue(argExpressions[j]);
-            }
-
-            nativeConnector.init(connectorMemBlock);
-            bConnector = new BConnector(nativeConnector, connectorMemBlock);
-
-//            //TODO Fix Issue#320
-//            NativeUnit nativeUnit = ((NativeUnitProxy) connector).load();
-//            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) connector).load();
-//            Expression[] argExpressions = connectorDcl.getArgExprs();
-//            connectorMemBlock = new BValue[argExpressions.length];
-//
-//            for (int j = 0; j < argExpressions.length; j++) {
-//                connectorMemBlock[j] = argExpressions[j].execute(this);
-//            }
-//
-//            nativeConnector.init(connectorMemBlock);
-//            connector = nativeConnector;
-            setTempValue(connectorInitExpr.getTempOffset(), bConnector);
-        } else {
-            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
-
-            int offset = 0;
-            connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
-            for (Expression expr : connectorInitExpr.getArgExprs()) {
-                connectorMemBlock[offset] = getTempValue(expr);
-                offset++;
-            }
-
-            bConnector = new BConnector(connector, connectorMemBlock);
-            setTempValue(connectorInitExpr.getTempOffset(), bConnector);
-            // Create the Stack frame
-            Function initFunction = connectorDef.getInitFunction();
-            BValue[] localVals = new BValue[1];
-            localVals[0] = bConnector;
-
-            // Create an arrays in the stack frame to hold return values;
-            BValue[] returnVals = new BValue[0];
-
-            // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
-            // return values and function invocation location;
-            CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
-                    initFunction.getNodeLocation());
-
-            BValue[] cacheValue = new BValue[initFunction.getTempStackFrameSize() + 1];
-            StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
-            controlStack.pushFrame(stackFrame);
-            if (connectorInitExprEndNode.hasGotoBranchID()) {
-                branchIDStack.push(connectorInitExprEndNode.getGotoBranchID());
-            }
+        int offset = 0;
+        connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
+        for (Expression expr : connectorInitExpr.getArgExprs()) {
+            connectorMemBlock[offset] = getTempValue(expr);
+            offset++;
         }
 
+        bConnector = new BConnector(connector, connectorMemBlock);
+        setTempValue(connectorInitExpr.getTempOffset(), bConnector);
+        // Create the Stack frame
+        Function initFunction = connectorDef.getInitFunction();
+        BValue[] localVals = new BValue[1];
+        localVals[0] = bConnector;
+
+        // Create an arrays in the stack frame to hold return values;
+        BValue[] returnVals = new BValue[0];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and function invocation location;
+        CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
+                initFunction.getNodeLocation());
+
+        BValue[] cacheValue = new BValue[initFunction.getTempStackFrameSize() + 1];
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
+        controlStack.pushFrame(stackFrame);
+        if (connectorInitExprEndNode.hasGotoBranchID()) {
+            branchIDStack.push(connectorInitExprEndNode.getGotoBranchID());
+        }
+
+    }
+
+    @Override
+    public void visit(ConnectorInitActionStartNode connectorInitActionStartNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ConnectorInitAction - StartNode");
+        }
+        next = connectorInitActionStartNode.next;
+        ConnectorInitExpr connectorInitExpr = connectorInitActionStartNode.getExpression();
+        BConnector bConnector = (BConnector) getTempValue(connectorInitExpr);
+        Connector connector = (Connector) connectorInitExpr.getType();
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
+        Action action = connectorDef.getInitAction();
+
+        BValue[] localVals = new BValue[1];
+        localVals[0] = bConnector;
+
+        // Create an arrays in the stack frame to hold return values;
+        BValue[] returnVals = new BValue[0];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and function invocation location;
+        CallableUnitInfo functionInfo = new CallableUnitInfo(action.getName(), action.getPackagePath(),
+                action.getNodeLocation());
+
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        controlStack.pushFrame(stackFrame);
     }
 
     @Override

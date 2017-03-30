@@ -22,8 +22,6 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
-import org.ballerinalang.natives.NativeUnitProxy;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.HashSet;
@@ -122,10 +120,7 @@ public class BTypes {
     public static BType resolveType(SimpleTypeName typeName, SymbolScope symbolScope, NodeLocation location) {
         BType bType = null;
         BLangSymbol symbol = symbolScope.resolve(typeName.getSymbolName());
-        if (symbol instanceof NativeUnitProxy) {
-            AbstractNativeConnector connector = (AbstractNativeConnector) ((NativeUnitProxy) symbol).load();
-            bType = connector;
-        } else if (symbol instanceof BType) {
+        if (symbol instanceof BType) {
             bType = (BType) symbol;
         }
 
@@ -146,7 +141,7 @@ public class BTypes {
         // We should define the arrays type here.
         if (bType != null) {
             BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
-                    bType, typeName.getPackagePath(), bType.getSymbolScope());
+                    bType, bType.getPackagePath(), bType.getSymbolScope());
             bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
             return bArrayType;
         }

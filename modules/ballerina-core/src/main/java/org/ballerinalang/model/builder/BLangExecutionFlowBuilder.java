@@ -92,6 +92,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.ArrayMapAccessExprEnd
 import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitActionStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
@@ -130,7 +131,6 @@ import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Arrays;
@@ -1255,35 +1255,43 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             }
         }
         Connector connector = (Connector) connectorInitExpr.getType();
-        if (connector instanceof AbstractNativeConnector) {
-            endNode.setNext(findNext(connectorInitExpr));
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
+        BlockStmt blockStmt = connectorDef.getInitFunction().getCallableUnitBody();
+        endNode.setNext(blockStmt);
+        CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(connectorInitExpr);
+        blockStmt.setNextSibling(callableUnitEndNode);
+        GotoNode gotoNode;
+        // Setup MultiLink Statement for this block Statement.
+        if (blockStmt.getGotoNode() != null) {
+            gotoNode = blockStmt.getGotoNode();
         } else {
-            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
-            BlockStmt blockStmt = connectorDef.getInitFunction().getCallableUnitBody();
-            endNode.setNext(blockStmt);
-            CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(connectorInitExpr);
-            blockStmt.setNextSibling(callableUnitEndNode);
-            GotoNode gotoNode;
-            // Setup MultiLink Statement for this block Statement.
-            if (blockStmt.getGotoNode() != null) {
-                gotoNode = blockStmt.getGotoNode();
-            } else {
-                gotoNode = new GotoNode();
-                blockStmt.setGotoNode(gotoNode);
-                blockStmt.setNextSibling(gotoNode);
-            }
-            // Get Branching ID for above multi link.
-            int branchID = gotoNode.addNext(callableUnitEndNode);
-            endNode.setHasGotoBranchID(true);
-            endNode.setGotoBranchID(branchID);
-            if (!connectorDef.getInitFunction().isFlowBuilderVisited()) {
-                returningBlockStmtStack.push(blockStmt);
-                offSetCounterStack.push(new OffSetCounter());
-                connectorDef.getInitFunction().setFlowBuilderVisited(true);
-                blockStmt.accept(this);
-                connectorDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getCount());
-                returningBlockStmtStack.pop();
-            }
+            gotoNode = new GotoNode();
+            blockStmt.setGotoNode(gotoNode);
+            blockStmt.setNextSibling(gotoNode);
+        }
+        // Get Branching ID for above multi link.
+        int branchID = gotoNode.addNext(callableUnitEndNode);
+        endNode.setHasGotoBranchID(true);
+        endNode.setGotoBranchID(branchID);
+        if (!connectorDef.getInitFunction().isFlowBuilderVisited()) {
+            returningBlockStmtStack.push(blockStmt);
+            offSetCounterStack.push(new OffSetCounter());
+            connectorDef.getInitFunction().setFlowBuilderVisited(true);
+            blockStmt.accept(this);
+            connectorDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getCount());
+            returningBlockStmtStack.pop();
+        }
+        if (connectorDef.getInitAction() != null) {
+            ConnectorInitActionStartNode actionStartNode = new ConnectorInitActionStartNode(connectorInitExpr);
+            callableUnitEndNode.setNext(actionStartNode);
+            InvokeNativeActionNode nativeActionNode =
+                    new InvokeNativeActionNode((AbstractNativeAction) connectorDef.getInitAction());
+            actionStartNode.setNext(nativeActionNode);
+            CallableUnitEndNode callableUnitActionEndNode = new CallableUnitEndNode(connectorInitExpr);
+            callableUnitActionEndNode.setNativeInvocation(true);
+            nativeActionNode.setNext(callableUnitActionEndNode);
+            callableUnitActionEndNode.setNext(findNext(connectorInitExpr));
+        } else {
             callableUnitEndNode.setNext(findNext(connectorInitExpr));
         }
     }

@@ -46,7 +46,7 @@ public class BuiltinPackageRepository extends PackageRepository {
     private static final String BAL_FILE_EXT = ".bal";
     private static final String NATIVE_BAL_FILE = "natives.bal";
     private static final String FALSE = "false";
-    private boolean skipNatives = true;
+    private boolean skipNatives = false;
 
     private String packageDirPath;
 

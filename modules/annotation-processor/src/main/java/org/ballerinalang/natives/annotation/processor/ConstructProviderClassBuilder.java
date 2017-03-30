@@ -22,7 +22,6 @@ import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.natives.NativeConstructLoader;
@@ -35,11 +34,9 @@ import org.ballerinalang.natives.annotation.processor.holders.PackageHolder;
 import org.ballerinalang.natives.annotation.processor.holders.TypeMapperHolder;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.BallerinaConnector;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.BallerinaTypeMapper;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.NativeException;
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
@@ -97,7 +94,6 @@ public class ConstructProviderClassBuilder {
                                      "import " + FunctionSymbolName.class.getCanonicalName() + ";\n" +
                                      "import " + NativeConstructLoader.class.getCanonicalName() + ";\n" +
                                      "import " + SimpleTypeName.class.getCanonicalName() + ";\n" +
-                                     "import " + AbstractNativeConnector.class.getCanonicalName() + ";\n" +
                                      "import " + NativeUnit.class.getCanonicalName() + ";\n\n" +
                                      "import " + BLangPackage.class.getCanonicalName() + ";\n\n" +
                                      "import " + BuiltinPackageRepository.class.getCanonicalName() + ";\n\n" +
@@ -320,41 +316,30 @@ public class ConstructProviderClassBuilder {
     }
 
     /**
-     * Write all the type connectors defining to the provider class.
+     * Write all the type actions defining to the provider class.
      * 
      * @param connectors Connector holders arrays containing ballerina connector annotations
      */
     public void writeConnectors(ConnectorHolder[] connectors) {
-        String connectorVarName = "nativeConnector";
         for  (ConnectorHolder con : connectors) {
-            BallerinaConnector balConnector = con.getBalConnector();
-            String connectorName = balConnector.connectorName();
-            String connectorPkgName = balConnector.packageName();
-            String connectorClassName = con.getClassName();
             StringBuilder strBuilder = new StringBuilder();
             
             // Add all the actions of this connector, ad generate the insertion string
             for (ActionHolder action : con.getActions()) {
                 BallerinaAction balAction = action.getBalAction();
-                String actionQualifiedName = Utils.getActionQualifiedName(balAction, connectorName, connectorPkgName);
+                String actionQualifiedName = Utils.getActionQualifiedName(balAction, balAction.connectorName()
+                        , balAction.packageName());
                 String actionPkgName = balAction.packageName();
                 String actionClassName = action.getClassName();
-                String actionAddStr = getConstructInsertStr(connectorVarName, "addAction", actionPkgName, 
+                String actionAddStr = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, actionPkgName,
                     balAction.actionName(), actionQualifiedName, null, null, actionClassName, balAction.args(),
-                    balAction.returnType(), "nativeAction", null, nativeUnitClass, "nativeActionClass", connectorName,
-                    connectorPkgName);
+                    balAction.returnType(), "nativeAction", null, nativeUnitClass, "nativeActionClass",
+                        balAction.connectorName(),  balAction.packageName());
                 strBuilder.append(actionAddStr);
             }
-            
-            // Generate the connector insertion string with the actions as 
-            String nativeConnectorClassName = AbstractNativeConnector.class.getSimpleName();
-            String symbolScopClass = SymbolScope.class.getName() + ".class";
-            String connectorAddStr = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, connectorPkgName, 
-                connectorName, connectorName, symbolScopClass, PACKAGE_SCOPE, connectorClassName, balConnector.args(),
-                null, connectorVarName, strBuilder.toString(), nativeConnectorClassName, "nativeConnectorClass", null,
-                null);
+
             try {
-                sourceFileWriter.write(connectorAddStr);
+                sourceFileWriter.write(strBuilder.toString());
             } catch (IOException e) {
                 throw new BallerinaException("failed to write to source file: " + e.getMessage());
             }
@@ -396,7 +381,7 @@ public class ConstructProviderClassBuilder {
      * @param arguments Input parameters for the native construct
      * @param returnTypes Return types of the native construct
      * @param constructVarName Name of the variable that holds the instance of this construct in generated class
-     * @param scopeElements Child elements insertion string for the current construct. Only applicable for connectors
+     * @param scopeElements Child elements insertion string for the current construct. Only applicable for actions
      * @param nativeUnitClass Class type of the current construct instance
      * @param nativeUnitClassVarName Name of the temp variable which holds the class of the native construct in the
      * generated source.
@@ -444,7 +429,7 @@ public class ConstructProviderClassBuilder {
      * @param arguments Input parameters for the native construct
      * @param returnTypes Return types of the native construct
      * @param constructVarName Name of the variable that holds the instance of this construct in generated class
-     * @param scopeElements Child elements insertion string for the current construct. Only applicable for connectors
+     * @param scopeElements Child elements insertion string for the current construct. Only applicable for actions
      * @param nativeUnitClass Class type of the current construct instance
      * @param nativeUnitClassVarName Name of the temp variable which holds the class of the native construct in the
      * generated source.

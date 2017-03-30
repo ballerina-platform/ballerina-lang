@@ -22,9 +22,7 @@ import org.ballerinalang.model.Symbol;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.BallerinaConnector;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 
 /**
  * This class contain util methods to add connectors and actions to a given symbol scope.
@@ -34,20 +32,6 @@ import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 public class Connectors {
 
     private Connectors() {
-    }
-
-    /**
-     * Add Native Connector instance to given SymScope.
-     *
-     * @param symScope  SymScope instance.
-     * @param connector Connector instance.
-     */
-    public static void addNativeConnector(SymScope symScope, AbstractNativeConnector connector) {
-        SymbolName symbolName = LangModelUtils.getConnectorSymName(
-                connector.getClass().getAnnotation(BallerinaConnector.class).connectorName(),
-                connector.getPackagePath());
-        Symbol symbol = new Symbol(connector);
-        symScope.insert(symbolName, symbol);
     }
 
     /**

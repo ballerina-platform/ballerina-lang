@@ -64,6 +64,16 @@ public class LangModelUtils {
         return new SymbolName(sBuilder.toString(), pkgPath);
     }
 
+    public static SymbolName getNativeActionSymName(String actionName, String connectorName,
+                                              String pkgPath, BType[] types) {
+        StringBuilder sBuilder = new StringBuilder("NativeAction" + "." + connectorName + "." + actionName);
+        for (BType type : types) {
+            sBuilder.append(".").append(type);
+        }
+
+        return new SymbolName(sBuilder.toString(), pkgPath);
+    }
+
     public static BType[] getTypesOfParams(ParameterDef[] parameterDefs) {
         BType[] types = new BType[parameterDefs.length];
         for (int i = 0; i < parameterDefs.length; i++) {

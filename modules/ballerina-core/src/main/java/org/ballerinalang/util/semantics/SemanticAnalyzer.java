@@ -129,7 +129,6 @@ import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.LinkerException;
 import org.ballerinalang.util.exceptions.SemanticErrors;
@@ -1634,27 +1633,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         BType inheritedType = connectorInitExpr.getInheritedType();
-        if (!(inheritedType instanceof BallerinaConnectorDef) && !(inheritedType instanceof AbstractNativeConnector)) {
+        if (!(inheritedType instanceof BallerinaConnectorDef)) {
             BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.CONNECTOR_INIT_NOT_ALLOWED);
         }
         connectorInitExpr.setType(inheritedType);
 
         for (Expression argExpr : connectorInitExpr.getArgExprs()) {
             visitSingleValueExpr(argExpr);
-        }
-
-        if (inheritedType instanceof AbstractNativeConnector) {
-            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) inheritedType;
-            for (int i = 0; i < nativeConnector.getArgumentTypeNames().length; i++) {
-                SimpleTypeName simpleTypeName = nativeConnector.getArgumentTypeNames()[i];
-                BType argType = BTypes.resolveType(simpleTypeName, currentScope, connectorInitExpr.getNodeLocation());
-                if (argType != connectorInitExpr.getArgExprs()[i].getType()) {
-                    BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.INCOMPATIBLE_TYPES,
-                            argType, connectorInitExpr.getArgExprs()[i].getType());
-                }
-
-            }
-            return;
         }
 
         Expression[] argExprs = connectorInitExpr.getArgExprs();
@@ -2326,7 +2311,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         String pkgPath = actionIExpr.getPackagePath();
         String connectorName = actionIExpr.getConnectorName();
 
-        // First look for the connectors
+        // First look for the actions
         SymbolName connectorSymbolName = new SymbolName(connectorName, pkgPath);
         BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
         if (connectorSymbol == null) {
@@ -2348,15 +2333,19 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Now check whether there is a matching action
         BLangSymbol actionSymbol = null;
-        if (connectorSymbol instanceof NativeUnitProxy) {
-            AbstractNativeConnector connector = (AbstractNativeConnector) ((NativeUnitProxy) connectorSymbol).load();
-            actionSymbol = connector.resolveMembers(symbolName);
-        } else if (connectorSymbol instanceof BallerinaConnectorDef) {
+        if (connectorSymbol instanceof BallerinaConnectorDef) {
             actionSymbol = ((BallerinaConnectorDef) connectorSymbol).resolveMembers(symbolName);
         } else {
             BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED,
                 connectorSymbolName);
         }
+
+        if ((actionSymbol instanceof BallerinaAction) && (actionSymbol.isNative())) {
+            SymbolName name = LangModelUtils.getNativeActionSymName(actionIExpr.getName(),
+                    actionIExpr.getConnectorName(), pkgPath, paramTypes);
+            actionSymbol = currentScope.resolve(name);
+        }
+
 
         if (actionSymbol == null) {
             String actionWithConnector = actionIExpr.getConnectorName() + "." + actionIExpr.getName();
@@ -2732,6 +2721,17 @@ public class SemanticAnalyzer implements NodeVisitor {
             functionBuilder.setPkgPath(connectorDef.getPackagePath());
             functionBuilder.setBody(blockStmtBuilder.build());
             connectorDef.setInitFunction(functionBuilder.buildFunction());
+
+            BLangSymbol actionSymbol = null;
+            SymbolName name = new SymbolName("NativeAction.<init>", connectorDef.getPackagePath());
+            actionSymbol = currentScope.resolve(name);
+            if (actionSymbol != null) {
+                if (actionSymbol instanceof NativeUnitProxy) {
+                    NativeUnit nativeUnit = ((NativeUnitProxy) actionSymbol).load();
+                    Action action = (Action) nativeUnit;
+                    connectorDef.setInitAction(action);
+                }
+            }
         }
 
         for (BallerinaConnectorDef connectorDef : connectorDefArray) {
@@ -2764,11 +2764,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         BLangSymbol actionSymbol = currentScope.resolve(symbolName);
 
-        if (action.isNative()) {
-            AbstractNativeConnector connector = (AbstractNativeConnector) BTypes
-                    .resolveType(new SimpleTypeName(connectorDef.getName()),
-                            currentScope, connectorDef.getNodeLocation());
-            actionSymbol = connector.resolve(symbolName);
+        if (action.isNative() && !(action instanceof BallerinaAction)) {
+            BType connector = BTypes.resolveType(new SimpleTypeName(connectorDef.getName()),
+                    currentScope, connectorDef.getNodeLocation());
+            if (connector instanceof BallerinaConnectorDef) {
+                actionSymbol = ((BallerinaConnectorDef) connector).resolve(symbolName);
+            }
             if (actionSymbol == null) {
                 BLangExceptionHelper.throwSemanticError(connectorDef,
                         SemanticErrors.UNDEFINED_ACTION_IN_CONNECTOR, action.getName(), connectorDef.getName());
