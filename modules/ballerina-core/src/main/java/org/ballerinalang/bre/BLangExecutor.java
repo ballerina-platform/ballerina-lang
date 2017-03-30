@@ -1195,7 +1195,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
         
         if (arrayMapValue == null) {
-            throw new BallerinaException("field '" + fieldExpr.getSymbolName() + "' is not initialized");
+            throw new BallerinaException("field '" + fieldExpr.getSymbolName() + "' is null");
         }
 
         // Set the value to arrays/map's index location
