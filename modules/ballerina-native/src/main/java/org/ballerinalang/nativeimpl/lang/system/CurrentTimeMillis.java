@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "currentTimeMillis",
-        returnType = {@ReturnType(type = TypeEnum.LONG)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

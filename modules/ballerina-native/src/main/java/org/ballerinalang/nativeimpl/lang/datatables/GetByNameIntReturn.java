@@ -38,11 +38,11 @@ import java.util.Locale;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.datatables",
-        functionName = "getLong",
+        functionName = "getInt",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
                 @Argument(name = "column", type = TypeEnum.STRING),
                 @Argument(name = "type", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.LONG)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
@@ -54,9 +54,9 @@ import java.util.Locale;
         value = "The column name of the output result.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "type",
         value = "Database table column type. Supported values are date, time, timestamp") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "long",
-        value = "The column value as a long") })
-public class GetByNameLongReturn extends AbstractNativeFunction {
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
+        value = "The column value as a int") })
+public class GetByNameIntReturn extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);

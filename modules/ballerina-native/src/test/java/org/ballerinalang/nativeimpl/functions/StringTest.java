@@ -89,7 +89,7 @@ public class StringTest {
         Assert.assertTrue(returns[0] instanceof BString);
 
         final String expected = "1.345";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns[0].stringValue().substring(0, 5), expected);
     }
 
     @Test

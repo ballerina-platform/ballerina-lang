@@ -15,10 +15,6 @@ function getFloat(json msg, string jsonPath) (float){
     return jsons:getFloat(msg, jsonPath);
 }
 
-function getDouble(json msg, string jsonPath) (double){
-    return jsons:getDouble(msg, jsonPath);
-}
-
 function getBoolean(json msg, string jsonPath) (boolean){
     return jsons:getBoolean(msg, jsonPath);
 }

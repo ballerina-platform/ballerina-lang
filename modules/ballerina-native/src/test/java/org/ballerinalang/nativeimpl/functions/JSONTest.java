@@ -93,7 +93,7 @@ public class JSONTest {
     @Test(description = "Get a double in a valid jsonpath")
     public void testGetDouble() {
         BValue[] args = {new BJSON(json2), new BString("$.item.price")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), 3.54);
     }
@@ -118,7 +118,7 @@ public class JSONTest {
     @Test(description = "Get json arrays min value")
     public void testGetArrayMin() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.min()")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
         final double expected = 25;
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
@@ -127,7 +127,7 @@ public class JSONTest {
     @Test(description = "Get json arrays max value")
     public void testGetArrayMax() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.max()")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
         final double expected = 28;
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
@@ -136,7 +136,7 @@ public class JSONTest {
     @Test(description = "Get json arrays average value")
     public void testGetArrayAvg() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.avg()")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
         final double expected = 26.5;
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
@@ -145,7 +145,7 @@ public class JSONTest {
     @Test(description = "Get json arrays standard deviation of population")
     public void testGetArrayStdDevP() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.stddev()")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
         final double expected = 1.5;
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
