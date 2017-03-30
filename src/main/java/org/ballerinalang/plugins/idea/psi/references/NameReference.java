@@ -25,6 +25,7 @@ import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
@@ -49,7 +50,7 @@ public class NameReference extends BallerinaElementReference {
     @Override
     public boolean isDefinitionNode(PsiElement def) {
         return (def instanceof FunctionNode) || (def instanceof ConnectorNode) || (def instanceof StructDefinitionNode)
-                ||(def instanceof VariableDefinitionNode);
+                || (def instanceof VariableDefinitionNode) || (def instanceof AnnotationDefinitionNode);
     }
 
     @NotNull
@@ -125,6 +126,15 @@ public class NameReference extends BallerinaElementReference {
                     BallerinaPsiImplUtil.getAllConnectorsInPackage((PsiDirectory) element);
             // Add matching functions to results.
             for (PsiElement psiElement : allConnectors) {
+                if (getElement().getText().equals(psiElement.getText())) {
+                    results.add(new PsiElementResolveResult(psiElement));
+                }
+            }
+            // Get all annotations in the package.
+            List<PsiElement> allAnnotations =
+                    BallerinaPsiImplUtil.getAllAnnotationsInPackage((PsiDirectory) element);
+            // Add matching functions to results.
+            for (PsiElement psiElement : allAnnotations) {
                 if (getElement().getText().equals(psiElement.getText())) {
                     results.add(new PsiElementResolveResult(psiElement));
                 }

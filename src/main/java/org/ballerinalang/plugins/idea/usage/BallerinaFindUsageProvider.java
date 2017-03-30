@@ -72,6 +72,8 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 return "Constant";
             case RULE_fieldDefinition:
                 return "Field";
+            case RULE_annotationDefinition:
+                return "Annotation";
         }
         return "";
     }

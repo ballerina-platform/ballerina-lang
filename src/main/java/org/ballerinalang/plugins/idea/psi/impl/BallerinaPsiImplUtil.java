@@ -541,6 +541,22 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
+    public static List<PsiElement> getAllAnnotationsInCurrentPackage(PsiElement element) {
+        PsiElement parent = element.getParent();
+        return getAllAnnotationsInPackage((PsiDirectory) parent);
+    }
+
+    public static List<PsiElement> getAllAnnotationsInPackage(PsiDirectory packageElement) {
+        List<PsiElement> results = new ArrayList<>();
+        List<PsiElement> annotations = getAllMatchingElementsFromPackage(packageElement,
+                "//annotationDefinition/Identifier");
+        if (annotations != null) {
+            for (PsiElement annotation : annotations) {
+                results.add(annotation);
+            }
+        }
+        return results;
+    }
 
     public static List<PsiElement> getAllStructsInCurrentPackage(PsiElement element) {
         PsiElement parent = element.getParent();

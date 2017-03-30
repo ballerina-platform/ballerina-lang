@@ -27,6 +27,7 @@ import com.intellij.psi.tree.IElementType;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlightingColors;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
@@ -93,6 +94,13 @@ public class BallerinaAnnotator implements Annotator {
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
                 }
             }
+        } else if (element instanceof AnnotationDefinitionNode) {
+            PsiElement nameIdentifier = ((AnnotationDefinitionNode) element).getNameIdentifier();
+            if (nameIdentifier == null) {
+                return;
+            }
+            Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
+            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
         }
     }
 }
