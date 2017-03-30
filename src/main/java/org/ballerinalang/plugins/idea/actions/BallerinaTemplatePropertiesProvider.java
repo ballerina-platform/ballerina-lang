@@ -29,6 +29,10 @@ public class BallerinaTemplatePropertiesProvider implements DefaultTemplatePrope
     @Override
     public void fillProperties(PsiDirectory directory, Properties props) {
         String packageForDirectory = BallerinaUtil.suggestPackageNameForDirectory(directory);
+        // If the suggested package name is not empty, format the package name properly.
+        if (!packageForDirectory.isEmpty()) {
+            packageForDirectory = "package " + packageForDirectory + ";\n\n";
+        }
         props.setProperty(BALLERINA_PACKAGE_NAME, packageForDirectory);
     }
 }
