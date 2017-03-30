@@ -18,6 +18,8 @@ package org.ballerinalang.plugins.idea.sdk;
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -29,18 +31,25 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.util.Function;
 import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.project.BallerinaLibrariesService;
 import org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService;
+import org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService;
+import org.ballerinalang.plugins.idea.project.BallerinaLibrariesService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -198,5 +207,33 @@ public class BallerinaSdkUtil {
         public VirtualFile fun(VirtualFile file) {
             return file == null || FileUtil.namesEqual(mySubdirName, file.getName()) ? file : file.findChild(mySubdirName);
         }
+    }
+
+    @NotNull
+    public static Collection<Module> getBallerinaModules(@NotNull Project project) {
+        if (project.isDefault()) return Collections.emptyList();
+        BallerinaSdkService sdkService = BallerinaSdkService.getInstance(project);
+        return ContainerUtil.filter(ModuleManager.getInstance(project).getModules(), sdkService::isBallerinaModule);
+    }
+
+    @Nullable
+    public static VirtualFile getSdkSrcDir(@NotNull Project project, @Nullable Module module) {
+        if (module != null) {
+            return CachedValuesManager.getManager(project).getCachedValue(module, () -> {
+                BallerinaSdkService sdkService = BallerinaSdkService.getInstance(module.getProject());
+                return CachedValueProvider.Result.create(getInnerSdkSrcDir(sdkService, module), sdkService);
+            });
+        }
+        return CachedValuesManager.getManager(project).getCachedValue(project, () -> {
+            BallerinaSdkService sdkService = BallerinaSdkService.getInstance(project);
+            return CachedValueProvider.Result.create(getInnerSdkSrcDir(sdkService, null), sdkService);
+        });
+    }
+
+    @Nullable
+    private static VirtualFile getInnerSdkSrcDir(@NotNull BallerinaSdkService sdkService, @Nullable Module module) {
+        String sdkHomePath = sdkService.getSdkHomePath(module);
+        String sdkVersionString = sdkService.getSdkVersion(module);
+        return sdkHomePath != null && sdkVersionString != null ? getSdkSrcDir(sdkHomePath, sdkVersionString) : null;
     }
 }

@@ -40,6 +40,7 @@ import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
+import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
@@ -645,21 +646,19 @@ public class BallerinaPsiImplUtil {
      * @return all functions in the given directory(package)
      */
     public static List<PsiElement> getAllMatchingElementsFromPackage(PsiDirectory directory, String xpath) {
-
         Project project = directory.getProject();
-
         List<PsiElement> results = new ArrayList<>();
-
         VirtualFile virtualFile = directory.getVirtualFile();
         VirtualFile[] children = virtualFile.getChildren();
-
         for (VirtualFile child : children) {
             if (child.isDirectory()) {
                 continue;
             }
             PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
-            Collection<? extends PsiElement> functions =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, xpath);
+            if (!(psiFile instanceof BallerinaFile)) {
+                continue;
+            }
+            Collection<? extends PsiElement> functions = XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, xpath);
 
             results.addAll(functions);
         }
