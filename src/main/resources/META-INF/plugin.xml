@@ -141,6 +141,7 @@
         <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationProducer"/>
 
         <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunLineMarkerProvider"/>
+        <console.folding implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaConsoleFolding"/>
 
         <!--project-->
         <applicationService serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService"/>
