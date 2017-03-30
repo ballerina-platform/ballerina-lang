@@ -21,6 +21,8 @@ import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.DataTableJSONDataSource;
 import org.ballerinalang.model.DataTableOMDataSource;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeEnum;
 
 import java.util.List;
@@ -51,6 +53,11 @@ public class BDataTable implements BRefType<Object> {
     @Override
     public String stringValue() {
         return null;
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeDatatable;
     }
 
     public boolean next() {

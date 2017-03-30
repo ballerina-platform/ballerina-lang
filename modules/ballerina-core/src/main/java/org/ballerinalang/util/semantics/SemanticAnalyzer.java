@@ -25,7 +25,11 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeDef;
+import org.ballerinalang.model.AnnotationAttributeValue;
+import org.ballerinalang.model.AnnotationDef;
+import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BTypeMapper;
@@ -132,9 +136,11 @@ import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -215,7 +221,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         defineFunctions(bLangPackage.getFunctions());
         defineTypeMappers(bLangPackage.getTypeMappers());
         defineServices(bLangPackage.getServices());
-
+        defineAnnotations(bLangPackage.getAnnotationDefs());
+        
         for (CompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
@@ -233,6 +240,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ConstDef constDef) {
+        for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
+            annotationAttachment.accept(this);
+        }
+        
         SimpleTypeName typeName = constDef.getTypeName();
         BType bType = BTypes.resolveType(typeName, currentScope, constDef.getNodeLocation());
         constDef.setType(bType);
@@ -256,6 +268,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Open a new symbol scope
         openScope(service);
 
+        for (AnnotationAttachment annotationAttachment : service.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);
+            annotationAttachment.accept(this);
+        }
+        
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
             variableDefStmt.accept(this);
         }
@@ -274,6 +291,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Open the connector namespace
         openScope(connector);
 
+        for (AnnotationAttachment annotationAttachment : connector.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.CONNECTOR);
+            annotationAttachment.accept(this);
+        }
+        
         for (ParameterDef parameterDef : connector.getParameterDefs()) {
             parameterDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
             parameterDef.accept(this);
@@ -305,6 +327,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO Check whether the reply statement is missing. Ignore if the function does not return anything.
         //checkForMissingReplyStmt(resource);
 
+        for (AnnotationAttachment annotationAttachment : resource.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.RESOURCE);
+            annotationAttachment.accept(this);
+        }
+        
         for (ParameterDef parameterDef : resource.getParameterDefs()) {
             parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             parameterDef.accept(this);
@@ -336,6 +363,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
+        
+        for (AnnotationAttachment annotationAttachment : function.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.FUNCTION);
+            annotationAttachment.accept(this);
+        }
 
         for (ParameterDef parameterDef : function.getParameterDefs()) {
             parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
@@ -383,6 +415,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(typeMapper);
         currentCallableUnit = typeMapper;
 
+        for (AnnotationAttachment annotationAttachment : typeMapper.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.TYPEMAPPER);
+            annotationAttachment.accept(this);
+        }
+        
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
@@ -436,6 +473,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(action);
         currentCallableUnit = action;
 
+        for (AnnotationAttachment annotationAttachment : action.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.ACTION);
+            annotationAttachment.accept(this);
+        }
+        
         for (ParameterDef parameterDef : action.getParameterDefs()) {
             parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             parameterDef.accept(this);
@@ -543,6 +585,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(StructDef structDef) {
+        for (AnnotationAttachment annotationAttachment : structDef.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.STRUCT);
+            annotationAttachment.accept(this);
+        }
+        
         for (VariableDef field : structDef.getFields()) {
             MemoryLocation location = new StructVarLocation(++structMemAddrOffset);
             field.setMemoryLocation(location);
@@ -553,14 +600,228 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(Annotation annotation) {
-
+    public void visit(AnnotationAttachment annotation) {
+        AttachmentPoint attachedPoint = annotation.getAttachedPoint();
+        SymbolName annotationSymName = new SymbolName(annotation.getName(), annotation.getPkgPath());
+        BLangSymbol annotationSymbol = currentScope.resolve(annotationSymName);
+        
+        if (!(annotationSymbol instanceof AnnotationDef)) {
+            BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.UNDEFINED_ANNOTATION, 
+                    annotationSymName);
+        }
+        
+        // Validate the attached point
+        AnnotationDef annotationDef = (AnnotationDef) annotationSymbol;
+        if (annotationDef.getAttachmentPoints() != null && annotationDef.getAttachmentPoints().length > 0) {
+            Optional<String> matchingAttachmentPoint = Arrays.stream(annotationDef.getAttachmentPoints())
+                    .filter(attachmentPoint -> attachmentPoint.equals(attachedPoint.getValue()))
+                    .findAny();
+            if (!matchingAttachmentPoint.isPresent()) {
+                BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.ANNOTATION_NOT_ALLOWED, 
+                        annotationSymName, attachedPoint);
+            }
+        }
+        
+        // Validate the attributes and their types
+        validateAttributes(annotation, annotationDef);
+        
+        // Populate default values for annotation attributes
+        populateDefaultValues(annotation, annotationDef);
     }
 
+    /**
+     * Visit and validate attributes of an annotation attachment.
+     * 
+     * @param annotation Annotation attachment to validate attributes
+     * @param annotationDef Definition of the annotation
+     */
+    private void validateAttributes(AnnotationAttachment annotation, AnnotationDef annotationDef) {
+        annotation.getAttributeNameValuePairs().forEach((attributeName, attributeValue) -> {
+            // Check attribute existence
+            BLangSymbol attributeSymbol = annotationDef.resolveMembers(new SymbolName(attributeName));
+            if (attributeSymbol == null || !(attributeSymbol instanceof AnnotationAttributeDef)) {
+                BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.NO_SUCH_ATTRIBUTE, 
+                    attributeName, annotation.getName());
+            }
+            
+            // Check types
+            AnnotationAttributeDef attributeDef = ((AnnotationAttributeDef) attributeSymbol);
+            SimpleTypeName attributeType = attributeDef.getTypeName();
+            SimpleTypeName valueType = attributeValue.getType();
+            BLangSymbol valueTypeSymbol = currentScope.resolve(valueType.getSymbolName());
+            BLangSymbol attributeTypeSymbol = annotationDef.resolve(new SymbolName(attributeType.getName(), 
+                    attributeType.getPackagePath()));
+            
+            if (attributeType.isArrayType()) {
+                if (!valueType.isArrayType()) {
+                    BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
+                        attributeTypeSymbol.getSymbolName() + TypeConstants.ARRAY_TNAME, 
+                        valueTypeSymbol.getSymbolName());
+                }
+                
+                AnnotationAttributeValue[] valuesArray = attributeValue.getValueArray();
+                for (AnnotationAttributeValue value : valuesArray) {
+                    valueTypeSymbol = currentScope.resolve(value.getType().getSymbolName());
+                    if (attributeTypeSymbol != valueTypeSymbol) {
+                        BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
+                            attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
+                    }
+                    
+                    // If the value of the attribute is another annotation, then recursively
+                    // traverse to its attributes and validate
+                    AnnotationAttachment childAnnotation = value.getAnnotationValue();
+                    if (childAnnotation != null && valueTypeSymbol instanceof AnnotationDef) {
+                        validateAttributes(childAnnotation, (AnnotationDef) valueTypeSymbol);
+                    }
+                }
+            } else {
+                if (valueType.isArrayType()) {
+                    BLangExceptionHelper.throwSemanticError(attributeValue, 
+                        SemanticErrors.INCOMPATIBLE_TYPES_ARRAY_FOUND, attributeTypeSymbol.getName());
+                }
+                
+                if (attributeTypeSymbol != valueTypeSymbol) {
+                    BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
+                        attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
+                }
+                
+                // If the value of the attribute is another annotation, then recursively
+                // traverse to its attributes and validate
+                AnnotationAttachment childAnnotation = attributeValue.getAnnotationValue();
+                if (childAnnotation != null && valueTypeSymbol instanceof AnnotationDef) {
+                    validateAttributes(childAnnotation, (AnnotationDef) valueTypeSymbol);
+                }
+            }
+        });
+    }
+    
+    /**
+     * Populate default values to the annotation attributes.
+     * 
+     * @param annotation Annotation attachment to populate default values
+     * @param annotationDef Definition of the annotation corresponds to the provided annotation attachment
+     */
+    private void populateDefaultValues(AnnotationAttachment annotation, AnnotationDef annotationDef) {
+        Map<String, AnnotationAttributeValue> attributeValPairs = annotation.getAttributeNameValuePairs();
+        for (AnnotationAttributeDef attributeDef : annotationDef.getAttributeDefs()) {
+            String attributeName = attributeDef.getName();
+            
+            // if the current attribute is not defined in the annotation attachment, populate it with default value
+            if (!attributeValPairs.containsKey(attributeName)) {
+                BasicLiteral defaultValue = attributeDef.getAttributeValue();
+                if (defaultValue != null) {
+                    annotation.addAttributeNameValuePair(attributeName,
+                        new AnnotationAttributeValue(defaultValue.getBValue(), defaultValue.getTypeName(), null));
+                }
+                continue;
+            }
+
+            // If the annotation attachment contains the current attribute, and if the value is another 
+            // annotationAttachment, then recursively populate its default values
+            AnnotationAttributeValue attributeValue = attributeValPairs.get(attributeName);
+            SimpleTypeName valueType = attributeValue.getType();
+            if (valueType.isArrayType()) {
+                AnnotationAttributeValue[] valuesArray = attributeValue.getValueArray();
+                for (AnnotationAttributeValue value : valuesArray) {
+                    AnnotationAttachment annotationTypeVal = value.getAnnotationValue();
+
+                    // skip if the array element is not an annotation
+                    if (annotationTypeVal == null) {
+                        continue;
+                    }
+
+                    SimpleTypeName attributeType = attributeDef.getTypeName();
+                    BLangSymbol attributeTypeSymbol = annotationDef.resolve(
+                            new SymbolName(attributeType.getName(), attributeType.getPackagePath()));
+                    if (attributeTypeSymbol instanceof AnnotationDef) {
+                        populateDefaultValues(annotationTypeVal, (AnnotationDef) attributeTypeSymbol);
+                    }
+                }
+            } else {
+                AnnotationAttachment annotationTypeVal = attributeValue.getAnnotationValue();
+
+                // skip if the value is not an annotation
+                if (annotationTypeVal == null) {
+                    continue;
+                }
+
+                BLangSymbol attributeTypeSymbol = annotationDef.resolve(attributeDef.getTypeName().getSymbolName());
+                if (attributeTypeSymbol instanceof AnnotationDef) {
+                    populateDefaultValues(annotationTypeVal, (AnnotationDef) attributeTypeSymbol);
+                }
+            }
+        }
+    }
+    
+    @Override
+    public void visit(AnnotationAttributeDef annotationAttributeDef) {
+        SimpleTypeName fieldType = annotationAttributeDef.getTypeName();
+        BasicLiteral fieldVal = annotationAttributeDef.getAttributeValue();
+        
+        if (fieldVal != null) {
+            fieldVal.accept(this);
+            BType valueType = fieldVal.getType();
+            
+            if (!BTypes.isBuiltInTypeName(fieldType.getName())) {
+                BLangExceptionHelper.throwSemanticError(annotationAttributeDef, SemanticErrors.INVALID_DEFAULT_VALUE);
+            }
+            
+            BLangSymbol typeSymbol = currentScope.resolve(fieldType.getSymbolName());
+            BType fieldBType = (BType) typeSymbol;
+            if (!BTypes.isValueType(fieldBType)) {
+                BLangExceptionHelper.throwSemanticError(annotationAttributeDef, SemanticErrors.INVALID_DEFAULT_VALUE);
+            }
+            
+            if (fieldBType != valueType) {
+                BLangExceptionHelper.throwSemanticError(annotationAttributeDef,
+                    SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, fieldType, fieldVal.getTypeName());
+            }
+        } else {
+            BLangSymbol typeSymbol;
+            if (fieldType.isArrayType()) {
+                typeSymbol = currentScope.resolve(new SymbolName(fieldType.getName(), fieldType.getPackagePath()));
+            } else {
+                typeSymbol = currentScope.resolve(fieldType.getSymbolName());
+            }
+            
+            // Check whether the field type is a built in value type or an annotation.
+            if (((typeSymbol instanceof BType) && !BTypes.isValueType((BType) typeSymbol)) || 
+                    (!(typeSymbol instanceof BType) && !(typeSymbol instanceof AnnotationDef))) {
+                BLangExceptionHelper.throwSemanticError(annotationAttributeDef, SemanticErrors.INVALID_ATTRIBUTE_TYPE,
+                    fieldType);
+            }
+            
+            if (!(typeSymbol instanceof BType)) {
+                fieldType.setPkgPath(annotationAttributeDef.getPackagePath());
+            }
+        }
+    }
+
+    @Override
+    public void visit(AnnotationDef annotationDef) {
+        for (AnnotationAttributeDef fields : annotationDef.getAttributeDefs()) {
+            fields.accept(this);
+        }
+        
+        for (AnnotationAttachment annotationAttachment : annotationDef.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.ANNOTATION);
+            annotationAttachment.accept(this);
+        }
+    }
+    
     @Override
     public void visit(ParameterDef paramDef) {
         BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
         paramDef.setType(bType);
+        
+        if (paramDef.getAnnotations() == null) {
+            return;
+        }
+        
+        for (AnnotationAttachment annotationAttachment : paramDef.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.PARAMETER);
+            annotationAttachment.accept(this);
+        }
     }
 
     @Override
@@ -592,7 +853,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rExpr == null) {
             return;
         }
-
+        //todo any type support for RefTypeInitExpr
         if (rExpr instanceof RefTypeInitExpr) {
             RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
 
@@ -618,6 +879,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (returnTypes.length != 1) {
                 BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, "1",
                         returnTypes.length);
+            } else if (varBType == BTypes.typeAny) {
+                return;
             } else if ((varBType != BTypes.typeMap) && (returnTypes[0] != BTypes.typeMap) &&
                     (!varBType.equals(returnTypes[0]))) {
 
@@ -635,6 +898,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         visitSingleValueExpr(rExpr);
+        if (varBType == BTypes.typeAny) {
+            return;
+        }
         BType rType = rExpr.getType();
         if (rExpr instanceof TypeCastExpression && rType == null) {
             rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
@@ -671,6 +937,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = assignStmt.getLExprs()[0];
         BType lExprType = lExpr.getType();
 
+        //todo any type support for RefTypeInitExpr
         if (rExpr instanceof RefTypeInitExpr) {
             RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
 
@@ -688,6 +955,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         visitSingleValueExpr(rExpr);
+        if (lExprType == BTypes.typeAny) {
+            return;
+        }
         BType rType = rExpr.getType();
         if (rExpr instanceof TypeCastExpression && rType == null) {
             rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
@@ -1008,7 +1278,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             for (int i = 0; i < returnParamsOfCU.length; i++) {
-                if (!funcIExprReturnTypes[i].equals(returnParamsOfCU[i].getType())) {
+                if (returnParamsOfCU[i].getType() != BTypes.typeAny &&
+                    !funcIExprReturnTypes[i].equals(returnParamsOfCU[i].getType())) {
                     BLangExceptionHelper.throwSemanticError(returnStmt,
                             SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, funcIExprReturnTypes[i],
                             returnParamsOfCU[i].getType());
@@ -1045,7 +1316,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                     }
                 }
 
-                if (!typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType())) {
+                if (returnParamsOfCU[i].getType() != BTypes.typeAny &&
+                    !typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType())) {
                     BLangExceptionHelper.throwSemanticError(returnStmt,
                             SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, typesOfReturnExprs[i],
                             returnParamsOfCU[i].getType());
@@ -1463,6 +1735,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType expectedElementType = ((BArrayType) inheritedType).getElementType();
+
         for (int i = 0; i < argExprs.length; i++) {
             visitSingleValueExpr(argExprs[i]);
 
@@ -1519,7 +1792,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression valueExpr = keyValueExpr.getValueExpr();
             visitSingleValueExpr(valueExpr);
 
-            if (!valueExpr.getType().equals(varDef.getType())) {
+            if (!valueExpr.getType().equals(varDef.getType()) && (varDef.getType() != BTypes.typeAny)) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
             }
@@ -1602,7 +1875,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 builder.setArrayMapVarRefExpr(arrayMapVarRefExpr);
                 builder.setVarName(mapOrArrName);
-                builder.setIndexExpr(indexExpr);
+                Expression[] exprs = {indexExpr};
+                builder.setIndexExprs(exprs);
                 ArrayMapAccessExpr arrayMapAccessExpr = builder.build();
                 visit(arrayMapAccessExpr);
                 argExprList.add(arrayMapAccessExpr);
@@ -1659,8 +1933,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             typeCastExpression.setTargetType(targetType);
         }
         // Check whether this is a native conversion
-        if (BTypes.isValueType(sourceType) &&
-                BTypes.isValueType(targetType)) {
+        if (sourceType == BTypes.typeAny || targetType == BTypes.typeAny || (BTypes.isValueType(sourceType) &&
+                BTypes.isValueType(targetType))) {
             TypeEdge newEdge = null;
             newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
             typeCastExpression.setEvalFunc(newEdge.getTypeMapperFunction());
@@ -1722,21 +1996,25 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (arrayMapVarRefExpr.getType() instanceof BArrayType) {
 
             // Check the type of the index expression
-            Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
-            visitSingleValueExpr(indexExpr);
-            if (indexExpr.getType() != BTypes.typeInt) {
-                BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
-                        indexExpr.getType());
+            for (Expression indexExpr : arrayMapAccessExpr.getIndexExprs()) {
+                visitSingleValueExpr(indexExpr);
+                if (indexExpr.getType() != BTypes.typeInt) {
+                    BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
+                            indexExpr.getType());
+                }
             }
 
             // Set type of the arrays access expression
-            BType typeOfArray = ((BArrayType) arrayMapVarRefExpr.getType()).getElementType();
-            arrayMapAccessExpr.setType(typeOfArray);
+            BType expectedType =  arrayMapVarRefExpr.getType();
+            for (int i = 0; i < arrayMapAccessExpr.getIndexExprs().length; i++) {
+                expectedType =  ((BArrayType) expectedType).getElementType();
+            }
+            arrayMapAccessExpr.setType(expectedType);
 
         } else if (arrayMapVarRefExpr.getType() instanceof BMapType) {
 
             // Check the type of the index expression
-            Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
+            Expression indexExpr = arrayMapAccessExpr.getIndexExprs()[0];
             visitSingleValueExpr(indexExpr);
             if (indexExpr.getType() != BTypes.typeString) {
                 BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_STRING_MAP_INDEX,
@@ -1871,7 +2149,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (int i = 0; i < lExprs.length; i++) {
             Expression lExpr = lExprs[i];
             BType returnType = returnTypes[i];
-            if (!lExpr.getType().equals(returnType)) {
+            if ((lExpr.getType() != BTypes.typeAny) && (!lExpr.getType().equals(returnType))) {
                 String varName = getVarNameFromExpression(lExpr);
                 BLangExceptionHelper.throwSemanticError(assignStmt,
                         SemanticErrors.CANNOT_ASSIGN_IN_MULTIPLE_ASSIGNMENT, returnType, varName, lExpr.getType());
@@ -1965,7 +2243,8 @@ public class SemanticAnalyzer implements NodeVisitor {
      * @param symbolName
      * @return bLangSymbol
      */
-    private BLangSymbol findBestMatchForFunctionSymbol(FunctionInvocationExpr funcIExpr, SymbolName symbolName) {
+    private BLangSymbol findBestMatchForFunctionSymbol(FunctionInvocationExpr funcIExpr,
+                                                       FunctionSymbolName symbolName) {
         BLangSymbol functionSymbol = null;
         BLangSymbol pkgSymbol = null;
         if (symbolName.getPkgPath() == null) {
@@ -1983,17 +2262,30 @@ public class SemanticAnalyzer implements NodeVisitor {
                 continue;
             }
             FunctionSymbolName funcSymName = (FunctionSymbolName) entry.getKey();
-            if (!funcSymName.isNameAndParamCountMatch((FunctionSymbolName) symbolName)) {
+            if (!funcSymName.isNameAndParamCountMatch(symbolName)) {
                 continue;
             }
 
             boolean implicitCastPossible = true;
             Expression[] exprs = funcIExpr.getArgExprs();
             for (int i = 0; i < exprs.length; i++) {
-                BType lhsType = ((Function) entry.getValue()).getParameterDefs()[i].getType();
+                BType lhsType;
+                if (entry.getValue() instanceof NativeUnitProxy) {
+                    NativeUnit nativeUnit = ((NativeUnitProxy) entry.getValue()).load();
+                    SimpleTypeName simpleTypeName = nativeUnit.getArgumentTypeNames()[i];
+                    lhsType = BTypes.resolveType(simpleTypeName, currentScope, funcIExpr.getNodeLocation());
+                } else {
+                    if (!(entry.getValue() instanceof Function)) {
+                        continue;
+                    }
+                    lhsType = ((Function) entry.getValue()).getParameterDefs()[i].getType();
+                }
 
                 BType rhsType = exprs[i].getType();
                 if (rhsType != null && lhsType.equals(rhsType)) {
+                    continue;
+                }
+                if (lhsType == BTypes.typeAny) { //if left hand side is any, then no need for casting
                     continue;
                 }
                 TypeCastExpression newExpr = checkWideningPossible(lhsType, exprs[i]);
@@ -2013,13 +2305,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                      * scenario where there are more than two ambiguous functions, then this will show only the
                      * first two.
                      */
-                    SymbolName matchingFuncSym = functionSymbol.getSymbolName();
-                    String ambiguousFunc1 = (matchingFuncSym.getPkgPath() != null) ?
-                                            matchingFuncSym.getPkgPath() + ":" + matchingFuncSym.getName() :
-                                            matchingFuncSym.getName();
-                    String ambiguousFunc2 = (funcSymName.getPkgPath() != null) ?
-                                            funcSymName.getPkgPath() + ":" + funcSymName.getName()
-                                                                               : funcSymName.getName();
+                    String ambiguousFunc1 = generateErrorMessage(funcIExpr, functionSymbol);
+                    String ambiguousFunc2 = generateErrorMessage(funcIExpr, (BLangSymbol) entry.getValue());
                     BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.AMBIGUOUS_FUNCTIONS,
                                                             funcSymName.getFuncName(), ambiguousFunc1, ambiguousFunc2);
                     break;
@@ -2027,6 +2314,53 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         }
         return functionSymbol;
+    }
+
+    /**
+     * Helper method to generate error message for each ambiguous function.
+     *
+     * @param funcIExpr
+     * @param functionSymbol
+     * @return errorMsg
+     */
+    private static String generateErrorMessage(FunctionInvocationExpr funcIExpr, BLangSymbol functionSymbol) {
+        Function function;
+        //in future when native functions support implicit casting invocation, functionSymbol can be either
+        //NativeUnitProxy or a Function.
+        if (functionSymbol instanceof NativeUnitProxy) {
+            NativeUnit nativeUnit = ((NativeUnitProxy) functionSymbol).load();
+
+            if (!(nativeUnit instanceof Function)) {
+                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
+                                                        functionSymbol.getName());
+            }
+            function = (Function) nativeUnit;
+        } else {
+            if (!(functionSymbol instanceof Function)) {
+                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
+                                                        functionSymbol.getName());
+            }
+            function = (Function) functionSymbol;
+        }
+        //below getName should always return a valid String value, hence ArrayIndexOutOfBoundsException
+        // or NullPointerException cannot happen here.
+        String funcName = function.getSymbolName().getName().split("\\.")[0];
+        String firstPart = (function.getSymbolName().getPkgPath() != null) ?
+                           function.getSymbolName().getPkgPath() + ":" + funcName : funcName;
+
+        StringBuilder sBuilder = new StringBuilder(firstPart + "(");
+        String prefix = "";
+        for (ParameterDef parameterDef : function.getParameterDefs()) {
+            sBuilder.append(prefix);
+            prefix = ",";
+            String pkgPath = parameterDef.getTypeName().getPackagePath();
+            if (pkgPath != null) {
+                sBuilder.append(pkgPath).append(":");
+            }
+            sBuilder.append(parameterDef.getTypeName().getName());
+        }
+        sBuilder.append(")");
+        return sBuilder.toString();
     }
 
     /**
@@ -2580,6 +2914,25 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             currentScope.define(symbolName, structDef);
+        }
+    }
+    
+    /**
+     * Add the annotation definitions to the current scope.
+     * 
+     * @param annotationDefs Annotations definitions list
+     */
+    private void defineAnnotations(AnnotationDef[] annotationDefs) {
+        for (AnnotationDef annotationDef : annotationDefs) {
+            SymbolName symbolName = new SymbolName(annotationDef.getName());
+
+            // Check whether this annotation is already defined.
+            if (currentScope.resolve(symbolName) != null) {
+                BLangExceptionHelper.throwSemanticError(annotationDef,
+                        SemanticErrors.REDECLARED_SYMBOL, annotationDef.getSymbolName().getName());
+            }
+            
+            currentScope.define(symbolName, annotationDef);
         }
     }
 

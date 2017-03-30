@@ -1003,8 +1003,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
             }
 
-            Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
-            BValue indexValue = getTempValue(indexExpr);
+            Expression[] indexExpr = arrayMapAccessExpr.getIndexExprs();
 
             // Check whether this collection access expression is in the left hand of an assignment expression
             // If yes skip setting the value;
@@ -1012,12 +1011,15 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             if (arrayMapAccessExpr.getType() != BTypes.typeMap) {
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
-                    result = ((BArray) collectionValue).get(((BInteger) indexValue).intValue());
+                    BArray bArray = (BArray) collectionValue;
+                    bArray = retrieveArray(bArray, indexExpr);
+                    result = bArray.get(((BInteger) getTempValue(indexExpr[0])).intValue());
                 } else {
                     result = collectionValue;
                 }
             } else {
                 // Get the value stored in the index
+                BValue indexValue =  getTempValue(indexExpr[0]);
                 if (indexValue instanceof BString) {
                     result = ((BMap) collectionValue).get(indexValue);
                 } else {
@@ -1158,7 +1160,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         next = typeCastExpressionEndNode.next;
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
-            BValueType result = (BValueType) getTempValue(typeCastExpression.getRExpr());
+            BValue result = (BValue) getTempValue(typeCastExpression.getRExpr());
             setTempValue(typeCastExpression.getTempOffset(), typeCastExpression.getEvalFunc().apply(result));
         } else {
             TypeMapper typeMapper = typeCastExpression.getCallableUnit();
@@ -1452,12 +1454,18 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         ArrayMapAccessExpr accessExpr = lExpr;
         if (!(accessExpr.getType() == BTypes.typeMap)) {
             BArray arrayVal = (BArray) getTempValue(accessExpr.getRExpr());
-            BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExpr());
+
+            Expression[] exprs = accessExpr.getIndexExprs();
+            if (exprs.length > 1) {
+                arrayVal = retrieveArray(arrayVal, exprs);
+            }
+
+            BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExprs()[0]);
             arrayVal.add(indexVal.intValue(), rValue);
 
         } else {
             BMap<BString, BValue> mapVal = (BMap<BString, BValue>) getTempValue(accessExpr.getRExpr());
-            BString indexVal = (BString) getTempValue(accessExpr.getIndexExpr());
+            BString indexVal = (BString) getTempValue(accessExpr.getIndexExprs()[0]);
             mapVal.put(indexVal, rValue);
             // set the type of this expression here
             // accessExpr.setType(rExpr.getType());
@@ -1582,26 +1590,30 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private void setUnitValue(BValue rValue, BStruct lExprValue, int memoryLocation,
                               StructFieldAccessExpr fieldExpr) {
 
-        Expression indexExpr;
+        Expression[] exprs;
         if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            indexExpr = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExpr();
+            exprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExprs();
         } else {
             // If the lExprValue value is not a struct arrays/map, then set the value to the struct
             lExprValue.setValue(memoryLocation, rValue);
             return;
         }
 
-        // Evaluate the index expression and get the value.
-        BValue indexValue = getTempValue(indexExpr);
-
         // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
 
         // Set the value to arrays/map's index location
         if (fieldExpr.getRefVarType() instanceof BMapType) {
+            BValue indexValue = getTempValue(exprs[0]);
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
-            ((BArray) arrayMapValue).add(((BInteger) indexValue).intValue(), rValue);
+            BArray arrayVal = (BArray) arrayMapValue;
+            if (exprs.length > 1) {
+                arrayVal = retrieveArray(arrayVal, exprs);
+            }
+
+            BInteger indexVal = (BInteger) getTempValue(exprs[0]);
+            arrayVal.add(indexVal.intValue(), rValue);
         }
     }
 
@@ -1667,22 +1679,27 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         // If the lExprValue value is not a struct arrays/map, then the unit value is same as the struct
-        Expression indexExpr;
+        Expression[] indexExpr;
         if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
-            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExpr();
+            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExprs();
         } else {
             return currentVal;
         }
 
-        // Evaluate the index expression and get the value
-        BValue indexValue = getTempValue(indexExpr);
-
+        BValue indexValue;
         BValue unitVal;
         // Get the value from arrays/map's index location
         if (fieldExpr.getRefVarType() instanceof BMapType) {
+            indexValue = getTempValue(indexExpr[0]);
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {
-            unitVal = ((BArray) currentVal).get(((BInteger) indexValue).intValue());
+            BArray bArray = (BArray) currentVal;
+            for (int i = indexExpr.length - 1; i >= 1; i--) {
+                indexValue = getTempValue(indexExpr[i]);
+                bArray = (BArray) bArray.get(((BInteger) indexValue).intValue());
+            }
+            indexValue = getTempValue(indexExpr[0]);
+            unitVal = bArray.get(((BInteger) indexValue).intValue());
         }
 
         if (unitVal == null) {
@@ -1733,5 +1750,27 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      */
     public boolean isExecutionCompleted() {
         return completed;
+    }
+
+    private BArray retrieveArray(BArray arrayVal, Expression[] exprs) {
+        for (int i = exprs.length - 1; i >= 1; i--) {
+            BInteger indexVal = (BInteger) getTempValue(exprs[i]);
+
+            // TODO: Remove this part if we don't need dynamically create arrays
+            // Will have to dynamically populate
+//            while (arrayVal.size() <= indexVal.intValue()) {
+//                if (i != 1 || rValue instanceof BArray) {
+//                    BArray newBArray = new BArray<>(BArray.class);
+//                    arrayVal.add(arrayVal.size(), newBArray);
+//                } else {
+//                    BArray bArray = new BArray<>(rValue.getClass());
+//                    arrayVal.add(arrayVal.size(), bArray);
+//                }
+//            }
+
+            arrayVal = (BArray) arrayVal.get(indexVal.intValue());
+        }
+
+        return arrayVal;
     }
 }

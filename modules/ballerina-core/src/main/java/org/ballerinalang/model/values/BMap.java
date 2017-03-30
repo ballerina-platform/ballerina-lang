@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,7 +31,7 @@ import java.util.Set;
  * @param <V> Value
  * @since 0.8.0
  */
-public class BMap<BString, V extends BValue> implements BRefType {
+public class BMap<BString, V extends BValue> extends BallerinaMessageDataSource implements BRefType {
 
     private int size;
     private static final int INITIAL_CAPACITY = 16;
@@ -135,6 +139,11 @@ public class BMap<BString, V extends BValue> implements BRefType {
     @Override
     public String stringValue() {
         return null;
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeMap;
     }
 
     private class MapEntry<K, V> {

@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 /**
  * The {@code BInteger} represents a int value in Ballerina.
  *
@@ -58,6 +61,11 @@ public final class BInteger extends BValueType {
     @Override
     public String stringValue() {
         return Integer.toString(value);
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeInt;
     }
 
     @Override

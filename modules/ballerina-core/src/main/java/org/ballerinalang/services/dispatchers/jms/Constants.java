@@ -25,9 +25,25 @@ package org.ballerinalang.services.dispatchers.jms;
  */
 public class Constants {
 
-    /* annotations */
-    public static final String ANNOTATION_PROTOCOL = "protocol";
-    public static final String ANNOTATION_NAME_SOURCE = "Source";
+    /**
+     * JMSSource annotation name which is used to define a JMS server connector.
+     */
+    public static final String ANNOTATION_JMS_SOURCE = "JMSSource";
+
+    /**
+     * Connection property annotation name.
+     */
+    public static final String ANNOTATION_CONNECTION_PROPERTY = "ConnectionProperty";
+
+    /**
+     * Connection property key parameter name.
+     */
+    public static final String CONNECTION_PROPERTY_KEY = "key";
+
+    /**
+     * Connection property value parameter name.
+     */
+    public static final String CONNECTION_PROPERTY_VALUE = "value";
 
     // jms destination
     public static final String JMS_DESTINATION = "destination";

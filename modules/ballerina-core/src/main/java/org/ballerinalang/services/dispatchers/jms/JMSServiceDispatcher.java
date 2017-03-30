@@ -19,9 +19,8 @@
 package org.ballerinalang.services.dispatchers.jms;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Service;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -32,9 +31,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Dispatcher which handles the JMS Service.
@@ -67,23 +68,37 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(Service service) {
-        for (Annotation annotation : service.getAnnotations()) {
-            Map elementPairs = annotation.getElementPairs();
-            if (!Constants.ANNOTATION_NAME_SOURCE.equals(annotation.getName())) {
+
+        AnnotationAttachment jmsSource = null;
+
+        List<AnnotationAttachment> connectionProperties = new ArrayList<>();
+
+        for (AnnotationAttachment annotation : service.getAnnotations()) {
+            if (Constants.ANNOTATION_JMS_SOURCE.equals(annotation.getName())) {
+                jmsSource = annotation;
                 continue;
             }
-            if (annotation.getElementPairs().size() == 0) {
-                continue;
+
+            if (Constants.ANNOTATION_CONNECTION_PROPERTY.equals(annotation.getName())) {
+                connectionProperties.add(annotation);
             }
-            if (!Constants.PROTOCOL_JMS.
-                    equals(annotation.getValueOfElementPair(new SymbolName(Constants.ANNOTATION_PROTOCOL)))) {
-                continue;
-            }
-            Set<Map.Entry<SymbolName, String>> annotationSet = elementPairs.entrySet();
-            Map<String, String> annotationKeyValuePairs = new HashMap<String, String>();
-            for (Map.Entry<SymbolName, String> entry : annotationSet) {
-                annotationKeyValuePairs.put(entry.getKey().getName(), entry.getValue());
-            }
+        }
+
+        if (jmsSource != null) {
+
+            Map<String, String> annotationKeyValuePairs = jmsSource.getAttributeNameValuePairs().entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey(),
+                            entry -> entry.getValue().toString()
+                    ));
+
+            connectionProperties.stream().map(property -> property.getAttributeNameValuePairs()).forEach(
+                    keyValuePair -> {
+                        annotationKeyValuePairs.put(keyValuePair.get(Constants.CONNECTION_PROPERTY_KEY).toString(),
+                                keyValuePair.get(Constants.CONNECTION_PROPERTY_VALUE).toString());
+                    }
+            );
+
             String serviceId = service.getSymbolName().toString();
             serviceMap.put(serviceId, service);
             annotationKeyValuePairs.putIfAbsent(Constants.JMS_DESTINATION, serviceId);
@@ -91,12 +106,13 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
                     .createServerConnector(Constants.PROTOCOL_JMS, serviceId);
             try {
                 serverConnector.start(annotationKeyValuePairs);
-                break;
             } catch (ServerConnectorException e) {
                 throw new BallerinaException("Error when starting to listen to the queue/topic while " + serviceId +
                         " deployment", e);
             }
         }
+
+
     }
 
     @Override

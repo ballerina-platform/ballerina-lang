@@ -24,7 +24,9 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeDef;
+import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BTypeMapper;
@@ -290,7 +292,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(Annotation annotation) {
+    public void visit(AnnotationAttachment annotation) {
     }
 
     @Override
@@ -303,6 +305,16 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(StructDef structDef) {
+    }
+
+    @Override
+    public void visit(AnnotationAttributeDef annotationAttributeDef) {
+        
+    }
+
+    @Override
+    public void visit(AnnotationDef annotationDef) {
+
     }
 
 
@@ -1028,14 +1040,20 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         // Handle this as non-blocking manner.
         ArrayMapAccessExprEndNode endNode = new ArrayMapAccessExprEndNode(arrayMapAccessExpr);
         Expression rExp = arrayMapAccessExpr.getRExpr();
-        Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
+        Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
         arrayMapAccessExpr.setNext(rExp);
         rExp.setParent(arrayMapAccessExpr);
-        indexExpr.setParent(arrayMapAccessExpr);
-        rExp.setNextSibling(indexExpr);
-        indexExpr.setNextSibling(endNode);
+        LinkedNode previous = rExp;
+        for (Expression indexExpr : indexExprs) {
+            previous.setNextSibling(indexExpr);
+            indexExpr.setParent(arrayMapAccessExpr);
+            previous = indexExpr;
+        }
+        previous.setNextSibling(endNode);
         rExp.accept(this);
-        indexExpr.accept(this);
+        for (Expression indexExpr : indexExprs) {
+            indexExpr.accept(this);
+        }
         endNode.setNext(findNext(endNode));
     }
 
@@ -1056,21 +1074,28 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             calculateTempOffSet(current);
             ReferenceExpr varRefExpr = current.getVarRef();
             if (varRefExpr instanceof ArrayMapAccessExpr) {
-                Expression indexExpr = ((ArrayMapAccessExpr) varRefExpr).getIndexExpr();
-                lastLinkedNode.setNext(indexExpr);
-                indexExpr.setParent(structFieldAccessExpr);
+                Expression[] indexExprs = ((ArrayMapAccessExpr) varRefExpr).getIndexExprs();
+                lastLinkedNode.setNext(indexExprs[0]);
+                for (int i = 1; i < indexExprs.length; i++) {
+                    indexExprs[i - 1].setParent(structFieldAccessExpr);
+                    indexExprs[i - 1].setNextSibling(indexExprs[i]);
+                }
+                // Last Index.
+                indexExprs[indexExprs.length - 1].setParent(structFieldAccessExpr);
                 if (current.getFieldExpr() != null) {
-                    indexExpr.setNextSibling(current.getFieldExpr());
+                    indexExprs[indexExprs.length - 1].setNextSibling(current.getFieldExpr());
                     lastLinkedNode = current.getFieldExpr();
                 } else {
                     if (structFieldAccessExpr.isLHSExpr()) {
                         lastLinkedNode = null;
                     } else {
-                        indexExpr.setNextSibling(endNode);
+                        indexExprs[indexExprs.length - 1].setNextSibling(endNode);
                         lastLinkedNode = endNode;
                     }
                 }
-                indexExpr.accept(this);
+                for (Expression indexExpr: indexExprs) {
+                    indexExpr.accept(this);
+                }
             } else {
                 if (current.getFieldExpr() != null) {
                     lastLinkedNode.setNext(current.getFieldExpr());

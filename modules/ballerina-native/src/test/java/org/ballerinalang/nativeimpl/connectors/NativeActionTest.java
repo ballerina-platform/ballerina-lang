@@ -18,7 +18,7 @@ package org.ballerinalang.nativeimpl.connectors;
 
 import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.nativeimpl.lang.system.PrintlnString;
+import org.ballerinalang.nativeimpl.lang.system.PrintlnAny;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.testng.annotations.BeforeClass;
 
@@ -36,7 +36,7 @@ public class NativeActionTest {
 
         globalScope = new SymScope(SymScope.Name.GLOBAL);
 
-        PrintlnString printlnFunc = new PrintlnString();
+        PrintlnAny printlnFunc = new PrintlnAny();
 
         printlnFunc.getParameterDefs();
 

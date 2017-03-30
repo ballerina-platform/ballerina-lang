@@ -33,12 +33,13 @@ import java.util.List;
  * @since 0.8.0
  */
 public class ParameterDef extends VariableDef implements Node {
-    private List<Annotation> annotations;
+    private List<AnnotationAttachment> annotations;
 
     public ParameterDef(BType type, SymbolName symbolName) {
         super(null, null, null, null, null);
         this.type = type;
         this.symbolName = symbolName;
+        this.annotations = new ArrayList<AnnotationAttachment>();
     }
 
     public ParameterDef(NodeLocation location,
@@ -48,25 +49,24 @@ public class ParameterDef extends VariableDef implements Node {
                         SymbolScope symbolScope) {
 
         super(location, name, typeName, symbolName, symbolScope);
+        this.annotations = new ArrayList<AnnotationAttachment>();
     }
-
-    public List<Annotation> getAnnotations() {
-        return annotations;
-    }
-
-    public void setAnnotations(List<Annotation> annotations) {
-        this.annotations = annotations;
+    
+    /**
+     * Get all the Annotations attached to this parameter.
+     *
+     * @return List of annotation attachments
+     */
+    public AnnotationAttachment[] getAnnotations() {
+        return this.annotations.toArray(new AnnotationAttachment[annotations.size()]);
     }
 
     /**
-     * Add an {@code Annotation} to the Argument.
+     * Add an {@code AnnotationAttachment} to the Argument.
      *
      * @param annotation Annotation to be added to the Argument
      */
-    public void addAnnotation(Annotation annotation) {
-        if (annotations == null) {
-            annotations = new ArrayList<>();
-        }
+    public void addAnnotation(AnnotationAttachment annotation) {
         annotations.add(annotation);
     }
 
