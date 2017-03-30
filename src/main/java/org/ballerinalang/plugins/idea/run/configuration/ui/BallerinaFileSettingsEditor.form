@@ -8,7 +8,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="57eab" class="com.intellij.openapi.ui.LabeledComponent" binding="params" custom-create="true">
+      <component id="57eab" class="com.intellij.openapi.ui.LabeledComponent" binding="myParamsField" custom-create="true">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="-1" height="20"/>

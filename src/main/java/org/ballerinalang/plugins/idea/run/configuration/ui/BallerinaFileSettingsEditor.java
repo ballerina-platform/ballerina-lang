@@ -41,7 +41,7 @@ public class BallerinaFileSettingsEditor extends SettingsEditor<BallerinaRunFile
 
     private JPanel myPanel;
     private LabeledComponent<TextFieldWithBrowseButton> myFileField;
-    private LabeledComponent<RawCommandLineEditor> params;
+    private LabeledComponent<RawCommandLineEditor> myParamsField;
     private LabeledComponent<JComboBox<RunConfigurationKind>> myRunKindComboBox;
     private Project myProject;
 
@@ -53,16 +53,23 @@ public class BallerinaFileSettingsEditor extends SettingsEditor<BallerinaRunFile
 
     @Override
     protected void resetEditorFrom(@NotNull BallerinaRunFileConfiguration configuration) {
-        params.getComponent().setText(configuration.getParams());
+        myParamsField.getComponent().setText(configuration.getParams());
         myFileField.getComponent().setText(configuration.getFilePath());
         myRunKindComboBox.getComponent().setSelectedItem(configuration.getRunKind());
     }
 
     @Override
     protected void applyEditorTo(@NotNull BallerinaRunFileConfiguration configuration) throws ConfigurationException {
-        configuration.setParams(params.getComponent().getText());
+        configuration.setParams(myParamsField.getComponent().getText());
         configuration.setFilePath(myFileField.getComponent().getText());
-        configuration.setRunKind((RunConfigurationKind) myRunKindComboBox.getComponent().getSelectedItem());
+        RunConfigurationKind runKind = (RunConfigurationKind) myRunKindComboBox.getComponent().getSelectedItem();
+        configuration.setRunKind(runKind);
+
+        if (runKind == RunConfigurationKind.SERVICE) {
+            myParamsField.setVisible(false);
+        } else {
+            myParamsField.setVisible(true);
+        }
     }
 
     @NotNull
@@ -78,16 +85,8 @@ public class BallerinaFileSettingsEditor extends SettingsEditor<BallerinaRunFile
         myFileField = new LabeledComponent<>();
         myFileField.setComponent(new TextFieldWithBrowseButton());
 
-        params = new LabeledComponent<>();
-        params.setComponent(new RawCommandLineEditor());
-    }
-
-    private void installRunKindComboBox() {
-        myRunKindComboBox.getComponent().removeAllItems();
-        myRunKindComboBox.getComponent().setRenderer(getRunKindListCellRendererWrapper());
-        for (RunConfigurationKind kind : RunConfigurationKind.values()) {
-            myRunKindComboBox.getComponent().addItem(kind);
-        }
+        myParamsField = new LabeledComponent<>();
+        myParamsField.setComponent(new RawCommandLineEditor());
     }
 
     @Nullable
@@ -102,5 +101,23 @@ public class BallerinaFileSettingsEditor extends SettingsEditor<BallerinaRunFile
                 }
             }
         };
+    }
+
+    private void installRunKindComboBox() {
+        myRunKindComboBox.getComponent().removeAllItems();
+        myRunKindComboBox.getComponent().setRenderer(getRunKindListCellRendererWrapper());
+        for (RunConfigurationKind kind : RunConfigurationKind.values()) {
+            myRunKindComboBox.getComponent().addItem(kind);
+        }
+        myRunKindComboBox.getComponent().addActionListener(e -> onRunKindChanged());
+    }
+
+    private void onRunKindChanged() {
+        RunConfigurationKind selectedKind = (RunConfigurationKind) myRunKindComboBox.getComponent().getSelectedItem();
+        if (selectedKind == null) {
+            selectedKind = RunConfigurationKind.MAIN;
+        }
+        boolean isMainSelected = selectedKind == RunConfigurationKind.MAIN;
+        myParamsField.setVisible(isMainSelected);
     }
 }
