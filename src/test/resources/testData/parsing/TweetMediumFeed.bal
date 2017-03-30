@@ -21,15 +21,14 @@ function main (string[] args) {
         string consumerSecret = args[1];
         string accessToken = args[2];
         string accessTokenSecret = args[3];
-
         message request = {};
-        message mediumResponse = http:ClientConnector.get(mediumEP, "/feed/@wso2", request);
+        message mediumResponse = http:ClientConnector.get (mediumEP, "/feed/@wso2", request);
         xml feedXML = messages:getXmlPayload(mediumResponse);
         string title = xmls:getString(feedXML, "/rss/channel/item[1]/title/text()");
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, title);
         messages:setHeader(request, "Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(title);
-        message response = http:ClientConnector.post(tweeterEP, tweetPath, request);
+        message response = http:ClientConnector.post (tweeterEP, tweetPath, request);
         system:println("Successfully tweeted: '" + title + "'");
     }
 }
