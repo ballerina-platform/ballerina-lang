@@ -26,7 +26,7 @@ function testDefinition()(boolean, string){
     success = true;
     msg = "No Error found.!!!";
 
-    value = dataMap["states"];
+    value = (int) dataMap["states"];
 
     // TODO : Fix dataMap["states"] != 50
     if(value != 50){
