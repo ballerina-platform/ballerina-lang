@@ -42,15 +42,17 @@ public class SimpleTypeName {
         this(name, null, null);
     }
     
-    public SimpleTypeName(String name, boolean isArrayType) {
+    public SimpleTypeName(String name, boolean isArrayType, int dimensions) {
         this(name, null, null);
         this.isArrayType = isArrayType;
+        this.dimensions = dimensions;
     }
     
-    public SimpleTypeName(String name, String pkgPath, boolean isArrayType) {
+    public SimpleTypeName(String name, String pkgPath, boolean isArrayType, int dimensions) {
         this(name, null, null);
         this.isArrayType = isArrayType;
         this.pkgPath = pkgPath;
+        this.dimensions = dimensions;
     }
 
     public String getName() {
