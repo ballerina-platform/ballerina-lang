@@ -409,7 +409,7 @@ public class BLangModelBuilder {
      * @param location Location of the value in the source file
      */
     public void createArrayTypeAttributeValue(NodeLocation location) {
-        SimpleTypeName valueType = new SimpleTypeName(null, true);
+        SimpleTypeName valueType = new SimpleTypeName(null, true, 1);
         AnnotationAttributeValue arrayValue = new AnnotationAttributeValue(
             annotationAttributeValues.toArray(new AnnotationAttributeValue[annotationAttributeValues.size()]),
             valueType, location);

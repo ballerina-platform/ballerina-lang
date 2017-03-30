@@ -79,9 +79,11 @@ public class ConnectorHolder {
             for (int i = 1; i <= ballerinaAction.args().length; i++) {
                 Argument arg = ballerinaAction.args()[i - 1];
                 sb.append(TypeEnum.CONNECTOR.getName()
-                                .equals(Utils.getArgumentType(arg.type(), arg.elementType(), arg.structType())) ?
+                                .equals(Utils.getArgumentType(arg.type(), arg.elementType(), arg.structType(),
+                                        arg.arrayDimensions())) ?
                                 balConnector.connectorName() :
-                                Utils.getArgumentType(arg.type(), arg.elementType(), arg.structType())).append(" ")
+                                Utils.getArgumentType(arg.type(), arg.elementType(), arg.structType(),
+                                        arg.arrayDimensions())).append(" ")
                         .append(arg.name());
                 if (i != ballerinaAction.args().length) {
                     sb.append(", ");

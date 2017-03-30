@@ -33,4 +33,6 @@ public @interface Argument {
 
     //used with structs to specify the struct type name
     String structType() default "";
+
+    int arrayDimensions() default 1;
 }
