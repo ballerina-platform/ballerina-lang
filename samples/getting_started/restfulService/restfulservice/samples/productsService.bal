@@ -13,7 +13,7 @@ service productmgt {
     @http:Path {value:"/{id}"}
     resource product(message m,
     @http:PathParam{value:"id"} string prodId) {
-        json payload = productsMap[prodId];
+        json payload = (json) productsMap[prodId];
         message response = {};
         messages:setJsonPayload(response, payload);
         reply response;
