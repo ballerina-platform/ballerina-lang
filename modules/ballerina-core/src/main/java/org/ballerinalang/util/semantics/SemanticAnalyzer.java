@@ -1735,6 +1735,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType expectedElementType = ((BArrayType) inheritedType).getElementType();
+
         for (int i = 0; i < argExprs.length; i++) {
             visitSingleValueExpr(argExprs[i]);
 
@@ -1874,7 +1875,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 builder.setArrayMapVarRefExpr(arrayMapVarRefExpr);
                 builder.setVarName(mapOrArrName);
-                builder.setIndexExpr(indexExpr);
+                Expression[] exprs = {indexExpr};
+                builder.setIndexExprs(exprs);
                 ArrayMapAccessExpr arrayMapAccessExpr = builder.build();
                 visit(arrayMapAccessExpr);
                 argExprList.add(arrayMapAccessExpr);
@@ -1994,21 +1996,25 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (arrayMapVarRefExpr.getType() instanceof BArrayType) {
 
             // Check the type of the index expression
-            Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
-            visitSingleValueExpr(indexExpr);
-            if (indexExpr.getType() != BTypes.typeInt) {
-                BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
-                        indexExpr.getType());
+            for (Expression indexExpr : arrayMapAccessExpr.getIndexExprs()) {
+                visitSingleValueExpr(indexExpr);
+                if (indexExpr.getType() != BTypes.typeInt) {
+                    BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
+                            indexExpr.getType());
+                }
             }
 
             // Set type of the arrays access expression
-            BType typeOfArray = ((BArrayType) arrayMapVarRefExpr.getType()).getElementType();
-            arrayMapAccessExpr.setType(typeOfArray);
+            BType expectedType =  arrayMapVarRefExpr.getType();
+            for (int i = 0; i < arrayMapAccessExpr.getIndexExprs().length; i++) {
+                expectedType =  ((BArrayType) expectedType).getElementType();
+            }
+            arrayMapAccessExpr.setType(expectedType);
 
         } else if (arrayMapVarRefExpr.getType() instanceof BMapType) {
 
             // Check the type of the index expression
-            Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
+            Expression indexExpr = arrayMapAccessExpr.getIndexExprs()[0];
             visitSingleValueExpr(indexExpr);
             if (indexExpr.getType() != BTypes.typeString) {
                 BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_STRING_MAP_INDEX,

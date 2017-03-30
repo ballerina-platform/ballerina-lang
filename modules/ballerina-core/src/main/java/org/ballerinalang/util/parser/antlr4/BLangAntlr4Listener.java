@@ -468,7 +468,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.typeName() != null) {
             // This is an array type
             SimpleTypeName typeName = typeNameStack.peek();
-            typeName.setArrayType(true);
+            typeName.setArrayType((ctx.getChildCount() - 1) / 2);
             return;
         }
 
@@ -1076,7 +1076,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
     public void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) {
         if (ctx.exception == null && ctx.Identifier() != null) {
             String mapArrayVarName = ctx.Identifier().getText();
-            modelBuilder.createMapArrayVarRefExpr(getCurrentLocation(ctx), mapArrayVarName);
+            int dimensions = (ctx.getChildCount() - 1) / 3;
+            modelBuilder.createMapArrayVarRefExpr(getCurrentLocation(ctx), mapArrayVarName, dimensions);
         }
     }
 

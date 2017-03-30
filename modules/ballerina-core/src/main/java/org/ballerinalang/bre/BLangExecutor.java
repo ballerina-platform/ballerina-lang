@@ -729,9 +729,7 @@ public class BLangExecutor implements NodeExecutor {
             throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
         }
 
-        Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
-        BValue indexValue = indexExpr.execute(this);
-
+        Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
 
         // Check whether this collection access expression is in the left hand of an assignment expression
         // If yes skip setting the value;
@@ -740,12 +738,15 @@ public class BLangExecutor implements NodeExecutor {
             if (arrayMapAccessExpr.getType() != BTypes.typeMap) {
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
-                    return ((BArray) collectionValue).get(((BInteger) indexValue).intValue());
+                    BArray bArray = (BArray) collectionValue;
+                    bArray = retrieveArray(bArray, indexExprs);
+                    return bArray.get(((BInteger) indexExprs[0].execute(this)).intValue());
                 } else {
                     return collectionValue;
                 }
             } else {
                 // Get the value stored in the index
+                BValue indexValue = indexExprs[0].execute(this);
                 if (indexValue instanceof BString) {
                     return ((BMap) collectionValue).get(indexValue);
                 } else {
@@ -1013,12 +1014,18 @@ public class BLangExecutor implements NodeExecutor {
         ArrayMapAccessExpr accessExpr = lExpr;
         if (!(accessExpr.getType() == BTypes.typeMap)) {
             BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
-            BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
+
+            Expression[] indexExprs = accessExpr.getIndexExprs();
+            if (indexExprs.length > 1) {
+                arrayVal = retrieveArray(arrayVal, indexExprs);
+            }
+
+            BInteger indexVal = (BInteger) indexExprs[0].execute(this);
             arrayVal.add(indexVal.intValue(), rValue);
 
         } else {
             BMap<BString, BValue> mapVal = (BMap<BString, BValue>) accessExpr.getRExpr().execute(this);
-            BString indexVal = (BString) accessExpr.getIndexExpr().execute(this);
+            BString indexVal = (BString) accessExpr.getIndexExprs()[0].execute(this);
             mapVal.put(indexVal, rValue);
             // set the type of this expression here
             // accessExpr.setType(rExpr.getType());
@@ -1180,26 +1187,30 @@ public class BLangExecutor implements NodeExecutor {
     private void setUnitValue(BValue rValue, BStruct lExprValue, int memoryLocation,
                               StructFieldAccessExpr fieldExpr) {
 
-        Expression indexExpr;
+        Expression[] indexExprs;
         if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            indexExpr = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExpr();
+            indexExprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExprs();
         } else {
             // If the lExprValue value is not a struct arrays/map, then set the value to the struct
             lExprValue.setValue(memoryLocation, rValue);
             return;
         }
 
-        // Evaluate the index expression and get the value.
-        BValue indexValue = indexExpr.execute(this);
-
         // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
 
         // Set the value to arrays/map's index location
         if (fieldExpr.getRefVarType() instanceof BMapType) {
+            BValue indexValue = indexExprs[0].execute(this);
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
-            ((BArray) arrayMapValue).add(((BInteger) indexValue).intValue(), rValue);
+            BArray arrayVal = (BArray) arrayMapValue;
+            if (indexExprs.length > 1) {
+                arrayVal = retrieveArray(arrayVal, indexExprs);
+            }
+
+            BInteger indexVal = (BInteger) indexExprs[0].execute(this);
+            arrayVal.add(indexVal.intValue(), rValue);
         }
     }
 
@@ -1257,22 +1268,28 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // If the lExprValue value is not a struct arrays/map, then the unit value is same as the struct
-        Expression indexExpr;
+        Expression[] indexExprs;
         if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
-            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExpr();
+            indexExprs = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExprs();
         } else {
             return currentVal;
         }
 
         // Evaluate the index expression and get the value
-        BValue indexValue = indexExpr.execute(this);
-
+        BValue indexValue;
         BValue unitVal;
         // Get the value from arrays/map's index location
         if (fieldExpr.getRefVarType() instanceof BMapType) {
+            indexValue = indexExprs[0].execute(this);
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {
-            unitVal = ((BArray) currentVal).get(((BInteger) indexValue).intValue());
+            BArray bArray = (BArray) currentVal;
+            for (int i = indexExprs.length - 1; i >= 1; i--) {
+                indexValue = indexExprs[i].execute(this);
+                bArray = (BArray) bArray.get(((BInteger) indexValue).intValue());
+            }
+            indexValue = indexExprs[0].execute(this);
+            unitVal = bArray.get(((BInteger) indexValue).intValue());
         }
 
         if (unitVal == null) {
@@ -1301,5 +1318,27 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.pushFrame(stackFrame);
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
+    }
+
+    private BArray retrieveArray(BArray arrayVal, Expression[] exprs) {
+        for (int i = exprs.length - 1; i >= 1; i--) {
+            BInteger indexVal = (BInteger) exprs[i].execute(this);
+
+            // TODO: Remove this part if we don't need dynamically create arrays
+            // Will have to dynamically populate
+//            while (arrayVal.size() <= indexVal.intValue()) {
+//                if (i != 1 || rValue instanceof BArray) {
+//                    BArray newBArray = new BArray<>(BArray.class);
+//                    arrayVal.add(arrayVal.size(), newBArray);
+//                } else {
+//                    BArray bArray = new BArray<>(rValue.getClass());
+//                    arrayVal.add(arrayVal.size(), bArray);
+//                }
+//            }
+
+            arrayVal = (BArray) arrayVal.get(indexVal.intValue());
+        }
+
+        return arrayVal;
     }
 }

@@ -101,6 +101,7 @@ import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -497,16 +498,20 @@ public class BLangModelBuilder {
         exprStack.push(variableRefExpr);
     }
 
-    public void createMapArrayVarRefExpr(NodeLocation location, String varName) {
+    public void createMapArrayVarRefExpr(NodeLocation location, String varName, int dimensions) {
         SymbolName symName = new SymbolName(varName);
         VariableRefExpr arrayVarRefExpr = new VariableRefExpr(location, varName);
 
-        Expression indexExpr = exprStack.pop();
-        checkArgExprValidity(location, indexExpr);
+        Expression[] indexExprs = new Expression[dimensions];
+        int i = 0;
+        while (i < dimensions) {
+            indexExprs[i++] = exprStack.pop();
+        }
+        checkArgExprValidity(location, Arrays.asList(indexExprs));
 
         ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
         builder.setVarName(symName);
-        builder.setIndexExpr(indexExpr);
+        builder.setIndexExprs(indexExprs);
         builder.setArrayMapVarRefExpr(arrayVarRefExpr);
         builder.setNodeLocation(location);
 
