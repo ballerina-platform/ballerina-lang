@@ -2316,6 +2316,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
         }
+        
         for (int i = 0; i < updatedArgExprs.length; i++) {
             funcIExpr.getArgExprs()[i] = updatedArgExprs[i];
         }
