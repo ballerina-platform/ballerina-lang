@@ -376,12 +376,12 @@ class FunctionDefinitionView extends SVGCanvas {
                     self.getModel().setFunctionName($(this).text());
                 }).on('click', function (event) {
                     event.stopPropagation();
-                }).on('blur', function (event) {
+                }).on('blur', function () {
                     if ($(this).text().length > 50) {
                         var textToDisplay = $(this).text().substring(0, 47) + '...';
                         $(this).text(textToDisplay);
                     }
-                }).on('focus', function (event) {
+                }).on('focus', function () {
                     $(this).text(self._model.getFunctionName());
                 }).keypress(function (e) {
                     /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
@@ -473,7 +473,8 @@ class FunctionDefinitionView extends SVGCanvas {
                 title: 'Return Types'
             }).appendTo(operationsPane).tooltip();
 
-            $(panelReturnTypeIcon).click(function (event) {
+            $(panelReturnTypeIcon).click((event) => {
+                this._returnTypePaneView.reloadReturnTypeDropDown();
                 event.stopPropagation();
             });
 
@@ -506,8 +507,9 @@ class FunctionDefinitionView extends SVGCanvas {
             title: 'Arguments'
         }).appendTo(operationsPane).tooltip();
 
-        $(panelArgumentsIcon).click(function (event) {
+        $(panelArgumentsIcon).click((event) => {
             event.stopPropagation();
+            this._argumentsView.reloadArgumentTypeDropDown();
         });
 
         operationButtons.push(panelArgumentsIcon);
@@ -525,11 +527,12 @@ class FunctionDefinitionView extends SVGCanvas {
                     top: 0
                 }
             },
+            view: this,
             disableEditing: this.getModel().isMainFunction()
         };
 
         // Creating arguments pane.
-        ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
+        this._argumentsView = ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
         // Closing the shown pane when another operation button is clicked.
         _.forEach(operationButtons, function (button) {

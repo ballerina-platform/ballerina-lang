@@ -23,9 +23,17 @@ import ASTNode from '../node';
  * @constructor
  */
 class Statement extends ASTNode {
- constructor() {
-     super('Statement');
- }
+    constructor() {
+        super('Statement');
+    }
+
+    /**
+     * Get all the connector references in the immediate scope
+     * @return {Array} connectorReferences
+     */
+    getConnectorsInImmediateScope() {
+        return this.getParent().getConnectorsInImmediateScope();
+    }
 }
 
 export default Statement;
