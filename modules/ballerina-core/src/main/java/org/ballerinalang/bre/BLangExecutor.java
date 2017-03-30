@@ -1080,25 +1080,7 @@ public class BLangExecutor implements NodeExecutor {
             structMemBlock[structVarLoc.getStructMemAddrOffset()] = expr.getValueExpr().execute(this);
         }
 
-        BStruct bStruct = new BStruct(structDef, structMemBlock);
-        
-        return bStruct;
-    }
-
-    /**
-     * Invoke the init function of the struct. This will populate the default values for struct fields.
-     * 
-     * @param structDef Struct definition
-     * @param structMemBlock Memory block to be assigned for the new struct instance
-     */
-    private void invokeStructInitFunction(StructDef structDef, BValue[] structMemBlock) {
-        Function initFunction = structDef.getInitFunction();
-        CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
-            initFunction.getNodeLocation());
-        StackFrame stackFrame = new StackFrame(structMemBlock, null, functionInfo);
-        controlStack.pushFrame(stackFrame);
-        initFunction.getCallableUnitBody().execute(this);
-        controlStack.popFrame();
+        return new BStruct(structDef, structMemBlock);
     }
 
     /**
@@ -1277,7 +1259,7 @@ public class BLangExecutor implements NodeExecutor {
     private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
         ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
         if (currentVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName() + "' is not initialized");
+            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName() + "' is null");
         }
 
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
@@ -1311,7 +1293,7 @@ public class BLangExecutor implements NodeExecutor {
 
         if (unitVal == null) {
             throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" +
-                    indexValue.stringValue() + "]' is not initialized");
+                    indexValue.stringValue() + "]' is null");
         }
 
         return unitVal;
@@ -1357,5 +1339,21 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         return arrayVal;
+    }
+    
+    /**
+     * Invoke the init function of the struct. This will populate the default values for struct fields.
+     * 
+     * @param structDef Struct definition
+     * @param structMemBlock Memory block to be assigned for the new struct instance
+     */
+    private void invokeStructInitFunction(StructDef structDef, BValue[] structMemBlock) {
+        Function initFunction = structDef.getInitFunction();
+        CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
+            initFunction.getNodeLocation());
+        StackFrame stackFrame = new StackFrame(structMemBlock, null, functionInfo);
+        controlStack.pushFrame(stackFrame);
+        initFunction.getCallableUnitBody().execute(this);
+        controlStack.popFrame();
     }
 }

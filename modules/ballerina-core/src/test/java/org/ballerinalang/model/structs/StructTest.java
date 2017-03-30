@@ -133,35 +133,35 @@ public class StructTest {
     
     @Test(description = "Test accessing an field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'employees\\[0\\]' is not initialized")
+            expectedExceptionsMessageRegExp = "field 'employees\\[0\\]' is null")
     public void testGetNonInitField() {
         BLangFunctions.invoke(bLangProgram, "testGetNonInitAttribute");
     }
     
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'employees' is not initialized")
+            expectedExceptionsMessageRegExp = "field 'employees' is null")
     public void testGetNonInitArrayField() {
         BLangFunctions.invoke(bLangProgram, "testGetNonInitArrayAttribute");
     }
     
     @Test(description = "Test accessing the field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'dpt' is not initialized")
+            expectedExceptionsMessageRegExp = "field 'dpt' is null")
     public void testGetNonInitLastField() {
         BLangFunctions.invoke(bLangProgram, "testGetNonInitLastAttribute");
     }
     
     @Test(description = "Test setting an field of a noninitialized child struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'family' is not initialized")
+            expectedExceptionsMessageRegExp = "field 'family' is null")
     public void testSetNonInitField() {
         BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitChildStruct");
     }
     
     @Test(description = "Test setting the field of a noninitialized root struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'dpt' is not initialized")
+            expectedExceptionsMessageRegExp = "field 'dpt' is null")
     public void testSetNonInitLastField() {
         BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitStruct");
     }
