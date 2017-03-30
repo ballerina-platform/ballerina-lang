@@ -194,7 +194,6 @@ public class Utils {
                 actionNameBuilder.append("." + connectorPkg + ":" + connectorName);
             } else if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
                 // if the argument is arrayType, then append the element type to the method signature
-
                 String arraySuffix = createArraySuffix(arg.arrayDimensions());
                 if (arg.elementType() == TypeEnum.STRUCT) {
                     actionNameBuilder.append("." + connectorPkg + ":" + arg.structType() + arraySuffix);
