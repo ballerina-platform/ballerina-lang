@@ -25,10 +25,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.FunctionUtil;
-import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,18 +42,13 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
         // Check whether the element is an instance of IdentifierPSINode since recursion can only happen for those
         // (function name and function invocation both are instance of IdentifierPSINode).
         if (element instanceof IdentifierPSINode) {
-            // If it is a function invocation, there should be a parent of CallableUnitNameNode.
-            CallableUnitNameNode parent = PsiTreeUtil.getParentOfType(element, CallableUnitNameNode.class);
+            // If it is a function invocation, there should be a parent of NameReferenceNode.
+            NameReferenceNode parent = PsiTreeUtil.getParentOfType(element, NameReferenceNode.class);
             if (parent == null) {
                 return null;
             }
-            // Get the SimpleTypeNode child because the function name is inside the SimpleTypeNode child.
-            SimpleTypeNode simpleTypeNode = PsiTreeUtil.getChildOfType(parent, SimpleTypeNode.class);
-            if (simpleTypeNode == null) {
-                return null;
-            }
             // Get the identifier.
-            PsiElement identifier = simpleTypeNode.getNameIdentifier();
+            PsiElement identifier = parent.getNameIdentifier();
             if (identifier == null) {
                 return null;
             }

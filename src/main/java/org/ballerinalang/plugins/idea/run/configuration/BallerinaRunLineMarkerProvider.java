@@ -20,14 +20,10 @@ import com.intellij.execution.lineMarker.ExecutorAction;
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.icons.AllIcons;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Function;
-import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
-import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.SimpleTypeArrayNode;
 import org.jetbrains.annotations.Nullable;
 
 public class BallerinaRunLineMarkerProvider extends RunLineMarkerContributor {
@@ -44,36 +40,12 @@ public class BallerinaRunLineMarkerProvider extends RunLineMarkerContributor {
             // Get the parent element.
             PsiElement parent = element.getParent();
             if (parent instanceof FunctionNode) {
-                // Check whether the current function is a main function.
-                if (BallerinaConstants.MAIN.equals(element.getText())) {
-                    // Get the parameter list.
-                    ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(parent, ParameterListNode.class);
-                    if (parameterListNode == null) {
-                        return null;
-                    }
-                    // There should be only one argument in the main function.
-                    PsiElement[] children = parameterListNode.getChildren();
-                    if (children.length != 1) {
-                        return null;
-                    }
-                    // Argument type must be SimpleTypeArrayNode because it is a string array.
-                    SimpleTypeArrayNode simpleTypeArrayNode =
-                            PsiTreeUtil.findChildOfType(children[0], SimpleTypeArrayNode.class);
-                    if (simpleTypeArrayNode == null) {
-                        return null;
-                    }
-                    // Get the type.
-                    PsiElement nameIdentifier = simpleTypeArrayNode.getNameIdentifier();
-                    if (nameIdentifier == null) {
-                        return null;
-                    }
-                    // Type must be string.
-                    if ("string".equals(nameIdentifier.getText())) {
-                        // If all tests are passed, that means the current element is the identifier of a main
-                        // function. So we return a new Info object.
-                        return new Info(AllIcons.RunConfigurations.TestState.Run, APPLICATION_TOOLTIP_PROVIDER,
-                                ExecutorAction.getActions(0));
-                    }
+                // Check whether the element is an identifier of a function node.
+                boolean isMain = BallerinaRunUtil.isMainFunction((FunctionNode) parent);
+                if (isMain) {
+                    // If it is a function node, add a run line marker.
+                    return new Info(AllIcons.RunConfigurations.TestState.Run, APPLICATION_TOOLTIP_PROVIDER,
+                            ExecutorAction.getActions(0));
                 }
             } else if (parent instanceof ServiceDefinitionNode) {
                 // We don't need to check anything specific in services. If there is a ServiceDefinitionNode, that

@@ -29,10 +29,8 @@ import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
-import org.ballerinalang.plugins.idea.psi.references.CallableUnitNameReference;
-import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
-import org.ballerinalang.plugins.idea.psi.references.SimpleTypeReference;
+import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
 import org.ballerinalang.plugins.idea.psi.references.VariableReference;
 import org.jetbrains.annotations.NonNls;
@@ -41,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.*;
 
 public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedElement {
+
     public IdentifierPSINode(IElementType type, CharSequence text) {
         super(type, text);
     }
@@ -57,33 +56,17 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
      */
     @Override
     public PsiElement setName(@NonNls @NotNull String name) throws IncorrectOperationException {
-        if (getParent() == null) return this; // weird but it happened once
-        /*
-        IElementType elType = getParent().getNode().getElementType();
-		String kind = "??? ";
-		if ( elType instanceof RuleIElementType ) {
-			int ruleIndex = ((RuleIElementType) elType).getRuleIndex();
-			if ( ruleIndex == RULE_call_expr ) {
-				kind = "call ";
-			}
-			else if ( ruleIndex == RULE_statement ) {
-				kind = "assign ";
-			}
-			else if ( ruleIndex == RULE_function ) {
-				kind = "func def ";
-			}
-		}
-		System.out.println("IdentifierPSINode.setName("+name+") on "+
-			                   kind+this+" at "+Integer.toHexString(this.hashCode()));
-		*/
+        if (getParent() == null) {
+            return this;
+        }
         PsiElement newID = Trees.createLeafFromText(getProject(),
                 BallerinaLanguage.INSTANCE,
                 getContext(),
                 name,
                 BallerinaParserDefinition.ID);
         if (newID != null) {
-            return this.replace(newID); // use replace on leaves but replaceChild on ID nodes that are part of
-            // defs/decls.
+            // use replace on leaves but replaceChild on ID nodes that are part of defs/decls.
+            return this.replace(newID);
         }
         return this;
     }
@@ -109,27 +92,21 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         // do not return a reference for the ID nodes in a definition
         if (elType instanceof RuleIElementType) {
             switch (((RuleIElementType) elType).getRuleIndex()) {
-                case RULE_callableUnitName:
-                    return new CallableUnitNameReference(this);
                 case RULE_packageName:
                     return new PackageNameReference(this);
-                case RULE_connectorDefinition:
-                    return new ConnectorReference(this);
                 case RULE_actionInvocation:
                     return new ActionInvocationReference(this);
                 case RULE_statement:
                     return new StatementReference(this);
-                case RULE_simpleType:
-                    return new SimpleTypeReference(this);
+                case RULE_nameReference:
+                    return new NameReference(this);
                 case RULE_variableReference:
                 case RULE_parameter:
-                case RULE_namedParameter:
                     return new VariableReference(this);
                 default:
                     return null;
             }
         }
-
         if (parent instanceof PsiErrorElement) {
             if (parent.getParent() instanceof StatementNode) {
                 return new StatementReference(this);

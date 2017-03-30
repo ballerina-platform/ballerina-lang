@@ -18,13 +18,13 @@ package org.ballerinalang.plugins.idea.psi.references;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.ResolveResult;
-import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ActionInvocationReference extends BallerinaElementReference {
 
@@ -34,7 +34,7 @@ public class ActionInvocationReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FunctionDefinitionNode;
+        return def instanceof VariableDefinitionNode;
     }
 
     @NotNull
@@ -46,17 +46,15 @@ public class ActionInvocationReference extends BallerinaElementReference {
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        //Todo: Use java8
         List<PsiElement> actions = BallerinaPsiImplUtil.resolveAction(getElement());
-        List<ResolveResult> results = new ArrayList<>();
-        for (PsiElement directory : actions) {
-            results.add(new PsiElementResolveResult(directory));
-        }
+        List<ResolveResult> results = actions.stream()
+                .map(PsiElementResolveResult::new)
+                .collect(Collectors.toList());
         return results.toArray(new ResolveResult[results.size()]);
     }
 
     @Override
     public boolean isReferenceTo(PsiElement definitionElement) {
-        return false;
+        return true;
     }
 }

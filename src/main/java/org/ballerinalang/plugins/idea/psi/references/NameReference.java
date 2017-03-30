@@ -25,14 +25,15 @@ import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,16 +41,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class SimpleTypeReference extends BallerinaElementReference {
+public class NameReference extends BallerinaElementReference {
 
-    public SimpleTypeReference(@NotNull IdentifierPSINode element) {
+    public NameReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof SimpleTypeNode || def instanceof FunctionNode || def instanceof ConnectorNode
-                || def instanceof StructDefinitionNode;
+        return (def instanceof FunctionNode) || (def instanceof ConnectorNode) || (def instanceof StructDefinitionNode)
+                || (def instanceof VariableDefinitionNode) || (def instanceof AnnotationDefinitionNode);
     }
 
     @NotNull
@@ -61,8 +62,8 @@ public class SimpleTypeReference extends BallerinaElementReference {
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        // Get the CallableUnitNameNode parent. This is to resolve functions from other packages. Ex- system:println().
-        PsiElement parentElement = PsiTreeUtil.getParentOfType(getElement(), CallableUnitNameNode.class);
+        // Get the NameReferenceNode parent. This is to resolve functions from other packages. Ex- system:println().
+        PsiElement parentElement = PsiTreeUtil.getParentOfType(getElement(), NameReferenceNode.class);
         if (parentElement == null) {
             // Get the TypeNameNode parent. This is to resolve Connectors from packages. Ex- http:ClientConnector.
             parentElement = PsiTreeUtil.getParentOfType(getElement(), TypeNameNode.class);
@@ -71,7 +72,7 @@ public class SimpleTypeReference extends BallerinaElementReference {
         // Get the PackagePath node. We need the package path to resolve the corresponding Function/Connector. We use
         // XPath.findAll() here because the PackagePath node might not be a direct child of the parentElement.
         Collection<? extends PsiElement> packagePath =
-                XPath.findAll(BallerinaLanguage.INSTANCE, parentElement, "//packagePath");
+                XPath.findAll(BallerinaLanguage.INSTANCE, parentElement, "//nameReference");
 
         // Check whether a packagePath is found.
         if (!packagePath.iterator().hasNext()) {
@@ -125,6 +126,15 @@ public class SimpleTypeReference extends BallerinaElementReference {
                     BallerinaPsiImplUtil.getAllConnectorsInPackage((PsiDirectory) element);
             // Add matching functions to results.
             for (PsiElement psiElement : allConnectors) {
+                if (getElement().getText().equals(psiElement.getText())) {
+                    results.add(new PsiElementResolveResult(psiElement));
+                }
+            }
+            // Get all annotations in the package.
+            List<PsiElement> allAnnotations =
+                    BallerinaPsiImplUtil.getAllAnnotationsInPackage((PsiDirectory) element);
+            // Add matching functions to results.
+            for (PsiElement psiElement : allAnnotations) {
                 if (getElement().getText().equals(psiElement.getText())) {
                     results.add(new PsiElementResolveResult(psiElement));
                 }

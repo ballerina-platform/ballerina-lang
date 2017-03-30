@@ -21,17 +21,15 @@ function main (string[] args) {
         string consumerSecret = args[1];
         string accessToken = args[2];
         string accessTokenSecret = args[3];
-
         string repo;
         if (argumentLength >= 5) {
             repo = args[4];
         } else {
             repo = "wso2-synapse";
         }
-
         string repoPRpath = "/repos/wso2/" + repo + "/pulls";
         message request = {};
-        message gitHubResponse = http:ClientConnector.get(gitHubEP, repoPRpath, request);
+        message gitHubResponse = http:ClientConnector.get (gitHubEP, repoPRpath, request);
         json gitHubJsonResponse = messages:getJsonPayload(gitHubResponse);
         int noOfPRs = jsons:getInt(gitHubJsonResponse, "$.length()");
         string noOfPRstr = strings:valueOf(noOfPRs);
@@ -39,7 +37,7 @@ function main (string[] args) {
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, textMsg);
         messages:setHeader(request, "Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(textMsg);
-        message response = http:ClientConnector.post(tweeterEP, tweetPath, request);
+        message response = http:ClientConnector.post (tweeterEP, tweetPath, request);
         system:println("Successfully tweeted: '" + textMsg + "'");
     }
 }

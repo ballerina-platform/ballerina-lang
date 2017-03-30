@@ -72,8 +72,9 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
         //		                   ".resolve("+myElement.getName()+
         //		                   " at "+Integer.toHexString(myElement.hashCode())+")");
         ScopeNode scope = (ScopeNode) myElement.getContext();
-        if (scope == null) return null;
-
+        if (scope == null) {
+            return null;
+        }
         return scope.resolve(myElement);
     }
 

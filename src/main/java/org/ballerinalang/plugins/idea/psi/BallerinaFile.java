@@ -21,8 +21,6 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.ResolveResult;
-import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
@@ -65,15 +63,12 @@ public class BallerinaFile extends PsiFileBase implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        //		System.out.println(getClass().getSimpleName()+
-        //		                   ".resolve("+element.getName()+
-        //		                   " at "+Integer.toHexString(element.hashCode())+")");
-        if (element.getParent() instanceof CallableUnitNameNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//function/Identifier",
-                    "//connector/Identifier");
-        } else if (element.getParent() instanceof SimpleTypeNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//function/Identifier",
-                    "//connector/Identifier", "//structDefinition/Identifier");
+        if (element.getParent() instanceof NameReferenceNode) {
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
+                    "//connectorDefinition/Identifier", "//structDefinition/Identifier");
+        } else if (element.getParent() instanceof TypeNameNode) {
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
+                    "//connectorDefinition/Identifier", "//structDefinition/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//constantDefinition/Identifier");
         }

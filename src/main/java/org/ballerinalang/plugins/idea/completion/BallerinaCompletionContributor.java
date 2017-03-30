@@ -40,26 +40,23 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
-import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
-import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.LiteralValueNode;
-import org.ballerinalang.plugins.idea.psi.MapStructInitKeyValueListNode;
-import org.ballerinalang.plugins.idea.psi.MapStructInitKeyValueNode;
+import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
+import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
-import org.ballerinalang.plugins.idea.psi.references.SimpleTypeReference;
+import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -174,7 +171,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         PsiElement prevSibling = element.getPrevSibling();
 
         // if the parent is a literal value node, no need to add lookup elements.
-        if (parent instanceof LiteralValueNode) {
+        if (parent instanceof SimpleLiteralNode) {
             return;
         }
 
@@ -189,10 +186,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             // package declaration. If it is ImportDeclarationNode, no need to suggest 'package' keyword because we
             // cannot add package declaration after an import.
             addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
-        } else if (parent instanceof AnnotationNameNode) {
-            // Todo - Add all annotations
-            resultSet.addElement(LookupElementBuilder.create("GET"));
-            resultSet.addElement(LookupElementBuilder.create("POST"));
         } else if (parent instanceof PackageNameNode) {
             // Check whether we are in the package declaration
             if (parent.getParent().getParent() instanceof PackageDeclarationNode) {
@@ -290,9 +283,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     addKeyword(resultSet, REPLY, CONTEXT_KEYWORD_PRIORITY);
                 }
 
-                FunctionDefinitionNode functionBodyNode =
-                        PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class);
-                if (functionBodyNode != null) {
+                FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
+                if (functionNode != null) {
                     addKeyword(resultSet, RETURN, CONTEXT_KEYWORD_PRIORITY);
                 }
 
@@ -340,7 +332,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
                 }
             }
-        } else if (parent instanceof FunctionDefinitionNode || parent instanceof ParameterNode) {
+        } else if (parent instanceof FunctionNode || parent instanceof ParameterNode) {
             if (prevSibling != null) {
                 if ("(".equals(prevSibling.getText())) {
                     // Todo - Handle scenario
@@ -351,7 +343,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             } else {
                 // Todo - Handle scenario
             }
-        } else if (parent instanceof SimpleTypeNode) {
+        } else if (parent instanceof TypeNameNode || parent instanceof NameReferenceNode) {
             PsiElement sibling = parent.getParent().getPrevSibling();
 
             if (sibling == null) {
@@ -456,7 +448,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 if (":".equals(prevToken.getText())) {
 
                     PsiElement prevElement = file.findElementAt(parameters.getOffset() - 2);
-
+                    if (prevElement == null) {
+                        return;
+                    }
                     // Get all imported packages in current file
                     List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
                     for (PsiElement pack : packages) {
@@ -539,8 +533,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 // Don't suggest values inside MapStructInitKeyValueListNode because we cannot resolve the
                 // fields yet.
                 if ((firstChild != null && "{".equals(firstChild.getText()) && lastChild != null
-                        && "}".equals(lastChild.getText()))
-                        || prevTokenParent instanceof MapStructInitKeyValueListNode) {
+                        && "}".equals(lastChild.getText()))) {
                     // Todo - Get all fields from struct or map
                     return;
                 }
@@ -550,10 +543,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 PsiElement temp = prevToken;
                 while (temp != null && !(temp instanceof PsiFile)) {
                     temp = temp.getParent();
-                    if (temp instanceof MapStructInitKeyValueNode) {
-                        //Todo - Get all fields from struct or map
-                        return;
-                    }
+                    //Todo - Get all fields from struct or map
                 }
 
                 // prevToken.getParent().getFirstChild()
@@ -599,28 +589,28 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addPackages(resultSet, originalFile);
             }
         } else if (parent instanceof ActionInvocationNode) {
-            // Get the CallableUnitNameNode.
-            CallableUnitNameNode callableUnitNameNode = PsiTreeUtil.getChildOfType(parent, CallableUnitNameNode.class);
-            if (callableUnitNameNode == null) {
+            // Get the NameReferenceNode.
+            NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(parent, NameReferenceNode.class);
+            if (nameReferenceNode == null) {
                 return;
             }
-            // Get the SimpleTypeNode.
-            SimpleTypeNode simpleTypeNode = PsiTreeUtil.getChildOfType(callableUnitNameNode, SimpleTypeNode.class);
-            if (simpleTypeNode == null) {
+            // Get the TypeNameNode.
+            TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(nameReferenceNode, TypeNameNode.class);
+            if (typeNameNode == null) {
                 return;
             }
             // Get the identifier.
-            PsiElement nameIdentifier = simpleTypeNode.getNameIdentifier();
+            PsiElement nameIdentifier = typeNameNode.getNameIdentifier();
             if (nameIdentifier == null) {
                 return;
             }
             // Get the reference.
             PsiReference reference = nameIdentifier.getReference();
-            if (reference == null || !(reference instanceof SimpleTypeReference)) {
+            if (reference == null || !(reference instanceof NameReference)) {
                 return;
             }
             // Multi resolve the reference.
-            ResolveResult[] resolvedElement = ((SimpleTypeReference) reference).multiResolve(false);
+            ResolveResult[] resolvedElement = ((NameReference) reference).multiResolve(false);
             // For each resolve result, get all actions and add them as lookup elements.
             for (ResolveResult resolveResult : resolvedElement) {
                 PsiElement resolveResultElement = resolveResult.getElement();

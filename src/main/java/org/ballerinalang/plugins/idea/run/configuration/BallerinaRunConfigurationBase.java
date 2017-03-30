@@ -61,6 +61,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
     private String myWorkingDirectory = "";
     @NotNull
     private String myBallerinaParams = "";
+    // This string contains the arguments provided by the user.
     @NotNull
     private String myParams = "";
     @NotNull

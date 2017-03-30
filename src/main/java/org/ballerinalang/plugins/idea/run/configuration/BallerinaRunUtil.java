@@ -19,7 +19,6 @@ package org.ballerinalang.plugins.idea.run.configuration;
 import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.ProcessHandler;
-import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.ide.scratch.ScratchFileType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
@@ -32,7 +31,6 @@ import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -44,7 +42,8 @@ import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.SimpleTypeArrayNode;
+import org.ballerinalang.plugins.idea.psi.TypeNameNode;
+import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -108,32 +107,71 @@ public class BallerinaRunUtil {
         return hasMainFunction(psiFile);
     }
 
-    @Contract("null -> false")
     public static boolean hasMainFunction(PsiFile file) {
         Collection<FunctionNode> functionNodes = PsiTreeUtil.findChildrenOfType(file, FunctionNode.class);
         for (FunctionNode functionNode : functionNodes) {
-            ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(functionNode, ParameterListNode.class);
-            if (parameterListNode == null) {
-                return false;
-            }
-            PsiElement[] children = parameterListNode.getChildren();
-            if (children.length != 1) {
-                return false;
-            }
-            SimpleTypeArrayNode simpleTypeArrayNode =
-                    PsiTreeUtil.findChildOfType(children[0], SimpleTypeArrayNode.class);
-            if (simpleTypeArrayNode == null) {
-                return false;
-            }
-            PsiElement nameIdentifier = simpleTypeArrayNode.getNameIdentifier();
-            if (nameIdentifier == null) {
-                return false;
-            }
-            if ("string".equals(nameIdentifier.getText())) {
+            if (isMainFunction(functionNode)) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Checks whether the given functionNode is a main function node.
+     *
+     * @param functionNode FunctionNode which needs to be checked
+     * @return {@code true} if the provided node is a main function, {@code false} otherwise.
+     */
+    @Contract("null -> false")
+    public static boolean isMainFunction(FunctionNode functionNode) {
+        // Get the function name.
+        PsiElement functionName = functionNode.getNameIdentifier();
+        if (functionName == null) {
+            return false;
+        }
+        // Check whether the function name is "main".
+        if (!BallerinaConstants.MAIN.equals(functionName.getText())) {
+            return false;
+        }
+        // Get the ParameterListNode which contains all the parameters in the function.
+        ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(functionNode, ParameterListNode.class);
+        if (parameterListNode == null) {
+            return false;
+        }
+        // Get the child nodes. These are objects of ParameterNode.
+        PsiElement[] parameterNodes = parameterListNode.getChildren();
+        // There should be only one parameter for main function.
+        if (parameterNodes.length != 1) {
+            return false;
+        }
+        // Get the TypeNameNode which contains the type of the parameter. In this case, it will be "string[]".
+        TypeNameNode arrayTypeNameNode = PsiTreeUtil.findChildOfType(parameterNodes[0], TypeNameNode.class);
+        if (arrayTypeNameNode == null) {
+            return false;
+        }
+        // "string", "[", "]" will be in 3 different child nodes.
+        PsiElement[] children = arrayTypeNameNode.getChildren();
+        if (children.length != 3) {
+            return false;
+        }
+        // First child node will also be a TypeNameNode which contains the type (string).
+        if (!(children[0] instanceof TypeNameNode)) {
+            return false;
+        }
+        if (!"[".equals(children[1].getText())) {
+            return false;
+        }
+        if (!"]".equals(children[2].getText())) {
+            return false;
+        }
+        // ValueTypeNameNode will contain the actual value of the type (string).
+        ValueTypeNameNode valueTypeNameNode = PsiTreeUtil.findChildOfType(children[0], ValueTypeNameNode.class);
+        if (valueTypeNameNode == null) {
+            return false;
+        }
+        // Get the text (string) and check and return the result.
+        return valueTypeNameNode.getText() != null && "string".equals(valueTypeNameNode.getText());
     }
 
     @Contract("null -> false")

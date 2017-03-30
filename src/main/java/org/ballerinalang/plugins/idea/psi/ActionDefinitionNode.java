@@ -19,7 +19,6 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
@@ -40,13 +39,13 @@ public class ActionDefinitionNode extends IdentifierDefSubtree implements ScopeN
         if (element.getParent() instanceof VariableReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//parameter/Identifier");
-        } else if (element.getParent() instanceof CallableUnitNameNode) {
+        } else if (element.getParent() instanceof NameReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//functionDefinition/function/Identifier");
+                    "//functionDefinition/Identifier");
         }
-        else if (element.getParent() instanceof SimpleTypeNode) {
+        else if (element.getParent() instanceof TypeNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/connector/Identifier");
+                    "//connectorDefinition/Identifier");
         }
         return null;
     }

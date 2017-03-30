@@ -24,24 +24,22 @@ import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
+import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.NamedParameterNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.StructFieldNode;
+import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperBodyNode;
-import org.ballerinalang.plugins.idea.psi.TypeMapperInputNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
-import org.ballerinalang.plugins.idea.psi.TypeMapperType;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,14 +53,20 @@ public class VariableReference extends BallerinaElementReference {
     @Override
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof VariableDefinitionNode || def instanceof ParameterNode
-                || def instanceof NamedParameterNode || def instanceof TypeMapperInputNode
-                || def instanceof ConstantDefinitionNode || def instanceof StructFieldNode;
+                || def instanceof ConstantDefinitionNode || def instanceof FieldDefinitionNode;
     }
 
     @NotNull
     @Override
     public Object[] getVariants() {
         return new Object[0];
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve() {
+        ResolveResult[] resolveResults = multiResolve(false);
+        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
     }
 
     @NotNull
@@ -111,14 +115,13 @@ public class VariableReference extends BallerinaElementReference {
                 // Now we need to get the struct type. So we get the parent element.
                 PsiElement parentNode = resolvedElement.getParent();
                 if (parentNode == null || !(parentNode instanceof VariableDefinitionNode
-                        || parentNode instanceof TypeMapperInputNode || parentNode instanceof ParameterNode
-                        || parentNode instanceof NamedParameterNode)) {
+                        || parentNode instanceof ParameterNode)) {
                     continue;
                 }
                 // In a definition, the first child will be the type.
                 PsiElement firstChild = parentNode.getFirstChild();
-                if (firstChild == null || !(firstChild instanceof TypeNameNode
-                        || firstChild instanceof TypeMapperType)) {
+                // Todo - Update conditions
+                if (firstChild == null || !(firstChild instanceof TypeNameNode)) {
                     continue;
                 }
                 // But there can be other children within the first child as well. So we need to navigate into each
@@ -171,32 +174,16 @@ public class VariableReference extends BallerinaElementReference {
                 // definitionElement is defined in.
                 PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
                 if (!(commonContext instanceof FunctionNode || commonContext instanceof ResourceDefinitionNode
-                        || commonContext instanceof ConnectorDefinitionNode
-                        || commonContext instanceof ActionDefinitionNode)) {
+                        || commonContext instanceof ConnectorNode || commonContext instanceof ActionDefinitionNode
+                        || commonContext instanceof TypeMapperNode)) {
                     return false;
                 }
             } else if (definitionElement instanceof VariableDefinitionNode) {
                 // If the common context is file, that means the myElement is not in the scope where the
                 // definitionElement is defined in.
                 PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
-                if (!(commonContext instanceof FunctionBodyNode || commonContext instanceof ConnectorBodyNode
+                if (!(commonContext instanceof CallableUnitBodyNode || commonContext instanceof ConnectorBodyNode
                         || commonContext instanceof TypeMapperBodyNode)) {
-                    return false;
-                }
-            } else if (definitionElement instanceof NamedParameterNode) {
-                // The parent of myElement must be a VariableReferenceNode. If this is not checked, The named
-                // parameter definition will also be added as a usage when we use Find Usages.
-                if (!(myElement.getParent() instanceof VariableReferenceNode)) {
-                    return false;
-                }
-                PsiElement nameIdentifier = ((NamedParameterNode) definitionElement).getNameIdentifier();
-                if (nameIdentifier == null) {
-                    return false;
-                }
-                return refName.equals(nameIdentifier.getText());
-            } else if (definitionElement instanceof TypeMapperInputNode) {
-                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
-                if (!(commonContext instanceof TypeMapperNode)) {
                     return false;
                 }
             }

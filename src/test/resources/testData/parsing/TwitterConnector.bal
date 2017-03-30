@@ -15,7 +15,7 @@ connector Twitter (string consumerKey, string consumerSecret, string accessToken
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, msg);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(msg);
         messages:setHeader(request, "Authorization", oauthHeader);
-        message response = http:ClientConnector.post(tweeterEP, tweetPath, request);
+        message response = http:ClientConnector.post (tweeterEP, tweetPath, request);
         return response;
     }
 }
@@ -33,7 +33,7 @@ function constructOAuthHeader (string consumerKey, string consumerSecret, string
 
 function main (string[] args) {
     Twitter twitterConnector = create Twitter(args[0], args[1], args[2], args[3]);
-    message tweetResponse = Twitter.tweet(twitterConnector, args[4]);
+    message tweetResponse = Twitter.tweet (twitterConnector, args[4]);
     json tweetJSONResponse = messages:getJsonPayload(tweetResponse);
     system:println(jsons:toString(tweetJSONResponse));
 }

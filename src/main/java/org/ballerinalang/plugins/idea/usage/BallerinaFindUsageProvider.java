@@ -52,18 +52,12 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
         RuleIElementType elType = (RuleIElementType) parent.getNode().getElementType();
         // Todo - Add more types
         switch (elType.getRuleIndex()) {
-            case RULE_function:
+            case RULE_functionDefinition:
                 return "Function";
-            case RULE_nativeFunction:
-                return "Native Function";
-            case RULE_connector:
+            case RULE_connectorDefinition:
                 return "Connector";
-            case RULE_nativeConnector:
-                return "Native Connector";
-            case RULE_action:
+            case RULE_actionDefinition:
                 return "Action";
-            case RULE_nativeAction:
-                return "Native Action";
             case RULE_serviceDefinition:
                 return "Service";
             case RULE_variableDefinitionStatement:
@@ -72,18 +66,14 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 return "Parameter";
             case RULE_packageName:
                 return "Package";
-            case RULE_namedParameter:
-                return "Named Parameter";
-            case RULE_typeMapperInput:
-                return "Type Mapper Input";
             case RULE_structDefinition:
                 return "Struct";
             case RULE_constantDefinition:
                 return "Constant";
-            case RULE_structField:
-                return "Struct Field";
-            case RULE_simpleType:
-                // Todo - Resolve the SimpleType element and return the correct type.
+            case RULE_fieldDefinition:
+                return "Field";
+            case RULE_annotationDefinition:
+                return "Annotation";
         }
         return "";
     }

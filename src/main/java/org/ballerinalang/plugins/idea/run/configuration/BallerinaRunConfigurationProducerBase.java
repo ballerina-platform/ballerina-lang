@@ -52,6 +52,9 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
     protected boolean setupConfigurationFromContext(@NotNull T configuration, @NotNull ConfigurationContext context,
                                                     Ref<PsiElement> sourceElement) {
         PsiFile file = getFileFromContext(context);
+        if (file == null) {
+            return false;
+        }
         // Get the element. This will be an identifier element.
         PsiElement element = sourceElement.get();
         // Get the FunctionNode parent from element
@@ -60,18 +63,16 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
         // Get the declared package in the file if available.
         String packageInFile = "";
         boolean isPackageDeclared = false;
-        if (file != null) {
-            // Get the PackageDeclarationNode if available.
-            PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file,
-                    PackageDeclarationNode.class);
-            if (packageDeclarationNode != null) {
-                isPackageDeclared = true;
-            }
-            PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(packageDeclarationNode,
-                    PackagePathNode.class);
-            if (packagePathNode != null) {
-                packageInFile = packagePathNode.getText().replaceAll("\\.", File.separator);
-            }
+        // Get the PackageDeclarationNode if available.
+        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file,
+                PackageDeclarationNode.class);
+        if (packageDeclarationNode != null) {
+            isPackageDeclared = true;
+        }
+        PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(packageDeclarationNode,
+                PackagePathNode.class);
+        if (packagePathNode != null) {
+            packageInFile = packagePathNode.getText().replaceAll("\\.", File.separator);
         }
 
         // If FunctionNode parent is available, that means that the sourceElement is within a function. We need to

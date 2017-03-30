@@ -21,9 +21,9 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.jetbrains.annotations.NotNull;
 
-public class SimpleTypeNode extends IdentifierDefSubtree {
+public class FieldDefinitionNode extends IdentifierDefSubtree {
 
-    public SimpleTypeNode(@NotNull ASTNode node) {
+    public FieldDefinitionNode(@NotNull ASTNode node) {
         super(node, BallerinaParserDefinition.ID);
     }
 }

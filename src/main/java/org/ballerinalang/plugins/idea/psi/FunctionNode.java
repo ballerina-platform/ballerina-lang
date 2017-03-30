@@ -21,7 +21,6 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
@@ -34,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
 
@@ -45,15 +44,14 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof CallableUnitNameNode) {
+        if (element.getParent() instanceof NameReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//function/Identifier");
+                    "//functionDefinition/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier",
-                    "//namedParameter/Identifier");
-        } else if (element.getParent() instanceof SimpleTypeNode) {
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
+        } else if (element.getParent() instanceof TypeNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connector/Identifier");
+                    "//connectorDefinition/Identifier");
         }
         return null;
     }
@@ -79,10 +77,10 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
                     return builder.toString();
                 }
                 // Get the parameters.
-                Collection<SimpleTypeNode> parameterTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
-                        SimpleTypeNode.class);
+                Collection<TypeNameNode> parameterTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
+                        TypeNameNode.class);
                 builder.append(" (");
-                for (SimpleTypeNode typeNode : parameterTypeNodes) {
+                for (TypeNameNode typeNode : parameterTypeNodes) {
                     builder.append(typeNode.getText()).append(",");
                 }
                 // Remove the extra ',' at the end.
@@ -96,10 +94,10 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
                     return builder.toString();
                 }
                 // Get the return types.
-                Collection<SimpleTypeNode> returnTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
-                        SimpleTypeNode.class);
+                Collection<TypeNameNode> returnTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
+                        TypeNameNode.class);
                 builder.append(" (");
-                for (SimpleTypeNode typeNode : returnTypeNodes) {
+                for (TypeNameNode typeNode : returnTypeNodes) {
                     builder.append(typeNode.getText()).append(",");
                 }
                 // Remove the extra ',' at the end.

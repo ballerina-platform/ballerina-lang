@@ -20,9 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
-public class AnnotationNameNode extends ANTLRPsiNode {
+public class SimpleLiteralNode extends ANTLRPsiNode {
 
-    public AnnotationNameNode(@NotNull ASTNode node) {
+    public SimpleLiteralNode(@NotNull ASTNode node) {
         super(node);
     }
 }

@@ -39,7 +39,7 @@ public class BallerinaSyntaxHighlighter extends SyntaxHighlighterBase {
     static {
         fillMap(ATTRIBUTES, BallerinaParserDefinition.COMMENTS, BallerinaSyntaxHighlightingColors.LINE_COMMENT);
         fillMap(ATTRIBUTES, BallerinaParserDefinition.KEYWORDS, BallerinaSyntaxHighlightingColors.KEYWORD);
-        fillMap(ATTRIBUTES, BallerinaParserDefinition.STRING, BallerinaSyntaxHighlightingColors.STRING);
+        fillMap(ATTRIBUTES, BallerinaParserDefinition.STRING_LITERALS, BallerinaSyntaxHighlightingColors.STRING);
         fillMap(ATTRIBUTES, BallerinaParserDefinition.NUMBER, BallerinaSyntaxHighlightingColors.NUMBER);
     }
 
@@ -51,7 +51,9 @@ public class BallerinaSyntaxHighlighter extends SyntaxHighlighterBase {
 
     @NotNull
     public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
-        if (!(tokenType instanceof TokenIElementType)) return EMPTY_KEYS;
+        if (!(tokenType instanceof TokenIElementType)) {
+            return EMPTY_KEYS;
+        }
         TokenIElementType myType = (TokenIElementType) tokenType;
         return pack(ATTRIBUTES.get(myType));
     }

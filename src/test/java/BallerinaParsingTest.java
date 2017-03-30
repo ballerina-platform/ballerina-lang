@@ -35,10 +35,6 @@ public class BallerinaParsingTest extends ParsingTestCase {
         doTest(true);
     }
 
-    public void testOrderProcessService() {
-        doTest(true);
-    }
-
     public void testTweetMediumFeed() {
         doTest(true);
     }
