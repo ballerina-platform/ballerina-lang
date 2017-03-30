@@ -51,7 +51,9 @@ public class BallerinaSyntaxHighlighter extends SyntaxHighlighterBase {
 
     @NotNull
     public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
-        if (!(tokenType instanceof TokenIElementType)) return EMPTY_KEYS;
+        if (!(tokenType instanceof TokenIElementType)) {
+            return EMPTY_KEYS;
+        }
         TokenIElementType myType = (TokenIElementType) tokenType;
         return pack(ATTRIBUTES.get(myType));
     }

@@ -42,6 +42,8 @@ public class BallerinaSyntaxHighlightingColors {
             DefaultLanguageHighlighterColors.METADATA);
     public static final TextAttributesKey CONSTANT = createTextAttributesKey("BALLERINA_CONSTANT",
             DefaultLanguageHighlighterColors.CONSTANT);
+    public static final TextAttributesKey VALID_STRING_ESCAPE = createTextAttributesKey("BALLERINA_VALID_STRING_ESCAPE",
+            DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE);
 
     private BallerinaSyntaxHighlightingColors() {
     }
