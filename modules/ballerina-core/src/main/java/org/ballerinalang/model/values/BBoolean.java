@@ -46,22 +46,12 @@ public final class BBoolean extends BValueType {
     }
 
     @Override
-    public int intValue() {
+    public long intValue() {
         return 0;
     }
 
     @Override
-    public long longValue() {
-        return 0;
-    }
-
-    @Override
-    public float floatValue() {
-        return 0;
-    }
-
-    @Override
-    public double doubleValue() {
+    public double floatValue() {
         return 0;
     }
 

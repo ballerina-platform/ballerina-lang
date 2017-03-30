@@ -43,8 +43,9 @@ public class SubString extends AbstractNativeFunction {
         BInteger argFrom = (BInteger) getArgument(context, 1);
         BInteger argTo = (BInteger) getArgument(context, 2);
 
-        int from = argFrom.intValue();
-        int to = argTo.intValue();
+        //Here we cast to int as substring anyway doesn't support long values
+        int from = (int) argFrom.intValue();
+        int to = (int) argTo.intValue();
         if (from < 0 || to > initialString.length()) {
             throw new BallerinaException("String index out of range. Actual:" + initialString.length() +
                     " requested: " + from + " to " + to);

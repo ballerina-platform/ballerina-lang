@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
  * Test Cases for type casting.
  */
 public class TypeCastExprTest {
+    private static double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass
@@ -73,8 +74,8 @@ public class TypeCastExprTest {
         BValue[] args = {new BInteger(55555555)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "inttofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
-        final String expected = "5.5555556E7";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        double expected = 5.5555556E7;
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
     }
 
     @Test
@@ -91,8 +92,8 @@ public class TypeCastExprTest {
         BValue[] args = {new BString("2222.333f")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "stringtofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
-        final String expected = "2222.333";
-        Assert.assertEquals(returns[0].stringValue().substring(0, 8), expected);
+        double expected = 2222.333;
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
     }
 
 //    @Test
@@ -173,10 +174,10 @@ public class TypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BArray);
         BArray result = (BArray) returns[0];
         Assert.assertTrue(result.get(0) instanceof BFloat);
-        Assert.assertEquals(result.get(0).stringValue(), "999.0");
+        Assert.assertEquals(((BFloat) result.get(0)).floatValue(), 999.0, DELTA);
         Assert.assertTrue(result.get(1) instanceof BFloat);
-        Assert.assertEquals(result.get(1).stringValue(), "95.0");
+        Assert.assertEquals(((BFloat) result.get(1)).floatValue(), 95.0, DELTA);
         Assert.assertTrue(result.get(2) instanceof BFloat);
-        Assert.assertEquals(result.get(2).stringValue(), "889.0");
+        Assert.assertEquals(((BFloat) result.get(2)).floatValue(), 889.0, DELTA);
     }
 }

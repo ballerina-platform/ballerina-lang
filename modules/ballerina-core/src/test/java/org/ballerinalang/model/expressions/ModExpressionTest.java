@@ -56,25 +56,25 @@ public class ModExpressionTest {
         floatMod(-4, 10, -4);
     }
 
-    private void intMod(int val1, int val2, int expected) {
+    private void intMod(int val1, int val2, long expected) {
         BValue[] args = { new BInteger(val1), new BInteger(val2) };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
+        long actual = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(actual, expected);
     }
 
-    private void floatMod(float val1, float val2, float expected) {
+    private void floatMod(float val1, float val2, double expected) {
         BValue[] args = { new BFloat(val1), new BFloat(val2) };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
-        float actual = ((BFloat) returns[0]).floatValue();
+        double actual = ((BFloat) returns[0]).floatValue();
         Assert.assertEquals(actual, expected);
     }
 }

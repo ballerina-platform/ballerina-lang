@@ -60,9 +60,9 @@ public class DataTableTest {
 
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(((BInteger) returns[1]).longValue(), 9223372036854774807L);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34f);
-        Assert.assertEquals(((BFloat) returns[3]).doubleValue(), 2139095039D);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
     }
@@ -73,9 +73,9 @@ public class DataTableTest {
 
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(((BInteger) returns[1]).longValue(), 9223372036854774807L);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34f);
-        Assert.assertEquals(((BFloat) returns[3]).doubleValue(), 2139095039D);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
     }
@@ -189,16 +189,16 @@ public class DataTableTest {
         Assert.assertTrue(returns[1] instanceof BMap);
         BMap<BString, BInteger> longArray = (BMap) returns[1];
         Assert.assertTrue(longArray.get(new BString("0")) instanceof BInteger);
-        Assert.assertEquals(longArray.get(new BString("0")).longValue(), 100000000);
-        Assert.assertEquals(longArray.get(new BString("1")).longValue(), 200000000);
-        Assert.assertEquals(longArray.get(new BString("2")).longValue(), 300000000);
+        Assert.assertEquals(longArray.get(new BString("0")).intValue(), 100000000);
+        Assert.assertEquals(longArray.get(new BString("1")).intValue(), 200000000);
+        Assert.assertEquals(longArray.get(new BString("2")).intValue(), 300000000);
 
         Assert.assertTrue(returns[2] instanceof BMap);
         BMap<BString, BFloat> doubleArray = (BMap) returns[2];
         Assert.assertTrue(doubleArray.get(new BString("0")) instanceof BFloat);
-        Assert.assertEquals(doubleArray.get(new BString("0")).doubleValue(), 245.23);
-        Assert.assertEquals(doubleArray.get(new BString("1")).doubleValue(), 5559.49);
-        Assert.assertEquals(doubleArray.get(new BString("2")).doubleValue(), 8796.123);
+        Assert.assertEquals(doubleArray.get(new BString("0")).floatValue(), 245.23);
+        Assert.assertEquals(doubleArray.get(new BString("1")).floatValue(), 5559.49);
+        Assert.assertEquals(doubleArray.get(new BString("2")).floatValue(), 8796.123);
 
         Assert.assertTrue(returns[3] instanceof BMap);
         BMap<BString, BString> stringArray = (BMap) returns[3];
@@ -229,16 +229,16 @@ public class DataTableTest {
         Assert.assertTrue(returns[1] instanceof BMap);
         BMap<BString, BInteger> longArray = (BMap) returns[1];
         Assert.assertTrue(longArray.get(new BString("0")) instanceof BInteger);
-        Assert.assertEquals(longArray.get(new BString("0")).longValue(), 100000000);
-        Assert.assertEquals(longArray.get(new BString("1")).longValue(), 200000000);
-        Assert.assertEquals(longArray.get(new BString("2")).longValue(), 300000000);
+        Assert.assertEquals(longArray.get(new BString("0")).intValue(), 100000000);
+        Assert.assertEquals(longArray.get(new BString("1")).intValue(), 200000000);
+        Assert.assertEquals(longArray.get(new BString("2")).intValue(), 300000000);
 
         Assert.assertTrue(returns[2] instanceof BMap);
         BMap<BString, BFloat> doubleArray = (BMap) returns[2];
         Assert.assertTrue(doubleArray.get(new BString("0")) instanceof BFloat);
-        Assert.assertEquals(doubleArray.get(new BString("0")).doubleValue(), 245.23);
-        Assert.assertEquals(doubleArray.get(new BString("1")).doubleValue(), 5559.49);
-        Assert.assertEquals(doubleArray.get(new BString("2")).doubleValue(), 8796.123);
+        Assert.assertEquals(doubleArray.get(new BString("0")).floatValue(), 245.23);
+        Assert.assertEquals(doubleArray.get(new BString("1")).floatValue(), 5559.49);
+        Assert.assertEquals(doubleArray.get(new BString("2")).floatValue(), 8796.123);
 
         Assert.assertTrue(returns[3] instanceof BMap);
         BMap<BString, BString> stringArray = (BMap) returns[3];
@@ -285,9 +285,9 @@ public class DataTableTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDateTime", args);
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BInteger) returns[0]).longValue(), time);
-        Assert.assertEquals(((BInteger) returns[1]).longValue(), date);
-        Assert.assertEquals(((BInteger) returns[2]).longValue(), timestamp);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), time);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), date);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), timestamp);
     }
 
     @AfterSuite

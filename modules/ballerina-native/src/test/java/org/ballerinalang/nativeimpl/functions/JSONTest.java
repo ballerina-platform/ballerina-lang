@@ -95,7 +95,7 @@ public class JSONTest {
         BValue[] args = {new BJSON(json2), new BString("$.item.price")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
-        Assert.assertEquals(((BValueType) returns[0]).doubleValue(), 3.54);
+        Assert.assertEquals(((BValueType) returns[0]).floatValue(), 3.54);
     }
 
     @Test(description = "Get a float in a valid jsonpath")
@@ -121,7 +121,7 @@ public class JSONTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
         final double expected = 25;
-        Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
+        Assert.assertEquals(((BValueType) returns[0]).floatValue(), expected);
     }
 
     @Test(description = "Get json arrays max value")
@@ -130,7 +130,7 @@ public class JSONTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
         final double expected = 28;
-        Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
+        Assert.assertEquals(((BValueType) returns[0]).floatValue(), expected);
     }
 
     @Test(description = "Get json arrays average value")
@@ -139,7 +139,7 @@ public class JSONTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
         final double expected = 26.5;
-        Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
+        Assert.assertEquals(((BValueType) returns[0]).floatValue(), expected);
     }
 
     @Test(description = "Get json arrays standard deviation of population")
@@ -148,7 +148,7 @@ public class JSONTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
         final double expected = 1.5;
-        Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
+        Assert.assertEquals(((BValueType) returns[0]).floatValue(), expected);
     }
 
     @Test(description = "Get a value of incorrect type", expectedExceptions = {BallerinaException.class})

@@ -61,7 +61,8 @@ public class GetArrayByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        int index = ((BInteger) getArgument(ctx, 1)).intValue();
+        //Here we cast index value to int as anyway java doesn't support long as array indexes
+        int index = (int) ((BInteger) getArgument(ctx, 1)).intValue();
         Map<String, Object> arrayMap = dataTable.getArray(index);
         BMap<BString, BValue> returnMap = new BMap<>();
         if (arrayMap != null && !arrayMap.isEmpty()) {

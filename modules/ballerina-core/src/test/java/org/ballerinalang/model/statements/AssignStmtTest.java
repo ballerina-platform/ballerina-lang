@@ -53,8 +53,8 @@ public class AssignStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 100;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 100;
         Assert.assertEquals(actual, expected);
 
         // Float assignment test
@@ -64,8 +64,8 @@ public class AssignStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
-        float actualFloat = ((BFloat) returns[0]).floatValue();
-        float expectedFloat = 2.3f;
+        double actualFloat = ((BFloat) returns[0]).floatValue();
+        double expectedFloat = 2.3f;
         Assert.assertEquals(actualFloat, expectedFloat);
 
         // Boolean assignment test

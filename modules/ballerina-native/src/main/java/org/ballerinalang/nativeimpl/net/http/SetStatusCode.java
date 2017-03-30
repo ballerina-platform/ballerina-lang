@@ -52,7 +52,8 @@ public class SetStatusCode extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         try {
             BMessage bMsg = (BMessage) getArgument(context, 0);
-            int statusCode = ((BInteger) getArgument(context, 1)).intValue();
+            //here we cast to int as status codes are anyway in int range
+            int statusCode = (int) ((BInteger) getArgument(context, 1)).intValue();
             bMsg.value().setProperty(Constants.HTTP_STATUS_CODE, statusCode);
         } catch (ClassCastException e) {
             throw new BallerinaException("Invalid message or Status Code");

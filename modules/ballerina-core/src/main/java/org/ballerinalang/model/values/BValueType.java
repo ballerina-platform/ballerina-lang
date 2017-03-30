@@ -31,7 +31,7 @@ public abstract class BValueType implements BValue {
      * @return  the numeric value represented by this object after conversion
      *          to type {@code int}.
      */
-    public abstract int intValue();
+    public abstract long intValue();
 
     /**
      * Returns the value of the specified number as a {@code long},
@@ -40,7 +40,7 @@ public abstract class BValueType implements BValue {
      * @return  the numeric value represented by this object after conversion
      *          to type {@code long}.
      */
-    public abstract long longValue();
+//    public abstract long longValue();
 
     /**
      * Returns the value of the specified number as a {@code float},
@@ -49,7 +49,7 @@ public abstract class BValueType implements BValue {
      * @return  the numeric value represented by this object after conversion
      *          to type {@code float}.
      */
-    public abstract float floatValue();
+    public abstract double floatValue();
 
     /**
      * Returns the value of the specified number as a {@code double},
@@ -58,7 +58,7 @@ public abstract class BValueType implements BValue {
      * @return  the numeric value represented by this object after conversion
      *          to type {@code double}.
      */
-    public abstract double doubleValue();
+//    public abstract double doubleValue();
 
     public abstract boolean booleanValue();
 }

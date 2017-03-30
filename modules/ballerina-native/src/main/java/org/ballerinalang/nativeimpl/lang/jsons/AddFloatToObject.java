@@ -72,7 +72,7 @@ public class AddFloatToObject extends AbstractJSONFunction {
             BJSON json = (BJSON) getArgument(ctx, 0);
             jsonPath = getArgument(ctx, 1).stringValue();
             String key = getArgument(ctx, 2).stringValue();
-            float value = ((BValueType) getArgument(ctx, 3)).floatValue();
+            double value = ((BValueType) getArgument(ctx, 3)).floatValue();
 
             // Adding the value to JSON Object
             WriteContext jsonCtx = JsonPath.parse(json.value());

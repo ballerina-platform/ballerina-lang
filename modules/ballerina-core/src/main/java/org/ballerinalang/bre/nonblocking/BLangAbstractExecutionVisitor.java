@@ -698,7 +698,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BMessage inMsg = (BMessage) getTempValue(expr);
         List<WorkerRunner> workerRunnerList = new ArrayList<>();
 
-        int timeout = ((BInteger) getTempValue(forkJoinStmt.getTimeout().getTimeoutExpression())).intValue();
+        long timeout = ((BInteger) getTempValue(forkJoinStmt.getTimeout().getTimeoutExpression())).intValue();
 
         Worker[] workers = forkJoinStmt.getWorkers();
         Map<String, WorkerRunner> triggeredWorkers = new HashMap<>();
@@ -806,7 +806,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         forkJoinInvocationStatus = null;
     }
 
-    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, int timeout) {
+    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, long timeout) {
         ExecutorService anyExecutor = Executors.newWorkStealingPool();
         BMessage result;
         try {
@@ -821,7 +821,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         return result;
     }
 
-    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, int timeout) {
+    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, long timeout) {
         ExecutorService allExecutor = Executors.newWorkStealingPool();
         List<BMessage> result = new ArrayList<>();
         try {
@@ -1012,7 +1012,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             if (arrayMapAccessExpr.getType() != BTypes.typeMap) {
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
-                    result = ((BArray) collectionValue).get(((BInteger) indexValue).intValue());
+                    //Here we cast index value to int as anyway java doesn't support long as array indexes
+                    result = ((BArray) collectionValue).get((int) ((BInteger) indexValue).intValue());
                 } else {
                     result = collectionValue;
                 }
@@ -1453,7 +1454,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (!(accessExpr.getType() == BTypes.typeMap)) {
             BArray arrayVal = (BArray) getTempValue(accessExpr.getRExpr());
             BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExpr());
-            arrayVal.add(indexVal.intValue(), rValue);
+            //Here we cast index value to int as anyway java doesn't support long as array indexes
+            arrayVal.add((int) indexVal.intValue(), rValue);
 
         } else {
             BMap<BString, BValue> mapVal = (BMap<BString, BValue>) getTempValue(accessExpr.getRExpr());
@@ -1601,7 +1603,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (fieldExpr.getRefVarType() instanceof BMapType) {
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
-            ((BArray) arrayMapValue).add(((BInteger) indexValue).intValue(), rValue);
+            //Here we cast index value to int as anyway java doesn't support long as array indexes
+            ((BArray) arrayMapValue).add((int) ((BInteger) indexValue).intValue(), rValue);
         }
     }
 
@@ -1682,7 +1685,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (fieldExpr.getRefVarType() instanceof BMapType) {
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {
-            unitVal = ((BArray) currentVal).get(((BInteger) indexValue).intValue());
+            //Here we cast index value to int as anyway java doesn't support long as array indexes
+            unitVal = ((BArray) currentVal).get((int) ((BInteger) indexValue).intValue());
         }
 
         if (unitVal == null) {

@@ -56,7 +56,8 @@ public class GetFloatByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        int index = ((BInteger) getArgument(ctx, 1)).intValue();
+        //Here we cast index value to int for consistency
+        int index = (int) ((BInteger) getArgument(ctx, 1)).intValue();
         return getBValues(new BFloat(dataTable.getFloat(index)));
     }
 }

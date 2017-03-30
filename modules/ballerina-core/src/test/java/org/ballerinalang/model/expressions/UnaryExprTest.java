@@ -81,11 +81,11 @@ public class UnaryExprTest {
 
         BFloat x = (BFloat) returns[0];
         Assert.assertSame(x.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(x.floatValue(), -5.0f, "Invalid value returned.");
+        Assert.assertEquals(x.floatValue(), -5.0D, "Invalid value returned.");
 
         BFloat y = (BFloat) returns[1];
         Assert.assertSame(y.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(y.floatValue(), 5.0f, "Invalid value returned.");
+        Assert.assertEquals(y.floatValue(), 5.0D, "Invalid value returned.");
     }
 
     @Test(description = "Test float positive unary expression")
@@ -96,11 +96,11 @@ public class UnaryExprTest {
 
         BFloat x = (BFloat) returns[0];
         Assert.assertSame(x.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(x.floatValue(), +5f, "Invalid value returned.");
+        Assert.assertEquals(x.floatValue(), +5D, "Invalid value returned.");
 
         BFloat y = (BFloat) returns[1];
         Assert.assertSame(y.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(y.floatValue(), +5f, "Invalid value returned.");
+        Assert.assertEquals(y.floatValue(), +5D, "Invalid value returned.");
     }
 
     @Test(description = "Test unary boolean not expression")
@@ -135,10 +135,10 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary negation expression")
     public void unaryNegationTest() {
-        int a = 3;
-        int b = 2;
+        long a = 3;
+        long b = 2;
 
-        int expectedResult = a - -b;
+        long expectedResult = a - -b;
 
         BValue[] args = {new BInteger(a), new BInteger(b)};
 
@@ -147,7 +147,7 @@ public class UnaryExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
 
-        int actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = ((BInteger) returns[0]).intValue();
 
         Assert.assertEquals(actualResult, expectedResult);
 
@@ -155,9 +155,9 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary positive negation expression")
     public void unaryPositiveNegationTest() {
-        int a = 3;
+        long a = 3;
 
-        int expectedResult = +-a;
+        long expectedResult = +-a;
 
         BValue[] args = {new BInteger(a)};
 
@@ -166,7 +166,7 @@ public class UnaryExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
 
-        int actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = ((BInteger) returns[0]).intValue();
 
         Assert.assertEquals(actualResult, expectedResult);
 

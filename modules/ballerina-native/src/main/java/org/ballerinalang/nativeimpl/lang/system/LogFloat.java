@@ -65,7 +65,8 @@ public class LogFloat extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         // TODO : Improve this with trace log.
-        LogUtil.log(logger, ((BInteger) getArgument(ctx, 0)).intValue(), getArgument(ctx, 1).stringValue());
+        //here we cast second parameter to int as anyway it only has few log levels
+        LogUtil.log(logger, (int) ((BInteger) getArgument(ctx, 0)).intValue(), getArgument(ctx, 1).stringValue());
         return VOID_RETURN;
     }
 }

@@ -61,8 +61,8 @@ public class FuncInvocationWithImplicitCastTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
-        float actual = ((BFloat) returns[0]).floatValue();
-        float expected = 18;
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = 18;
         Assert.assertEquals(actual, expected);
     }
 

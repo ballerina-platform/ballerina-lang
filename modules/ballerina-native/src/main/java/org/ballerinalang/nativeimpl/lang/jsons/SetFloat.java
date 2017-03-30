@@ -66,7 +66,7 @@ public class SetFloat extends AbstractJSONFunction {
             // Accessing Parameters.
             BJSON json = (BJSON) getArgument(ctx, 0);
             jsonPath = getArgument(ctx, 1).stringValue();
-            float value = ((BFloat) getArgument(ctx, 2)).floatValue();
+            double value = ((BFloat) getArgument(ctx, 2)).floatValue();
 
             // Setting the value to JSON
             WriteContext jsonCtx = JsonPath.parse(json.value());

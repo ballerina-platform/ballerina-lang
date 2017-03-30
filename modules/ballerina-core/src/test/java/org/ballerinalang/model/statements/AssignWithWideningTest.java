@@ -46,8 +46,8 @@ public class AssignWithWideningTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
-        float actual = ((BFloat) returns[0]).floatValue();
-        float expected = 100f;
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = 100f;
         Assert.assertEquals(actual, expected);
     }
 
@@ -59,8 +59,8 @@ public class AssignWithWideningTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
-        float actual = ((BFloat) returns[0]).floatValue();
-        float expected = 200f;
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = 200f;
         Assert.assertEquals(actual, expected);
     }
 }

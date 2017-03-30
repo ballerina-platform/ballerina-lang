@@ -49,8 +49,8 @@ public class MultiplyExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 5000;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 5000;
         Assert.assertEquals(actual, expected);
     }
 
@@ -62,8 +62,8 @@ public class MultiplyExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
-        float actual = ((BFloat) returns[0]).floatValue();
-        float expected = 1600.0f;
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = 1600.0f;
         Assert.assertEquals(actual, expected);
     }
 

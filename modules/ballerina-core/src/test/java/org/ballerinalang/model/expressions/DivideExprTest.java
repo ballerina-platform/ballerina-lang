@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  * Primitive divide expression test.
  */
 public class DivideExprTest {
-
+    private static double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass
@@ -50,8 +50,8 @@ public class DivideExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 40;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 40;
         Assert.assertEquals(actual, expected);
     }
 
@@ -66,7 +66,7 @@ public class DivideExprTest {
         float a = 8.5f;
         float b = 4.1f;
 
-        float expectedResult = a / b;
+        double expectedResult = a / b;
 
         BValue[] args = { new BFloat(a), new BFloat(b) };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatDivide", args);
@@ -74,8 +74,8 @@ public class DivideExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
-        float actual = ((BFloat) returns[0]).floatValue();
-        Assert.assertEquals(actual, expectedResult);
+        double actual = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actual, expectedResult, DELTA);
     }
 
     @Test(description = "Test two float divide expression", expectedExceptions = BallerinaException.class)
@@ -89,7 +89,7 @@ public class DivideExprTest {
         int a = Integer.MAX_VALUE;
         float b = 1.23456789f;
 
-        float expectedResult = a / b;
+        double expectedResult = a / b;
 
         BValue[] args = { new BInteger(a), new BFloat(b) };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intDivideByFloat", args);
@@ -97,16 +97,16 @@ public class DivideExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
 
-        float actualResult = ((BFloat) returns[0]).floatValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+        double actualResult = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actualResult, expectedResult, DELTA, "Result of the division operation is incorrect");
     }
 
     @Test(description = "Test float number division by integer")
     public void testFloatDivideByInt() {
-        float a = Float.MAX_VALUE;
+        double a = Float.MAX_VALUE;
         int b = 123456789;
 
-        float expectedResult = a / b;
+        double expectedResult = a / b;
 
         BValue[] args = { new BFloat(a), new BInteger(b) };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatDivideByInt", args);
@@ -114,8 +114,8 @@ public class DivideExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
 
-        float actualResult = ((BFloat) returns[0]).floatValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+        double actualResult = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actualResult, expectedResult, DELTA, "Result of the division operation is incorrect");
     }
 
     /*

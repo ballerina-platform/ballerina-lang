@@ -61,8 +61,9 @@ public class StringArrayRangeCopy extends AbstractNativeFunction {
         BInteger argFrom = (BInteger) getArgument(context, 1);
         BInteger argTo = (BInteger) getArgument(context, 2);
 
-        int from = argFrom.intValue();
-        int to = argTo.intValue();
+        //Here we cast index value to int as anyway java doesn't support long as array indexes
+        int from = (int) argFrom.intValue();
+        int to = (int) argTo.intValue();
 
         if (from < 0 || to > array.size()) {
             throw new BallerinaException(

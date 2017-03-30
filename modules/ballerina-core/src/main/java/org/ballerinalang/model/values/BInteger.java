@@ -34,22 +34,12 @@ public final class BInteger extends BValueType {
     }
 
     @Override
-    public int intValue() {
-        return (int) this.value;
-    }
-
-    @Override
-    public long longValue() {
+    public long intValue() {
         return this.value;
     }
 
     @Override
-    public float floatValue() {
-        return (float) this.value;
-    }
-
-    @Override
-    public double doubleValue() {
+    public double floatValue() {
         return (double) this.value;
     }
 

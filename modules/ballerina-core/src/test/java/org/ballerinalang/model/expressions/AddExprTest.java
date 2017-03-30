@@ -48,8 +48,8 @@ public class AddExprTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 300;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 300;
         Assert.assertEquals(actual, expected);
 
         returns = BLangFunctions.invoke(bLangProgram, "intSubtract", args);
@@ -67,8 +67,8 @@ public class AddExprTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
-        float actual = ((BFloat) returns[0]).floatValue();
-        float expected = 300.0f;
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = 300.0f;
         Assert.assertEquals(actual, expected);
 
         returns = BLangFunctions.invoke(bLangProgram, "floatSubtract", args);
@@ -97,14 +97,14 @@ public class AddExprTest {
         int a = -10;
         int b = -20;
 
-        int expectedResult = a + b;
+        long expectedResult = a + b;
 
         BValue[] args = {new BInteger(a), new BInteger(b)};
 
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(actualResult, expectedResult);
 
 
