@@ -95,9 +95,9 @@ public class Utils {
      * @return argument type
      */
     public static String getArgumentType(TypeEnum argType, TypeEnum argEltType, String structType,
-            int arrayDimentions) {
+            int arrayDimensions) {
         if (TypeEnum.ARRAY.equals(argType)) {
-            String arraySuffix = createArraySuffix(arrayDimentions);
+            String arraySuffix = createArraySuffix(arrayDimensions);
             if (TypeEnum.STRUCT.equals(argEltType)) {
                 return structType + arraySuffix;
             } else {
