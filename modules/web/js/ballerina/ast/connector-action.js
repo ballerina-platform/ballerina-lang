@@ -414,7 +414,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: "newAction",
+                defaultValue: 'Action',
                 setter: this.setActionName,
                 getter: this.getActionName,
                 parents: [{

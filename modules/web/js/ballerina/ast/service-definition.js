@@ -276,7 +276,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: "newService",
+                defaultValue: 'Service',
                 setter: this.setServiceName,
                 getter: this.getServiceName,
                 parents: [{
