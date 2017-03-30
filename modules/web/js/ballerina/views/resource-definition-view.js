@@ -664,34 +664,20 @@ class ResourceDefinitionView extends BallerinaView {
         });
 
         // UI changes when the arguments button is clicked.
-        $(headingArgumentsIcon.node()).click(function () {
-            if ($(this).data("showing") === "true") {
-                $(this).data("showing", "false");
+        $(headingArgumentsIcon.node()).click(() => {
+            if ($(headingArgumentsIcon.node()).data("showing") === "true") {
+                $(headingArgumentsIcon.node()).data("showing", "false");
                 headingArgumentsIcon.classed("headingArgumentsBlackIcon", true);
                 headingArgumentsIcon.classed("headingArgumentsIcon", false);
                 headingArgumentsIconWrapper.classed("heading-icon-arguments-wrapper-clicked", false);
             } else {
-                $(this).data("showing", "true");
+                this._resourceParamatersPaneView.reloadParameterTypes();
+                $(headingArgumentsIcon.node()).data("showing", "true");
                 headingArgumentsIcon.classed("headingArgumentsBlackIcon", false);
                 headingArgumentsIcon.classed("headingArgumentsIcon", true);
                 headingArgumentsIconWrapper.classed("heading-icon-arguments-wrapper-clicked", true);
             }
         });
-
-        // UI changes when the return type button is clicked.
-        // $(headingReturnTypeIcon.node()).click(function () {
-        //     if ($(this).data("showing") === "true") {
-        //         $(this).data("showing", "false");
-        //         headingReturnTypeIcon.classed("headingReturnTypeBlackIcon", true);
-        //         headingReturnTypeIcon.classed("headingReturnTypeIcon", false);
-        //         headingReturnTypeIconWrapper.classed("heading-icon-return-type-wrapper-clicked", false);
-        //     } else {
-        //         $(this).data("showing", "true");
-        //         headingReturnTypeIcon.classed("headingReturnTypeBlackIcon", false);
-        //         headingReturnTypeIcon.classed("headingReturnTypeIcon", true);
-        //         headingReturnTypeIconWrapper.classed("heading-icon-return-type-wrapper-clicked", true);
-        //     }
-        // });
 
         // Add the resource name editable html area
         var svgWrappingHtml = this.getChildContainer().node().ownerSVGElement.parentElement;

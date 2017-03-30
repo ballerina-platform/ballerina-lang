@@ -501,14 +501,13 @@ class ConnectorActionView extends BallerinaView {
             .classed('headingReturnTypeBlackIcon', true).attr('style', 'opacity: 0.4');
 
         // UI changes when the annotation button is clicked.
-        $(headingAnnotationIcon.node()).click(function () {
-            if ($(this).data('showing') === 'true') {
-                $(this).data('showing', 'false');
+        $(headingAnnotationIcon.node()).click(() => {
+            if ($(headingAnnotationIcon.node()).data('showing') === 'true') {
+                $(headingAnnotationIcon.node()).data('showing', 'false');
                 headingAnnotationIcon.classed('headingAnnotationBlackIcon', true);
                 headingAnnotationIcon.classed('headingAnnotationIcon', false);
                 headingAnnotationIconWrapper.classed('heading-icon-annotation-wrapper-clicked', false);
             } else {
-                $(this).data('showing', 'true');
                 headingAnnotationIcon.classed('headingAnnotationBlackIcon', false);
                 headingAnnotationIcon.classed('headingAnnotationIcon', true);
                 headingAnnotationIconWrapper.classed('heading-icon-annotation-wrapper-clicked', true);
@@ -516,14 +515,15 @@ class ConnectorActionView extends BallerinaView {
         });
 
         // UI changes when the arguments button is clicked.
-        $(headingArgumentsIcon.node()).click(function () {
-            if ($(this).data('showing') === 'true') {
-                $(this).data('showing', 'false');
+        $(headingArgumentsIcon.node()).click(() => {
+            if ($(headingArgumentsIcon.node()).data('showing') === 'true') {
+                $(headingArgumentsIcon.node()).data('showing', 'false');
                 headingArgumentsIcon.classed('headingArgumentsBlackIcon', true);
                 headingArgumentsIcon.classed('headingArgumentsIcon', false);
                 headingArgumentsIconWrapper.classed('heading-icon-arguments-wrapper-clicked', false);
             } else {
-                $(this).data('showing', 'true');
+                this._argumentsView.reloadArgumentTypeDropDown();
+                $(headingArgumentsIcon.node()).data('showing', 'true');
                 headingArgumentsIcon.classed('headingArgumentsBlackIcon', false);
                 headingArgumentsIcon.classed('headingArgumentsIcon', true);
                 headingArgumentsIconWrapper.classed('heading-icon-arguments-wrapper-clicked', true);
@@ -534,14 +534,15 @@ class ConnectorActionView extends BallerinaView {
         $('svg rect').tooltip({'container': 'body'});
 
         // UI changes when the return Types button is clicked.
-        $(headingReturnTypesIcon.node()).click(function () {
-            if ($(this).data('showing') === 'true') {
-                $(this).data('showing', 'false');
+        $(headingReturnTypesIcon.node()).click(() => {
+            if ($(headingReturnTypesIcon.node()).data('showing') === 'true') {
+                $(headingReturnTypesIcon.node()).data('showing', 'false');
                 headingReturnTypesIcon.classed('headingReturnTypeBlackIcon', true);
                 headingReturnTypesIcon.classed('headingReturnTypeIcon', false);
                 headingReturnTypesIconWrapper.classed('heading-icon-return-type-wrapper-clicked', false);
             } else {
-                $(this).data('showing', 'true');
+                this._returnTypePaneView.reloadReturnTypeDropDown();
+                $(headingReturnTypesIcon.node()).data('showing', 'true');
                 headingReturnTypesIcon.classed('headingReturnTypeBlackIcon', false);
                 headingReturnTypesIcon.classed('headingReturnTypeIcon', true);
                 headingReturnTypesIconWrapper.classed('heading-icon-return-type-wrapper-clicked', true);
