@@ -103,9 +103,9 @@ class ResourceParametersPaneView {
         // Creating parameter type dropdown.
         var typeDropdownWrapper = $('<div class="type-drop-wrapper resource"/>').appendTo(parameterWrapper);
 
-        var parameterTypeDropDown = $("<select/>").appendTo(typeDropdownWrapper);
+        this._parameterTypeDropDown = $("<select/>").appendTo(typeDropdownWrapper);
 
-        $(parameterTypeDropDown).select2({
+        $(this._parameterTypeDropDown).select2({
             data: this._getTypeDropdownValues(),
             tags: true,
             selectOnClose: true
@@ -113,8 +113,8 @@ class ResourceParametersPaneView {
 
         $(document).ready(function() {
             $(typeDropdownWrapper).empty();
-            parameterTypeDropDown = $("<select/>").appendTo(typeDropdownWrapper);
-            $(parameterTypeDropDown).select2({
+            self._parameterTypeDropDown = $("<select/>").appendTo(typeDropdownWrapper);
+            $(self._parameterTypeDropDown).select2({
                 tags: true,
                 selectOnClose: true,
                 data : self._getTypeDropdownValues(),
@@ -137,7 +137,7 @@ class ResourceParametersPaneView {
                 }
             });
 
-            $(parameterTypeDropDown).on("select2:open", function() {
+            $(self._parameterTypeDropDown).on("select2:open", function() {
                 $(".select2-search__field").attr("placeholder", "Search");
             });
         });
@@ -200,10 +200,10 @@ class ResourceParametersPaneView {
         }).appendTo(this._resourceParametersEditorWrapper);
 
         // Adding a new parameter.
-        $(addButton).click(function () {
+        $(addButton).click(() => {
             var annotationType = $(allowAnnotationCheckBox).is(":checked") ? annotationTypeDropdown.val() : undefined;
             var annotationText = $(allowAnnotationCheckBox).is(":checked") ? annotationValue.val() : undefined;
-            var parameterType = $(parameterTypeDropDown).val();
+            var parameterType = $(this._parameterTypeDropDown).val();
             var parameterIdentifier = $(parameterIdentifierInput).val();
 
             try {
@@ -351,6 +351,19 @@ class ResourceParametersPaneView {
         });
 
         return dropdownData;
+    }
+
+    reloadParameterTypes() {
+        var self = this;
+        $(this._parameterTypeDropDown).select2('destroy').empty();
+        var defaultTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
+        _.forEach(defaultTypes, function (bType) {
+            $(self._parameterTypeDropDown).select2({data: [{id: bType, text: bType}]});
+        });
+        var typesInPackage = this._viewOfModel.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getTypesInPackage();
+        _.forEach(typesInPackage, function (bType) {
+            $(self._parameterTypeDropDown).select2({data: [{id: bType, text: bType}]});
+        });
     }
 
     /**

@@ -476,6 +476,22 @@ class Package extends EventChannel {
         });
 
     }
+
+    /**
+     * Get the list of types in the current package
+     * @return {Array}
+     */
+    getTypesInPackage() {
+        var types = [];
+        _.forEach(this._connectorDefinitions, (connectorDef) => {
+            types.push(connectorDef.getName());
+        });
+        _.forEach(this.getStructDefinitions(), (structDef) => {
+            types.push(structDef.getStructName());
+        });
+
+        return types;
+    }
 }
 
 export default Package;

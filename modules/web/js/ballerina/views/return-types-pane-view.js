@@ -76,18 +76,18 @@ class ReturnTypePaneView {
 
         // Creating the return type dropdown.
         var typeDropdownWrapper = $('<div class="type-drop-wrapper"/>').appendTo(returnTypeWrapper);
-        var returnTypeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+        this._returnTypeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
 
-        $(returnTypeDropdown).select2({
+        $(this._returnTypeDropdown).select2({
             data: this._getTypeDropdownValues(),
             tags: true,
             selectOnClose: true
         });
 
-        $(document).ready(function() {
+        $(document).ready(() => {
             $(typeDropdownWrapper).empty();
-            returnTypeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
-            $(returnTypeDropdown).select2({
+            this._returnTypeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+            $(this._returnTypeDropdown).select2({
                 tags: true,
                 selectOnClose: true,
                 data : self._getTypeDropdownValues(),
@@ -110,7 +110,7 @@ class ReturnTypePaneView {
                 }
             });
 
-            $(returnTypeDropdown).on("select2:open", function() {
+            $(this._returnTypeDropdown).on("select2:open", function() {
                 $(".select2-search__field").attr("placeholder", "Search");
             });
         });
@@ -187,8 +187,8 @@ class ReturnTypePaneView {
         }).appendTo(this._returnTypeEditorWrapper);
 
         // Adding a new return type.
-        $(addButton).click(function () {
-            var returnType = returnTypeDropdown.select2('data')[0].text;
+        $(addButton).click(() => {
+            var returnType = this._returnTypeDropdown.select2('data')[0].text;
             var returnTypeName = $(allowNamedReturnCheckBox).is(":checked") ? returnTypeNameInput.val() : undefined;
 
             try {
@@ -321,6 +321,22 @@ class ReturnTypePaneView {
             this._returnTypeEditorWrapper.css("left", leftMargin);
         }
         this._returnTypeEditorWrapper.css("top", (parseInt(this._returnTypeEditorWrapper.css("top"), 10) + dy));
+    }
+
+    /**
+     * Reload the types in the return type dropdown
+     */
+    reloadReturnTypeDropDown() {
+        var self = this;
+        $(this._returnTypeDropdown).select2('destroy').empty();
+        var defaultTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
+        _.forEach(defaultTypes, function (bType) {
+            $(self._returnTypeDropdown).select2({data: [{id: bType, text: bType}]});
+        });
+        var typesInPackage = this._viewOfModel.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getTypesInPackage();
+        _.forEach(typesInPackage, function (bType) {
+            $(self._returnTypeDropdown).select2({data: [{id: bType, text: bType}]});
+        });
     }
 }
 
