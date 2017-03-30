@@ -14,7 +14,7 @@ function getXXXByIndex()(int, int, float, float, boolean, string) {
     boolean b;
     string s;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, int_type, float_type, float_type, boolean_type,
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
                 string_type from DataTable LIMIT 1",parameters);
     while (datatables:next(df)) {
         i = datatables:getInt(df, 1);
@@ -42,13 +42,13 @@ function getXXXByName()(int, int, float, float, boolean, string) {
     boolean b;
     string s;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, int_type, float_type, float_type, boolean_type,
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
                 string_type from DataTable LIMIT 1",parameters);
     while (datatables:next(df)) {
         i = datatables:getInt(df, "int_type");
-        l = datatables:getInt(df, "int_type");
+        l = datatables:getInt(df, "long_type");
         f = datatables:getFloat(df, "float_type");
-        d = datatables:getFloat(df, "float_type");
+        d = datatables:getFloat(df, "double_type");
         b = datatables:getBoolean(df, "boolean_type");
         s = datatables:getString(df, "string_type");
     }
@@ -65,7 +65,7 @@ function toJson()(json) {
     datatable df;
     json result;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, int_type, float_type, float_type, boolean_type,
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
                 string_type from DataTable LIMIT 1",parameters);
     result = datatables:toJson(df);
     return result;
@@ -79,7 +79,7 @@ function toXmlWithWrapper()(xml) {
     datatable df;
     xml result;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, int_type, float_type, float_type, boolean_type,
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
                 string_type from DataTable LIMIT 1",parameters);
     result = datatables:toXml(df, "types", "type");
     return result;
@@ -93,8 +93,8 @@ function toXmlComplex() (xml) {
     datatable df;
     xml result;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, int_array, int_type, int_array, float_type,
-                float_array, float_type, boolean_type, string_type, float_array, boolean_array, string_array
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, int_array, long_type, long_array, float_type,
+                float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                 from MixTypes LIMIT 1",parameters);
     result = datatables:toXml(df, "types", "type");
     return result;
@@ -209,18 +209,18 @@ function getObjectAsStringByName()(string, string, string, string, string) {
 }
 
 
-function getArrayByName()(map int_arr, map int_arr, map float_arr, map string_arr, map boolean_arr) {
+function getArrayByName()(map int_arr, map long_arr, map float_arr, map string_arr, map boolean_arr) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters=[];
     datatable df;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_array, int_array, float_array, boolean_array, string_array
+    df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, float_array, boolean_array, string_array
                 from ArrayTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
         int_arr = datatables:getArray(df, "int_array");
-        int_arr = datatables:getArray(df, "int_array");
+        long_arr = datatables:getArray(df, "long_array");
         float_arr = datatables:getArray(df, "float_array");
         boolean_arr = datatables:getArray(df, "boolean_array");
         string_arr = datatables:getArray(df, "string_array");
@@ -230,18 +230,18 @@ function getArrayByName()(map int_arr, map int_arr, map float_arr, map string_ar
     return;
 }
 
-function getArrayByIndex()(map int_arr, map int_arr, map float_arr, map string_arr, map boolean_arr) {
+function getArrayByIndex()(map int_arr, map long_arr, map float_arr, map string_arr, map boolean_arr) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters=[];
     datatable df;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_array, int_array, float_array, boolean_array, string_array
+    df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, float_array, boolean_array, string_array
                 from ArrayTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
         int_arr = datatables:getArray(df, 1);
-        int_arr = datatables:getArray(df, 2);
+        long_arr = datatables:getArray(df, 2);
         float_arr = datatables:getArray(df, 3);
         boolean_arr = datatables:getArray(df, 4);
         string_arr = datatables:getArray(df, 5);

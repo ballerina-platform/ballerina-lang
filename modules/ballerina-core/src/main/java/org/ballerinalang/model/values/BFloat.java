@@ -27,7 +27,7 @@ import org.ballerinalang.model.types.BTypes;
  */
 public final class BFloat extends BValueType {
 
-    private double value; //todo is this correct?
+    private double value;
 
     public BFloat(double value) {
         this.value = value;

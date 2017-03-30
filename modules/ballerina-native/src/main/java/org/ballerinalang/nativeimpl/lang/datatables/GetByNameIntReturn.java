@@ -32,7 +32,7 @@ import java.util.Locale;
 
 /**
  * Native function to get some special type to ballerina supported types. Eg:- Blob, Clob, NClob, Date, Timestamp
- * ballerina.model.datatables:getLong(datatable, string, string)
+ * ballerina.model.datatables:getInt(datatable, string, string)
  *
  * @since 0.8.0
  */

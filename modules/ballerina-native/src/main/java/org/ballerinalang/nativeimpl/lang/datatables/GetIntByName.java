@@ -56,6 +56,6 @@ public class GetIntByName extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         String columnName = (getArgument(ctx, 1)).stringValue();
-        return getBValues(new BInteger(dataTable.getLong(columnName)));
+        return getBValues(new BInteger(dataTable.getInt(columnName)));
     }
 }

@@ -56,6 +56,6 @@ public class GetFloatByName extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         String columnName = (getArgument(ctx, 1)).stringValue();
-        return getBValues(new BFloat(dataTable.getDouble(columnName)));
+        return getBValues(new BFloat(dataTable.getFloat(columnName)));
     }
 }

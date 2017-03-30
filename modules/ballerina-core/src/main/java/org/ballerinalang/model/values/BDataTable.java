@@ -76,35 +76,19 @@ public class BDataTable implements BRefType<Object> {
         return iterator.getString(columnName);
     }
 
-    public long getLong(int index) {
+    public long getInt(int index) {
         return iterator.getLong(index);
     }
 
-    public long getLong(String columnName) {
+    public long getInt(String columnName) {
         return iterator.getLong(columnName);
     }
 
-//    public int getInt(int index) {
-//        return iterator.getInt(index);
-//    }
-//
-//    public int getInt(String columnName) {
-//        return iterator.getInt(columnName);
-//    }
-
-//    public float getFloat(int index) {
-//        return iterator.getFloat(index);
-//    }
-//
-//    public float getFloat(String columnName) {
-//        return iterator.getFloat(columnName);
-//    }
-
-    public double getDouble(int index) {
+    public double getFloat(int index) {
         return iterator.getDouble(index);
     }
 
-    public double getDouble(String columnName) {
+    public double getFloat(String columnName) {
         return iterator.getDouble(columnName);
     }
 
