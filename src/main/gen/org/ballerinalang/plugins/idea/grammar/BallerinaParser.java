@@ -17,13 +17,13 @@ public class BallerinaParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__0=1, T__1=2, T__2=3, ACTION=4, ALL=5, ANY=6, AS=7, BREAK=8, CATCH=9, 
-		CONNECTOR=10, CONST=11, CONTINUE=12, CREATE=13, ELSE=14, FORK=15, FUNCTION=16, 
-		IF=17, IMPORT=18, ITERATE=19, JOIN=20, NATIVE=21, NULL=22, PACKAGE=23, 
-		REPLY=24, RESOURCE=25, RETURN=26, SERVICE=27, SOME=28, STRUCT=29, THROW=30, 
-		THROWS=31, TIMEOUT=32, TRY=33, TYPEMAPPER=34, WHILE=35, WORKER=36, BOOLEAN=37, 
-		INT=38, FLOAT=39, STRING=40, MESSAGE=41, MAP=42, EXCEPTION=43, XML=44, 
-		XML_DOCUMENT=45, JSON=46, DATATABLE=47, SENDARROW=48, RECEIVEARROW=49, 
+		T__0=1, ACTION=2, ALL=3, ANNOTATION=4, ANY=5, AS=6, ATTACH=7, BREAK=8, 
+		CATCH=9, CONNECTOR=10, CONST=11, CONTINUE=12, CREATE=13, ELSE=14, FORK=15, 
+		FUNCTION=16, IF=17, IMPORT=18, ITERATE=19, JOIN=20, NATIVE=21, NULL=22, 
+		PACKAGE=23, REPLY=24, RESOURCE=25, RETURN=26, SERVICE=27, SOME=28, STRUCT=29, 
+		THROW=30, THROWS=31, TIMEOUT=32, TRY=33, TYPEMAPPER=34, WHILE=35, WORKER=36, 
+		BOOLEAN=37, INT=38, FLOAT=39, STRING=40, MESSAGE=41, MAP=42, EXCEPTION=43, 
+		XML=44, XML_DOCUMENT=45, JSON=46, DATATABLE=47, SENDARROW=48, RECEIVEARROW=49, 
 		LPAREN=50, RPAREN=51, LBRACE=52, RBRACE=53, LBRACK=54, RBRACK=55, SEMI=56, 
 		COMMA=57, DOT=58, ASSIGN=59, GT=60, LT=61, BANG=62, TILDE=63, COLON=64, 
 		EQUAL=65, LE=66, GE=67, NOTEQUAL=68, AND=69, OR=70, ADD=71, SUB=72, MUL=73, 
@@ -79,8 +79,8 @@ public class BallerinaParser extends Parser {
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, "'annotation'", "'attach'", "'parameter'", "'action'", "'all'", 
-		"'any'", "'as'", "'break'", "'catch'", "'connector'", "'const'", "'continue'", 
+		null, "'parameter'", "'action'", "'all'", "'annotation'", "'any'", "'as'", 
+		"'attach'", "'break'", "'catch'", "'connector'", "'const'", "'continue'", 
 		"'create'", "'else'", "'fork'", "'function'", "'if'", "'import'", "'iterate'", 
 		"'join'", "'native'", null, "'package'", "'reply'", "'resource'", "'return'", 
 		"'service'", "'some'", "'struct'", "'throw'", "'throws'", "'timeout'", 
@@ -92,8 +92,8 @@ public class BallerinaParser extends Parser {
 		"'&'", "'|'", "'^'", "'%'", "'@'", "'''", "'\"'", "'`'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, null, null, null, "ACTION", "ALL", "ANY", "AS", "BREAK", "CATCH", 
-		"CONNECTOR", "CONST", "CONTINUE", "CREATE", "ELSE", "FORK", "FUNCTION", 
+		null, null, "ACTION", "ALL", "ANNOTATION", "ANY", "AS", "ATTACH", "BREAK", 
+		"CATCH", "CONNECTOR", "CONST", "CONTINUE", "CREATE", "ELSE", "FORK", "FUNCTION", 
 		"IF", "IMPORT", "ITERATE", "JOIN", "NATIVE", "NULL", "PACKAGE", "REPLY", 
 		"RESOURCE", "RETURN", "SERVICE", "SOME", "STRUCT", "THROW", "THROWS", 
 		"TIMEOUT", "TRY", "TYPEMAPPER", "WHILE", "WORKER", "BOOLEAN", "INT", "FLOAT", 
@@ -231,7 +231,7 @@ public class BallerinaParser extends Parser {
 			setState(166);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << CONNECTOR) | (1L << CONST) | (1L << FUNCTION) | (1L << NATIVE) | (1L << SERVICE) | (1L << STRUCT) | (1L << TYPEMAPPER))) != 0) || _la==AT) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ANNOTATION) | (1L << CONNECTOR) | (1L << CONST) | (1L << FUNCTION) | (1L << NATIVE) | (1L << SERVICE) | (1L << STRUCT) | (1L << TYPEMAPPER))) != 0) || _la==AT) {
 				{
 				{
 				setState(160);
@@ -1587,16 +1587,16 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(370);
-			match(T__0);
+			match(ANNOTATION);
 			setState(371);
 			match(Identifier);
 			setState(381);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if (_la==T__1) {
+			if (_la==ATTACH) {
 				{
 				setState(372);
-				match(T__1);
+				match(ATTACH);
 				setState(373);
 				attachmentPoint();
 				setState(378);
@@ -1662,7 +1662,7 @@ public class BallerinaParser extends Parser {
 			{
 			setState(385);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__2) | (1L << ACTION) | (1L << CONNECTOR) | (1L << CONST) | (1L << FUNCTION) | (1L << RESOURCE) | (1L << SERVICE) | (1L << STRUCT) | (1L << TYPEMAPPER))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << ACTION) | (1L << CONNECTOR) | (1L << CONST) | (1L << FUNCTION) | (1L << RESOURCE) | (1L << SERVICE) | (1L << STRUCT) | (1L << TYPEMAPPER))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -6611,7 +6611,7 @@ public class BallerinaParser extends Parser {
 		"I\16I\u03f0\13I\3I\3I\3I\3J\3J\3J\3J\5J\u03f9\nJ\3J\3J\3K\3K\3K\2\5\62"+
 		"z\u0086L\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\668"+
 		":<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtvxz|~\u0080\u0082\u0084\u0086\u0088\u008a"+
-		"\u008c\u008e\u0090\u0092\u0094\2\n\t\2\5\6\f\r\22\22\33\33\35\35\37\37"+
+		"\u008c\u008e\u0090\u0092\u0094\2\n\t\2\3\4\f\r\22\22\33\33\35\35\37\37"+
 		"$$\3\2\'*\4\2@@IJ\4\2KLPP\3\2IJ\4\2>?DE\4\2CCFF\4\2UXZZ\u0445\2\u0097"+
 		"\3\2\2\2\4\u00ad\3\2\2\2\6\u00b1\3\2\2\2\b\u00be\3\2\2\2\n\u00c3\3\2\2"+
 		"\2\f\u00c5\3\2\2\2\16\u00ce\3\2\2\2\20\u00d0\3\2\2\2\22\u00d9\3\2\2\2"+
@@ -6639,7 +6639,7 @@ public class BallerinaParser extends Parser {
 		"\2\2\2\u00a8\u00a9\3\2\2\2\u00a9\u00ab\3\2\2\2\u00aa\u00a8\3\2\2\2\u00ab"+
 		"\u00ac\7\2\2\3\u00ac\3\3\2\2\2\u00ad\u00ae\7\31\2\2\u00ae\u00af\5\b\5"+
 		"\2\u00af\u00b0\7:\2\2\u00b0\5\3\2\2\2\u00b1\u00b2\7\24\2\2\u00b2\u00b5"+
-		"\5\b\5\2\u00b3\u00b4\7\t\2\2\u00b4\u00b6\5\f\7\2\u00b5\u00b3\3\2\2\2\u00b5"+
+		"\5\b\5\2\u00b3\u00b4\7\b\2\2\u00b4\u00b6\5\f\7\2\u00b5\u00b3\3\2\2\2\u00b5"+
 		"\u00b6\3\2\2\2\u00b6\u00b7\3\2\2\2\u00b7\u00b8\7:\2\2\u00b8\7\3\2\2\2"+
 		"\u00b9\u00ba\5\n\6\2\u00ba\u00bb\7<\2\2\u00bb\u00bd\3\2\2\2\u00bc\u00b9"+
 		"\3\2\2\2\u00bd\u00c0\3\2\2\2\u00be\u00bc\3\2\2\2\u00be\u00bf\3\2\2\2\u00bf"+
@@ -6685,14 +6685,14 @@ public class BallerinaParser extends Parser {
 		"\u0135\u0133\3\2\2\2\u0135\u0136\3\2\2\2\u0136\35\3\2\2\2\u0137\u0135"+
 		"\3\2\2\2\u0138\u013a\5> \2\u0139\u0138\3\2\2\2\u013a\u013d\3\2\2\2\u013b"+
 		"\u0139\3\2\2\2\u013b\u013c\3\2\2\2\u013c\u013e\3\2\2\2\u013d\u013b\3\2"+
-		"\2\2\u013e\u013f\7\27\2\2\u013f\u0140\7\6\2\2\u0140\u0141\7[\2\2\u0141"+
+		"\2\2\u013e\u013f\7\27\2\2\u013f\u0140\7\4\2\2\u0140\u0141\7[\2\2\u0141"+
 		"\u0143\7\64\2\2\u0142\u0144\5\u008eH\2\u0143\u0142\3\2\2\2\u0143\u0144"+
 		"\3\2\2\2\u0144\u0145\3\2\2\2\u0145\u0147\7\65\2\2\u0146\u0148\5\u008a"+
 		"F\2\u0147\u0146\3\2\2\2\u0147\u0148\3\2\2\2\u0148\u014b\3\2\2\2\u0149"+
 		"\u014a\7!\2\2\u014a\u014c\7[\2\2\u014b\u0149\3\2\2\2\u014b\u014c\3\2\2"+
 		"\2\u014c\u014d\3\2\2\2\u014d\u0167\7:\2\2\u014e\u0150\5> \2\u014f\u014e"+
 		"\3\2\2\2\u0150\u0153\3\2\2\2\u0151\u014f\3\2\2\2\u0151\u0152\3\2\2\2\u0152"+
-		"\u0154\3\2\2\2\u0153\u0151\3\2\2\2\u0154\u0155\7\6\2\2\u0155\u0156\7["+
+		"\u0154\3\2\2\2\u0153\u0151\3\2\2\2\u0154\u0155\7\4\2\2\u0155\u0156\7["+
 		"\2\2\u0156\u0158\7\64\2\2\u0157\u0159\5\u008eH\2\u0158\u0157\3\2\2\2\u0158"+
 		"\u0159\3\2\2\2\u0159\u015a\3\2\2\2\u015a\u015c\7\65\2\2\u015b\u015d\5"+
 		"\u008aF\2\u015c\u015b\3\2\2\2\u015c\u015d\3\2\2\2\u015d\u0160\3\2\2\2"+
@@ -6703,7 +6703,7 @@ public class BallerinaParser extends Parser {
 		"\u016b\7\66\2\2\u016b\u016c\5\"\22\2\u016c\u016d\7\67\2\2\u016d!\3\2\2"+
 		"\2\u016e\u0170\5\u0092J\2\u016f\u016e\3\2\2\2\u0170\u0173\3\2\2\2\u0171"+
 		"\u016f\3\2\2\2\u0171\u0172\3\2\2\2\u0172#\3\2\2\2\u0173\u0171\3\2\2\2"+
-		"\u0174\u0175\7\3\2\2\u0175\u017f\7[\2\2\u0176\u0177\7\4\2\2\u0177\u017c"+
+		"\u0174\u0175\7\6\2\2\u0175\u017f\7[\2\2\u0176\u0177\7\t\2\2\u0177\u017c"+
 		"\5&\24\2\u0178\u0179\7;\2\2\u0179\u017b\5&\24\2\u017a\u0178\3\2\2\2\u017b"+
 		"\u017e\3\2\2\2\u017c\u017a\3\2\2\2\u017c\u017d\3\2\2\2\u017d\u0180\3\2"+
 		"\2\2\u017e\u017c\3\2\2\2\u017f\u0176\3\2\2\2\u017f\u0180\3\2\2\2\u0180"+
@@ -6727,7 +6727,7 @@ public class BallerinaParser extends Parser {
 		"\2\2\u01ba\u01be\7\66\2\2\u01bb\u01bd\5H%\2\u01bc\u01bb\3\2\2\2\u01bd"+
 		"\u01c0\3\2\2\2\u01be\u01bc\3\2\2\2\u01be\u01bf\3\2\2\2\u01bf\u01c1\3\2"+
 		"\2\2\u01c0\u01be\3\2\2\2\u01c1\u01c2\7\67\2\2\u01c2\61\3\2\2\2\u01c3\u01c4"+
-		"\b\32\1\2\u01c4\u01c8\7\b\2\2\u01c5\u01c8\5\66\34\2\u01c6\u01c8\5\64\33"+
+		"\b\32\1\2\u01c4\u01c8\7\7\2\2\u01c5\u01c8\5\66\34\2\u01c6\u01c8\5\64\33"+
 		"\2\u01c7\u01c3\3\2\2\2\u01c7\u01c5\3\2\2\2\u01c7\u01c6\3\2\2\2\u01c8\u01d2"+
 		"\3\2\2\2\u01c9\u01cc\f\3\2\2\u01ca\u01cb\78\2\2\u01cb\u01cd\79\2\2\u01cc"+
 		"\u01ca\3\2\2\2\u01cd\u01ce\3\2\2\2\u01ce\u01cc\3\2\2\2\u01ce\u01cf\3\2"+
@@ -6832,7 +6832,7 @@ public class BallerinaParser extends Parser {
 		"\7;\2\2\u02f8\u02fa\7[\2\2\u02f9\u02f7\3\2\2\2\u02fa\u02fd\3\2\2\2\u02fb"+
 		"\u02f9\3\2\2\2\u02fb\u02fc\3\2\2\2\u02fc\u02ff\3\2\2\2\u02fd\u02fb\3\2"+
 		"\2\2\u02fe\u02f6\3\2\2\2\u02fe\u02ff\3\2\2\2\u02ff\u030c\3\2\2\2\u0300"+
-		"\u0309\7\7\2\2\u0301\u0306\7[\2\2\u0302\u0303\7;\2\2\u0303\u0305\7[\2"+
+		"\u0309\7\5\2\2\u0301\u0306\7[\2\2\u0302\u0303\7;\2\2\u0303\u0305\7[\2"+
 		"\2\u0304\u0302\3\2\2\2\u0305\u0308\3\2\2\2\u0306\u0304\3\2\2\2\u0306\u0307"+
 		"\3\2\2\2\u0307\u030a\3\2\2\2\u0308\u0306\3\2\2\2\u0309\u0301\3\2\2\2\u0309"+
 		"\u030a\3\2\2\2\u030a\u030c\3\2\2\2\u030b\u02f4\3\2\2\2\u030b\u0300\3\2"+

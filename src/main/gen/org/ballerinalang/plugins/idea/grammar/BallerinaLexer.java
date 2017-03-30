@@ -17,13 +17,13 @@ public class BallerinaLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__0=1, T__1=2, T__2=3, ACTION=4, ALL=5, ANY=6, AS=7, BREAK=8, CATCH=9, 
-		CONNECTOR=10, CONST=11, CONTINUE=12, CREATE=13, ELSE=14, FORK=15, FUNCTION=16, 
-		IF=17, IMPORT=18, ITERATE=19, JOIN=20, NATIVE=21, NULL=22, PACKAGE=23, 
-		REPLY=24, RESOURCE=25, RETURN=26, SERVICE=27, SOME=28, STRUCT=29, THROW=30, 
-		THROWS=31, TIMEOUT=32, TRY=33, TYPEMAPPER=34, WHILE=35, WORKER=36, BOOLEAN=37, 
-		INT=38, FLOAT=39, STRING=40, MESSAGE=41, MAP=42, EXCEPTION=43, XML=44, 
-		XML_DOCUMENT=45, JSON=46, DATATABLE=47, SENDARROW=48, RECEIVEARROW=49, 
+		T__0=1, ACTION=2, ALL=3, ANNOTATION=4, ANY=5, AS=6, ATTACH=7, BREAK=8, 
+		CATCH=9, CONNECTOR=10, CONST=11, CONTINUE=12, CREATE=13, ELSE=14, FORK=15, 
+		FUNCTION=16, IF=17, IMPORT=18, ITERATE=19, JOIN=20, NATIVE=21, NULL=22, 
+		PACKAGE=23, REPLY=24, RESOURCE=25, RETURN=26, SERVICE=27, SOME=28, STRUCT=29, 
+		THROW=30, THROWS=31, TIMEOUT=32, TRY=33, TYPEMAPPER=34, WHILE=35, WORKER=36, 
+		BOOLEAN=37, INT=38, FLOAT=39, STRING=40, MESSAGE=41, MAP=42, EXCEPTION=43, 
+		XML=44, XML_DOCUMENT=45, JSON=46, DATATABLE=47, SENDARROW=48, RECEIVEARROW=49, 
 		LPAREN=50, RPAREN=51, LBRACE=52, RBRACE=53, LBRACK=54, RBRACK=55, SEMI=56, 
 		COMMA=57, DOT=58, ASSIGN=59, GT=60, LT=61, BANG=62, TILDE=63, COLON=64, 
 		EQUAL=65, LE=66, GE=67, NOTEQUAL=68, AND=69, OR=70, ADD=71, SUB=72, MUL=73, 
@@ -36,8 +36,8 @@ public class BallerinaLexer extends Lexer {
 	};
 
 	public static final String[] ruleNames = {
-		"T__0", "T__1", "T__2", "ACTION", "ALL", "ANY", "AS", "BREAK", "CATCH", 
-		"CONNECTOR", "CONST", "CONTINUE", "CREATE", "ELSE", "FORK", "FUNCTION", 
+		"T__0", "ACTION", "ALL", "ANNOTATION", "ANY", "AS", "ATTACH", "BREAK", 
+		"CATCH", "CONNECTOR", "CONST", "CONTINUE", "CREATE", "ELSE", "FORK", "FUNCTION", 
 		"IF", "IMPORT", "ITERATE", "JOIN", "NATIVE", "NULL", "PACKAGE", "REPLY", 
 		"RESOURCE", "RETURN", "SERVICE", "SOME", "STRUCT", "THROW", "THROWS", 
 		"TIMEOUT", "TRY", "TYPEMAPPER", "WHILE", "WORKER", "BOOLEAN", "INT", "FLOAT", 
@@ -62,8 +62,8 @@ public class BallerinaLexer extends Lexer {
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, "'annotation'", "'attach'", "'parameter'", "'action'", "'all'", 
-		"'any'", "'as'", "'break'", "'catch'", "'connector'", "'const'", "'continue'", 
+		null, "'parameter'", "'action'", "'all'", "'annotation'", "'any'", "'as'", 
+		"'attach'", "'break'", "'catch'", "'connector'", "'const'", "'continue'", 
 		"'create'", "'else'", "'fork'", "'function'", "'if'", "'import'", "'iterate'", 
 		"'join'", "'native'", null, "'package'", "'reply'", "'resource'", "'return'", 
 		"'service'", "'some'", "'struct'", "'throw'", "'throws'", "'timeout'", 
@@ -75,8 +75,8 @@ public class BallerinaLexer extends Lexer {
 		"'&'", "'|'", "'^'", "'%'", "'@'", "'''", "'\"'", "'`'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, null, null, null, "ACTION", "ALL", "ANY", "AS", "BREAK", "CATCH", 
-		"CONNECTOR", "CONST", "CONTINUE", "CREATE", "ELSE", "FORK", "FUNCTION", 
+		null, null, "ACTION", "ALL", "ANNOTATION", "ANY", "AS", "ATTACH", "BREAK", 
+		"CATCH", "CONNECTOR", "CONST", "CONTINUE", "CREATE", "ELSE", "FORK", "FUNCTION", 
 		"IF", "IMPORT", "ITERATE", "JOIN", "NATIVE", "NULL", "PACKAGE", "REPLY", 
 		"RESOURCE", "RETURN", "SERVICE", "SOME", "STRUCT", "THROW", "THROWS", 
 		"TIMEOUT", "TRY", "TYPEMAPPER", "WHILE", "WORKER", "BOOLEAN", "INT", "FLOAT", 
@@ -160,9 +160,9 @@ public class BallerinaLexer extends Lexer {
 		"w\tw\4x\tx\4y\ty\4z\tz\4{\t{\4|\t|\4}\t}\4~\t~\4\177\t\177\4\u0080\t\u0080"+
 		"\4\u0081\t\u0081\4\u0082\t\u0082\4\u0083\t\u0083\4\u0084\t\u0084\4\u0085"+
 		"\t\u0085\4\u0086\t\u0086\4\u0087\t\u0087\4\u0088\t\u0088\3\2\3\2\3\2\3"+
-		"\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\4\3\4\3\4"+
-		"\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\6\3\6\3\6\3"+
-		"\6\3\7\3\7\3\7\3\7\3\b\3\b\3\b\3\t\3\t\3\t\3\t\3\t\3\t\3\n\3\n\3\n\3\n"+
+		"\2\3\2\3\2\3\2\3\2\3\2\3\2\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\4\3\4\3\4\3\4"+
+		"\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\6\3\6\3\6\3\6\3\7\3\7\3"+
+		"\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\t\3\t\3\t\3\t\3\t\3\t\3\n\3\n\3\n\3\n"+
 		"\3\n\3\n\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\f\3\f\3\f"+
 		"\3\f\3\f\3\f\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\16\3\16\3\16\3\16\3"+
 		"\16\3\16\3\16\3\17\3\17\3\17\3\17\3\17\3\20\3\20\3\20\3\20\3\20\3\21\3"+
@@ -238,8 +238,8 @@ public class BallerinaLexer extends Lexer {
 		"\2\2\u00a1\3\2\2\2\2\u00a3\3\2\2\2\2\u00a5\3\2\2\2\2\u00a7\3\2\2\2\2\u00d7"+
 		"\3\2\2\2\2\u00ed\3\2\2\2\2\u00ef\3\2\2\2\2\u00f1\3\2\2\2\2\u0103\3\2\2"+
 		"\2\2\u0105\3\2\2\2\2\u010b\3\2\2\2\2\u010d\3\2\2\2\2\u010f\3\2\2\2\3\u0111"+
-		"\3\2\2\2\5\u011c\3\2\2\2\7\u0123\3\2\2\2\t\u012d\3\2\2\2\13\u0134\3\2"+
-		"\2\2\r\u0138\3\2\2\2\17\u013c\3\2\2\2\21\u013f\3\2\2\2\23\u0145\3\2\2"+
+		"\3\2\2\2\5\u011b\3\2\2\2\7\u0122\3\2\2\2\t\u0126\3\2\2\2\13\u0131\3\2"+
+		"\2\2\r\u0135\3\2\2\2\17\u0138\3\2\2\2\21\u013f\3\2\2\2\23\u0145\3\2\2"+
 		"\2\25\u014b\3\2\2\2\27\u0155\3\2\2\2\31\u015b\3\2\2\2\33\u0164\3\2\2\2"+
 		"\35\u016b\3\2\2\2\37\u0170\3\2\2\2!\u0175\3\2\2\2#\u017e\3\2\2\2%\u0181"+
 		"\3\2\2\2\'\u0188\3\2\2\2)\u0190\3\2\2\2+\u0195\3\2\2\2-\u019c\3\2\2\2"+
@@ -272,19 +272,19 @@ public class BallerinaLexer extends Lexer {
 		"\2\2\u00f9\u038a\3\2\2\2\u00fb\u0390\3\2\2\2\u00fd\u039d\3\2\2\2\u00ff"+
 		"\u039f\3\2\2\2\u0101\u03a6\3\2\2\2\u0103\u03a8\3\2\2\2\u0105\u03ad\3\2"+
 		"\2\2\u0107\u03b8\3\2\2\2\u0109\u03be\3\2\2\2\u010b\u03c1\3\2\2\2\u010d"+
-		"\u03c7\3\2\2\2\u010f\u03d2\3\2\2\2\u0111\u0112\7c\2\2\u0112\u0113\7p\2"+
-		"\2\u0113\u0114\7p\2\2\u0114\u0115\7q\2\2\u0115\u0116\7v\2\2\u0116\u0117"+
-		"\7c\2\2\u0117\u0118\7v\2\2\u0118\u0119\7k\2\2\u0119\u011a\7q\2\2\u011a"+
-		"\u011b\7p\2\2\u011b\4\3\2\2\2\u011c\u011d\7c\2\2\u011d\u011e\7v\2\2\u011e"+
-		"\u011f\7v\2\2\u011f\u0120\7c\2\2\u0120\u0121\7e\2\2\u0121\u0122\7j\2\2"+
-		"\u0122\6\3\2\2\2\u0123\u0124\7r\2\2\u0124\u0125\7c\2\2\u0125\u0126\7t"+
-		"\2\2\u0126\u0127\7c\2\2\u0127\u0128\7o\2\2\u0128\u0129\7g\2\2\u0129\u012a"+
-		"\7v\2\2\u012a\u012b\7g\2\2\u012b\u012c\7t\2\2\u012c\b\3\2\2\2\u012d\u012e"+
-		"\7c\2\2\u012e\u012f\7e\2\2\u012f\u0130\7v\2\2\u0130\u0131\7k\2\2\u0131"+
-		"\u0132\7q\2\2\u0132\u0133\7p\2\2\u0133\n\3\2\2\2\u0134\u0135\7c\2\2\u0135"+
-		"\u0136\7n\2\2\u0136\u0137\7n\2\2\u0137\f\3\2\2\2\u0138\u0139\7c\2\2\u0139"+
-		"\u013a\7p\2\2\u013a\u013b\7{\2\2\u013b\16\3\2\2\2\u013c\u013d\7c\2\2\u013d"+
-		"\u013e\7u\2\2\u013e\20\3\2\2\2\u013f\u0140\7d\2\2\u0140\u0141\7t\2\2\u0141"+
+		"\u03c7\3\2\2\2\u010f\u03d2\3\2\2\2\u0111\u0112\7r\2\2\u0112\u0113\7c\2"+
+		"\2\u0113\u0114\7t\2\2\u0114\u0115\7c\2\2\u0115\u0116\7o\2\2\u0116\u0117"+
+		"\7g\2\2\u0117\u0118\7v\2\2\u0118\u0119\7g\2\2\u0119\u011a\7t\2\2\u011a"+
+		"\4\3\2\2\2\u011b\u011c\7c\2\2\u011c\u011d\7e\2\2\u011d\u011e\7v\2\2\u011e"+
+		"\u011f\7k\2\2\u011f\u0120\7q\2\2\u0120\u0121\7p\2\2\u0121\6\3\2\2\2\u0122"+
+		"\u0123\7c\2\2\u0123\u0124\7n\2\2\u0124\u0125\7n\2\2\u0125\b\3\2\2\2\u0126"+
+		"\u0127\7c\2\2\u0127\u0128\7p\2\2\u0128\u0129\7p\2\2\u0129\u012a\7q\2\2"+
+		"\u012a\u012b\7v\2\2\u012b\u012c\7c\2\2\u012c\u012d\7v\2\2\u012d\u012e"+
+		"\7k\2\2\u012e\u012f\7q\2\2\u012f\u0130\7p\2\2\u0130\n\3\2\2\2\u0131\u0132"+
+		"\7c\2\2\u0132\u0133\7p\2\2\u0133\u0134\7{\2\2\u0134\f\3\2\2\2\u0135\u0136"+
+		"\7c\2\2\u0136\u0137\7u\2\2\u0137\16\3\2\2\2\u0138\u0139\7c\2\2\u0139\u013a"+
+		"\7v\2\2\u013a\u013b\7v\2\2\u013b\u013c\7c\2\2\u013c\u013d\7e\2\2\u013d"+
+		"\u013e\7j\2\2\u013e\20\3\2\2\2\u013f\u0140\7d\2\2\u0140\u0141\7t\2\2\u0141"+
 		"\u0142\7g\2\2\u0142\u0143\7c\2\2\u0143\u0144\7m\2\2\u0144\22\3\2\2\2\u0145"+
 		"\u0146\7e\2\2\u0146\u0147\7c\2\2\u0147\u0148\7v\2\2\u0148\u0149\7e\2\2"+
 		"\u0149\u014a\7j\2\2\u014a\24\3\2\2\2\u014b\u014c\7e\2\2\u014c\u014d\7"+

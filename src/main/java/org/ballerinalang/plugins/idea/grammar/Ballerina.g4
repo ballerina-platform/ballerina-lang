@@ -393,8 +393,10 @@ simpleLiteral
 // §3.9 Ballerina keywords
 ACTION          : 'action';
 ALL             : 'all';
+ANNOTATION      : 'annotation';
 ANY             : 'any';
 AS              : 'as';
+ATTACH          : 'attach';
 BREAK           : 'break';
 CATCH           : 'catch';
 CONNECTOR       : 'connector';
