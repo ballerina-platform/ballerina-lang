@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var spawn = require('child_process').spawn;
-var child = spawn('node', ['run-composer.js'], {
-    stdio: 'ignore',
-    detached: true
-}).unref();
+var shell = require('shelljs');
+console.log('Running Composer');
+shell.cd("target/ballerina-composer/bin");
+
+shell.chmod("+x","composer");
+shell.exec("./composer", function (code) {
+    shell.exit(code);
+});

@@ -8,10 +8,9 @@
     "webpack": "cross-env NODE_ENV=production webpack --config webpack.config.js",
     "dev": "webpack-dev-server --hot --inline --progress",
     "runTests": "cross-env NODE_ENV=test mocha-webpack --require ./js/tests/js/spec/setup.js --webpack-config ./webpack.config.js ./js/tests/js/spec/BallerinaTest.js;",
-    "test": "node run-tests.js",
-    "child-process": "node run-child-process.js",
-    "composer": "node run-composer.js",
-    "ui-test": "node run-ui-test.js"
+    "test": "node src/test-setup-scripts/test-startup-script/run-tests.js",
+    "composer": "node initialize-composer-process.js",
+    "ui-test": "node src/test-setup-scripts/test-startup-script/run-ui-test.js"
   },
   "repository": {
     "type": "git",
@@ -45,10 +44,10 @@
     "wdio-mocha-framework": "~0.5.9",
     "blink-diff": "^1.0.13",
     "resemblejs": "^2.2.3",
-    "mugshot-looks-same": "~1.0.0",
-    "mugshot-webdriverio": "~1.0.0",
-    "mugshot": "^0.3.2",
-    "temp": "^0.8.1"
+    "temp": "^0.8.1",
+    "looks-same": "^3.2.0",
+    "pngjs": "^3.0.0",
+    "pixelmatch":"^4.0.2"
   },
   "dependencies": {
     "ace-builds": "^1.2.6",

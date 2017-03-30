@@ -13,11 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var shell = require('shelljs');
-console.log('Running Composer');
-shell.cd("target/ballerina-composer-0.8.15-SNAPSHOT/bin");
-
-shell.chmod("+x","composer");
-shell.exec("./composer", function (code) {
-    shell.exit(code);
-});
+// var spawn = require('child_process').spawn;
+var utils = require('./src/test-setup-scripts/utils/child-process-manager.js');
+utils.startComposerProcess();

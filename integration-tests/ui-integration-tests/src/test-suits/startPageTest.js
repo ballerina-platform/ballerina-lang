@@ -14,53 +14,55 @@
  * limitations under the License.
  */
 var expect = require('chai').expect;
-var Mugshot = require('mugshot');
-var WebdriverIOAdapter = require('mugshot-webdriverio');
-var webdriverio = require('webdriverio');
-var LooksSameAdapter = require('mugshot-looks-same');
+var webDriverIO = require('webdriverio');
 var fs = require('fs');
 var temp = require('temp');
 var path = require('path');
-var utils = require('./test-utils/ui-test-common-utils.js');
+var utils = require('./utils/ui-test-common-utils.js');
 
-
-var options = {
-    desiredCapabilities: {
-        browserName: 'firefox'
-    }
-};
 console.log('running Test Suit');
-describe("Ballerina UI Test", function () {
+describe("Ballerina UI Tests", function () {
     this.timeout(30000);
     var driver = {};
 
+    /**
+     * Before the test suit start setup necessary configurations.
+     * @return {Object} webDriverIO instance
+     * */
     before(function () {
-        driver = webdriverio.remote(options);
+        driver = webDriverIO.remote(utils.getWebDriverConfigurations());
         return driver.init();
     });
 
-    it('Open New File', function (done) {
-        // this.timeout(15000);
-        driver.url('http://localhost:9091/')// navigate to the web page
+    /**
+     * Service creation test.
+     * */
+    it('Create Service', function (done) {
+        // navigate to the web page.
+        driver.url(utils.getComposerBaseUrl())// navigate to the web page
             .click('.new-welcome-button')
-            .saveScreenshot('./snapshot1.png')
-            .pause(5000)
-            .saveScreenshot('./snapshot3.png') // Save the screenshot to disk
+            .pause(3000)
+            .saveScreenshot('./serviceActual.png') // Save the screenshot to disk
             .getTitle().then(function (title) {
-                console.log('Title was: ' + title);
-                var callback = function(equal){
-                    expect(equal).to.be.true;
-                    done();
-                };
-                utils.compareImages('snapshot2.png','snapshot3.png', callback);
-            });
+            console.log('Title was: ' + title);
+            var callback = function (equal) {
+                expect(equal).to.be.true;
+                done();
+            };
+            utils.compareImages(utils.getScreenShotBaselinePath() + 'serviceExpected.png', 'serviceActual.png', 'serviceDiff', callback);
+        });
     });
 
-    it('Drag and Drop Service', function (done) {
+    it('Drag and Drop', function (done) {
         done();
     });
 
+    /**
+     * After running the test suit stop services that need to be stopped.
+     * @return {Object} WebDriverIO
+     * */
     after(function () {
+        // utils.killChildProcess();
         return driver.end();
     })
 });
