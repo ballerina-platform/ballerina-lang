@@ -43,6 +43,11 @@ import java.util.Map;
 
 /**
  * A class responsible for handling responses coming from BE.
+ *
+ * TODO: Need to redesign this. This has an incorrect usage of ReadTimeoutHandler.
+ * Timer tasks in IdleStateHandler (parent of ReadTimeoutHandler) is not working properly with overridden methods which
+ * causes timeout issues when TargetHandler is re-used from the ConnectionManager.
+ *
  */
 public class TargetHandler extends ReadTimeoutHandler {
     protected static final Logger LOG = LoggerFactory.getLogger(TargetHandler.class);
