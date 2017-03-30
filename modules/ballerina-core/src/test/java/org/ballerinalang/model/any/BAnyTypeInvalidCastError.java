@@ -37,13 +37,13 @@ public class BAnyTypeInvalidCastError {
     //todo below exception should be BLangRuntimeException, but current nonBlocking behavior throw BallerinaException
     //so for the time being, using that.
     @Test(expectedExceptions = {BallerinaException.class},
-          expectedExceptionsMessageRegExp = "cannot cast 'any' with value type 'int' to value type 'float'")
+          expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'int' to type 'float'")
     public void testInvalidDirectCastFromAnyToDouble() {
         BLangFunctions.invoke(bLangProgram, "invalidCastingError");
     }
 
     @Test(expectedExceptions = {BallerinaException.class},
-          expectedExceptionsMessageRegExp = "cannot cast 'any' with 'null' value to value type 'int'")
+          expectedExceptionsMessageRegExp = "cannot cast 'null' value to type 'int'")
     public void testCastingUndefinedAnyValue() {
         BLangFunctions.invoke(bLangProgram, "undefinedCasting");
     }
