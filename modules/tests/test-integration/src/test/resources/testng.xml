@@ -25,6 +25,7 @@
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.service.http.sample"/>
+            <package name="org.ballerinalang.test.service.jms.sample" />
         </packages>
     </test>
 </suite>

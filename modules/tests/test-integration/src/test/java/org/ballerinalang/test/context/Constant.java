@@ -37,9 +37,11 @@ public class Constant {
     public static final String SERVICE_SAMPLE_DIR = "samples";
     //ActiveMq broker URL
     public static final String ACTIVEMQ_PROVIDER_URL = "vm://localhost:6161";
-    public static final String ACTIVEMQ_ALL_JAR = "activemq-all-5.14.3.jar";
+    public static final String ACTIVEMQ_ALL_JAR = "activemq.all.jar";
     // Common nets jar needed for ftp support
     public static final String COMMON_NETS_JAR = "commons-net-3.6.jar";
     // Vfs location in the local directory
     public static final String VFS_LOCATION = "FTPLocation";
+
+    public static final String PROJECT_BUILD_DIR = "project.build.directory";
 }

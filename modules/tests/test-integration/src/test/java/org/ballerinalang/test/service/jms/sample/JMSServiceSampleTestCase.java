@@ -18,110 +18,127 @@
 
 package org.ballerinalang.test.service.jms.sample;
 
+import org.apache.activemq.broker.BrokerService;
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.util.JMSBroker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.Assert;
+import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.context.Utils;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.QueueConnection;
-import javax.jms.QueueSession;
-import javax.jms.Session;
-import javax.jms.Topic;
-import javax.jms.TopicConnection;
-import javax.jms.TopicSession;
-import javax.jms.TopicSubscriber;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
- * Testing the JMSService sample located in
- * ballerina_home/samples/jmsServiceWithActiveMq/jmsServiceWithActiveMq.bal.
+ * Testing the JMS connector.
  */
 public class JMSServiceSampleTestCase extends IntegrationTestCase {
-    private static final Logger logger = LoggerFactory.getLogger(JMSServiceSampleTestCase.class);
-    private int messageCount = 0;
-    private String mapProperty = "queue message count";
+
+    private BrokerService broker = new BrokerService();
+    ServerInstance ballerinaServer;
+
+    private String serverZipPath;
 
     /**
-     * JMS ActiveMq sample listens to a particular queue and then sends that message to a topic. Another service
-     * listens to that particular topic. In this test case, we publish the message to the queue and then listens to
-     * the topic, which the same message is passed to. We are checking the content and the message count.
+     * Setup an embedded activemq broker and prepare the ballerina distribution to run jms samples.
      *
-     * @throws InterruptedException Interrupted Exception
-     * @throws JMSException JMS Exception
+     * @throws Exception if setting up fails
      */
-    @Test(description = "Test jms service with activemq sample")
-    public void testPassingJMSMessageEndToEnd()
-            throws InterruptedException, JMSException {
-        receiveMessagesFromTopic("ballerinatopic");
-        publishMessagesToQueue("ballerinaqueue");
-        // Time for getting the relevant messages as these messages need to go through another queue/
-        Thread.sleep(1000);
-        Assert.assertEquals(messageCount, 10, "The required number of messages are not delivered to the subscriber "
-                + "listening to topic ballerina");
+    @BeforeClass
+    private void setup() throws Exception {
+
+        BrokerService broker = new BrokerService();
+        broker.setPersistent(false);
+        broker.addConnector("tcp://localhost:61616");
+
+        broker.start();
+
+        serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+        ballerinaServer = new JMSServerInstance(serverZipPath, 9091);
     }
 
     /**
-     * To publish the messages to a queue.
+     * Stops the started activemq broker and ballerina server.
      *
-     * @throws JMSException         JMS Exception
-     * @throws InterruptedException Interrupted exception while waiting in between messages
+     * @throws Exception if stopping of any of the above fails
      */
-    private void publishMessagesToQueue(String queueName) throws JMSException, InterruptedException {
-        ConnectionFactory connectionFactory = JMSBroker.getConnectionFactory();
-        QueueConnection queueConn = (QueueConnection) connectionFactory.createConnection();
-        queueConn.start();
-        QueueSession queueSession = queueConn.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = queueSession.createQueue(queueName);
-        MessageProducer queueSender = queueSession.createProducer(destination);
-        queueSender.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-        for (int index = 0; index < 10; index++) {
-            MapMessage queueMessage = queueSession.createMapMessage();
-            queueMessage.setInt(mapProperty, index);
-            queueSender.send(queueMessage);
-            logger.info("Map Message  " + (index + 1) + " sent");
-            Thread.sleep(1000);
-        }
-        queueConn.close();
-        queueSession.close();
-        queueSender.close();
+    @AfterClass
+    private void cleanup() throws Exception {
+        broker.stop();
+        ballerinaServer.stopServer();
+    }
+
+    @Test(description = "Test simple JMS message send and receive via ballerina")
+    public void testJMSSendReceive() throws Exception {
+
+        // Start receiver
+
+        String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
+
+        String[] receiverArgs = {serviceSampleDir + File.separator + "jms" + File.separator + "jmsReceiver.bal"};
+
+        ballerinaServer.setArguments(receiverArgs);
+
+        ballerinaServer.startServer();
+
+        String messageText = "Hello from JMS";
+
+        LogLeecher leecher = new LogLeecher(messageText);
+
+        ballerinaServer.addLogLeecher(leecher);
+
+
+        ServerInstance jmsSender = new JMSServerInstance(serverZipPath);
+        // Start sender
+        String[] senderArgs = {serviceSampleDir + File.separator + "jms" + File.separator + "jmsSender.bal"};
+
+
+        jmsSender.runMain(senderArgs);
+
+
+        // Wait for expected text
+
+        leecher.waitForText(5000);
+    }
+
+}
+
+/**
+ * The Ballerina server instance which is specifically configured to run jms tests by copying activemq client libraries.
+ */
+class JMSServerInstance extends ServerInstance {
+
+    JMSServerInstance(String serverDistributionPath) throws BallerinaTestException {
+        super(serverDistributionPath);
+    }
+
+    JMSServerInstance(String serverDistributionPath, int serverHttpPort) throws BallerinaTestException {
+        super(serverDistributionPath, serverHttpPort);
     }
 
     /**
-     * To receive a message from a topic.
+     * Copies activemq client libraries to ballerina libraries to run jms client functions.
      *
-     * @throws JMSException         JMS Exception
-     * @throws InterruptedException Interrupted exception while waiting in between messages
+     * @throws BallerinaTestException if preparing the server fails
      */
-    private void receiveMessagesFromTopic(String topicName) throws JMSException, InterruptedException {
-        ConnectionFactory connectionFactory = JMSBroker.getConnectionFactory();
+    @Override
+    protected void configServer() throws BallerinaTestException {
+        super.configServer();
 
-        TopicConnection queueConn = (TopicConnection) connectionFactory.createConnection();
-        queueConn.start();
-        TopicSession queueSession = queueConn.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-        Topic destination = queueSession.createTopic(topicName);
-        TopicSubscriber queueReceiver = queueSession.createSubscriber(destination);
-        queueReceiver.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                if (message instanceof MapMessage) {
-                    try {
-                        int value = Integer.parseInt(((MapMessage) message).getString(mapProperty));
-                        Assert.assertTrue(value >= 0 && value < 10, value + " is not within the expected value");
-                    } catch (JMSException e) {
-                        logger.error("JMS Exception occured while getting the map message", e);
-                    }
-                    messageCount++;
-                }
-            }
-        });
+        // Copy JMS libraries to the ballerina lib for testing
+
+        // Source jar
+        Path source = Paths.get(System.getProperty(Constant.PROJECT_BUILD_DIR),
+                System.getProperty(Constant.ACTIVEMQ_ALL_JAR));
+
+        // Target lib folder
+
+        Path target = Paths.get(getServerHome(), "bre/lib", System.getProperty(Constant.ACTIVEMQ_ALL_JAR));
+
+        Utils.copyFile(source, target);
     }
 }

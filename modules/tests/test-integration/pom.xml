@@ -48,12 +48,17 @@
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-broker</artifactId>
+            <artifactId>activemq-all</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.ftpserver</groupId>
             <artifactId>ftpserver-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -99,6 +104,8 @@
                         <server.zip>
                             ${basedir}/../../ballerina/target/ballerina-${project.version}.zip
                         </server.zip>
+                        <project.build.directory>${project.build.directory}</project.build.directory>
+                        <activemq.all.jar>activemq-all-${activemq.broker.vesion}.jar</activemq.all.jar>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>

@@ -22,8 +22,40 @@ package org.ballerinalang.test.context;
  * Interface for test Server implementation.
  */
 public interface Server {
-    public void start() throws Exception;
-    public void stop() throws Exception;
-    public void restart() throws Exception;
+
+    /**
+     * Start ballerina server passing provided .bal files.
+     *
+     * @throws BallerinaTestException if services start fails
+     */
+    public void startServer() throws BallerinaTestException;
+
+    /**
+     * Stops the server started by startServer method.
+     *
+     * @throws BallerinaTestException if service stop fails
+     */
+    public void stopServer() throws BallerinaTestException;
+
+    /**
+     * Stop the server and start it again.
+     *
+     * @throws BallerinaTestException if restart fails
+     */
+    public void restartServer() throws BallerinaTestException;
+
+    /**
+     * Executes main function of ballerina files.
+     *
+     * @param args Ballerina files to be passed as arguments
+     * @throws Exception if any exception is thrown when running the main function
+     */
+    public void runMain(String[] args) throws BallerinaTestException;
+
+    /**
+     * Checks if the server is already running.
+     *
+     * @return True if the server is running
+     */
     public boolean isRunning();
 }

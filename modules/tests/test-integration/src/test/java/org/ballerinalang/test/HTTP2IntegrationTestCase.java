@@ -20,6 +20,7 @@ package org.ballerinalang.test;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.util.CharsetUtil;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.TestConstant;
@@ -54,19 +55,23 @@ public abstract class HTTP2IntegrationTestCase {
         serverInstance = new ServerInstance(serverZipPath, TestConstant.HTTP2_TEST_PORT) {
             //config the service files need to be deployed
             @Override
-            protected void configServer() throws IOException {
+            protected void configServer() throws BallerinaTestException {
                 //path of the sample bal file directory
                 String serviceSampleDir = this.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
                 //list of sample bal files to be deploy
                 String[] serviceFilesArr = listSamples(serviceSampleDir);
                 setArguments(serviceFilesArr);
                 // copy http2 enabled netty-transports.yml file
-                copyFile(new File(HTTP2_ENABLED_NETTY_CONF), new File(this
-                        .getServerHome() + SERVER_NETTY_CONF_PATH));
+                try {
+                    copyFile(new File(HTTP2_ENABLED_NETTY_CONF), new File(this
+                            .getServerHome() + SERVER_NETTY_CONF_PATH));
+                } catch (IOException e) {
+                    throw new BallerinaTestException("Error copying file", e);
+                }
             }
         };
         try {
-            serverInstance.start();
+            serverInstance.startServer();
             http2Client = new HTTP2Client(false, "localhost", TestConstant.HTTP2_TEST_PORT);
         } catch (Exception e) {
             log.error("Server failed to start. " + e.getMessage(), e);
@@ -78,7 +83,7 @@ public abstract class HTTP2IntegrationTestCase {
     public void destroy() {
         if (serverInstance != null && serverInstance.isRunning()) {
             try {
-                serverInstance.stop();
+                serverInstance.stopServer();
             } catch (Exception e) {
                 log.error("Server failed to stop. " + e.getMessage(), e);
                 throw new RuntimeException("Server failed to stop. " + e.getMessage(), e);
