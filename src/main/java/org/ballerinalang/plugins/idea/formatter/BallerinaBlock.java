@@ -81,7 +81,8 @@ public class BallerinaBlock extends AbstractBlock {
                 Indent indent = Indent.getNoneIndent();
 
                 if (childElementType == FUNCTION_BODY || childElementType == CONNECTOR_BODY
-                        || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY) {
+                        || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY
+                        || childElementType == ANNOTATION_BODY) {
                     if (child.getFirstChildNode() != null && child.getLastChildNode() != null) {
                         indent = Indent.getSpaceIndent(4);
                     }

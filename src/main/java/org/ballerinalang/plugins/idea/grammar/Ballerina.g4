@@ -84,7 +84,7 @@ structBody
     ;
 
 annotationDefinition
-    : 'annotation' Identifier ('attach' attachmentPoint (',' attachmentPoint)*)? annotationBody
+    : 'annotation' Identifier ('attach' attachmentPoint (',' attachmentPoint)*)? '{' annotationBody '}'
     ;
 
 attachmentPoint
@@ -100,7 +100,7 @@ attachmentPoint
      ;
 
 annotationBody
-    :  '{' fieldDefinition* '}'
+    :   fieldDefinition*
     ;
 
 typeMapperDefinition

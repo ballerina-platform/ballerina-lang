@@ -102,7 +102,9 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(SENDARROW).spaceIf(true)
                 .around(RECEIVEARROW).spaceIf(true)
                 .before(TILDE).spaceIf(false)
-                .between(RETURN, EXPRESSION_LIST).spaceIf(true);
+                .between(RETURN, EXPRESSION_LIST).spaceIf(true)
+                .after(ANNOTATION).spaceIf(true)
+                .around(ATTACH).spaceIf(true);
     }
 
     @Nullable
