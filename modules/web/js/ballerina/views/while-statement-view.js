@@ -80,6 +80,14 @@ class WhileStatementView extends BlockStatementView {
             statementGroup: this.getStatementGroup()
         });
 
+        var parentStatementContainerBBox = this.getParent().getStatementContainer().getBoundingBox();
+        var bBox = this.getBoundingBox();
+        this.listenTo(bBox, 'width-changed', function () {
+            if (parentStatementContainerBBox.w() > bBox.w()) {
+                bBox.x(parentStatementContainerBBox.x() + (parentStatementContainerBBox.w() - bBox.w())/2);
+            }
+        });
+
         this.listenTo(model, 'update-property-text', this.updateConditionExpression);
     }
 
