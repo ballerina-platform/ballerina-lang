@@ -40,6 +40,8 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
@@ -72,6 +74,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private static final LookupElementBuilder IMPORT;
     private static final LookupElementBuilder CONST;
     private static final LookupElementBuilder SERVICE;
+    private static final LookupElementBuilder RESOURCE;
     private static final LookupElementBuilder FUNCTION;
     private static final LookupElementBuilder CONNECTOR;
     private static final LookupElementBuilder STRUCT;
@@ -103,6 +106,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         IMPORT = createKeywordLookupElement("import", true, AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         CONST = createKeywordLookupElement("const", true, AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         SERVICE = createKeywordLookupElement("service", true, AddSpaceInsertHandler.INSTANCE);
+        RESOURCE = createKeywordLookupElement("resource", true, AddSpaceInsertHandler.INSTANCE);
         FUNCTION = createKeywordLookupElement("function", true, AddSpaceInsertHandler.INSTANCE);
         CONNECTOR = createKeywordLookupElement("connector", true, AddSpaceInsertHandler.INSTANCE);
         STRUCT = createKeywordLookupElement("struct", true, AddSpaceInsertHandler.INSTANCE);
@@ -260,19 +264,26 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             // Todo - Add throws keyword
             // Todo - Add return keyword
             // Todo - Add variables
-            if (superParent instanceof ExpressionNode) {
+            if (superParent instanceof ExpressionNode || superParent instanceof AnnotationAttributeValueNode
+                    || superParent instanceof AnnotationAttachmentNode) {
                 return;
             }
+
+            if (superParent instanceof ResourceDefinitionNode) {
+                addKeyword(resultSet, RESOURCE, CONTEXT_KEYWORD_PRIORITY);
+            }
+
             if (superParent instanceof StatementNode) {
                 // If the superParent is StatementNode, add following lookup elements.
                 addValueTypes(resultSet, VALUE_TYPE_PRIORITY);
                 addReferenceTypes(resultSet, REFERENCE_TYPE_PRIORITY);
 
-                addConnectors(resultSet, originalFile);
+                addConnectors(resultSet, element);
                 addFunctions(resultSet, originalFile);
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
                 addVariables(resultSet, element);
+                addConstants(resultSet, originalFile);
 
                 addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
                 addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
@@ -351,19 +362,23 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
 
                 addFunctions(resultSet, originalFile);
-                addConnectors(resultSet, originalFile);
+                addConnectors(resultSet, element);
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
                 addVariables(resultSet, element);
+                addConstants(resultSet, originalFile);
+                addAnnotations(resultSet, element);
 
                 addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
                 addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
+                addKeyword(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
 
                 // Todo - Move to utils
                 PsiElement temp = parent.getParent().getParent().getParent().getParent();
                 while (temp != null && !(temp instanceof PsiFile)) {
                     if (temp instanceof StatementNode) {
                         addVariables(resultSet, element);
+                        addConstants(resultSet, originalFile);
                         break;
                     }
                     temp = temp.getParent();
@@ -377,15 +392,17 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
                     addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
 
-                    addConnectors(resultSet, originalFile);
+                    addConnectors(resultSet, element);
                     addStructs(resultSet, originalFile);
                     addPackages(resultSet, originalFile);
+                    addAnnotations(resultSet, element);
 
                     // Todo - Move to utils
                     PsiElement temp = parent.getParent().getParent().getParent().getParent();
                     while (temp != null && !(temp instanceof PsiFile)) {
                         if (temp instanceof StatementNode) {
                             addVariables(resultSet, element);
+                            addConstants(resultSet, originalFile);
                             break;
                         }
                         temp = temp.getParent();
@@ -423,9 +440,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
                 addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
 
-                addConnectors(resultSet, originalFile);
+                addConnectors(resultSet, element);
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
+                addAnnotations(resultSet, element);
 
                 // Todo - Move to utils
                 // Check parent type
@@ -434,6 +452,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     // If parent type is StatementNode, add variable lookup elements
                     if (temp instanceof StatementNode) {
                         addVariables(resultSet, element);
+                        addConstants(resultSet, originalFile);
                         break;
                     }
                     temp = temp.getParent();
@@ -478,6 +497,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                         BallerinaPsiImplUtil.getAllStructsInPackage(psiDirectories[0]);
                                 addStructs(resultSet, structs);
 
+                                List<PsiElement> constants =
+                                        BallerinaPsiImplUtil.getAllConstantsInPackage(psiDirectories[0]);
+                                addConstants(resultSet, constants);
+
                             } else {
                                 // This situation cannot/should not happen since all the imported packages are unique.
                                 // This should be highlighted using an annotator.
@@ -488,8 +511,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     // Todo - Add struct, map field suggestions
                     PsiElement identifierNode = prevToken.getPrevSibling().getChildren()[0];
                     PsiReference reference = identifierNode.getReference();
-                    PsiElement resolvedElement = reference.resolve();
-
+                    if (reference != null) {
+                        PsiElement resolvedElement = reference.resolve();
+                    }
                 } else if ("else".equals(prevToken.getText())) {
                     resultSet.addElement(PrioritizedLookupElement.withPriority(IF, CONTEXT_KEYWORD_PRIORITY));
                 } else {
@@ -560,6 +584,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     // following elements.
                     if (prevToken.getText().equals(children[0].getText())) {
                         addVariables(resultSet, element);
+                        addConstants(resultSet, originalFile);
                         addFunctions(resultSet, originalFile);
                         addPackages(resultSet, originalFile);
                         return;
@@ -574,17 +599,25 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         // Todo - Resolve
                     } else if (prevToken instanceof IdentifierPSINode) {
                         addVariables(resultSet, element);
+                        addConstants(resultSet, originalFile);
+                        addFunctions(resultSet, originalFile);
+                        addPackages(resultSet, originalFile);
+                    } else {
+                        addVariables(resultSet, element);
+                        addConstants(resultSet, originalFile);
                         addFunctions(resultSet, originalFile);
                         addPackages(resultSet, originalFile);
                     }
                 } else {
                     addVariables(resultSet, element);
+                    addConstants(resultSet, originalFile);
                     addFunctions(resultSet, originalFile);
                     addPackages(resultSet, originalFile);
                 }
             } else {
                 // Todo - Is valid condition?
                 addVariables(resultSet, element);
+                addConstants(resultSet, originalFile);
                 addFunctions(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
             }
@@ -663,6 +696,34 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     }
 
     /**
+     * Helper method to add constants as lookup elements.
+     *
+     * @param resultSet result set which needs to add the lookup elements
+     * @param constants list of constants which needs to be added
+     */
+    private void addConstants(CompletionResultSet resultSet, List<PsiElement> constants) {
+        for (PsiElement constant : constants) {
+            LookupElementBuilder builder = LookupElementBuilder.create(constant.getText())
+                    .withTypeText("Constant").withIcon(AllIcons.Nodes.Variable);
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+        }
+    }
+
+    /**
+     * Helper method to add constants as lookup elements.
+     *
+     * @param resultSet    result set which needs to add the lookup elements
+     * @param originalFile original file which we are editing
+     */
+    private void addConstants(CompletionResultSet resultSet, PsiFile originalFile) {
+        PsiDirectory parentDirectory = originalFile.getParent();
+        if (parentDirectory != null) {
+            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInPackage(parentDirectory);
+            addConstants(resultSet, constants);
+        }
+    }
+
+    /**
      * Helper method to add functions as lookup elements.
      *
      * @param resultSet result set which needs to add the lookup elements
@@ -730,6 +791,17 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
     }
 
+    private void addConnectors(CompletionResultSet resultSet, PsiElement element) {
+        PsiElement parent = element.getParent();
+        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
+        if (packageNameNode == null) {
+            return;
+        }
+        PsiElement resolvedPackage = resolvePackage(packageNameNode);
+        List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(resolvedPackage);
+        addConnectors(resultSet, connectors);
+    }
+
     /**
      * Helper method to add connectors as lookup elements.
      *
@@ -752,6 +824,64 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
                     .withTypeText("Connector").withIcon(AllIcons.Nodes.Class);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY));
+        }
+    }
+
+    private PsiElement resolvePackage(PackageNameNode packageNameNode) {
+        PsiElement nameIdentifier = packageNameNode.getNameIdentifier();
+        if (nameIdentifier == null) {
+            return null;
+        }
+        PsiReference reference = nameIdentifier.getReference();
+        if (reference != null) {
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement != null) {
+                return resolvedElement;
+            }
+        }
+        PsiReference[] references = nameIdentifier.getReferences();
+        if (references.length == 0) {
+            return null;
+        }
+        for (PsiReference psiReference : references) {
+            PsiElement resolvedElement = psiReference.resolve();
+            if (resolvedElement == null) {
+                continue;
+            }
+            return resolvedElement;
+        }
+        return null;
+    }
+
+    /**
+     * Helper method to add annotations as lookup elements.
+     *
+     * @param resultSet result set which needs to add the lookup elements
+     * @param element   element at caret position
+     */
+    private void addAnnotations(CompletionResultSet resultSet, PsiElement element) {
+        PsiElement parent = element.getParent();
+        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
+        if (packageNameNode == null) {
+            return;
+        }
+        PsiElement resolvedPackage = resolvePackage(packageNameNode);
+        List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInCurrentPackage(resolvedPackage);
+        addAnnotations(resultSet, annotations);
+    }
+
+    /**
+     * Helper method to add annotations as lookup elements.
+     *
+     * @param resultSet   result set which needs to add the lookup elements
+     * @param annotations list of annotations which needs to be added
+     */
+    private void addAnnotations(CompletionResultSet resultSet, List<PsiElement> annotations) {
+        for (PsiElement annotation : annotations) {
+            LookupElementBuilder builder = LookupElementBuilder.create(annotation.getText())
+                    .withTypeText("Annotation").withIcon(AllIcons.Nodes.Annotationtype)
+                    .withInsertHandler(BracesInsertHandler.INSTANCE);
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ANNOTATION_PRIORITY));
         }
     }
 
@@ -816,6 +946,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
         resultSet.addElement(PrioritizedLookupElement.withPriority(CONST, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(SERVICE, priority));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(RESOURCE, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(FUNCTION, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(CONNECTOR, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(STRUCT, priority));
