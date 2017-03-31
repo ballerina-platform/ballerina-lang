@@ -50,11 +50,7 @@ public class HTTPServerConnector extends ServerConnector {
         if (listenerConfiguration.isBindOnStartup()) { // Already bind at the startup, hence skipping
             return;
         }
-        try {
-            serverConnectorController.bindInterface(this);
-        } catch (Exception e) {
-            throw new ServerConnectorException("Cannot bind to " + this + " : " + e.getMessage(), e);
-        }
+        serverConnectorController.bindInterface(this);
     }
     @Override
     public void stop() {
