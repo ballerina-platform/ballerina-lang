@@ -27,6 +27,7 @@ import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -66,7 +67,7 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
     }
 
     @Override
-    public ServerConnector createConnector(String s) {
+    public ServerConnector createConnector(String s, Map<String, String> properties) {
         return null;
     }
 }
