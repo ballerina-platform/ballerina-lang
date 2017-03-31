@@ -21,14 +21,14 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
-        <version>0.85-SNAPSHOT</version>
+        <version>0.86-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang</groupId>
     <artifactId>swagger-ballerina</artifactId>
     <packaging>pom</packaging>
-    <version>0.85-SNAPSHOT</version>
+    <version>0.86-SNAPSHOT</version>
     <name>WSO2 Swagger Ballerina Tooling - Parent</name>
     <url>http://wso2.org</url>
 
@@ -144,7 +144,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.85-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.85</ballerina.version>
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>
 
