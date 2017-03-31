@@ -516,7 +516,7 @@ public class UpdateFromRDBMSTestCase {
     @Test
     public void updateFromRDBMSTableTest3() throws InterruptedException {
 
-        log.info("updateFromTableTest1");
+        log.info("updateFromRDBMSTableTest3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -567,7 +567,7 @@ public class UpdateFromRDBMSTestCase {
     @Test
     public void updateFromRDBMSTableTest4() throws InterruptedException {
 
-        log.info("updateFromTableTest1");
+        log.info("updateFromRDBMSTableTest4");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);

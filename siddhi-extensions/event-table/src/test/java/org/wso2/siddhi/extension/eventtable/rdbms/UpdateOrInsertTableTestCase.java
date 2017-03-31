@@ -841,7 +841,7 @@ public class UpdateOrInsertTableTestCase {
 
     @Test
     public void insertOverwriteTableTest11() throws InterruptedException {
-        log.info("insertOverwriteTableTest1");
+        log.info("insertOverwriteTableTest11");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -888,7 +888,7 @@ public class UpdateOrInsertTableTestCase {
 
     @Test
     public void insertOverwriteTableTest12() throws InterruptedException {
-        log.info("insertOverwriteTableTest1");
+        log.info("insertOverwriteTableTest12");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
