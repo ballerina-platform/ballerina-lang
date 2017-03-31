@@ -121,6 +121,18 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         // So in that case, we get the element at the "offset - 1". Ex:- setData(name|,)
         // This will allow us to identify the correct ExpressionListNode element.
         if (")".equals(element.getText())) {
+            PsiElement parent = element.getParent();
+            // If the parent is an ActionInvocationNode, Connector will be resolved instead of the action if we get
+            // the NameReferenceNode here. We need to get the NameReferenceNode because otherwise the nested function
+            // invocations will not show proper parameters.
+            if (parent != null && !(parent instanceof ActionInvocationNode)) {
+                NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(parent, NameReferenceNode.class);
+                if (nameReferenceNode != null) {
+                    return nameReferenceNode;
+                }
+            }
+            // If a NameReferenceNode is not found, get the element at previous offset. This will most probably
+            // contain "(".
             element = context.getFile().findElementAt(context.getOffset() - 1);
         }
         PsiElement node = PsiTreeUtil.getParentOfType(element, ExpressionListNode.class);
@@ -164,8 +176,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             // We need to get the ExpressionListNode parent of current ExpressionListNode.
             // Current ExpressionListNode - "WSO2"
             // Parent ExpressionListNode - setName("WSO2")
-            // By doing this, we get the function name because setName("WSO2") is also a ExpressionListNode.
-            PsiElement parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionListNode.class);
+            // By doing this, we get the function name because setName("WSO2") is also a ExpressionNode.
+            PsiElement parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionNode.class);
             // If the parent is null, that means there is no parent ExpressionListNode. That can happen if the parent
             // node is a FunctionInvocationStatementNode.
             if (parent == null) {
@@ -181,8 +193,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 parent = PsiTreeUtil.getParentOfType(expressionListNode, ConnectorInitExpressionNode.class);
             }
             if (parent == null) {
-                // So if the parent is null, we consider the ActionInvocationNode as the parent node.
-                parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionNode.class);
+                // So if the parent is null, we consider the ExpressionListNode as the parent node.
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, ExpressionListNode.class);
             }
 
             if (parent == null) {
@@ -201,6 +213,9 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         } else if (element instanceof ExpressionNode) {
             ExpressionNode expressionNode = (ExpressionNode) element;
             setItemsToShow(expressionNode, expressionNode, context);
+        } else if (element instanceof NameReferenceNode) {
+            NameReferenceNode nameReferenceNode = (NameReferenceNode) element;
+            setItemsToShow(nameReferenceNode, nameReferenceNode, context);
         }
     }
 
@@ -219,6 +234,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
         } else if (parent instanceof ExpressionNode) {
             namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
+        } else if (parent instanceof NameReferenceNode) {
+            namedIdentifierDefNode = parent;
         }
 
         if (namedIdentifierDefNode != null) {
@@ -324,6 +341,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
     @Nullable
     @Override
     public Object findElementForUpdatingParameterInfo(@NotNull UpdateParameterInfoContext context) {
+        // Todo - Add util methods to get these elements
         // Get the element at offset.
         PsiElement element = context.getFile().findElementAt(context.getOffset());
         // If there is no element, return null.
@@ -334,6 +352,18 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         // So in that case, we get the element at the "offset - 1". Ex:- setData(name|,)
         // This will allow us to identify the correct ExpressionListNode element.
         if (")".equals(element.getText())) {
+            PsiElement parent = element.getParent();
+            // If the parent is an ActionInvocationNode, Connector will be resolved instead of the action if we get
+            // the NameReferenceNode here. We need to get the NameReferenceNode because otherwise the nested function
+            // invocations will not show proper parameters.
+            if (parent != null && !(parent instanceof ActionInvocationNode)) {
+                NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(parent, NameReferenceNode.class);
+                if (nameReferenceNode != null) {
+                    return nameReferenceNode;
+                }
+            }
+            // If a NameReferenceNode is not found, get the element at previous offset. This will most probably
+            // contain "(".
             element = context.getFile().findElementAt(context.getOffset() - 1);
         }
         PsiElement node = PsiTreeUtil.getParentOfType(element, ExpressionListNode.class);
