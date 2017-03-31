@@ -219,6 +219,7 @@ node ("${nodeLabel}") {
                 release(settingsXMLID, ballerinaRepository, ballerinaVersion, ballerinaReleaseTag, ballerinaDevVersion, ballerinaSkipTests);
                 //Following two steps are for updating ballerina-parent to latest snapshot
                 updateParent(ballerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                build(settingsXMLID, ballerinaRepository, YES);
                 pushCurrentBranch(ballerinaRepository, gitCredentialsID, user);
             } else {
                 build(settingsXMLID, ballerinaRepository, ballerinaSkipTests);
@@ -237,6 +238,7 @@ node ("${nodeLabel}") {
                 updateParent(docerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
                 updateProperties(docerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
                         "${ballerinaGroudId}:*", true);
+                build(settingsXMLID, docerinaRepository, YES);
                 pushCurrentBranch(docerinaRepository, gitCredentialsID, user);
             } else {
                 build(settingsXMLID, docerinaRepository, docerinaSkipTests);
@@ -274,6 +276,7 @@ node ("${nodeLabel}") {
                     updateParent(composerRepository, settingsXMLID, parentUpdateCommitMessage, true);
                     updateProperties(composerRepository, settingsXMLID, propertyUpdateCommitMessage,
                             "${ballerinaGroudId}:*", true);
+                    build(settingsXMLID, composerRepository, YES);
                     pushCurrentBranch(composerRepository, gitCredentialsID, user);
                 } else {
                     build(settingsXMLID, composerRepository, composerSkipTests);
@@ -290,6 +293,7 @@ node ("${nodeLabel}") {
                     updateParent(testerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
                     updateProperties(testerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
                             "${ballerinaGroudId}:*", true);
+                    build(settingsXMLID, testerinaRepository, YES);
                     pushCurrentBranch(testerinaRepository, gitCredentialsID, user);
                 } else {
                     build(settingsXMLID, testerinaRepository, testerinaSkipTests);
@@ -306,6 +310,7 @@ node ("${nodeLabel}") {
                     updateParent(connectorsRepository, settingsXMLID, parentUpdateCommitMessage, true);
                     updateProperties(connectorsRepository, settingsXMLID, propertyUpdateCommitMessage,
                             "${ballerinaGroudId}:*", true);
+                    build(settingsXMLID, connectorsRepository, YES);
                     pushCurrentBranch(connectorsRepository, gitCredentialsID, user);
                 } else {
                     build(settingsXMLID, connectorsRepository, connectorsSkipTests);
@@ -322,6 +327,7 @@ node ("${nodeLabel}") {
                     updateParent(containerSupportRepository, settingsXMLID, parentUpdateCommitMessage, true);
                     updateProperties(containerSupportRepository, settingsXMLID, propertyUpdateCommitMessage,
                             "${ballerinaGroudId}:*", true);
+                    build(settingsXMLID, containerSupportRepository, YES);
                     pushCurrentBranch(containerSupportRepository, gitCredentialsID, user);
                 } else {
                     build(settingsXMLID, containerSupportRepository, containerSupportSkipTests);
@@ -338,6 +344,7 @@ node ("${nodeLabel}") {
                     updateParent(toolSwaggerBallerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
                     updateProperties(toolSwaggerBallerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
                             "${ballerinaGroudId}:*", true);
+                    build(settingsXMLID, toolSwaggerBallerinaRepository, YES);
                     pushCurrentBranch(toolSwaggerBallerinaRepository, gitCredentialsID, user);
                 } else {
                     build(settingsXMLID, toolSwaggerBallerinaRepository, toolSwaggerSkipTests);
