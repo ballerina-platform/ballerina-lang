@@ -85,7 +85,7 @@ public class ClientRequestWorker implements Runnable {
                 channel = ChannelUtils.openChannel(future, httpRoute);
             } catch (Exception failedCause) {
                 String msg = "Error when creating channel for route " + httpRoute;
-                log.error(msg);
+                log.error(msg, failedCause);
                 MessagingException messagingException = new MessagingException(msg, failedCause, 101503);
                 carbonMessage.setMessagingException(messagingException);
                 carbonCallback.done(carbonMessage);
