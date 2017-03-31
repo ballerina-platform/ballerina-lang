@@ -44,6 +44,8 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
+        // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
+        // cause issues when using find usage, etc.
         if (element.getParent() instanceof NameReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//functionDefinition/Identifier");

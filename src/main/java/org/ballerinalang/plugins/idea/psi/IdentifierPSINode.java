@@ -19,9 +19,11 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
+import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.antlr.jetbrains.adaptor.lexer.RuleIElementType;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiLeafNode;
@@ -35,10 +37,11 @@ import org.ballerinalang.plugins.idea.psi.references.StatementReference;
 import org.ballerinalang.plugins.idea.psi.references.VariableReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.*;
 
-public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedElement {
+public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedElement, PsiNameIdentifierOwner {
 
     public IdentifierPSINode(IElementType type, CharSequence text) {
         super(type, text);
@@ -121,5 +124,32 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             return ((FunctionNode) getParent()).getPresentation();
         }
         return super.getPresentation();
+    }
+
+    @Nullable
+    @Override
+    public PsiElement getNameIdentifier() {
+        // If the parent is a ParameterNode, we return this identifier object. Otherwise when we get parents, it
+        // might return excluded nodes below and can cause issues.
+        if (getParent() instanceof ParameterNode) {
+            return this;
+        }
+
+        // We should return the name identifier node (which is "this" object) for every identifier which can be used
+        // to find usage. But for some nodes like TypeMapperNode, ServiceDefinitionNode, etc, we don't need to find
+        // usages because they will not be used in other places.
+        PsiElement parent = PsiTreeUtil.getParentOfType(this, TypeMapperNode.class);
+        if (parent != null) {
+            return null;
+        }
+        parent = PsiTreeUtil.getParentOfType(this, ResourceDefinitionNode.class);
+        if (parent != null) {
+            return null;
+        }
+        parent = PsiTreeUtil.getParentOfType(this, ServiceDefinitionNode.class);
+        if (parent != null) {
+            return null;
+        }
+        return this;
     }
 }
