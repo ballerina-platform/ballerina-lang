@@ -147,6 +147,15 @@ public class NameReference extends BallerinaElementReference {
                     results.add(new PsiElementResolveResult(psiElement));
                 }
             }
+            // Get all structs in the package.
+            List<PsiElement> allStructs =
+                    BallerinaPsiImplUtil.getAllStructsInPackage((PsiDirectory) element);
+            // Add matching functions to results.
+            for (PsiElement psiElement : allStructs) {
+                if (getElement().getText().equals(psiElement.getText())) {
+                    results.add(new PsiElementResolveResult(psiElement));
+                }
+            }
         }
         return results.toArray(new ResolveResult[results.size()]);
     }
