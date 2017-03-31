@@ -114,9 +114,9 @@ An array can have arrays as values. Here are some examples:
 ```
 int[][] a = [];
 
-int[0] = [1, 2, 3, 5, 6];
-int[1] = [10, 54];
-int[2] = [4, 6, 1];
+a[0] = [1, 2, 3, 5, 6];
+a[1] = [10, 54];
+a[2] = [4, 6, 1];
 
 int i = int[0][0] // Vaue of i is 1
 i = int[2][1]  // value of i is 6 now.
