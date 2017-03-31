@@ -282,7 +282,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addFunctions(resultSet, originalFile);
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
-                addVariables(resultSet, element, originalFile);
+                addVariables(resultSet, element);
+                addConstants(resultSet, originalFile);
 
                 addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
                 addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
@@ -364,7 +365,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addConnectors(resultSet, element);
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
-                addVariables(resultSet, element, originalFile);
+                addVariables(resultSet, element);
+                addConstants(resultSet, originalFile);
                 addAnnotations(resultSet, element);
 
                 addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
@@ -375,7 +377,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 PsiElement temp = parent.getParent().getParent().getParent().getParent();
                 while (temp != null && !(temp instanceof PsiFile)) {
                     if (temp instanceof StatementNode) {
-                        addVariables(resultSet, element, originalFile);
+                        addVariables(resultSet, element);
+                        addConstants(resultSet, originalFile);
                         break;
                     }
                     temp = temp.getParent();
@@ -398,7 +401,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     PsiElement temp = parent.getParent().getParent().getParent().getParent();
                     while (temp != null && !(temp instanceof PsiFile)) {
                         if (temp instanceof StatementNode) {
-                            addVariables(resultSet, element, originalFile);
+                            addVariables(resultSet, element);
+                            addConstants(resultSet, originalFile);
                             break;
                         }
                         temp = temp.getParent();
@@ -447,7 +451,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 while (temp != null && !(temp instanceof PsiFile)) {
                     // If parent type is StatementNode, add variable lookup elements
                     if (temp instanceof StatementNode) {
-                        addVariables(resultSet, element, originalFile);
+                        addVariables(resultSet, element);
+                        addConstants(resultSet, originalFile);
                         break;
                     }
                     temp = temp.getParent();
@@ -492,6 +497,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                         BallerinaPsiImplUtil.getAllStructsInPackage(psiDirectories[0]);
                                 addStructs(resultSet, structs);
 
+                                List<PsiElement> constants =
+                                        BallerinaPsiImplUtil.getAllConstantsInPackage(psiDirectories[0]);
+                                addConstants(resultSet, constants);
+
                             } else {
                                 // This situation cannot/should not happen since all the imported packages are unique.
                                 // This should be highlighted using an annotator.
@@ -502,8 +511,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     // Todo - Add struct, map field suggestions
                     PsiElement identifierNode = prevToken.getPrevSibling().getChildren()[0];
                     PsiReference reference = identifierNode.getReference();
-                    PsiElement resolvedElement = reference.resolve();
-
+                    if (reference != null) {
+                        PsiElement resolvedElement = reference.resolve();
+                    }
                 } else if ("else".equals(prevToken.getText())) {
                     resultSet.addElement(PrioritizedLookupElement.withPriority(IF, CONTEXT_KEYWORD_PRIORITY));
                 } else {
@@ -573,7 +583,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     // Check whether the current identifier is the first identifier. Then we only need to suggest
                     // following elements.
                     if (prevToken.getText().equals(children[0].getText())) {
-                        addVariables(resultSet, element, originalFile);
+                        addVariables(resultSet, element);
+                        addConstants(resultSet, originalFile);
                         addFunctions(resultSet, originalFile);
                         addPackages(resultSet, originalFile);
                         return;
@@ -587,22 +598,26 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     if (".".equals(prevToken.getText())) {
                         // Todo - Resolve
                     } else if (prevToken instanceof IdentifierPSINode) {
-                        addVariables(resultSet, element, originalFile);
+                        addVariables(resultSet, element);
+                        addConstants(resultSet, originalFile);
                         addFunctions(resultSet, originalFile);
                         addPackages(resultSet, originalFile);
                     } else {
-                        addVariables(resultSet, element, originalFile);
+                        addVariables(resultSet, element);
+                        addConstants(resultSet, originalFile);
                         addFunctions(resultSet, originalFile);
                         addPackages(resultSet, originalFile);
                     }
                 } else {
-                    addVariables(resultSet, element, originalFile);
+                    addVariables(resultSet, element);
+                    addConstants(resultSet, originalFile);
                     addFunctions(resultSet, originalFile);
                     addPackages(resultSet, originalFile);
                 }
             } else {
                 // Todo - Is valid condition?
-                addVariables(resultSet, element, originalFile);
+                addVariables(resultSet, element);
+                addConstants(resultSet, originalFile);
                 addFunctions(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
             }
@@ -667,7 +682,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param resultSet result set which needs to add the lookup elements
      * @param element   element in the current caret position
      */
-    private void addVariables(CompletionResultSet resultSet, PsiElement element, PsiFile originalFile) {
+    private void addVariables(CompletionResultSet resultSet, PsiElement element) {
         PsiElement context = element.getContext();
         if (context == null) {
             context = element.getParent().getContext();
@@ -678,15 +693,33 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     .withTypeText("Variable").withIcon(AllIcons.Nodes.Variable);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
         }
+    }
 
+    /**
+     * Helper method to add constants as lookup elements.
+     *
+     * @param resultSet result set which needs to add the lookup elements
+     * @param constants list of constants which needs to be added
+     */
+    private void addConstants(CompletionResultSet resultSet, List<PsiElement> constants) {
+        for (PsiElement constant : constants) {
+            LookupElementBuilder builder = LookupElementBuilder.create(constant.getText())
+                    .withTypeText("Constant").withIcon(AllIcons.Nodes.Variable);
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+        }
+    }
+
+    /**
+     * Helper method to add constants as lookup elements.
+     *
+     * @param resultSet    result set which needs to add the lookup elements
+     * @param originalFile original file which we are editing
+     */
+    private void addConstants(CompletionResultSet resultSet, PsiFile originalFile) {
         PsiDirectory parentDirectory = originalFile.getParent();
         if (parentDirectory != null) {
             List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInPackage(parentDirectory);
-            for (PsiElement constant : constants) {
-                LookupElementBuilder builder = LookupElementBuilder.create(constant.getText())
-                        .withTypeText("Constant").withIcon(AllIcons.Nodes.Variable);
-                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
-            }
+            addConstants(resultSet, constants);
         }
     }
 
