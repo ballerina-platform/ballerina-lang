@@ -65,6 +65,7 @@ public class VariableReference extends BallerinaElementReference {
     @Nullable
     @Override
     public PsiElement resolve() {
+        // WARNING: If find usage shows an error message, verify that the super.resolve() returns an Identifier node.
         ResolveResult[] resolveResults = multiResolve(false);
         return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
     }

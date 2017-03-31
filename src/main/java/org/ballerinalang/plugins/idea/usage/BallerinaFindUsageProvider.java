@@ -19,8 +19,11 @@ package org.ballerinalang.plugins.idea.usage;
 import com.intellij.lang.cacheBuilder.WordsScanner;
 import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.lexer.RuleIElementType;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
+import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.*;
 
 public class BallerinaFindUsageProvider implements FindUsagesProvider {
+
     @Nullable
     @Override
     public WordsScanner getWordsScanner() {
@@ -74,6 +78,15 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 return "Field";
             case RULE_annotationDefinition:
                 return "Annotation";
+            case RULE_nameReference:
+                PsiElement parentNode = PsiTreeUtil.getParentOfType(element, FunctionInvocationStatementNode.class);
+                if (parentNode != null) {
+                    return "Function";
+                }
+                parentNode = PsiTreeUtil.getParentOfType(element, ActionInvocationNode.class);
+                if (parentNode != null) {
+                    return "Action";
+                }
         }
         return "";
     }
