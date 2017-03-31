@@ -282,7 +282,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addFunctions(resultSet, originalFile);
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
-                addVariables(resultSet, element);
+                addVariables(resultSet, element, originalFile);
 
                 addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
                 addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
@@ -364,7 +364,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addConnectors(resultSet, element);
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
-                addVariables(resultSet, element);
+                addVariables(resultSet, element, originalFile);
                 addAnnotations(resultSet, element);
 
                 addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
@@ -375,7 +375,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 PsiElement temp = parent.getParent().getParent().getParent().getParent();
                 while (temp != null && !(temp instanceof PsiFile)) {
                     if (temp instanceof StatementNode) {
-                        addVariables(resultSet, element);
+                        addVariables(resultSet, element, originalFile);
                         break;
                     }
                     temp = temp.getParent();
@@ -398,7 +398,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     PsiElement temp = parent.getParent().getParent().getParent().getParent();
                     while (temp != null && !(temp instanceof PsiFile)) {
                         if (temp instanceof StatementNode) {
-                            addVariables(resultSet, element);
+                            addVariables(resultSet, element, originalFile);
                             break;
                         }
                         temp = temp.getParent();
@@ -447,7 +447,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 while (temp != null && !(temp instanceof PsiFile)) {
                     // If parent type is StatementNode, add variable lookup elements
                     if (temp instanceof StatementNode) {
-                        addVariables(resultSet, element);
+                        addVariables(resultSet, element, originalFile);
                         break;
                     }
                     temp = temp.getParent();
@@ -573,7 +573,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     // Check whether the current identifier is the first identifier. Then we only need to suggest
                     // following elements.
                     if (prevToken.getText().equals(children[0].getText())) {
-                        addVariables(resultSet, element);
+                        addVariables(resultSet, element, originalFile);
                         addFunctions(resultSet, originalFile);
                         addPackages(resultSet, originalFile);
                         return;
@@ -587,18 +587,22 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     if (".".equals(prevToken.getText())) {
                         // Todo - Resolve
                     } else if (prevToken instanceof IdentifierPSINode) {
-                        addVariables(resultSet, element);
+                        addVariables(resultSet, element, originalFile);
+                        addFunctions(resultSet, originalFile);
+                        addPackages(resultSet, originalFile);
+                    } else {
+                        addVariables(resultSet, element, originalFile);
                         addFunctions(resultSet, originalFile);
                         addPackages(resultSet, originalFile);
                     }
                 } else {
-                    addVariables(resultSet, element);
+                    addVariables(resultSet, element, originalFile);
                     addFunctions(resultSet, originalFile);
                     addPackages(resultSet, originalFile);
                 }
             } else {
                 // Todo - Is valid condition?
-                addVariables(resultSet, element);
+                addVariables(resultSet, element, originalFile);
                 addFunctions(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
             }
@@ -663,7 +667,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param resultSet result set which needs to add the lookup elements
      * @param element   element in the current caret position
      */
-    private void addVariables(CompletionResultSet resultSet, PsiElement element) {
+    private void addVariables(CompletionResultSet resultSet, PsiElement element, PsiFile originalFile) {
         PsiElement context = element.getContext();
         if (context == null) {
             context = element.getParent().getContext();
@@ -673,6 +677,16 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             LookupElementBuilder builder = LookupElementBuilder.create(variable.getText())
                     .withTypeText("Variable").withIcon(AllIcons.Nodes.Variable);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+        }
+
+        PsiDirectory parentDirectory = originalFile.getParent();
+        if (parentDirectory != null) {
+            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInPackage(parentDirectory);
+            for (PsiElement constant : constants) {
+                LookupElementBuilder builder = LookupElementBuilder.create(constant.getText())
+                        .withTypeText("Constant").withIcon(AllIcons.Nodes.Variable);
+                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+            }
         }
     }
 

@@ -599,6 +599,18 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
+    public static List<PsiElement> getAllConstantsInPackage(PsiDirectory packageElement) {
+        List<PsiElement> results = new ArrayList<>();
+        List<PsiElement> functions = getAllMatchingElementsFromPackage(packageElement,
+                "//constantDefinition/Identifier");
+        if (functions != null) {
+            for (PsiElement function : functions) {
+                results.add(function);
+            }
+        }
+        return results;
+    }
+
     public static ArrayList<PsiElement> getAllImportedPackagesInCurrentFile(PsiElement element) {
         PsiFile file = element.getContainingFile();
 
@@ -816,37 +828,32 @@ public class BallerinaPsiImplUtil {
 
     public static List<PsiElement> getAllVariablesInResolvableScope(PsiElement context) {
         List<PsiElement> results = new ArrayList<>();
-        if (context instanceof PsiFile) {
-            Collection<? extends PsiElement> constantDefinitions =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//constantDefinition/Identifier");
-            for (PsiElement constantDefinition : constantDefinitions) {
-                if (!constantDefinition.getText().contains("IntellijIdeaRulezzz")) {
-                    results.add(constantDefinition);
-                }
+        // Get all variables from the context.
+        Collection<? extends PsiElement> variableDefinitions =
+                XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement/Identifier");
+        for (PsiElement variableDefinition : variableDefinitions) {
+            if (!variableDefinition.getText().contains("IntellijIdeaRulezzz") &&
+                    !variableDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
+                results.add(variableDefinition);
             }
-        } else {
-            Collection<? extends PsiElement> variableDefinitions =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement/Identifier");
-            for (PsiElement variableDefinition : variableDefinitions) {
-                if (!variableDefinition.getText().contains("IntellijIdeaRulezzz") &&
-                        !variableDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
-                    results.add(variableDefinition);
-                }
+        }
+        // Get all parameters from the context.
+        Collection<? extends PsiElement> parameterDefinitions =
+                XPath.findAll(BallerinaLanguage.INSTANCE, context, "//parameter/Identifier");
+        for (PsiElement parameterDefinition : parameterDefinitions) {
+            if (!parameterDefinition.getText().contains("IntellijIdeaRulezzz") &&
+                    !parameterDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
+                results.add(parameterDefinition);
             }
-            Collection<? extends PsiElement> parameterDefinitions =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//parameter/Identifier");
-            for (PsiElement parameterDefinition : parameterDefinitions) {
-                if (!parameterDefinition.getText().contains("IntellijIdeaRulezzz") &&
-                        !parameterDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
-                    results.add(parameterDefinition);
-                }
-            }
-            if (context != null) {
-                List<PsiElement> allVariablesInResolvableScope = getAllVariablesInResolvableScope(context.getContext());
-                for (PsiElement psiElement : allVariablesInResolvableScope) {
-                    if (!results.contains(psiElement)) {
-                        results.add(psiElement);
-                    }
+        }
+        // If the context is not null, get variables from parent context as well.
+        // Ex:- If the current context is function body, we need to get parameters from function definition which is
+        // the parent context.
+        if (context != null) {
+            List<PsiElement> allVariablesInResolvableScope = getAllVariablesInResolvableScope(context.getContext());
+            for (PsiElement psiElement : allVariablesInResolvableScope) {
+                if (!results.contains(psiElement)) {
+                    results.add(psiElement);
                 }
             }
         }
