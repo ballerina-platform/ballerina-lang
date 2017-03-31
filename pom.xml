@@ -165,7 +165,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.85</ballerina.version>
+        <ballerina.version>0.86-SNAPSHOT</ballerina.version>
 
         <!-- Maven plugins -->
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
