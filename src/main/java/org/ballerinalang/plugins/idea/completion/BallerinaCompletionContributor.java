@@ -42,6 +42,7 @@ import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
@@ -79,6 +80,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private static final LookupElementBuilder CONNECTOR;
     private static final LookupElementBuilder STRUCT;
     private static final LookupElementBuilder TYPEMAPPER;
+    private static final LookupElementBuilder ANNOTATION;
+    private static final LookupElementBuilder ATTACH;
 
     // Simple types
     private static final LookupElementBuilder BOOLEAN;
@@ -111,6 +114,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         CONNECTOR = createKeywordLookupElement("connector", true, AddSpaceInsertHandler.INSTANCE);
         STRUCT = createKeywordLookupElement("struct", true, AddSpaceInsertHandler.INSTANCE);
         TYPEMAPPER = createKeywordLookupElement("typemapper", true, AddSpaceInsertHandler.INSTANCE);
+        ANNOTATION = createKeywordLookupElement("annotation", true, AddSpaceInsertHandler.INSTANCE);
+        ATTACH = createKeywordLookupElement("attach", true, AddSpaceInsertHandler.INSTANCE);
 
         BOOLEAN = createSimpleTypeLookupElement("boolean", true, AddSpaceInsertHandler.INSTANCE);
         INT = createSimpleTypeLookupElement("int", true, AddSpaceInsertHandler.INSTANCE);
@@ -334,6 +339,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
                     }
                 }
+            } else if (superParent instanceof AnnotationDefinitionNode) {
+                addKeyword(resultSet, ATTACH, CONTEXT_KEYWORD_PRIORITY);
             } else {
                 // Todo - Check for other valid scenarios.
                 // Handle all other situations.
@@ -951,6 +958,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         resultSet.addElement(PrioritizedLookupElement.withPriority(CONNECTOR, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(STRUCT, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(TYPEMAPPER, priority));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(ANNOTATION, priority));
     }
 
     @Override

@@ -48,6 +48,7 @@ public class BallerinaTypes {
     public static RuleIElementType CONNECTOR_BODY = ruleIElementTypes.get(BallerinaParser.RULE_connectorBody);
     public static RuleIElementType SERVICE_BODY = ruleIElementTypes.get(BallerinaParser.RULE_serviceBody);
     public static RuleIElementType STRUCT_BODY = ruleIElementTypes.get(BallerinaParser.RULE_structBody);
+    public static RuleIElementType ANNOTATION_BODY = ruleIElementTypes.get(BallerinaParser.RULE_annotationBody);
 
     public static RuleIElementType FUNCTION_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_functionDefinition);
     public static RuleIElementType CONNECTOR_DEFINITION =
@@ -73,8 +74,10 @@ public class BallerinaTypes {
 
     // Keywords
     public static TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
+    public static TokenIElementType ANNOTATION = tokenIElementTypes.get(BallerinaLexer.ANNOTATION);
     public static TokenIElementType ANY = tokenIElementTypes.get(BallerinaLexer.ANY);
     public static TokenIElementType AS = tokenIElementTypes.get(BallerinaLexer.AS);
+    public static TokenIElementType ATTACH = tokenIElementTypes.get(BallerinaLexer.ATTACH);
     public static TokenIElementType BREAK = tokenIElementTypes.get(BallerinaLexer.BREAK);
     public static TokenIElementType CATCH = tokenIElementTypes.get(BallerinaLexer.CATCH);
     public static TokenIElementType CONNECTOR = tokenIElementTypes.get(BallerinaLexer.CONNECTOR);
