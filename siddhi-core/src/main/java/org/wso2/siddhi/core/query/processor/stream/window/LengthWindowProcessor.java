@@ -99,10 +99,11 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
                         streamEventChunk.insertBeforeCurrent(firstEvent);
                         this.expiredEventChunk.add(clonedEvent);
                     } else {
-                        streamEventChunk.insertAfterCurrent(clonedEvent);
                         StreamEvent resetEvent = streamEventCloner.copyStreamEvent(streamEvent);
                         resetEvent.setType(ComplexEvent.Type.RESET);
                         streamEventChunk.insertAfterCurrent(resetEvent);
+                        streamEventChunk.insertAfterCurrent(clonedEvent);
+
                         // skip the added clonedEvents from next iteration.
                         streamEventChunk.next();
                         streamEventChunk.next();
