@@ -19,6 +19,8 @@ package org.ballerinalang.model.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -111,6 +113,11 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
         }
 
         return "";
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeXML;
     }
 
     @Override

@@ -10,10 +10,6 @@ struct Person {
     Family family;
 }
 
-@doc:Description("Family representation")
-@doc:Field("spouse: a spouse")
-@doc:Field("noOfChildren: number of children")
-@doc:Field("children: list of children")
 struct Family {
     string spouse;
     int noOfChildren;
@@ -34,7 +30,7 @@ function testStructOfStruct() (string) {
     Person[] emps = [emp1, emp2];
     Department dpt = {employees:emps};
     
-    string country = dpt.employees[0].adrs["country"];
+    string country = (string) dpt.employees[0].adrs["country"];
     return country;
 }
 

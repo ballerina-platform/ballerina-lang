@@ -18,7 +18,7 @@
 package org.ballerinalang.natives;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
@@ -53,7 +53,7 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
     protected boolean isPublic = true;
     protected SymbolName symbolName;
 
-    private List<Annotation> annotations;
+    private List<AnnotationAttachment> annotations;
     private List<ParameterDef> parameterDefs;
     private List<ParameterDef> returnParams;
     private List<ConstDef> constants;
@@ -84,8 +84,8 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
     }
 
     @Override
-    public Annotation[] getAnnotations() {
-        return annotations.toArray(new Annotation[annotations.size()]);
+    public AnnotationAttachment[] getAnnotations() {
+        return annotations.toArray(new AnnotationAttachment[annotations.size()]);
     }
 
     public ParameterDef[] getParameterDefs() {

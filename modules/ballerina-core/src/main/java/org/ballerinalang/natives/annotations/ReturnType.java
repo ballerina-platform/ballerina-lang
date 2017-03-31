@@ -28,4 +28,6 @@ public @interface ReturnType {
 
     // elementType specially used with Arrays to specify the type of arrays.
     TypeEnum elementType() default TypeEnum.EMPTY;
+
+    int arrayDimensions() default 1;
 }

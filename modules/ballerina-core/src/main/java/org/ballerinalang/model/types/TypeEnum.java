@@ -38,7 +38,8 @@ public enum TypeEnum {
     EXCEPTION("exception"),
     DATATABLE("datatable"),
     STRUCT("struct"),
-    EMPTY("");
+    EMPTY(""),
+    ANY("any");
 
     private String name;
 

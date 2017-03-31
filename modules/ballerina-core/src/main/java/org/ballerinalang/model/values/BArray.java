@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.lang.reflect.Array;
@@ -79,6 +80,11 @@ public final class BArray<V extends BValue> implements BRefType {
     @Override
     public String stringValue() {
         return null;
+    }
+
+    @Override
+    public BType getType() {
+        return null; //todo
     }
 
     @Override

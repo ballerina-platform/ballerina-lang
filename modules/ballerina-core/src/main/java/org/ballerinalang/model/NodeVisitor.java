@@ -102,14 +102,17 @@ public interface NodeVisitor {
 
     void visit(Worker worker);
 
-    void visit(Annotation annotation);
+    void visit(AnnotationAttachment annotation);
 
     void visit(ParameterDef parameterDef);
 
     void visit(VariableDef variableDef);
 
     void visit(StructDef structDef);
+    
+    void visit(AnnotationAttributeDef annotationAttributeDef);
 
+    void visit(AnnotationDef annotationDef);
 
     // Statements
 
@@ -221,4 +224,5 @@ public interface NodeVisitor {
     void visit(MainInvoker mainInvoker);
 
     void visit(WorkerVarLocation workerVarLocation);
+
 }
