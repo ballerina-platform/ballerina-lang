@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.8.1</version>
+    <version>0.8.2</version>
     <category>Custom Languages</category>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
@@ -13,15 +13,13 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Support syntax highlighting for Ballerina files.</li>
-        <li>Support creating new Ballerina Projects.</li>
-        <li>Support adding Ballerina SDKs.</li>
-        <li>Support running single file Ballerina applications, services.</li>
-        <li>Support code completion.</li>
-        <li>Support refactoring.</li>
-        <li>Support formatting Ballerina files.</li>
-        <li>Support live templates.</li>
+        <li>Support Ballerina v0.85 grammar.</li>
+        <li>Add Ballerina application run support.</li>
+        <li>Update Ballerina file run configurations.</li>
+        <li>Improve find usage support.</li>
+        <li>Improve parameter info support.</li>
       </ul>
+      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/3">View all changes and bug fixes.</a>
     ]]>
     </change-notes>
 
