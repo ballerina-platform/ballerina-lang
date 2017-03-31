@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.psi.PsiElement;
@@ -22,6 +23,7 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +43,13 @@ public class ActionInvocationReference extends BallerinaElementReference {
     @Override
     public Object[] getVariants() {
         return new Object[0];
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve() {
+        ResolveResult[] resolveResults = multiResolve(false);
+        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
     }
 
     @NotNull
