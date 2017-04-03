@@ -49,6 +49,7 @@ import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
@@ -274,7 +275,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 return;
             }
 
-            if (superParent instanceof ResourceDefinitionNode) {
+            if (superParent instanceof ResourceDefinitionNode || superParent instanceof ServiceBodyNode) {
                 addKeyword(resultSet, RESOURCE, CONTEXT_KEYWORD_PRIORITY);
             }
 
@@ -953,7 +954,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
         resultSet.addElement(PrioritizedLookupElement.withPriority(CONST, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(SERVICE, priority));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(RESOURCE, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(FUNCTION, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(CONNECTOR, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(STRUCT, priority));
