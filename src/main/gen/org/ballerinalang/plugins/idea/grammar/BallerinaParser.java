@@ -942,10 +942,7 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class FunctionDefinitionContext extends ParserRuleContext {
-		public List<TerminalNode> Identifier() { return getTokens(BallerinaParser.Identifier); }
-		public TerminalNode Identifier(int i) {
-			return getToken(BallerinaParser.Identifier, i);
-		}
+		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public ParameterListContext parameterList() {
 			return getRuleContext(ParameterListContext.class,0);
 		}
@@ -1023,7 +1020,7 @@ public class BallerinaParser extends Parser {
 					setState(262);
 					match(THROWS);
 					setState(263);
-					match(Identifier);
+					match(EXCEPTION);
 					}
 				}
 
@@ -1070,7 +1067,7 @@ public class BallerinaParser extends Parser {
 					setState(277);
 					match(THROWS);
 					setState(278);
-					match(Identifier);
+					match(EXCEPTION);
 					}
 				}
 
@@ -1249,10 +1246,7 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class ActionDefinitionContext extends ParserRuleContext {
-		public List<TerminalNode> Identifier() { return getTokens(BallerinaParser.Identifier); }
-		public TerminalNode Identifier(int i) {
-			return getToken(BallerinaParser.Identifier, i);
-		}
+		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public List<AnnotationAttachmentContext> annotationAttachment() {
 			return getRuleContexts(AnnotationAttachmentContext.class);
 		}
@@ -1350,7 +1344,7 @@ public class BallerinaParser extends Parser {
 					setState(327);
 					match(THROWS);
 					setState(328);
-					match(Identifier);
+					match(EXCEPTION);
 					}
 				}
 
@@ -1411,7 +1405,7 @@ public class BallerinaParser extends Parser {
 					setState(348);
 					match(THROWS);
 					setState(349);
-					match(Identifier);
+					match(EXCEPTION);
 					}
 				}
 
@@ -6667,12 +6661,12 @@ public class BallerinaParser extends Parser {
 		"[\2\2\u0100\u0102\7\64\2\2\u0101\u0103\5\u008eH\2\u0102\u0101\3\2\2\2"+
 		"\u0102\u0103\3\2\2\2\u0103\u0104\3\2\2\2\u0104\u0106\7\65\2\2\u0105\u0107"+
 		"\5\u008aF\2\u0106\u0105\3\2\2\2\u0106\u0107\3\2\2\2\u0107\u010a\3\2\2"+
-		"\2\u0108\u0109\7!\2\2\u0109\u010b\7[\2\2\u010a\u0108\3\2\2\2\u010a\u010b"+
+		"\2\u0108\u0109\7!\2\2\u0109\u010b\7-\2\2\u010a\u0108\3\2\2\2\u010a\u010b"+
 		"\3\2\2\2\u010b\u010c\3\2\2\2\u010c\u0120\7:\2\2\u010d\u010e\7\22\2\2\u010e"+
 		"\u010f\7[\2\2\u010f\u0111\7\64\2\2\u0110\u0112\5\u008eH\2\u0111\u0110"+
 		"\3\2\2\2\u0111\u0112\3\2\2\2\u0112\u0113\3\2\2\2\u0113\u0115\7\65\2\2"+
 		"\u0114\u0116\5\u008aF\2\u0115\u0114\3\2\2\2\u0115\u0116\3\2\2\2\u0116"+
-		"\u0119\3\2\2\2\u0117\u0118\7!\2\2\u0118\u011a\7[\2\2\u0119\u0117\3\2\2"+
+		"\u0119\3\2\2\2\u0117\u0118\7!\2\2\u0118\u011a\7-\2\2\u0119\u0117\3\2\2"+
 		"\2\u0119\u011a\3\2\2\2\u011a\u011b\3\2\2\2\u011b\u011c\7\66\2\2\u011c"+
 		"\u011d\5\26\f\2\u011d\u011e\7\67\2\2\u011e\u0120\3\2\2\2\u011f\u00fd\3"+
 		"\2\2\2\u011f\u010d\3\2\2\2\u0120\31\3\2\2\2\u0121\u0122\7\f\2\2\u0122"+
@@ -6689,14 +6683,14 @@ public class BallerinaParser extends Parser {
 		"\u0143\7\64\2\2\u0142\u0144\5\u008eH\2\u0143\u0142\3\2\2\2\u0143\u0144"+
 		"\3\2\2\2\u0144\u0145\3\2\2\2\u0145\u0147\7\65\2\2\u0146\u0148\5\u008a"+
 		"F\2\u0147\u0146\3\2\2\2\u0147\u0148\3\2\2\2\u0148\u014b\3\2\2\2\u0149"+
-		"\u014a\7!\2\2\u014a\u014c\7[\2\2\u014b\u0149\3\2\2\2\u014b\u014c\3\2\2"+
+		"\u014a\7!\2\2\u014a\u014c\7-\2\2\u014b\u0149\3\2\2\2\u014b\u014c\3\2\2"+
 		"\2\u014c\u014d\3\2\2\2\u014d\u0167\7:\2\2\u014e\u0150\5> \2\u014f\u014e"+
 		"\3\2\2\2\u0150\u0153\3\2\2\2\u0151\u014f\3\2\2\2\u0151\u0152\3\2\2\2\u0152"+
 		"\u0154\3\2\2\2\u0153\u0151\3\2\2\2\u0154\u0155\7\4\2\2\u0155\u0156\7["+
 		"\2\2\u0156\u0158\7\64\2\2\u0157\u0159\5\u008eH\2\u0158\u0157\3\2\2\2\u0158"+
 		"\u0159\3\2\2\2\u0159\u015a\3\2\2\2\u015a\u015c\7\65\2\2\u015b\u015d\5"+
 		"\u008aF\2\u015c\u015b\3\2\2\2\u015c\u015d\3\2\2\2\u015d\u0160\3\2\2\2"+
-		"\u015e\u015f\7!\2\2\u015f\u0161\7[\2\2\u0160\u015e\3\2\2\2\u0160\u0161"+
+		"\u015e\u015f\7!\2\2\u015f\u0161\7-\2\2\u0160\u015e\3\2\2\2\u0160\u0161"+
 		"\3\2\2\2\u0161\u0162\3\2\2\2\u0162\u0163\7\66\2\2\u0163\u0164\5\26\f\2"+
 		"\u0164\u0165\7\67\2\2\u0165\u0167\3\2\2\2\u0166\u013b\3\2\2\2\u0166\u0151"+
 		"\3\2\2\2\u0167\37\3\2\2\2\u0168\u0169\7\37\2\2\u0169\u016a\7[\2\2\u016a"+

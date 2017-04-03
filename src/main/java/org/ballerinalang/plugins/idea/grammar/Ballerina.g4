@@ -58,8 +58,8 @@ callableUnitBody
     ;
 
 functionDefinition
-    :   'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
-    |   'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' callableUnitBody '}'
+    :   'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? ';'
+    |   'function' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? '{' callableUnitBody '}'
     ;
 
 connectorDefinition
@@ -71,8 +71,8 @@ connectorBody
     ;
 
 actionDefinition
-    :   annotationAttachment* 'native' 'action' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
-    |   annotationAttachment* 'action' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' callableUnitBody '}'
+    :   annotationAttachment* 'native' 'action' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? ';'
+    |   annotationAttachment* 'action' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? '{' callableUnitBody '}'
     ;
 
 structDefinition
