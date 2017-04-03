@@ -1,9 +1,11 @@
-const fs = require('fs'),
-      glob = require('glob'),
-      decompress = require('decompress'),
-      path = require('path'),
-      webModuleBuild = path.join(__dirname, '../web/target/ballerina-composer-web-*.zip'),
-      serviceBuild = path.join(__dirname, '../services/workspace-service/target/workspace-service-*.jar');;
+const fs = require("fs"),
+      glob = require("glob"),
+      decompress = require("decompress"),
+      path = require("path"),
+      webModuleBuild = path.join(__dirname, "..", "web", "target",
+                    "ballerina-composer-web-*.zip"),
+      serviceBuild = path.join(__dirname, "..", "services",
+                    "workspace-service", "target", "workspace-service-*.jar");
 
 // copy resources from web module
 function prepareWebModule() {
@@ -28,7 +30,7 @@ function prepareService() {
     console.error("Error while searching for service build file.");
   }
 
-  fs.createReadStream(foundFiles[0]).pipe(fs.createWriteStream(path.join(__dirname, 'workspace-service.jar')));
+  fs.createReadStream(foundFiles[0]).pipe(fs.createWriteStream(path.join(__dirname, "workspace-service.jar")));
 }
 
 prepareWebModule();
