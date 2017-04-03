@@ -6,20 +6,19 @@
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
-      Plugin for Ballerina language.<br>
-      <br>
-      Visit <a href="http://ballerinalang.org">BallerinaLang.org</a> for more details.
+      <a href="http://ballerinalang.org">Ballerina</a> is a general purpose, concurrent and strongly typed programming language with both textual and graphical syntax, optimized for integration. This plugin supports development of Ballerina applications with IntelliJ IDEA.
+      Please note that the graphical syntax of Ballerina is not yet supported by this plugin. For that, you can use  <a href="http://ballerinalang.org/downloads/">Ballerina Composer</a> which is available in Ballerina Tools.<br>
     ]]></description>
 
     <change-notes><![CDATA[
       <ul>
         <li>Support Ballerina v0.85 grammar.</li>
         <li>Add Ballerina application run support.</li>
-        <li>Update Ballerina file run configurations.</li>
+        <li>Update Ballerina file run configuration.</li>
         <li>Improve find usage support.</li>
         <li>Improve parameter info support.</li>
       </ul>
-      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/3">View all changes and bug fixes.</a>
+      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/3?closed=1">View all changes and bug fixes.</a>
     ]]>
     </change-notes>
 
