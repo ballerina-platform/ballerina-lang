@@ -1,12 +1,10 @@
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
-import org.mvel2.util.Varargs;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
@@ -19,18 +17,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class IncrementalExecutor {
-    // has the property called Duration it can be SECOND, MINUTE and etc
-    // list of functions operators
-    // Also need to have a link to the parent for instance a link from SECOND to MINUTE
-    // Next, based on basic calculators, we initialize a set of basic calculators
-    //
+    // compositeAggregators contains a map of CompositeAggregator
+    private List<CompositeAggregator> compositeAggregators;
+    // basicExecutorDetails contains basic executors such as sum, count, and etc
+    // we need to build composite aggregates.
+    private List<ExpressionExecutorDetails> basicExecutorDetails;
+    private ExecutionPlanContext executionPlanContext;
+    // groupByExecutor is used to get the value of group by clause
+    private ExpressionExecutor groupByExecutor;
+    private long nextEmitTime = -1;
+    private long startTime = 0;
     private TimePeriod.Duration duration;
     private IncrementalExecutor child;
-    private ConcurrentMap<String, IncrementalAggregator> aggregatorsMap;
-    private List<ExpressionExecutorDTO> expressionExecutors;
-    private List<String> executorNames;
-    private ExpressionExecutor groupByExecutor;
-
     // For each unique value of the the "group by" attribute
     // we initialize this array and keep function values.
     private ConcurrentMap<String, ConcurrentMap<String, Object>> storeAggregatorFunctions;
@@ -44,68 +42,132 @@ public class IncrementalExecutor {
                                 int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
         this.duration = duration;
         this.child = child;
-        this.aggregatorsMap = createIncrementalAggregators(functionAttributes);
-        this.expressionExecutors = generateFunctionExecutors(metaEvent, currentState, eventTableMap, executorList,
+        this.compositeAggregators = createIncrementalAggregators(functionAttributes);
+        this.basicExecutorDetails = basicFunctionExecutors(metaEvent, currentState, eventTableMap, executorList,
                 executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
         this.groupByExecutor = generateGroupByExecutor(groupByVariable, metaEvent, currentState, eventTableMap,
                 executorList, executionPlanContext, defaultStreamEventIndex, queryName);
         storeAggregatorFunctions = new ConcurrentHashMap<>();
+        this.executionPlanContext = executionPlanContext;
     }
 
-    private ConcurrentMap<String, IncrementalAggregator> createIncrementalAggregators(List<AttributeFunction> functionAttributes) {
-        ConcurrentMap<String, IncrementalAggregator> aggregatorsMap = new ConcurrentHashMap<>();
+    private List<CompositeAggregator> createIncrementalAggregators(List<AttributeFunction> functionAttributes) {
+        List<CompositeAggregator> compositeAggregators = new ArrayList<>();
         for (AttributeFunction function : functionAttributes) {
             if (function.getName().equals("avg")) {
                 AvgIncrementalAttributeAggregator average = new AvgIncrementalAttributeAggregator(function);
-                aggregatorsMap.putIfAbsent(average.getAttributeName(), average);
+                compositeAggregators.add(average);
             } else {
                 // TODO: 3/10/17 add other Exceptions
             }
         }
-        return aggregatorsMap;
+        return compositeAggregators;
     }
 
-    private ExpressionExecutor generateGroupByExecutor(Variable groupBy, MetaComplexEvent metaEvent,
+    private List<Object> calculateAggregators(String groupBy) {
+        List<Object> aggregatorValues = new ArrayList<>();
+        for (CompositeAggregator compositeAggregator : this.compositeAggregators) {
+            // key will be attribute name + function name, examples price+ave, age+count etc
+            ConcurrentMap<String, Object> baseAggregatorValues = this.storeAggregatorFunctions.get(groupBy);
+            Expression[] baseAggregators = compositeAggregator.getBaseAggregators();
+            Object[] expressionValues = new Object[baseAggregators.length];
+            for (int i = 0; i < baseAggregators.length; i++) {
+                Expression aggregator = baseAggregators[i];
+                String functionName = ((AttributeFunction) aggregator).getName();
+                String attributeName = compositeAggregator.getAttributeName();
+                expressionValues[i] = baseAggregatorValues.get(functionName + attributeName);
+            }
+            aggregatorValues.add(compositeAggregator.aggregate(expressionValues));
+        }
+        return aggregatorValues;
+    }
+
+    private void resetAggregatorStore(){
+        this.storeAggregatorFunctions = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * @param groupByClause
+     * @param metaEvent
+     * @param currentState
+     * @param eventTableMap
+     * @param executorList
+     * @param executionPlanContext
+     * @param defaultStreamEventIndex
+     * @param queryName
+     * @return
+     */
+    private ExpressionExecutor generateGroupByExecutor(Variable groupByClause, MetaComplexEvent metaEvent,
                                                        int currentState, Map<String, EventTable> eventTableMap,
                                                        List<VariableExpressionExecutor> executorList,
                                                        ExecutionPlanContext executionPlanContext,
                                                        int defaultStreamEventIndex, String queryName) {
 
-        ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(groupBy, metaEvent, currentState, eventTableMap, executorList,
-                executionPlanContext, true, defaultStreamEventIndex, queryName);
+        ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(groupByClause, metaEvent,
+                currentState, eventTableMap, executorList, executionPlanContext, true,
+                defaultStreamEventIndex, queryName);
         return variableExpressionExecutor;
     }
 
-    private List<ExpressionExecutorDTO> generateFunctionExecutors(MetaComplexEvent metaEvent,
-                                                                  int currentState, Map<String, EventTable> eventTableMap,
-                                                                  List<VariableExpressionExecutor> executorList,
-                                                                  ExecutionPlanContext executionPlanContext, boolean groupBy,
-                                                                  int defaultStreamEventIndex, String queryName) {
-        Set<Expression> baseAggregators = new HashSet<>();
-        for (String aggregator : this.aggregatorsMap.keySet()) {
-            Expression[] bases = this.aggregatorsMap.get(aggregator).getBaseAggregators();
-            baseAggregators.addAll(Arrays.asList(bases));
+
+    /***
+     *
+     * @param metaEvent
+     * @param currentState
+     * @param eventTableMap
+     * @param executorList
+     * @param executionPlanContext
+     * @param groupBy
+     * @param defaultStreamEventIndex
+     * @param queryName
+     * @return
+     */
+    private List<ExpressionExecutorDetails> basicFunctionExecutors(MetaComplexEvent metaEvent,
+                                                                   int currentState, Map<String, EventTable> eventTableMap,
+                                                                   List<VariableExpressionExecutor> executorList,
+                                                                   ExecutionPlanContext executionPlanContext, boolean groupBy,
+                                                                   int defaultStreamEventIndex, String queryName) {
+        Set<BaseExpressionDetails> baseAggregators = new HashSet<>();
+        for(CompositeAggregator compositeAggregator : this.compositeAggregators){
+            Expression[] bases = compositeAggregator.getBaseAggregators();
+            for(Expression expression : bases){
+                BaseExpressionDetails baseExpressionDetails = new BaseExpressionDetails(expression, compositeAggregator.getAttributeName());
+                baseAggregators.add(baseExpressionDetails);
+            }
         }
 
-        List<ExpressionExecutorDTO> baseFunctionExecutors = new ArrayList<>();
-        for (Expression baseAggregator : baseAggregators) {
+        List<ExpressionExecutorDetails> baseFunctionExecutors = new ArrayList<>();
+        for (BaseExpressionDetails baseAggregator : baseAggregators) {
 
-            ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(baseAggregator, metaEvent,
+            ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(baseAggregator.getBaseExpression(), metaEvent,
                     currentState, eventTableMap, executorList, executionPlanContext, groupBy,
                     defaultStreamEventIndex, queryName);
-            String executorName = ((AttributeFunction) baseAggregator).getName(); // TODO: 3/28/17 error checking ....?
-            ExpressionExecutorDTO executorDTO = new ExpressionExecutorDTO(expressionExecutor, executorName);
-            baseFunctionExecutors.add(executorDTO);
+            String executorUniqueKey = ((AttributeFunction) baseAggregator.getBaseExpression()).getName() + baseAggregator.getAttribute();
+            ExpressionExecutorDetails executorDetails = new ExpressionExecutorDetails(expressionExecutor, executorUniqueKey);
+            baseFunctionExecutors.add(executorDetails);
         }
         return baseFunctionExecutors;
     }
 
 
     public void execute(ComplexEvent event) {
+        if (nextEmitTime == -1) {
+            long currentTime = this.executionPlanContext.getTimestampGenerator().currentTime();
+            nextEmitTime = getNextEmitTime(currentTime);
+        }
+        boolean sendEvents;
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+        if (currentTime >= nextEmitTime) {
+            nextEmitTime += 1000; // TODO: 3/29/17 :
+            sendEvents = true;
+        } else {
+            sendEvents = false;
+        }
 
         // TODO: 3/27/17 Based on the output type correctly pass this
+        // TODO: 3/29/17 Handle multiple group by clauses
         String groupByOutput = (String) this.groupByExecutor.execute(event);
-        for (ExpressionExecutorDTO executorDTO : expressionExecutors) {
+        for (ExpressionExecutorDetails executorDTO : basicExecutorDetails) {
             ExpressionExecutor expressionExecutor = executorDTO.getExecutor();
             Object value = expressionExecutor.execute(event);
             String functionName = executorDTO.getExecutorName();
@@ -123,8 +185,13 @@ public class IncrementalExecutor {
                 storeAggregatorFunctions.put(groupByOutput, individualMap);
             }
         }
-    }
 
+        if (sendEvents) {
+            // 1. Extract relevant data from HashMap. Create an event and send it
+                  // calculateAggregators(groupBy)
+            // 2. Update the child
+        }
+    }
 
     public static IncrementalExecutor second(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
                                              MetaComplexEvent metaEvent,
@@ -213,11 +280,11 @@ public class IncrementalExecutor {
         return year;
     }
 
-    private class ExpressionExecutorDTO {
+    private class ExpressionExecutorDetails {
         private ExpressionExecutor executor;
         private String executorName;
 
-        public ExpressionExecutorDTO(ExpressionExecutor executor, String executorName) {
+        public ExpressionExecutorDetails(ExpressionExecutor executor, String executorName) {
             this.executor = executor;
             this.executorName = executorName;
         }
@@ -229,5 +296,59 @@ public class IncrementalExecutor {
         public String getExecutorName() {
             return this.executorName;
         }
+    }
+
+    private class BaseExpressionDetails {
+        private Expression baseExpression;
+        private String attribute; // baseExpression will be evaluated against this attribure
+
+        public BaseExpressionDetails(Expression baseExpression, String attribute) {
+            this.baseExpression = baseExpression;
+            this.attribute = attribute;
+        }
+
+        public Expression getBaseExpression() {
+            return this.baseExpression;
+        }
+
+        public String getAttribute() {
+            return this.attribute;
+        }
+
+        @Override
+        public int hashCode(){
+            int hash = 0;
+            if(this.baseExpression != null){
+                hash += this.baseExpression.hashCode();
+            }
+            if(this.attribute != null){
+                hash += this.attribute.hashCode();
+            }
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            BaseExpressionDetails that = (BaseExpressionDetails) o;
+            if (this.baseExpression.equals(that.baseExpression) && this.attribute.equals(that.attribute)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private long getNextEmitTime(long currentTime) {
+        // returns the next emission time based on system clock round time values.
+        long elapsedTimeSinceLastEmit = (currentTime - startTime) % 1000;
+        long emitTime = currentTime + (1000 - elapsedTimeSinceLastEmit);
+        return emitTime;
     }
 }

@@ -5,7 +5,7 @@ import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-public class AvgIncrementalAttributeAggregator implements IncrementalAggregator {
+public class AvgIncrementalAttributeAggregator implements CompositeAggregator {
 
     private String attributeName;
     private Attribute.Type type;

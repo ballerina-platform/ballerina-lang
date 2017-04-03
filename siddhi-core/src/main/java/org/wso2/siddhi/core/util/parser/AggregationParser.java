@@ -103,13 +103,16 @@ public class AggregationParser {
             }
 
             List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(definition.getTimePeriod());
+            Variable groupByVar = getGroupByAttribute(definition.getSelector())
 
             IncrementalExecutor child = build(functionsAttributes, incrementalDurations.get(incrementalDurations.size() - 1), null,
-                    metaComplexEvent, 0, eventTableMap, executors, executionPlanContext, true, 0, queryName);
+                    metaComplexEvent, 0, eventTableMap, executors, executionPlanContext,
+                    true, 0, queryName, groupByVar);
             IncrementalExecutor root = child;
             for (int i = incrementalDurations.size() - 2; i >= 0; i--) {
                 root = build(functionsAttributes, incrementalDurations.get(i), child, metaComplexEvent, 0,
-                        eventTableMap, executors, executionPlanContext, true, 0, queryName);
+                        eventTableMap, executors, executionPlanContext, true, 0,
+                        queryName, groupByVar);
                 child = root;
             }
 
@@ -127,14 +130,14 @@ public class AggregationParser {
                                              int currentState, Map<String, EventTable> eventTableMap,
                                              List<VariableExpressionExecutor> executorList,
                                              ExecutionPlanContext executionPlanContext, boolean groupBy,
-                                             int defaultStreamEventIndex, String queryName) {
+                                             int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
         switch (duration) {
             case SECONDS:
                 return IncrementalExecutor.second(functionsAttributes, child, metaEvent, currentState, eventTableMap,
-                        executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                        executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
             case MINUTES:
                 return IncrementalExecutor.minute(functionsAttributes, child, metaEvent, currentState, eventTableMap,
-                        executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                        executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
             default:
                 // TODO: 3/15/17 Throws an exception
                 return null;

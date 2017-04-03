@@ -3,7 +3,7 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-public interface IncrementalAggregator {
+public interface CompositeAggregator {
     public String getAttributeName();
 
     public Attribute.Type getType();
