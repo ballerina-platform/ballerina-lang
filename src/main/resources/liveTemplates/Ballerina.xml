@@ -29,35 +29,32 @@
         </context>
     </template>
 
-    <template name="fune" value="function $NAME$ ($ARGS$) throws $EXCEPTION$ {&#10;    $END$&#10;}"
+    <template name="fune" value="function $NAME$ ($ARGS$) throws exception {&#10;    $END$&#10;}"
               description="Function Template" toReformat="false"
               toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="EXCEPTION" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_FILE" value="true"/>
         </context>
     </template>
 
-    <template name="funre" value="function $NAME$ ($ARGS$) ($RETURN$) throws $EXCEPTION$ {&#10;    $END$&#10;}"
+    <template name="funre" value="function $NAME$ ($ARGS$) ($RETURN$) throws exception {&#10;    $END$&#10;}"
               description="Function Template" toReformat="false"
               toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="EXCEPTION" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="RETURN" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_FILE" value="true"/>
         </context>
     </template>
 
-    <template name="funer" value="function $NAME$ ($ARGS$) ($RETURN$) throws $EXCEPTION$ {&#10;    $END$&#10;}"
+    <template name="funer" value="function $NAME$ ($ARGS$) ($RETURN$) throws exception {&#10;    $END$&#10;}"
               description="Function Template" toReformat="false"
               toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="EXCEPTION" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="RETURN" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_FILE" value="true"/>
@@ -74,10 +71,10 @@
         </context>
     </template>
 
-    <template name="ser" value='@http:BasePath ("/$PATH$")&#10;service $NAME$ {&#10;    $END$&#10;}'
+    <template name="ser" value="$ANNOTATION$&#10;service $NAME$ {&#10;    $END$&#10;}"
               description="Service Template" toReformat="false"
               toShortenFQNames="false">
-        <variable name="PATH" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ANNOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_FILE" value="true"/>
@@ -95,30 +92,17 @@
         </context>
     </template>
 
-    <template name="res" value='@$METHOD$&#10;resource $NAME$ ($ARGS$) {&#10;    $END$&#10;}'
-              description="Connector Template" toReformat="false"
+    <template name="res" value='$ANNOTATION$&#10;resource $NAME$ (message m) {&#10;    $END$&#10;}'
+              description="Resource Template" toReformat="false"
               toShortenFQNames="false">
-        <variable name="METHOD" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ANNOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_SERVICE" value="true"/>
         </context>
     </template>
 
-    <template name="resb" value='@$METHOD$&#10;@Path ("/$PATH$")&#10;resource $NAME$ ($ARGS$) {&#10;    $END$&#10;}'
-              description="Connector Template" toReformat="false"
-              toShortenFQNames="false">
-        <variable name="METHOD" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="PATH" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_SERVICE" value="true"/>
-        </context>
-    </template>
-
-    <template name="tm" value="typemapper $NAME$ ($INPUT$) ($TYPE$) {&#10;    $END$&#10;}"
+    <template name="typ" value="typemapper $NAME$ ($INPUT$) ($TYPE$) {&#10;    $END$&#10;}"
               description="Typemapper Template" toReformat="false"
               toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
