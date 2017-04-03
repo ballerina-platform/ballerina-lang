@@ -330,6 +330,11 @@
                 <version>${commons-vfs2.wso2.version}</version>
             </dependency>
             <dependency>
+                <groupId>commons-io.wso2</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.wso2.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon.transport</groupId>
                 <artifactId>org.wso2.carbon.transport.file</artifactId>
                 <version>${carbon.transport.version}</version>
@@ -521,6 +526,8 @@
         <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
+        <commons-io.wso2.version>2.4.0.wso2v1</commons-io.wso2.version>
+        <commons-io.version.range>[2.4.0, 2.5)</commons-io.version.range>
 
         <activemq.broker.vesion>5.14.3</activemq.broker.vesion>
         <javax.jms.version>2.0.1</javax.jms.version>

@@ -36,8 +36,6 @@ import java.util.Map;
         value = "SEND action implementation of the File Connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
         value = "File connector") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
-        value = "Message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "originalFile",
         value = "Path of the file") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "newFile",

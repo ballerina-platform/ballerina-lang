@@ -3,8 +3,8 @@ package org.ballerinalang.nativeimpl.connectors.file.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -17,8 +17,12 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.StreamingCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,10 +31,10 @@ import java.util.Map;
  */
 @BallerinaAction(
         packageName = "ballerina.net.file",
-        actionName = "append",
+        actionName = "writeCSV",
         connectorName = ClientConnector.CONNECTOR_NAME,
         args = { @Argument(name = "fileClientConnector", type = TypeEnum.CONNECTOR),
-                 @Argument(name = "m", type = TypeEnum.MESSAGE),
+                 @Argument(name = "arr", type = TypeEnum.ARRAY, elementType = TypeEnum.STRING),
                  @Argument(name = "path", type = TypeEnum.STRING)/*,
                  @Argument(name = "properties", type = TypeEnum.MAP)*/ },
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
@@ -38,14 +42,14 @@ import java.util.Map;
         value = "APPEND action implementation of the File Connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
         value = "File Connector") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
-        value = "Message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "array",
+        value = "Any") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "path",
         value = "Path of the file") })
 //@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "properties",
 //        value = "Properties") })
-public class Append extends AbstractFileAction {
-    private static final Logger log = LoggerFactory.getLogger(Append.class);
+public class WriteCSV extends AbstractFileAction {
+    private static final Logger log = LoggerFactory.getLogger(WriteCSV.class);
     @Override public BValue execute(Context context) {
 
         // Extracting Argument values
@@ -55,16 +59,28 @@ public class Append extends AbstractFileAction {
             throw new BallerinaException("Need to use a FileConnector as the first argument", context);
         }
         //Getting ballerina message and extract carbon message.
-        BMessage bMessage = (BMessage) getArgument(context, 1);
-        if (bMessage == null) {
-            throw new BallerinaException("Ballerina message not found", context);
-        }
-        CarbonMessage message = bMessage.value();
+//        BMessage bMessage = new BMessage();
+//        if (bMessage == null) {
+//            throw new BallerinaException("Ballerina message not found", context);
+//        }
         BString path = (BString) getArgument(context, 2);
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
         //Getting the map of properties.
 //        BMap properties = (BMap) getArgument(context, 3);
+        BArray<BString> arr = (BArray<BString>) getArgument(context, 1);
+        StringBuffer stringBuffer = new StringBuffer();
+
+        stringBuffer.append(arr.get(0).stringValue());
+        for (int i = 1; i != arr.size(); i++) {
+            stringBuffer.append(",");
+            stringBuffer.append(arr.get(i).stringValue());
+        }
+        String content = stringBuffer.toString();
+        content += "\n";
+        InputStream is = new ByteArrayInputStream(Charset.forName("UTF-16").encode(content).array());
+        CarbonMessage message = new StreamingCarbonMessage(is);
+
         String pathString = path.stringValue();
         propertyMap.put("uri", pathString);
         propertyMap.put("action", "append");
