@@ -906,9 +906,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
         }
 
-        // TODO Remove the MAP related logic when type casting is implemented
-        if ((varBType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
-                (!varBType.equals(rType))) {
+        if (!varBType.equals(rType)) {
 
             TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
             if (newExpr != null) {
@@ -963,9 +961,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
         }
 
-        // TODO Remove the MAP related logic when type casting is implemented
-        if ((lExprType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
-                (!lExprType.equals(rType))) {
+        if (!lExprType.equals(rType)) {
 
             TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr);
             if (newExpr != null) {
@@ -1694,6 +1690,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType expectedElementType = ((BArrayType) inheritedType).getElementType();
+
         for (int i = 0; i < argExprs.length; i++) {
             visitSingleValueExpr(argExprs[i]);
 
@@ -1833,7 +1830,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 builder.setArrayMapVarRefExpr(arrayMapVarRefExpr);
                 builder.setVarName(mapOrArrName);
-                builder.setIndexExpr(indexExpr);
+                Expression[] exprs = {indexExpr};
+                builder.setIndexExprs(exprs);
                 ArrayMapAccessExpr arrayMapAccessExpr = builder.build();
                 visit(arrayMapAccessExpr);
                 argExprList.add(arrayMapAccessExpr);
@@ -1953,21 +1951,25 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (arrayMapVarRefExpr.getType() instanceof BArrayType) {
 
             // Check the type of the index expression
-            Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
-            visitSingleValueExpr(indexExpr);
-            if (indexExpr.getType() != BTypes.typeInt) {
-                BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
-                        indexExpr.getType());
+            for (Expression indexExpr : arrayMapAccessExpr.getIndexExprs()) {
+                visitSingleValueExpr(indexExpr);
+                if (indexExpr.getType() != BTypes.typeInt) {
+                    BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
+                            indexExpr.getType());
+                }
             }
 
             // Set type of the arrays access expression
-            BType typeOfArray = ((BArrayType) arrayMapVarRefExpr.getType()).getElementType();
-            arrayMapAccessExpr.setType(typeOfArray);
+            BType expectedType =  arrayMapVarRefExpr.getType();
+            for (int i = 0; i < arrayMapAccessExpr.getIndexExprs().length; i++) {
+                expectedType =  ((BArrayType) expectedType).getElementType();
+            }
+            arrayMapAccessExpr.setType(expectedType);
 
         } else if (arrayMapVarRefExpr.getType() instanceof BMapType) {
 
             // Check the type of the index expression
-            Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
+            Expression indexExpr = arrayMapAccessExpr.getIndexExprs()[0];
             visitSingleValueExpr(indexExpr);
             if (indexExpr.getType() != BTypes.typeString) {
                 BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_STRING_MAP_INDEX,
@@ -1975,8 +1977,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             // Set type of the map access expression
-            BType typeOfMap = arrayMapVarRefExpr.getType();
-            arrayMapAccessExpr.setType(typeOfMap);
+            BMapType typeOfMap = (BMapType) arrayMapVarRefExpr.getType();
+            arrayMapAccessExpr.setType(typeOfMap.getElementType());
 
         } else {
             BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr,
@@ -2210,8 +2212,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (pkgSymbol == null) {
             return null;
         }
-        Expression[] exprs = funcIExpr.getArgExprs();
-        Expression[] newExprs = new Expression[exprs.length];
+        Expression[] argExprs = funcIExpr.getArgExprs();
+        Expression[] updatedArgExprs = new Expression[argExprs.length];
         for (Map.Entry entry : ((SymbolScope) pkgSymbol).getSymbolMap().entrySet()) {
             if (!(entry.getKey() instanceof FunctionSymbolName)) {
                 continue;
@@ -2223,8 +2225,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             boolean implicitCastPossible = true;
 
-            for (int i = 0; i < exprs.length; i++) {
-                newExprs[i] = exprs[i];
+            for (int i = 0; i < argExprs.length; i++) {
+                updatedArgExprs[i] = argExprs[i];
                 BType lhsType;
                 if (entry.getValue() instanceof NativeUnitProxy) {
                     NativeUnit nativeUnit = ((NativeUnitProxy) entry.getValue()).load();
@@ -2237,16 +2239,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                     lhsType = ((Function) entry.getValue()).getParameterDefs()[i].getType();
                 }
 
-                BType rhsType = exprs[i].getType();
+                BType rhsType = argExprs[i].getType();
                 if (rhsType != null && lhsType.equals(rhsType)) {
                     continue;
                 }
                 if (lhsType == BTypes.typeAny) { //if left hand side is any, then no need for casting
                     continue;
                 }
-                TypeCastExpression newExpr = checkWideningPossible(lhsType, exprs[i]);
+                TypeCastExpression newExpr = checkWideningPossible(lhsType, argExprs[i]);
                 if (newExpr != null) {
-                    newExprs[i] = newExpr;
+                    updatedArgExprs[i] = newExpr;
                 } else {
                     implicitCastPossible = false;
                     break;
@@ -2269,8 +2271,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
         }
-        for (int i = 0; i < newExprs.length; i++) {
-            funcIExpr.getArgExprs()[i] = newExprs[i];
+        
+        for (int i = 0; i < updatedArgExprs.length; i++) {
+            funcIExpr.getArgExprs()[i] = updatedArgExprs[i];
         }
         return functionSymbol;
     }

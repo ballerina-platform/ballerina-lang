@@ -151,6 +151,10 @@ public class NativeCastMapper {
 
     public static final Function<BValue, BValue> ANY_TO_INT_FUNC =
             (rVal) -> {
+                if (rVal == null) {
+                    throw new BLangExceptionHelper()
+                            .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeInt);
+                }
                 if (rVal.getType() == BTypes.typeInt) {
                     return rVal;
                 }
@@ -160,6 +164,10 @@ public class NativeCastMapper {
 
     public static final Function<BValue, BValue> ANY_TO_FLOAT_FUNC =
             (rVal) -> {
+                if (rVal == null) {
+                    throw new BLangExceptionHelper()
+                            .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeFloat);
+                }
                 if (rVal.getType() == BTypes.typeFloat) {
                     return rVal;
                 }
@@ -169,6 +177,10 @@ public class NativeCastMapper {
 
     public static final Function<BValue, BValue> ANY_TO_STRING_FUNC =
             (rVal) -> {
+                if (rVal == null) {
+                    throw new BLangExceptionHelper()
+                            .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeString);
+                }
                 if (rVal.getType() == BTypes.typeString) {
                     return rVal;
                 }
@@ -178,6 +190,10 @@ public class NativeCastMapper {
 
     public static final Function<BValue, BValue> ANY_TO_BOOLEAN_FUNC =
             (rVal) -> {
+                if (rVal == null) {
+                    throw new BLangExceptionHelper()
+                            .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeBoolean);
+                }
                 if (rVal.getType() == BTypes.typeBoolean) {
                     return rVal;
                 }
@@ -187,6 +203,10 @@ public class NativeCastMapper {
 
     public static final Function<BValue, BValue> ANY_TO_JSON_FUNC =
             (rVal) -> {
+                if (rVal == null) {
+                    throw new BLangExceptionHelper()
+                            .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeJSON);
+                }
                 if (rVal.getType() == BTypes.typeJSON) {
                     return rVal;
                 }
@@ -196,6 +216,10 @@ public class NativeCastMapper {
 
     public static final Function<BValue, BValue> ANY_TO_XML_FUNC =
             (rVal) -> {
+                if (rVal == null) {
+                    throw new BLangExceptionHelper()
+                            .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeXML);
+                }
                 if (rVal.getType() == BTypes.typeXML) {
                     return rVal;
                 }
@@ -205,20 +229,28 @@ public class NativeCastMapper {
 
     public static final Function<BValue, BValue> ANY_TO_CONNECTOR_FUNC =
             (rVal) -> {
+                if (rVal == null) {
+                    throw new BLangExceptionHelper()
+                            .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeConnector);
+                }
                 if (rVal.getType() == BTypes.typeConnector) {
                     return rVal;
                 }
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
-                                                         rVal.getType(), BTypes.typeXML);
+                                                         rVal.getType(), BTypes.typeConnector);
             };
 
     public static final Function<BValue, BValue> ANY_TO_EXCEPTION_FUNC =
             (rVal) -> {
+                if (rVal == null) {
+                    throw new BLangExceptionHelper()
+                            .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeException);
+                }
                 if (rVal.getType() == BTypes.typeException) {
                     return rVal;
                 }
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
-                                                         rVal.getType(), BTypes.typeXML);
+                                                         rVal.getType(), BTypes.typeException);
             };
 
 }

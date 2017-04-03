@@ -69,7 +69,6 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
-import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.BValueUtils;
@@ -417,7 +416,7 @@ public class BLangExecutor implements NodeExecutor {
         BMessage inMsg = (BMessage) expr.execute(this);
         List<WorkerRunner> workerRunnerList = new ArrayList<>();
         List<BMessage> resultMsgs = new ArrayList<>();
-        long timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
+        int timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
 
         Worker[] workers = forkJoinStmt.getWorkers();
         Map<String, WorkerRunner> triggeredWorkers = new HashMap<>();
@@ -526,7 +525,7 @@ public class BLangExecutor implements NodeExecutor {
 
     }
 
-    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, long timeout) {
+    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, int timeout) {
         ExecutorService anyExecutor = Executors.newWorkStealingPool();
         BMessage result;
         try {
@@ -540,7 +539,7 @@ public class BLangExecutor implements NodeExecutor {
         return result;
     }
 
-    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, long timeout) {
+    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, int timeout) {
         ExecutorService allExecutor = Executors.newWorkStealingPool();
         List<BMessage> result = new ArrayList<>();
         try {
@@ -729,24 +728,24 @@ public class BLangExecutor implements NodeExecutor {
             throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
         }
 
-        Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
-        BValue indexValue = indexExpr.execute(this);
-
+        Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
 
         // Check whether this collection access expression is in the left hand of an assignment expression
         // If yes skip setting the value;
         if (!arrayMapAccessExpr.isLHSExpr()) {
 
-            if (arrayMapAccessExpr.getType() != BTypes.typeMap) {
+            if (arrayMapAccessExpr.getRExpr().getType() != BTypes.typeMap) {
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
-                    //Here we cast index value to int as anyway java doesn't support long as array indexes
-                    return ((BArray) collectionValue).get((int) ((BInteger) indexValue).intValue());
+                    BArray bArray = (BArray) collectionValue;
+                    bArray = retrieveArray(bArray, indexExprs);
+                    return bArray.get(((BInteger) indexExprs[0].execute(this)).intValue());
                 } else {
                     return collectionValue;
                 }
             } else {
                 // Get the value stored in the index
+                BValue indexValue = indexExprs[0].execute(this);
                 if (indexValue instanceof BString) {
                     return ((BMap) collectionValue).get(indexValue);
                 } else {
@@ -1012,15 +1011,20 @@ public class BLangExecutor implements NodeExecutor {
 
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
         ArrayMapAccessExpr accessExpr = lExpr;
-        if (!(accessExpr.getType() == BTypes.typeMap)) {
+        if (!(accessExpr.getRExpr().getType() == BTypes.typeMap)) {
             BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
-            BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
-            //Here we cast index value to int as anyway java doesn't support long as array indexes
-            arrayVal.add((int) indexVal.intValue(), rValue);
+
+            Expression[] indexExprs = accessExpr.getIndexExprs();
+            if (indexExprs.length > 1) {
+                arrayVal = retrieveArray(arrayVal, indexExprs);
+            }
+
+            BInteger indexVal = (BInteger) indexExprs[0].execute(this);
+            arrayVal.add(indexVal.intValue(), rValue);
 
         } else {
             BMap<BString, BValue> mapVal = (BMap<BString, BValue>) accessExpr.getRExpr().execute(this);
-            BString indexVal = (BString) accessExpr.getIndexExpr().execute(this);
+            BString indexVal = (BString) accessExpr.getIndexExprs()[0].execute(this);
             mapVal.put(indexVal, rValue);
             // set the type of this expression here
             // accessExpr.setType(rExpr.getType());
@@ -1182,27 +1186,31 @@ public class BLangExecutor implements NodeExecutor {
     private void setUnitValue(BValue rValue, BStruct lExprValue, int memoryLocation,
                               StructFieldAccessExpr fieldExpr) {
 
-        Expression indexExpr;
+        Expression[] indexExprs;
         if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            indexExpr = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExpr();
+            indexExprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExprs();
         } else {
             // If the lExprValue value is not a struct arrays/map, then set the value to the struct
             lExprValue.setValue(memoryLocation, rValue);
             return;
         }
 
-        // Evaluate the index expression and get the value.
-        BValue indexValue = indexExpr.execute(this);
-
         // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
 
         // Set the value to arrays/map's index location
-        if (fieldExpr.getRefVarType() instanceof BMapType) {
+        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+        if (varRef.getRExpr().getType() == BTypes.typeMap) {
+            BValue indexValue = indexExprs[0].execute(this);
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
-            //Here we cast index value to int as anyway java doesn't support long as array indexes
-            ((BArray) arrayMapValue).add((int) ((BInteger) indexValue).intValue(), rValue);
+            BArray arrayVal = (BArray) arrayMapValue;
+            if (indexExprs.length > 1) {
+                arrayVal = retrieveArray(arrayVal, indexExprs);
+            }
+
+            BInteger indexVal = (BInteger) indexExprs[0].execute(this);
+            arrayVal.add(indexVal.intValue(), rValue);
         }
     }
 
@@ -1260,23 +1268,29 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // If the lExprValue value is not a struct arrays/map, then the unit value is same as the struct
-        Expression indexExpr;
+        Expression[] indexExprs;
         if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
-            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExpr();
+            indexExprs = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExprs();
         } else {
             return currentVal;
         }
 
         // Evaluate the index expression and get the value
-        BValue indexValue = indexExpr.execute(this);
-
+        BValue indexValue;
         BValue unitVal;
         // Get the value from arrays/map's index location
-        if (fieldExpr.getRefVarType() instanceof BMapType) {
+        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+        if (varRef.getRExpr().getType() == BTypes.typeMap) {
+            indexValue = indexExprs[0].execute(this);
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {
-            //Here we cast index value to int as anyway java doesn't support long as array indexes
-            unitVal = ((BArray) currentVal).get((int) ((BInteger) indexValue).intValue());
+            BArray bArray = (BArray) currentVal;
+            for (int i = indexExprs.length - 1; i >= 1; i--) {
+                indexValue = indexExprs[i].execute(this);
+                bArray = (BArray) bArray.get(((BInteger) indexValue).intValue());
+            }
+            indexValue = indexExprs[0].execute(this);
+            unitVal = bArray.get(((BInteger) indexValue).intValue());
         }
 
         if (unitVal == null) {
@@ -1305,5 +1319,27 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.pushFrame(stackFrame);
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
+    }
+
+    private BArray retrieveArray(BArray arrayVal, Expression[] exprs) {
+        for (int i = exprs.length - 1; i >= 1; i--) {
+            BInteger indexVal = (BInteger) exprs[i].execute(this);
+
+            // TODO: Remove this part if we don't need dynamically create arrays
+            // Will have to dynamically populate
+//            while (arrayVal.size() <= indexVal.intValue()) {
+//                if (i != 1 || rValue instanceof BArray) {
+//                    BArray newBArray = new BArray<>(BArray.class);
+//                    arrayVal.add(arrayVal.size(), newBArray);
+//                } else {
+//                    BArray bArray = new BArray<>(rValue.getClass());
+//                    arrayVal.add(arrayVal.size(), bArray);
+//                }
+//            }
+
+            arrayVal = (BArray) arrayVal.get(indexVal.intValue());
+        }
+
+        return arrayVal;
     }
 }
