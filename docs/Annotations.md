@@ -6,7 +6,7 @@ The following annotations are available in Ballerina for documenting APIs:
 
 - @doc:Description: 
 
-    Use description annotation for explaining the purpose of functions, connectors, connector actions and structs.
+    Use description annotation for explaining the purpose of services, resources, functions, connectors, connector actions, typemappers, structs, annotation definitions and constants.
        
 - @doc:Param:
 
@@ -25,11 +25,11 @@ The following annotations are available in Ballerina for documenting APIs:
 Following is a sample function with documentation annotations:
 
 ````
-@doc:Description("Add HTTP header to the message")
-@doc:Param("m: Incoming message")
-@doc:Param("key: HTTP header key")
-@doc:Param("value: HTTP header value")
-@doc:Return("result: Result of the execution")
+@doc:Description{value:"Add HTTP header to the message"}
+@doc:Param{value:"m: Incoming message"}
+@doc:Param{value:"key: HTTP header key"}
+@doc:Param{value:"value: HTTP header value"}
+@doc:Return{value:"result: Result of the execution"}
 function addHeader (message m, string key, string value) (boolean result) {
     system:println("invoked");
     return true;
@@ -43,25 +43,27 @@ Following is a sample connector with documentation annotations:
 ````
 package foo.bar;
 
-@doc:Description("Heapster Connector")
-@doc:Param("accessToken: Access Token")
-@doc:Param("endpointUrl: Heapster endpoint URL")
-@doc:Param("retryCount: Retry count")
+import ballerina.doc;
+
+@doc:Description{value:"Heapster Connector"}
+@doc:Param{value:"accessToken: Access Token"}
+@doc:Param{value:"endpointUrl: Heapster endpoint URL"}
+@doc:Param{value:"retryCount: Retry count"}
 connector HeapsterConnector(string accessToken, string endpointUrl, int retryCount) {
 
-    @doc:Description("Get CPU usage of a conatiner")
-    @doc:Param("c: connector object")
-    @doc:Param("containerId: Id of the container")
-    @doc:Return("cpu: CPU usage")
+    @doc:Description{value:"Get CPU usage of a conatiner"}
+    @doc:Param{value:"c: connector object"}
+    @doc:Param{value:"containerId: Id of the container"}
+    @doc:Return{value:"cpu: CPU usage"}
     action getCpuUsage(HeapsterConnector c, string containerId) (int cpuUsage) {
         // Find CPU usage of container
         return cpuUsage;
     }
 
-    @doc:Description("Get Memory usage of a conatiner")
-    @doc:Param("c: connector object")
-    @doc:Param("containerId: Id of the container")
-    @doc:Return("memoryUsage: Memory usage")
+    @doc:Description{value:"Get Memory usage of a conatiner"}
+    @doc:Param{value:"c: connector object"}
+    @doc:Param{value:"containerId: Id of the container"}
+    @doc:Return{value:"memoryUsage: Memory usage"}
     action getCpuUsage(HeapsterConnector c, string containerId) (int memoryUsage) {
         // Find memory usage of container
         return memoryUsage;
@@ -76,10 +78,12 @@ Following is a sample struct with documentation annotations:
 ````
 package foo.bar;
 
-@doc:Description("Inventory part definition")
-@doc:Field("partId: Part ID")
-@doc:Field("description: Part description")
-@doc:Field("brand: Brand of the part")
+import ballerina.doc;
+
+@doc:Description{value:"Inventory part definition"}
+@doc:Field{value:"partId: Part ID"}
+@doc:Field{value:"description: Part description"}
+@doc:Field{value:"brand: Brand of the part"}
 struct InventoryPart {
     
     int partId;
