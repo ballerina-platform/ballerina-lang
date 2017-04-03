@@ -7,9 +7,10 @@ const string programName = "TestAnnotations";
 
 @doc:Description{value:"This is a test function",
                  paramValue:@doc:Param{},
-                 queryParamValue:[@doc:QueryParam{
-                    name:"paramName", 
-                    value:"paramValue"}],
+                 queryParamValue:[
+                    @doc:QueryParam{name:"paramName", value:"paramValue"}, 
+                    @doc:QueryParam{name:"paramName2", value:"paramValue2"},
+                    @doc:QueryParam{name:"paramName3", value:"paramValue3"}],
                  queryParamValue2:[@doc:QueryParam{}],
                  code:[1,2,5],
                  args: @doc:Args{}}
