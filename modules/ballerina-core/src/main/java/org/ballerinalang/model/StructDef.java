@@ -104,7 +104,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
 
     @Override
     public SymbolScope getSymbolScope() {
-        return this;
+        return symbolScope;
     }
 
 
