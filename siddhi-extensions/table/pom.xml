@@ -17,8 +17,8 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.wso2.siddhi</groupId>
         <artifactId>siddhi-extensions</artifactId>
@@ -26,85 +26,13 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <packaging>bundle</packaging>
+    <packaging>pom</packaging>
 
-    <artifactId>siddhi-extension-table</artifactId>
-    <name>Siddhi Extension - Table Implementations</name>
+    <artifactId>siddhi-record-tables</artifactId>
+    <name>Siddhi Record Table Extensions</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.wso2.siddhi</groupId>
-            <artifactId>siddhi-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.siddhi</groupId>
-            <artifactId>siddhi-query-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.log4j.wso2</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat.wso2</groupId>
-            <artifactId>jdbc-pool</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.osgi</groupId>
-            <artifactId>org.eclipse.osgi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.osgi</groupId>
-            <artifactId>org.eclipse.osgi.services</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-        </dependency>
+    <modules>
+        <module>record-table-rdbms</module>
+    </modules>
 
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Private-Package>
-                            
-                        </Private-Package>
-                        <Export-Package>
-                            
-                        </Export-Package>
-                        <Import-Package>
-                            org.osgi.service.component;version="${equinox.osgi.services.imp.pkg.version.range}",
-                            com.hazelcast.*;version="${hazelcast.imp.pkg.version.range}",
-                            org.wso2.siddhi.*;version="${siddhi.version}",
-                            org.apache.log4j;version="${log4j.imp.pkg.version.range}",
-                            org.apache.tomcat.jdbc.pool;version="${jdbc-pool.imp.pkg.version.range}",
-                            javax.sql,
-                            javax.xml.bind,
-                            javax.xml.bind.annotation
-                        </Import-Package>
-                        <Include-Resource>
-                            META-INF=target/classes/META-INF
-                        </Include-Resource>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

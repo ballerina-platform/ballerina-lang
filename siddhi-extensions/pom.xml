@@ -34,6 +34,7 @@
     <modules>
         <!--<module>eval-script</module>-->
         <module>event-table</module>
+        <module>table</module>
         <!--<module>output-transports/test-output-transport</module>-->
         <!--<module>output-transports/http-output-transport</module>-->
         <module>output-transports/kafka-output-transport</module>
