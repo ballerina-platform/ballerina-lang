@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  * Test Cases for type casting.
  */
 public class TypeCastExprTest {
-    private static double DELTA = 0.01;
+    private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass
@@ -74,7 +74,7 @@ public class TypeCastExprTest {
         BValue[] args = {new BInteger(55555555)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "inttofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
-        double expected = 5.5555556E7;
+        double expected = 5.5555555E7;
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
     }
 

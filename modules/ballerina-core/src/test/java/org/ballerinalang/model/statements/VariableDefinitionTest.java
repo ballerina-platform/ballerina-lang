@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  * Test Cases for defining variable.
  */
 public class VariableDefinitionTest {
-    private static double DELTA = 0.01;
+    private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass

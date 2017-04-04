@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
  * @since 0.8.0
  */
 public class BArrayValueTest {
-    private static double DELTA = 0.01;
+    private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass

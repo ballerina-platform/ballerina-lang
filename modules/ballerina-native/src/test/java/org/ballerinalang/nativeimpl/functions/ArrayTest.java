@@ -223,10 +223,10 @@ public class ArrayTest {
 
     @Test
     public void testFloatArrayCopyOfRanged() {
-        final float v1 = 10f;
-        final float v2 = 11.1f;
-        final float v3 = 11.2f;
-        final float v4 = 11.3f;
+        final double v1 = 10d;
+        final double v2 = 11.1d;
+        final double v3 = 11.2d;
+        final double v4 = 11.3d;
         BArray<BFloat> bArray = new BArray<>(BFloat.class);
         bArray.add(0, new BFloat(v1));
         bArray.add(1, new BFloat(v2));
@@ -245,8 +245,8 @@ public class ArrayTest {
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
             expectedExceptionsMessageRegExp = "Array index out of range.*")
     public void testFloatArrayCopyOfRangeNegative() {
-        final float v1 = 10f;
-        final float v2 = 11.1f;
+        final double v1 = 10d;
+        final double v2 = 11.1d;
         BArray<BFloat> bArray = new BArray<>(BFloat.class);
         bArray.add(0, new BFloat(v1));
         bArray.add(1, new BFloat(v2));
@@ -258,8 +258,8 @@ public class ArrayTest {
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
             expectedExceptionsMessageRegExp = "Array index out of range.*")
     public void testFloatArrayCopyOfRangNegativeMinusArgs() {
-        final float v1 = 10f;
-        final float v2 = 11.1f;
+        final double v1 = 10d;
+        final double v2 = 11.1d;
         BArray<BFloat> bArray = new BArray<>(BFloat.class);
         bArray.add(0, new BFloat(v1));
         bArray.add(1, new BFloat(v2));

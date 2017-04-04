@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
  * Test class for return statement.
  */
 public class ReturnStmtTest {
-    private static double DELTA = 0.01;
+    private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass

@@ -87,7 +87,7 @@ public class JSONTest {
         BValue[] args = {new BJSON(json2), new BString("$.item.price")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
-        Assert.assertEquals(((BValueType) returns[0]).floatValue(), (float) 3.54);
+        Assert.assertEquals(((BValueType) returns[0]).floatValue(), 3.54);
     }
 
     @Test(description = "Get a double in a valid jsonpath")
@@ -196,7 +196,7 @@ public class JSONTest {
 
     @Test(description = "Set a float to a valid jsonpath")
     public void testSetFloat() {
-        final float val = (float) 4.78;
+        final double val = 4.78;
         BValue[] args = {new BJSON(json2), new BString("$.item.price"), new BFloat(val)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "setFloat", args);
 
@@ -265,7 +265,7 @@ public class JSONTest {
     @Test(description = "Add a float to a valid json object")
     public void testAddFloatToObject() {
         BValue[] args = {new BJSON(json2), new BString("$.item"), new BString("discount"),
-                new BFloat((float) 0.15)};
+                new BFloat(0.15)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addFloatToObject", args);
 
         final String expected = "{\"item\":{\"price\":3.54,\"available\":true,\"discount\":0.15}}";
@@ -336,7 +336,7 @@ public class JSONTest {
     @Test(description = "Add a float to a valid json arrays")
     public void testAddFloatToArray() {
         BValue[] args = {new BJSON(jsonFloatArray), new BString("$.prices"),
-                new BFloat((float) 5.96)};
+                new BFloat(5.96)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addFloatToArray", args);
 
         final String expected = "{\"prices\":[3.12,4.87,5.96]}";

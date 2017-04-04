@@ -40,7 +40,7 @@ import java.io.File;
  * @since 0.8.0
  */
 public class SQLConnectorTest {
-
+    private static final double DELTA = 0.01;
     BLangProgram bLangProgram;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
 
@@ -147,13 +147,13 @@ public class SQLConnectorTest {
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34f);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
-        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567F);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
@@ -167,13 +167,13 @@ public class SQLConnectorTest {
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0F);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0D);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 0.0D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
         Assert.assertEquals(returns[5].stringValue(), null);
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 0.0D);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 0.0D);
-        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0F);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0D);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 0);
         Assert.assertEquals(returns[11].stringValue(), null);
@@ -201,13 +201,13 @@ public class SQLConnectorTest {
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34F);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
-        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567F);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
@@ -221,13 +221,13 @@ public class SQLConnectorTest {
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0f);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0D);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 0.0D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
         Assert.assertEquals(returns[5].stringValue(), null);
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 0.0D);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 0.0D);
-        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0F);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0D);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 0);
         Assert.assertEquals(returns[11].stringValue(), null);

@@ -36,7 +36,7 @@ import org.testng.annotations.Test;
  * b = 10.1d;
  */
 public class BFloatValueTest {
-    private static double DELTA = 0.01;
+    private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass(alwaysRun = true)
@@ -68,7 +68,7 @@ public class BFloatValueTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
-        Assert.assertEquals(floatValue.floatValue(), 10.1f, "Invalid float value returned.");
+        Assert.assertEquals(floatValue.floatValue(), 10.1d, "Invalid float value returned.");
     }
 
     @Test(description = "Test double value assignment")
@@ -87,7 +87,7 @@ public class BFloatValueTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
-        Assert.assertEquals(floatValue.floatValue(), 20.0f, "Invalid float value returned.");
+        Assert.assertEquals(floatValue.floatValue(), 20.0d, "Invalid float value returned.");
     }
 
     @Test(description = "Test double value Subtraction")
@@ -96,7 +96,7 @@ public class BFloatValueTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
-        Assert.assertEquals(floatValue.floatValue(), 10.0f, "Invalid float value returned.");
+        Assert.assertEquals(floatValue.floatValue(), 10.0d, "Invalid float value returned.");
     }
 
     @Test(description = "Test double value Multiplication")
@@ -105,7 +105,7 @@ public class BFloatValueTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
-        Assert.assertEquals(floatValue.floatValue(), 13.75f, "Invalid float value returned.");
+        Assert.assertEquals(floatValue.floatValue(), 13.75d, "Invalid float value returned.");
     }
 
     @Test(description = "Test double value Division")
@@ -114,6 +114,6 @@ public class BFloatValueTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
-        Assert.assertEquals(floatValue.floatValue(), 5.0f, "Invalid float value returned.");
+        Assert.assertEquals(floatValue.floatValue(), 5.0d, "Invalid float value returned.");
     }
 }

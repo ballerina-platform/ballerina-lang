@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  * Primitive divide expression test.
  */
 public class DivideExprTest {
-    private static double DELTA = 0.01;
+    private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass
@@ -87,7 +87,7 @@ public class DivideExprTest {
     @Test(description = "Test integer division by float")
     public void testIntDivideByFloat() {
         int a = Integer.MAX_VALUE;
-        float b = 1.23456789f;
+        double b = 1.23456789d;
 
         double expectedResult = a / b;
 

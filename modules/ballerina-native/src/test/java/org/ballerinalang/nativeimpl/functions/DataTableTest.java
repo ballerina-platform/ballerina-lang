@@ -61,7 +61,7 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34f);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
@@ -74,7 +74,7 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34f);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
