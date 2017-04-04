@@ -43,6 +43,7 @@ import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
@@ -284,8 +285,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addValueTypes(resultSet, VALUE_TYPE_PRIORITY);
                 addReferenceTypes(resultSet, REFERENCE_TYPE_PRIORITY);
 
-                addConnectors(resultSet, element);
-                addFunctions(resultSet, originalFile);
+                addConnectors(resultSet, element, originalFile);
+                addFunctions(resultSet, element, originalFile);
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
                 addVariables(resultSet, element);
@@ -369,8 +370,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
                 addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
 
-                addFunctions(resultSet, originalFile);
-                addConnectors(resultSet, element);
+                addFunctions(resultSet, element, originalFile);
+                addConnectors(resultSet, element, originalFile);
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
                 addVariables(resultSet, element);
@@ -400,7 +401,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
                     addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
 
-                    addConnectors(resultSet, element);
+                    addConnectors(resultSet, element, originalFile);
                     addStructs(resultSet, originalFile);
                     addPackages(resultSet, originalFile);
                     addAnnotations(resultSet, element);
@@ -448,7 +449,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
                 addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
 
-                addConnectors(resultSet, element);
+                addConnectors(resultSet, element, originalFile);
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
                 addAnnotations(resultSet, element);
@@ -505,9 +506,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                         BallerinaPsiImplUtil.getAllStructsInPackage(psiDirectories[0]);
                                 addStructs(resultSet, structs);
 
-                                List<PsiElement> constants =
-                                        BallerinaPsiImplUtil.getAllConstantsInPackage(psiDirectories[0]);
-                                addConstants(resultSet, constants);
+                                // Todo - Uncomment after grammar fix
+                                // List<PsiElement> constants =
+                                //         BallerinaPsiImplUtil.getAllConstantsInPackage(psiDirectories[0]);
+                                // addConstants(resultSet, constants);
 
                             } else {
                                 // This situation cannot/should not happen since all the imported packages are unique.
@@ -593,7 +595,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     if (prevToken.getText().equals(children[0].getText())) {
                         addVariables(resultSet, element);
                         addConstants(resultSet, originalFile);
-                        addFunctions(resultSet, originalFile);
+                        addFunctions(resultSet, element, originalFile);
                         addPackages(resultSet, originalFile);
                         return;
                     }
@@ -608,25 +610,25 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     } else if (prevToken instanceof IdentifierPSINode) {
                         addVariables(resultSet, element);
                         addConstants(resultSet, originalFile);
-                        addFunctions(resultSet, originalFile);
+                        addFunctions(resultSet, element, originalFile);
                         addPackages(resultSet, originalFile);
                     } else {
                         addVariables(resultSet, element);
                         addConstants(resultSet, originalFile);
-                        addFunctions(resultSet, originalFile);
+                        addFunctions(resultSet, element, originalFile);
                         addPackages(resultSet, originalFile);
                     }
                 } else {
                     addVariables(resultSet, element);
                     addConstants(resultSet, originalFile);
-                    addFunctions(resultSet, originalFile);
+                    addFunctions(resultSet, element, originalFile);
                     addPackages(resultSet, originalFile);
                 }
             } else {
                 // Todo - Is valid condition?
                 addVariables(resultSet, element);
                 addConstants(resultSet, originalFile);
-                addFunctions(resultSet, originalFile);
+                addFunctions(resultSet, element, originalFile);
                 addPackages(resultSet, originalFile);
             }
         } else if (parent instanceof ActionInvocationNode) {
@@ -667,6 +669,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     addActions(resultSet, allActions);
                 }
             }
+        } else if (parent instanceof FunctionInvocationStatementNode) {
+            // Todo - Handle scenario
         } else {
             // If we are currently at an identifier node, no need to suggest.
             if (element instanceof IdentifierPSINode) {
@@ -752,9 +756,21 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param resultSet    result set which needs to add the lookup elements
      * @param originalFile original file which we are editing
      */
+    private void addFunctions(CompletionResultSet resultSet, PsiElement element, PsiFile originalFile) {
+        PsiElement parent = element.getParent();
+        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
+        if (packageNameNode == null) {
+            addFunctions(resultSet, originalFile);
+        } else {
+            PsiElement resolvedPackage = resolvePackage(packageNameNode);
+            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllFunctionsInCurrentPackage(resolvedPackage);
+            addFunctions(resultSet, connectors);
+        }
+    }
+
     private void addFunctions(CompletionResultSet resultSet, PsiFile originalFile) {
-        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsInCurrentPackage(originalFile);
-        addFunctions(resultSet, functions);
+        List<PsiElement> connectors = BallerinaPsiImplUtil.getAllFunctionsInCurrentPackage(originalFile);
+        addFunctions(resultSet, connectors);
     }
 
     /**
@@ -799,15 +815,16 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
     }
 
-    private void addConnectors(CompletionResultSet resultSet, PsiElement element) {
+    private void addConnectors(CompletionResultSet resultSet, PsiElement element, PsiFile originalFile) {
         PsiElement parent = element.getParent();
         PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
         if (packageNameNode == null) {
-            return;
+            addConnectors(resultSet, originalFile);
+        } else {
+            PsiElement resolvedPackage = resolvePackage(packageNameNode);
+            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(resolvedPackage);
+            addConnectors(resultSet, connectors);
         }
-        PsiElement resolvedPackage = resolvePackage(packageNameNode);
-        List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(resolvedPackage);
-        addConnectors(resultSet, connectors);
     }
 
     /**

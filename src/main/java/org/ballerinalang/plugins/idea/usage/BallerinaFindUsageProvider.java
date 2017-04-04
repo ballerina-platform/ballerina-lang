@@ -52,6 +52,9 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
     @NotNull
     @Override
     public String getType(@NotNull PsiElement element) {
+        if (!(element.getParent() instanceof ANTLRPsiNode)) {
+            return "";
+        }
         ANTLRPsiNode parent = (ANTLRPsiNode) element.getParent();
         RuleIElementType elType = (RuleIElementType) parent.getNode().getElementType();
         // Todo - Add more types

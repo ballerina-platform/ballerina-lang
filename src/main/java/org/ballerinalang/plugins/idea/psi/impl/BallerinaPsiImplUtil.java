@@ -566,6 +566,9 @@ public class BallerinaPsiImplUtil {
     }
 
     public static List<PsiElement> getAllStructsInCurrentPackage(PsiElement element) {
+        if (element instanceof PsiDirectory) {
+            return getAllStructsInPackage((PsiDirectory) element);
+        }
         PsiElement parent = element.getParent();
         return getAllStructsInPackage((PsiDirectory) parent);
     }
@@ -583,6 +586,9 @@ public class BallerinaPsiImplUtil {
     }
 
     public static List<PsiElement> getAllFunctionsInCurrentPackage(PsiElement element) {
+        if (element instanceof PsiDirectory) {
+            return getAllFunctionsInPackage((PsiDirectory) element);
+        }
         PsiElement parent = element.getParent();
         return getAllFunctionsInPackage((PsiDirectory) parent);
     }
