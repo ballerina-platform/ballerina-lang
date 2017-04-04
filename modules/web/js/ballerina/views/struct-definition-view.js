@@ -124,10 +124,6 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                                     data.results.push(item);
                                 }
                             });
-                            // Adding user typed string when there is no any matching item in the list
-                            if(data.results.length == 0){
-                                data.results.push({id: query.term, text: query.term});
-                            }
                         } else {
                             data.results = self._getTypeDropdownValues();
                         }

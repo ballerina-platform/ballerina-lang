@@ -58,14 +58,14 @@ define(['lodash', 'log'], function (_, log) {
                 log.debug("Existing identifiers: " + existingIdentifiers);
 
                 // Generating the ID.
-                var counter = 1;
+                var counter = 0;
                 var currentAttributeValue = attribute.defaultValue;
                 while (true) {
-                    var tempNewValue = currentAttributeValue + counter;
+                    var tempNewValue = counter > 0 ? currentAttributeValue + counter : currentAttributeValue;
                     if (!_.includes(existingIdentifiers, tempNewValue)) {
                         break;
                     }
-                    counter++;
+                    counter++
                 }
 
                 if (_.isEqual(counter, 0)) {

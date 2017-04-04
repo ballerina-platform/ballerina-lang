@@ -108,10 +108,6 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
                                     data.results.push(item);
                                 }
                             });
-                            // Adding user typed string when there is no any matching item in the list
-                            if(data.results.length == 0){
-                                data.results.push({id: query.term, text: query.term});
-                            }
                         } else {
                             data.results = self._getTypeDropdownValues();
                         }

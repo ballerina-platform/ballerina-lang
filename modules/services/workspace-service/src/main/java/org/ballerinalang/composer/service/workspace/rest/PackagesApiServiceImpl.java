@@ -208,7 +208,7 @@ public class PackagesApiServiceImpl extends PackagesApiService {
      * @param annotationsFromModel annotation retrieve from native symbol
      * */
     private void addAnnotations(List<Annotation> annotations,
-                                org.ballerinalang.model.AnnotationAttachment[] annotationsFromModel) {
+                                org.ballerinalang.model.Annotation[] annotationsFromModel) {
         Stream.of(annotationsFromModel)
                 .forEach(annotation -> annotations.add(createNewAnnotation(annotation.getName(),
                         annotation.getValue())));

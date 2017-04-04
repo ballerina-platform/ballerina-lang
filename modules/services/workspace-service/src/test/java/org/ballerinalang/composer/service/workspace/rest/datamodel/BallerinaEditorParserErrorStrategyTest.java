@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.file.Paths;
 
 public class BallerinaEditorParserErrorStrategyTest {
     private static final Logger logger = LoggerFactory.getLogger(BallerinaEditorParserErrorStrategyTest.class);
@@ -62,8 +61,7 @@ public class BallerinaEditorParserErrorStrategyTest {
             BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
             BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageBuilder, StringUtils.EMPTY);
 
-            BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder,
-                    Paths.get(file.getAbsolutePath()));
+            BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
             ballerinaParser.addParseListener(ballerinaBaseListener);
             ballerinaParser.compilationUnit();
             BallerinaFile bFile = bLangModelBuilder.build();

@@ -431,7 +431,7 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: 'Function',
+                defaultValue: "newFunction",
                 setter: this.setFunctionName,
                 getter: this.getFunctionName,
                 parents: [{

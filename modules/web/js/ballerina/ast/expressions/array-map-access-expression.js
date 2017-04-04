@@ -48,14 +48,13 @@ define(['lodash', './expression'], function (_, Expression) {
         var self = this;
         var indexString = "";
 
-        for (var itr = jsonNode.children.length - 1; itr >= 0; itr--) {
+        for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
             var child = self.getFactory().createFromJson(childJsonNode);
             child.initFromJson(childJsonNode);
-            indexString = indexString + "[" +child.getExpression() + "]";
-
+            indexString = child.getExpression();
         }
-        return jsonNode.array_map_access_expression_name + indexString;
+        return jsonNode.array_map_access_expression_name + "[" + indexString + "]";
     };
 
     return ArrayMapAccessExpression;

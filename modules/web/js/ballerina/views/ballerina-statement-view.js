@@ -126,7 +126,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         var svgDefinitions = deleteButtonPaneGroup.append("defs");
 
         var deleteButtonPattern = svgDefinitions.append("pattern")
-            .attr("id", "statementDeleteIcon")
+            .attr("id", "deleteIcon")
             .attr("width", "100%")
             .attr("height", "100%");
 

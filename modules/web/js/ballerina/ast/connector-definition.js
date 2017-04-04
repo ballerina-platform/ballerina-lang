@@ -311,7 +311,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: 'Connector',
+                defaultValue: "newConnector",
                 setter: this.setConnectorName,
                 getter: this.getConnectorName,
                 parents: [{

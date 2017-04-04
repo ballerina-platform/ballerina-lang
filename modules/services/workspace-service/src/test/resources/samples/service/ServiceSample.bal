@@ -1,10 +1,9 @@
 package test.samples;
 
-@http:BasePath{ value: "/Hello"}
 service HelloService {
 
-  @http:BasePath{ value: "/Hello"}
-  @http:GET{}
+  @GET
+  @Path ("/tweet")
   resource tweet (message m) {
       reply m;
   }

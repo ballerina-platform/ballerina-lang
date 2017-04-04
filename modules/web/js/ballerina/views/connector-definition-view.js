@@ -47,7 +47,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
             this._totalHeight = 170;
             //set initial connector margin for the connector definition
             this._lifelineMargin = new Axis(210, false);
-            this._viewOptions.minLifeLinePosition = 700;
 
             if (_.isNil(this._model) || !(this._model instanceof ConnectorDefinition)) {
                 log.error("Connector definition is undefined or is of different type." + this._model);
@@ -430,11 +429,8 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
             this._connectorViewList.push(connectorDeclarationView);
 
             if (this.getActionViewList().length > 0) {
-                // If we have added resources
-                var lifeLineMarginPosition = this.getLifeLineMargin().getPosition() - this._viewOptions.LifeLineCenterGap;
-                var farthestLifeLine = this.getFarthestLifeLineOfActions();
-                var farthestLifeLineMargin = !_.isNil(farthestLifeLine) ? farthestLifeLine.getBoundingBox().getRight() + 60 : -1;
-                var newLifeLineMarginPosition = _.max([lifeLineMarginPosition, farthestLifeLineMargin, this._viewOptions.minLifeLinePosition]);
+                // If we have added actions
+                var newLifeLineMarginPosition = this.getLifeLineMargin().getPosition() - this._viewOptions.LifeLineCenterGap;
                 this.getLifeLineMargin().setPosition(newLifeLineMarginPosition);
             } else {
                 // When there are no actions added
@@ -563,20 +559,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
                 // Add an offset of 60 to the current connector's BBox's right value
                 this.setSVGWidth(connectorView.getBoundingBox().getRight() + 60);
             }
-        };
-
-        ConnectorDefinitionView.prototype.getFarthestLifeLineOfActions = function () {
-            var farthestLifeLine = [];
-            var sortedFarthestLifeLineArr;
-            _.forEach(this.getActionViewList(), function (action) {
-                farthestLifeLine.push(_.last(action.getConnectorWorkerViewList()));
-            });
-
-            sortedFarthestLifeLineArr = _.sortBy(farthestLifeLine, function (lifeline) {
-                return !_.isNil(lifeline) ? lifeline.getBoundingBox().getRight() : -1;
-            });
-
-            return _.last(sortedFarthestLifeLineArr);
         };
 
         return ConnectorDefinitionView;

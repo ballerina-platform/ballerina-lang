@@ -42,7 +42,25 @@ public class BLangJSONModelTest {
 
     private MicroservicesRunner microservicesRunner;
     //private HashMap<String, Package> packages = new HashMap<String, Package>();
-    private String exptdStrFunc = "";
+    private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"test.samples\"}," +
+            "{\"type\":\"service_definition\",\"service_name\":\"HelloService\",\"line_number\":\"3\"," +
+            "\"annotations\":[],\"children\":[{\"type\":\"resource_definition\",\"resource_name\":\"tweet\"," +
+            "\"line_number\":\"7\",\"annotations\":[{\"type\":\"annotation\",\"annotation_name\":\"GET\"," +
+            "\"annotation_value\":null,\"line_number\":\"5\",\"children\":[]},{\"type\":\"annotation\"," +
+            "\"annotation_name\":\"Path\",\"annotation_value\":\"/tweet\",\"line_number\":\"6\"," +
+            "\"children\":[]}],\"children\":[{\"type\":\"argument_declaration\",\"parameter_name\":\"m\"," +
+            "\"parameter_type\":\"message\",\"line_number\":\"7\",\"children\":[]},{\"type\":\"reply_statement\"," +
+            "\"line_number\":\"8\",\"expression\":\"m\",\"children\":[{\"line_number\":\"8\"," +
+            "\"type\":\"variable_reference_name\",\"variable_reference_name\":\"m\"}]}]}]}," +
+            "{\"type\":\"function_definition\",\"function_name\":\"test\",\"is_public_function\":false," +
+            "\"line_number\":\"13\",\"annotations\":[],\"children\":[{\"type\":\"argument_declaration\"," +
+            "\"parameter_name\":\"a\",\"parameter_type\":\"int\",\"line_number\":\"13\",\"children\":[]}," +
+            "{\"type\":\"return_type\",\"children\":[{\"type\":\"return_argument\",\"parameter_type\":\"int\"," +
+            "\"line_number\":\"13\"}]},{\"type\":\"return_statement\",\"line_number\":\"14\"," +
+            "\"children\":[{\"line_number\":\"14\",\"type\":\"add_expression\",\"children\":[{\"line_number\":\"14\"," +
+            "\"type\":\"variable_reference_name\",\"variable_reference_name\":\"a\"}," +
+            "{\"type\":\"basic_literal_expression\"," + "\"basic_literal_type\":\"int\"," +
+            "\"basic_literal_value\":\"2\",\"line_number\":\"14\"}]}]}]}]}";
 
     public static void main(String[] args) {
         try {
@@ -50,7 +68,7 @@ public class BLangJSONModelTest {
             test.setup();
             test.testBLangJSONModelService();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            //Ignore
         }
     }
 
@@ -58,9 +76,6 @@ public class BLangJSONModelTest {
     public void setup() throws Exception {
         microservicesRunner = new MicroservicesRunner(9090);
         microservicesRunner.deploy(new BLangFileRestService()).start();
-        File file = new File(getClass().getClassLoader().getResource("samples/service/expected.json")
-                .getFile());
-        exptdStrFunc = new Scanner(file).useDelimiter("\\Z").next();
         //HTTPConnector connector = new HTTPConnector();
         //String connectorName = connector.getSymbolName().getName();
         //SymbolName symbolName = SymbolUtils.getSymNameWithParams(CONNECTOR_NAME, connector.getParameters());

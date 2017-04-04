@@ -28,13 +28,5 @@ define(['lodash', '../node'], function (_, ASTNode) {
     Statement.prototype = Object.create(ASTNode.prototype);
     Statement.prototype.constructor = Statement;
 
-    /**
-     * Get all the connector references in the immediate scope
-     * @return {Array} connectorReferences
-     */
-    Statement.prototype.getConnectorsInImmediateScope = function () {
-        return this.getParent().getConnectorsInImmediateScope();
-    };
-
     return Statement;
 });
