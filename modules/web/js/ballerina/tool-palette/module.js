@@ -15,10 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./tool', './tool-view', './tool-group',
-        './tool-group-view', './tool-palette', './drag-drop-manager'],
-    function (tool, toolView, toolGroup, toolGroupView, toolPaletteModel, toolPalette, DragDropManager) {
-        return  {
+import tool from './tool';
+import toolView from './tool-view';
+import toolGroup from './tool-group';
+import toolGroupView from './tool-group-view';
+import toolPaletteModel from './tool-palette';
+import toolPalette from './drag-drop-manager';
+        export default  {
             Models: {
                 Tool: tool,
                 ToolGroup: toolGroup
@@ -30,4 +33,4 @@ define(['./tool', './tool-view', './tool-group',
             },
             DragDropManager: DragDropManager
         }
-    });
+    

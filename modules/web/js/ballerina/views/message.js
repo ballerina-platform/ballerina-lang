@@ -16,23 +16,29 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view'], function (_, $, d3, log, D3Utils, Point, BallerinaView) {
+import _ from 'lodash';
+import * as d3 from 'd3';
+import D3Utils from 'd3utils';
+import BallerinaView from './ballerina-view';
+
+/**
+ * View for a generic Message
+ * @class MessageView
+ * @extends BallerinaView
+ */
+class MessageView extends BallerinaView {
 
     /**
-     * View for a generic Message
      * @param args {object} - config
      * @param args.container {SVGGElement} - SVG group element to draw the Message
      * @param args.start {Point} - start point to draw the Message.
      * @param args.end {Point} - end point to draw the Message.
      * @param args.cssClass.line {object} - css classes for the Message
      * @param args.cssClass.group {object} - css classes for the Message
-     *
-     * @class MessageView
-     * @augments BallerinaView
      * @constructor
      */
-    var MessageView = function (args) {
-        BallerinaView.call(this, args);
+    constructor(args) {
+        super(args);
         this._containerD3 = d3.select(this._container);
         this._viewOptions = args;
         this._start = this._viewOptions.start.clone();
@@ -45,33 +51,30 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
         this._rootGroup = D3Utils.group(this._containerD3)
             .classed(_.get(this._viewOptions, 'cssClass.group'), true);
-    };
+    }
 
-    MessageView.prototype = Object.create(BallerinaView.prototype);
-    MessageView.prototype.constructor = MessageView;
+    translate(x, y) {
+        this._rootGroup.attr('transform', 'translate(' + x + ',' + y + ')');
+    }
 
-    MessageView.prototype.translate = function (x, y) {
-        this._rootGroup.attr("transform", "translate(" + x + "," + y + ")");
-    };
-
-    MessageView.prototype.getStart = function () {
+    getStart() {
         return this._start;
-    };
+    }
 
-    MessageView.prototype.getEnd = function () {
+    getEnd() {
         return this._end;
-    };
+    }
 
-    MessageView.prototype.render = function () {
+    render() {
         var self = this;
         this._line = D3Utils.lineFromPoints(this._start, this._end, this._rootGroup)
             .classed(_.get(this._viewOptions, 'cssClass.line'), true);
         var arrowHeadWidth = 5;
 
         if (this._isInputArrow) {
-            this._arrowHead = D3Utils.inputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed("action-arrow", true);
+            this._arrowHead = D3Utils.inputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed('action-arrow', true);
         } else {
-            this._arrowHead = D3Utils.outputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed("action-arrow", true);
+            this._arrowHead = D3Utils.outputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed('action-arrow', true);
         }
 
         this._start.on('moved', function(offset){
@@ -94,30 +97,30 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             y2 = parseFloat(self._line.attr('y2'));
             var points = undefined;
             if (self._isInputArrow) {
-                points = "" + (x2 - 5) + "," + (y2 - 5) + " " + (x2) + "," + (y2) + " " + (x2 - 5) + "," + (y2 + 5);
+                points = '' + (x2 - 5) + ',' + (y2 - 5) + ' ' + (x2) + ',' + (y2) + ' ' + (x2 - 5) + ',' + (y2 + 5);
             } else {
-                points = "" + (x2 + 5) + "," + (y2 - 5) + " " + x2 + "," + (y2) + " " + (x2 + 5) + "," + (y2 + 5);
+                points = '' + (x2 + 5) + ',' + (y2 - 5) + ' ' + x2 + ',' + (y2) + ' ' + (x2 + 5) + ',' + (y2 + 5);
             }
             self._arrowHead.attr('points', points);
 
         });
 
         return this;
-    };
+    }
 
     /**
      * Remove the root arrow group
      */
-    MessageView.prototype.removeArrow = function () {
+    removeArrow() {
         this._rootGroup.node().remove();
-    };
+    }
 
     /**
      * Move the message
      * @param {number} dx - delta x distance
      * @param {number} dy - delta y distance
      */
-    MessageView.prototype.move = function (dx, dy) {
+    move(dx, dy) {
         if (!_.isNil(dx)) {
             this._start.move(dx, 0);
             this._end.move(dx, 0);
@@ -126,7 +129,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             this._start.move(0, dy);
             this._end.move(0, dy);
         }
-    };
+    }
+}
 
-    return MessageView;
-});
+export default MessageView;

@@ -15,44 +15,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode, log, CommonUtils){
+import _ from 'lodash';
+import ASTNode from './node';
+import log from 'log';
+import CommonUtils from '../utils/common-utils';
 
-    /**
-     * Constructor for ConnectorAction
-     * @param {object} args - Constructor arguments
-     * @constructor
-     */
-    var ConnectorAction = function(args) {
-        ASTNode.call(this, "ConnectorAction");
+/**
+ * Constructor for ConnectorAction
+ * @param {object} args - Constructor arguments
+ * @constructor
+ */
+class ConnectorAction extends ASTNode {
+    constructor(args) {
+        super("ConnectorAction");
         this.action_name = _.get(args, 'action_name');
         this.annotations = _.get(args, 'annotations', []);
         this.arguments = _.get(args, 'arguments', []);
-    };
-
-    ConnectorAction.prototype = Object.create(ASTNode.prototype);
-    ConnectorAction.prototype.constructor = ConnectorAction;
+    }
 
     /**
      * Get the name of action
      * @return {string} action_name - Action Name
      */
-    ConnectorAction.prototype.getActionName = function () {
+    getActionName() {
         return this.action_name
-    };
+    }
 
     /**
      * Get the annotations
      * @return {string[]} annotations - Action Annotations
      */
-    ConnectorAction.prototype.getAnnotations = function () {
+    getAnnotations() {
         return this.annotations
-    };
+    }
 
     /**
      * Get the action Arguments
      * @return {Object[]} arguments - Action Arguments
      */
-    ConnectorAction.prototype.getArguments = function () {
+    getArguments() {
         var actionArgs = [];
         var self = this;
 
@@ -62,33 +63,33 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
             }
         });
         return actionArgs;
-    };
+    }
 
     /**
      * Set the Action name
      * @param {string} name - Action Name
      */
-    ConnectorAction.prototype.setActionName = function (name, options) {
+    setActionName(name, options) {
         this.setAttribute('action_name', name, options);
-    };
+    }
 
     /**
      * Set the action annotations
      * @param {string[]} annotations - Action Annotations
      */
-    ConnectorAction.prototype.setAnnotations = function (annotations, options) {
+    setAnnotations(annotations, options) {
         if (!_.isNil(annotations)) {
             this.setAttribute('annotations', annotations, options);
         } else {
             log.warn('Trying to set a null or undefined array to annotations');
         }
-    };
+    }
 
     /**
      * Get the variable Declarations
      * @return {VariableDeclaration[]} variableDeclarations
      */
-    ConnectorAction.prototype.getVariableDefinitionStatements = function () {
+    getVariableDefinitionStatements() {
         var variableDefinitionStatements = [];
         var self = this;
 
@@ -98,12 +99,12 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
             }
         });
         return variableDefinitionStatements;
-    };
+    }
 
     /**
      * Remove variable declaration.
      */
-    ConnectorAction.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+    removeVariableDeclaration(variableDeclarationIdentifier) {
         var self = this;
         // Removing the variable from the children.
         var variableDeclarationChild = _.find(this.getChildren(), function (child) {
@@ -111,12 +112,12 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
                 && child.getIdentifier() === variableDeclarationIdentifier;
         });
         this.removeChild(variableDeclarationChild);
-    };
+    }
 
     /**
      * Adds new variable declaration.
      */
-    ConnectorAction.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+    addVariableDeclaration(newVariableDeclaration) {
         var self = this;
         // Get the index of the last variable declaration.
         var index = _.findLastIndex(this.getChildren(), function (child) {
@@ -132,7 +133,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         }
 
         this.addChild(newVariableDeclaration, index + 1);
-    };
+    }
 
     //// Start of return type functions.
 
@@ -140,30 +141,30 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
      * Gets the return type as a string separated by commas.
      * @return {string} - Return types.
      */
-    ConnectorAction.prototype.getReturnTypesAsString = function () {
+    getReturnTypesAsString() {
         var returnTypes = [];
         _.forEach(this.getReturnTypes(), function (returnTypeChild) {
             returnTypes.push(returnTypeChild.getArgumentAsString())
         });
 
         return _.join(returnTypes, " , ");
-    };
+    }
 
     /**
      * Gets the defined return types.
      * @return {Argument[]} - Array of args.
      */
-    ConnectorAction.prototype.getReturnTypes = function () {
+    getReturnTypes() {
         var returnTypeModel = this.getReturnTypeModel();
         return !_.isUndefined(returnTypeModel) ? this.getReturnTypeModel().getChildren().slice(0) : [];
-    };
+    }
 
     /**
      * Adds a new argument to return type model.
      * @param {string} type - The type of the argument.
      * @param {string} identifier - The identifier of the argument.
      */
-    ConnectorAction.prototype.addReturnType = function (type, identifier) {
+    addReturnType(type, identifier) {
         var self = this;
 
         // Adding return type mode if it doesn't exists.
@@ -211,9 +212,9 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
             returnType.addChild(argument, 0);
             this.addChild(returnType);
         }
-    };
+    }
 
-    ConnectorAction.prototype.hasNamedReturnTypes = function () {
+    hasNamedReturnTypes() {
         if (_.isUndefined(this.getReturnTypeModel())) {
             return false;
         } else {
@@ -228,9 +229,9 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
                 return true;
             }
         }
-    };
+    }
 
-    ConnectorAction.prototype.hasReturnTypes = function () {
+    hasReturnTypes() {
         if (_.isUndefined(this.getReturnTypeModel())) {
             return false;
         } else {
@@ -240,13 +241,13 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
                 return false;
             }
         }
-    };
+    }
 
     /**
      * Removes return type argument from the return type model.
      * @param {string} modelID - The id of an {Argument} which resides in the return type model.
      */
-    ConnectorAction.prototype.removeReturnType = function (modelID) {
+    removeReturnType(modelID) {
         var self = this;
         var argumentToRemove = undefined;
 
@@ -267,13 +268,13 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
             log.error(exceptionString);
             throw exceptionString;
         }
-    };
+    }
 
     /**
      * Gets the return type model. A connector action definition can have only one {ReturnType} model.
      * @return {ReturnType|undefined} - The return type model.
      */
-    ConnectorAction.prototype.getReturnTypeModel = function() {
+    getReturnTypeModel() {
         var self = this;
         var returnTypeModel = undefined;
         _.forEach(this.getChildren(), function (child) {
@@ -285,7 +286,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         });
 
         return returnTypeModel;
-    };
+    }
 
     //// End of return type functions.
 
@@ -293,7 +294,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
      * Returns the list of arguments as a string separated by commas.
      * @return {string} - Arguments as string.
      */
-    ConnectorAction.prototype.getArgumentsAsString = function () {
+    getArgumentsAsString() {
         var argsAsString = "";
         var args = this.getArguments();
         _.forEach(args, function(argument, index){
@@ -304,14 +305,14 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
             }
         });
         return argsAsString;
-    };
+    }
 
     /**
      * Adds new argument to the connector action.
      * @param type - The type of the argument.
      * @param identifier - The identifier of the argument.
      */
-    ConnectorAction.prototype.addArgument = function(type, identifier) {
+    addArgument(type, identifier) {
         //creating argument
         var newArgument = this.getFactory().createArgument();
         newArgument.setType(type);
@@ -325,21 +326,21 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         });
 
         this.addChild(newArgument, index + 1);
-    };
+    }
 
     /**
      * Removes an argument from a function definition.
      * @param identifier - The identifier of the argument.
      * @return {Array} - The removed argument.
      */
-    ConnectorAction.prototype.removeArgument = function(identifier) {
+    removeArgument(identifier) {
         var self = this;
         _.remove(this.getChildren(), function (child) {
             return self.getFactory().isArgument(child) && child.getIdentifier() === identifier;
         });
-    };
+    }
 
-    ConnectorAction.prototype.getConnectionDeclarations = function () {
+    getConnectionDeclarations() {
         var connectorDeclaration = [];
         var self = this;
 
@@ -351,9 +352,9 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
             return connectorDeclaration.getConnectorVariable();
         }]);
-    };
+    }
 
-    ConnectorAction.prototype.getWorkerDeclarations = function () {
+    getWorkerDeclarations() {
         var workerDeclarations = [];
         var self = this;
 
@@ -365,7 +366,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         return _.sortBy(workerDeclarations, [function (workerDeclaration) {
             return workerDeclaration.getWorkerName();
         }]);
-    };
+    }
 
     /**
      * initialize ConnectorAction from json object
@@ -373,7 +374,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
      * @param {string} [jsonNode.resource_name] - Name of the resource definition
      * @param {string} [jsonNode.annotations] - Annotations of the resource definition
      */
-    ConnectorAction.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         this.setActionName(jsonNode.action_name, {doSilently: true});
         this.setAnnotations(jsonNode.annotations, {doSilently: true});
@@ -391,7 +392,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
             self.addChild(child);
             child.initFromJson(childNodeTemp);
         });
-    };
+    }
 
     /**
      * Validates possible immediate child types.
@@ -399,18 +400,18 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
      * @param node
      * @return {boolean}
      */
-    ConnectorAction.prototype.canBeParentOf = function (node) {
+    canBeParentOf(node) {
         return this.getFactory().isConnectorDeclaration(node)
             || this.getFactory().isVariableDeclaration(node)
             || this.getFactory().isWorkerDeclaration(node)
             || this.getFactory().isStatement(node);
-    };
+    }
 
     /**
      * @inheritDoc
      * @override
      */
-    ConnectorAction.prototype.generateUniqueIdentifiers = function () {
+    generateUniqueIdentifiers() {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
@@ -425,34 +426,35 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
                 }]
             }]
         });
-    };
+    }
 
     /**
      * Get the connector by name
      * @param {string} connectorName
      * @return {ConnectorDeclaration}
      */
-    ConnectorAction.prototype.getConnectorByName = function (connectorName) {
+    getConnectorByName(connectorName) {
         var self = this;
         var connectorReference = _.find(this.getChildren(), function (child) {
             return (self.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
         });
 
         return !_.isNil(connectorReference) ? connectorReference : this.getParent(). getConnectorByName(connectorName);
-    };
+    }
 
     /**
      * Get all the connector references in the immediate scope
      * @return {Array} connectorReferences
      */
-    ConnectorAction.prototype.getConnectorsInImmediateScope = function () {
+    getConnectorsInImmediateScope() {
         var factory = this.getFactory();
         var connectorReferences = _.filter(this.getChildren(), function (child) {
             return factory.isConnectorDeclaration(child);
         });
 
         return !_.isEmpty(connectorReferences) ? connectorReferences : this.getParent().getConnectorsInImmediateScope();
-    };
+    }
+}
 
-    return ConnectorAction;
-});
+export default ConnectorAction;
+

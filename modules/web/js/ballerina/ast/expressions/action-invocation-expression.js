@@ -15,15 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './expression'], function (_, log, Expression) {
+import _ from 'lodash';
+import log from 'log';
+import Expression from './expression';
 
-    /**
-     * Class to represent a action invocation to ballerina.
-     * @param args
-     * @constructor
-     */
-    var ActionInvocationExpression = function (args) {
-        Expression.call(this, "ActionInvocationExpression");
+/**
+ * Class to represent a action invocation to ballerina.
+ * @param args
+ * @constructor
+ */
+class ActionInvocationExpression extends Expression {
+    constructor(args) {
+        super("ActionInvocationExpression");
         this._actionName = _.get(args, 'action', undefined);
         this._actionPackageName = _.get(args, 'actionPackageName', undefined);
         this._actionConnectorName = _.get(args, 'actionConnectorName', undefined);
@@ -33,89 +36,89 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
         //create the default expression for action invocation
         this.setExpression(this.generateExpression());
         this.type = "ActionInvocationExpression";
-    };
-
-    ActionInvocationExpression.prototype = Object.create(Expression.prototype);
-    ActionInvocationExpression.prototype.constructor = ActionInvocationExpression;
+    }
 
     /**
      * Set the full package name
      * @param {String} fullPkgName full package name
      * @param {Object} options
      * */
-    ActionInvocationExpression.prototype.setFullPackageName = function (fullPkgName, options){
+    setFullPackageName(fullPkgName, options) {
         this.setAttribute('_fullPackageName', fullPkgName, options);
-    };
+    }
 
     /**
      * Get the full package name
      * @return {String} full package name
      * */
-    ActionInvocationExpression.prototype.getFullPackageName = function (){
+    getFullPackageName() {
         return this._fullPackageName;
-    };
+    }
 
     /**
      * Set action name
      * @param {string} actionName
      */
-    ActionInvocationExpression.prototype.setActionName = function (actionName, options) {
+    setActionName(actionName, options) {
         this.setAttribute('_actionName', actionName, options);
-    };
+    }
+
     /**
      * Get action name
      * @returns {string}
      */
-    ActionInvocationExpression.prototype.getActionName = function () {
+    getActionName() {
         return this._actionName;
-    };
+    }
 
     /**
      * Set Action package name
      * @param {string} actionPackageName
      */
-    ActionInvocationExpression.prototype.setActionPackageName = function (actionPackageName, options) {
+    setActionPackageName(actionPackageName, options) {
         this.setAttribute('_actionPackageName', actionPackageName, options);
-    };
+    }
+
     /**
      * Get Action Package Name
      * @returns {string}
      */
-    ActionInvocationExpression.prototype.getActionPackageName = function () {
+    getActionPackageName() {
         return this._actionPackageName;
-    };
+    }
 
     /**
      * Set Action Connector name
      * @param {string} actionConnectorName
      */
-    ActionInvocationExpression.prototype.setActionConnectorName = function (actionConnectorName, options) {
+    setActionConnectorName(actionConnectorName, options) {
         this.setAttribute('_actionConnectorName', actionConnectorName, options);
-    };
+    }
+
     /**
      * Get action connector Name
      * @returns {string}
      */
-    ActionInvocationExpression.prototype.getActionConnectorName = function () {
+    getActionConnectorName() {
         return this._actionConnectorName;
-    };
+    }
 
-    ActionInvocationExpression.prototype.getConnector = function(){
+    getConnector() {
         return this._connector;
-    };
+    }
 
-    ActionInvocationExpression.prototype.setConnector = function(connector, options){
+    setConnector(connector, options) {
         if(!_.isNil(connector)){
             this.setAttribute("_connector", connector, options);
             this.setExpression(this.generateExpression());
         }
-    };
+    }
 
     /**
      * initialize ActionInvocationExpression from json object
      * @param {Object} jsonNode to initialize from
      */
-    ActionInvocationExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setActionName(jsonNode.action_name, {doSilently: true});
         this.setActionPackageName(jsonNode.action_pkg_name, {doSilently: true});
         this.setActionConnectorName(jsonNode.action_connector_name, {doSilently: true});
@@ -136,17 +139,17 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
             });
         }
         this.setExpression(this.generateExpression(), {doSilently: true});
-    };
+    }
 
-    ActionInvocationExpression.prototype.addArgument = function (argument){
+    addArgument(argument) {
         this._arguments.push(argument);
-    };
+    }
 
-    ActionInvocationExpression.prototype.getArguments = function (){
+    getArguments() {
         return this._arguments;
-    };
+    }
 
-    ActionInvocationExpression.prototype.getInvocationConnector = function (connectorVariable) {
+    getInvocationConnector(connectorVariable) {
         var parent = this.getParent();
         var factory = this.getFactory();
 
@@ -162,13 +165,13 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
 
         var connector = parent.getConnectorByName(connectorVariable);
         return connector;
-    };
+    }
 
     /**
      * Get the action invocation statement
      * @return {string} action invocation statement
      */
-    ActionInvocationExpression.prototype.generateExpression = function () {
+    generateExpression() {
         var argsString = "";
         var args = this.getArguments();
 
@@ -200,18 +203,18 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
             expression = this.getActionPackageName() + ":" + expression;
         }
         return expression;
-    };
+    }
 
-    ActionInvocationExpression.prototype.setExpression = function (expression, options) {
+    setExpression(expression, options) {
         if(!_.isUndefined(expression)){
             this.setAttribute('_expression', expression, options);
         }
-    };
+    }
 
-    ActionInvocationExpression.prototype.getExpression = function () {
+    getExpression() {
         return this._expression;
-    };
+    }
+}
 
-    return ActionInvocationExpression;
+export default ActionInvocationExpression;
 
-});

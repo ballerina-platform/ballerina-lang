@@ -15,14 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./explorer', './workspace', './browser-storage', './service-client', './file'],
-    function (Explorer, Workspace, BrowserStorage, ServiceClient, File) {
-        return  {
-            Explorer: Explorer,
-            Manager: Workspace,
-            BrowserStorage: BrowserStorage,
-            ServiceClient: ServiceClient,
-            File: File
-        }
-    });
+import Explorer from './explorer';
+import Workspace from './workspace';
+import BrowserStorage from './browser-storage';
+import ServiceClient from './service-client';
+import File from './file';
 
+export default  {
+    Explorer: Explorer,
+    Manager: Workspace,
+    BrowserStorage: BrowserStorage,
+    ServiceClient: ServiceClient,
+    File: File
+};

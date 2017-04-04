@@ -16,8 +16,9 @@
  * under the License.
  */
 
-define(['lodash', 'event_channel', './menu-item'],
-    function (_, EventChannel, MenuItem){
+import _ from 'lodash';
+import EventChannel from 'event_channel';
+import MenuItem from './menu-item';
 
     var MenuGroup = function(args){
         _.assign(this, args);
@@ -40,6 +41,17 @@ define(['lodash', 'event_channel', './menu-item'],
         title.text(_.get(this, 'definition.label'));
         title.addClass(_.get(this, 'options.cssClass.toggle'));
         title.attr("data-toggle", "dropdown");
+        title.on('mouseover', function(e){
+            var thisElem = $(e.target).parent();
+            var toggleClass = 'open';
+            _.some(thisElem.siblings(), function (el) {
+                if($(el).hasClass(toggleClass)){
+                    thisElem.addClass(toggleClass);
+                    $(el).removeClass(toggleClass);
+                    return;
+                }
+            });
+        });
         toolBarDiv.append(title);
 
         var menu = $('<ul></ul>');
@@ -65,6 +77,5 @@ define(['lodash', 'event_channel', './menu-item'],
         return _.get(this, 'definition.id');
     };
 
-    return MenuGroup;
+    export default MenuGroup;
 
-});

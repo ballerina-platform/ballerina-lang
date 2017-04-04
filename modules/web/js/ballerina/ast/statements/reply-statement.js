@@ -15,51 +15,52 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement'], function (_, log, Statement) {
+import _ from 'lodash';
+import log from 'log';
+import Statement from './statement';
 
-    /**
-     * Class for reply statement in ballerina.
-     * @param message expression of a reply statement.
-     * @constructor
-     */
-    var ReplyStatement = function (args) {
-        Statement.call(this);
+/**
+ * Class for reply statement in ballerina.
+ * @param message expression of a reply statement.
+ * @constructor
+ */
+class ReplyStatement extends Statement {
+    constructor(args) {
+        super();
         this._message = _.get(args, 'message') || '';
         this.type = "ReplyStatement";
-    };
+    }
 
-    ReplyStatement.prototype = Object.create(Statement.prototype);
-    ReplyStatement.prototype.constructor = ReplyStatement;
-
-    ReplyStatement.prototype.setReplyMessage = function (message, options) {
+    setReplyMessage(message, options) {
         if (!_.isNil(message)) {
             this.setAttribute('_message', message, options);
         } else {
             log.error("Cannot set undefined to the reply statement.");
         }
-    };
+    }
 
-    ReplyStatement.prototype.getReplyMessage = function () {
+    getReplyMessage() {
         return this._message;
-    };
+    }
 
-    ReplyStatement.prototype.canBeAChildOf = function (node) {
+    canBeAChildOf(node) {
         return this.getFactory().isResourceDefinition(node)
                 || this.getFactory().isWorkerDeclaration(node)
                 || this.getFactory().isStatement(node);
-    };
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    ReplyStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setReplyMessage(jsonNode.expression, {doSilently: true});
-    };
+    }
 
-    ReplyStatement.prototype.getReplyExpression = function () {
+    getReplyExpression() {
         return "reply " + this.getReplyMessage();
-    };
+    }
+}
 
-    return ReplyStatement;
-});
+export default ReplyStatement;
+

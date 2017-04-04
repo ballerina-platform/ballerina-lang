@@ -15,54 +15,56 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log'], function (_, log) {
+import _ from 'lodash';
+import log from 'log';
 
-    /**
-     * Represents the constructs elements from BallerinaSDK
-     * @param {Object} args - Construct elements from BallerinaSDK
-     * @param {Object} args.functions - functions
-     * @param {Object} args.connectorDefinitions - connectorDefinitions;
-     * @param {Object} args.structs - structs;
-     * @param {Object} args.nativetype - nativetype;
-     * @param {Object} args.type - type;
-     * @constructor
-     */
-    var BallerinaSDK = function (args) {
+/**
+ * Represents the constructs elements from BallerinaSDK
+ * @param {Object} args - Construct elements from BallerinaSDK
+ * @param {Object} args.functions - functions
+ * @param {Object} args.connectorDefinitions - connectorDefinitions;
+ * @param {Object} args.structs - structs;
+ * @param {Object} args.nativetype - nativetype;
+ * @param {Object} args.type - type;
+ * @constructor
+ */
+class BallerinaSDK {
+    constructor(args) {
         this._functions = _.get(args, 'functions', []);
         this._connectorDefinitions = _.get(args, 'connectorDefinitions', {});
         this._structs = _.get(args, 'structs', []);
         this._nativetype = _.get(args, 'nativeTypes', []);
         this._type = _.get(args, 'types', []);
-    };
+    }
 
-    BallerinaSDK.prototype.init = function () {
+    init() {
         this._type = _.union(this.getNativeTypes(), this.getStructs());
-    };
+    }
 
-    BallerinaSDK.prototype.setStructs = function (structs) {
+    setStructs(structs) {
         this._structs = structs;
-    };
+    }
 
-    BallerinaSDK.prototype.getStructs = function () {
+    getStructs() {
         return this._structs;
-    };
+    }
 
-    BallerinaSDK.prototype.setTypes = function (type) {
+    setTypes(type) {
         this._type = type;
-    };
+    }
 
-    BallerinaSDK.prototype.getTypes = function () {
+    getTypes() {
         return this._type;
-    };
+    }
 
-    BallerinaSDK.prototype.setNativeTypes = function (nativeType) {
+    setNativeTypes(nativeType) {
         this._nativeType = nativeType;
-    };
+    }
 
-    BallerinaSDK.prototype.getNativeTypes = function () {
+    getNativeTypes() {
         return this._nativeType;
-    };
+    }
+}
 
-    return BallerinaSDK;
+export default BallerinaSDK;
 
-});

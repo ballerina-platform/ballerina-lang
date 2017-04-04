@@ -15,32 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/function-invocation-statement'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, FunctionInvocation) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import FunctionInvocation from '../../ast/statements/function-invocation-statement';
+import TypeMapperStatementVisitorFactory from './type-mapper-statement-visitor-factory';
 
-        var TypeMapperFunctionInvocationVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+class TypeMapperFunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeMapperFunctionInvocationVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        TypeMapperFunctionInvocationVisitor.prototype.constructor = TypeMapperFunctionInvocationVisitor;
+    canVisitFuncInvocationStatement(functionInvocation) {
+        return true;
+    }
 
-        TypeMapperFunctionInvocationVisitor.prototype.canVisitFuncInvocationStatement = function(functionInvocation){
-            return true;
-        };
+    visitFuncInvocationExpression(expression) {
+        var statementVisitorFactory = new TypeMapperStatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+        expression.accept(statementVisitor);
+    }
 
-        TypeMapperFunctionInvocationVisitor.prototype.visitFuncInvocationExpression = function (expression) {
-            var TypeMapperStatementVisitorFactory = require('./type-mapper-statement-visitor-factory');
-            var statementVisitorFactory = new TypeMapperStatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-            expression.accept(statementVisitor);
-        };
+    endVisitFuncInvocationStatement(functionInvocation) {
+        this.appendSource(";\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Type Mapper Function Invocation Statement');
+    }
+}
 
-        TypeMapperFunctionInvocationVisitor.prototype.endVisitFuncInvocationStatement = function(functionInvocation){
-            this.appendSource(";\n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Type Mapper Function Invocation Statement');
-        };
-
-        return TypeMapperFunctionInvocationVisitor;
-    });
+export default TypeMapperFunctionInvocationVisitor;

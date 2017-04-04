@@ -15,17 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'require'], 
-    function (log, _, require) {
 
-        /**
-         * @class DebugPoint
-         * @args
-         */
-        var DebugPoint = function (args) {
-            this.fileName = _.get(args, 'fileName', '');
-            this.lineNumber = _.get(args, 'lineNumber', 0);
-        };
+/**
+ * @class DebugPoint
+ * @args
+ */
+class DebugPoint {
+    constructor(args) {
+        this.fileName = args.fileName || '';
+        this.lineNumber = args.lineNumber || 0;
+    }
+}
 
-        return DebugPoint;
-    });
+export default DebugPoint;

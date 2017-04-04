@@ -15,8 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/tool-group', '../ast/default-ballerina-ast-factory'],
-    function (log, $, BallerinaASTFactory, ToolGroup, DefaultBallerinaASTFactory) {
+import log from 'log';
+import $ from 'jquery';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ToolGroup from './../tool-palette/tool-group';
+import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var ToolPalette = [];
 
@@ -239,5 +242,5 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
 
         ToolPalette.push(constructs);
 
-        return ToolPalette;
-});
+        export default ToolPalette;
+

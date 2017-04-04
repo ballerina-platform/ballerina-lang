@@ -15,34 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module',],
-    function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST) {
 
-        var ReturnTypeVisitor = function(parent){
-            AbstractSourceGenVisitor.call(this,parent);
-        };
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AST from '../../ast/module';
 
-        ReturnTypeVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        ReturnTypeVisitor.prototype.constructor = ReturnTypeVisitor;
+class ReturnTypeVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        ReturnTypeVisitor.prototype.canVisitReturnType = function (returnType) {
-            return true;
-        };
+    canVisitReturnType(returnType) {
+        return true;
+    }
 
-        ReturnTypeVisitor.prototype.beginVisitReturnType = function (returnType) {
-           this.appendSource('( ');
-           log.debug('Begin Visit Return Type');
-        };
+    beginVisitReturnType(returnType) {
+       this.appendSource('( ');
+       log.debug('Begin Visit Return Type');
+    }
 
-        ReturnTypeVisitor.prototype.visitReturnType = function (returnType) {
-            log.debug('Visit Return Type');
-        };
+    visitReturnType(returnType) {
+        log.debug('Visit Return Type');
+    }
 
-        ReturnTypeVisitor.prototype.endVisitReturnType = function (returnType) {
-           this.appendSource(' )');
-           this.getParent().appendSource(this.getGeneratedSource());
-           log.debug('End Visit Return Type');
-        };
+    endVisitReturnType(returnType) {
+       this.appendSource(' )');
+       this.getParent().appendSource(this.getGeneratedSource());
+       log.debug('End Visit Return Type');
+    }
+}
 
-        return ReturnTypeVisitor;
-    });
+export default ReturnTypeVisitor;
+    

@@ -15,41 +15,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/while-statement'],
-function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, WhileStatement) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import WhileStatement from '../../ast/statements/while-statement';
+import StatementVisitorFactory from './statement-visitor-factory';
 
-    var WhileStatementVisitor = function(parent){
-        AbstractStatementSourceGenVisitor.call(this,parent);
-    };
+class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    WhileStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    WhileStatementVisitor.prototype.constructor = WhileStatementVisitor;
-
-    WhileStatementVisitor.prototype.canVisitWhileStatement = function(whileStatement){
+    canVisitWhileStatement(whileStatement) {
         return whileStatement instanceof WhileStatement && this._generatedSource === "";
-    };
+    }
 
-    WhileStatementVisitor.prototype.beginVisitWhileStatement = function(whileStatement){
+    beginVisitWhileStatement(whileStatement) {
         this.appendSource('while(' + whileStatement.getCondition() + '){');
         log.debug('Begin Visit If Statement Definition');
-    };
+    }
 
-    WhileStatementVisitor.prototype.visitWhileStatement = function(whileStatement){
+    visitWhileStatement(whileStatement) {
         log.debug('Visit If Statement Definition');
-    };
+    }
 
-    WhileStatementVisitor.prototype.endVisitWhileStatement = function(whileStatement){
+    endVisitWhileStatement(whileStatement) {
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit If Statement Definition');
-    };
+    }
 
-    WhileStatementVisitor.prototype.visitStatement = function (statement) {
-        var StatementVisitorFactory = require('./statement-visitor-factory');
+    visitStatement(statement) {
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
-    };
+    }
+}
 
-    return WhileStatementVisitor;
-});
+export default WhileStatementVisitor;

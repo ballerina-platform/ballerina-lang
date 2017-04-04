@@ -15,24 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], function (_, log, EventChannel, AbstractSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
-    /**
-     * @param parent
-     * @constructor
-     */
-    var PackageDefinitionVisitor = function (parent) {
-        AbstractSourceGenVisitor.call(this, parent);
-    };
+/**
+ * @param parent
+ * @constructor
+ */
+class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    PackageDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-    PackageDefinitionVisitor.prototype.constructor = PackageDefinitionVisitor;
-
-    PackageDefinitionVisitor.prototype.canVisitPackageDefinition = function (packageDefinition) {
+    canVisitPackageDefinition(packageDefinition) {
         return true;
-    };
+    }
 
-    PackageDefinitionVisitor.prototype.beginVisitPackageDefinition = function (packageDefinition) {
+    beginVisitPackageDefinition(packageDefinition) {
         /**
          * set the configuration start for the package definition language construct
          * If we need to add additional parameters which are dynamically added to the configuration start
@@ -43,19 +44,19 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], func
             this.appendSource(constructedSourceSegment);
         }
         log.debug('Begin Visit PackageDefinition');
-    };
+    }
 
-    PackageDefinitionVisitor.prototype.visitPackageDefinition = function (packageDefinition) {
+    visitPackageDefinition(packageDefinition) {
         log.debug('Visit PackageDefinition');
-    };
+    }
 
-    PackageDefinitionVisitor.prototype.endVisitPackageDefinition = function (packageDefinition) {
+    endVisitPackageDefinition(packageDefinition) {
         if (!_.isNil(packageDefinition.getPackageName()) && packageDefinition.getPackageName() !== "") {
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
         }
         log.debug('End Visit PackageDefinition');
-    };
+    }
+}
 
-    return PackageDefinitionVisitor;
-});
+export default PackageDefinitionVisitor;

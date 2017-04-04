@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-define(['require', 'jquery', 'lodash'], function (require, $, _) {
+
+import $ from 'jquery';
+import _ from 'lodash';
     var environment_content = {};
 
     /**
@@ -38,5 +40,4 @@ define(['require', 'jquery', 'lodash'], function (require, $, _) {
         });
         return data;
     };
-    return environment_content;
-});
+    export default environment_content;

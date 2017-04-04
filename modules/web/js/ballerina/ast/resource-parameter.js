@@ -15,49 +15,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './argument'], function (_, Argument) {
+import _ from 'lodash';
+import Argument from './argument';
 
-    /**
-     * AST node for a resource parameter.
-     * @param {Object} args - Arguments for creating the resource parameter.
-     * @param {string} args.type - Ballerina type of the parameter. Example: string, int.
-     * @param {string} args.identifier - Identifier of the parameter.
-     * @param {string} args.annotationType - The annotation of the parameter. Example: @PathParam.
-     * @param {string} args.annotationText - The text within the annotation.
-     * @constructor
-     * @augments Argument
-     */
-    var ResourceParameter = function (args) {
-        Argument.call(this, args);
+/**
+ * AST node for a resource parameter.
+ * @param {Object} args - Arguments for creating the resource parameter.
+ * @param {string} args.type - Ballerina type of the parameter. Example: string, int.
+ * @param {string} args.identifier - Identifier of the parameter.
+ * @param {string} args.annotationType - The annotation of the parameter. Example: @PathParam.
+ * @param {string} args.annotationText - The text within the annotation.
+ * @constructor
+ * @augments Argument
+ */
+class ResourceParameter extends Argument {
+    constructor(args) {
+        super(args);
         this.annotationType = _.get(args, "annotationType");
         this.annotationText = _.get(args, "annotationText");
         this.type = "ResourceParameter";
-    };
+    }
 
-    ResourceParameter.prototype = Object.create(Argument.prototype);
-    ResourceParameter.prototype.constructor = ResourceParameter;
-
-    ResourceParameter.prototype.setAnnotationType = function (annotationType, options) {
+    setAnnotationType(annotationType, options) {
         this.setAttribute('annotationType', annotationType, options);
-    };
+    }
 
-    ResourceParameter.prototype.getAnnotationType = function () {
+    getAnnotationType() {
         return this.annotationType;
-    };
+    }
 
-    ResourceParameter.prototype.setAnnotationText = function (annotationText, options) {
+    setAnnotationText(annotationText, options) {
         this.setAttribute('annotationText', annotationText, options);
-    };
+    }
 
-    ResourceParameter.prototype.getAnnotationText = function () {
+    getAnnotationText() {
         return this.annotationText;
-    };
+    }
 
     /**
      * Gets a string representation of the current parameter.
      * @return {string} - String representation.
      */
-    ResourceParameter.prototype.getParameterAsString = function() {
+    getParameterAsString() {
         var paramAsString = !_.isUndefined(this.getAnnotationType()) ? this.getAnnotationType() : "";
         paramAsString += !_.isUndefined(this.getAnnotationText()) && !_.isEmpty(this.getAnnotationText()) ?
         "{value:\"" + this.getAnnotationText() + "\"} " : "";
@@ -65,33 +64,34 @@ define(['lodash', './argument'], function (_, Argument) {
         paramAsString += this.getIdentifier();
 
         return paramAsString;
-    };
+    }
 
     /**
      * Gets the supported annotations for a path param.
      * @return {string[]} - The supported annotations for a resource param.
      * @static
      */
-    ResourceParameter.getSupportedAnnotations = function() {
+    static getSupportedAnnotations() {
         return ["@http:PathParam", "@http:QueryParam"/*, "@HeaderParam", "@FormParam", "@Body"*/];
-    };
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    ResourceParameter.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setType(jsonNode.parameter_type, {doSilently: true});
         this.setIdentifier(jsonNode.parameter_name, {doSilently: true});
 
         // As of now we only support one annotation.
-        if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, "annotation_attachment")) {
+        if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, 'annotation_attachment')) {
             var annotationJson = jsonNode.children[0];
-            this.setAnnotationType("@" + annotationJson.annotation_package_name + ":" + annotationJson.annotation_name, {doSilently: true});
+            this.setAnnotationType('@' + annotationJson.annotation_package_name + ':' + annotationJson.annotation_name, {doSilently: true});
             this.setAnnotationText(annotationJson.children[0].value, {doSilently: true});
         }
-    };
+    }
+}
 
-    return ResourceParameter;
+export default ResourceParameter;
 
-});
+

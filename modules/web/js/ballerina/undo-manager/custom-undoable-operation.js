@@ -15,37 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './undoable-operation'],
-    function (_, UndoableOperation) {
+import _ from 'lodash';
+import UndoableOperation from './undoable-operation';
 
-        /**
-         * Class to represent a custom undoable operation
-         * @class CustomUndoableOperation
-         * @augments UndoableOperation
-         * @param args
-         * @constructor
-         */
-        var CustomUndoableOperation = function(args){
-            UndoableOperation.call(this, args);
-            this._callBackContext = _.get(args, 'context');
-            this._undoCallBack = _.get(args, 'undo');
-            this._redoCallBack = _.get(args, 'redo');
-        };
+/**
+ * Class to represent a custom undoable operation
+ * @class CustomUndoableOperation
+ * @augments UndoableOperation
+ * @param args
+ * @constructor
+ */
+class CustomUndoableOperation extends UndoableOperation {
+    constructor(args) {
+        super(args);
+        this._callBackContext = _.get(args, 'context');
+        this._undoCallBack = _.get(args, 'undo');
+        this._redoCallBack = _.get(args, 'redo');
+    }
 
-        CustomUndoableOperation.prototype = Object.create(UndoableOperation.prototype);
-        CustomUndoableOperation.prototype.constructor = CustomUndoableOperation;
+    undo() {
+        if(this.canUndo()){
+            this._undoCallBack.call(this._callBackContext);
+        }
+    }
 
-        CustomUndoableOperation.prototype.undo = function(){
-           if(this.canUndo()){
-               this._undoCallBack.call(this._callBackContext);
-           }
-        };
-        CustomUndoableOperation.prototype.redo = function(){
-            if(this.canRedo()) {
-                this._redoCallBack.call(this._callBackContext);
-            }
-        };
+    redo() {
+        if(this.canRedo()) {
+            this._redoCallBack.call(this._callBackContext);
+        }
+    }
+}
 
-        return CustomUndoableOperation;
-    });
+export default CustomUndoableOperation;
+    
 

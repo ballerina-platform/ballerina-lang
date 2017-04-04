@@ -15,35 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module'],
-    function (require, _, log, EventChannel, AbstractSourceGenVisitor, AST) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AST from '../../ast/module';
 
-        var VariableDefinitionVisitor = function (parent) {
-            AbstractSourceGenVisitor.call(this, parent);
-        };
+class VariableDefinitionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        VariableDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        VariableDefinitionVisitor.prototype.constructor = VariableDefinitionVisitor;
+    canVisitVariableDefinition(variableDefinition) {
+        return true;
+    }
 
-        VariableDefinitionVisitor.prototype.canVisitVariableDefinition = function (variableDefinition) {
-            return true;
-        };
+    beginVisitVariableDefinition(variableDefinition) {
+        if (variableDefinition.getType()) {
+            this.appendSource(variableDefinition.getTypeName() + ' ');
+        }
+        log.debug('Begin Visit Variable Definition');
+    }
 
-        VariableDefinitionVisitor.prototype.beginVisitVariableDefinition = function (variableDefinition) {
-            if (variableDefinition.getType()) {
-                this.appendSource(variableDefinition.getTypeName() + ' ');
-            }
-            log.debug('Begin Visit Variable Definition');
-        };
+    visitVariableDefinition(variableDefinition) {
+        log.debug('Visit Variable Definition');
+    }
 
-        VariableDefinitionVisitor.prototype.visitVariableDefinition = function (variableDefinition) {
-            log.debug('Visit Variable Definition');
-        };
+    endVisitVariableDefinition(variableDefinition) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Variable Definition');
+    }
+}
 
-        VariableDefinitionVisitor.prototype.endVisitVariableDefinition = function (variableDefinition) {
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Variable Definition');
-        };
-
-        return VariableDefinitionVisitor;
-    });
+export default VariableDefinitionVisitor;

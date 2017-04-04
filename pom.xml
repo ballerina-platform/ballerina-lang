@@ -21,13 +21,13 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
-        <version>0.86-SNAPSHOT</version>
+        <version>0.85-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-composer-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.86-SNAPSHOT</version>
+    <version>0.85-SNAPSHOT</version>
     <name>Ballerina Composer - Parent</name>
 
     <scm>
@@ -72,7 +72,28 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-launcher</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-native</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>annotation-processor</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-core-feature</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>gson-fragment</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
         </dependencies>
@@ -165,7 +186,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.86-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.85-SNAPSHOT</ballerina.version>
 
         <!-- Maven plugins -->
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>

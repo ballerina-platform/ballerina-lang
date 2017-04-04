@@ -397,16 +397,29 @@
 <div class="modal fade" id="modalAbout" tabindex="-1" role="dialog" aria-label="modalDemo">
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
-            <div class="modal-header">
+            <div class="modal-header add-padding-bottom-3x">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fw fw-cancel  about-dialog-close"></i></button>
-                <h3 class="modal-title" id="aboutModalLabel">Welcome to Ballerina Composer</h3>
+                <img src="images/logo.png" alt="Ballerina Composer">
+                <h5 class="modal-title" id="aboutModalLabel">v0.85</h5>
             </div>
-            <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
-                <p>See <a target="_blank" href="http://ballerinalang.org/docs/user-guide/0.8/">here</a>
-                    for documentation and <a target="_blank" href="https://github.com/ballerinalang/composer/issues">here</a> for reporting issues.</p>
+            <div class="modal-body add-margin-top-2x">
+                <p>
+                    Ballerina Composer provides a flexible and powerful browser-based tool for creating your Ballerina
+                    programs. You can build your integrations by creating sequence diagrams, dragging elements from a tool
+                    palette onto a canvas. As you build the diagrams, the underlying code is written for you, which you can
+                    work with in the Source view. You can also use the Swagger view to define services by writing Swagger
+                    definitions. You can switch seamlessly between the Design view, Source view, and Swagger view and create
+                    your programs in the way that you like to work.
+                    <br><br>
+                    <hr>
+                    <br>
+                    Please use <a target="_blank" href="https://github.com/ballerinalang/composer/issues">GitHub
+                    issues</a> tracker for reporting issues.
+                </p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                © <script>document.write(new Date().getFullYear());</script>
+                <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc.</a>
             </div>
         </div>
     </div>

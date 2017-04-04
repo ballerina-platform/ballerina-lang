@@ -15,98 +15,101 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory',
-        './connector-declaration-visitor', './variable-declaration-visitor', './worker-declaration-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, ConnectorDeclarationVisitor,
-             VariableDeclarationVisitor, WorkerDeclarationVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
+import ConnectorDeclarationVisitor from './connector-declaration-visitor';
+import VariableDeclarationVisitor from './variable-declaration-visitor';
+import WorkerDeclarationVisitor from './worker-declaration-visitor';
 
+/**
+ * @param {ASTVisitor} parent - Parent AST Visitor
+ * @constructor
+ */
+class ConnectorActionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
+
+    canVisitConnectorAction(connectorAction) {
+        return true;
+    }
+
+    /**
+     * Begin visit of the connector action
+     * @param {ConnectorAction} connectorAction
+     */
+    beginVisitConnectorAction(connectorAction) {
         /**
-         * @param {ASTVisitor} parent - Parent AST Visitor
-         * @constructor
+         * set the configuration start for the function definition language construct
+         * If we need to add additional parameters which are dynamically added to the configuration start
+         * that particular source generation has to be constructed here
          */
-        var ConnectorActionVisitor = function (parent) {
-            AbstractSourceGenVisitor.call(this, parent);
-        };
+        var functionReturnTypes = connectorAction.getReturnTypesAsString();
+        var connectorActionReturnTypesSource = "";
+        if (!_.isEmpty(functionReturnTypes)) {
+            connectorActionReturnTypesSource = '(' + connectorAction.getReturnTypesAsString() + ') ';
+        }
 
-        ConnectorActionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        ConnectorActionVisitor.prototype.constructor = ConnectorActionVisitor;
+        var constructedSourceSegment = 'action ' + connectorAction.getActionName() + '(' +
+            connectorAction.getArgumentsAsString() + ') ' + connectorActionReturnTypesSource + '{';
+        this.appendSource(constructedSourceSegment);
+        log.debug('Begin Visit Connector Action');
+    }
 
-        ConnectorActionVisitor.prototype.canVisitConnectorAction = function(connectorAction){
-            return true;
-        };
+    visitConnectorAction(connectorAction) {
+        log.debug('Visit Connector Action');
+    }
 
-        /**
-         * Begin visit of the connector action
-         * @param {ConnectorAction} connectorAction
-         */
-        ConnectorActionVisitor.prototype.beginVisitConnectorAction = function(connectorAction){
-            /**
-             * set the configuration start for the function definition language construct
-             * If we need to add additional parameters which are dynamically added to the configuration start
-             * that particular source generation has to be constructed here
-             */
-            var functionReturnTypes = connectorAction.getReturnTypesAsString();
-            var connectorActionReturnTypesSource = "";
-            if (!_.isEmpty(functionReturnTypes)) {
-                connectorActionReturnTypesSource = '(' + connectorAction.getReturnTypesAsString() + ') ';
-            }
+    /**
+     * End visit of the Connector Action
+     * @param {ConnectorAction} connectorAction
+     */
+    endVisitConnectorAction(connectorAction) {
+        this.appendSource("} \n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit FunctionDefinition');
+    }
 
-            var constructedSourceSegment = 'action ' + connectorAction.getActionName() + '(' +
-                connectorAction.getArgumentsAsString() + ') ' + connectorActionReturnTypesSource + '{';
-            this.appendSource(constructedSourceSegment);
-            log.debug('Begin Visit Connector Action');
-        };
+    /**
+     * Visit Statements
+     * @param {Statement} statement
+     */
+    visitStatement(statement) {
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
 
-        ConnectorActionVisitor.prototype.visitConnectorAction = function(connectorAction){
-            log.debug('Visit Connector Action');
-        };
+    /**
+     * Visit Connector Declarations
+     * @param {ConnectorDeclaration} connectorDeclaration
+     */
+    visitConnectorDeclaration(connectorDeclaration) {
+        var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        connectorDeclaration.accept(connectorDeclarationVisitor);
+    }
 
-        /**
-         * End visit of the Connector Action
-         * @param {ConnectorAction} connectorAction
-         */
-        ConnectorActionVisitor.prototype.endVisitConnectorAction = function(connectorAction){
-            this.appendSource("} \n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit FunctionDefinition');
-        };
+    /**
+     * Visit variable Declaration
+     * @param {VariableDeclaration} variableDeclaration
+     */
+    visitVariableDeclaration(variableDeclaration) {
+        var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+        variableDeclaration.accept(variableDeclarationVisitor);
+    }
 
-        /**
-         * Visit Statements
-         * @param {Statement} statement
-         */
-        ConnectorActionVisitor.prototype.visitStatement = function (statement) {
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-            statement.accept(statementVisitor);
-        };
+    /**
+     * Visit Worker Declaration
+     * @param workerDeclaration
+     */
+    visitWorkerDeclaration(workerDeclaration) {
+        var workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
+        workerDeclaration.accept(workerDeclarationVisitor);
+    }
+}
 
-        /**
-         * Visit Connector Declarations
-         * @param {ConnectorDeclaration} connectorDeclaration
-         */
-        ConnectorActionVisitor.prototype.visitConnectorDeclaration = function(connectorDeclaration){
-            var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
-            connectorDeclaration.accept(connectorDeclarationVisitor);
-        };
-
-        /**
-         * Visit variable Declaration
-         * @param {VariableDeclaration} variableDeclaration
-         */
-        ConnectorActionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
-            var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
-            variableDeclaration.accept(variableDeclarationVisitor);
-        };
-
-        /**
-         * Visit Worker Declaration
-         * @param workerDeclaration
-         */
-        ConnectorActionVisitor.prototype.visitWorkerDeclaration = function(workerDeclaration){
-            var workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
-            workerDeclaration.accept(workerDeclarationVisitor);
-        };
-
-        return ConnectorActionVisitor;
-    });
+export default ConnectorActionVisitor;
+    

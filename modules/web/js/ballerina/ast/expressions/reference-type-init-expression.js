@@ -15,25 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    /**
-     * Constructor for VariableReferenceExpression
-     * @param {Object} args - Arguments to create the VariableReferenceExpression
-     * @constructor
-     */
-    var ReferenceTypeInitExpression = function (args) {
-        Expression.call(this, 'ReferenceTypeInitExpression');
-    };
-
-    ReferenceTypeInitExpression.prototype = Object.create(Expression.prototype);
-    ReferenceTypeInitExpression.prototype.constructor = ReferenceTypeInitExpression;
+/**
+ * Constructor for VariableReferenceExpression
+ * @param {Object} args - Arguments to create the VariableReferenceExpression
+ * @constructor
+ */
+class ReferenceTypeInitExpression extends Expression {
+    constructor(args) {
+        super('ReferenceTypeInitExpression');
+    }
 
     /**
      * initialize ReferenceTypeInitExpression from json object
      * @param {Object} jsonNode to initialize from
      */
-    ReferenceTypeInitExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         var generateExpression = '';
         _.each(jsonNode.children, function (childNode) {
@@ -43,10 +42,11 @@ define(['lodash', './expression'], function (_, Expression) {
             generateExpression +=child.getExpression() + ",";
         });
         this.setExpression("{" + (generateExpression.substring(0, generateExpression.length-1)) + "}",{doSilently: true});
-    };
+    }
 
-    ReferenceTypeInitExpression.prototype.generateExpression = function () {
+    generateExpression() {
         this._expression = this.getVariableReferenceName()
-    };
-    return ReferenceTypeInitExpression;
-});
+    }
+}
+
+export default ReferenceTypeInitExpression;

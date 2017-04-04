@@ -15,66 +15,65 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, log) {
+
+class BrowserStorage {
+
+    constuctor(name) {
+        this.name = name;
+    }
 
     // Generate four random hex digits.
-    function S4() {
-        return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    S4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
     }
 
     // Generate a pseudo-GUID by concatenating random hexadecimal.
-    function guid() {
-        return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+    guid() {
+        return (this.S4() + this.S4() + '-' + this.S4() + '-' + this.S4() + '-' + this.S4() + '-' + this.S4() + this.S4() + this.S4());
     }
 
-    var BrowserStorage = function(name) {
-        this.name = name;
-    };
 
-    _.extend(BrowserStorage.prototype, {
+    put(key, value) {
+        this.localStorage().setItem(this.name + '-' + key, JSON.stringify(value));
+    }
 
-        put: function(key, value){
-            this.localStorage().setItem(this.name+"-"+key, JSON.stringify(value));
-        },
+    get(key) {
+        return this.jsonData(this.localStorage().getItem(this.name + '-' + key));
+    }
 
-        get: function(key){
-            return this.jsonData(this.localStorage().getItem(this.name+"-"+key));
-        },
-
-        create: function(model) {
-            if (!model.id) {
-                model.id = guid();
-                model.set(model.idAttribute, model.id);
-            }
-            this.localStorage().setItem(this.name+"-"+model.id, JSON.stringify(model));
-            return this.find(model);
-        },
-
-        update: function(model) {
-            this.localStorage().setItem(this.name+"-"+model.id, JSON.stringify(model));
-            return this.find(model);
-        },
-
-        find: function(model) {
-            return this.jsonData(this.localStorage().getItem(this.name+"-"+model.id));
-        },
-
-        destroy: function(model) {
-            if (model.isNew())
-                return false;
-            this.localStorage().removeItem(this.name+"-"+model.id);
-            return model;
-        },
-
-        localStorage: function() {
-            return localStorage;
-        },
-
-        jsonData: function (data) {
-            return data && JSON.parse(data);
+    create(model) {
+        if (!model.id) {
+            model.id = this.guid();
+            model.set(model.idAttribute, model.id);
         }
+        this.localStorage().setItem(this.name + '-' + model.id, JSON.stringify(model));
+        return this.find(model);
+    }
 
-    });
+    update(model) {
+        this.localStorage().setItem(this.name + '-' + model.id, JSON.stringify(model));
+        return this.find(model);
+    }
 
-    return BrowserStorage;
-});
+    find(model) {
+        return this.jsonData(this.localStorage().getItem(this.name + '-' + model.id));
+    }
+
+    destroy(model) {
+        if (model.isNew())
+            return false;
+        this.localStorage().removeItem(this.name + '-' + model.id);
+        return model;
+    }
+
+    localStorage() {
+        return localStorage;
+    }
+
+    jsonData(data) {
+        return data && JSON.parse(data);
+    }
+
+}
+
+export default BrowserStorage;

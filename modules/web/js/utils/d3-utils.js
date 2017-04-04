@@ -16,7 +16,10 @@
  * under the License.
  */
 
-define(['require', 'lodash', 'jquery', 'd3', 'log'], function (require, _, $, d3, log) {
+import _ from 'lodash';
+import $ from 'jquery';
+import * as d3 from 'd3';
+import log from 'log';
     /**
      * Adding the generic util functions for rendering basic shapes
      */
@@ -295,5 +298,4 @@ define(['require', 'lodash', 'jquery', 'd3', 'log'], function (require, _, $, d3
     draw.polygon = polygon;
     draw.polyline = polyline;
 
-    return draw;
-});
+    export default draw;

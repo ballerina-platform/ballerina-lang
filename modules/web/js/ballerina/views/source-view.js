@@ -15,61 +15,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel'],
-    function(log, _, $, EventChannel) {
+import log from 'log';
+import _ from 'lodash';
+import $ from 'jquery';
+import EventChannel from 'event_channel';
+import 'ace/ace';
+import 'ace/ext-language_tools';
+import 'ace/ext-searchbox';
+import '../utils/ace-mode';
+import ballerina from 'ballerina';
+var ace = global.ace;
+var Range = ace.require('ace/range');
 
-    require('ace/ace');
-    require('ace/ext-language_tools');
-    require('ace/ext-searchbox');
-    var language_tools = ace.require('ace/ext/language_tools');
-    var Range = ace.require('ace/range');
+// require possible themes
+function requireAll(requireContext) {
+    return requireContext.keys().map(requireContext);
+}
+requireAll(require.context('ace', false, /theme-/));
 
-    // require possible themes
-    function requireAll(requireContext) {
-      return requireContext.keys().map(requireContext);
-    }
-    requireAll(require.context('ace', false, /theme-/));
+// require ballerina mode
+var mode = ace.require('ace/mode/ballerina');
 
-    // require ballerina mode
-    require('../utils/ace-mode');
-    var mode = ace.require('ace/mode/ballerina')
-
-    /**
-     * @class SourceView
-     * @augments EventChannel
-     * @constructor
-     * @class SourceView  Wraps the Ace editor for source view
-     * @param {Object} args - Rendering args for the view
-     * @param {String} args.container - selector for div element to render ace editor
-     * @param {String} [args.content] - initial content for the editor
-     */
-    var SourceView = function (args) {
+/**
+ * @class SourceView
+ * @augments EventChannel
+ * @constructor
+ * @class SourceView  Wraps the Ace editor for source view
+ * @param {Object} args - Rendering args for the view
+ * @param {String} args.container - selector for div element to render ace editor
+ * @param {String} [args.content] - initial content for the editor
+ */
+class SourceView extends EventChannel {
+    constructor(args) {
+        super();
         this._options = args;
         if(!_.has(args, 'container')){
-            log.error('container is not specified for rendering source view.')
+            log.error('container is not specified for rendering source view.');
         }
         this._container = _.get(args, 'container');
         this._content = _.get(args, 'content');
         this._debugger = _.get(args, 'debugger', undefined);
         this._markers = {};
         this._gutter = 25;
-        this._fomatter = require('ballerina').utils.AceFormatter;
+        this._fomatter = ballerina.utils.AceFormatter;
         this._storage = _.get(args, 'storage');
-    };
+    }
 
-    SourceView.prototype = Object.create(EventChannel.prototype);
-    SourceView.prototype.constructor = SourceView;
-
-    SourceView.prototype.render = function () {
+    render() {
         var self = this;
         this._editor = ace.edit(this._container);
         var mode = ace.require(_.get(this._options, 'mode')).Mode;
         this._editor.getSession().setMode(_.get(this._options, 'mode'));
         //Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
-        var editorThemeName = (this._storage.get("pref:sourceViewTheme") != null) ? this._storage.get("pref:sourceViewTheme")
+        var editorThemeName = (this._storage.get('pref:sourceViewTheme') !== null) ? this._storage.get('pref:sourceViewTheme')
             : _.get(this._options, 'theme');
-        var editorFontSize = (this._storage.get("pref:sourceViewFontSize") != null) ? this._storage.get("pref:sourceViewFontSize")
+        var editorFontSize = (this._storage.get('pref:sourceViewFontSize') !== null) ? this._storage.get('pref:sourceViewFontSize')
             : _.get(this._options, 'font_size');
 
         var editorTheme = ace.require(editorThemeName);
@@ -80,7 +81,6 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
             enableBasicAutocompletion:true
         });
         this._editor.setBehavioursEnabled(true);
-        var self = this;
 
         self.on('reset-breakpoints', function(breakpoints) {
             breakpoints = breakpoints || [];
@@ -91,19 +91,19 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
             self._editor.getSession().setBreakpoints(sourceViewBreakPoints);
         });
         //bind auto complete to key press
-        this._editor.commands.on("afterExec", function(e){
-            if (e.command.name == "insertstring"&&/^[\w.]$/.test(e.args)) {
-                self._editor.execCommand("startAutocomplete");
+        this._editor.commands.on('afterExec', function(e){
+            if (e.command.name === 'insertstring'&&/^[\w.]$/.test(e.args)) {
+                self._editor.execCommand('startAutocomplete');
             }
         });
 
         this._editor.getSession().setValue(this._content);
         this._editor.renderer.setScrollMargin(_.get(this._options, 'scroll_margin'), _.get(this._options, 'scroll_margin'));
-        this._editor.on("change", function(event) {
+        this._editor.on('change', function(event) {
             if(!self._inSilentMode){
                 var changeEvent = {
-                    type: "source-modified",
-                    title: "Modify source",
+                    type: 'source-modified',
+                    title: 'Modify source',
                     data: {
                         type: event.action,
                         lines: event.lines
@@ -114,32 +114,31 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
         });
 
         //register actions
-        if(this._debugger != undefined && this._debugger.isEnabled()){
-            this._editor.on("guttermousedown", _.bind(this.toggleDebugPoints, this));
+        if(this._debugger !== undefined && this._debugger.isEnabled()){
+            this._editor.on('guttermousedown', _.bind(this.toggleDebugPoints, this));
         }
-    };
-
+    }
 
     /**
      * Set the content of text editor.
      * @param {String} content - content for the editor.
      *
      */
-    SourceView.prototype.setContent = function(content){
+    setContent(content) {
         // avoid triggering change event on format
         this._inSilentMode = true;
         this._editor.session.setValue(content);
         this._inSilentMode = false;
         this.markClean();
-    };
+    }
 
-    SourceView.prototype.getContent = function(){
+    getContent() {
         return this._editor.session.getValue();
-    };
+    }
 
-    SourceView.prototype.getEditor = function(){
+    getEditor() {
         return this._editor;
-    };
+    }
 
     /**
      * Binds a shortcut to ace editor so that it will trigger the command on source view upon key press.
@@ -153,37 +152,36 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
      * @param command.shortcuts.other {Object}
      * @param command.shortcuts.other.key {String} key combination for other platforms eg. 'Ctrl+N'
      */
-    SourceView.prototype.bindCommand = function(command){
+    bindCommand(command) {
         var id = command.id,
             hasShortcut = _.has(command, 'shortcuts'),
             self = this;
         if(hasShortcut){
-            var macShortcut = _.replace(command.shortcuts.mac.key, '+', "-"),
-                winShortcut = _.replace(command.shortcuts.other.key, '+', "-");
+            var macShortcut = _.replace(command.shortcuts.mac.key, '+', '-'),
+                winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
             this.getEditor().commands.addCommand({
                 name: id,
                 bindKey: {win: winShortcut, mac: macShortcut},
-                exec: function(editor) {
+                exec: function() {
                     self.trigger('dispatch-command', id);
                 }
             });
         }
-    };
+    }
 
-    SourceView.prototype.show = function(){
+    show() {
         $(this._container).show();
-    };
+    }
 
-    SourceView.prototype.hide = function(){
+    hide() {
         $(this._container).hide();
-    };
+    }
 
-    SourceView.prototype.isVisible = function(){
-       return  $(this._container).is(':visible')
-    };
+    isVisible() {
+        return  $(this._container).is(':visible');
+    }
 
-    SourceView.prototype.format = function(doSilently){
-        var selectedRange = this._editor.selection.getRange();//TODO format selection
+    format(doSilently) {
         if(doSilently){
             this._inSilentMode = true;
         }
@@ -192,22 +190,22 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
             this._inSilentMode = false;
             this.markClean();
         }
-    };
-    
-    //dbeugger related functions. 
+    }
 
-    SourceView.prototype.toggleDebugPoints = function(e){
-        var target = e.domEvent.target; 
-        if (target.className.indexOf("ace_gutter-cell") == -1)
-            return; 
-        if (!this._editor.isFocused()) 
-            return; 
-        if (e.clientX > this._gutter + target.getBoundingClientRect().left) 
-            return; 
+    //dbeugger related functions.
+
+    toggleDebugPoints(e) {
+        var target = e.domEvent.target;
+        if (target.className.indexOf('ace_gutter-cell') === -1)
+            return;
+        if (!this._editor.isFocused())
+            return;
+        if (e.clientX > this._gutter + target.getBoundingClientRect().left)
+            return;
 
 
         var breakpoints = e.editor.session.getBreakpoints(row, 0);
-        var row = e.getDocumentPosition().row;        
+        var row = e.getDocumentPosition().row;
         if(_.isUndefined(breakpoints[row])){
             //this._markers[row] = this._editor.getSession().addMarker(new Range.Range(row, 0, row, 2000), "debug-point", "line", true);
             e.editor.session.setBreakpoint(row);
@@ -220,34 +218,33 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
             e.editor.session.clearBreakpoint(row);
         }
         e.stop();
-    };
-
-    SourceView.prototype.debugHit = function(position){
-        this.debugPointMarker = this._editor.getSession().addMarker(new Range.Range(position.lineNumber - 1, 0, position.lineNumber - 1, 2000), "debug-point-hit", "line", true);
     }
 
-    SourceView.prototype.clearExistingDebugHit = function(position){
-        if(this.debugPointMarker != undefined){
+    debugHit(position) {
+        this.debugPointMarker = this._editor.getSession().addMarker(new Range.Range(position.lineNumber - 1, 0, position.lineNumber - 1, 2000), 'debug-point-hit', 'line', true);
+    }
+
+    clearExistingDebugHit() {
+        if(this.debugPointMarker !== undefined){
             this._editor.getSession().removeMarker(this.debugPointMarker);
         }
     }
 
-    SourceView.prototype.isClean = function(){
-       return this._editor.getSession().getUndoManager().isClean();
-    };
+    isClean() {
+        return this._editor.getSession().getUndoManager().isClean();
+    }
 
-    SourceView.prototype.undo = function(){
-       return this._editor.getSession().getUndoManager().undo();
-    };
+    undo() {
+        return this._editor.getSession().getUndoManager().undo();
+    }
 
-    SourceView.prototype.redo = function(){
-       return this._editor.getSession().getUndoManager().redo();
-    };
+    redo() {
+        return this._editor.getSession().getUndoManager().redo();
+    }
 
-    SourceView.prototype.markClean = function(){
-       this._editor.getSession().getUndoManager().markClean();
-    };
+    markClean() {
+        this._editor.getSession().getUndoManager().markClean();
+    }
+}
 
-    return SourceView;
-});
-
+export default SourceView;

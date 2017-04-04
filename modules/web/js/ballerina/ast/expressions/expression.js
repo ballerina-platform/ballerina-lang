@@ -15,26 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', '../node'], function(_, ASTNode){
+import _ from 'lodash';
+import ASTNode from '../node';
 
-    var Expression = function(args) {
-        ASTNode.call(this, 'Expression');
+class Expression extends ASTNode {
+    constructor(args) {
+        super('Expression');
         this._expression = _.get(args, 'expression');
         this.type = "Expression";
-    };
+    }
 
-    Expression.prototype = Object.create(ASTNode.prototype);
-    Expression.prototype.constructor = Expression;
-
-    Expression.prototype.setExpression = function (expression, options) {
+    setExpression(expression, options) {
         if(!_.isUndefined(expression)){
             this.setAttribute('_expression', expression, options);
         }
-    };
+    }
 
-    Expression.prototype.getExpression = function () {
+    getExpression() {
         return this._expression;
-    };
+    }
+}
 
-    return Expression;
-});
+export default Expression;
+

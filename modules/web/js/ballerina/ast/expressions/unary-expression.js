@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
-    /**
-     * Construct for UnaryExpression
-     * @param {Object} args - Arguments to create the Unary Expression
-     * @constructor
-     * @augments Expression
-     * */
-    var UnaryExpression = function (args) {
-        Expression.call(this, 'UnaryExpression');
-        this._operator = _.get(args, 'operator');
-    };
+import _ from 'lodash';
+import Expression from './expression';
 
-    UnaryExpression.prototype = Object.create(Expression.prototype);
-    UnaryExpression.prototype.constructor = UnaryExpression;
+/**
+ * Construct for UnaryExpression
+ * @param {Object} args - Arguments to create the Unary Expression
+ * @constructor
+ * @augments Expression
+ * */
+class UnaryExpression extends Expression {
+    constructor(args) {
+        super('UnaryExpression');
+        this._operator = _.get(args, 'operator');
+    }
 
     /**
      * setting parameters from json
      * @param {Object} jsonNode to initialize from
      * */
-    UnaryExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setExpression(this.generateExpressionString(jsonNode), {doSilently: true});
-    };
+    }
 
     /**
      * Generates the binary expression as a string.
@@ -42,7 +42,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * @return {String} - Arguments as a string
      * @private
      * */
-    UnaryExpression.prototype.generateExpressionString = function (jsonNode) {
+    generateExpressionString(jsonNode) {
         var self = this;
         var expString = "";
         expString += this.getOperator();
@@ -53,15 +53,15 @@ define(['lodash', './expression'], function (_, Expression) {
             expString += child.getExpression();
         }
         return expString;
-    };
+    }
 
     /**
      * Get the operator.
      * @return {String} Operator
      * */
-    UnaryExpression.prototype.getOperator = function () {
+    getOperator() {
         return this._operator;
-    };
+    }
+}
 
-    return UnaryExpression;
-});
+export default UnaryExpression;

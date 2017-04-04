@@ -16,7 +16,9 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'log', 'backbone'], function (require, $, log, Backbone) {
+import $ from 'jquery';
+import log from 'log';
+import Backbone from 'backbone';
     var SettingsDialog = Backbone.View.extend(
         /** @lends SettingsDialog.prototype */
         {
@@ -71,5 +73,4 @@ define(['require', 'jquery', 'log', 'backbone'], function (require, $, log, Back
             }
         });
 
-    return SettingsDialog;
-});
+    export default SettingsDialog;

@@ -15,60 +15,59 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+import _ from 'lodash';
+import ASTNode from './node';
 
-    var SymbolName = function (args) {
-        ASTNode.call(this, 'SymbolName');
+class SymbolName extends ASTNode {
+    constructor(args) {
+        super('SymbolName');
         this._name = _.get(args, 'name', 'newName');
         this._pkgPath = _.get(args, 'pkgPath', 'newPkgPath');
-    };
-
-    SymbolName.prototype = Object.create(ASTNode.prototype);
-    SymbolName.prototype.constructor = SymbolName;
+    }
 
     /**
      * set the name of the symbol
      * @param name
      * @param options
      */
-    SymbolName.prototype.setName = function (name, options) {
+    setName(name, options) {
         if (!_.isNil(name)) {
             this.setAttribute('_name', name, options);
         } else {
             log.error('Invalid Name [' + name + '] Provided');
             throw 'Invalid Name [' + name + '] Provided';
         }
-    };
+    }
 
     /**
      * returns the  name
      * @returns {*}
      */
-    SymbolName.prototype.getName = function () {
+    getName() {
         return this._name;
-    };
+    }
 
     /**
      * set the Pkg path of the symbol
      * @param pkgName
      * @param options
      */
-    SymbolName.prototype.setPkgPath = function (pkgPath, options) {
+    setPkgPath(pkgPath, options) {
         if (!_.isNil(pkgPath)) {
             this.setAttribute('_pkgPath', pkgPath, options);
         } else {
             log.error('Invalid Name [' + pkgPath + '] Provided');
             throw 'Invalid Name [' + pkgPath + '] Provided';
         }
-    };
+    }
 
     /**
      * returns the  pkgName
      * @returns {string}
      */
-    SymbolName.prototype.getPkgPath = function () {
+    getPkgPath() {
         return this._pkgPath;
-    };
-    
-    return SymbolName;
-});
+    }
+}
+
+export default SymbolName;

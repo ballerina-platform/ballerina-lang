@@ -15,103 +15,104 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
+import _ from 'lodash';
+import Backbone from 'backbone';
+import log from 'log';
 
-    var File = Backbone.Model.extend(
-        {
-            defaults: {
-                path: 'temp',
-                name: 'untitled',
-                content: undefined,
-                isPersisted: false,
-                lastPersisted: _.now(),
-                isDirty: true
-            },
+var File = Backbone.Model.extend(
+    {
+        defaults: {
+            path: 'temp',
+            name: 'untitled',
+            content: undefined,
+            isPersisted: false,
+            lastPersisted: _.now(),
+            isDirty: true
+        },
 
-            initialize: function (attrs, options) {
-                var errMsg;
-                if (!this.get('isPersisted')){
-                    if(!_.has(options, 'storage')){
-                        errMsg = 'unable to find storage' + _.toString(attrs);
-                        log.error(errMsg);
-                        throw errMsg;
-                    }
-                    this._storage = _.get(options, 'storage');
-                    this._storage .create(this);
+        initialize: function (attrs, options) {
+            var errMsg;
+            if (!this.get('isPersisted')){
+                if(!_.has(options, 'storage')){
+                    errMsg = 'unable to find storage' + _.toString(attrs);
+                    log.error(errMsg);
+                    throw errMsg;
                 }
-            },
-
-            save: function(){
-                if(!_.isNil(this._storage.get(this.id))){
-                    this._storage.update(this);
-                } else {
-                    this._storage.create(this);
-                }
-                return this;
-            },
-
-            setPath: function(path){
-                this.set('path', path);
-                return this;
-            },
-
-            setStorage: function(storage){
-                this._storage = storage;
-                return this;
-            },
-
-            setPersisted: function(isPersisted){
-                this.set('isPersisted', isPersisted);
-                return this;
-            },
-
-            setLastPersisted: function(lsatPersisted){
-                this.set('lastPersisted', lsatPersisted);
-                return this;
-            },
-
-            setDirty: function(isDirty){
-                this.set('isDirty', isDirty);
-                this.trigger('dirty-state-change', isDirty);
-                return this;
-            },
-
-            setName: function(name){
-                this.set('name', name);
-                return this;
-            },
-
-            setContent: function(name){
-                this.set('content', name);
-                return this;
-            },
-
-            getPath: function(){
-                return this.get('path')
-            },
-
-            getName: function(){
-                return this.get('name')
-            },
-
-            getContent: function(){
-                return this.get('content')
-            },
-
-            getLastPersisted: function(){
-                return this.get('lastPersisted');
-            },
-
-
-            isPersisted: function(){
-                return this.get('isPersisted')
-            },
-
-            isDirty: function(){
-                return this.get('isDirty')
+                this._storage = _.get(options, 'storage');
+                this._storage .create(this);
             }
+        },
 
-        });
+        save: function(){
+            if(!_.isNil(this._storage.get(this.id))){
+                this._storage.update(this);
+            } else {
+                this._storage.create(this);
+            }
+            return this;
+        },
 
-    return File;
-});
+        setPath: function(path){
+            this.set('path', path);
+            return this;
+        },
+
+        setStorage: function(storage){
+            this._storage = storage;
+            return this;
+        },
+
+        setPersisted: function(isPersisted){
+            this.set('isPersisted', isPersisted);
+            return this;
+        },
+
+        setLastPersisted: function(lsatPersisted){
+            this.set('lastPersisted', lsatPersisted);
+            return this;
+        },
+
+        setDirty: function(isDirty){
+            this.set('isDirty', isDirty);
+            this.trigger('dirty-state-change', isDirty);
+            return this;
+        },
+
+        setName: function(name){
+            this.set('name', name);
+            return this;
+        },
+
+        setContent: function(name){
+            this.set('content', name);
+            return this;
+        },
+
+        getPath: function(){
+            return this.get('path');
+        },
+
+        getName: function(){
+            return this.get('name');
+        },
+
+        getContent: function(){
+            return this.get('content');
+        },
+
+        getLastPersisted: function(){
+            return this.get('lastPersisted');
+        },
+
+
+        isPersisted: function(){
+            return this.get('isPersisted');
+        },
+
+        isDirty: function(){
+            return this.get('isDirty');
+        }
+    }
+);
+
+export default File;

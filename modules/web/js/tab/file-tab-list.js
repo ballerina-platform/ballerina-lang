@@ -15,9 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  '../workspace/file'],
-
-    function (log, $, _, TabList, FileTab, File) {
+import log from 'log';
+import $ from 'jquery';
+import _ from 'lodash';
+import TabList from './tab-list';
+import FileTab from './file-tab';
+import File from '../workspace/file';
 
     var FileTabList = TabList.extend(
     /** @lends FileTabList.prototype */
@@ -210,5 +213,5 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  '../workspace/fi
         }
     });
 
-    return FileTabList;
-});
+    export default FileTabList;
+

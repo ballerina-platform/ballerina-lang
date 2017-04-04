@@ -16,7 +16,8 @@
  * under the License.
  */
 
-define(['lodash','require', 'backbone'], function (_, require, Backbone) {
+import _ from 'lodash';
+import Backbone from 'backbone';
 
     var tool = Backbone.Model.extend({
         initialize: function (args) {
@@ -78,5 +79,5 @@ define(['lodash','require', 'backbone'], function (_, require, Backbone) {
 
     });
 
-    return tool;
-});
+    export default tool;
+

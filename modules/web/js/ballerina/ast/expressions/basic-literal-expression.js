@@ -15,47 +15,47 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    /**
-     * Constructor for BasicLiteralExpression
-     * @param {Object} args - Arguments to create the BasicLiteralExpression
-     * @constructor
-     */
-    var BasicLiteralExpression = function (args) {
-        Expression.call(this, 'BasicLiteralExpression');
+/**
+ * Constructor for BasicLiteralExpression
+ * @param {Object} args - Arguments to create the BasicLiteralExpression
+ * @constructor
+ */
+class BasicLiteralExpression extends Expression {
+    constructor(args) {
+        super('BasicLiteralExpression');
         this._basicLiteralType = _.get(args, 'basicLiteralType', '');
         this._basicLiteralValue = _.get(args, 'basicLiteralValue', '');
-    };
-
-    BasicLiteralExpression.prototype = Object.create(Expression.prototype);
-    BasicLiteralExpression.prototype.constructor = BasicLiteralExpression;
+    }
 
     /**
      * setting parameters from json
      * @param jsonNode
      */
-    BasicLiteralExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this._basicLiteralType = jsonNode.basic_literal_type;
         this._basicLiteralValue = jsonNode.basic_literal_value;
         this.setExpression(this.generateExpression(), {doSilently: true});
-    };
+    }
 
-    BasicLiteralExpression.prototype.generateExpression = function () {
+    generateExpression() {
         if (this._basicLiteralType == "string") {
             // Adding double quotes if it is a string.
             this._expression = "\"" + this.escapeEscapeChars(this._basicLiteralValue) + "\"";
         } else {
             this._expression = this._basicLiteralValue;
         }
-    };
+    }
 
-    BasicLiteralExpression.prototype.escapeEscapeChars = function(stringVal){
+    escapeEscapeChars(stringVal) {
         return stringVal.replace(/"/g, "\\\"")
                         .replace(/\n/g, "\\n")
                         .replace(/\r/g, "\\r")
                         .replace(/\t/g, "\\t");
-    };
+    }
+}
 
-    return BasicLiteralExpression;
-});
+export default BasicLiteralExpression;
+

@@ -15,27 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './resource-definition-visitor',
-        './variable-declaration-visitor', './connector-declaration-visitor', './statement-visitor-factory'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, ResourceDefinitionVisitor,
-             VariableDeclarationVisitor, ConnectorDeclarationVisitor, StatementVisitorFactory) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import ResourceDefinitionVisitor from './resource-definition-visitor';
+import VariableDeclarationVisitor from './variable-declaration-visitor';
+import ConnectorDeclarationVisitor from './connector-declaration-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
 
-    /**
-     * @param parent
-     * @constructor
-     */
-    var ServiceDefinitionVisitor = function (parent) {
-        AbstractSourceGenVisitor.call(this, parent);
-    };
+/**
+ * @param parent
+ * @constructor
+ */
+class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    ServiceDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-    ServiceDefinitionVisitor.prototype.constructor = ServiceDefinitionVisitor;
-
-    ServiceDefinitionVisitor.prototype.canVisitServiceDefinition = function(serviceDefinition){
+    canVisitServiceDefinition(serviceDefinition) {
         return true;
-    };
+    }
 
-    ServiceDefinitionVisitor.prototype.beginVisitServiceDefinition = function(serviceDefinition){
+    beginVisitServiceDefinition(serviceDefinition) {
         /**
          * set the configuration start for the service definition language construct
          * If we need to add additional parameters which are dynamically added to the configuration start
@@ -56,38 +58,38 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './re
         var constructedSourceSegment = 'service ' + serviceDefinition.getServiceName() + ' {\n';
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit Service Definition');
-    };
+    }
 
-    ServiceDefinitionVisitor.prototype.visitServiceDefinition = function(serviceDefinition){
+    visitServiceDefinition(serviceDefinition) {
         log.debug('Visit Service Definition');
-    };
+    }
 
-    ServiceDefinitionVisitor.prototype.endVisitServiceDefinition = function(serviceDefinition){
+    endVisitServiceDefinition(serviceDefinition) {
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Service Definition');
-    };
+    }
 
-    ServiceDefinitionVisitor.prototype.visitStatement = function (statement) {
+    visitStatement(statement) {
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
-    };
+    }
 
-    ServiceDefinitionVisitor.prototype.visitResourceDefinition = function(resourceDefinition){
+    visitResourceDefinition(resourceDefinition) {
         var resourceDefinitionVisitor = new ResourceDefinitionVisitor(this);
         resourceDefinition.accept(resourceDefinitionVisitor);
-    };
+    }
 
-    ServiceDefinitionVisitor.prototype.visitConnectorDeclaration = function(connectorDeclaration){
+    visitConnectorDeclaration(connectorDeclaration) {
         var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
-    };
+    }
 
-    ServiceDefinitionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
+    visitVariableDeclaration(variableDeclaration) {
         var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
         variableDeclaration.accept(variableDeclarationVisitor);
-    };
+    }
+}
 
-    return ServiceDefinitionVisitor;
-});
+export default ServiceDefinitionVisitor;

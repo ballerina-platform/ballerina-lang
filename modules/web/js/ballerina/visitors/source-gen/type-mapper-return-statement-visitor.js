@@ -15,43 +15,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/return-statement',
-        './type-mapper-expression-visitor-factory'],
-    function (_, log, EventChannel, AbstractStatementSourceGenVisitor, ReturnStatement, TypeMapperExpressionVisitorFactory) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import ReturnStatement from '../../ast/statements/return-statement';
+import TypeMapperExpressionVisitorFactory from './type-mapper-expression-visitor-factory';
 
-        var TypeMapperReturnStatementVisitor = function (parent) {
-            AbstractStatementSourceGenVisitor.call(this, parent);
-        };
+class TypeMapperReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeMapperReturnStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        TypeMapperReturnStatementVisitor.prototype.constructor = TypeMapperReturnStatementVisitor;
+    canVisitReturnStatement(returnStatement) {
+        return returnStatement instanceof ReturnStatement;
+    }
 
-        TypeMapperReturnStatementVisitor.prototype.canVisitReturnStatement = function (returnStatement) {
-            return returnStatement instanceof ReturnStatement;
-        };
+    beginVisitReturnStatement(returnStatement) {
+        /**
+         * set the configuration start for the reply statement definition language construct
+         * If we need to add additional parameters which are dynamically added to the configuration start
+         * that particular source generation has to be constructed here
+         */
+        this.appendSource(returnStatement.getReturnExpression());
+        log.debug('Begin Visit Type Mapper Return Statement Definition');
+    }
 
-        TypeMapperReturnStatementVisitor.prototype.beginVisitReturnStatement = function (returnStatement) {
-            /**
-             * set the configuration start for the reply statement definition language construct
-             * If we need to add additional parameters which are dynamically added to the configuration start
-             * that particular source generation has to be constructed here
-             */
-            this.appendSource(returnStatement.getReturnExpression());
-            log.debug('Begin Visit Type Mapper Return Statement Definition');
-        };
+    endVisitReturnStatement(returnStatement) {
+        this.appendSource(";\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Type Mapper Return Statement Definition');
+    }
 
-        TypeMapperReturnStatementVisitor.prototype.endVisitReturnStatement = function (returnStatement) {
-            this.appendSource(";\n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Type Mapper Return Statement Definition');
-        };
+    visitExpression(expression) {
+        var expressionVisitorFactory = new TypeMapperExpressionVisitorFactory();
+        var expressionVisitor = expressionVisitorFactory.getExpressionVisitor({model: expression, parent: this});
+        expression.accept(expressionVisitor);
+        log.debug('Visit Expression');
+    }
+}
 
-        TypeMapperReturnStatementVisitor.prototype.visitExpression = function (expression) {
-            var expressionVisitorFactory = new TypeMapperExpressionVisitorFactory();
-            var expressionVisitor = expressionVisitorFactory.getExpressionVisitor({model: expression, parent: this});
-            expression.accept(expressionVisitor);
-            log.debug('Visit Expression');
-        };
-
-        return TypeMapperReturnStatementVisitor;
-    });
+export default TypeMapperReturnStatementVisitor;
+    

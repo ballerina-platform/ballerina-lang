@@ -15,260 +15,268 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ballerina-ast-factory', './canvas', './../ast/node', './struct-variable-definition-view'],
-    function (_, log, d3, Alerts, BallerinaView, BallerinaASTFactory,
-              Canvas, ASTNode, StructVariableDefinitionView) {
-        var StructDefinitionView = function (args) {
-            Canvas.call(this, args);
+import _ from 'lodash';
+import log from 'log';
+import * as d3 from 'd3';
+import Alerts from 'alerts';
+import BallerinaView from './ballerina-view';
+import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
+import Canvas from './canvas';
+import ASTNode from './../ast/node';
+import StructVariableDefinitionView from './struct-variable-definition-view';
 
-            this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
-            this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
-            //set panel icon for the struct
-            this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.struct_icon");
-            //set initial height for the struct container svg
-            this._totalHeight = 30;
-        };
+class StructDefinitionView extends Canvas {
+    constructor(args) {
+        super(args);
 
-        StructDefinitionView.prototype = Object.create(Canvas.prototype);
-        StructDefinitionView.prototype.constructor = Canvas;
+        this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
+        this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
+        //set panel icon for the struct
+        this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.struct_icon");
+        //set initial height for the struct container svg
+        this._totalHeight = 30;
+    }
 
-        StructDefinitionView.prototype.canVisitStructDefinition = function (structDefinition) {
-            return true;
-        };
+    canVisitStructDefinition(structDefinition) {
+        return true;
+    }
 
-        /**
-         * Rendering the view of the Struct definition.
-         * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
-         */
-        StructDefinitionView.prototype.render = function (diagramRenderingContext) {
-            this.setDiagramRenderingContext(diagramRenderingContext);
+    /**
+     * Rendering the view of the Struct definition.
+     * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
+     */
+    render(diagramRenderingContext) {
+        this.setDiagramRenderingContext(diagramRenderingContext);
 
-            // Draws the outlying body of the struct definition.
-            this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().getType().toLowerCase(), this.getModel().getStructName());
+        // Draws the outlying body of the struct definition.
+        this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().getType().toLowerCase(), this.getModel().getStructName());
 
-            // Setting the styles for the canvas icon.
-            this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.struct_icon", ""));
+        // Setting the styles for the canvas icon.
+        this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.struct_icon", ""));
 
-            var self = this;
+        var self = this;
 
-            //Scroll to the added position and highlight the heading
-            var currentContainer = $('#' + this.getModel().getID());
-            $(_.get(this._viewOptions, "design_view.container", "")).scrollTop(currentContainer.parent().position().top);
-            var hadingBox = $('#' + this.getModel().getID() + "_heading");
-            var canvas_heading_new = _.get(this._viewOptions, "cssClass.canvas_heading_new", "");
-            var new_drop_timeout = _.get(this._viewOptions, "design_view.new_drop_timeout", "");
-            hadingBox.addClass(canvas_heading_new);
-            setTimeout(function(){hadingBox.removeClass(canvas_heading_new);}, new_drop_timeout);
+        //Scroll to the added position and highlight the heading
+        var currentContainer = $('#' + this.getModel().getID());
+        $(_.get(this._viewOptions, "design_view.container", "")).scrollTop(currentContainer.parent().position().top);
+        var hadingBox = $('#' + this.getModel().getID() + "_heading");
+        var canvas_heading_new = _.get(this._viewOptions, "cssClass.canvas_heading_new", "");
+        var new_drop_timeout = _.get(this._viewOptions, "design_view.new_drop_timeout", "");
+        hadingBox.addClass(canvas_heading_new);
+        setTimeout(function(){hadingBox.removeClass(canvas_heading_new);}, new_drop_timeout);
 
-            $(this.getTitle()).text(this.getModel().getStructName())
-                .on("change paste keyup", function () {
-                    self.getModel().setStructName($(this).text());
-                }).on("click", function (event) {
-                    event.stopPropagation();
-                }).keypress(function (e) {
-                    /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
-                     (Chrome and IE ignore keypress event of these keys in browser level)*/
-                    if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
-                        var enteredKey = e.which || e.charCode || e.keyCode;
-                        // Disabling enter key
-                        if (_.isEqual(enteredKey, 13)) {
-                            e.stopPropagation();
-                            return false;
-                        }
-
-                        var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
-
-                        try {
-                            self.getModel().setStructName(newServiceName);
-                        } catch (error) {
-                            Alerts.error(error);
-                            e.stopPropagation();
-                            return false;
-                        }
-                    }
-                });
-
-            var structContentWrapper = $("<div/>", {
-                id: this.getModel().getID(),
-                class: "struct-content-wrapper"
-            }).data("model", this.getModel()).appendTo(this.getBodyWrapper());
-
-            //// Creating operational panel
-
-            var structOperationsWrapper = $("<div/>", {
-                class: "struct-content-operations-wrapper"
-            }).appendTo(structContentWrapper);
-
-            var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-view"></div>')
-                .appendTo(structOperationsWrapper);
-
-            var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
-
-            $(typeDropdown).select2({
-                data : this._getTypeDropdownValues()
-            });
-
-            $(document).ready(function() {
-                $(typeDropdownWrapper).empty();
-                typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
-                console.log("destroying");
-                $(typeDropdown).select2({
-                    tags: true,
-                    selectOnClose: true,
-                    data : self._getTypeDropdownValues(),
-                    query: function (query) {
-                        var data = {results: []};
-                        if (!_.isNil(query.term)) {
-                            _.forEach(self._getTypeDropdownValues(), function (item) {
-                                if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
-                                    data.results.push(item);
-                                }
-                            });
-                            // Adding user typed string when there is no any matching item in the list
-                            if(data.results.length == 0){
-                                data.results.push({id: query.term, text: query.term});
-                            }
-                        } else {
-                            data.results = self._getTypeDropdownValues();
-                        }
-                        query.callback(data);
-                    }
-                });
-
-                $(typeDropdown).on("select2:open", function() {
-                    $(".select2-search__field").attr("placeholder", "Search");
-                });
-            });
-
-            // Creating the identifier text box.
-            var identifierTextBox = $("<input/>", {
-                type: "text",
-                class: "struct-identifier-text-input",
-                "placeholder": "Identifier"
+        $(this.getTitle()).text(this.getModel().getStructName())
+            .on("change paste keyup", function () {
+                self.getModel().setStructName($(this).text());
+            }).on("click", function (event) {
+                event.stopPropagation();
             }).keypress(function (e) {
                 /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
                  (Chrome and IE ignore keypress event of these keys in browser level)*/
                 if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
                     var enteredKey = e.which || e.charCode || e.keyCode;
-                    // Adding new variable upon enter key.
+                    // Disabling enter key
                     if (_.isEqual(enteredKey, 13)) {
-                        addStructVariableButton.click();
                         e.stopPropagation();
                         return false;
                     }
 
-                    var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
+                    var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
 
-                    // Validation the identifier against grammar.
-                    if (!ASTNode.isValidIdentifier(newIdentifier)) {
-                        var errorString = "Invalid identifier for a variable: " + newIdentifier;
-                        Alerts.error(errorString);
+                    try {
+                        self.getModel().setStructName(newServiceName);
+                    } catch (error) {
+                        Alerts.error(error);
                         e.stopPropagation();
                         return false;
                     }
                 }
-            }).keydown(function(e){
+            });
+
+        var structContentWrapper = $("<div/>", {
+            id: this.getModel().getID(),
+            class: "struct-content-wrapper"
+        }).data("model", this.getModel()).appendTo(this.getBodyWrapper());
+
+        //// Creating operational panel
+
+        var structOperationsWrapper = $("<div/>", {
+            class: "struct-content-operations-wrapper"
+        }).appendTo(structContentWrapper);
+
+        var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-view"></div>')
+            .appendTo(structOperationsWrapper);
+
+        var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+
+        $(typeDropdown).select2({
+            data : this._getTypeDropdownValues()
+        });
+
+        $(document).ready(function() {
+            $(typeDropdownWrapper).empty();
+            typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+            console.log("destroying");
+            $(typeDropdown).select2({
+                tags: true,
+                selectOnClose: true,
+                data : self._getTypeDropdownValues(),
+                query: function (query) {
+                    var data = {results: []};
+                    if (!_.isNil(query.term)) {
+                        _.forEach(self._getTypeDropdownValues(), function (item) {
+                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                data.results.push(item);
+                            }
+                        });
+                        // Adding user typed string when there is no any matching item in the list
+                        if(data.results.length == 0){
+                            data.results.push({id: query.term, text: query.term});
+                        }
+                    } else {
+                        data.results = self._getTypeDropdownValues();
+                    }
+                    query.callback(data);
+                }
+            });
+
+            $(typeDropdown).on("select2:open", function() {
+                $(".select2-search__field").attr("placeholder", "Search");
+            });
+        });
+
+        // Creating the identifier text box.
+        var identifierTextBox = $("<input/>", {
+            type: "text",
+            class: "struct-identifier-text-input",
+            "placeholder": "Identifier"
+        }).keypress(function (e) {
+            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+             (Chrome and IE ignore keypress event of these keys in browser level)*/
+            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
                 var enteredKey = e.which || e.charCode || e.keyCode;
-
-                // If tab pressed.
-                if (e.shiftKey && _.isEqual(enteredKey, 9)) {
-                    typeDropdown.dropdownButton.trigger("click");
+                // Adding new variable upon enter key.
+                if (_.isEqual(enteredKey, 13)) {
+                    addStructVariableButton.click();
+                    e.stopPropagation();
+                    return false;
                 }
-            }).appendTo(structOperationsWrapper);
 
-            // Creating cancelling add new constant button.
-            var addStructVariableButton = $("<div class='add-struct-variable-button pull-left'/>")
-                .appendTo(structOperationsWrapper);
-            $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-                "<i class='fw fw-check fw-stack-1x fw-inverse add-struct-variable-button-square'></i></span>").appendTo(addStructVariableButton);
+                var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
-            $(addStructVariableButton).click(function () {
-                try {
-                    var bType = typeDropdown.select2('data')[0].text;
-                    var identifier = $(identifierTextBox).val().trim();
-
-                    self.getModel().addVariableDefinition(bType, identifier);
-
-                    self._renderVariableDefinitions(structVariablesWrapper);
-
-                    $(identifierTextBox).val("");
-                } catch (e) {
-                    Alerts.error(e);
+                // Validation the identifier against grammar.
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
+                    var errorString = "Invalid identifier for a variable: " + newIdentifier;
+                    Alerts.error(errorString);
+                    e.stopPropagation();
+                    return false;
                 }
-            });
+            }
+        }).keydown(function(e){
+            var enteredKey = e.which || e.charCode || e.keyCode;
 
-            //// End of operational panel.
+            // If tab pressed.
+            if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                typeDropdown.dropdownButton.trigger("click");
+            }
+        }).appendTo(structOperationsWrapper);
 
-            //// Creating struct content panel
+        // Creating cancelling add new constant button.
+        var addStructVariableButton = $("<div class='add-struct-variable-button pull-left'/>")
+            .appendTo(structOperationsWrapper);
+        $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
+            "<i class='fw fw-check fw-stack-1x fw-inverse add-struct-variable-button-square'></i></span>").appendTo(addStructVariableButton);
 
-            var structVariablesWrapper = $("<div/>",{
-                class: "struct-content-variables-wrapper"
-            }).appendTo(structContentWrapper);
+        $(addStructVariableButton).click(function () {
+            try {
+                var bType = typeDropdown.select2('data')[0].text;
+                var identifier = $(identifierTextBox).val().trim();
 
-            this._renderVariableDefinitions(structVariablesWrapper);
+                self.getModel().addVariableDefinition(bType, identifier);
 
-            $(structVariablesWrapper).click(function(e){
-                e.preventDefault();
-                return false;
-            });
-
-            //// End of struct content panel
-
-            // On window click.
-            $(window).click(function (event) {
                 self._renderVariableDefinitions(structVariablesWrapper);
-            });
-        };
 
-        StructDefinitionView.prototype._renderVariableDefinitions = function (wrapper) {
-            $(wrapper).empty();
-            var self = this;
+                $(identifierTextBox).val("");
+            } catch (e) {
+                Alerts.error(e);
+            }
+        });
 
-            _.forEach(this._model.getVariableDefinitions(), function(variableDefinition) {
+        //// End of operational panel.
 
-                var variableDefinitionView = new StructVariableDefinitionView({
-                    parent: self.getModel(),
-                    model: variableDefinition,
-                    container: wrapper,
-                    toolPalette: self.getToolPalette(),
-                    messageManager: self.getMessageManager(),
-                    parentView: self
-                });
+        //// Creating struct content panel
 
-                self.getDiagramRenderingContext().getViewModelMap()[variableDefinition.id] = variableDefinitionView;
+        var structVariablesWrapper = $("<div/>",{
+            class: "struct-content-variables-wrapper"
+        }).appendTo(structContentWrapper);
 
-                variableDefinitionView.render(self.getDiagramRenderingContext());
+        this._renderVariableDefinitions(structVariablesWrapper);
 
-                $(variableDefinitionView.getDeleteButton()).click(function () {
-                    self._renderVariableDefinitions(wrapper);
-                });
+        $(structVariablesWrapper).click(function(e){
+            e.preventDefault();
+            return false;
+        });
 
-                $(variableDefinitionView.getWrapper()).click({
-                    modelID: variableDefinition.getID()
-                }, function (event) {
-                    self._renderVariableDefinitions(wrapper);
-                    var variableDefinitionView = self.getDiagramRenderingContext()
-                        .getViewModelMap()[event.data.modelID];
-                    variableDefinitionView.renderEditView();
-                });
-            });
-        };
+        //// End of struct content panel
 
-        StructDefinitionView.prototype._getTypeDropdownValues = function () {
-            var dropdownData = [];
-            // Adding items to the type dropdown.
-            var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
-            _.forEach(bTypes, function (bType) {
-                dropdownData.push({id: bType, text: bType});
-            });
+        // On window click.
+        $(window).click(function (event) {
+            self._renderVariableDefinitions(structVariablesWrapper);
+        });
+    }
 
-            var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
-            _.forEach(structTypes, function (sType) {
-                dropdownData.push({id: sType.getStructName(), text: sType.getStructName()});
+    _renderVariableDefinitions(wrapper) {
+        $(wrapper).empty();
+        var self = this;
+
+        _.forEach(this._model.getVariableDefinitions(), function(variableDefinition) {
+
+            var variableDefinitionView = new StructVariableDefinitionView({
+                parent: self.getModel(),
+                model: variableDefinition,
+                container: wrapper,
+                toolPalette: self.getToolPalette(),
+                messageManager: self.getMessageManager(),
+                parentView: self
             });
 
-            return dropdownData;
-        };
+            self.getDiagramRenderingContext().getViewModelMap()[variableDefinition.id] = variableDefinitionView;
 
-        return StructDefinitionView;
-    });
+            variableDefinitionView.render(self.getDiagramRenderingContext());
+
+            $(variableDefinitionView.getDeleteButton()).click(function () {
+                self._renderVariableDefinitions(wrapper);
+            });
+
+            $(variableDefinitionView.getWrapper()).click({
+                modelID: variableDefinition.getID()
+            }, function (event) {
+                self._renderVariableDefinitions(wrapper);
+                var variableDefinitionView = self.getDiagramRenderingContext()
+                    .getViewModelMap()[event.data.modelID];
+                variableDefinitionView.renderEditView();
+            });
+        });
+    }
+
+    _getTypeDropdownValues() {
+        var dropdownData = [];
+        // Adding items to the type dropdown.
+        var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
+        _.forEach(bTypes, function (bType) {
+            dropdownData.push({id: bType, text: bType});
+        });
+
+        var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+        _.forEach(structTypes, function (sType) {
+            dropdownData.push({id: sType.getStructName(), text: sType.getStructName()});
+        });
+
+        return dropdownData;
+    }
+}
+
+StructDefinitionView.prototype.constructor = Canvas;
+
+export default StructDefinitionView;
+    

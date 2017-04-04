@@ -15,53 +15,53 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement'], function (_, log, Statement) {
+import _ from 'lodash';
+import log from 'log';
+import Statement from './statement';
 
-    /**
-     * Class to represent a action invocation to ballerina.
-     * @param args
-     * @constructor
-     */
-    var ActionInvocationStatement = function (args) {
-        Statement.call(this, 'ActionInvocationStatement');
-    };
-
-    ActionInvocationStatement.prototype = Object.create(Statement.prototype);
-    ActionInvocationStatement.prototype.constructor = ActionInvocationStatement;
+/**
+ * Class to represent a action invocation to ballerina.
+ * @param args
+ * @constructor
+ */
+class ActionInvocationStatement extends Statement {
+    constructor(args) {
+        super('ActionInvocationStatement');
+    }
 
     /**
      * initialize ActionInvocationStatement from json object
      * @param {Object} jsonNode to initialize from
      */
-    ActionInvocationStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
 
     /**
      * Get the statement string
      * @return {string} statement string
      */
-    ActionInvocationStatement.prototype.getStatementString = function () {
+    getStatementString() {
         if (this.getChildren().length > 0) {
             return this.getChildren()[0].getExpression();
         }
-    };
+    }
 
     /**
      * Set the statement string
      * @param {string} statementString
      */
-    ActionInvocationStatement.prototype.setStatementString = function (statementString, options) {
+    setStatementString(statementString, options) {
         if (this.getChildren().length > 0) {
             this.getChildren()[0].setExpression(statementString);
         }
-    };
+    }
+}
 
-    return ActionInvocationStatement;
+export default ActionInvocationStatement;
 
-});

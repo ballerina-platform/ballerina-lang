@@ -15,20 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
 
-    var TryStatementVisitor = function (parent) {
-        AbstractStatementSourceGenVisitor.call(this, parent);
-    };
+class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    TryStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    TryStatementVisitor.prototype.constructor = TryStatementVisitor;
-
-    TryStatementVisitor.prototype.canVisitTryStatement = function (tryStatement) {
+    canVisitTryStatement(tryStatement) {
         return true;
-    };
+    }
 
-    TryStatementVisitor.prototype.beginVisitTryStatement = function (tryStatement) {
+    beginVisitTryStatement(tryStatement) {
         /**
          * set the configuration start for the try statement
          * If we need to add additional parameters which are dynamically added to the configuration start
@@ -36,24 +38,23 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
          */
         this.appendSource('try {');
         log.debug('Begin Visit Try Statement');
-    };
+    }
 
-    TryStatementVisitor.prototype.visitTryStatement = function (tryStatement) {
+    visitTryStatement(tryStatement) {
         log.debug('Visit Try Statement');
-    };
+    }
 
-    TryStatementVisitor.prototype.endVisitTryStatement = function (tryStatement) {
+    endVisitTryStatement(tryStatement) {
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Try Statement');
-    };
+    }
 
-    TryStatementVisitor.prototype.visitStatement = function(statement){
-        var StatementVisitorFactory = require('./statement-visitor-factory');
+    visitStatement(statement) {
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
-    };
+    }
+}
 
-    return TryStatementVisitor;
-});
+export default TryStatementVisitor;

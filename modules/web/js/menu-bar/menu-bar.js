@@ -15,9 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', 'event_channel', './menu-definitions', './menu-group'],
-
-    function (require, log, $, _, EventChannel, menuDefinitions, MenuGroup) {
+import log from 'log';
+import $ from 'jquery';
+import _ from 'lodash';
+import EventChannel from 'event_channel';
+import menuDefinitions from './menu-definitions';
+import MenuGroup from './menu-group';
 
         var MenuBar = function (options) {
             var errMsg;
@@ -58,5 +61,4 @@ define(['require', 'log', 'jquery', 'lodash', 'event_channel', './menu-definitio
             return _.get(this._menuGroups, id);
         };
 
-        return MenuBar;
-});
+        export default MenuBar;

@@ -15,29 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../../ast/module', './function-invocation-visitor',
-        './struct-field-access-expression-visitor', './variable-reference-expression-visitor',
-        './reference-type-init-expression-visitor','./type-cast-expression-visitor'],
-    function (_, log, EventChannel, AST, FunctionInvocationVisitor, StructFieldAccessExpressionVisitor,
-              VariableReferenceExpressionVisitor, ReferenceTypeInitExpressionVisitor, TypeCastExpressionVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AST from '../../ast/module';
+import FunctionInvocationVisitor from './function-invocation-visitor';
+import StructFieldAccessExpressionVisitor from './struct-field-access-expression-visitor';
+import VariableReferenceExpressionVisitor from './variable-reference-expression-visitor';
+import ReferenceTypeInitExpressionVisitor from './reference-type-init-expression-visitor';
+import TypeCastExpressionVisitor from './type-cast-expression-visitor';
 
-        var ExpressionViewFactory = function () {
-        };
+class ExpressionViewFactory {
+    getExpressionView(args) {
+        var expression  = _.get(args, "model");
+        if (expression instanceof AST.FunctionInvocation) {
+            return new FunctionInvocationVisitor(_.get(args, "parent"));
+        } else if (expression instanceof AST.StructFieldAccessExpression) {
+            return new StructFieldAccessExpressionVisitor(_.get(args, "parent"));
+        } else if (expression instanceof AST.VariableReferenceExpression) {
+            return new VariableReferenceExpressionVisitor(_.get(args, "parent"));
+        } else if (expression instanceof AST.ReferenceTypeInitExpression) {
+            return new ReferenceTypeInitExpressionVisitor(_.get(args, "parent"));
+        } else if (expression instanceof AST.TypeCastExpression) {
+            return new TypeCastExpressionVisitor(_.get(args, "parent"));
+        }
+    }
+}
 
-        ExpressionViewFactory.prototype.getExpressionView = function (args) {
-            var expression  = _.get(args, "model");
-            if (expression instanceof AST.FunctionInvocation) {
-                return new FunctionInvocationVisitor(_.get(args, "parent"));
-            } else if (expression instanceof AST.StructFieldAccessExpression) {
-                return new StructFieldAccessExpressionVisitor(_.get(args, "parent"));
-            } else if (expression instanceof AST.VariableReferenceExpression) {
-                return new VariableReferenceExpressionVisitor(_.get(args, "parent"));
-            } else if (expression instanceof AST.ReferenceTypeInitExpression) {
-                return new ReferenceTypeInitExpressionVisitor(_.get(args, "parent"));
-            } else if (expression instanceof AST.TypeCastExpression) {
-                return new TypeCastExpressionVisitor(_.get(args, "parent"));
-            }
-        };
-
-        return ExpressionViewFactory;
-    });
+export default ExpressionViewFactory;
+    

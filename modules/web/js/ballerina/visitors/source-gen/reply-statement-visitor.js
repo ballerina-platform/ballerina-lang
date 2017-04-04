@@ -15,20 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
-    var ReplyStatementVisitor = function(parent){
-        AbstractStatementSourceGenVisitor.call(this, parent);
-    };
+class ReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    ReplyStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    ReplyStatementVisitor.prototype.constructor = ReplyStatementVisitor;
-
-    ReplyStatementVisitor.prototype.canVisitReplyStatement = function(replyStatement){
+    canVisitReplyStatement(replyStatement) {
         return true;
-    };
+    }
 
-    ReplyStatementVisitor.prototype.beginVisitReplyStatement = function(replyStatement){
+    beginVisitReplyStatement(replyStatement) {
         /**
          * set the configuration start for the reply statement definition language construct
          * If we need to add additional parameters which are dynamically added to the configuration start
@@ -36,17 +37,17 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
          */
         this.appendSource('reply ');
         log.debug('Begin Visit Reply Statement Definition');
-    };
+    }
 
-    ReplyStatementVisitor.prototype.visitReplyStatement = function(replyStatement){
+    visitReplyStatement(replyStatement) {
         log.debug('Visit Reply Statement Definition');
-    };
+    }
 
-    ReplyStatementVisitor.prototype.endVisitReplyStatement = function(replyStatement){
+    endVisitReplyStatement(replyStatement) {
         this.appendSource(replyStatement.getReplyMessage() + ";\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Reply Statement Definition');
-    };
+    }
+}
 
-    return ReplyStatementVisitor;
-});
+export default ReplyStatementVisitor;

@@ -15,18 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node', 'log', '../utils/common-utils'],
-    function (_, ASTNode, log, CommonUtils) {
+import _ from 'lodash';
+import ASTNode from './node';
+import log from 'log';
+import CommonUtils from '../utils/common-utils';
 
-    /**
-     * Constructor for ServiceDefinition
-     * @param {Object} args - The arguments to create the ServiceDefinition
-     * @param {string} [args.serviceName=newService] - Service name
-     * @param {string[]} [args.annotations] - Service annotations
-     * @param {string} [args.annotations.BasePath] - Service annotation for BasePath
-     * @constructor
-     */
-    var ServiceDefinition = function (args) {
+/**
+ * Constructor for ServiceDefinition
+ * @param {Object} args - The arguments to create the ServiceDefinition
+ * @param {string} [args.serviceName=newService] - Service name
+ * @param {string[]} [args.annotations] - Service annotations
+ * @param {string} [args.annotations.BasePath] - Service annotation for BasePath
+ * @constructor
+ */
+class ServiceDefinition extends ASTNode {
+    constructor(args) {
+        super('Service');
         this._serviceName = _.get(args, 'serviceName');
         this._annotations = _.get(args, 'annotations', []);
 
@@ -41,14 +45,10 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
         }
 
         // TODO: All the types should be referred from the global constants
-        ASTNode.call(this, 'Service');
         this.BallerinaASTFactory = this.getFactory();
-    };
+    }
 
-    ServiceDefinition.prototype = Object.create(ASTNode.prototype);
-    ServiceDefinition.prototype.constructor = ServiceDefinition;
-
-    ServiceDefinition.prototype.setServiceName = function (serviceName, options) {
+    setServiceName(serviceName, options) {
         if (!_.isNil(serviceName) && ASTNode.isValidIdentifier(serviceName)) {
             this.setAttribute('_serviceName', serviceName, options);
         } else {
@@ -56,18 +56,17 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
             log.error(errorString);
             throw errorString;
         }
-    };
+    }
 
-    ServiceDefinition.prototype.getServiceName = function () {
+    getServiceName() {
         return this._serviceName;
-    };
+    }
 
-    ServiceDefinition.prototype.getAnnotations = function () {
+    getAnnotations() {
         return this._annotations;
-    };
+    }
 
-
-    ServiceDefinition.prototype.getConnectionDeclarations = function () {
+    getConnectionDeclarations() {
         var connectorDeclaration = [];
         var self = this;
 
@@ -80,13 +79,13 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
         return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
             return connectorDeclaration.getConnectorVariable();
         }]);
-    };
+    }
 
     /**
      * Gets the variable definition statements of the service.
      * @return {VariableDefinitionStatement[]}
      */
-    ServiceDefinition.prototype.getVariableDefinitionStatements = function () {
+    getVariableDefinitionStatements() {
         var variableDefinitionStatements = [];
         var self = this;
 
@@ -96,7 +95,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
             }
         });
         return variableDefinitionStatements;
-    };
+    }
 
     /**
      * Adds new variable definition statement.
@@ -104,7 +103,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
      * @param {string} identifier - The identifier of the variable definition statement.
      * @param {string} assignedValue - The right hand expression.
      */
-    ServiceDefinition.prototype.addVariableDefinitionStatement = function (bType, identifier, assignedValue) {
+    addVariableDefinitionStatement(bType, identifier, assignedValue) {
 
         // Check is identifier is not null or empty.
         if (_.isNil(identifier) || _.isEmpty(identifier)) {
@@ -142,13 +141,13 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
 
             this.addChild(newVariableDefinitionStatement, index + 1);
         }
-    };
+    }
 
     /**
      * Removes an existing variable definition statement.
      * @param {string} modelID - The model ID of variable definition statement.
      */
-    ServiceDefinition.prototype.removeVariableDefinitionStatement = function (modelID) {
+    removeVariableDefinitionStatement(modelID) {
         var self = this;
         // Deleting the variable definition statement from the children.
         var variableDefinitionStatementToRemove = _.find(this.getChildren(), function (child) {
@@ -156,14 +155,14 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
         });
 
         this.removeChild(variableDefinitionStatementToRemove);
-    };
+    }
 
     /**
      * Adding/Updating an annotation.
      * @param key - Annotation key
      * @param value - Value for the annotation.
      */
-    ServiceDefinition.prototype.addAnnotation = function (key, value) {
+    addAnnotation(key, value) {
         if (!_.isNil(key) && !_.isNil(value)) {
             var options = {
               predicate: {key: key}
@@ -174,7 +173,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
             log.error(errorString);
             throw errorString;
         }
-    };
+    }
 
     /**
      * Validates possible immediate child types.
@@ -182,11 +181,11 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
      * @param node
      * @return {boolean}
      */
-    ServiceDefinition.prototype.canBeParentOf = function (node) {
+    canBeParentOf(node) {
         return this.BallerinaASTFactory.isResourceDefinition(node)
             || this.BallerinaASTFactory.isVariableDeclaration(node)
             || this.BallerinaASTFactory.isConnectorDeclaration(node);
-    };
+    }
 
     /**
      * initialize ServiceDefinition from json object
@@ -194,7 +193,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
      * @param {string} jsonNode.service_name - Name of the service definition
      * @param {string} [jsonNode.annotations] - Annotations of the function definition
      */
-    ServiceDefinition.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         this.setServiceName(jsonNode.service_name, {doSilently: true});
 
@@ -222,14 +221,14 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
             self.addChild(child);
             child.initFromJson(childNodeTemp);
         });
-    };
+    }
 
     /**
      * Override the super call to addChild
      * @param {ASTNode} child
      * @param {number} index
      */
-    ServiceDefinition.prototype.addChild = function (child, index) {
+    addChild(child, index) {
         var self = this;
         var newIndex = index;
         // Always the connector declarations should be the first children
@@ -250,11 +249,11 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
         } else {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, newIndex);
         }
-    };
+    }
 
     //// Start of resource definitions functions
 
-    ServiceDefinition.prototype.getResourceDefinitions = function () {
+    getResourceDefinitions() {
         var resourceDefinitions = [];
         var self = this;
 
@@ -264,7 +263,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
             }
         });
         return resourceDefinitions;
-    };
+    }
 
     //// End of resource definitions functions
 
@@ -272,7 +271,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
      * @inheritDoc
      * @override
      */
-    ServiceDefinition.prototype.generateUniqueIdentifiers = function () {
+    generateUniqueIdentifiers() {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
@@ -287,35 +286,36 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
                 }]
             }]
         });
-    };
+    }
 
     /**
      * Get the connector by name
      * @param {string} connectorName
      * @return {ConnectorDeclaration}
      */
-    ServiceDefinition.prototype.getConnectorByName = function (connectorName) {
+    getConnectorByName(connectorName) {
         var factory = this.getFactory();
         var connectorReference = _.find(this.getChildren(), function (child) {
             return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
         });
 
         return connectorReference;
-    };
+    }
 
     /**
      * Get all the connector references in the immediate scope
      * @return {ConnectorDeclaration[]} connectorReferences
      */
-    ServiceDefinition.prototype.getConnectorsInImmediateScope = function () {
+    getConnectorsInImmediateScope() {
         var factory = this.getFactory();
         var connectorReferences = _.filter(this.getChildren(), function (child) {
             return factory.isConnectorDeclaration(child);
         });
 
         return connectorReferences;
-    };
+    }
+}
 
-    return ServiceDefinition;
+export default ServiceDefinition;
 
-});
+

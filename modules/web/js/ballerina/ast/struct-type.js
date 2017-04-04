@@ -15,38 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+import _ from 'lodash';
+import ASTNode from './node';
 
-    var StructType = function (args) {
-        ASTNode.call(this, 'StructType');
+class StructType extends ASTNode {
+    constructor(args) {
+        super('StructType');
         this._typeName = _.get(args, 'typeName', 'TypeName');
         //TODO : Inherit from BType
-    };
-
-    StructType.prototype = Object.create(ASTNode.prototype);
-    StructType.prototype.constructor = StructType;
+    }
 
     /**
      * 
      * @param typeName
      * @param options
      */
-    StructType.prototype.setTypeName = function (typeName, options) {
+    setTypeName(typeName, options) {
         if (!_.isNil(typeName)) {
             this.setAttribute('_typeName', typeName, options);
         } else {
             log.error('Invalid Type Name [' + typeName + '] Provided');
             throw 'Invalid Type Name [' + typeName + '] Provided';
         }
-    };
+    }
 
     /**
      * returns the typeNme
      * @returns {*}
      */
-    StructType.prototype.getTypeName = function () {
+    getTypeName() {
         return this._typeName;
-    };
-    
-    return StructType;
-});
+    }
+}
+
+export default StructType;

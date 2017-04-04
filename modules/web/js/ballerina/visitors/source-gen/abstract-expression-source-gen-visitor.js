@@ -15,38 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../expression-visitor', './abstract-source-gen-visitor'], function(_, log, 
-       EventChannel, ExpressionVisitor, AbstractSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import ExpressionVisitor from '../expression-visitor';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
-    /**
-     * Constructor for the Abstract Source Generation Visitor for the expressions
-     * @param parent
-     * @constructor
-     */
-    var AbstractExpressionSourceGenVisitor = function(parent) {
+/**
+ * Constructor for the Abstract Source Generation Visitor for the expressions
+ * @param parent
+ * @constructor
+ */
+class AbstractExpressionSourceGenVisitor extends ExpressionVisitor {
+    constructor(parent) {
+        super();
         this._generatedSource = '';
         this.parent = parent;
-        ExpressionVisitor.call(this);
-    };
+    }
 
-    AbstractExpressionSourceGenVisitor.prototype = Object.create(ExpressionVisitor.prototype);
-    AbstractExpressionSourceGenVisitor.prototype.constructor = AbstractSourceGenVisitor;
-
-    AbstractExpressionSourceGenVisitor.prototype.getGeneratedSource = function () {
+    getGeneratedSource() {
         return this._generatedSource;
-    };
+    }
 
-    AbstractExpressionSourceGenVisitor.prototype.setGeneratedSource = function (generatedSource) {
+    setGeneratedSource(generatedSource) {
         this._generatedSource = generatedSource;
-    };
+    }
 
-    AbstractExpressionSourceGenVisitor.prototype.appendSource = function (source) {
+    appendSource(source) {
         this._generatedSource += source;
-    };
+    }
 
-    AbstractExpressionSourceGenVisitor.prototype.getParent = function () {
+    getParent() {
         return this.parent;
-    };
+    }
+}
 
-    return AbstractExpressionSourceGenVisitor;
-});
+AbstractExpressionSourceGenVisitor.prototype.constructor = AbstractSourceGenVisitor;
+
+export default AbstractExpressionSourceGenVisitor;

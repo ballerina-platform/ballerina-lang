@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(function (require) {
+
 
         var TokenIterator = ace.require("ace/token_iterator").TokenIterator;
 
@@ -214,7 +214,7 @@ define(function (require) {
 
                 if(_.isEqual(token.type, 'ballerina-identifier')
                     && _.isEqual(lastToken.type, 'whitespace')
-                    && !_.endsWith(code, space)){
+                    && !_.endsWith(code, space) && !_.endsWith(code, tab)){
                     value = space + token.value;
                 }
 
@@ -258,12 +258,14 @@ define(function (require) {
                             }
                             if(!skipBreakAfter){
                                 value += newLine;
+                                var indent = indentation;
                                 // indent
-                                if(token.type !== 'paren.lparen' || token.value !== '{' || nextToken.type !== 'paren.rparen' || nextToken.value !== '}') {
-                                    // if block has no content don't indent so the closing '{' is not unnecessarily indented
-                                    for (var i = 0; i < indentation; i++) {
-                                        value += tab;
-                                    }
+                                if(token.type === 'paren.lparen' && token.value === '{' && nextToken.type === 'paren.rparen' && nextToken.value === '}') {
+                                    // if block has no content don't indent so the closing '}' is not unnecessarily indented
+                                    indent -= 1;
+                                }
+                                for (var i = 0; i < indent; i++) {
+                                    value += tab;
                                 }
                             }
                         }
@@ -288,5 +290,5 @@ define(function (require) {
             return code;
         };
 
-        return BallerinaFormatter;
-    });
+        export default BallerinaFormatter;
+    

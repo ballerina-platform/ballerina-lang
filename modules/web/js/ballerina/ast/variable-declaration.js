@@ -15,10 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node'], function(_, log, ASTNode){
+import _ from 'lodash';
+import log from 'log';
+import ASTNode from './node';
 
-    var VariableDeclaration = function (args) {
-        ASTNode.call(this, _.get(args, "type", "VariableDeclaration"));
+class VariableDeclaration extends ASTNode {
+    constructor(args) {
+        super(_.get(args, "type", "VariableDeclaration"));
         this._type = _.get(args, "bType");
         this._identifier = _.get(args, "identifier");
 
@@ -29,12 +32,9 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
             log.error(exceptionString);
             throw exceptionString;
         }
-    };
+    }
 
-    VariableDeclaration.prototype = Object.create(ASTNode.prototype);
-    VariableDeclaration.prototype.constructor = VariableDeclaration;
-
-    VariableDeclaration.prototype.setType = function (type, options) {
+    setType(type, options) {
         if (!_.isUndefined(type)) {
             this.setAttribute('_type', type, options);
         } else {
@@ -42,13 +42,13 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
             log.error(exceptionString);
             throw exceptionString;
         }
-    };
+    }
 
-    VariableDeclaration.prototype.getType = function () {
+    getType() {
         return this._type;
-    };
+    }
 
-    VariableDeclaration.prototype.setIdentifier = function (identifier, options) {
+    setIdentifier(identifier, options) {
         if (!_.isNil(identifier) && ASTNode.isValidIdentifier(identifier)) {
             this.setAttribute('_identifier', identifier, options);
         } else {
@@ -57,19 +57,19 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
             log.error(exceptionString);
             throw exceptionString;
         }
-    };
+    }
 
-    VariableDeclaration.prototype.getIdentifier = function(){
+    getIdentifier() {
         return this._identifier;
-    };
+    }
 
     /**
      * Gets the variable declaration as a string.
      * @return {string} - Variable declaration as string.
      */
-    VariableDeclaration.prototype.getVariableDeclarationAsString = function() {
+    getVariableDeclarationAsString() {
       return this._type + " " + this._identifier + ";";
-    };
+    }
 
     /**
      * Initialize VariableDeclaration from json object
@@ -77,10 +77,11 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
      * @param {string} jsonNode.variable_type - The ballerina type.
      * @param {string} jsonNode.variable_name - The identifier of the variable.
      */
-    VariableDeclaration.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setType(jsonNode.variable_type, {doSilently: true});
         this.setIdentifier(jsonNode.variable_name, {doSilently: true});
-    };
+    }
+}
 
-    return VariableDeclaration;
-});
+export default VariableDeclaration;
+

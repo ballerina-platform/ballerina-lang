@@ -510,14 +510,13 @@ var atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
 
 var decisionsToDFA = atn.decisionToState.map( function(ds, index) { return new antlr4.dfa.DFA(ds, index); });
 
-function BallerinaLexer(input) {
-	antlr4.Lexer.call(this, input);
-    this._interp = new antlr4.atn.LexerATNSimulator(this, atn, decisionsToDFA, new antlr4.PredictionContextCache());
-    return this;
+class BallerinaLexer extends antlr4.Lexer {
+    constructor(input) {
+        super(input);
+        this._interp = new antlr4.atn.LexerATNSimulator(this, atn, decisionsToDFA, new antlr4.PredictionContextCache());
+        return this;
+    }
 }
-
-BallerinaLexer.prototype = Object.create(antlr4.Lexer.prototype);
-BallerinaLexer.prototype.constructor = BallerinaLexer;
 
 BallerinaLexer.EOF = antlr4.Token.EOF;
 BallerinaLexer.T__0 = 1;

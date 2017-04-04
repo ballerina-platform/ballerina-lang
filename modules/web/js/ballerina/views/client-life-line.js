@@ -16,10 +16,17 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './life-line'], function (_, $, d3, log, D3Utils, Point, LifeLine) {
+import _ from 'lodash';
+import D3Utils from 'd3utils';
+import LifeLine from './life-line';
 
+/**
+ * View for  the Client lifeline
+ * @class ClientLifeLineView
+ * @extends LifeLine
+ */
+class ClientLifeLineView extends LifeLine {
     /**
-     * View for  the Client lifeline
      * @param args {object} - config
      * @param args.container {SVGGElement} - SVG group element to draw the life line
      * @param args.centerPoint {Point} - center point to draw the life line.
@@ -27,39 +34,34 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './life-line'], f
      * @param args.cssClass.group {string} - css class for root group
      * @param args.cssClass.title {string} - css class for the title
      * @param args.title {string} - title
-     * @class ClientLifeLineView
-     * @augments LifeLineView
      * @constructor
      */
-    var ClientLifeLineView = function (args) {
+    constructor(args) {
         _.set(args, 'title',  _.get(args, 'title', 'client'));
         _.set(args, 'line.height', _.get(args, 'line.height', 290));
         _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'client-life-line'));
-        LifeLine.call(this, args);
-    };
+        super(args);
+    }
 
-    ClientLifeLineView.prototype = Object.create(LifeLine.prototype);
-    ClientLifeLineView.prototype.constructor = ClientLifeLineView;
-
-    ClientLifeLineView.prototype.renderTopPolygon = function () {
+    renderTopPolygon() {
         var self = this;
         this._topPolygon = D3Utils.polygon(this._calculatePolygonPoints(this._topCenter), this._rootGroup);
-        this._topPolygon.attr("stroke-linejoin", "round");
+        this._topPolygon.attr('stroke-linejoin', 'round');
 
-        this._topCenter.on('moved', function (offset) {
-           self._topPolygon.attr('points',  self._calculatePolygonPoints(self._topCenter));
+        this._topCenter.on('moved', function () {
+            self._topPolygon.attr('points',  self._calculatePolygonPoints(self._topCenter));
         });
-    };
+    }
 
-    ClientLifeLineView.prototype.renderBottomPolygon = function () {
+    renderBottomPolygon() {
         var self = this;
         this._bottomPolygon = D3Utils.polygon(this._calculatePolygonPoints(this._bottomCenter), this._rootGroup);
-        this._bottomPolygon.attr("stroke-linejoin", "round");
+        this._bottomPolygon.attr('stroke-linejoin', 'round');
 
-        this._bottomCenter.on('moved', function (offset) {
-           self._bottomPolygon.attr('points',  self._calculatePolygonPoints(self._bottomCenter));
+        this._bottomCenter.on('moved', function () {
+            self._bottomPolygon.attr('points',  self._calculatePolygonPoints(self._bottomCenter));
         });
-    };
+    }
 
     /**
      *
@@ -67,22 +69,22 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './life-line'], f
      * @return {string}
      * @private
      */
-    ClientLifeLineView.prototype._calculatePolygonPoints = function(point){
+    _calculatePolygonPoints(point) {
         var polygonYOffset = 32,
             polygonXOffset = 32;
         var topPolygonPoints =
             // Bottom point of the polygon.
-            " " + point.x() + "," + (point.y() + polygonYOffset) +
+            ' ' + point.x() + ',' + (point.y() + polygonYOffset) +
                 // Right point of the polygon
-            " " + (point.x() + polygonXOffset) + "," + point.y() +
+            ' ' + (point.x() + polygonXOffset) + ',' + point.y() +
                 // Top point of the polygon.
-            " " + point.x() + "," + (point.y() - polygonYOffset) +
+            ' ' + point.x() + ',' + (point.y() - polygonYOffset) +
                 // Left point of the polygon.
-            " " + (point.x() - polygonXOffset) + "," + point.y();
+            ' ' + (point.x() - polygonXOffset) + ',' + point.y();
 
         return topPolygonPoints;
 
-    };
+    }
+}
 
-    return ClientLifeLineView;
-});
+export default ClientLifeLineView;

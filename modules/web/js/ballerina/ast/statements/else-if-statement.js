@@ -15,33 +15,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './conditional-statement'], function (_, log, ConditionalStatement) {
+import _ from 'lodash';
+import log from 'log';
+import ConditionalStatement from './conditional-statement';
 
-    /**
-     * Class for if conditions in ballerina. Extended from Conditional-Statement
-     * @constructor
-     */
-    var ElseIfStatement = function (condition,statements) {
+/**
+ * Class for if conditions in ballerina. Extended from Conditional-Statement
+ * @constructor
+ */
+class ElseIfStatement extends ConditionalStatement {
+    constructor(condition, statements) {
+        super();
         if(!_.isNil(condition)){
             this._condition = condition;
         }
         this._statements = statements || [];
-        ConditionalStatement.call(this);
         this.type = "ElseIfStatement";
-    };
+    }
 
-    ElseIfStatement.prototype = Object.create(ConditionalStatement.prototype);
-    ElseIfStatement.prototype.constructor = ElseIfStatement;
-
-    ElseIfStatement.prototype.setCondition = function(condition, options){
+    setCondition(condition, options) {
         if(!_.isNil(condition)){
             this.setAttribute('_condition', condition, options);
         }
-    };
+    }
 
-    ElseIfStatement.prototype.getCondition = function(){
+    getCondition() {
         return this._condition;
-    };
+    }
+}
 
-    return ElseIfStatement;
-});
+export default ElseIfStatement;
+

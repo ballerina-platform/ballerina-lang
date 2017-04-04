@@ -16,80 +16,80 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'event_channel', 'bootstrap'], function (require, $, EventChannel) {
+import $ from 'jquery';
+import EventChannel from 'event_channel';
+import 'bootstrap';
 
-    var ModalDialog = function (options) {
+class ModalDialog extends EventChannel {
+    constructor(options) {
+        super();
         this._options = options;
         this._application = _.get(options, "application");
         this._$container = $(_.get(options, 'container', 'body'));
-    };
+    }
 
-    ModalDialog.prototype = Object.create(EventChannel.prototype);
-    ModalDialog.prototype.constructor = ModalDialog;
-
-    ModalDialog.prototype.remove = function () {
+    remove() {
         this._modalContainer.remove();
         this.off();
-    };
+    }
 
-    ModalDialog.prototype.getBody = function () {
+    getBody() {
         return this._$body;
-    };
+    }
 
-    ModalDialog.prototype.getHeader = function () {
+    getHeader() {
         return this._$header;
-    };
+    }
 
-    ModalDialog.prototype.getFooter = function () {
+    getFooter() {
         return this._$footer;
-    };
+    }
 
-    ModalDialog.prototype.getSubmitBtn = function () {
+    getSubmitBtn() {
         return this._$submitBtn;
-    };
+    }
 
-    ModalDialog.prototype.getErrorContainer = function () {
+    getErrorContainer() {
         return this._$errorContainer;
-    };
+    }
 
-    ModalDialog.prototype.setTitle = function (title) {
+    setTitle(title) {
         this._$title.text(title);
-    };
+    }
 
-    ModalDialog.prototype.setSubmitBtnText = function (text) {
+    setSubmitBtnText(text) {
         this._$submitBtn.text(text);
-    };
+    }
 
-    ModalDialog.prototype.setCloseBtnText = function (text) {
+    setCloseBtnText(text) {
         this._$closeBtn.text(text);
-    };
+    }
 
-    ModalDialog.prototype.show = function () {
+    show() {
         var self = this;
         this._$modalContainer.modal('show').on('shown.bs.modal', function(){
             self.trigger('loaded');
         });
-    };
+    }
 
-    ModalDialog.prototype.showError = function (error) {
+    showError(error) {
        this.getErrorContainer().text(error);
        this.getErrorContainer().show();
-    };
+    }
 
-    ModalDialog.prototype.clearError = function () {
+    clearError() {
        this.getErrorContainer().text("");
        this.getErrorContainer().hide();
-    };
+    }
 
-    ModalDialog.prototype.hide = function () {
+    hide() {
         var self = this;
         this._$modalContainer.modal('hide').on('hidden.bs.modal', function(){
             self.trigger('unloaded');
         });
-    };
+    }
 
-
-    ModalDialog.prototype.render = function () {
+    render() {
         if(!_.isNil(this._$modalContainer)){
             this._$modalContainer.remove();
         }
@@ -137,7 +137,7 @@ define(['require', 'jquery', 'event_channel', 'bootstrap'], function (require, $
             modalSubmitBtn.text(_.get(this._options, 'submitBtnText'));
         }
         return modalContainer;
-    };
+    }
+}
 
-    return ModalDialog;
-});
+export default ModalDialog;

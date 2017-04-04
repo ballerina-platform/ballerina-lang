@@ -15,20 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
 
-    var CatchStatementVisitor = function (parent) {
-        AbstractStatementSourceGenVisitor.call(this, parent);
-    };
+class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    CatchStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    CatchStatementVisitor.prototype.constructor = CatchStatementVisitor;
-
-    CatchStatementVisitor.prototype.canVisitCatchStatement = function (catchStatement) {
+    canVisitCatchStatement(catchStatement) {
         return true;
-    };
+    }
 
-    CatchStatementVisitor.prototype.beginVisitCatchStatement = function (catchStatement) {
+    beginVisitCatchStatement(catchStatement) {
         /**
          * set the configuration start for the catch statement
          * If we need to add additional parameters which are dynamically added to the configuration start
@@ -36,24 +38,23 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
          */
         this.appendSource('catch('+ catchStatement.getParameter() + '){');
         log.debug('Begin Visit Catch Statement');
-    };
+    }
 
-    CatchStatementVisitor.prototype.visitCatchStatement = function (catchStatement) {
+    visitCatchStatement(catchStatement) {
         log.debug('Visit Catch Statement');
-    };
+    }
 
-    CatchStatementVisitor.prototype.endVisitCatchStatement = function (catchStatement) {
+    endVisitCatchStatement(catchStatement) {
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Catch Statement');
-    };
+    }
 
-    CatchStatementVisitor.prototype.visitStatement = function (statement) {
-        var StatementVisitorFactory = require('./statement-visitor-factory');
+    visitStatement(statement) {
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
-    };
+    }
+}
 
-    return CatchStatementVisitor;
-});
+export default CatchStatementVisitor;
