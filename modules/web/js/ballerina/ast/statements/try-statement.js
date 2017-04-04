@@ -15,28 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement'], function (_, log, Statement) {
+import _ from 'lodash';
+import log from 'log';
+import Statement from './statement';
 
-    /**
-     * Class for try statement in ballerina.
-     * @constructor
-     */
-    var TryStatement = function () {
-        Statement.call(this);
+/**
+ * Class for try statement in ballerina.
+ * @constructor
+ */
+class TryStatement extends Statement {
+    constructor() {
+        super();
         this.type = "TryStatement";
-    };
+    }
 
-    TryStatement.prototype = Object.create(Statement.prototype);
-    TryStatement.prototype.constructor = TryStatement;
-
-    TryStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
+}
 
-    return TryStatement;
-});
+export default TryStatement;

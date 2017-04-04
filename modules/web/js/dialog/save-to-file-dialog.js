@@ -16,7 +16,12 @@
  * under the License.
  */
 
-define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], function (require, _, $, log, Backbone, FileBrowser) {
+import _ from 'lodash';
+import $ from 'jquery';
+import log from 'log';
+import Backbone from 'backbone';
+import FileBrowser from 'file_browser';
+import 'bootstrap';
     var SaveToFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
@@ -212,7 +217,7 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                       handleSave();
                     }
                 }
-                
+
                 location.keypress(handleKeyPress);
                 configName.keypress(handleKeyPress);
 
@@ -303,5 +308,4 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
             }
         });
 
-    return SaveToFileDialog;
-});
+    export default SaveToFileDialog;

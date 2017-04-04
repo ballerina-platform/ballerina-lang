@@ -15,37 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', './ast-manipulation-operation'],
-    function (log, _, ASTManipulationOperation) {
 
-        /**
-         * Class to represent ast node remove operation
-         * @class ASTNodeRemoveOperation
-         * @augments ASTManipulationOperation
-         * @param args
-         * @constructor
-         */
-        var ASTNodeRemoveOperation = function(args){
-            ASTManipulationOperation.call(this, args);
-            if(_.isNil(this.getTitle())){
-                this.setTitle("Remove " + this._data.child.getType())
-            }
-        };
+import _ from 'lodash';
+import ASTManipulationOperation from './ast-manipulation-operation';
 
-        ASTNodeRemoveOperation.prototype = Object.create(ASTManipulationOperation.prototype);
-        ASTNodeRemoveOperation.prototype.constructor = ASTNodeRemoveOperation;
+/**
+ * Class to represent ast node remove operation
+ * @class ASTNodeRemoveOperation
+ * @augments ASTManipulationOperation
+ * @param args
+ * @constructor
+ */
+class ASTNodeRemoveOperation extends ASTManipulationOperation {
+    constructor(args) {
+        super(args);
+        if(_.isNil(this.getTitle())){
+            this.setTitle('Remove ' + this._data.child.getType());
+        }
+    }
 
-        ASTNodeRemoveOperation.prototype.undo = function(){
-            if(this.canUndo()) {
-                this._originNode.addChild(this._data.child, this._data.index, true);
-            }
-        };
-        ASTNodeRemoveOperation.prototype.redo = function(){
-            if(this.canRedo()) {
-                this._data.child.remove({ignoreTreeModifiedEvent: true});
-            }
-        };
+    undo() {
+        if(this.canUndo()) {
+            this._originNode.addChild(this._data.child, this._data.index, true);
+        }
+    }
 
-        return ASTNodeRemoveOperation;
-    });
+    redo() {
+        if(this.canRedo()) {
+            this._data.child.remove({ignoreTreeModifiedEvent: true});
+        }
+    }
+}
 
+export default ASTNodeRemoveOperation;

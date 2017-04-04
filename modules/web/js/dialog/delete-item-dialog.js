@@ -16,18 +16,19 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (require, $, _, ModalDialog, log) {
+import $ from 'jquery';
+import _ from 'lodash';
+import ModalDialog from './modal-dialog';
+import log from 'log';
 
-    var DeleteItemDialog = function (options) {
+class DeleteItemDialog extends ModalDialog {
+    constructor(options) {
         _.set(options, 'class', 'delete-item-wizard');
-        ModalDialog.call(this, options);
+        super(options);
         this._serviceClient = _.get(options, 'application.workspaceManager').getServiceClient();
-    };
+    }
 
-    DeleteItemDialog.prototype = Object.create(ModalDialog.prototype);
-    DeleteItemDialog.prototype.constructor = DeleteItemDialog;
-
-    DeleteItemDialog.prototype.onSubmit = function (data) {
+    onSubmit(data) {
         this.clearError();
         var response = this._serviceClient.delete(data.path, data.type);
         if (response.error) {
@@ -40,9 +41,9 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (requi
             }
             log.debug(data.path + " deleted successfully");
         }
-    };
+    }
 
-    DeleteItemDialog.prototype.displayWizard = function (data) {
+    displayWizard(data) {
         this.setTitle("delete "+ data.type);
         this.setSubmitBtnText("delete");
         var body = this.getBody();
@@ -66,7 +67,7 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (requi
         this.getSubmitBtn().click(function(e){
             self.onSubmit(data);
         });
-    };
+    }
+}
 
-    return DeleteItemDialog;
-});
+export default DeleteItemDialog;

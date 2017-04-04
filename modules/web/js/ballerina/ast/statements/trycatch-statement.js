@@ -15,49 +15,50 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement', './try-statement', './catch-statement'],
-       function (_, log, Statement, TryStatement, CatchStatement) {
+import _ from 'lodash';
+import log from 'log';
+import Statement from './statement';
+import TryStatement from './try-statement';
+import CatchStatement from './catch-statement';
 
-    /**
-     * Class for try-catch statement in ballerina.
-     * @constructor
-     */
-    var TryCatchStatement = function (args) {
-        Statement.call(this);
+/**
+ * Class for try-catch statement in ballerina.
+ * @constructor
+ */
+class TryCatchStatement extends Statement {
+    constructor(args) {
+        super();
         this.type = "TryCatchStatement";
-    };
-
-    TryCatchStatement.prototype = Object.create(Statement.prototype);
-    TryCatchStatement.prototype.constructor = TryCatchStatement;
+    }
 
     /**
      * setter for catch block exception
      * @param exception
      */
-    TryCatchStatement.prototype.setExceptionType = function (exception, options) {
+    setExceptionType(exception, options) {
         if (!_.isNil(exception)) {
             this.setAttribute('_exceptionType', exception, options);
         } else {
             log.error("Cannot set undefined to the exception.");
         }
-    };
+    }
 
     /**
     * getter for catch block exception type
     */
-    TryCatchStatement.prototype.getExceptionType = function() {
+    getExceptionType() {
         return this._exceptionType;
-    };
+    }
 
-
-    TryCatchStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
+}
 
-    return TryCatchStatement;
-});
+export default TryCatchStatement;
+

@@ -16,10 +16,16 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './life-line'], function (_, $, d3, log, D3Utils, Point, LifeLine) {
+import _ from 'lodash';
+import LifeLine from './life-line';
 
+/**
+ * View for  the Default Worker lifeline
+ * @class DefaultWorkerView
+ * @constructor
+ */
+class DefaultWorkerView extends LifeLine {
     /**
-     * View for  the Default Worker lifeline
      * @param args {object} - config
      * @param args.container {SVGGElement} - SVG group element to draw the life line
      * @param args.centerPoint {Point} - center point to draw the life line.
@@ -27,19 +33,14 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './life-line'], f
      * @param args.cssClass.group {string} - css class for root group
      * @param args.cssClass.title {string} - css class for the title
      * @param args.title {string} - title
-     * @class DefaultWorkerView
-     * @augments LifeLineView
      * @constructor
      */
-    var DefaultWorkerView = function (args) {
+    constructor(args) {
         _.set(args, 'title',  _.get(args, 'title', 'ResourceWorker'));
         _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'default-worker-life-line'));
         _.set(args, 'line.height',  _.get(args, 'line.height', 290));
-        LifeLine.call(this, args);
-    };
+        super(args);
+    }
+}
 
-    DefaultWorkerView.prototype = Object.create(LifeLine.prototype);
-    DefaultWorkerView.prototype.constructor = DefaultWorkerView;
-
-    return DefaultWorkerView;
-});
+export default DefaultWorkerView;

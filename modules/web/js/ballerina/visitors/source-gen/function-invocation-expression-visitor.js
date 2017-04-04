@@ -15,39 +15,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/expressions/function-invocation-expression'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, FunctionInvocationExpression) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import FunctionInvocationExpression from '../../ast/expressions/function-invocation-expression';
 
-        /**
-         * Constructor for Function invocation expression visitor
-         * @param {ASTNode} parent - parent node
-         * @constructor
-         */
-        var FunctionInvocationExpressionVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+/**
+ * Constructor for Function invocation expression visitor
+ * @param {ASTNode} parent - parent node
+ * @constructor
+ */
+class FunctionInvocationExpressionVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        FunctionInvocationExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        FunctionInvocationExpressionVisitor.prototype.constructor = FunctionInvocationExpression;
+    canVisitFuncInvocationExpression(functionInvocation) {
+        return true;
+    }
 
-        FunctionInvocationExpressionVisitor.prototype.canVisitFuncInvocationExpression = function(functionInvocation){
-            return true;
-        };
+    beginVisitFuncInvocationExpression(functionInvocation) {
+        var source = functionInvocation.getFunctionalExpression();
+        this.appendSource(source);
+        log.debug('Begin Visit Function Invocation expression');
+    }
 
-        FunctionInvocationExpressionVisitor.prototype.beginVisitFuncInvocationExpression = function(functionInvocation){
-            var source = functionInvocation.getFunctionalExpression();
-            this.appendSource(source);
-            log.debug('Begin Visit Function Invocation expression');
-        };
+    visitFuncInvocationExpression(functionInvocation) {
+        log.debug('Visit Function Invocation expression');
+    }
 
-        FunctionInvocationExpressionVisitor.prototype.visitFuncInvocationExpression = function(functionInvocation){
-            log.debug('Visit Function Invocation expression');
-        };
+    endVisitFuncInvocationExpression(functionInvocation) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Function Invocation expression');
+    }
+}
 
-        FunctionInvocationExpressionVisitor.prototype.endVisitFuncInvocationExpression = function(functionInvocation){
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Function Invocation expression');
-        };
+FunctionInvocationExpressionVisitor.prototype.constructor = FunctionInvocationExpression;
 
-        return FunctionInvocationExpressionVisitor;
-    });
+export default FunctionInvocationExpressionVisitor;

@@ -15,87 +15,85 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager'], 
-    function ($, Backbone, _, log, EventChannel, DebugManager) {
+import $ from 'jquery';
+import _ from 'lodash';
+import EventChannel from 'event_channel';
+import DebugManager from './debug-manager';
 
-    var instance;
+class Frames extends EventChannel {
+    constructor() {
+        super();
+        var template =
+      '<div class="debug-panel-header debug-frame-header">'+
+      '   <span><a class="tool-group-header-title">Frames</a></span>'+
+      '</div>'+
+      '<div class="panel-group" id="frameAccordion">'+
+      '<% frames.forEach((frame, index) => { %>'+
+      '    <div class="panel panel-default">'+
+      '      <div class="panel-heading">'+
+      '        <h4 class="panel-title">'+
+      '          <a data-toggle="collapse" data-parent="#frameAccordion" href="#<%- frame.frameName %>"><%- frame.frameName %>'+
+      '           <span class="debug-frame-pkg-name">'+
+      '           <i class="fw fw-package"></i> <%- frame.packageName %>'+
+      '           </span>'+
+      '          </a>'+
+      '        </h4>'+
+      '      </div>'+
+      '      <div id="debugger-frame-<%- frame.frameName %>" class="panel-collapse collapse <% if(index == 0){%>in<% } %>">'+
+      '        <div class="panel-body">'+
+      '        <div class="debug-v-tree">'+
+      '          <ul>'+
+      '          <% frame.variables.forEach( v => { %>'+
+      '          <li>'+
+      '          <strong><%- v.name %></strong> = <%- v.value %> (<%- v.type %>)'+
+      '          <ul>'+
+      '            <li>type : <%- v.type %></li>'+
+      '            <li>scope : <%- v.scope %></li>'+
+      '          </ul>'+
+      '          </li>'+
+      '          <% }); %>'+
+      '          </ul>'+
+      '        </div>'+
+      '        </div>'+
+      '      </div>'+
+      '    </div>'+
+      '<% }); %>'+
+      '</div>';
 
-    var Frames = function (){
-
-        var template = 
-        '<div class="debug-panel-header debug-frame-header">'+
-        '   <span><a class="tool-group-header-title">Frames</a></span>'+
-        '</div>'+
-        '<div class="panel-group" id="frameAccordion">'+
-        '<% _.forEach(frames, function(frame, index) { %>'+       
-        '    <div class="panel panel-default">'+
-        '      <div class="panel-heading">'+
-        '        <h4 class="panel-title">'+
-        '          <a data-toggle="collapse" data-parent="#frameAccordion" href="#<%- frame.frameName %>"><%- frame.frameName %>'+
-        '           <span class="debug-frame-pkg-name">'+
-        '           <i class="fw fw-package"></i> <%- frame.packageName %>'+
-        '           </span>'+
-        '          </a>'+
-        '        </h4>'+
-        '      </div>'+
-        '      <div id="debugger-frame-<%- frame.frameName %>" class="panel-collapse collapse <% if(index == 0){%>in<% } %>">'+
-        '        <div class="panel-body">'+
-        '        <div class="debug-v-tree">'+
-        '          <ul>'+
-        '          <% _.forEach(frame.variables, function(v) { %>'+
-        '          <li>'+
-        '          <strong><%- v.name %></strong> = <%- v.value %> (<%- v.type %>)'+
-        '          <ul>'+
-        '            <li>type : <%- v.type %></li>'+
-        '            <li>scope : <%- v.scope %></li>'+
-        '          </ul>'+
-        '          </li>'+
-        '          <% }); %>'+
-        '          </ul>'+
-        '        </div>'+        
-        '        </div>'+
-        '      </div>'+
-        '    </div>'+
-        '<% }); %>'+
-        '</div>';
-  
 
         this.compiled = _.template(template);
 
         this.js_tree_options = {
-            "core": {
-                "themes":{
-                    "icons":false
+            'core': {
+                'themes':{
+                    'icons':false
                 }
             }
         };
 
-        DebugManager.on('debug-hit', _.bindKey(this,'render'));
-        DebugManager.on('resume-execution', _.bindKey(this,'clear'));
-        DebugManager.on('session-ended', _.bindKey(this,'clear'));
-        DebugManager.on('session-completed', _.bindKey(this,'clear'));
-    };
+        DebugManager.on('debug-hit', message => { this.render(message); });
+        DebugManager.on('resume-execution', () => { this.clear(); });
+        DebugManager.on('session-ended', () => { this.clear(); });
+        DebugManager.on('session-completed', () => { this.clear(); });
+    }
 
-    Frames.prototype = Object.create(EventChannel.prototype);
-    Frames.prototype.constructor = Frames;
-
-    Frames.prototype.setContainer = function(container){
+    setContainer(container) {
         this.container = container;
-    };
+    }
 
-    Frames.prototype.clear = function(){
+    clear() {
         this.container.empty();
-    };
+    }
 
-    Frames.prototype.render = function (message) {
-        //clear duplicate main
+    render(message) {
+      //clear duplicate main
         message.frames = _.uniqWith(message.frames, function(obj, other){
             if (_.isEqual(obj.frameName,other.frameName) && _.isEqual(obj.packageName,other.packageName))
                 return true;
         });
-        // drop unnecessary first frame in services
+      // drop unnecessary first frame in services
         var firstFrame = _.head(message.frames);
-        if(firstFrame && firstFrame.frameName !== "main") {
+        if(firstFrame && firstFrame.frameName !== 'main') {
             message.frames.splice(0, 1);
         }
         message.frames = this.process(message.frames);
@@ -103,73 +101,73 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         var html = this.compiled(message);
         this.container.html(html);
 
-        //render variables tree
-        $(".debug-v-tree").jstree(this.js_tree_options);
-    };
+      //render variables tree
+        $('.debug-v-tree').jstree(this.js_tree_options);
+    }
 
-    Frames.prototype.process = function(frames){
-        //reverse order
+    process(frames) {
+      //reverse order
         frames = _.reverse(frames);
 
-        _.map(frames, function(frame){
-            _.map(frame.variables, function(item){
+        frames.map(function(frame){
+            frame.variables.map( item => {
                 switch (item.type) {
-                  case 'BBoolean':
-                    item.type = "boolean";
+                case 'BBoolean':
+                    item.type = 'boolean';
                     break;
-                  case 'BInteger':
-                    item.type = "int";
+                case 'BInteger':
+                    item.type = 'int';
                     break;
-                  case 'BFloat':
-                    item.type = "float";
+                case 'BFloat':
+                    item.type = 'float';
                     break;
-                  case 'BLong':
-                    item.type = "long";
+                case 'BLong':
+                    item.type = 'long';
                     break;
-                  case 'BDouble':
-                    item.type = "double";
-                    break;                    
-                  case 'BString': 
-                    item.type = "string";
+                case 'BDouble':
+                    item.type = 'double';
                     break;
-                  case 'BJSON':
-                    item.type = "json";
+                case 'BString':
+                    item.type = 'string';
                     break;
-                  case 'BArray':
-                    item.type = "array";
+                case 'BJSON':
+                    item.type = 'json';
                     break;
-                  case 'BMessage':
-                    item.type = "message";
+                case 'BArray':
+                    item.type = 'array';
                     break;
-                  case 'BConnector':
-                    item.type = "connector";
+                case 'BMessage':
+                    item.type = 'message';
                     break;
-                  case 'BDataTable':
-                    item.type = "datatable";
+                case 'BConnector':
+                    item.type = 'connector';
                     break;
-                  case 'BXML':
-                    item.type = "xml";
+                case 'BDataTable':
+                    item.type = 'datatable';
                     break;
-                  case 'BValue':
-                    item.type = "value";
+                case 'BXML':
+                    item.type = 'xml';
                     break;
-                  case 'BMap':
-                    item.type = "map";
+                case 'BValue':
+                    item.type = 'value';
                     break;
-                  case 'BValueType':
-                    item.type = "valuetype";
+                case 'BMap':
+                    item.type = 'map';
                     break;
-                  case 'BStruct':
-                    item.type = "struct";
+                case 'BValueType':
+                    item.type = 'valuetype';
                     break;
-                  case 'BException':
-                    item.type = "exception";
+                case 'BStruct':
+                    item.type = 'struct';
                     break;
-                  case 'BRefType':
-                    item.type = "reftype";
+                case 'BException':
+                    item.type = 'exception';
                     break;
-                  default:
-                    
+                case 'BRefType':
+                    item.type = 'reftype';
+                    break;
+                default:
+
                 }
                 return item;
             });
@@ -177,8 +175,8 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         });
 
         return frames;
-    };
+    }
+}
 
 
-    return (instance = (instance || new Frames() ));
-});
+export default new Frames();

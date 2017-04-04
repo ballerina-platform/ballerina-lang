@@ -15,50 +15,50 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    /**
-     * Constructor for BackTickExpression
-     * @param {Object} args - Arguments to create the BackTickExpression
-     * @constructor
-     */
-    var BackTickExpression = function (args) {
-        Expression.call(this, 'BackTickExpression');
+/**
+ * Constructor for BackTickExpression
+ * @param {Object} args - Arguments to create the BackTickExpression
+ * @constructor
+ */
+class BackTickExpression extends Expression {
+    constructor(args) {
+        super('BackTickExpression');
         this._backTickEnclosedString = _.get(args, 'backTickEnclosedString', '');
-    };
-
-    BackTickExpression.prototype = Object.create(Expression.prototype);
-    BackTickExpression.prototype.constructor = BackTickExpression;
+    }
 
     /**
      * Setter for BackTickEnclosedString
      * @param backTickEnclosedString
      */
-    BackTickExpression.prototype.setBackTickEnclosedString = function (backTickEnclosedString, options) {
+    setBackTickEnclosedString(backTickEnclosedString, options) {
         this.setAttribute('_backTickEnclosedString', backTickEnclosedString, options);
-    };
+    }
 
     /**
      * Getter for BackTickEnclosedString
      * @returns backTickEnclosedString
      */
-    BackTickExpression.prototype.getBackTickEnclosedString = function () {
+    getBackTickEnclosedString() {
         return this._backTickEnclosedString;
-    };
+    }
 
     /**
      * initialize BackTickExpression from json object
      * @param {Object} jsonNode to initialize from
      * @param {string} [jsonNode.back_tick_enclosed_string] - back quote enclosed string
      */
-    BackTickExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setBackTickEnclosedString(jsonNode.back_tick_enclosed_string, {doSilently: true});
         this.setExpression(this.generateExpression(), {doSilently: true});
-    };
+    }
 
-    BackTickExpression.prototype.generateExpression = function () {
+    generateExpression() {
         this._expression = '`' + this.getBackTickEnclosedString() + '`';
-    };
+    }
+}
 
-    return BackTickExpression;
-});
+export default BackTickExpression;
+

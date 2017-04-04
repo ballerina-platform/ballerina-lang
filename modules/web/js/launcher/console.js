@@ -15,42 +15,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define([ 'jquery',  'lodash', 'event_channel' ],
-    function ( $, _ , EventChannel ) {
-	var instance;
+import $ from 'jquery';
+import EventChannel from 'event_channel';
+import _ from 'lodash';
 
-    var Console = function(args) {
+class Console extends EventChannel {
+    constructor() {
+        super();
         this.container = $('#console-container');
         this.console = $('#console');
 
-        this.container.on('click', '.closeConsole', _.bindKey(this, 'hide'));
-    };
+        this.container.on('click', '.closeConsole', () => { this.hide(); });
+    }
 
-    Console.prototype = Object.create(EventChannel.prototype);
-    Console.prototype.constructor = Console;
-
-    Console.prototype.show = function(){
+    show() {
         this.container.show();
-        $('#service-tabs-wrapper').css('height','70%'); 
-        this.container.removeClass('hide'); 
+        $('#service-tabs-wrapper').css('height','70%');
+        this.container.removeClass('hide');
         this.container.css('height','30%');
-    };
+    }
 
-    Console.prototype.hide = function(){
+    hide() {
         this.container.hide();
         $('#service-tabs-wrapper').css('height','100%');
-    };    
+    }
 
-    Console.prototype.clear = function(){
+    clear() {
         this.console.html('');
-    };
+    }
 
-    Console.prototype.println = function(message){
-        this.console.append('<span class="' + message.type + '">' + message.message + '<span>');
-        this.console.append("<br />");
+    println(message) {
+        var specialCharsEscapedStr = _.escape(message.message);
+        this.console.append(`<span class="${message.type}">${specialCharsEscapedStr}<span>`);
+        this.console.append('<br />');
         //todo need a proper fix
         this.console.scrollTop(100000);
-    };
+    }
+}
 
-    return (instance = (instance || new Console()));
-});
+export default new Console();

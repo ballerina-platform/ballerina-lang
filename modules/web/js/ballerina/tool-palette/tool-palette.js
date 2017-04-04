@@ -15,12 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-require('./tool-palette.css');
 
-define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
-        './drag-drop-manager', './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller'],
-    function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              DragDropManager, Search, ImportSearchAdapter, Mousetrap, mcustomScroller) {
+import log from 'log';
+import $ from 'jquery';
+import Backbone from 'backbone';
+import ToolGroupView from './tool-group-view';
+import ToolGroup from './tool-group';
+import DragDropManager from './drag-drop-manager';
+import Search from './../search/search';
+import ImportSearchAdapter from './../search/import-search-adapter';
+import Mousetrap from 'mousetrap';
+import mcustomScroller from 'mcustom_scroller';
+import './tool-palette.css';
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -255,5 +261,4 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
         }
     });
 
-    return ToolPalette;
-});
+    export default ToolPalette;

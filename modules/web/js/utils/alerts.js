@@ -15,7 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', 'lodash'], function (log, $, _) {
+import log from 'log';
+import $ from 'jquery';
+import _ from 'lodash';
 
     var AlertsManager = {};
 
@@ -207,5 +209,4 @@ define(['log', 'jquery', 'lodash'], function (log, $, _) {
         $(errorAlertWrapper).slideDown(400).delay(timeout).slideUp(400);
     };
 
-    return AlertsManager;
-});
+    export default AlertsManager;

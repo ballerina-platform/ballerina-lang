@@ -16,86 +16,85 @@
  * under the License.
  */
 
-define(['lodash', './node'], function (_, ASTNode) {
+import _ from 'lodash';
+import ASTNode from './node';
 
-    /**
-     * constructs ImportDeclaration
-     * @param args
-     * @constructor
-     */
-    var ImportDeclaration = function (args) {
+/**
+ * constructs ImportDeclaration
+ * @param args
+ * @constructor
+ */
+class ImportDeclaration extends ASTNode {
+    constructor(args) {
+        super("ImportDeclaration");
         this._packageName = _.get(args, 'packageName');
         this._importVersionNumber = _.get(args, 'importVersionName', "1.0.0");
         this._identifier = _.get(args, 'identifier', "");
-
-        ASTNode.call(this, "ImportDeclaration");
-    };
-
-    ImportDeclaration.prototype = Object.create(ASTNode.prototype);
-    ImportDeclaration.prototype.constructor = ImportDeclaration;
+    }
 
     /**
      * setter for Package name
      * @param packageName
      */
-    ImportDeclaration.prototype.setPackageName = function (packageName, options) {
+    setPackageName(packageName, options) {
         if(!_.isNil(packageName)){
             this.setAttribute('_packageName', packageName, options);
         }
-    };
+    }
 
     /**
      * setter for Import version number
      * @param importVersionNumber
      */
-    ImportDeclaration.prototype.setImportVersionNumber = function (importVersionNumber, options) {
+    setImportVersionNumber(importVersionNumber, options) {
         if(!_.isNil(importVersionNumber)){
             this.setAttribute('_importVersionNumber', importVersionNumber, options);
         }
-    };
+    }
 
     /**
      * setter for Identifier
      * @param identifier
      */
-    ImportDeclaration.prototype.setIdentifier = function (identifier, options) {
+    setIdentifier(identifier, options) {
         if(!_.isNil(identifier)){
             this.setAttribute('_identifier', identifier, options);
         }
-    };
+    }
 
     /**
      * getter for Package name
      * @returns {String}
      */
-    ImportDeclaration.prototype.getPackageName = function () {
+    getPackageName() {
         return this._packageName;
-    };
+    }
 
     /**
      * getter for Import version number
      * @returns {String}
      */
-    ImportDeclaration.prototype.getImportVersionNumber = function () {
+    getImportVersionNumber() {
         return this._importVersionNumber;
-    };
+    }
 
     /**
      * getter for Identifier
      * @returns {String}
      */
-    ImportDeclaration.prototype.getIdentifier = function () {
+    getIdentifier() {
         return this._identifier;
-    };
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    ImportDeclaration.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setPackageName(jsonNode.import_package_path, {doSilently: true});
         this.setIdentifier(jsonNode.import_package_name, {doSilently: true});
-    };
+    }
+}
 
-    return ImportDeclaration;
-});
+export default ImportDeclaration;
+

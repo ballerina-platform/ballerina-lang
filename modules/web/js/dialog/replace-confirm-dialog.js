@@ -16,17 +16,17 @@
  * under the License.
  */
 
-define(['jquery', './modal-dialog'], function ($, ModalDialog) {
+import $ from 'jquery';
+import ModalDialog from './modal-dialog';
 
-    var ReplaceConfirmDialog = function (options) {
+class ReplaceConfirmDialog extends ModalDialog {
+    constructor(options) {
+        super();
         this._options = options;
         this._$container = $(_.get(options, 'container', 'body'));
-    };
+    }
 
-    ReplaceConfirmDialog.prototype = Object.create(ModalDialog.prototype);
-    ReplaceConfirmDialog.prototype.constructor = ReplaceConfirmDialog;
-
-    ReplaceConfirmDialog.prototype.askConfirmation = function (options) {
+    askConfirmation(options) {
         var self = this;
 
         this.setSubmitBtnText('Replace');
@@ -50,6 +50,6 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
 
         this.show();
     }
+}
 
-    return ReplaceConfirmDialog;
-});
+export default ReplaceConfirmDialog;

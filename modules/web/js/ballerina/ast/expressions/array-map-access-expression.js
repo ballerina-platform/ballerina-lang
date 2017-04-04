@@ -15,28 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    /**
-     * Constructor for ArrayMapAccessExpression
-     * @param {Object} args - Arguments to create the ArrayMapAccessExpression
-     * @constructor
-     * @augments Expression
-     */
-    var ArrayMapAccessExpression = function (args) {
-        Expression.call(this, 'ArrayMapAccessExpression');
-    };
-
-    ArrayMapAccessExpression.prototype = Object.create(Expression.prototype);
-    ArrayMapAccessExpression.prototype.constructor = ArrayMapAccessExpression;
+/**
+ * Constructor for ArrayMapAccessExpression
+ * @param {Object} args - Arguments to create the ArrayMapAccessExpression
+ * @constructor
+ * @augments Expression
+ */
+class ArrayMapAccessExpression extends Expression {
+    constructor(args) {
+        super('ArrayMapAccessExpression');
+    }
 
     /**
      * setting parameters from json
      * @param {Object} jsonNode to initialize from
      */
-    ArrayMapAccessExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setExpression(this.generateArrayMapAccessExpressionString(jsonNode), {doSilently: true});
-    };
+    }
 
     /**
      * Generates the array map access expression as a string.
@@ -44,18 +43,21 @@ define(['lodash', './expression'], function (_, Expression) {
      * @return {string} - Arguments as a string.
      * @private
      */
-    ArrayMapAccessExpression.prototype.generateArrayMapAccessExpressionString = function (jsonNode) {
+    generateArrayMapAccessExpressionString(jsonNode) {
         var self = this;
         var indexString = "";
 
-        for (var itr = 0; itr < jsonNode.children.length; itr++) {
+        for (var itr = jsonNode.children.length - 1; itr >= 0; itr--) {
             var childJsonNode = jsonNode.children[itr];
             var child = self.getFactory().createFromJson(childJsonNode);
             child.initFromJson(childJsonNode);
-            indexString = child.getExpression();
-        }
-        return jsonNode.array_map_access_expression_name + "[" + indexString + "]";
-    };
+            indexString = indexString + "[" +child.getExpression() + "]";
 
-    return ArrayMapAccessExpression;
-});
+        }
+        return jsonNode.array_map_access_expression_name + indexString;
+    }
+}
+
+export default ArrayMapAccessExpression;
+
+

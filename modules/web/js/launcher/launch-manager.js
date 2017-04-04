@@ -15,130 +15,130 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './launch-manager', './launch-channel', 'console' ],
-    function (require, $, Backbone, _ ,EventChannel, LaunchManager, LaunchChannel, Console) {
-	var instance;
 
-    var LaunchManager = function(args) {
-        var self = this;
+import _ from 'lodash';
+import EventChannel from 'event_channel';
+import LaunchChannel from './launch-channel';
+import Console from 'console';
+
+class LaunchManager extends EventChannel {
+    constructor() {
+        super();
         this.enable = false;
         this.channel = undefined;
         this.active = false;
-    };
+    }
 
-    LaunchManager.prototype = Object.create(EventChannel.prototype);
-    LaunchManager.prototype.constructor = LaunchManager;
-
-    LaunchManager.prototype.runApplication = function(file){
+    runApplication(file) {
         this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
         this.openConsole();
-        this.channel.on('connected',_.bindKey(this,'sendRunApplicationMessage',file));        
-    };
+        this.channel.on('connected',_.bindKey(this,'sendRunApplicationMessage',file));
+    }
 
-    LaunchManager.prototype.runService = function(file){
+    runService(file) {
         this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
         this.openConsole();
-        this.channel.on('connected',_.bindKey(this,'sendRunServiceMessage',file));
-    };
+        this.channel.on('connected', () => { this.sendRunServiceMessage(file); });
+    }
 
-    LaunchManager.prototype.debugApplication = function(file){
+    debugApplication(file) {
         this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
         this.openConsole();
-        this.channel.on('connected',_.bindKey(this,'sendDebugApplicationMessage',file));
-    };
+        this.channel.on('connected', () => { this.sendDebugApplicationMessage(file); });
+    }
 
-    LaunchManager.prototype.debugService = function(file){
+    debugService(file) {
         this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
         this.openConsole();
-        this.channel.on('connected',_.bindKey(this,'sendDebugServiceMessage',file));
-    };    
+        this.channel.on('connected', () => { this.sendDebugServiceMessage(file); });
+    }
 
-    LaunchManager.prototype.sendRunApplicationMessage = function(file){
-        var message = { 
-            "command": "RUN_PROGRAM",
-            "fileName" : file.getName(),
-            "filePath" : file.getPath(),
-            "commandArgs": this.getApplicationConfigs(file)
+    sendRunApplicationMessage(file) {
+        var message = {
+            'command': 'RUN_PROGRAM',
+            'fileName' : file.getName(),
+            'filePath' : file.getPath(),
+            'commandArgs': this.getApplicationConfigs(file)
         };
         this.channel.sendMessage(message);
-    };
+    }
 
-    LaunchManager.prototype.sendRunServiceMessage = function(file){
-        var message = { 
-            "command": "RUN_SERVICE",
-            "fileName" : file.getName(),
-            "filePath" : file.getPath()
+    sendRunServiceMessage(file) {
+        var message = {
+            'command': 'RUN_SERVICE',
+            'fileName' : file.getName(),
+            'filePath' : file.getPath()
         };
         this.channel.sendMessage(message);
-    }; 
+    }
 
-    LaunchManager.prototype.sendDebugApplicationMessage = function(file){
-        var message = { 
-            "command": "DEBUG_PROGRAM",
-            "fileName" : file.getName(),
-            "filePath" : file.getPath(),
-            "commandArgs": this.getApplicationConfigs(file)
+    sendDebugApplicationMessage(file) {
+        var message = {
+            'command': 'DEBUG_PROGRAM',
+            'fileName' : file.getName(),
+            'filePath' : file.getPath(),
+            'commandArgs': this.getApplicationConfigs(file)
         };
         this.channel.sendMessage(message);
-    };
+    }
 
-    LaunchManager.prototype.sendDebugServiceMessage = function(file){
-        var message = { 
-            "command": "DEBUG_SERVICE",
-            "fileName" : file.getName(),
-            "filePath" : file.getPath()
+    sendDebugServiceMessage(file) {
+        var message = {
+            'command': 'DEBUG_SERVICE',
+            'fileName' : file.getName(),
+            'filePath' : file.getPath()
         };
         this.channel.sendMessage(message);
-    };  
+    }
 
-    LaunchManager.prototype.processMesssage = function(message){
-        if(message.code == "OUTPUT"){
+    processMesssage(message) {
+        if(message.code === 'OUTPUT'){
             if(_.endsWith(message.message, this.debugPort)){
-                this.trigger("debug-active",this.debugPort);
+                this.trigger('debug-active',this.debugPort);
                 return;
             }
         }
-        if(message.code == "EXECUTION_STARTED"){
+        if(message.code === 'EXECUTION_STARTED'){
             this.active = true;
-            this.trigger("execution-started");
+            this.trigger('execution-started');
         }
-        if(message.code == "EXECUTION_STOPED" || message.code == "EXECUTION_TERMINATED"){
+        if(message.code === 'EXECUTION_STOPED' || message.code === 'EXECUTION_TERMINATED'){
             this.active = false;
-            this.trigger("execution-ended");
-        }                    
-        if(message.code == "DEBUG_PORT"){
+            this.trigger('execution-ended');
+        }
+        if(message.code === 'DEBUG_PORT'){
             this.debugPort = message.port;
-            return;           
-        }        
-        if(message.code == "EXIT"){
+            return;
+        }
+        if(message.code === 'EXIT'){
             this.active = false;
-            this.trigger("session-ended");
+            this.trigger('session-ended');
         }
         Console.println(message);
-    };
+    }
 
-    LaunchManager.prototype.openConsole = function(){
+    openConsole() {
         Console.clear();
         Console.show();
-    };
+    }
 
-    LaunchManager.prototype.init = function(options){        
+    init(options) {
         this.endpoint = _.get(options, 'application.config.services.launcher.endpoint');
         this.enable = true;
         this.application = options.application;
-    };
+    }
 
-    LaunchManager.prototype.stopProgram = function(){        
-        var message = { 
-            "command": "TERMINATE",
+    stopProgram() {
+        var message = {
+            'command': 'TERMINATE',
         };
         this.channel.sendMessage(message);
-    };
+    }
 
-    LaunchManager.prototype.getApplicationConfigs = function(file) {
-        var args = this.application.browserStorage.get('launcher-app-configs-' + file.id);
-        return args || "";
-    };
+    getApplicationConfigs(file) {
+        var args = this.application.browserStorage.get(`launcher-app-configs-${file.id}`);
+        return args || '';
+    }
+}
 
-    return (instance = (instance || new LaunchManager()));
-});
+export default new LaunchManager();

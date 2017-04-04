@@ -15,43 +15,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    /**
-     * Constructor for KeyValueExpression
-     * @param {Object} args - Arguments to create the KeyValueExpression
-     * @constructor
-     */
-    var KeyValueExpression = function (args) {
-        Expression.call(this, 'KeyValueExpression');
-        this._key = _.get(args, 'key', '');
-        this._expression = _.get(args, 'valueExpression', '');
-    };
+/**
+ * Constructor for KeyValueExpression
+ * @param {Object} args - Arguments to create the KeyValueExpression
+ * @constructor
+ */
+class KeyValueExpression extends Expression {
+ constructor(args) {
+     super('KeyValueExpression');
+     this._key = _.get(args, 'key', '');
+     this._expression = _.get(args, 'valueExpression', '');
+ }
 
-    KeyValueExpression.prototype = Object.create(Expression.prototype);
-    KeyValueExpression.prototype.constructor = KeyValueExpression;
+ /**
+  * setting parameters from json
+  * @param jsonNode
+  */
+ initFromJson(jsonNode) {
+     this.setExpression(this.generateKeyValueExpression(jsonNode), {doSilently: true});
+ }
 
-    /**
-     * setting parameters from json
-     * @param jsonNode
-     */
-    KeyValueExpression.prototype.initFromJson = function (jsonNode) {
-        this.setExpression(this.generateKeyValueExpression(jsonNode), {doSilently: true});
-    };
+ /**
+  * function for generate string for key-value-expression
+  * @param sonNode
+  */
+ generateKeyValueExpression(jsonNode) {
+     var expString = "";
+     var self = this;
+     var keyExpressionNode = self.getFactory().createFromJson(jsonNode.children[1][0]);
+     var valueExpressionNode = self.getFactory().createFromJson(jsonNode.children[0]);
+     valueExpressionNode.initFromJson(jsonNode.children[0]);
+     keyExpressionNode.initFromJson(jsonNode.children[1][0]);
+     expString += keyExpressionNode.getExpression() + ":" + valueExpressionNode.getExpression();
+     return expString;
+ }
+}
 
-    /**
-     * function for generate string for key-value-expression
-     * @param sonNode
-     */
-    KeyValueExpression.prototype.generateKeyValueExpression = function (jsonNode) {
-        var expString = "";
-        var self = this;
-        var keyExpressionNode = self.getFactory().createFromJson(jsonNode.children[1][0]);
-        var valueExpressionNode = self.getFactory().createFromJson(jsonNode.children[0]);
-        valueExpressionNode.initFromJson(jsonNode.children[0]);
-        keyExpressionNode.initFromJson(jsonNode.children[1][0]);
-        expString += keyExpressionNode.getExpression() + ":" + valueExpressionNode.getExpression();
-        return expString;
-    };
-    return KeyValueExpression;
-});
+export default KeyValueExpression;
+

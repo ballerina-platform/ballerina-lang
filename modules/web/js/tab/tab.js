@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'backbone'], function (log, Backbone) {
+import log from 'log';
+import Backbone from 'backbone';
 
     var Tab = Backbone.View.extend(
     /** @lends Tab.prototype */
@@ -98,5 +99,5 @@ define(['log', 'backbone'], function (log, Backbone) {
         }
     });
 
-    return Tab;
-});
+    export default Tab;
+

@@ -15,40 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor','./variable-definition-visitor'],
-    function(require, _, log, EventChannel, AbstractExpressionSourceGenVisitor, VariableDefinitionVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
+import VariableDefinitionVisitor from './variable-definition-visitor';
 
-        var VariableReferenceExpressionVisitor = function(parent){
-            AbstractExpressionSourceGenVisitor.call(this,parent);
-        };
+class VariableReferenceExpressionVisitor extends AbstractExpressionSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        VariableReferenceExpressionVisitor.prototype = Object.create(AbstractExpressionSourceGenVisitor.prototype);
-        VariableReferenceExpressionVisitor.prototype.constructor = VariableReferenceExpressionVisitor;
+    canVisitVariableReferenceExpression(expression) {
+        return true;
+    }
 
-        VariableReferenceExpressionVisitor.prototype.canVisitVariableReferenceExpression = function(expression){
-            return true;
-        };
+    beginVisitVariableReferenceExpression(expression) {
+       log.debug('Begin Visit Variable Reference Expression');
+    }
 
-        VariableReferenceExpressionVisitor.prototype.beginVisitVariableReferenceExpression = function(expression){
-           log.debug('Begin Visit Variable Reference Expression');
-        };
+    visitVariableReferenceExpression(expression) {
+        log.debug('Visit Variable Reference Expression');
+    }
 
-        VariableReferenceExpressionVisitor.prototype.visitVariableReferenceExpression = function(expression){
-            log.debug('Visit Variable Reference Expression');
-        };
+    endVisitVariableReferenceExpression(expression) {
+        if (expression.getVariableReferenceName()) {
+            this.appendSource(expression.getVariableReferenceName());
+        }
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Variable Reference Expression');
+    }
 
-        VariableReferenceExpressionVisitor.prototype.endVisitVariableReferenceExpression = function(expression){
-            if (expression.getVariableReferenceName()) {
-                this.appendSource(expression.getVariableReferenceName());
-            }
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Variable Reference Expression');
-        };
+    visitVariableDefinition(variableDefinition) {
+        var variableDefinitionVisitor = new VariableDefinitionVisitor(this);
+        variableDefinition.accept(variableDefinitionVisitor);
+    }
+}
 
-        VariableReferenceExpressionVisitor.prototype.visitVariableDefinition = function(variableDefinition){
-            var variableDefinitionVisitor = new VariableDefinitionVisitor(this);
-            variableDefinition.accept(variableDefinitionVisitor);
-        };
-
-        return VariableReferenceExpressionVisitor;
-    });
+export default VariableReferenceExpressionVisitor;

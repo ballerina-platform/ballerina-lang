@@ -15,49 +15,51 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement', './../expressions/expression'], function (_, log, Statement, Expression) {
+import _ from 'lodash';
+import log from 'log';
+import Statement from './statement';
+import Expression from './../expressions/expression';
 
-    /**
-     * Class to represent a condition to ballerina.
-     * @param condition The condition of a conditional statement.
-     * @param statements The statements of a conditional statement.
-     * @constructor
-     */
-    var ConditionalStatement = function (condition, statements) {
-        Statement.call(this);
+/**
+ * Class to represent a condition to ballerina.
+ * @param condition The condition of a conditional statement.
+ * @param statements The statements of a conditional statement.
+ * @constructor
+ */
+class ConditionalStatement extends Statement {
+    constructor(condition, statements) {
+        super();
         this._condition = condition || "true";
         this._statments = statements || [];
         this.type = "ConditionalStatement";
-    };
+    }
 
-    ConditionalStatement.prototype = Object.create(Statement.prototype);
-    ConditionalStatement.prototype.constructor = ConditionalStatement;
-
-    ConditionalStatement.prototype.setCondition = function (condition, options) {
+    setCondition(condition, options) {
         if (!_.isNil(condition) && condition instanceof Expression) {
             this.setAttribute('_condition', condition, options);
         } else {
             log.error("Invalid value for condition received: " + condition);
         }
-    };
+    }
 
-    ConditionalStatement.prototype.getCondition = function () {
+    getCondition() {
         return this._condition;
-    };
+    }
 
-    ConditionalStatement.prototype.setStatements = function (statements, options) {
+    setStatements(statements, options) {
         // There should be atleast one statement.
         if (!_.isNil(statements)) {
             this.setAttribute('_statments', statements, options);
         } else {
             log.error("Cannot set undefined array of statements.");
         }
-    };
+    }
 
-    ConditionalStatement.prototype.getStatements = function () {
+    getStatements() {
         return this._statments;
-    };
+    }
+}
 
-    return ConditionalStatement;
+export default ConditionalStatement;
 
-});
+

@@ -15,30 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './ast-node-add-operation', './ast-node-remove-operation', './ast-node-modify-operation',
-        './custom-undoable-operation', './source-modify-operation'],
-    function (_, ASTNodeAddOperation, ASTNodeRemoveOperation, ASTNodeModifyOperation, CustomUndoableOperation,
-                SourceModifyOperation) {
 
-        var UndoableOperationFactory = {};
+import ASTNodeAddOperation from './ast-node-add-operation';
+import ASTNodeRemoveOperation from './ast-node-remove-operation';
+import ASTNodeModifyOperation from './ast-node-modify-operation';
+import CustomUndoableOperation from './custom-undoable-operation';
+import SourceModifyOperation from './source-modify-operation';
+
+var UndoableOperationFactory = {};
         /**
          * A Factory method to create undoable operations
          * @param args
          */
-        UndoableOperationFactory.getOperation = function(args){
-            switch (args.type){
-                case "child-added": return new ASTNodeAddOperation(args);
-                case "child-removed": return new ASTNodeRemoveOperation(args);
-                case "node-modified": return new ASTNodeModifyOperation(args);
-                case "source-modified": return new SourceModifyOperation(args);
-                case "custom": return new CustomUndoableOperation(args);
-            }
-        };
+UndoableOperationFactory.getOperation = function(args){
+    switch (args.type){
+    case 'child-added': return new ASTNodeAddOperation(args);
+    case 'child-removed': return new ASTNodeRemoveOperation(args);
+    case 'node-modified': return new ASTNodeModifyOperation(args);
+    case 'source-modified': return new SourceModifyOperation(args);
+    case 'custom': return new CustomUndoableOperation(args);
+    }
+};
 
-        UndoableOperationFactory.isSourceModifiedOperation = function(undoableOperation){
-            return undoableOperation instanceof SourceModifyOperation;
-        };
+UndoableOperationFactory.isSourceModifiedOperation = function(undoableOperation){
+    return undoableOperation instanceof SourceModifyOperation;
+};
 
-        return UndoableOperationFactory;
-    });
-
+export default UndoableOperationFactory;

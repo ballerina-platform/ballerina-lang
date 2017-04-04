@@ -16,7 +16,11 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'log', /** void module - jquery plugin **/ 'jstree'], function ($, Backbone, _, log) {
+import $ from 'jquery';
+import Backbone from 'backbone';
+import _ from 'lodash';
+import log from 'log';
+import 'jstree';
 
     var FileBrowser = Backbone.View.extend({
 
@@ -166,6 +170,6 @@ define(['jquery', 'backbone', 'lodash', 'log', /** void module - jquery plugin *
         }
     });
 
-    return FileBrowser;
+    export default FileBrowser;
 
-});
+

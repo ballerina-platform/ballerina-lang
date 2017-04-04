@@ -15,20 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-require('./dialog.css');
 
-define(['./save-to-file-dialog', './open-file-dialog', './new-item-dialog', './delete-item-dialog',
-        './folder-open-dialog', './close-confirm-dialog', './replace-confirm-dialog', './settings-dialog'],
-    function (SaveToFileDialog, OpenFileDialog, NewItemDialog, DeleteItemDialog,
-              FolderOpenDialog, CloseConfirmDialog, ReplaceConfirmDialog, SettingsDialog) {
-    return {
-        save_to_file_dialog: SaveToFileDialog,
-        FolderOpenDialog: FolderOpenDialog,
-        NewItemDialog: NewItemDialog,
-        DeleteItemDialog: DeleteItemDialog,
-        open_file_dialog: OpenFileDialog,
-        CloseConfirmDialog: CloseConfirmDialog,
-        ReplaceConfirmDialog: ReplaceConfirmDialog,
-        SettingsDialog: SettingsDialog
-    };
-});
+import SaveToFileDialog from './save-to-file-dialog';
+import OpenFileDialog from './open-file-dialog';
+import NewItemDialog from './new-item-dialog';
+import DeleteItemDialog from './delete-item-dialog';
+import FolderOpenDialog from './folder-open-dialog';
+import CloseConfirmDialog from './close-confirm-dialog';
+import ReplaceConfirmDialog from './replace-confirm-dialog';
+import SettingsDialog from './settings-dialog';
+import './dialog.css';
+
+export default {
+    save_to_file_dialog: SaveToFileDialog,
+    FolderOpenDialog: FolderOpenDialog,
+    NewItemDialog: NewItemDialog,
+    DeleteItemDialog: DeleteItemDialog,
+    open_file_dialog: OpenFileDialog,
+    CloseConfirmDialog: CloseConfirmDialog,
+    ReplaceConfirmDialog: ReplaceConfirmDialog,
+    SettingsDialog: SettingsDialog
+};

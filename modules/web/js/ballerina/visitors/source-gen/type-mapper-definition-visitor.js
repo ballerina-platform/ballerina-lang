@@ -15,57 +15,59 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory',
-        './type-mapper-block-statement-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, TypeMapperBlockStatementVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
+import TypeMapperBlockStatementVisitor from './type-mapper-block-statement-visitor';
 
+/**
+ * @param parent
+ * @constructor
+ */
+class TypeMapperDefinitionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
+
+    canVisitTypeMapperDefinition(typeMapperDefinition) {
+        return true;
+    }
+
+    canVisitBlockStatementView(blockStatementView) {
+        return true;
+    }
+
+    beginVisitTypeMapperDefinition(typeMapperDefinition) {
         /**
-         * @param parent
-         * @constructor
+         * set the configuration start for the type mapper definition language construct
+         * If we need to add additional parameters which are dynamically added to the configuration start
+         * that particular source generation has to be constructed here
          */
-        var TypeMapperDefinitionVisitor = function (parent) {
-            AbstractSourceGenVisitor.call(this, parent);
-        };
 
-        TypeMapperDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        TypeMapperDefinitionVisitor.prototype.constructor = TypeMapperDefinitionVisitor;
+        var constructedSourceSegment = 'typemapper ' + typeMapperDefinition.getTypeMapperName() +
+            ' (' + typeMapperDefinition.getInputParamAndIdentifier() + ' )(' + typeMapperDefinition.getReturnType() +
+            ' ) {';
+        this.appendSource(constructedSourceSegment);
+        log.debug('Begin Visit TypeMapperDefinition');
+    }
 
-        TypeMapperDefinitionVisitor.prototype.canVisitTypeMapperDefinition = function(typeMapperDefinition){
-            return true;
-        };
+    visitTypeMapperDefinition(typeMapperDefinition) {
+        log.debug('Visit TypeMapperDefinition');
+    }
 
-        TypeMapperDefinitionVisitor.prototype.canVisitBlockStatementView = function (blockStatementView) {
-            return true;
-        };
+    endVisitTypeMapperDefinition(typeMapperDefinition) {
+        this.appendSource("} \n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit TypeMapperDefinition');
+    }
 
-        TypeMapperDefinitionVisitor.prototype.beginVisitTypeMapperDefinition = function(typeMapperDefinition){
-            /**
-             * set the configuration start for the type mapper definition language construct
-             * If we need to add additional parameters which are dynamically added to the configuration start
-             * that particular source generation has to be constructed here
-             */
+    visitBlockStatement(blockStatement) {
+        var blockStatementVisitor = new TypeMapperBlockStatementVisitor(this);
+        blockStatement.accept(blockStatementVisitor);
+    }
+}
 
-            var constructedSourceSegment = 'typemapper ' + typeMapperDefinition.getTypeMapperName() +
-                ' (' + typeMapperDefinition.getInputParamAndIdentifier() + ' )(' + typeMapperDefinition.getReturnType() +
-                ' ) {';
-            this.appendSource(constructedSourceSegment);
-            log.debug('Begin Visit TypeMapperDefinition');
-        };
-
-        TypeMapperDefinitionVisitor.prototype.visitTypeMapperDefinition = function(typeMapperDefinition){
-            log.debug('Visit TypeMapperDefinition');
-        };
-
-        TypeMapperDefinitionVisitor.prototype.endVisitTypeMapperDefinition = function(typeMapperDefinition){
-            this.appendSource("} \n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit TypeMapperDefinition');
-        };
-
-       TypeMapperDefinitionVisitor.prototype.visitBlockStatement = function (blockStatement) {
-           var blockStatementVisitor = new TypeMapperBlockStatementVisitor(this);
-           blockStatement.accept(blockStatementVisitor);
-       };
-
-        return TypeMapperDefinitionVisitor;
-    });
+export default TypeMapperDefinitionVisitor;
+    

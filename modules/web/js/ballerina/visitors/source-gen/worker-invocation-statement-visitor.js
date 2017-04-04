@@ -15,29 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/worker-invocation-statement'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, WorkerInvocationStatement) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import WorkerInvocationStatement from '../../ast/statements/worker-invocation-statement';
 
-        var WorkerInvocationStatementVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+class WorkerInvocationStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        WorkerInvocationStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        WorkerInvocationStatementVisitor.prototype.constructor = WorkerInvocationStatementVisitor;
+    canVisitWorkerInvocationStatement(workerInvocationStatement) {
+        return workerInvocationStatement instanceof WorkerInvocationStatement;
+    }
 
-        WorkerInvocationStatementVisitor.prototype.canVisitWorkerInvocationStatement = function(workerInvocationStatement){
-            return workerInvocationStatement instanceof WorkerInvocationStatement;
-        };
+    beginVisitWorkerInvocationStatement(workerInvocationStatement) {
+        this.appendSource(workerInvocationStatement.getInvocationStatement());
+        log.debug('Begin Visit Worker Invocation Statement');
+    }
 
-        WorkerInvocationStatementVisitor.prototype.beginVisitWorkerInvocationStatement = function(workerInvocationStatement){
-            this.appendSource(workerInvocationStatement.getInvocationStatement());
-            log.debug('Begin Visit Worker Invocation Statement');
-        };
+    endVisitWorkerInvocationStatement(workerInvocationStatement) {
+        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+        log.debug('End Visit Worker Invocation Statement');
+    }
+}
 
-        WorkerInvocationStatementVisitor.prototype.endVisitWorkerInvocationStatement = function(workerInvocationStatement){
-            this.getParent().appendSource(this.getGeneratedSource() + ";\n");
-            log.debug('End Visit Worker Invocation Statement');
-        };
-
-        return WorkerInvocationStatementVisitor;
-    });
+export default WorkerInvocationStatementVisitor;

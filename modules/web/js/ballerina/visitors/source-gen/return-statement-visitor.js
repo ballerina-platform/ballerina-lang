@@ -15,22 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/return-statement',
-       './expression-visitor-factory'],
-    function(_, log, EventChannel, AbstractStatementSourceGenVisitor, ReturnStatement, ExpressionVisitorFactory) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import ReturnStatement from '../../ast/statements/return-statement';
+import ExpressionVisitorFactory from './expression-visitor-factory';
 
-    var ReturnStatementVisitor = function(parent){
-        AbstractStatementSourceGenVisitor.call(this, parent);
-    };
+class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    ReturnStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    ReturnStatementVisitor.prototype.constructor = ReturnStatementVisitor;
-
-    ReturnStatementVisitor.prototype.canVisitReturnStatement = function(returnStatement){
+    canVisitReturnStatement(returnStatement) {
         return returnStatement instanceof ReturnStatement;
-    };
+    }
 
-    ReturnStatementVisitor.prototype.beginVisitReturnStatement = function(returnStatement){
+    beginVisitReturnStatement(returnStatement) {
         /**
          * set the configuration start for the reply statement definition language construct
          * If we need to add additional parameters which are dynamically added to the configuration start
@@ -38,20 +39,20 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
          */
         this.appendSource(returnStatement.getReturnExpression());
         log.debug('Begin Visit Return Statement Definition');
-    };
+    }
 
-    ReturnStatementVisitor.prototype.endVisitReturnStatement = function(returnStatement){
+    endVisitReturnStatement(returnStatement) {
         this.appendSource(";\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Return Statement Definition');
-    };
+    }
 
-    ReturnStatementVisitor.prototype.visitExpression = function (expression) {
+    visitExpression(expression) {
         var expressionVisitorFactory = new ExpressionVisitorFactory();
         var expressionVisitor = expressionVisitorFactory.getExpressionView({model:expression, parent:this});
         expression.accept(expressionVisitor);
         log.debug('Visit Expression');
-    };
+    }
+}
 
-     return ReturnStatementVisitor;
-});
+export default ReturnStatementVisitor;

@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-require('./welcome-page.css');
 
-define(['require','./first-launch-welcome', './regular-welcome'],
-    function (require, FirstLaunchWelcomePage, RegularWelcomePage) {
-        return  {
-            FirstLaunchWelcomePage: FirstLaunchWelcomePage,
-            RegularWelcomePage: RegularWelcomePage
-        }
-    });
+import FirstLaunchWelcomePage from './first-launch-welcome';
+import RegularWelcomePage from './regular-welcome';
+import './welcome-page.css';
+
+export default  {
+    FirstLaunchWelcomePage: FirstLaunchWelcomePage,
+    RegularWelcomePage: RegularWelcomePage
+}

@@ -15,29 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    /**
-     * Constructor for BinaryExpression
-     * @param {Object} args - Arguments to create the BinaryExpression
-     * @constructor
-     * @augments Expression
-     */
-    var BinaryExpression = function (args) {
-        Expression.call(this, 'BinaryExpression');
+/**
+ * Constructor for BinaryExpression
+ * @param {Object} args - Arguments to create the BinaryExpression
+ * @constructor
+ * @augments Expression
+ */
+class BinaryExpression extends Expression {
+    constructor(args) {
+        super('BinaryExpression');
         this._operator = _.get(args, 'operator');
-    };
-
-    BinaryExpression.prototype = Object.create(Expression.prototype);
-    BinaryExpression.prototype.constructor = BinaryExpression;
+    }
 
     /**
      * setting parameters from json
      * @param {Object} jsonNode to initialize from
      */
-    BinaryExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setExpression(this.generateExpressionString(jsonNode), {doSilently: true});
-    };
+    }
 
     /**
      * Generates the binary expression as a string.
@@ -45,7 +44,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * @return {string} - Arguments as a string.
      * @private
      */
-    BinaryExpression.prototype.generateExpressionString = function (jsonNode) {
+    generateExpressionString(jsonNode) {
         var self = this;
         var expString = "";
         if(!_.isNil(jsonNode.children[0]) && !_.isNil(jsonNode.children[1])){
@@ -56,11 +55,11 @@ define(['lodash', './expression'], function (_, Expression) {
             expString = leftExpression.getExpression() + " " + this.getOperator() + " " + rightExpression.getExpression();
         }
         return expString;
-    };
+    }
 
-    BinaryExpression.prototype.getOperator = function (){
+    getOperator() {
         return this._operator;
-    };
+    }
+}
 
-    return BinaryExpression;
-});
+export default BinaryExpression;

@@ -15,41 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor'],
-    function(require, _, log, EventChannel, AbstractExpressionSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
+import ExpressionVisitorFactory from './expression-visitor-factory';
 
-        var TypeCastExpressionVisitor = function(parent){
-            AbstractExpressionSourceGenVisitor.call(this,parent);
-        };
+class TypeCastExpressionVisitor extends AbstractExpressionSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeCastExpressionVisitor.prototype = Object.create(AbstractExpressionSourceGenVisitor.prototype);
-        TypeCastExpressionVisitor.prototype.constructor = TypeCastExpressionVisitor;
+    canVisitTypeCastExpression(expression) {
+        return true;
+    }
 
-        TypeCastExpressionVisitor.prototype.canVisitTypeCastExpression = function(expression){
-            return true;
-        };
+    beginVisitTypeCastExpression(expression) {
+        this.appendSource('(' + expression.getName() + ')');
+        log.debug('Begin Visit Type Cast Expression');
+    }
 
-        TypeCastExpressionVisitor.prototype.beginVisitTypeCastExpression = function(expression){
-            this.appendSource('(' + expression.getName() + ')');
-            log.debug('Begin Visit Type Cast Expression');
-        };
+    visitTypeCastExpression(expression) {
+        log.debug('Visit Ref Type Type Cast Expression');
+    }
 
-        TypeCastExpressionVisitor.prototype.visitTypeCastExpression = function(expression){
-            log.debug('Visit Ref Type Type Cast Expression');
-        };
+    endVisitTypeCastExpression(expression) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Type Cast Expression');
+    }
 
-        TypeCastExpressionVisitor.prototype.endVisitTypeCastExpression = function(expression){
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Type Cast Expression');
-        };
+    visitExpression(expression) {
+        var expressionVisitorFactory = new ExpressionVisitorFactory();
+        var expressionVisitor = expressionVisitorFactory.getExpressionView({model:expression, parent:this});
+        expression.accept(expressionVisitor);
+        log.debug('Visit Expression');
+    }
+}
 
-        TypeCastExpressionVisitor.prototype.visitExpression = function (expression) {
-            var ExpressionVisitorFactory = require('./expression-visitor-factory');
-            var expressionVisitorFactory = new ExpressionVisitorFactory();
-            var expressionVisitor = expressionVisitorFactory.getExpressionView({model:expression, parent:this});
-            expression.accept(expressionVisitor);
-            log.debug('Visit Expression');
-        };
-
-        return TypeCastExpressionVisitor;
-    });
+export default TypeCastExpressionVisitor;

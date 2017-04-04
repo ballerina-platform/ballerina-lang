@@ -15,51 +15,52 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/module',
-        './type-mapper-expression-visitor-factory', './type-mapper-function-invocation-expression-visitor'],
-    function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AST, TypeMapperExpressionVisitorFactory,
-              FunctionInvocationExpressionVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import AST from '../../ast/module';
+import TypeMapperExpressionVisitorFactory from './type-mapper-expression-visitor-factory';
+import FunctionInvocationExpressionVisitor from './type-mapper-function-invocation-expression-visitor';
+import StatementVisitorFactory from './type-mapper-statement-visitor-factory';
 
-        var TypeMapperRightOperandExpressionVisitor = function (parent) {
-            AbstractStatementSourceGenVisitor.call(this, parent);
-        };
+class TypeMapperRightOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeMapperRightOperandExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        TypeMapperRightOperandExpressionVisitor.prototype.constructor = TypeMapperRightOperandExpressionVisitor;
+    canVisitRightOperandExpression(rightOperandExpression) {
+        return true;
+    }
 
-        TypeMapperRightOperandExpressionVisitor.prototype.canVisitRightOperandExpression = function (rightOperandExpression) {
-            return true;
-        };
+    beginVisitRightOperandExpression(rightOperandExpression) {
+        this.appendSource(" = ");
+        log.debug('Begin Visit Type Mapper Right Operand Expression');
+    }
 
-        TypeMapperRightOperandExpressionVisitor.prototype.beginVisitRightOperandExpression = function (rightOperandExpression) {
-            this.appendSource(" = ");
-            log.debug('Begin Visit Type Mapper Right Operand Expression');
-        };
+    endVisitRightOperandExpression(rightOperandExpression) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Type Mapper Right Operand Expression');
+    }
 
-        TypeMapperRightOperandExpressionVisitor.prototype.endVisitRightOperandExpression = function (rightOperandExpression) {
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Type Mapper Right Operand Expression');
-        };
+    visitFuncInvocationStatement(statement) {
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
 
-        TypeMapperRightOperandExpressionVisitor.prototype.visitFuncInvocationStatement = function (statement) {
-            var StatementVisitorFactory = require('./type-mapper-statement-visitor-factory');
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-            statement.accept(statementVisitor);
-        };
+    visitExpression(expression) {
+        var expressionVisitorFactory = new TypeMapperExpressionVisitorFactory();
+        var expressionVisitor = expressionVisitorFactory.getExpressionVisitor({model: expression, parent: this});
+        expression.accept(expressionVisitor);
+        log.debug('Visit Type Mapper Expression');
+    }
 
-        TypeMapperRightOperandExpressionVisitor.prototype.visitExpression = function (expression) {
-            var expressionVisitorFactory = new TypeMapperExpressionVisitorFactory();
-            var expressionVisitor = expressionVisitorFactory.getExpressionVisitor({model: expression, parent: this});
-            expression.accept(expressionVisitor);
-            log.debug('Visit Type Mapper Expression');
-        };
+    visitFuncInvocationExpression(functionInvocation) {
+        var args = {model: functionInvocation, parent: this};
+        functionInvocation.accept(new FunctionInvocationExpressionVisitor(_.get(args, "parent")));
+        log.debug('Visit Type Mapper Function Invocation expression');
+    }
+}
 
-        TypeMapperRightOperandExpressionVisitor.prototype.visitFuncInvocationExpression = function (functionInvocation) {
-            var args = {model: functionInvocation, parent: this};
-            functionInvocation.accept(new FunctionInvocationExpressionVisitor(_.get(args, "parent")));
-            log.debug('Visit Type Mapper Function Invocation expression');
-        };
-
-        return TypeMapperRightOperandExpressionVisitor;
-    });
+export default TypeMapperRightOperandExpressionVisitor;

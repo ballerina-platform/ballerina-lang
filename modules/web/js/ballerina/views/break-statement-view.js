@@ -15,75 +15,77 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './simple-statement-view', '../ast/statements/break-statement'],
-    function (_, log, SimpleStatementView, BreakStatement) {
+import _ from 'lodash';
+import log from 'log';
+import SimpleStatementView from './simple-statement-view';
+import BreakStatement from '../ast/statements/break-statement';
 
-        /**
-         * The view to represent a break definition which is an AST visitor.
-         * @param {Object} args - Arguments for creating the view.
-         * @param {Assignment} args.model - The assignment statement model.
-         * @param {Object} args.container - The HTML container to which the view should be added to.
-         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
-         * @class BreakStatementView
-         * @constructor
-         * @extends SimpleStatementView
-         */
-        var BreakStatementView = function (args) {
-            SimpleStatementView.call(this, args);
+/**
+ * The view to represent a break definition which is an AST visitor.
+ * @class BreakStatementView
+ * @extends SimpleStatementView
+ */
+class BreakStatementView extends SimpleStatementView {
+    /**
+     * @param {Object} args - Arguments for creating the view.
+     * @param {Assignment} args.model - The assignment statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
+    constructor(args) {
+        super(args);
+        if (_.isNil(this._container)) {
+            log.error('Container for Break statement is undefined.' + this._container);
+            throw 'Container for Break statement is undefined.' + this._container;
+        }
+    }
 
-            if (_.isNil(this._container)) {
-                log.error("Container for Break statement is undefined." + this._container);
-                throw "Container for Break statement is undefined." + this._container;
-            }
-        };
+    canVisitStatement() {
+        return true;
+    }
 
-        BreakStatementView.prototype = Object.create(SimpleStatementView.prototype);
-        BreakStatementView.prototype.constructor = BreakStatementView;
+    canVisitBreakStatement() {
+        return true;
+    }
 
-        BreakStatementView.prototype.canVisitStatement = function(){
-            return true;
-        };
+    setModel(model) {
+        if (!_.isNil(model) && model instanceof BreakStatement) {
+            (this.__proto__.__proto__).setModel(model);
+        } else {
+            log.error('Break statement undefined or is of different type.' + model);
+            throw 'Break statement undefined or is of different type.' + model;
+        }
+    }
 
-        BreakStatementView.prototype.canVisitBreakStatement = function(){
-            return true;
-        };
+    /**
+     * Renders the view for break statement.
+     * @returns {group} - The SVG group which holds the elements of the break statement.
+     */
+    render(diagramRenderingContext) {
+        // Calling super class's render function.
+        (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
+        // Update model.
+        var model = this.getModel();
+        model.accept(this);
+        // Setting display text.
+        this.renderDisplayText(model.getStatement());
 
-        BreakStatementView.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof BreakStatement) {
-                (this.__proto__.__proto__).setModel(model);
-            } else {
-                log.error("Break statement undefined or is of different type." + model);
-                throw "Break statement undefined or is of different type." + model;
-            }
-        };
+        var statementGroup = this.getStatementGroup();
 
-        /**
-         * Renders the view for break statement.
-         * @returns {group} - The SVG group which holds the elements of the break statement.
-         */
-        BreakStatementView.prototype.render = function (diagramRenderingContext) {
-            // Calling super class's render function.
-            (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
-            // Update model.
-            var model = this.getModel();
-            model.accept(this);
-            // Setting display text.
-            this.renderDisplayText(model.getStatement());
+        this._createPropertyPane({
+            model: model,
+            statementGroup: statementGroup,
+            editableProperties: {}
+        });
 
-            var statementGroup = this.getStatementGroup();
+        this._createDebugIndicator({
+            statementGroup: statementGroup
+        });
 
-            this._createPropertyPane({
-                model: model,
-                statementGroup: statementGroup,
-                editableProperties: {}
-            });
+        return statementGroup;
+    }
+}
 
-            this._createDebugIndicator({
-                statementGroup: statementGroup
-            });
-
-            return statementGroup;
-        };
-
-        return BreakStatementView;
-    });
+export default BreakStatementView;
+    

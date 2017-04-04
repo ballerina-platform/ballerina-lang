@@ -16,72 +16,72 @@
  * under the License.
  */
 
-define(['lodash', 'event_channel', 'log'],
-    function (_, EventChannel, log){
+import _ from 'lodash';
+import EventChannel from 'event_channel';
+import log from 'log';
 
-        var LaunchChannel = function(args){
-            if(_.isNil(args.endpoint)){
-                throw "Invalid Endpoint";
-            }
-            _.assign(this, args);            
+// See http://tools.ietf.org/html/rfc6455#section-7.4.1
+const WS_NORMAL_CODE = 1000;
+const WS_SSL_CODE = 1015;
 
-            // See http://tools.ietf.org/html/rfc6455#section-7.4.1
-            this.ws_normal_code = 1000;
-            this.ws_ssl_code = 1015;
-
-            this.connect();
-        };
-
-        LaunchChannel.prototype = Object.create(EventChannel.prototype);
-
-        LaunchChannel.prototype.constructor = LaunchChannel;
-
-        LaunchChannel.prototype.connect = function(){
-            var websocket = new WebSocket(this.endpoint);
-            //bind functions
-            websocket.onmessage = _.bindKey(this, 'parseMessage');
-            websocket.onopen = _.bindKey(this, 'onOpen');
-            websocket.onclose = _.bindKey(this, 'onClose');
-            websocket.onerror = _.bindKey(this, 'onError');
-            this.websocket = websocket;
+class LaunchChannel extends EventChannel {
+    constructor(args) {
+        super();
+        if(_.isNil(args.endpoint)){
+            throw 'Invalid Endpoint';
         }
+        _.assign(this, args);
 
-        LaunchChannel.prototype.parseMessage = function (strMessage) {            
-            var message = JSON.parse(strMessage.data);
-            this.launcher.processMesssage(message);
-        };
+        this.connect();
+    }
 
-        LaunchChannel.prototype.sendMessage = function (message) {            
-            this.websocket.send(JSON.stringify(message));
-        };
+    connect() {
+        var websocket = new WebSocket(this.endpoint);
+        //bind functions
+        websocket.onmessage = (strMessage) => { this.parseMessage(strMessage); };
+        websocket.onopen = () => { this.onOpen(); };
+        websocket.onclose = (event) => { this.onClose(event); };
+        websocket.onerror = () => { this.onError(); };
+        this.websocket = websocket;
+    }
 
-        LaunchChannel.prototype.onClose = function(event){
-            this.launcher.active = false;
-            this.launcher.trigger("session-terminated");
-            var reason;
-            if (event.code == this.ws_normal_code){
-                reason = "Normal closure";
-                this.trigger("session-ended");
-                this.debugger.active = false;
-                return;
-            }
-            else if(event.code == this.ws_ssl_code){
-                reason = "Certificate Issue";
-            }
-            else{
-                reason = "Unknown reason :" + event.code;
-            }
-        };
+    parseMessage(strMessage) {
+        var message = JSON.parse(strMessage.data);
+        this.launcher.processMesssage(message);
+    }
 
-        LaunchChannel.prototype.onError = function(event){
-            this.launcher.active = false;
-            this.launcher.trigger("session-error");
-        };
+    sendMessage(message) {
+        this.websocket.send(JSON.stringify(message));
+    }
 
-        LaunchChannel.prototype.onOpen = function(event){            
-            this.launcher.active = true;
-            this.trigger("connected");
-        };        
+    onClose(event) {
+        this.launcher.active = false;
+        this.launcher.trigger('session-terminated');
+        let reason;
+        if (event.code === WS_NORMAL_CODE){
+            reason = 'Normal closure';
+            this.trigger('session-ended');
+            this.debugger.active = false;
+            return;
+        }
+        else if(event.code === WS_SSL_CODE){
+            reason = 'Certificate Issue';
+        }
+        else{
+            reason = 'Unknown reason :' + event.code;
+        }
+        log.debug(`Web socket closed, reason ${reason}`);
+    }
 
-        return LaunchChannel;
-    });
+    onError() {
+        this.launcher.active = false;
+        this.launcher.trigger('session-error');
+    }
+
+    onOpen() {
+        this.launcher.active = true;
+        this.trigger('connected');
+    }
+}
+
+export default LaunchChannel;

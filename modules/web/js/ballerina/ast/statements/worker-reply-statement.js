@@ -15,67 +15,66 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement'], function (_, Statement) {
+import _ from 'lodash';
+import Statement from './statement';
 
-    /**
-     * Class to represent worker reply statement in ballerina.
-     * @constructor
-     */
-    var WorkerReplyStatement = function (args) {
-        Statement.call(this, 'WorkerReplyStatement');
+/**
+ * Class to represent worker reply statement in ballerina.
+ * @constructor
+ */
+class WorkerReplyStatement extends Statement {
+    constructor(args) {
+        super('WorkerReplyStatement');
         this._source = _.get(args, 'source');
         this._destination = _.get(args, 'destination');
         this._message = _.get(args, 'message', 'm');
         this._replyStatement = _.get(args, 'replyStatement', 'messageName <- workerName');
-    };
+    }
 
-    WorkerReplyStatement.prototype = Object.create(Statement.prototype);
-    WorkerReplyStatement.prototype.constructor = WorkerReplyStatement;
-
-    WorkerReplyStatement.prototype.setSource = function (source) {
+    setSource(source) {
         this._source = source;
-    };
+    }
 
-    WorkerReplyStatement.prototype.getSource = function () {
+    getSource() {
         return this._source;
-    };
+    }
 
-    WorkerReplyStatement.prototype.setDestination = function (destination) {
+    setDestination(destination) {
         this._destination = destination;
-    };
+    }
 
-    WorkerReplyStatement.prototype.getDestination = function () {
+    getDestination() {
         return this._destination;
-    };
+    }
 
-    WorkerReplyStatement.prototype.setMessage = function (message) {
+    setMessage(message) {
         this._message = message;
-    };
+    }
 
-    WorkerReplyStatement.prototype.getMessage = function () {
+    getMessage() {
         return this._message;
-    };
+    }
 
-    WorkerReplyStatement.prototype.setReplyStatement = function (replyStatement) {
+    setReplyStatement(replyStatement) {
         this._replyStatement = replyStatement;
-    };
+    }
 
-    WorkerReplyStatement.prototype.getReplyStatement = function () {
+    getReplyStatement() {
         return this._replyStatement;
-    };
+    }
 
-    WorkerReplyStatement.prototype.canBeAChildOf = function(node){
+    canBeAChildOf(node) {
         return this.getFactory().isResourceDefinition(node)
             || this.getFactory().isFunctionDefinition(node)
             || this.getFactory().isConnectorAction(node)
             || (this.getFactory().isStatement(node) && !node._isChildOfWorker);
-    };
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    WorkerReplyStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var workerName = jsonNode.worker_name;
         var messageName = jsonNode.reply_message[0].variable_reference_name;
         var receiveStatement = messageName + ' <- ' + workerName;
@@ -85,7 +84,8 @@ define(['lodash', './statement'], function (_, Statement) {
             return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
         });
         this.setDestination(workerInstance);
-    };
+    }
+}
 
-    return WorkerReplyStatement;
-});
+export default WorkerReplyStatement;
+

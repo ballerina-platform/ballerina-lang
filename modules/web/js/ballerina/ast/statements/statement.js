@@ -15,18 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', '../node'], function (_, ASTNode) {
+import _ from 'lodash';
+import ASTNode from '../node';
+
+/**
+ * Class to represent a statement in ballerina.
+ * @constructor
+ */
+class Statement extends ASTNode {
+    constructor() {
+        super('Statement');
+    }
 
     /**
-     * Class to represent a statement in ballerina.
-     * @constructor
+     * Get all the connector references in the immediate scope
+     * @return {Array} connectorReferences
      */
-    var Statement = function () {
-        ASTNode.call(this, 'Statement');
-    };
+    getConnectorsInImmediateScope() {
+        return this.getParent().getConnectorsInImmediateScope();
+    }
+}
 
-    Statement.prototype = Object.create(ASTNode.prototype);
-    Statement.prototype.constructor = Statement;
+export default Statement;
 
-    return Statement;
-});

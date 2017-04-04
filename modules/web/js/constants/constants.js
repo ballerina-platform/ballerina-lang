@@ -1,4 +1,4 @@
-define(function(){
+
   var constants = {
       STRUCT_DEFINITION_ATTRIBUTES_ARRAY_NAME: 'name',
       STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTIES: 'properties',
@@ -14,5 +14,5 @@ define(function(){
       TYPE_MAPPER_TARGET_STRUCT_SCHEMA: 'targetStruct'
   }
 
-  return constants;
-});
+  export default constants;
+

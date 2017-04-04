@@ -16,7 +16,11 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], function (require, $, log, Backbone, FileBrowser) {
+import $ from 'jquery';
+import log from 'log';
+import Backbone from 'backbone';
+import FileBrowser from 'file_browser';
+import 'bootstrap';
     var FolderOpenDialog = Backbone.View.extend(
         /** @lends FolderOpenDialog.prototype */
         {
@@ -111,5 +115,4 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], fu
             }
         });
 
-    return FolderOpenDialog;
-});
+    export default FolderOpenDialog;

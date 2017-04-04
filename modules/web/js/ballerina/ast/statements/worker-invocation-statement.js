@@ -15,67 +15,66 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement'], function (_, Statement) {
+import _ from 'lodash';
+import Statement from './statement';
 
-    /**
-     * Class to represent a worker invocation statement in ballerina.
-     * @constructor
-     */
-    var WorkerInvocationStatement = function (args) {
-        Statement.call(this, 'WorkerInvocationStatement');
+/**
+ * Class to represent a worker invocation statement in ballerina.
+ * @constructor
+ */
+class WorkerInvocationStatement extends Statement {
+    constructor(args) {
+        super('WorkerInvocationStatement');
         this._source = _.get(args, 'source');
         this._destination = _.get(args, 'destination');
         this._message = _.get(args, 'message', 'm');
         this._invokeStatement = _.get(args, 'invokeStatement', 'messageName -> workerName');
-    };
+    }
 
-    WorkerInvocationStatement.prototype = Object.create(Statement.prototype);
-    WorkerInvocationStatement.prototype.constructor = WorkerInvocationStatement;
-
-    WorkerInvocationStatement.prototype.setSource = function (source) {
+    setSource(source) {
         this._source = source;
-    };
+    }
 
-    WorkerInvocationStatement.prototype.getSource = function () {
+    getSource() {
         return this._source;
-    };
+    }
 
-    WorkerInvocationStatement.prototype.setDestination = function (destination) {
+    setDestination(destination) {
         this._destination = destination;
-    };
+    }
 
-    WorkerInvocationStatement.prototype.getDestination = function () {
+    getDestination() {
         return this._destination;
-    };
+    }
 
-    WorkerInvocationStatement.prototype.setMessage = function (message) {
+    setMessage(message) {
         this._message = message;
-    };
+    }
 
-    WorkerInvocationStatement.prototype.getMessage = function () {
+    getMessage() {
         return this._message;
-    };
+    }
 
-    WorkerInvocationStatement.prototype.setInvocationStatement = function (invocationStatement) {
+    setInvocationStatement(invocationStatement) {
         this._invokeStatement = invocationStatement;
-    };
+    }
 
-    WorkerInvocationStatement.prototype.getInvocationStatement = function () {
+    getInvocationStatement() {
         return this._invokeStatement;
-    };
+    }
 
-    WorkerInvocationStatement.prototype.canBeAChildOf = function(node){
+    canBeAChildOf(node) {
         return this.getFactory().isResourceDefinition(node)
             || this.getFactory().isFunctionDefinition(node)
             || this.getFactory().isConnectorAction(node)
             || (this.getFactory().isStatement(node) && !node._isChildOfWorker);
-    };
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    WorkerInvocationStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var workerName = jsonNode.worker_name;
         var messageName = jsonNode.invoke_message[0].variable_reference_name;
         var invokeStatement = messageName + ' -> ' + workerName;
@@ -85,7 +84,8 @@ define(['lodash', './statement'], function (_, Statement) {
             return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
         });
         this.setDestination(workerInstance);
-    };
+    }
+}
 
-    return WorkerInvocationStatement;
-});
+export default WorkerInvocationStatement;
+

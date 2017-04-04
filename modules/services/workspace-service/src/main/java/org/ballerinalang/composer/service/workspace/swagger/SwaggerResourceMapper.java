@@ -21,7 +21,7 @@ import io.swagger.models.Path;
 import io.swagger.models.Response;
 import io.swagger.models.parameters.PathParameter;
 import io.swagger.models.parameters.QueryParameter;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.services.dispatchers.http.Constants;
@@ -97,25 +97,25 @@ public class SwaggerResourceMapper {
             String httpOperation = operationAdaptor.getHttpOperation();
             Operation operation = operationAdaptor.getOperation();
             switch (httpOperation) {
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_GET:
+                case Constants.ANNOTATION_METHOD_GET:
                     path.get(operation);
                     break;
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT:
+                case Constants.ANNOTATION_METHOD_PUT:
                     path.put(operation);
                     break;
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST:
+                case Constants.ANNOTATION_METHOD_POST:
                     path.post(operation);
                     break;
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE:
+                case Constants.ANNOTATION_METHOD_DELETE:
                     path.delete(operation);
                     break;
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS:
+                case Constants.ANNOTATION_METHOD_OPTIONS:
                     path.options(operation);
                     break;
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH:
+                case Constants.ANNOTATION_METHOD_PATCH:
                     path.patch(operation);
                     break;
-                case "http:HEAD":
+                case "HEAD":
                     path.head(operation);
                     break;
                 default:
@@ -135,7 +135,7 @@ public class SwaggerResourceMapper {
     private OperationAdaptor convertResourceToOperation(Resource resource) {
         OperationAdaptor op = new OperationAdaptor();
         if (resource != null) {
-            Annotation[] resourceAnnotations = resource.getResourceAnnotations();
+            AnnotationAttachment[] resourceAnnotations = resource.getResourceAnnotations();
             //Adding default response
             //TODO need to implement nested response support and then use response annotation.
             Response response = new Response()
@@ -149,13 +149,14 @@ public class SwaggerResourceMapper {
                 String typeName = parameterDef.getTypeName().getName();
                 if (!typeName.equalsIgnoreCase("message") && parameterDef.getAnnotations() != null) {
                     //Add query parameter
-                    if (parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:QueryParam")) {
+                    if (parameterDef.getAnnotations()[0].getName().equalsIgnoreCase("QueryParam")
+                            && parameterDef.getAnnotations()[0].getPkgName().equalsIgnoreCase("http")) {
                         QueryParameter queryParameter = new QueryParameter();
                         queryParameter.setType(typeName);
                         queryParameter.setIn("query");
                         queryParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME, parameterDef
                                 .getName());
-                        String parameterName = parameterDef.getAnnotations().get(0).getValue();
+                        String parameterName = parameterDef.getAnnotations()[0].getValue();
                         if ((parameterName == null) || parameterName.isEmpty()) {
                             parameterName = parameterDef.getName();
                         }
@@ -163,10 +164,11 @@ public class SwaggerResourceMapper {
                         queryParameter.required(true);
                         op.getOperation().addParameter(queryParameter);
                     }
-                    if (parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:PathParam")) {
+                    if (parameterDef.getAnnotations()[0].getName().equalsIgnoreCase("PathParam")
+                            && parameterDef.getAnnotations()[0].getPkgName().equalsIgnoreCase("http")) {
                         PathParameter pathParameter = new PathParameter();
                         pathParameter.setType(typeName);
-                        String parameterName = parameterDef.getAnnotations().get(0).getValue();
+                        String parameterName = parameterDef.getAnnotations()[0].getValue();
                         if ((parameterName == null) || parameterName.isEmpty()) {
                             parameterName = parameterDef.getName();
                         }
@@ -181,16 +183,20 @@ public class SwaggerResourceMapper {
             }
             if (resourceAnnotations != null) {
                 //TODO add all supported annotation mapping after annotation model finalized.
-                for (Annotation annotation : resourceAnnotations) {
-                    if (annotation.getName().equalsIgnoreCase("http:Consumes")) {
+                for (AnnotationAttachment annotation : resourceAnnotations) {
+                    if (annotation.getName().equalsIgnoreCase("Consumes") && annotation.getPkgName().equals("http")) {
                         op.getOperation().consumes(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("http:Produces")) {
+                    } else if (annotation.getName().equalsIgnoreCase("Produces")
+                            && annotation.getPkgName().equals("http")) {
                         op.getOperation().produces(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("http:Path")) {
+                    } else if (annotation.getName().equalsIgnoreCase("Path")
+                            && annotation.getPkgName().equals("http")) {
                         op.setPath(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("http:Summary")) {
+                    } else if (annotation.getName().equalsIgnoreCase("Summary")
+                            && annotation.getPkgName().equals("http")) {
                         op.getOperation().setSummary(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("http:Description")) {
+                    } else if (annotation.getName().equalsIgnoreCase("Description")
+                            && annotation.getPkgName().equals("http")) {
                         op.getOperation().setDescription(annotation.getValue());
                     } else if (annotation.getName().matches(SwaggerBallerinaConstants.
                             HTTP_VERB_MATCHING_PATTERN)) {

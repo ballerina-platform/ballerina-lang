@@ -15,36 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
-        /**
-         * Constructor for Function invocation expression visitor
-         * @param {ASTNode} parent - parent node
-         * @constructor
-         */
-        var ActionInvocationExpressionVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
-        ActionInvocationExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        ActionInvocationExpressionVisitor.prototype.constructor = ActionInvocationExpressionVisitor;
+/**
+ * Constructor for Function invocation expression visitor
+ * @param {ASTNode} parent - parent node
+ * @constructor
+ */
+class ActionInvocationExpressionVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        ActionInvocationExpressionVisitor.prototype.canVisitActionInvocationExpression = function(){
-            return true;
-        };
+    canVisitActionInvocationExpression() {
+        return true;
+    }
 
-        ActionInvocationExpressionVisitor.prototype.beginVisitActionInvocationExpression = function(actionInvocation){
-        };
+    beginVisitActionInvocationExpression(actionInvocation) {
+    }
 
-        ActionInvocationExpressionVisitor.prototype.visitActionInvocationExpression = function(actionInvocation){
-            var source = actionInvocation.getExpression();
-            this.appendSource(source);
-        };
+    visitActionInvocationExpression(actionInvocation) {
+        var source = actionInvocation.getExpression();
+        this.appendSource(source);
+    }
 
-        ActionInvocationExpressionVisitor.prototype.endVisitActionInvocationExpression = function(){
-            this.getParent().appendSource(this.getGeneratedSource());
-        };
+    endVisitActionInvocationExpression() {
+        this.getParent().appendSource(this.getGeneratedSource());
+    }
+}
 
-        return FunctionInvocationExpressionVisitor;
-    });
+export default FunctionInvocationExpressionVisitor;
+    

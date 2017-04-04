@@ -15,305 +15,332 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/node','select2'],
-    function (_, log, $, Alerts, ReturnTypeView, ASTNode, select2) {
+import _ from 'lodash';
+import log from 'log';
+import $ from 'jquery';
+import Alerts from 'alerts';
+import ReturnTypeView from './return-type-view';
+import ASTNode from './../ast/node';
+import select2 from 'select2';
 
-        /**
-         * Creates the return types pane. This is not a ballerina view. This is simply a pane which is created
-         * for the sole purpose of creating and showing return types.
-         * @param {Object} args - Arguments for creating the view.
-         * @param {Object} args.activatorElement - The variable button which activates to show the pane.
-         * @param {ASTNode} args.model - The AST node which has return types.
-         * @param {Object} args.paneAppendElement - The element to which the pane should be appended to.
-         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
-         * @param {ASTNode} args.view - The view of the model.
-         */
-        var ReturnTypePaneView = function (args) {
-            this._activatorElement = _.get(args, "activatorElement");
-            this._model = _.get(args, "model");
-            this._paneElement = _.get(args, "paneAppendElement");
-            this._viewOptions = _.get(args, "viewOptions");
-            this._viewOfModel = _.get(args, "view");
-            this._returnTypeEditorWrapper = undefined;
-        };
+/**
+ * Creates the return types pane. This is not a ballerina view. This is simply a pane which is created
+ * for the sole purpose of creating and showing return types.
+ * @param {Object} args - Arguments for creating the view.
+ * @param {Object} args.activatorElement - The variable button which activates to show the pane.
+ * @param {ASTNode} args.model - The AST node which has return types.
+ * @param {Object} args.paneAppendElement - The element to which the pane should be appended to.
+ * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+ * @param {ASTNode} args.view - The view of the model.
+ */
+class ReturnTypePaneView {
+    constructor(args) {
+        this._activatorElement = _.get(args, "activatorElement");
+        this._model = _.get(args, "model");
+        this._paneElement = _.get(args, "paneAppendElement");
+        this._viewOptions = _.get(args, "viewOptions");
+        this._viewOfModel = _.get(args, "view");
+        this._returnTypeEditorWrapper = undefined;
+    }
 
-        ReturnTypePaneView.prototype.constructor = ReturnTypePaneView;
+    createReturnTypePane() {
+        var self = this;
 
-        ReturnTypePaneView.prototype.createReturnTypePane = function () {
-            var self = this;
+        this._returnTypeEditorWrapper = $("<div/>", {
+            class: "main-action-wrapper return-types-main-action-wrapper"
+        }).appendTo(this._paneElement);
 
-            this._returnTypeEditorWrapper = $("<div/>", {
-                class: "main-action-wrapper return-types-main-action-wrapper"
-            }).appendTo(this._paneElement);
+        // Positioning the main wrapper
+        this._returnTypeEditorWrapper.css("left",
+            this._viewOptions.position.x() - parseInt(this._returnTypeEditorWrapper.css("width"), 10));
+        this._returnTypeEditorWrapper.css("top", this._viewOptions.position.y());
 
-            // Positioning the main wrapper
-            this._returnTypeEditorWrapper.css("left",
-                this._viewOptions.position.x() - parseInt(this._returnTypeEditorWrapper.css("width"), 10));
-            this._returnTypeEditorWrapper.css("top", this._viewOptions.position.y());
+        // Creating header content.
+        var headerWrapper = $("<div/>", {
+            class: "action-content-wrapper-heading return-types-wrapper-heading"
+        }).appendTo(this._returnTypeEditorWrapper);
 
-            // Creating header content.
-            var headerWrapper = $("<div/>", {
-                class: "action-content-wrapper-heading return-types-wrapper-heading"
-            }).appendTo(this._returnTypeEditorWrapper);
+        // Checkbox to enable/disable named return types.
+        var allowNamedReturnCheckBox = $("<input/>", {
+            type: "checkbox",
+            checked : this._model.hasNamedReturnTypes()
+        }).appendTo(headerWrapper);
 
-            // Checkbox to enable/disable named return types.
-            var allowNamedReturnCheckBox = $("<input/>", {
-                type: "checkbox",
-                checked : this._model.hasNamedReturnTypes()
-            }).appendTo(headerWrapper);
+        // The "Named Return Types" text.
+        $("<span class='return-types-heading-named-return-wrapper-text'>Named Return Types</span>")
+            .appendTo(headerWrapper);
 
-            // The "Named Return Types" text.
-            $("<span class='return-types-heading-named-return-wrapper-text'>Named Return Types</span>")
-                .appendTo(headerWrapper);
+        var returnTypeWrapper = $("<div/>", {
+            class: "action-content-wrapper-heading return-types-heading-named-return-wrapper"
+        }).appendTo(headerWrapper);
 
-            var returnTypeWrapper = $("<div/>", {
-                class: "action-content-wrapper-heading return-types-heading-named-return-wrapper"
-            }).appendTo(headerWrapper);
+        // Creating the return type dropdown.
+        var typeDropdownWrapper = $('<div class="type-drop-wrapper"/>').appendTo(returnTypeWrapper);
+        this._returnTypeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
 
-            // Creating the return type dropdown.
-            var typeDropdownWrapper = $('<div class="type-drop-wrapper"/>').appendTo(returnTypeWrapper);
-            var returnTypeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+        $(this._returnTypeDropdown).select2({
+            data: this._getTypeDropdownValues(),
+            tags: true,
+            selectOnClose: true
+        });
 
-            $(returnTypeDropdown).select2({
-                data: this._getTypeDropdownValues(),
+        $(document).ready(() => {
+            $(typeDropdownWrapper).empty();
+            this._returnTypeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+            $(this._returnTypeDropdown).select2({
                 tags: true,
-                selectOnClose: true
-            });
-
-            $(document).ready(function() {
-                $(typeDropdownWrapper).empty();
-                returnTypeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
-                $(returnTypeDropdown).select2({
-                    tags: true,
-                    selectOnClose: true,
-                    data : self._getTypeDropdownValues(),
-                    query: function (query) {
-                        var data = {results: []};
-                        if (!_.isNil(query.term)) {
-                            _.forEach(self._getTypeDropdownValues(), function (item) {
-                                if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
-                                    data.results.push(item);
-                                }
-                            });
-                        } else {
-                            data.results = self._getTypeDropdownValues();
+                selectOnClose: true,
+                data : self._getTypeDropdownValues(),
+                query: function (query) {
+                    var data = {results: []};
+                    if (!_.isNil(query.term)) {
+                        _.forEach(self._getTypeDropdownValues(), function (item) {
+                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                data.results.push(item);
+                            }
+                        });
+                        // Adding user typed string when there is no any matching item in the list
+                        if(data.results.length == 0){
+                            data.results.push({id: query.term, text: query.term});
                         }
-                        query.callback(data);
+                    } else {
+                        data.results = self._getTypeDropdownValues();
                     }
-                });
-
-                $(returnTypeDropdown).on("select2:open", function() {
-                    $(".select2-search__field").attr("placeholder", "Search");
-                });
+                    query.callback(data);
+                }
             });
 
-            // Return type name value text box.
-            var returnTypeNameInput = $("<input/>", {
-                type: "text",
-                "placeholder": "m"
-            }).keypress(function (e) {
-                /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
-                 (Chrome and IE ignore keypress event of these keys in browser level)*/
-                if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
-                    var enteredKey = e.which || e.charCode || e.keyCode;
-                    // Disabling enter key
-                    if (_.isEqual(enteredKey, 13)) {
-                        addButton.click();
-                        e.stopPropagation();
-                        return false;
-                    }
+            $(this._returnTypeDropdown).on("select2:open", function() {
+                $(".select2-search__field").attr("placeholder", "Search");
+            });
+        });
 
-                    var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
-
-                    // Validation the identifier against grammar.
-                    if (!ASTNode.isValidIdentifier(newIdentifier)) {
-                        var errorString = "Invalid identifier for a return type: " + newIdentifier;
-                        log.error(errorString);
-                        Alerts.error(errorString);
-                        e.stopPropagation();
-                        return false;
-                    }
+        // Return type name value text box.
+        var returnTypeNameInput = $("<input/>", {
+            type: "text",
+            "placeholder": "m"
+        }).keypress(function (e) {
+            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+             (Chrome and IE ignore keypress event of these keys in browser level)*/
+            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (_.isEqual(enteredKey, 13)) {
+                    addButton.click();
+                    e.stopPropagation();
+                    return false;
                 }
-            }).toggle(self._model.hasNamedReturnTypes()).appendTo(returnTypeWrapper);
 
-            if (self._model.hasNamedReturnTypes() && self._model.hasReturnTypes()) {
-                $(self._returnTypeEditorWrapper).css("width", "+=125").css("left", "-=125");
+                var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
+
+                // Validation the identifier against grammar.
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
+                    var errorString = "Invalid identifier for a return type: " + newIdentifier;
+                    log.error(errorString);
+                    Alerts.error(errorString);
+                    e.stopPropagation();
+                    return false;
+                }
             }
+        }).toggle(self._model.hasNamedReturnTypes()).appendTo(returnTypeWrapper);
 
-            // Show/Hide return type name text box when the checkbox is clicked.
-            $(allowNamedReturnCheckBox).change(function () {
-                if ($(this).is(":checked")) {
-                    if (!self._model.hasNamedReturnTypes() && self._model.hasReturnTypes()) {
-                        Alerts.error("Return types without identifiers already exists. Remove them to " +
-                            "add return types with identifiers");
-                        allowNamedReturnCheckBox.prop('checked', false);
-                    } else {
-                        $(returnTypeNameInput).show();
-                        $(self._returnTypeEditorWrapper).css("width", "+=125").css("left", "-=125");
-                    }
+        if (self._model.hasNamedReturnTypes() && self._model.hasReturnTypes()) {
+            $(self._returnTypeEditorWrapper).css("width", "+=125").css("left", "-=125");
+        }
+
+        // Show/Hide return type name text box when the checkbox is clicked.
+        $(allowNamedReturnCheckBox).change(function () {
+            if ($(this).is(":checked")) {
+                if (!self._model.hasNamedReturnTypes() && self._model.hasReturnTypes()) {
+                    Alerts.error("Return types without identifiers already exists. Remove them to " +
+                        "add return types with identifiers");
+                    allowNamedReturnCheckBox.prop('checked', false);
                 } else {
-                    if (self._model.hasNamedReturnTypes() && self._model.hasReturnTypes()) {
-                        Alerts.error("Return types with identifiers already exists. Remove them to " +
-                            "add return types without identifiers");
-                        allowNamedReturnCheckBox.prop('checked', true);
-                    } else {
-                        $(returnTypeNameInput).hide();
-                        $(self._returnTypeEditorWrapper).css("width", "-=125").css("left", "+=125");
-                    }
+                    $(returnTypeNameInput).show();
+                    $(self._returnTypeEditorWrapper).css("width", "+=125").css("left", "-=125");
                 }
-            });
-
-            // Wrapper for the add and check icon.
-            var addIconWrapper = $("<div/>", {
-                class: "action-icon-wrapper return-types-action-icon"
-            }).appendTo(headerWrapper);
-
-            // Creating add new return type button.
-            var addButton = $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-                "<i class='fw fw-add fw-stack-1x fw-inverse return-types-action-icon-i'></i></span>")
-                .appendTo(addIconWrapper);
-
-            // Creating the content editing div.
-            var returnTypesContentWrapper = $("<div/>", {
-                class: "action-content-wrapper-body return-types-details-wrapper"
-            }).appendTo(this._returnTypeEditorWrapper);
-
-            // Adding a new return type.
-            $(addButton).click(function () {
-                var returnType = returnTypeDropdown.select2('data')[0].text;
-                var returnTypeName = $(allowNamedReturnCheckBox).is(":checked") ? returnTypeNameInput.val() : undefined;
-
-                try {
-                    self._model.addReturnType(returnType, returnTypeName);
-
-                    // Clearing values in inputs.
-                    returnTypeNameInput.val("");
-
-                    // Recreating the arguments details view.
-                    self._createCurrentReturnTypeView(returnTypesContentWrapper);
-                } catch (error) {
-                    Alerts.error(error);
-                }
-            });
-
-            // Creating the return types details view.
-            this._createCurrentReturnTypeView(returnTypesContentWrapper);
-
-            // Showing and hiding the arguments pane upon arguments button/activator is clicked.
-            $(this._activatorElement).click({
-                returnTypeNameInput: returnTypeNameInput
-            }, function (event) {
-                if ($(event.currentTarget).data("showing-pane") === "true") {
-                    $(event.currentTarget).removeClass("operations-argument-icon");
-                    self._returnTypeEditorWrapper.hide();
-                    $(event.currentTarget).data("showing-pane", "false");
-                } else {
-                    $(event.currentTarget).addClass("operations-argument-icon");
-                    self._returnTypeEditorWrapper.show();
-                    $(event.currentTarget).data("showing-pane", "true");
-                    $(event.data.returnTypeNameInput).focus();
-                }
-            });
-
-            // Stopping propagation when clicked on the editor.
-            $(this._returnTypeEditorWrapper).click(function (event) {
-                event.stopPropagation();
-            });
-
-            // On window click.
-            $(window).click({
-                activatorElement: this._activatorElement
-            }, function (event) {
-                self._createCurrentReturnTypeView(returnTypesContentWrapper);
-                if ($(event.data.activatorElement).data("showing-pane") === "true") {
-                    $(event.data.activatorElement).click();
-                }
-            });
-        };
-
-        /**
-         * Creates the return types detail wrapper and its events.
-         * @param wrapper - The wrapper element which these details should be appended to.
-         * @private
-         */
-        ReturnTypePaneView.prototype._createCurrentReturnTypeView = function (wrapper) {
-            var self = this;
-
-            // Clearing all the element in the wrapper as we are re-rendering the return types view.
-            wrapper.empty();
-
-            // Creating return types info.
-            _.forEach(self._model.getReturnTypes(), function (returnType, index) {
-
-                var returnTypeView = new ReturnTypeView({
-                    parent: self._model,
-                    model: returnType,
-                    container: wrapper,
-                    toolPalette: self._viewOfModel.getToolPalette(),
-                    messageManager: self._viewOfModel.getMessageManager(),
-                    parentView: self._viewOfModel
-                });
-
-                self._viewOfModel.getDiagramRenderingContext().getViewModelMap()[returnType.id] = returnTypeView;
-
-                returnTypeView.render(self._viewOfModel.getDiagramRenderingContext());
-
-                // Not add a thematic break.
-                if (self._model.getReturnTypes().length - 1 != index) {
-                    $("<hr/>").appendTo(wrapper);
-                }
-
-                $(returnTypeView.getDeleteButton()).click(function () {
-                    self._createCurrentReturnTypeView(wrapper);
-                });
-
-                $(returnTypeView.getReturnTypeWrapper()).click({
-                    modelID: returnType.getID()
-                }, function (event) {
-                    self._createCurrentReturnTypeView(wrapper);
-                    var paramViewToEdit = self._viewOfModel.getDiagramRenderingContext()
-                        .getViewModelMap()[event.data.modelID];
-                    paramViewToEdit.renderEditView();
-                });
-            });
-        };
-
-        /**
-         * Returns an object array with support types.
-         * @return {Object[]} Object array as supported data types.
-         */
-        ReturnTypePaneView.prototype._getTypeDropdownValues = function() {
-            var dropdownData = [];
-            // Adding items to the type dropdown.
-            var bTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
-            _.forEach(bTypes, function (bType) {
-                dropdownData.push({id: bType, text: bType});
-            });
-
-            return dropdownData;
-        };
-
-        /**
-         * moves the position of return type editor view
-         * @param {Object} args - object which contains delta values for x and y
-         * @param {Number} args.dx - delta value for x value
-         * @param {Number} args.dy - delta value for y value
-         */
-        ReturnTypePaneView.prototype.move = function (args) {
-            var dx = _.get(args, "dx", 0);
-            var dy = _.get(args, "dy", 0);
-
-            // Left margin of the connector action view
-            var leftMargin = this._viewOfModel.getBoundingBox().x();
-            var returnTypeEditorLeft = parseInt(this._returnTypeEditorWrapper.css("left"), 10) + dx;
-            // This is to ensure that return type editor view doesn't go beyond the left margin of the connector action.(to avoid clipping)
-            if (leftMargin < returnTypeEditorLeft) {
-                this._returnTypeEditorWrapper.css("left", returnTypeEditorLeft);
             } else {
-                this._returnTypeEditorWrapper.css("left", leftMargin);
+                if (self._model.hasNamedReturnTypes() && self._model.hasReturnTypes()) {
+                    Alerts.error("Return types with identifiers already exists. Remove them to " +
+                        "add return types without identifiers");
+                    allowNamedReturnCheckBox.prop('checked', true);
+                } else {
+                    $(returnTypeNameInput).hide();
+                    $(self._returnTypeEditorWrapper).css("width", "-=125").css("left", "+=125");
+                }
             }
-            this._returnTypeEditorWrapper.css("top", (parseInt(this._returnTypeEditorWrapper.css("top"), 10) + dy));
-        };
+        });
 
-        return ReturnTypePaneView;
-    });
+        // Wrapper for the add and check icon.
+        var addIconWrapper = $("<div/>", {
+            class: "action-icon-wrapper return-types-action-icon"
+        }).appendTo(headerWrapper);
+
+        // Creating add new return type button.
+        var addButton = $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
+            "<i class='fw fw-add fw-stack-1x fw-inverse return-types-action-icon-i'></i></span>")
+            .appendTo(addIconWrapper);
+
+        // Creating the content editing div.
+        var returnTypesContentWrapper = $("<div/>", {
+            class: "action-content-wrapper-body return-types-details-wrapper"
+        }).appendTo(this._returnTypeEditorWrapper);
+
+        // Adding a new return type.
+        $(addButton).click(() => {
+            var returnType = this._returnTypeDropdown.select2('data')[0].text;
+            var returnTypeName = $(allowNamedReturnCheckBox).is(":checked") ? returnTypeNameInput.val() : undefined;
+
+            try {
+                self._model.addReturnType(returnType, returnTypeName);
+
+                // Clearing values in inputs.
+                returnTypeNameInput.val("");
+
+                // Recreating the arguments details view.
+                self._createCurrentReturnTypeView(returnTypesContentWrapper);
+            } catch (error) {
+                Alerts.error(error);
+            }
+        });
+
+        // Creating the return types details view.
+        this._createCurrentReturnTypeView(returnTypesContentWrapper);
+
+        // Showing and hiding the arguments pane upon arguments button/activator is clicked.
+        $(this._activatorElement).click({
+            returnTypeNameInput: returnTypeNameInput
+        }, function (event) {
+            if ($(event.currentTarget).data("showing-pane") === "true") {
+                $(event.currentTarget).removeClass("operations-argument-icon");
+                self._returnTypeEditorWrapper.hide();
+                $(event.currentTarget).data("showing-pane", "false");
+            } else {
+                $(event.currentTarget).addClass("operations-argument-icon");
+                self._returnTypeEditorWrapper.show();
+                $(event.currentTarget).data("showing-pane", "true");
+                $(event.data.returnTypeNameInput).focus();
+            }
+        });
+
+        // Stopping propagation when clicked on the editor.
+        $(this._returnTypeEditorWrapper).click(function (event) {
+            event.stopPropagation();
+        });
+
+        // On window click.
+        $(window).click({
+            activatorElement: this._activatorElement
+        }, function (event) {
+            self._createCurrentReturnTypeView(returnTypesContentWrapper);
+            if ($(event.data.activatorElement).data("showing-pane") === "true") {
+                $(event.data.activatorElement).click();
+            }
+        });
+    }
+
+    /**
+     * Creates the return types detail wrapper and its events.
+     * @param wrapper - The wrapper element which these details should be appended to.
+     * @private
+     */
+    _createCurrentReturnTypeView(wrapper) {
+        var self = this;
+
+        // Clearing all the element in the wrapper as we are re-rendering the return types view.
+        wrapper.empty();
+
+        // Creating return types info.
+        _.forEach(self._model.getReturnTypes(), function (returnType, index) {
+
+            var returnTypeView = new ReturnTypeView({
+                parent: self._model,
+                model: returnType,
+                container: wrapper,
+                toolPalette: self._viewOfModel.getToolPalette(),
+                messageManager: self._viewOfModel.getMessageManager(),
+                parentView: self._viewOfModel
+            });
+
+            self._viewOfModel.getDiagramRenderingContext().getViewModelMap()[returnType.id] = returnTypeView;
+
+            returnTypeView.render(self._viewOfModel.getDiagramRenderingContext());
+
+            // Not add a thematic break.
+            if (self._model.getReturnTypes().length - 1 != index) {
+                $("<hr/>").appendTo(wrapper);
+            }
+
+            $(returnTypeView.getDeleteButton()).click(function () {
+                self._createCurrentReturnTypeView(wrapper);
+            });
+
+            $(returnTypeView.getReturnTypeWrapper()).click({
+                modelID: returnType.getID()
+            }, function (event) {
+                self._createCurrentReturnTypeView(wrapper);
+                var paramViewToEdit = self._viewOfModel.getDiagramRenderingContext()
+                    .getViewModelMap()[event.data.modelID];
+                paramViewToEdit.renderEditView();
+            });
+        });
+    }
+
+    /**
+     * Returns an object array with support types.
+     * @return {Object[]} Object array as supported data types.
+     */
+    _getTypeDropdownValues() {
+        var dropdownData = [];
+        // Adding items to the type dropdown.
+        var bTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
+        _.forEach(bTypes, function (bType) {
+            dropdownData.push({id: bType, text: bType});
+        });
+
+        return dropdownData;
+    }
+
+    /**
+     * moves the position of return type editor view
+     * @param {Object} args - object which contains delta values for x and y
+     * @param {Number} args.dx - delta value for x value
+     * @param {Number} args.dy - delta value for y value
+     */
+    move(args) {
+        var dx = _.get(args, "dx", 0);
+        var dy = _.get(args, "dy", 0);
+
+        // Left margin of the connector action view
+        var leftMargin = this._viewOfModel.getBoundingBox().x();
+        var returnTypeEditorLeft = parseInt(this._returnTypeEditorWrapper.css("left"), 10) + dx;
+        // This is to ensure that return type editor view doesn't go beyond the left margin of the connector action.(to avoid clipping)
+        if (leftMargin < returnTypeEditorLeft) {
+            this._returnTypeEditorWrapper.css("left", returnTypeEditorLeft);
+        } else {
+            this._returnTypeEditorWrapper.css("left", leftMargin);
+        }
+        this._returnTypeEditorWrapper.css("top", (parseInt(this._returnTypeEditorWrapper.css("top"), 10) + dy));
+    }
+
+    /**
+     * Reload the types in the return type dropdown
+     */
+    reloadReturnTypeDropDown() {
+        var self = this;
+        $(this._returnTypeDropdown).select2('destroy').empty();
+        var defaultTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
+        _.forEach(defaultTypes, function (bType) {
+            $(self._returnTypeDropdown).select2({data: [{id: bType, text: bType}]});
+        });
+        var typesInPackage = this._viewOfModel.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getTypesInPackage();
+        _.forEach(typesInPackage, function (bType) {
+            $(self._returnTypeDropdown).select2({data: [{id: bType, text: bType}]});
+        });
+    }
+}
+
+ReturnTypePaneView.prototype.constructor = ReturnTypePaneView;
+
+export default ReturnTypePaneView;
+    

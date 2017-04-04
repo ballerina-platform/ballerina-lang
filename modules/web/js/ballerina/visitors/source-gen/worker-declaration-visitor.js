@@ -15,52 +15,56 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory',
-        './expression-visitor-factory', './connector-declaration-visitor', './variable-declaration-visitor', '../../ast/worker-declaration'],
-    function (_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, ExpressionVisitorFactory,
-              ConnectorDeclarationVisitor,VariableDeclarationVisitor, WorkerDeclaration) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
+import ExpressionVisitorFactory from './expression-visitor-factory';
+import ConnectorDeclarationVisitor from './connector-declaration-visitor';
+import VariableDeclarationVisitor from './variable-declaration-visitor';
+import WorkerDeclaration from '../../ast/worker-declaration';
 
-        /**
-         * @param parent
-         * @constructor
-         */
-        var WorkerDeclarationVisitor = function (parent) {
-            AbstractSourceGenVisitor.call(this, parent);
-        };
+/**
+ * @param parent
+ * @constructor
+ */
+class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        WorkerDeclarationVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        WorkerDeclarationVisitor.prototype.constructor = WorkerDeclarationVisitor;
+    canVisitWorkerDeclaration(workerDeclaration) {
+        return workerDeclaration instanceof WorkerDeclaration && !workerDeclaration.isDefaultWorker();
+    }
 
-        WorkerDeclarationVisitor.prototype.canVisitWorkerDeclaration = function (workerDeclaration) {
-            return workerDeclaration instanceof WorkerDeclaration && !workerDeclaration.isDefaultWorker();
-        };
+    beginVisitWorkerDeclaration(workerDeclaration) {
+        var constructedSourceSegment = 'worker ' + workerDeclaration.getWorkerDeclarationStatement() + ' {';
+        this.appendSource(constructedSourceSegment);
+        log.debug('Begin Visit Worker Declaration');
+    }
 
-        WorkerDeclarationVisitor.prototype.beginVisitWorkerDeclaration = function (workerDeclaration) {
-            var constructedSourceSegment = 'worker ' + workerDeclaration.getWorkerDeclarationStatement() + ' {';
-            this.appendSource(constructedSourceSegment);
-            log.debug('Begin Visit Worker Declaration');
-        };
+    visitWorkerDeclaration(workerDeclaration) {
+        log.debug('Visit Worker Declaration');
+    }
 
-        WorkerDeclarationVisitor.prototype.visitWorkerDeclaration = function (workerDeclaration) {
-            log.debug('Visit Worker Declaration');
-        };
+    endVisitWorkerDeclaration(workerDeclaration) {
+        this.appendSource("}\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Worker Declaration');
+    }
 
-        WorkerDeclarationVisitor.prototype.endVisitWorkerDeclaration = function (workerDeclaration) {
-            this.appendSource("}\n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Worker Declaration');
-        };
+    visitStatement(statement) {
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
 
-        WorkerDeclarationVisitor.prototype.visitStatement = function (statement) {
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-            statement.accept(statementVisitor);
-        };
+    visitVariableDeclaration(variableDeclaration) {
+        var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+        variableDeclaration.accept(variableDeclarationVisitor);
+    }
+}
 
-        WorkerDeclarationVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
-            var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
-            variableDeclaration.accept(variableDeclarationVisitor);
-        };
-
-        return WorkerDeclarationVisitor;
-    });
+export default WorkerDeclarationVisitor;
+    

@@ -15,24 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./argument'], function (_, log,Argument) {
+import _ from 'lodash';
+import log from 'log';
+import Argument from './argument';
 
-    var ReturnType = function (args) {
-        Argument.call(this, args);
+class ReturnType extends Argument {
+    constructor(args) {
+        super(args);
         this.annotationType = _.get(args, "annotationType");
         this.annotationText = _.get(args, "annotationText");
         this.type = "ReturnType";
-    };
-
-    ReturnType.prototype = Object.create(Argument.prototype);
-    ReturnType.prototype.constructor = ReturnType;
-
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    ReturnType.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         var BallerinaASTFactory = this.getFactory();
 
@@ -41,7 +40,7 @@ define(['lodash', 'log','./argument'], function (_, log,Argument) {
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
+}
 
-    return ReturnType;
-});
+export default ReturnType;

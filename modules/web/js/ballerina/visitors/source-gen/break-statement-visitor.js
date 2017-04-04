@@ -15,40 +15,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/break-statement',
-        './expression-visitor-factory'],
-    function(_, log, EventChannel, AbstractStatementSourceGenVisitor, BreakStatement, ExpressionVisitorFactory) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import BreakStatement from '../../ast/statements/break-statement';
+import ExpressionVisitorFactory from './expression-visitor-factory';
 
-        var BreakStatementVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this, parent);
-        };
+class BreakStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        BreakStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        BreakStatementVisitor.prototype.constructor = BreakStatementVisitor;
+    canVisitBreakStatement(breakStatement) {
+        return breakStatement instanceof BreakStatement;
+    }
 
-        BreakStatementVisitor.prototype.canVisitBreakStatement = function(breakStatement){
-            return breakStatement instanceof BreakStatement;
-        };
+    beginVisitBreakStatement(breakStatement) {
+        /**
+         * set the configuration start for the reply statement definition language construct
+         * If we need to add additional parameters which are dynamically added to the configuration start
+         * that particular source generation has to be constructed here
+         */
+        this.appendSource(breakStatement.getStatement());
+        log.debug('Begin Visit Break Statement Definition');
+    }
 
-        BreakStatementVisitor.prototype.beginVisitBreakStatement = function(breakStatement){
-            /**
-             * set the configuration start for the reply statement definition language construct
-             * If we need to add additional parameters which are dynamically added to the configuration start
-             * that particular source generation has to be constructed here
-             */
-            this.appendSource(breakStatement.getStatement());
-            log.debug('Begin Visit Break Statement Definition');
-        };
+    visitBreakStatement(breakStatement) {
+        log.debug('Visit Break Statement Definition');
+    }
 
-        BreakStatementVisitor.prototype.visitBreakStatement = function(breakStatement){
-            log.debug('Visit Break Statement Definition');
-        };
+    endVisitBreakStatement(breakStatement) {
+        this.appendSource(";\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Break Statement Definition');
+    }
+}
 
-        BreakStatementVisitor.prototype.endVisitBreakStatement = function(breakStatement){
-            this.appendSource(";\n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Break Statement Definition');
-        };
-
-        return BreakStatementVisitor;
-    });
+export default BreakStatementVisitor;
+    

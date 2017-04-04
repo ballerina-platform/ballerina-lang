@@ -15,44 +15,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './undoable-operation'],
-    function (_, UndoableOperation) {
 
-        /**
-         * Class to represent an undoable source modify operation
-         * @class SourceModifyOperation
-         * @augments UndoableOperation
-         * @param args
-         * @constructor
-         */
-        var SourceModifyOperation = function(args){
-            UndoableOperation.call(this, args);
-        };
+import UndoableOperation from './undoable-operation';
 
-        SourceModifyOperation.prototype = Object.create(UndoableOperation.prototype);
-        SourceModifyOperation.prototype.constructor = SourceModifyOperation;
+/**
+ * Class to represent an undoable source modify operation
+ * @class SourceModifyOperation
+ * @augments UndoableOperation
+ * @param args
+ * @constructor
+ */
+class SourceModifyOperation extends UndoableOperation {
+    constructor(args) {
+        super(args);
+    }
 
+    undo() {
+        if(this.canUndo()){
+            this.getEditor().getSourceView().undo();
+        }
+    }
 
-        SourceModifyOperation.prototype.undo = function(){
-            if(this.canUndo()){
-                this.getEditor().getSourceView().undo();
-            }
-        };
+    redo() {
+        if(this.canRedo()){
+            this.getEditor().getSourceView().redo();
+        }
+    }
 
-        SourceModifyOperation.prototype.redo = function(){
-            if(this.canRedo()){
-                this.getEditor().getSourceView().redo();
-            }
-        };
+    canUndo() {
+        return  this.getEditor().isInSourceView();
+    }
 
-        SourceModifyOperation.prototype.canUndo = function(){
-            return  this.getEditor().isInSourceView();
-        };
+    canRedo() {
+        return this.getEditor().isInSourceView();
+    }
+}
 
-        SourceModifyOperation.prototype.canUndo = function(){
-            return this.getEditor().isInSourceView();
-        };
-
-        return SourceModifyOperation;
-    });
-
+export default SourceModifyOperation;

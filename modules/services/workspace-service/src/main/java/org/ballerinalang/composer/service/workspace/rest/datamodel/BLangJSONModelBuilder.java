@@ -19,6 +19,7 @@
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
@@ -26,7 +27,10 @@ import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeDef;
+import org.ballerinalang.model.AnnotationAttributeValue;
+import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BTypeMapper;
@@ -97,7 +101,6 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 
 import java.util.Stack;
-import java.util.function.BiConsumer;
 
 
 /**
@@ -211,11 +214,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
         tempJsonArrayRef.push(new JsonArray());
         if (service.getAnnotations() != null) {
-            for (Annotation annotation : service.getAnnotations()) {
+            for (AnnotationAttachment annotation : service.getAnnotations()) {
                 annotation.accept(this);
             }
         }
-        serviceObj.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
+        serviceObj.add(BLangJSONModelConstants.ANNOTATION_ATTACHMENTS, this.tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         //        if (service.getConnectorDcls() != null) {
         //            for (ConnectorDcl connectDcl : service.getConnectorDcls()) {
@@ -242,11 +245,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
         tempJsonArrayRef.push(new JsonArray());
         if (connector.getAnnotations() != null) {
-            for (Annotation annotation : connector.getAnnotations()) {
+            for (AnnotationAttachment annotation : connector.getAnnotations()) {
                 annotation.accept(this);
             }
         }
-        jsonConnectObj.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
+        jsonConnectObj.add(BLangJSONModelConstants.ANNOTATION_ATTACHMENTS, this.tempJsonArrayRef.peek());
         this.tempJsonArrayRef.pop();
         if (connector.getParameterDefs() != null) {
             for (ParameterDef parameterDef : connector.getParameterDefs()) {
@@ -282,11 +285,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
         tempJsonArrayRef.push(new JsonArray());
         if (resource.getResourceAnnotations() != null) {
-            for (Annotation annotation : resource.getResourceAnnotations()) {
+            for (AnnotationAttachment annotation : resource.getResourceAnnotations()) {
                 annotation.accept(this);
             }
         }
-        resourceObj.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
+        resourceObj.add(BLangJSONModelConstants.ANNOTATION_ATTACHMENTS, this.tempJsonArrayRef.peek());
         this.tempJsonArrayRef.pop();
         if (resource.getParameterDefs() != null) {
             for (ParameterDef parameterDef : resource.getParameterDefs()) {
@@ -326,11 +329,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.tempJsonArrayRef.push(new JsonArray());
         this.tempJsonArrayRef.push(new JsonArray());
         if (function.getAnnotations() != null) {
-            for (Annotation annotation : function.getAnnotations()) {
+            for (AnnotationAttachment annotation : function.getAnnotations()) {
                 annotation.accept(this);
             }
         }
-        jsonFunc.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
+        jsonFunc.add(BLangJSONModelConstants.ANNOTATION_ATTACHMENTS, this.tempJsonArrayRef.peek());
         this.tempJsonArrayRef.pop();
         if (function.getVariableDefs() != null) {
             for (VariableDef variableDef : function.getVariableDefs()) {
@@ -384,11 +387,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.tempJsonArrayRef.push(new JsonArray());
         this.tempJsonArrayRef.push(new JsonArray());
         if (typeMapper.getAnnotations() != null) {
-            for (Annotation annotation : typeMapper.getAnnotations()) {
+            for (AnnotationAttachment annotation : typeMapper.getAnnotations()) {
                 annotation.accept(this);
             }
         }
-        jsonTypeMapper.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
+        jsonTypeMapper.add(BLangJSONModelConstants.ANNOTATION_ATTACHMENTS, this.tempJsonArrayRef.peek());
         this.tempJsonArrayRef.pop();
         if (typeMapper.getVariableDefs() != null) {
             for (VariableDef variableDef : typeMapper.getVariableDefs()) {
@@ -410,7 +413,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                         ().getName());
                 this.tempJsonArrayRef.push(new JsonArray());
                 if (parameterDef.getAnnotations() != null) {
-                    for (Annotation annotation : parameterDef.getAnnotations()) {
+                    for (AnnotationAttachment annotation : parameterDef.getAnnotations()) {
                         annotation.accept(this);
                     }
                 }
@@ -434,11 +437,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
         tempJsonArrayRef.push(new JsonArray());
         if (action.getAnnotations() != null) {
-            for (Annotation annotation : action.getAnnotations()) {
+            for (AnnotationAttachment annotation : action.getAnnotations()) {
                 annotation.accept(this);
             }
         }
-        jsonAction.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
+        jsonAction.add(BLangJSONModelConstants.ANNOTATION_ATTACHMENTS, this.tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         if (action.getParameterDefs() != null) {
             for (ParameterDef parameterDef : action.getParameterDefs()) {
@@ -515,32 +518,66 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonWorker);
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
-    public void visit(Annotation annotation) {
-        JsonObject jsonAnnotation = new JsonObject();
-        jsonAnnotation.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
-                .ANNOTATION_DEFINITION);
-        jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_NAME, annotation.getName());
-        jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_VALUE, annotation.getValue());
-        this.addPosition(jsonAnnotation, annotation.getNodeLocation());
-        this.tempJsonArrayRef.push(new JsonArray());
-        if (annotation.getKeyValuePairs() != null) {
-            annotation.getKeyValuePairs().forEach(new BiConsumer<String, String>() {
-                @Override
-                public void accept(String k, String v) {
-                    JsonObject pair = new JsonObject();
-                    pair.addProperty(k, v);
-                    tempJsonArrayRef.peek().add(pair);
-                }
-            });
-        }
-        jsonAnnotation.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-        this.tempJsonArrayRef.pop();
+    public void visit(AnnotationAttachment annotation) {
+        JsonObject jsonAnnotation = getJsonObjForAnnotationAttachment(annotation);
         this.tempJsonArrayRef.peek().add(jsonAnnotation);
     }
-    
+
+    public JsonObject getJsonObjForAnnotationAttachment(AnnotationAttachment annotation) {
+        JsonObject jsonAnnotation = new JsonObject();
+        jsonAnnotation.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
+                .ANNOTATION_ATTACHMENT);
+        jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_NAME, annotation.getName());
+        jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_PACKAGE_NAME, annotation.getPkgName());
+        jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_PACKAGE_PATH, annotation.getPkgPath());
+        this.addPosition(jsonAnnotation, annotation.getNodeLocation());
+        JsonArray children = new JsonArray();
+        jsonAnnotation.add(BLangJSONModelConstants.CHILDREN, children);
+        if (annotation.getAttributeNameValuePairs() != null) {
+            annotation.getAttributeNameValuePairs().forEach((k, v) -> {
+                children.add(getJsonObjForAnnotationAttribute(k, v));
+            });
+        }
+        return jsonAnnotation;
+    }
+
+    private JsonElement getJsonObjForAnnotationAttribute(String k, AnnotationAttributeValue v) {
+        JsonObject pair = new JsonObject();
+        Object jsonObjForAnnotationAttributeValue = getJsonObjForAnnotationAttributeValue(v);
+        if (jsonObjForAnnotationAttributeValue instanceof String) {
+            pair.addProperty(k, (String) jsonObjForAnnotationAttributeValue);
+        } else if (jsonObjForAnnotationAttributeValue instanceof JsonElement) {
+            pair.add(k, (JsonElement) jsonObjForAnnotationAttributeValue);
+        }
+        return pair;
+    }
+
+    private Object getJsonObjForAnnotationAttributeValue(AnnotationAttributeValue v) {
+        if (v.getLiteralValue() != null) {
+            return v.getLiteralValue().stringValue();
+        } else if (v.getAnnotationValue() != null) {
+            // attribute value is an another annotation attachment
+            // do a recursive call
+            return getJsonObjForAnnotationAttachment(v.getAnnotationValue());
+        } else if (v.getValueArray() != null) {
+            // attribute value is an array of attribute values
+            JsonArray children = new JsonArray();
+            for (AnnotationAttributeValue value: v.getValueArray()) {
+                Object jsonObjForAnnotationAttributeValue = getJsonObjForAnnotationAttributeValue(value);
+                if (jsonObjForAnnotationAttributeValue instanceof String) {
+                    children.add((String) jsonObjForAnnotationAttributeValue);
+                } else if (jsonObjForAnnotationAttributeValue instanceof JsonElement) {
+                    children.add((JsonElement) jsonObjForAnnotationAttributeValue);
+                }
+            }
+            return children;
+        }
+        return null;
+    }
+
     @Override
     public void visit(ParameterDef parameterDef) {
         JsonObject paramObj = new JsonObject();
@@ -551,7 +588,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addPosition(paramObj, parameterDef.getNodeLocation());
         this.tempJsonArrayRef.push(new JsonArray());
         if (parameterDef.getAnnotations() != null) {
-            for (Annotation annotation : parameterDef.getAnnotations()) {
+            for (AnnotationAttachment annotation : parameterDef.getAnnotations()) {
                 annotation.accept(this);
             }
         }
@@ -1279,7 +1316,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 arrayMapAccessExpr.getSymbolName().getName());
         
         tempJsonArrayRef.push(new JsonArray());
-        arrayMapAccessExpr.getIndexExpr().accept(this);
+
+        Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
+        for (Expression indexExpr : indexExprs) {
+            indexExpr.accept(this);
+        }
         arrayMapAccessExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(arrayMapAccessExprObj);
@@ -1333,7 +1374,17 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(structObj);
     }
-    
+
+    @Override
+    public void visit(AnnotationAttributeDef annotationAttributeDef) {
+
+    }
+
+    @Override
+    public void visit(AnnotationDef annotationDef) {
+
+    }
+
     @Override
     public void visit(VariableDefStmt varDefStmt) {
         JsonObject variableDefObj = new JsonObject();

@@ -16,17 +16,31 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash','log'], function (require, $, d3, D3Utils, Backbone,  _,log) {
+import $ from 'jquery';
+import * as d3 from 'd3';
+import D3Utils from 'd3utils';
+import Backbone from 'backbone';
+import _ from 'lodash';
+import log from 'log';
 
-    var ServicePreviewView = function(config){
+/**
+ * View for ServicePreview
+ * @class ServicePreviewView
+ */
+class ServicePreviewView {
+
+    /**
+     * Constructor for ServicePreviewView
+     * @param config
+     */
+    constructor(config) {
         this._config = config;
-    };
+    }
 
-    ServicePreviewView.prototype.constructor = ServicePreviewView;
-
-    ServicePreviewView.prototype.render = function () {
+    render() {
         var config = this._config;
         var errMsg;
+        var listItem;
         if (!_.has(config, 'parentContainer')) {
             errMsg = 'unable to find configuration for parentContainer';
             log.error(errMsg);
@@ -37,37 +51,37 @@ define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash','log'], funct
 
         this._sampleName = config.sampleName;
         //create the parent for drawn svg
-        var previewDiv = $("<div class='preview-div'></div>");
-        var image = $("<img id='previewImg' class='preview-img' src='images/preview_"+config.sampleName.split('.')[0]+".png'/>");
+        var previewDiv = $('<div class=\'preview-div\'></div>');
+        var image = $('<img id=\'previewImg\' class=\'preview-img\' src=\'images/preview_'+config.sampleName.split('.')[0]+'.png\'/>');
         previewDiv.prepend(image);
         previewDiv.bind('click', config.clickEventCallback);
 
         var options =
-        {
-            "container": previewDiv
-        }
+            {
+                'container': previewDiv
+            };
         options.container = options.container[0];
         this._container = options.container;
         // the first item need to active for bootstrap carousel
         if (_.has(config, 'firstItem')) {
-            var listItem = $("<div class='item active'></div>");
+            listItem = $('<div class=\'item active\'></div>');
+        } else{
+            listItem = $('<div class=\'item\'></div>');
         }
-        else{
-            var listItem = $("<div class='item'></div>");
-        }
-        var previewParent = $("<div class='col-xs-3 preview-parent'></div>");
-        var fileName = $("<div class='file-name'></div>");
-        var fileNameContent = $("<span></span>");
+        var previewParent = $('<div class=\'col-xs-3 preview-parent\'></div>');
+        var fileName = $('<div class=\'file-name\'></div>');
+        var fileNameContent = $('<span></span>');
         fileNameContent.text(this._sampleName);
         fileName.append(fileNameContent);
-        var previewName = $("<div class='preview-name-div'></div>");
+        var previewName = $('<div class=\'preview-name-div\'></div>');
         previewName.append(fileName);
         previewParent.append(this._container);
         previewParent.append(previewName);
         listItem.append(previewParent);
         parentContainer.append(listItem);
-    };
+    }
+}
 
-    return ServicePreviewView;
+ServicePreviewView.prototype.constructor = ServicePreviewView;
 
-});
+export default ServicePreviewView;
