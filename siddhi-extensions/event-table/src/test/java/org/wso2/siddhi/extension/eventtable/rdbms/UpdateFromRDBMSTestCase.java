@@ -511,7 +511,107 @@ public class UpdateFromRDBMSTestCase {
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
         }
+    }
 
+    @Test
+    public void updateFromRDBMSTableTest3() throws InterruptedException {
+
+        log.info("updateFromRDBMSTableTest3");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+
+        try {
+            if (dataSource.getConnection() != null) {
+
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                String streams = "" +
+                                 "define stream StockStream (symbol string, price float, volume long); " +
+                                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
+                                 "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
+                                 "define table StockTable (symbol string, price float, volume long); ";
+
+                String query = "" +
+                               "@info(name = 'query1') " +
+                               "from StockStream " +
+                               "insert into StockTable ;" +
+                               "" +
+                               "@info(name = 'query2') " +
+                               "from UpdateStockStream " +
+                               "update StockTable " +
+                               "   on StockTable.volume == volume ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+                stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+                updateStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+
+                Thread.sleep(1000);
+                long totalRowsInTable = DBConnectionHelper.getDBConnectionHelperInstance().getRowsInTable(dataSource);
+                Assert.assertEquals("Update failed", 3, totalRowsInTable);
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            log.info("Test case ignored due to DB connection unavailability");
+        }
+
+    }
+
+    @Test
+    public void updateFromRDBMSTableTest4() throws InterruptedException {
+
+        log.info("updateFromRDBMSTableTest4");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+
+        try {
+            if (dataSource.getConnection() != null) {
+
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                String streams = "" +
+                                 "define stream StockStream (symbol string, price float, volume long); " +
+                                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
+                                 "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
+                                 "define table StockTable (symbol string, price float, volume long); ";
+
+                String query = "" +
+                               "@info(name = 'query1') " +
+                               "from StockStream " +
+                               "insert into StockTable ;" +
+                               "" +
+                               "@info(name = 'query2') " +
+                               "from UpdateStockStream " +
+                               "update StockTable " +
+                               "   on StockTable.volume == 100 ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+                stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+                updateStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+
+                Thread.sleep(1000);
+                long totalRowsInTable = DBConnectionHelper.getDBConnectionHelperInstance().getRowsInTable(dataSource);
+                Assert.assertEquals("Update failed", 3, totalRowsInTable);
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            log.info("Test case ignored due to DB connection unavailability");
+        }
 
     }
 

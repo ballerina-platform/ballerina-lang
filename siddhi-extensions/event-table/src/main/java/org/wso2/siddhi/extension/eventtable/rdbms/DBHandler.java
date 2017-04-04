@@ -31,6 +31,7 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -189,6 +190,8 @@ public class DBHandler {
         List<Object[]> selectedEventList = new ArrayList<Object[]>();
         Connection con = null;
         int[] updatedRows = null;
+        int conditionArrayStartIndex = executionInfo.getUpdateQueryColumnOrder().size() -
+                                       executionInfo.getConditionQueryColumnOrder().size();
         try {
 
             con = dataSource.getConnection();
@@ -198,7 +201,8 @@ public class DBHandler {
             for (Object[] obj : updateEventList) {
                 populateStatement(obj, updatePreparedStatement, executionInfo.getUpdateQueryColumnOrder());
                 updatePreparedStatement.addBatch();
-                populateStatement(obj, selectionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
+                populateStatement(Arrays.copyOfRange(obj, conditionArrayStartIndex, obj.length),
+                                  selectionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
                 if (selectionPreparedStatement != null && isBloomFilterEnabled) {
                     ResultSet resultSet = selectionPreparedStatement.executeQuery();
                     populateEventListFromResultSet(selectedEventList, resultSet);
@@ -235,6 +239,8 @@ public class DBHandler {
         PreparedStatement insertionPreparedStatement = null;
         PreparedStatement selectionPreparedStatement = null;
         List<Object[]> selectedEventList = new ArrayList<Object[]>();
+        int conditionArrayStartIndex = executionInfo.getUpdateQueryColumnOrder().size() -
+                                       executionInfo.getConditionQueryColumnOrder().size();
         Connection con = null;
         int[] updatedRows;
         boolean isInserted = false;
@@ -250,7 +256,8 @@ public class DBHandler {
             for (Object[] obj : updateEventList) {
                 populateStatement(obj, updatePreparedStatement, executionInfo.getUpdateQueryColumnOrder());
                 updatePreparedStatement.addBatch();
-                populateStatement(obj, selectionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
+                populateStatement(Arrays.copyOfRange(obj, conditionArrayStartIndex, obj.length),
+                                  selectionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
                 if (selectionPreparedStatement != null && isBloomFilterEnabled) {
                     ResultSet resultSet = selectionPreparedStatement.executeQuery();
                     populateEventListFromResultSet(selectedEventList, resultSet);
