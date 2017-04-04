@@ -133,6 +133,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         // might return excluded nodes below and can cause issues.
         if (getParent() instanceof ParameterNode) {
             return this;
+        } else if (getParent() instanceof VariableDefinitionNode) {
+            return this;
         }
 
         // We should return the name identifier node (which is "this" object) for every identifier which can be used
