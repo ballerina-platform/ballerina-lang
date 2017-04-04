@@ -149,14 +149,14 @@ public class SwaggerResourceMapper {
                 String typeName = parameterDef.getTypeName().getName();
                 if (!typeName.equalsIgnoreCase("message") && parameterDef.getAnnotations() != null) {
                     //Add query parameter
-                    if (parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("QueryParam")
-                            && parameterDef.getAnnotations().get(0).getPkgName().equalsIgnoreCase("http")) {
+                    if (parameterDef.getAnnotations()[0].getName().equalsIgnoreCase("QueryParam")
+                            && parameterDef.getAnnotations()[0].getPkgName().equalsIgnoreCase("http")) {
                         QueryParameter queryParameter = new QueryParameter();
                         queryParameter.setType(typeName);
                         queryParameter.setIn("query");
                         queryParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME, parameterDef
                                 .getName());
-                        String parameterName = parameterDef.getAnnotations().get(0).getValue();
+                        String parameterName = parameterDef.getAnnotations()[0].getValue();
                         if ((parameterName == null) || parameterName.isEmpty()) {
                             parameterName = parameterDef.getName();
                         }
@@ -164,11 +164,11 @@ public class SwaggerResourceMapper {
                         queryParameter.required(true);
                         op.getOperation().addParameter(queryParameter);
                     }
-                    if (parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("PathParam")
-                            && parameterDef.getAnnotations().get(0).getPkgName().equalsIgnoreCase("http")) {
+                    if (parameterDef.getAnnotations()[0].getName().equalsIgnoreCase("PathParam")
+                            && parameterDef.getAnnotations()[0].getPkgName().equalsIgnoreCase("http")) {
                         PathParameter pathParameter = new PathParameter();
                         pathParameter.setType(typeName);
-                        String parameterName = parameterDef.getAnnotations().get(0).getValue();
+                        String parameterName = parameterDef.getAnnotations()[0].getValue();
                         if ((parameterName == null) || parameterName.isEmpty()) {
                             parameterName = parameterDef.getName();
                         }

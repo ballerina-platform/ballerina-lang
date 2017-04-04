@@ -1316,7 +1316,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 arrayMapAccessExpr.getSymbolName().getName());
         
         tempJsonArrayRef.push(new JsonArray());
-        arrayMapAccessExpr.getIndexExpr().accept(this);
+
+        Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
+        for (Expression indexExpr : indexExprs) {
+            indexExpr.accept(this);
+        }
         arrayMapAccessExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(arrayMapAccessExprObj);
