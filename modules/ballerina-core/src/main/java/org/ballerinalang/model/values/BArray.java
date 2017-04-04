@@ -56,7 +56,7 @@ public final class BArray<V extends BValue> implements BRefType {
     public <V extends BValue> void add(long index, V value) {
         if (index != (int) index) {
             throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_BOUND, index, size);
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
         int indexVal = (int) index;
         ensureCapacity(indexVal);
@@ -74,7 +74,7 @@ public final class BArray<V extends BValue> implements BRefType {
     public V get(long index) {
         if (index != (int) index) {
             throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_BOUND, index, size);
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
         int indexVal = (int) index;
         rangeCheck(indexVal);

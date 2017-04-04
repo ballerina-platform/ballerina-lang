@@ -90,7 +90,8 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-    public long getLong(int index) {
+    @Override
+    public long getInt(int index) {
         try {
             return rs.getLong(index);
         } catch (SQLException e) {
@@ -99,7 +100,7 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public long getLong(String columnName) {
+    public long getInt(String columnName) {
         try {
             return rs.getLong(columnName);
         } catch (SQLException e) {
@@ -107,41 +108,8 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-    public int getInt(int index) {
-        try {
-            return rs.getInt(index);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
     @Override
-    public int getInt(String columnName) {
-        try {
-            return rs.getInt(columnName);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    public float getFloat(int index) {
-        try {
-            return rs.getFloat(index);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public float getFloat(String columnName) {
-        try {
-            return rs.getFloat(columnName);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    public double getDouble(int index) {
+    public double getFloat(int index) {
         try {
             return rs.getDouble(index);
         } catch (SQLException e) {
@@ -150,7 +118,7 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public double getDouble(String columnName) {
+    public double getFloat(String columnName) {
         try {
             return rs.getDouble(columnName);
         } catch (SQLException e) {
@@ -158,6 +126,7 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
+    @Override
     public boolean getBoolean(int index) {
         try {
             return rs.getBoolean(index);

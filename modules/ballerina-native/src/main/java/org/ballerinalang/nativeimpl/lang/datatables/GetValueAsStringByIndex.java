@@ -57,8 +57,7 @@ public class GetValueAsStringByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        //Here we cast index value to int for consistency
-        int index = (int) ((BInteger) getArgument(ctx, 1)).intValue();
+        long index = ((BInteger) getArgument(ctx, 1)).intValue();
         return getBValues(new BString(dataTable.getObjectAsString(index)));
     }
 }
