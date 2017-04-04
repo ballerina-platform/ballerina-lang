@@ -2263,8 +2263,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                      * scenario where there are more than two ambiguous functions, then this will show only the
                      * first two.
                      */
-                    String ambiguousFunc1 = generateErrorMessage(funcIExpr, functionSymbol);
-                    String ambiguousFunc2 = generateErrorMessage(funcIExpr, (BLangSymbol) entry.getValue());
+                    String ambiguousFunc1 = generateErrorMessage(funcIExpr, functionSymbol, symbolName.getPkgPath());
+                    String ambiguousFunc2 = generateErrorMessage(funcIExpr, (BLangSymbol) entry.getValue(),
+                                                                 symbolName.getPkgPath());
                     BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.AMBIGUOUS_FUNCTIONS,
                                                             funcSymName.getFuncName(), ambiguousFunc1, ambiguousFunc2);
                     break;
@@ -2285,7 +2286,8 @@ public class SemanticAnalyzer implements NodeVisitor {
      * @param functionSymbol
      * @return errorMsg
      */
-    private static String generateErrorMessage(FunctionInvocationExpr funcIExpr, BLangSymbol functionSymbol) {
+    private static String generateErrorMessage(FunctionInvocationExpr funcIExpr, BLangSymbol functionSymbol,
+                                               String packagePath) {
         Function function;
         //in future when native functions support implicit casting invocation, functionSymbol can be either
         //NativeUnitProxy or a Function.
@@ -2307,8 +2309,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         //below getName should always return a valid String value, hence ArrayIndexOutOfBoundsException
         // or NullPointerException cannot happen here.
         String funcName = function.getSymbolName().getName().split("\\.")[0];
-        String firstPart = (function.getSymbolName().getPkgPath() != null) ?
-                           function.getSymbolName().getPkgPath() + ":" + funcName : funcName;
+        String firstPart = (packagePath != null) ? packagePath + ":" + funcName : funcName;
 
         StringBuilder sBuilder = new StringBuilder(firstPart + "(");
         String prefix = "";
