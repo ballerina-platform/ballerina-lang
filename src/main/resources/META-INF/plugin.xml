@@ -6,8 +6,8 @@
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
-      <a href="http://ballerinalang.org">Ballerina</a> is a general purpose, concurrent and strongly typed programming language with both textual and graphical syntax, optimized for integration. This plugin supports development of Ballerina applications with IntelliJ IDEA.
-      Please note that the graphical syntax of Ballerina is not yet supported by this plugin. For that, you can use  <a href="http://ballerinalang.org/downloads/">Ballerina Composer</a> which is available in Ballerina Tools.<br>
+      <a href="http://ballerinalang.org">Ballerina</a> is a general purpose, concurrent and strongly typed programming language with both textual and graphical syntax, optimized for integration. This plugin supports development of Ballerina programs with IntelliJ IDEA.
+      Please note that the graphical syntax of Ballerina is not yet supported by this plugin. For that, you can use  <a href="http://ballerinalang.org/downloads/">Ballerina Composer</a> which is available in Ballerina Tools distribution.<br>
     ]]></description>
 
     <change-notes><![CDATA[
