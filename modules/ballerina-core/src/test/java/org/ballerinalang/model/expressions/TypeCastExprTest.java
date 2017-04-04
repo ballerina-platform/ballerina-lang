@@ -170,7 +170,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testIntArrayToLongArray() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intarrtolongarr");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intarrtofloatarr");
         Assert.assertTrue(returns[0] instanceof BArray);
         BArray result = (BArray) returns[0];
         Assert.assertTrue(result.get(0) instanceof BFloat);

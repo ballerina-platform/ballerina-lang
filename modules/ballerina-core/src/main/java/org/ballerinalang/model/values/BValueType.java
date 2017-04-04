@@ -34,15 +34,6 @@ public abstract class BValueType implements BValue {
     public abstract long intValue();
 
     /**
-     * Returns the value of the specified number as a {@code long},
-     * which may involve rounding or truncation.
-     *
-     * @return  the numeric value represented by this object after conversion
-     *          to type {@code long}.
-     */
-//    public abstract long longValue();
-
-    /**
      * Returns the value of the specified number as a {@code float},
      * which may involve rounding.
      *
@@ -50,15 +41,6 @@ public abstract class BValueType implements BValue {
      *          to type {@code float}.
      */
     public abstract double floatValue();
-
-    /**
-     * Returns the value of the specified number as a {@code double},
-     * which may involve rounding.
-     *
-     * @return  the numeric value represented by this object after conversion
-     *          to type {@code double}.
-     */
-//    public abstract double doubleValue();
 
     public abstract boolean booleanValue();
 }

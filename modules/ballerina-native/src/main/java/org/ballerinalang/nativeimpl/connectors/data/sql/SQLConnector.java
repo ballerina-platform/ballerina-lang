@@ -259,9 +259,7 @@ public class SQLConnector extends AbstractNativeConnector {
                 if (value instanceof BString) {
                     config.addDataSourceProperty(keyValue, value.stringValue());
                 } else if (value instanceof BInteger) {
-                    config.addDataSourceProperty(keyValue, Integer.parseInt(value.stringValue()));
-                } else if (value instanceof BInteger) {
-                    config.addDataSourceProperty(keyValue, Long.parseLong(value.stringValue()));
+                    config.addDataSourceProperty(keyValue, ((BInteger) value).intValue());
                 } else if (value instanceof BBoolean) {
                     config.addDataSourceProperty(keyValue, Boolean.parseBoolean(value.stringValue()));
                 }

@@ -17,65 +17,9 @@
 */
 package org.ballerinalang.natives.annotations;
 
-import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.exceptions.MalformedEntryException;
-
 /**
  * Common Utils methods used in Annotations.
  */
 public class Utils {
 
-    /**
-     * Get BValue from the TypeEnum and Value.
-     *
-     * @param typeEnum Ballerina Type.
-     * @param value    assigned value.
-     * @return BValue.
-     * @throws MalformedEntryException when Type is not supported or when value conversion fails.
-     */
-    public static BValue getBValueFromTypeEnum(TypeEnum typeEnum, String value) throws MalformedEntryException {
-        BValue bValue;
-        try {
-            switch (typeEnum) {
-                case BOOLEAN:
-                    bValue = new BBoolean(Boolean.parseBoolean(value));
-                    break;
-                case INT:
-                    bValue = new BInteger(Integer.parseInt(value));
-                    break;
-                case FLOAT:
-                    bValue = new BFloat(Float.parseFloat(value));
-                    break;
-                case STRING:
-                    bValue = new BString(value);
-                    break;
-                case JSON:
-                    bValue = new BJSON(value);
-                    break;
-                case XML:
-                    // TODO: Fix this.
-                    throw new MalformedEntryException("XML not supported yet.");
-//                case MAP:
-//                    // TODO: Fix this.
-//                    bValue = new MapValue();
-//                    break;
-//                case ARRAY:
-//                    // TODO: improve logic. Current Native Annotation support only Predefined String[] only.
-//                    String[] values = value.substring(1, value.length() - 1).split(",");
-//                    bValue = new ArrayValueOld<>(values);
-//                    break;
-                default:
-                    throw new MalformedEntryException("Not supported entry " + typeEnum);
-            }
-        } catch (NumberFormatException e) {
-            throw new MalformedEntryException("Error while processing value " + value, e);
-        }
-        return bValue;
-    }
 }

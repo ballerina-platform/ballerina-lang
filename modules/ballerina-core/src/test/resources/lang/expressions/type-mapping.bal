@@ -46,7 +46,7 @@ function booleanappendtostring(boolean value)(string) {
     return result;
 }
 
-function intarrtolongarr()(float[]) {
+function intarrtofloatarr()(float[]) {
     float[] numbers;
     numbers = [999,95,889];
     return numbers;
