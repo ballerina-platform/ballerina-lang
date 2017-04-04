@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BValue;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * {@code Annotation} represents an Annotation node in Ballerina.
@@ -135,7 +136,11 @@ public class AnnotationAttachment implements Node {
     
     @Override
     public String toString() {
-        return "@" + pkgName + ":" + name + "{" + attributeNameValPairs + "}";
+        String nameValuePairs = attributeNameValPairs.entrySet().stream()
+                .map(nameValue -> nameValue.getKey() + ":" + nameValue.getValue().toString())
+                .collect(Collectors.joining(", "));
+        
+        return "@" + (pkgName == null ? "" : pkgName + ":") + name + "{" + nameValuePairs + "}";
     }
     
     

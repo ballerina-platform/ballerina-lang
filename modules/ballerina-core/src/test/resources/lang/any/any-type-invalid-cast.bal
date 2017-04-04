@@ -9,5 +9,11 @@ function intReturn()(any) {
 }
 
 
+function undefinedCasting() {
+  any val;
+  int i = (int)val;
+}
+
+
 
 

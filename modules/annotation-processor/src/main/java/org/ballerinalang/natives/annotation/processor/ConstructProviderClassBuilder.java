@@ -495,14 +495,17 @@ public class ConstructProviderClassBuilder {
             for (ReturnType returnType : returnTypes) {
                 String bType;
                 boolean isArray = false;
+                int arrayDimensions = 1;
                 // For non-arrays types.
                 if (!returnType.type().equals(TypeEnum.ARRAY)) {
                     bType = returnType.type().getName();
                 } else {
                     isArray = true;
                     bType = returnType.elementType().getName();
+                    arrayDimensions = returnType.arrayDimensions();
                 }
-                sb.append("new " + simpleTypeNameClass + "(\"" + bType + "\", " + isArray + ")");
+                sb.append("new " + simpleTypeNameClass + "(\"" + bType + "\", " + isArray + ", "
+                        + arrayDimensions + ")");
                 if (returnCount < returnTypes.length - 1) {
                     sb.append(",");
                 }
@@ -529,24 +532,27 @@ public class ConstructProviderClassBuilder {
             for (Argument argType : arguments) {
                 TypeEnum bType;
                 boolean isArray = false;
+                int arrayDimensions = 1;
                 // For non-arrays types.
                 if (!argType.type().equals(TypeEnum.ARRAY)) {
                     bType = argType.type();
                 } else {
                     isArray = true;
                     bType = argType.elementType();
+                    arrayDimensions = argType.arrayDimensions();
                 }
 
                 // If the argument is a connector, create the symbol name with connector name and package
                 if (bType == TypeEnum.CONNECTOR) {
                     sb.append("new " + simpleTypeNameClass + "(\"" + enclosingScopeName + "\",\"" + enclosingScopePkg +
-                        "\", " + isArray + ")");
+                        "\", " + isArray + ", " + arrayDimensions + ")");
                 } else if (bType == TypeEnum.STRUCT) {
                     sb.append(
                             "new " + simpleTypeNameClass + "(\"" + argType.structType() + "\",\"" + enclosingScopePkg +
-                                    "\", " + isArray + ")");
+                                    "\", " + isArray + ", " + arrayDimensions + ")");
                 } else {
-                    sb.append("new " + simpleTypeNameClass + "(\"" + bType.getName() + "\", " + isArray + ")");
+                    sb.append("new " + simpleTypeNameClass + "(\"" + bType.getName() +
+                            "\", " + isArray + ", " + arrayDimensions + ")");
                 }
 
                 if (argCount < arguments.length - 1) {

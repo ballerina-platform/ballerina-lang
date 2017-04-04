@@ -40,6 +40,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
     private Map<SymbolName, BLangSymbol> symbolMap;
     private String pkgName;
     private String pkgPath;
+    private AnnotationAttachment[] annotations;
 
     /**
      * Create an annotation definition.
@@ -99,6 +100,15 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
      */
     public String getPkgPath() {
         return pkgPath;
+    }
+    
+    /**
+     * Get the annotations attached to this annotation definition.
+     * 
+     * @return Annotations attached to this annotation definition.
+     */
+    public AnnotationAttachment[] getAnnotations() {
+        return annotations;
     }
     
     @Override
@@ -194,6 +204,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
         private List<String> attachmentPoints = new ArrayList<>();
         private AnnotationDef annotationDef;
         private List<AnnotationAttributeDef> attributes = new ArrayList<>();
+        private List<AnnotationAttachment> annotationList = new ArrayList<>();
 
         /**
          * Create an annotation builder.
@@ -261,6 +272,15 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
         }
 
         /**
+         * Add an annotation attachment to the annotation
+         * 
+         * @param annotation annotation attachment
+         */
+        public void addAnnotation(AnnotationAttachment annotation) {
+            this.annotationList.add(annotation);
+        }
+        
+        /**
          * Build the annotation definition.
          *
          * @return annotation definition 
@@ -271,7 +291,8 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
             annotationDef.symbolName = new SymbolName(name, pkgPath);
             annotationDef.pkgName = pkgName;
             annotationDef.pkgPath = pkgPath;
-            annotationDef.attributes = attributes.toArray(new AnnotationAttributeDef[attributes.size()]); 
+            annotationDef.attributes = attributes.toArray(new AnnotationAttributeDef[attributes.size()]);
+            annotationDef.annotations = annotationList.toArray(new AnnotationAttachment[annotationList.size()]);
             return annotationDef;
         }
     }
