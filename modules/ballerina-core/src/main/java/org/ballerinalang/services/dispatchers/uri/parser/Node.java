@@ -18,12 +18,20 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
+import org.ballerinalang.model.Resource;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public abstract class Node {
 
     protected String token;
     protected Node next;
+    protected List<Node> childNodesList = new LinkedList<>();
+
+    protected TestResource resource;
 
     protected Node(String token) {
         this.token = token;
@@ -33,43 +41,142 @@ public abstract class Node {
         this.next = next;
     }
 
-    public int matchAll(String uriFragment, Map<String, String> variables) {
+    public Node addChild(String segment, Node childNode) {
+        Node node = childNode;
+        Node existingNode = isAlreadyExist(segment, childNodesList);
+        if (existingNode != null) {
+            node = existingNode;
+        } else {
+            this.childNodesList.add(node);
+        }
+
+//        Collections.sort(childNodesList, new CustomComparator());
+        Collections.sort(childNodesList, (o1, o2) -> getIntValue(o2) - getIntValue(o1));
+
+        return node;
+    }
+
+    public TestResource matchAll(String uriFragment, Map<String, String> variables, int start) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
-            return -1;
+            return null;
         } else if (matchLength < uriFragment.length()) {
-            if (next != null) {
+            if (uriFragment.startsWith("/")) {
                 uriFragment = uriFragment.substring(matchLength);
-                return matchLength + next.matchAll(uriFragment, variables);
             } else {
-                // We have more content in the URI to match
-                // But there aren't any nodes left to match against
-                // return -1;
-                if(uriFragment.endsWith("/")){
-                    matchLength = matchLength +1;
-                }
-                return matchLength;
+                uriFragment = uriFragment.substring(matchLength + 1);
             }
+
+            String segment;
+            if (uriFragment.contains("/")) {
+                segment = uriFragment.substring(0, uriFragment.indexOf("/"));
+            } else {
+                segment = uriFragment;
+            }
+
+            for (Node childNode : childNodesList) {
+                if (childNode instanceof Literal) {
+                    String regex = childNode.getToken();
+                    if (regex.equals("*")) {
+                        regex = "." + regex;
+                        if (segment.matches(regex)) {
+                            next = childNode;
+                            return next.matchAll(uriFragment, variables, start + matchLength);
+                        }
+                    } else {
+                        if (regex.equals(segment)) {
+                            next = childNode;
+                            return next.matchAll(uriFragment, variables, start + matchLength);
+                        }
+                    }
+//                    if (segment.matches(regex)) {
+//                        next = childNode;
+//                        return next.matchAll(uriFragment, variables, start + matchLength);
+//                    }
+                } else {
+                    next = childNode;
+                    return next.matchAll(uriFragment, variables, start + matchLength);
+                }
+            }
+
+            return null;
+
         } else if (matchLength == uriFragment.length() && next != null) {
             if(next.getToken().equalsIgnoreCase("*"))
             {
-                return matchLength;
+                return getTestResource();
             }
             if(next.getToken().equalsIgnoreCase("/*"))
             {
-                return matchLength;
+                return getTestResource();
             }
             // We have matched all the characters in the URI
             // But there are some nodes left to be matched against
-            return -1;
+            return null;
         }
         else {
-            return matchLength;
+            return getTestResource();
         }
+    }
+
+    public TestResource getTestResource() {
+        return this.resource;
+    }
+
+    public void setTestResource(TestResource resource) {
+        this.resource = resource;
     }
 
     abstract String expand(Map<String,String> variables);
     abstract int match(String uriFragment, Map<String,String> variables);
     abstract String getToken();
     abstract char getFirstCharacter();
+
+    private Node isAlreadyExist(String token, List<Node> childList) {
+        for (Node node: childList) {
+            if (node.getToken().equals(token)) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+//    class CustomComparator implements Comparator<Node> {
+//        @Override
+//        public int compare(Node o1, Node o2) {
+//            return getIntValue(o2) - getIntValue(o1);
+//        }
+//
+//        int getIntValue(Node node) {
+//            if (node instanceof Literal) {
+//                return 5;
+//            } else if (node instanceof FragmentExpression) {
+//                return 4;
+//            } else if (node instanceof ReservedStringExpression) {
+//                return 3;
+//            } else if (node instanceof LabelExpression) {
+//                return 2;
+//            } else {
+//                return 1;
+//            }
+//        }
+//    }
+
+    private int getIntValue(Node node) {
+        if (node instanceof Literal) {
+            if (node.getToken().equals("*")) {
+                return 0;
+            }
+            return 5;
+        } else if (node instanceof FragmentExpression) {
+            return 4;
+        } else if (node instanceof ReservedStringExpression) {
+            return 3;
+        } else if (node instanceof LabelExpression) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
 }

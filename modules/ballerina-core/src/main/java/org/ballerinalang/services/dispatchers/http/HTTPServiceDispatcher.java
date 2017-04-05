@@ -58,22 +58,14 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 throw new BallerinaException("uri not found in the message or found an invalid URI.");
             }
 
-            String basePath = URIUtil.getFirstPathSegment(requestUri.getPath());
-            String subPath = URIUtil.getSubPath(requestUri.getPath());
-
             // Most of the time we will find service from here
-            Service service = servicesOnInterface.get(Constants.DEFAULT_BASE_PATH + basePath);
-
-            // Check if there is a service with default base path ("/")
-            if (service == null) {
-                service = servicesOnInterface.get(Constants.DEFAULT_BASE_PATH);
-                basePath = Constants.DEFAULT_BASE_PATH;
-            }
-
+            String basePath = findTheLeastSpecificBasePath(requestUri.getPath(), servicesOnInterface);
+            Service service = servicesOnInterface.get(basePath);
             if (service == null) {
                 throw new BallerinaException("no service found to handle incoming request recieved to : " + uriStr);
             }
 
+            String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
             cMsg.setProperty(Constants.BASE_PATH, basePath);
             cMsg.setProperty(Constants.SUB_PATH, subPath);
             cMsg.setProperty(Constants.QUERY_STR, requestUri.getQuery());
@@ -113,5 +105,21 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         }
 
         return interfaceId;
+    }
+
+    private String findTheLeastSpecificBasePath(String requestURIPath, Map<String, Service> services) {
+        if (services.containsKey(Constants.DEFAULT_BASE_PATH)) {
+            return Constants.DEFAULT_BASE_PATH;
+        }
+
+        String basePath = "";
+        String[] basePathSegments = URIUtil.getPathSegments(requestURIPath);
+        for (String pathSegment : basePathSegments) {
+            basePath = basePath + Constants.DEFAULT_BASE_PATH + pathSegment;
+            if (services.containsKey(basePath)) {
+                break;
+            }
+        }
+        return basePath;
     }
 }

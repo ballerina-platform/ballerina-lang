@@ -19,6 +19,7 @@
 package org.ballerinalang.services.dispatchers.uri.parser;
 
 
+import org.ballerinalang.model.Resource;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 
 public class URITemplateParser {
@@ -28,19 +29,25 @@ public class URITemplateParser {
     private Node syntaxTree;
     private Node currentNode;
 
-    public Node parse(String template) throws URITemplateException {
+    public URITemplateParser(Node rooNode) {
+        this.syntaxTree = rooNode;
+    }
+
+    public Node parse(String template, TestResource resource) throws URITemplateException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
         }
 
-        boolean expression = false;
-        int startIndex = 0;
-        int maxIndex = template.length() - 1;
+        for (String segment : template.split("/")) {
 
-        for (int pointerIndex = 0; pointerIndex < template.length(); pointerIndex++) {
-            char ch = template.charAt(pointerIndex);
+            boolean expression = false;
+            int startIndex = 0;
+            int maxIndex = segment.length() - 1;
 
-            switch (ch) {
+            for (int pointerIndex = 0; pointerIndex < segment.length(); pointerIndex++) {
+                char ch = segment.charAt(pointerIndex);
+
+                switch (ch) {
                 case '{':
                     if (!expression) {
                         if (pointerIndex + 1 >= maxIndex) {
@@ -49,10 +56,11 @@ public class URITemplateParser {
 
                         expression = true;
                         if (pointerIndex > startIndex) {
-                            addNode(new Literal(template.substring(startIndex, pointerIndex)));
+                            addNode(new Literal(segment.substring(startIndex, pointerIndex)));
                             startIndex = pointerIndex + 1;
-                        } else if (template.charAt(pointerIndex - 1) != '}') {
-                            throw new URITemplateException("Illegal empty literal");
+                            // TODO: Check whether we really need this.
+                        /*} else if (segment.charAt(pointerIndex - 1) != '}') {
+                            throw new URITemplateException("Illegal empty literal");*/
                         } else {
                             startIndex++;
                         }
@@ -65,7 +73,7 @@ public class URITemplateParser {
                     if (expression) {
                         expression = false;
                         if (pointerIndex > startIndex) {
-                            createExpressionNode(template.substring(startIndex, pointerIndex));
+                            createExpressionNode(segment.substring(startIndex, pointerIndex));
                             startIndex = pointerIndex + 1;
                         } else {
                             throw new URITemplateException("Illegal empty expression");
@@ -77,25 +85,30 @@ public class URITemplateParser {
 
                 default:
                     if (pointerIndex == maxIndex) {
-                        String token = template.substring(startIndex);
+                        String token = segment.substring(startIndex);
                         if (expression) {
                             createExpressionNode(token);
                         } else {
                             addNode(new Literal(token));
                         }
                     }
+                }
             }
         }
+
+        this.currentNode.setTestResource(resource);
+
         return syntaxTree;
     }
 
     private void addNode(Node node) {
-        if (syntaxTree == null) {
-            syntaxTree = node;
+        if (currentNode == null) {
             currentNode = syntaxTree;
+        }
+        if (node.getToken().equals("*")) {
+            currentNode = currentNode.addChild("." + node.getToken(), node);
         } else {
-            currentNode.setNext(node);
-            currentNode = node;
+            currentNode = currentNode.addChild(node.getToken(), node);
         }
     }
 

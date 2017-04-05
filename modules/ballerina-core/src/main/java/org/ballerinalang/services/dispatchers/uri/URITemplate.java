@@ -18,10 +18,10 @@
 
 package org.ballerinalang.services.dispatchers.uri;
 
-
-
-
+import org.ballerinalang.model.Resource;
+import org.ballerinalang.services.dispatchers.uri.parser.Literal;
 import org.ballerinalang.services.dispatchers.uri.parser.Node;
+import org.ballerinalang.services.dispatchers.uri.parser.TestResource;
 import org.ballerinalang.services.dispatchers.uri.parser.URITemplateParser;
 
 import java.util.Map;
@@ -33,22 +33,48 @@ import java.util.Map;
 
 public class URITemplate {
 
+    private static URITemplate uriTemplate;
     private Node syntaxTree;
 
-    public URITemplate(String template) throws URITemplateException {
-        if (!"/".equals(template) && template.endsWith("/")) {
-            template = template.substring(0, template.length() - 1);
-        }
-        URITemplateParser parser = new URITemplateParser();
-        syntaxTree = parser.parse(template);
+    private URITemplate(Node syntaxTree) {
+        this.syntaxTree = syntaxTree;
+//        if (!"/".equals(template) && template.endsWith("/")) {
+//            template = template.substring(0, template.length() - 1);
+//        }
+//        URITemplateParser parser = new URITemplateParser();
+//        syntaxTree = parser.parse(template);
     }
 
     public String expand(Map<String, String> variables) {
         return null;
     }
 
-    public boolean matches(String uri, Map<String, String> variables) {
-        return syntaxTree.matchAll(uri, variables) == uri.length();
+    public TestResource matches(String uri, Map<String, String> variables) {
+        return syntaxTree.matchAll(uri, variables, 0);
     }
 
+    public void parse(String template, TestResource resource) throws URITemplateException {
+        if (!"/".equals(template) && template.endsWith("/")) {
+            template = template.substring(0, template.length() - 1);
+        }
+
+        if (template.startsWith("/")) {
+            template = template.substring(1);
+        }
+
+        URITemplateParser parser = new URITemplateParser(syntaxTree);
+        parser.parse(template, resource);
+    }
+
+    public static URITemplate getInstance() {
+        if (uriTemplate == null) {
+            try {
+                uriTemplate = new URITemplate(new Literal("/"));
+            } catch (URITemplateException e) {
+            }
+            return uriTemplate;
+        } else {
+            return uriTemplate;
+        }
+    }
 }
