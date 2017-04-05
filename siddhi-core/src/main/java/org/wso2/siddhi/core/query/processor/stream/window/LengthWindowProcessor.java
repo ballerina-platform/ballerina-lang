@@ -101,10 +101,15 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
                     } else {
                         StreamEvent resetEvent = streamEventCloner.copyStreamEvent(streamEvent);
                         resetEvent.setType(ComplexEvent.Type.RESET);
+                        // adding resetEvent and clonedEvent event to the streamEventChunk
+                        // since we are using insertAfterCurrent(), the final order will be
+                        // currentEvent > clonedEvent (or expiredEvent) > resetEvent
                         streamEventChunk.insertAfterCurrent(resetEvent);
                         streamEventChunk.insertAfterCurrent(clonedEvent);
 
-                        // skip the added clonedEvents from next iteration.
+                        // since we manually added resetEvent and clonedEvent in earlier step
+                        // we have to skip those two events from getting processed in the next
+                        // iteration. Hence, calling next() twice.
                         streamEventChunk.next();
                         streamEventChunk.next();
                     }
