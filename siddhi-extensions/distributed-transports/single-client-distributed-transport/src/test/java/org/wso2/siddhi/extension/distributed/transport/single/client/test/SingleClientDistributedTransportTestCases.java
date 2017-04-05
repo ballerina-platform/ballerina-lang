@@ -54,7 +54,8 @@ public class SingleClientDistributedTransportTestCases {
 
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("outputmapper:text", TextOutputMapper.class);
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+            ExecutionPlanRuntime executionPlanRuntime = siddhiManager
+                    .createExecutionPlanRuntime(inStreamDefinition + query);
             executionPlanRuntime.start();
             executionPlanRuntime.addCallback("query1", new QueryCallback() {
                         @Override

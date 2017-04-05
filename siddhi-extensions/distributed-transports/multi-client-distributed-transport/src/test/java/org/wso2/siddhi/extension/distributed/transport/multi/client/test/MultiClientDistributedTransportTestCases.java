@@ -10,9 +10,9 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.tcp.transport.TcpNettyServer;
 import org.wso2.siddhi.tcp.transport.callback.StreamListener;
 import org.wso2.siddhi.tcp.transport.config.ServerConfig;
+import org.wso2.siddhi.tcp.transport.TCPNettyServer;
 
 import java.util.ArrayList;
 
@@ -36,11 +36,12 @@ public class MultiClientDistributedTransportTestCases {
         String inStreamDefinition = "" +
                 "define stream inputStream (a string, b int, c float, d long, e double, f bool); " +
 
-                "@sink(type='tcp', hostname='localhost', streamId='foo', @map(type='passThrough'), " +
+                "@sink(type='tcp', hostname='localhost', context='outputStream', @map(type='passThrough'), " +
                 "   @distribution(publishingStrategy='roundRobin', partitionKey='a', " +
-                "       @destination(port = '8080'), " +
-                "       @destination(port = '8081'))) " +
+                "       @destination(port = '8081'), " +
+                "       @destination(port = '8082'))) " +
                 "define stream outputStream (a string, b int, c float, d long, e double, f bool);";
+
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -48,10 +49,11 @@ public class MultiClientDistributedTransportTestCases {
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("outputStream").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
-                .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT)
+                .attribute("d", Attribute.Type.LONG).attribute("e", Attribute.Type.DOUBLE)
+                .attribute("f", Attribute.Type.BOOL);
 
-        TcpNettyServer tcpNettyServer = new TcpNettyServer();
+        TCPNettyServer tcpNettyServer = new TCPNettyServer();
         tcpNettyServer.addStreamListener(new StreamListener() {
             @Override
             public StreamDefinition getStreamDefinition() {
@@ -60,34 +62,9 @@ public class MultiClientDistributedTransportTestCases {
 
             @Override
             public void onEvent(Event event) {
-                System.out.println(event);
                 eventArrived = true;
                 count++;
-            }
-
-            @Override
-            public void onEvents(Event[] events) {
-                for (Event event : events) {
-                    onEvent(event);
-                }
-            }
-        });
-
-        tcpNettyServer.bootServer(new ServerConfig());
-
-        //=========
-        TcpNettyServer tcpNettyServer1 = new TcpNettyServer();
-        tcpNettyServer1.addStreamListener(new StreamListener() {
-            @Override
-            public StreamDefinition getStreamDefinition() {
-                return streamDefinition;
-            }
-
-            @Override
-            public void onEvent(Event event) {
-                System.out.println(event  + " @ server2");
-                eventArrived = true;
-                count++;
+                log.info(event.toString() + " @ Server1");
             }
 
             @Override
@@ -100,7 +77,34 @@ public class MultiClientDistributedTransportTestCases {
 
         ServerConfig conf = new ServerConfig();
         conf.setPort(8081);
-        tcpNettyServer1.bootServer(conf);
+        tcpNettyServer.bootServer(conf);
+
+        //=========
+        TCPNettyServer tcpNettyServer1 = new TCPNettyServer();
+        tcpNettyServer1.addStreamListener(new StreamListener() {
+            @Override
+            public StreamDefinition getStreamDefinition() {
+                return streamDefinition;
+            }
+
+            @Override
+            public void onEvent(Event event) {
+                eventArrived = true;
+                count++;
+                log.info(event.toString() + " @ Server2");
+            }
+
+            @Override
+            public void onEvents(Event[] events) {
+                for (Event event : events) {
+                    onEvent(event);
+                }
+            }
+        });
+
+        ServerConfig conf1 = new ServerConfig();
+        conf.setPort(8082);
+        tcpNettyServer1.bootServer(conf1);
 
         //=========
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");

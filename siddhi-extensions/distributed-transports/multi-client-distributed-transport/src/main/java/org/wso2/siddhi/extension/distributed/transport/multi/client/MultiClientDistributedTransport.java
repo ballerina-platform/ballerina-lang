@@ -53,7 +53,8 @@ public class MultiClientDistributedTransport extends DistributedTransport {
     private List<OutputTransport> transports = new ArrayList<>();
 
     @Override
-    public void publish(Object payload, DynamicOptions transportOptions, int destinationId) throws ConnectionUnavailableException {
+    public void publish(Object payload, DynamicOptions transportOptions, int destinationId)
+            throws ConnectionUnavailableException {
         try {
             OutputTransport transport = transports.get(destinationId);
             transport.publish(payload, transportOptions);
@@ -65,17 +66,17 @@ public class MultiClientDistributedTransport extends DistributedTransport {
     }
 
     @Override
-    public void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders, Annotation sinkAnnotation, ExecutionPlanContext executionPlanContext) {
-        final String transportType = sinkOptionHolder.validateAndGetStaticValue(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-
+    public void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders, Annotation
+            sinkAnnotation, ExecutionPlanContext executionPlanContext) {
+        String transportType = sinkOptionHolder.validateAndGetStaticValue(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
         org.wso2.siddhi.query.api.extension.Extension sink = DefinitionParserHelper.constructExtension
-                (streamDefinition, SiddhiConstants.ANNOTATION_SINK, transportType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_TRANSPORT);
+                (streamDefinition, SiddhiConstants.ANNOTATION_SINK, transportType, sinkAnnotation,  SiddhiConstants
+                        .NAMESPACE_OUTPUT_TRANSPORT);
 
         destinationOptionHolders.forEach(destinationOption -> {
             OutputTransport transport = (OutputTransport) SiddhiClassLoader.loadExtensionImplementation(
                     sink, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
             destinationOption.merge(sinkOptionHolder);
-
             transport.initOnlyTransport(streamDefinition, destinationOption, executionPlanContext);
             transports.add(transport);
         });
@@ -105,7 +106,6 @@ public class MultiClientDistributedTransport extends DistributedTransport {
         StringBuilder errorMessages = null;
         int errorCount = 0;
 
-
         for (int i=0; i < transports.size(); i++){
             try {
                 if (!transports.get(i).isConnected()) {
@@ -118,12 +118,11 @@ public class MultiClientDistributedTransport extends DistributedTransport {
                 if (errorMessages == null){
                     errorMessages = new StringBuilder();
                 }
-                errorMessages.append("[Destination").append(errorCount).append("]:").append(e.getMessage());
+                errorMessages.append("[Destination").append(i).append("]:").append(e.getMessage());
                 log.warn("Failed to Connect to destination ID " + i);
             }
         }
 
-        // Throwing an exception to notify that connection to some destinations have failed
         if (errorCount > 0){
             throw new ConnectionUnavailableException(errorCount + "/" + transports.size() + " connections failed " +
                     "while trying to connect with following error messages:" + errorMessages.toString());

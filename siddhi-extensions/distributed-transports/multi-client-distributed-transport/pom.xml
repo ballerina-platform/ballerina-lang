@@ -41,6 +41,11 @@
             <version>4.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.siddhi</groupId>
+            <artifactId>siddhi-tcp-transport</artifactId>
+            <version>4.0.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

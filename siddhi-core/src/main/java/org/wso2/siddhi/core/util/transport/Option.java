@@ -39,10 +39,10 @@ public class Option {
     }
 
     public String getValue(DynamicOptions dynamicOptions) {
-        if (value != null) {
+        if (dynamicOptions.getVariableOptionIndex() != -1) {
+            return variableValues.get(dynamicOptions.getVariableOptionIndex());
+        } else if (value != null) {
             return value;
-        } else if (dynamicOptions.getVariableOptionIndex() != 1){
-          return variableValues.get(dynamicOptions.getVariableOptionIndex());
         } else if (templateBuilder != null) {
             return templateBuilder.build(dynamicOptions.getEvent());
         } else {

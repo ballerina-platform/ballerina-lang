@@ -32,7 +32,8 @@ public class PublishingStrategyExtensionHolder extends AbstractExtensionHolder {
     }
 
     public static PublishingStrategyExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap
+                = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
         AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
             abstractExtensionHolder = new PublishingStrategyExtensionHolder(executionPlanContext);

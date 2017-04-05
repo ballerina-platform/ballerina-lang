@@ -42,15 +42,32 @@ public abstract class DistributedTransport extends OutputTransport {
     /**
      * Will be called for initialing the {@link OutputTransport}
      *
-     * @param outputStreamDefinition
+     * @param outputStreamDefinition The stream definition this Output transport/sink is attached to
      * @param optionHolder           Option holder containing static and dynamic options related to the {@link OutputTransport}
-     * @param executionPlanContext
+     * @param executionPlanContext   Context of the execution plan which this output sink belongs to
      */
     @Override
-    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,  ExecutionPlanContext
+            executionPlanContext) {
         this.streamDefinition = outputStreamDefinition;
         this.sinkOptionHolder = optionHolder;
         this.executionPlanContext = executionPlanContext;
+    }
+
+    /**
+     * This is method contains the additional parameters which require to initialize distributed transport
+     * @param outputStreamDefinition
+     * @param optionHolder
+     * @param executionPlanContext
+     * @param destinationOptionHolders
+     * @param sinkAnnotation
+     * @param strategy
+     */
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,  ExecutionPlanContext
+            executionPlanContext, List<OptionHolder> destinationOptionHolders, Annotation sinkAnnotation, PublishingStrategy strategy) {
+        this.publishingStrategy = strategy;
+        init(streamDefinition, optionHolder, executionPlanContext);
+        initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, executionPlanContext);
     }
 
     @Override
@@ -72,16 +89,9 @@ public abstract class DistributedTransport extends OutputTransport {
         }
 
         if (errorCount > 0){
-            throw new ConnectionUnavailableException(errorCount + "/" + destinationsToPublish.size() + " connections failed " +
-                    "while trying to publish with following error messages:" + errorMessages.toString());
+            throw new ConnectionUnavailableException(errorCount + "/" + destinationsToPublish.size()  + " connections"
+                    + " failed while trying to publish with following error messages:" + errorMessages.toString());
         }
-    }
-
-    public void initDistributedTransport(List<OptionHolder> destinationOptionHolders,
-                                         Annotation sinkAnnotation,
-                                         PublishingStrategy strategy) {
-        this.publishingStrategy = strategy;
-        initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, executionPlanContext);
     }
 
     public abstract void publish(Object payload, DynamicOptions transportOptions, int destinationId) throws ConnectionUnavailableException;

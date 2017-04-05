@@ -57,7 +57,8 @@ public class SingleClientDistributedTransport extends DistributedTransport {
     private int destinationCount = 0;
 
     @Override
-    public void publish(Object payload, DynamicOptions transportOptions, int destinationId) throws ConnectionUnavailableException {
+    public void publish(Object payload, DynamicOptions transportOptions, int destinationId)
+            throws ConnectionUnavailableException {
         try {
             transportOptions.setVariableOptionIndex(destinationId);
             transport.publish(payload, transportOptions);
