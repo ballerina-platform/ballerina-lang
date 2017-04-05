@@ -16,12 +16,12 @@
  *  under the License.
  *
  */
-package org.wso2.siddhi.extension.input.transport.util;
+package org.wso2.siddhi.extension.input.transport.jms.util;
 
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.transport.base.BaseConstants;
 import org.apache.axis2.transport.base.threads.WorkerPool;
-import org.wso2.siddhi.extension.input.transport.exception.JMSInputAdaptorRuntimeException;
+import org.wso2.siddhi.extension.input.transport.jms.exception.JMSInputAdaptorRuntimeException;
 
 import javax.jms.Session;
 import java.util.HashMap;

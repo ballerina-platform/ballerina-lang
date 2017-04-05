@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.wso2.siddhi.extension.input.transport.util;
+package org.wso2.siddhi.extension.input.transport.jms.util;
 
 import org.apache.axis2.transport.base.BaseUtils;
 import org.apache.log4j.Logger;

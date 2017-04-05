@@ -16,10 +16,10 @@
  *  under the License.
  *
  */
-package org.wso2.siddhi.extension.input.transport.util;
+package org.wso2.siddhi.extension.input.transport.jms.util;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.extension.input.transport.exception.JMSInputAdaptorRuntimeException;
+import org.wso2.siddhi.extension.input.transport.jms.exception.JMSInputAdaptorRuntimeException;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;

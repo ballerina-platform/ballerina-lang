@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.wso2.siddhi.extension.input.transport.exception;
+package org.wso2.siddhi.extension.input.transport.jms.exception;
 
 /**
  * JMS input adaptor specific exception.

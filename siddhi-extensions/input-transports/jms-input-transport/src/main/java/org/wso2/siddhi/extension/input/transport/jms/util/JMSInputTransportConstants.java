@@ -16,9 +16,9 @@
  *  under the License.
  *
  */
-package org.wso2.siddhi.extension.input.transport.util;
+package org.wso2.siddhi.extension.input.transport.jms.util;
 
-public class JMSEventAdapterConstants {
+public class JMSInputTransportConstants {
 
     public static final String ADAPTER_TYPE_JMS = "jms";
 
