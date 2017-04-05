@@ -41,7 +41,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the current system time in nanoseconds") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "long",
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
         value = "System time in nanoseconds") })
 public class NanoTime extends AbstractNativeFunction {
 
