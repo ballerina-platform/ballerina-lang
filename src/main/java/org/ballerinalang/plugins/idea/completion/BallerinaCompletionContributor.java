@@ -822,8 +822,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             addConnectors(resultSet, originalFile);
         } else {
             PsiElement resolvedPackage = resolvePackage(packageNameNode);
-            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(resolvedPackage);
-            addConnectors(resultSet, connectors);
+            if (resolvedPackage != null) {
+                List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(resolvedPackage);
+                addConnectors(resultSet, connectors);
+            }
         }
     }
 
@@ -891,8 +893,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             return;
         }
         PsiElement resolvedPackage = resolvePackage(packageNameNode);
-        List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInCurrentPackage(resolvedPackage);
-        addAnnotations(resultSet, annotations);
+        if (resolvedPackage != null) {
+            List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInCurrentPackage(resolvedPackage);
+            addAnnotations(resultSet, annotations);
+        }
     }
 
     /**
