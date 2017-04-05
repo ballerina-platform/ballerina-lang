@@ -94,6 +94,28 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
+    @Test(groups = "ConnectorTest for int float types")
+    public void testSelectIntFloatData() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSelectIntFloatData");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertSame(returns[2].getClass(), BFloat.class);
+        Assert.assertSame(returns[3].getClass(), BFloat.class);
+        BInteger intVal = (BInteger) returns[0];
+        BInteger longVal = (BInteger) returns[1];
+        BFloat floatVal = (BFloat) returns[2];
+        BFloat doubleVal = (BFloat) returns[3];
+        long intExpected = 10;
+        long longExpected = 9223372036854774807L;
+        double floatExpected = 123.34;
+        double doubleExpected = 2139095039;
+        Assert.assertEquals(intVal.intValue(), intExpected);
+        Assert.assertEquals(longVal.intValue(), longExpected);
+        Assert.assertEquals(floatVal.floatValue(), floatExpected, DELTA);
+        Assert.assertEquals(doubleVal.floatValue(), doubleExpected);
+    }
+
     @Test(groups = "ConnectorTest")
     public void testCallProcedure() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCallProcedure");

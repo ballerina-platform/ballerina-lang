@@ -57,7 +57,7 @@ public class SetStatusCode extends AbstractNativeFunction {
             long statusCode = ((BInteger) getArgument(context, 1)).intValue();
             if (statusCode != (int) statusCode) {
                 throw BLangExceptionHelper
-                        .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, statusCode); //todo, is this right?
+                        .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, statusCode);
             }
             bMsg.value().setProperty(Constants.HTTP_STATUS_CODE, (int) statusCode);
         } catch (ClassCastException e) {
