@@ -4,7 +4,7 @@ import ballerina.net.ws;
 
 @http:BasePath {value:"/test"}
 @ws:WebSocketUpgradePath {value:"/websocket"}
-service endpointTest {
+service testEndpoint {
 
     @ws:OnOpen {}
     resource onOpen(message m) {
@@ -13,7 +13,7 @@ service endpointTest {
 
     @ws:OnTextMessage {}
     resource onTextMessage(message m) {
-        ws:pushText(messages:getStringPayload(m))
+        ws:pushText(messages:getStringPayload(m));
     }
 
     @ws:OnClose {}

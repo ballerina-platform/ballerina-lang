@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.functions.ws;
 
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.testutils.EnvironmentInitializer;
-import org.ballerinalang.testutils.websocket.client.WebSocketClient;
+import org.ballerinalang.testutils.client.websocket.WebSocketClient;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,12 +36,14 @@ public class WebSocketEndpointTest {
     private BLangProgram application;
     private WebSocketClient client1;
     private WebSocketClient client2;
-    private final int sleepTime = 100;
-    private String url = "ws://localhost:9090/test/websocket";
+    private final int sleepTime = 200;
+    private String url = "ws://localhost:8080/test/websocket";
 
     @BeforeClass
-    public void setup() {
+    public void setup() throws InterruptedException {
         application = EnvironmentInitializer.setup("samples/websocket/endpointTest.bal");
+        client1 = new WebSocketClient();
+        client2 = new WebSocketClient();
     }
 
     @Test

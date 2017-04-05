@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.testutils.websocket.client;
+package org.ballerinalang.testutils.client.websocket;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -128,11 +128,11 @@ public class WebSocketClient {
             channel = b.connect(uri.getHost(), port).sync().channel();
             isDone = handler.handshakeFuture().sync().isSuccess();
         } catch (Exception e) {
-            log.error("Handshake unsuccessful : " + e.getMessage(), e);
+            log.error("Handshake unsuccessful: " + e.getMessage(), e);
             return false;
         }
 
-        log.info("WebSocket Handshake successful : " + isDone);
+        log.info("WebSocket Handshake successful: " + isDone);
         Thread.sleep(5000);
         return isDone;
     }
