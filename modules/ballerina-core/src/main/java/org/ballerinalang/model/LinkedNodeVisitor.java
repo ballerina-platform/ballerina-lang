@@ -61,6 +61,7 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
@@ -74,6 +75,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -112,6 +114,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(VariableDefStmt variableDefStmt);
 
     void visit(WhileStmt whileStmt);
+
+    void visit(TransactionRollbackStmt transactionRollbackStmt);
 
     /* Expression Nodes */
 
@@ -176,6 +180,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(ReturnStmtEndNode returnStmtEndNode);
 
     void visit(VariableDefStmtEndNode variableDefStmtEndNode);
+
+    void visit(TransactionRollbackStmtEndNode transactionRollbackStmtEndNode);
 
     /* Node Fragments - Expressions */
 
