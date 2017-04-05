@@ -71,7 +71,7 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public String getString(long index) {
-        if (index != (int) index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper
                     .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
@@ -83,7 +83,7 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public long getInt(long index) {
-        if (index != (int) index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper
                     .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
@@ -95,7 +95,7 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public double getFloat(long index) {
-        if (index != (int) index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper
                     .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
@@ -107,7 +107,7 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public boolean getBoolean(long index) {
-        if (index != (int) index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper
                     .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
@@ -119,7 +119,7 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public BValue get(long index, String type) {
-        if (index != (int) index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper
                     .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
@@ -131,7 +131,7 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public String getObjectAsString(long index) {
-        if (index != (int) index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper
                     .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
@@ -143,7 +143,7 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public Map<String, Object> getArray(long index) {
-        if (index != (int) index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper
                     .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }

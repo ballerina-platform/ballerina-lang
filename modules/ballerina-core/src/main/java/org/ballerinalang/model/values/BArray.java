@@ -54,7 +54,7 @@ public final class BArray<V extends BValue> implements BRefType {
     }
 
     public <V extends BValue> void add(long index, V value) {
-        if (index != (int) index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper
                     .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
@@ -72,7 +72,7 @@ public final class BArray<V extends BValue> implements BRefType {
 
     @SuppressWarnings("unchecked")
     public V get(long index) {
-        if (index != (int) index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper
                     .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
