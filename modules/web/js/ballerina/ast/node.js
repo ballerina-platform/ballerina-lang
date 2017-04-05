@@ -231,6 +231,23 @@ class ASTNode extends EventChannel {
         return _.findIndex(this.children, ['id', child.id]);
     }
 
+    /**
+     * Filter matching children from the predicate function
+     * @param predicateFunction a function returning a boolean to match filter condition from children
+     * @return {[ASTNode]} array of matching AST nodes
+     */
+    filterChildren(predicateFunction) {
+        return _.filter(this.getChildren(), predicateFunction);
+    }
+    
+    /**
+     * Find matching child from the predicate function+
+     * @param predicateFunction a function returning a boolean to match find condition from children
+     */
+    findChild(predicateFunction) {
+        return _.find(this.getChildren(), predicateFunction);
+    };
+
     initFromJson(jsonNode) {
         throw "InitFromJson not implemented";
     }

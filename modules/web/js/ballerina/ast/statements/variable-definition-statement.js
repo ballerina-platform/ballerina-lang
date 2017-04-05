@@ -31,7 +31,7 @@ import VariableDeclaration from './../variable-declaration';
 class VariableDefinitionStatement extends Statement {
     constructor(args) {
         super('VariableDefinitionStatement');
-        this._leftExpression = _.get(args, 'leftExpression', "string str");
+        this._leftExpression = _.get(args, 'leftExpression', "int i");
         this._rightExpression = _.get(args, 'rightExpression');
     }
 
@@ -74,9 +74,9 @@ class VariableDefinitionStatement extends Statement {
      */
     getStatementString() {
         var variableDefinitionStatementString;
-        if(_.isNil(this._rightExpression) || _.isEmpty(this._rightExpression)){
+        if (_.isNil(this._rightExpression) || _.isEmpty(this._rightExpression)) {
             variableDefinitionStatementString = this._leftExpression;
-        }else {
+        } else {
             variableDefinitionStatementString = this._leftExpression + " = " + this._rightExpression;
         }
         return variableDefinitionStatementString;
@@ -169,49 +169,41 @@ class VariableDefinitionStatement extends Statement {
         }
     }
 
-    initFromJson(jsonNode) {
-        var self = this;
-        var lhs = jsonNode.children[0];
-        var rhs = jsonNode.children[1];
-        if (lhs.type === 'left_operand_expression') {
-            if (!_.isNil(lhs.children[0].variable_def_options)) {
-                /**
-                 * Sample1: message m = 'messageValue';
-                 * Sample2: http:HTTPConnector connector = .....
-                 *          <packageName>:<> <variable reference>
-                 */
-                var expressionValue = (!_.isNil(lhs.children[0].variable_def_options.package_name) ?
-                    lhs.children[0].variable_def_options.package_name + ":" : "")
-                    + lhs.children[0].variable_def_options.type_name
-                    + " " + lhs.children[0].variable_reference_name;
-                this.setLeftExpression(expressionValue);
-            }
-        } else {
-
-
-        if (!_.isNil(lhs.variable_def_options)) {
-            /**
-             * Sample1: message m = 'messageValue';
-             * Sample2: http:HTTPConnector connector = .....
-             *          <packageName>:<> <variable reference>
-             */
-            var expressionValue = (!_.isNil(lhs.variable_def_options.package_name) ?
-                lhs.variable_def_options.package_name + ":" : "")
-                + lhs.variable_def_options.type_name
-                + " " + lhs.variable_reference_name;
-            this.setLeftExpression(expressionValue);
+    getTypeName(){
+        var varDef = this.getVariableDef();
+        if (!_.isNil){
+            return varDef.getTypeName();
         }
     }
 
-        if (!_.isNil(rhs)) {
-            var rightExpressionChild = self.getFactory().createFromJson(rhs);
-            self.addChild(rightExpressionChild);
-            rightExpressionChild.initFromJson(rhs);
-            if (self.getFactory().isRightOperandExpression(rightExpressionChild)) {
-                this.setRightExpression(rightExpressionChild.getChildren()[0].getExpression());
-            } else {
-                this.setRightExpression(rightExpressionChild.getExpression());
-            }
+    getVariableName(){
+        var varDef = this.getVariableDef();
+        if (!_.isNil){
+            return varDef.getName();
+        }
+    }
+
+    getVariableDef(){
+        var leftExp = this.getChildren()[0];
+        if (!_.isNil(leftExp)){
+            return leftExp.findChild(this.getFactory().isVariableDefinition);
+        }
+    }
+
+    initFromJson(jsonNode) {
+        var self = this;
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+
+        if (!_.isNil(this.getChildren()[0])){
+            this.setLeftExpression(this.getChildren()[0].getExpression());
+        }
+        if (!_.isNil(this.getChildren()[1])){
+            this.setRightExpression(this.getChildren()[1].getExpression());
         }
     }
 }

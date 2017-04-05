@@ -77,8 +77,8 @@ class LeftOperandExpression extends Statement {
         var expression = "";
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
-            if (childJsonNode.type === 'variable_reference_name') {
-                expression += childJsonNode.variable_reference_name;
+            if (childJsonNode.type === 'variable_name') {
+                expression += childJsonNode.variable_name;
             } else {
                 var child = self.getFactory().createFromJson(childJsonNode);
                 self.addChild(child);
