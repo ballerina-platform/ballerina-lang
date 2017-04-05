@@ -263,7 +263,8 @@ public class DefinitionParserHelper {
                 Annotation mapAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_MAP,
                         sinkAnnotation.getAnnotations());
                 if (mapAnnotation == null) {
-                    mapAnnotation = Annotation.annotation(SiddhiConstants.ANNOTATION_MAP).element(SiddhiConstants.ANNOTATION_ELEMENT_TYPE, "passThrough");
+                    mapAnnotation = Annotation.annotation(SiddhiConstants.ANNOTATION_MAP) .element(SiddhiConstants
+                            .ANNOTATION_ELEMENT_TYPE, "passThrough");
                 }
                 Annotation distributionAnnotation =
                         AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_DISTRIBUTION,
@@ -272,20 +273,16 @@ public class DefinitionParserHelper {
                 if (mapAnnotation != null) {
                     String[] supportedDynamicOptions = null;
                     List<OptionHolder> destinationOptHolders = new ArrayList<>();
-                    String sinkType;
+                    String sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);;
                     final boolean isDistributedTransport = (distributionAnnotation != null);
 
                     if (isDistributedTransport){
-                        String type = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-                        OutputTransport clientTransport = createOutputTransport(type, sinkAnnotation,
+                        OutputTransport clientTransport = createOutputTransport(sinkType, sinkAnnotation,
                                 streamDefinition, execPlanContext);
-
                         sinkType = getDistributedTransportType(clientTransport, streamDefinition, distributionAnnotation);
                         supportedDynamicOptions = clientTransport.getSupportedDynamicOptions();
                         destinationOptHolders = createDestinationOptionHolders(distributionAnnotation,
                                 streamDefinition, clientTransport);
-                    } else {
-                        sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                     }
 
                     final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
@@ -293,7 +290,6 @@ public class DefinitionParserHelper {
                         // load output transport extension
                         OutputTransport outputTransport = createOutputTransport(sinkType, sinkAnnotation,
                                 streamDefinition, execPlanContext);
-
                         if (supportedDynamicOptions == null){
                             supportedDynamicOptions = outputTransport.getSupportedDynamicOptions();
                         }
@@ -315,10 +311,7 @@ public class DefinitionParserHelper {
                                 outputMapper.getSupportedDynamicOptions());
                         String payload = getPayload(mapAnnotation);
 
-                        outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
-                                mapOptionHolder, payload, execPlanContext);
-
-                        // Initializing distributed output transport with distributed configurations
+                        // Initializing the transports
                         OptionHolder distributionOptHolder = null;
                         if (isDistributedTransport) {
                             distributionOptHolder = constructOptionProcessor(streamDefinition,
@@ -326,8 +319,12 @@ public class DefinitionParserHelper {
                             PublishingStrategy publishingStrategy = constructPublishingStrategy(distributionOptHolder,
                                     streamDefinition, sinkAnnotation, execPlanContext);
 
-                           ((DistributedTransport)outputTransport).initDistributedTransport(destinationOptHolders,
-                                           sinkAnnotation, publishingStrategy);
+                           ((DistributedTransport)outputTransport).init(streamDefinition, sinkType,
+                                   transportOptionHolder, payload, execPlanContext, destinationOptHolders,
+                                   sinkAnnotation, publishingStrategy, supportedDynamicOptions);
+                        } else {
+                            outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
+                                    mapOptionHolder, payload, execPlanContext);
                         }
 
                         // Setting the output group determiner

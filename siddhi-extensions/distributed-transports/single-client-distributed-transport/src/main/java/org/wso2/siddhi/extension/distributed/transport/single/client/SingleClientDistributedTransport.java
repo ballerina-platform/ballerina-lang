@@ -104,20 +104,6 @@ public class SingleClientDistributedTransport extends DistributedTransport {
     }
 
     /**
-     * Supported dynamic options by the transport
-     *
-     * @return the list of supported dynamic option keys
-     */
-    @Override
-    public String[] getSupportedDynamicOptions() {
-        if (transport != null) {
-            return transport.getSupportedDynamicOptions();
-        } else {
-           throw new ExecutionPlanValidationException("Distributed transport not initialized");
-        }
-    }
-
-    /**
      * Will be called to connect to the backend before events are published
      *
      * @throws ConnectionUnavailableException if it cannot connect to the backend
@@ -126,7 +112,7 @@ public class SingleClientDistributedTransport extends DistributedTransport {
     public void connect() throws ConnectionUnavailableException {
         transport.connect();
         for (int i = 0; i < destinationCount; i++){
-            publishingStrategy.addDestination(i);
+            publishingStrategy.destinationAvailable(i);
         }
     }
 

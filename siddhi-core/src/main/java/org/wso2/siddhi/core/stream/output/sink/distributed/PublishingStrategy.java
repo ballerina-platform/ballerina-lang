@@ -3,6 +3,7 @@ package org.wso2.siddhi.core.stream.output.sink.distributed;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +69,11 @@ public abstract class PublishingStrategy {
      * destination ID, that particular destination ID will be considered when getDestinationsToPublish() is called
      * @param destinationId
      */
-    public void addDestination(int destinationId){
+    public void destinationAvailable(int destinationId){
+        if (destinationIds.contains(destinationId)){
+            throw new ExecutionPlanValidationException("Destination ID " + destinationId + " already registered");
+        }
+
         destinationIds.add(destinationId);
         //Destination IDs are implied by the order they appear in @sink annotation and they are not changed once
         //assigned. Therefore, sorting the Ids once a new ID is added to keep the IDs in the same order as their

@@ -29,7 +29,7 @@ public class DynamicOptions {
         this.event = event;
     }
 
-    public Event getEvent() {
+    Event getEvent() {
         return event;
     }
 
@@ -37,7 +37,7 @@ public class DynamicOptions {
         variableOptionIndex = index;
     }
 
-    public int getVariableOptionIndex(){
+    int getVariableOptionIndex(){
         return variableOptionIndex;
     }
 }

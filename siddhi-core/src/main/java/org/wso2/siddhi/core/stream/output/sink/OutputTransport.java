@@ -27,6 +27,7 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This is a OutputTransport type. these let users to publish events according to
@@ -41,7 +42,9 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
     private OutputMapper mapper;
     private boolean tryConnect = false;
     private String elementId;
-    private boolean isConnected = false;
+    private AtomicBoolean isConnected =  new AtomicBoolean(false);
+
+
 
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder, OutputMapper outputMapper,
                      String mapType, OptionHolder mapOptionHolder, String payload, ExecutionPlanContext executionPlanContext) {
@@ -107,7 +110,7 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
         tryConnect = true;
         try {
             connect();
-            isConnected = true;
+            isConnected.set(true);
         } catch (ConnectionUnavailableException | RuntimeException e) {
             log.error(e.getMessage(), e);
         }
@@ -124,12 +127,12 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
     }
 
     public boolean isConnected(){
-        return isConnected;
+        return isConnected.get();
     }
 
     public void shutdown() {
         tryConnect = false;
-        isConnected = false;
+        isConnected.set(false);
         disconnect();
         destroy();
     }

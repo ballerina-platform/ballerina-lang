@@ -38,6 +38,7 @@ public abstract class DistributedTransport extends OutputTransport {
     protected PublishingStrategy publishingStrategy;
     protected StreamDefinition streamDefinition;
     protected ExecutionPlanContext executionPlanContext;
+    private String[] supportedDynamicOptions;
 
     /**
      * Will be called for initialing the {@link OutputTransport}
@@ -47,7 +48,7 @@ public abstract class DistributedTransport extends OutputTransport {
      * @param executionPlanContext   Context of the execution plan which this output sink belongs to
      */
     @Override
-    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,  ExecutionPlanContext
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext
             executionPlanContext) {
         this.streamDefinition = outputStreamDefinition;
         this.sinkOptionHolder = optionHolder;
@@ -56,17 +57,20 @@ public abstract class DistributedTransport extends OutputTransport {
 
     /**
      * This is method contains the additional parameters which require to initialize distributed transport
-     * @param outputStreamDefinition
-     * @param optionHolder
+     * @param streamDefinition
+     * @param transportOptionHolder
      * @param executionPlanContext
      * @param destinationOptionHolders
      * @param sinkAnnotation
      * @param strategy
      */
-    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,  ExecutionPlanContext
-            executionPlanContext, List<OptionHolder> destinationOptionHolders, Annotation sinkAnnotation, PublishingStrategy strategy) {
+    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
+                        String payload, ExecutionPlanContext executionPlanContext, List<OptionHolder>
+                                destinationOptionHolders, Annotation sinkAnnotation, PublishingStrategy strategy,
+                     String[] supportedDynamicOptions) {
         this.publishingStrategy = strategy;
-        init(streamDefinition, optionHolder, executionPlanContext);
+        this.supportedDynamicOptions = supportedDynamicOptions;
+        init(streamDefinition, type, transportOptionHolder, null, null, null, payload, executionPlanContext);
         initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, executionPlanContext);
     }
 
@@ -92,6 +96,17 @@ public abstract class DistributedTransport extends OutputTransport {
             throw new ConnectionUnavailableException(errorCount + "/" + destinationsToPublish.size()  + " connections"
                     + " failed while trying to publish with following error messages:" + errorMessages.toString());
         }
+    }
+
+
+    /**
+     * Supported dynamic options by the transport
+     *
+     * @return the list of supported dynamic option keys
+     */
+    @Override
+    public String[] getSupportedDynamicOptions() {
+      return supportedDynamicOptions;
     }
 
     public abstract void publish(Object payload, DynamicOptions transportOptions, int destinationId) throws ConnectionUnavailableException;

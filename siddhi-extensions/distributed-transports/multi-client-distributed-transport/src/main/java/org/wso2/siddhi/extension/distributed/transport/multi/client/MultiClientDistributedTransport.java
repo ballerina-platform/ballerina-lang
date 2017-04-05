@@ -70,7 +70,7 @@ public class MultiClientDistributedTransport extends DistributedTransport {
             sinkAnnotation, ExecutionPlanContext executionPlanContext) {
         String transportType = sinkOptionHolder.validateAndGetStaticValue(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
         org.wso2.siddhi.query.api.extension.Extension sink = DefinitionParserHelper.constructExtension
-                (streamDefinition, SiddhiConstants.ANNOTATION_SINK, transportType, sinkAnnotation,  SiddhiConstants
+                (streamDefinition, SiddhiConstants.ANNOTATION_SINK, transportType, sinkAnnotation, SiddhiConstants
                         .NAMESPACE_OUTPUT_TRANSPORT);
 
         destinationOptionHolders.forEach(destinationOption -> {
@@ -82,19 +82,6 @@ public class MultiClientDistributedTransport extends DistributedTransport {
         });
     }
 
-    /**
-     * Supported dynamic options by the transport
-     *
-     * @return the list of supported dynamic option keys
-     */
-    @Override
-    public String[] getSupportedDynamicOptions() {
-        if (transports != null) {
-            return transports.get(0).getSupportedDynamicOptions();
-        } else {
-            return new String[0];
-        }
-    }
 
     /**
      * Will be called to connect to the backend before events are published
@@ -110,7 +97,7 @@ public class MultiClientDistributedTransport extends DistributedTransport {
             try {
                 if (!transports.get(i).isConnected()) {
                     transports.get(i).connect();
-                    publishingStrategy.addDestination(i);
+                    publishingStrategy.destinationAvailable(i);
                     log.info("Connected to destination Id " + i);
                 }
             } catch (ConnectionUnavailableException e) {
