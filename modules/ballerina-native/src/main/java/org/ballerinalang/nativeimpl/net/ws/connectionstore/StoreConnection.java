@@ -28,8 +28,12 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.services.dispatchers.websocket.WebSocketConnectionManager;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.carbon.messaging.AbstractCarbonCallback;
+import org.wso2.carbon.messaging.CarbonCallback;
 
 import javax.websocket.Session;
+
 
 /**
  * Store the connection globally for the use of other services.
@@ -51,8 +55,14 @@ public class StoreConnection extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         String connectionName = getArgument(context, 0).stringValue();
-        Session session = (Session) context.getCarbonMessage().getProperty(Constants.WEBSOCKET_SESSION);
-        WebSocketConnectionManager.getInstance().storeConnection(connectionName, session);
-        return VOID_RETURN;
+        CarbonCallback balCallback = context.getBalCallback();
+        if (balCallback instanceof AbstractCarbonCallback) {
+            AbstractCarbonCallback callback = (AbstractCarbonCallback) balCallback;
+            Session session = (Session) callback.getProperty(Constants.WEBSOCKET_SESSION);
+            WebSocketConnectionManager.getInstance().storeConnection(connectionName, session);
+            return VOID_RETURN;
+        } else {
+            throw new BallerinaException("Error occurred. Cannot store connection in the store");
+        }
     }
 }

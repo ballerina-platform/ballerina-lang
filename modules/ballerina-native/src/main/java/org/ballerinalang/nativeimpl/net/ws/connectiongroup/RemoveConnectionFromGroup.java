@@ -28,7 +28,9 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.services.dispatchers.websocket.WebSocketConnectionManager;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.carbon.messaging.AbstractCarbonCallback;
+import org.wso2.carbon.messaging.CarbonCallback;
 
 import javax.websocket.Session;
 
@@ -51,9 +53,14 @@ public class RemoveConnectionFromGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         String connectionGroupName = getArgument(context, 0).toString();
-        CarbonMessage carbonMessage = context.getCarbonMessage();
-        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
-        WebSocketConnectionManager.getInstance().removeConnectionFromGroup(connectionGroupName, session);
-        return VOID_RETURN;
+        CarbonCallback balCallback = context.getBalCallback();
+        if (balCallback instanceof AbstractCarbonCallback) {
+            AbstractCarbonCallback callback = (AbstractCarbonCallback) balCallback;
+            Session session = (Session) callback.getProperty(Constants.WEBSOCKET_SESSION);
+            WebSocketConnectionManager.getInstance().removeConnectionFromGroup(connectionGroupName, session);
+            return VOID_RETURN;
+        } else {
+            throw new BallerinaException("Error occurred. Cannot remove connection from the group.");
+        }
     }
 }

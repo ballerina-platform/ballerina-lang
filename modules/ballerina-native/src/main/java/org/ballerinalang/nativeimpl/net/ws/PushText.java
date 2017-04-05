@@ -29,7 +29,8 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.AbstractCarbonCallback;
+import org.wso2.carbon.messaging.CarbonCallback;
 
 import javax.websocket.Session;
 
@@ -55,11 +56,14 @@ public class PushText extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
-            CarbonMessage carbonMessage = context.getCarbonMessage();
-            if (carbonMessage.getProperty(Constants.CHANNEL_ID) != null) {
-                Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+            CarbonCallback balCallback = context.getBalCallback();
+            if (balCallback instanceof AbstractCarbonCallback) {
+                AbstractCarbonCallback callback = (AbstractCarbonCallback) balCallback;
+                Session session = (Session) callback.getProperty(Constants.WEBSOCKET_SESSION);
                 String text = getArgument(context, 0).stringValue();
                 session.getBasicRemote().sendText(text);
+            } else {
+                throw new BallerinaException("Cannot send the message. Error occurred.");
             }
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
