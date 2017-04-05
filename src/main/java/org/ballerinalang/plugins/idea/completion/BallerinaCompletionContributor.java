@@ -139,22 +139,22 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     }
 
     private static LookupElementBuilder createLookupElement(String name, boolean withBoldness,
-                                                            InsertHandler insertHandler) {
+                                                            InsertHandler<LookupElement> insertHandler) {
         return LookupElementBuilder.create(name).withBoldness(withBoldness).withInsertHandler(insertHandler);
     }
 
     private static LookupElementBuilder createKeywordLookupElement(String name, boolean withBoldness,
-                                                                   InsertHandler insertHandler) {
+                                                                   InsertHandler<LookupElement> insertHandler) {
         return createLookupElement(name, withBoldness, insertHandler).withTypeText("Keyword", true);
     }
 
     private static LookupElementBuilder createSimpleTypeLookupElement(String name, boolean withBoldness,
-                                                                      InsertHandler insertHandler) {
+                                                                      InsertHandler<LookupElement> insertHandler) {
         return createLookupElement(name, withBoldness, insertHandler).withTypeText("Simple Type", true);
     }
 
     private static LookupElementBuilder createReferenceTypeLookupElement(String name, boolean withBoldness,
-                                                                         InsertHandler insertHandler) {
+                                                                         InsertHandler<LookupElement> insertHandler) {
         return createLookupElement(name, withBoldness, insertHandler).withTypeText("Reference Type", true);
     }
 
