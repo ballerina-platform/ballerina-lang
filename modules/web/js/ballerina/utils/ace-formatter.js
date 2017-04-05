@@ -161,7 +161,8 @@ class BallerinaFormatter {
             value = '',
             space = ' ',
             newLine = '\n',
-            tab = '\t';
+            tab = '\t',
+            annotationStack = [];
 
         while (token !== null) {
 
@@ -173,101 +174,122 @@ class BallerinaFormatter {
             nextToken = iterator.stepForward();
 
             //trim spaces
-            if (token.type === 'whitespace') {
+            if (token.type === 'whitespace' && _.isEmpty(annotationStack)) {
                 token.value = token.value.trim();
+            }
+
+            //detect annotation context
+            if (token.type === 'ballerina-annotation') {
+                annotationStack.push(token.value);
             }
 
             // add indent counts
             if (token.type === 'paren.lparen' && token.value === '{') {
-                indentation++;
+                if(_.isEmpty(annotationStack)){
+                    indentation++;
+                }
             }
             else if (token.type === 'paren.rparen' && token.value === '}') {
-                indentation--;
+                if(_.isEmpty(annotationStack)){
+                    indentation--;
+                }
             }
 
             //put spaces
             value = token.value;
-            spaceRules.forEach(function(spaceRule){
-                if (token.type === spaceRule.type && (!spaceRule.value || token.value === spaceRule.value))
-                {
-                    if (spaceRule.prepend && !_.endsWith(code, space)) {
-                        value = space + token.value;
-                    }
-                    if (spaceRule.append) {
-                        if(_.has(spaceRule, 'skipAppendUponNext')){
-                            var  skipAppendUponNext = _.get(spaceRule, 'skipAppendUponNext');
-                            if(_.isEqual(skipAppendUponNext.type, nextToken.type)
-                              && _.isEqual(skipAppendUponNext.value, nextToken.value)){
-                             // do nothing for now
+            // skip annotations
+            if(_.isEmpty(annotationStack)) {
+                spaceRules.forEach(function(spaceRule){
+                    if (token.type === spaceRule.type && (!spaceRule.value || token.value === spaceRule.value))
+                    {
+                        if (spaceRule.prepend && !_.endsWith(code, space)) {
+                            value = space + token.value;
+                        }
+                        if (spaceRule.append) {
+                            if(_.has(spaceRule, 'skipAppendUponNext')){
+                                var  skipAppendUponNext = _.get(spaceRule, 'skipAppendUponNext');
+                                if(_.isEqual(skipAppendUponNext.type, nextToken.type)
+                                  && _.isEqual(skipAppendUponNext.value, nextToken.value)){
+                                 // do nothing for now
+                                } else {
+                                    value += space;
+                                }
                             } else {
                                 value += space;
                             }
-                        } else {
-                            value += space;
                         }
                     }
-                }
-            });
+                });
 
-            if(_.isEqual(token.type, 'ballerina-identifier')
-                && _.isEqual(lastToken.type, 'whitespace')
-                && !_.endsWith(code, space) && !_.endsWith(code, tab)){
-                value = space + token.value;
+                if(_.isEqual(token.type, 'ballerina-identifier')
+                    && _.isEqual(lastToken.type, 'whitespace')
+                    && !_.endsWith(code, space) && !_.endsWith(code, tab)){
+                    value = space + token.value;
+                }
+
+                // put new lines
+                newLinesRules.forEach(function(newLineRule){
+                    if (token.type === newLineRule.type && (!newLineRule.value || token.value === newLineRule.value)) {
+                        if (newLineRule.breakBefore && !_.endsWith(code, newLine)) {
+                            var skipBreakBefore = false;
+                            if(_.has(newLineRule, 'avoidBreakBeforeUpon')){
+                                var avoidBreakBeforeUpon = _.get(newLineRule, 'avoidBreakBeforeUpon');
+                                if(_.isEqual(_.get(avoidBreakBeforeUpon, 'lastToken.type'), _.get(lastToken, 'type'))
+                                    && _.isEqual(_.get(avoidBreakBeforeUpon, 'lastToken.value'), _.get(lastToken, 'value'))){
+                                    skipBreakBefore = true;
+                                }
+                                if(_.isEqual(_.get(avoidBreakBeforeUpon, 'lastNonWhiteSpaceToken.type'), _.get(lastNonWhiteSpaceToken, 'type'))
+                                    && _.isEqual(_.get(avoidBreakBeforeUpon, 'lastNonWhiteSpaceToken.value'), _.get(lastNonWhiteSpaceToken, 'value'))){
+                                    skipBreakBefore = true;
+                                }
+                            }
+                            if(!skipBreakBefore){
+                                code += newLine;
+                                // indent
+                                for (let i = 0; i < indentation; i++) {
+                                    code += tab;
+                                }
+                            }
+                        }
+                        if (newLineRule.breakAfter) {
+                            var skipBreakAfter = false;
+                            if(_.has(newLineRule, 'avoidBreakAfterUpon')){
+                                var avoidBreakAfterUpon = _.get(newLineRule, 'avoidBreakAfterUpon');
+                                if(_.isEqual(_.get(avoidBreakAfterUpon, 'lastToken.type'), _.get(lastToken, 'type'))
+                                    && _.isEqual(_.get(avoidBreakAfterUpon, 'lastToken.value'), _.get(lastToken, 'value'))){
+                                    skipBreakAfter = true;
+                                }
+                                if(_.isEqual(_.get(avoidBreakAfterUpon, 'lastNonWhiteSpaceToken.type'), _.get(lastNonWhiteSpaceToken, 'type'))
+                                    && _.isEqual(_.get(avoidBreakAfterUpon, 'lastNonWhiteSpaceToken.value'), _.get(lastNonWhiteSpaceToken, 'value'))){
+                                    // do nothing
+                                    skipBreakAfter = true;
+                                }
+                            }
+                            if(!skipBreakAfter){
+                                value += newLine;
+                                var indent = indentation;
+                                // indent
+                                if(token.type === 'paren.lparen' && token.value === '{' && nextToken.type === 'paren.rparen' && nextToken.value === '}') {
+                                    // if block has no content don't indent so the closing '}' is not unnecessarily indented
+                                    indent -= 1;
+                                }
+                                for (let i = 0; i < indent; i++) {
+                                    value += tab;
+                                }
+                            }
+                        }
+                    }
+                });
             }
 
-            // put new lines
-            newLinesRules.forEach(function(newLineRule){
-                if (token.type === newLineRule.type && (!newLineRule.value || token.value === newLineRule.value)) {
-                    if (newLineRule.breakBefore && !_.endsWith(code, newLine)) {
-                        var skipBreakBefore = false;
-                        if(_.has(newLineRule, 'avoidBreakBeforeUpon')){
-                            var avoidBreakBeforeUpon = _.get(newLineRule, 'avoidBreakBeforeUpon');
-                            if(_.isEqual(_.get(avoidBreakBeforeUpon, 'lastToken.type'), _.get(lastToken, 'type'))
-                                && _.isEqual(_.get(avoidBreakBeforeUpon, 'lastToken.value'), _.get(lastToken, 'value'))){
-                                skipBreakBefore = true;
-                            }
-                            if(_.isEqual(_.get(avoidBreakBeforeUpon, 'lastNonWhiteSpaceToken.type'), _.get(lastNonWhiteSpaceToken, 'type'))
-                                && _.isEqual(_.get(avoidBreakBeforeUpon, 'lastNonWhiteSpaceToken.value'), _.get(lastNonWhiteSpaceToken, 'value'))){
-                                skipBreakBefore = true;
-                            }
-                        }
-                        if(!skipBreakBefore){
-                            code += newLine;
-                            // indent
-                            for (let i = 0; i < indentation; i++) {
-                                code += tab;
-                            }
-                        }
+            if (token.type === 'paren.rparen') {
+                let rparens = token.value.split('');
+                rparens.forEach((rparen) => {
+                    if(rparen === '}' && !_.isEmpty(annotationStack)) {
+                        annotationStack.pop();
                     }
-                    if (newLineRule.breakAfter) {
-                        var skipBreakAfter = false;
-                        if(_.has(newLineRule, 'avoidBreakAfterUpon')){
-                            var avoidBreakAfterUpon = _.get(newLineRule, 'avoidBreakAfterUpon');
-                            if(_.isEqual(_.get(avoidBreakAfterUpon, 'lastToken.type'), _.get(lastToken, 'type'))
-                                && _.isEqual(_.get(avoidBreakAfterUpon, 'lastToken.value'), _.get(lastToken, 'value'))){
-                                skipBreakAfter = true;
-                            }
-                            if(_.isEqual(_.get(avoidBreakAfterUpon, 'lastNonWhiteSpaceToken.type'), _.get(lastNonWhiteSpaceToken, 'type'))
-                                && _.isEqual(_.get(avoidBreakAfterUpon, 'lastNonWhiteSpaceToken.value'), _.get(lastNonWhiteSpaceToken, 'value'))){
-                                // do nothing
-                                skipBreakAfter = true;
-                            }
-                        }
-                        if(!skipBreakAfter){
-                            value += newLine;
-                            var indent = indentation;
-                            // indent
-                            if(token.type === 'paren.lparen' && token.value === '{' && nextToken.type === 'paren.rparen' && nextToken.value === '}') {
-                                // if block has no content don't indent so the closing '}' is not unnecessarily indented
-                                indent -= 1;
-                            }
-                            for (let i = 0; i < indent; i++) {
-                                value += tab;
-                            }
-                        }
-                    }
-                }
-            });
+                });
+            }
 
             code += value;
 
