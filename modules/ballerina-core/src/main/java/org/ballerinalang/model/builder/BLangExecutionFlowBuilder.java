@@ -51,6 +51,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthAccessExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -88,6 +89,7 @@ import org.ballerinalang.model.nodes.IfElseNode;
 import org.ballerinalang.model.nodes.StartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ActionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayInitExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.ArrayLengthAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayMapAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
@@ -1055,6 +1057,14 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             indexExpr.accept(this);
         }
         endNode.setNext(findNext(endNode));
+    }
+
+    @Override
+    public void visit(ArrayLengthAccessExpr arrayLengthAccessExpr) {
+        calculateTempOffSet(arrayLengthAccessExpr);
+        ArrayLengthAccessExprEndNode endNode = new ArrayLengthAccessExprEndNode(arrayLengthAccessExpr);
+        arrayLengthAccessExpr.setNext(endNode);
+        endNode.setNext(findNext(arrayLengthAccessExpr));
     }
 
     @Override

@@ -60,6 +60,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthAccessExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -1658,6 +1659,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(ArrayLengthAccessExpr arrayLengthAccessExpr) {
+        ReferenceExpr varRefExpr = arrayLengthAccessExpr.getVarRef();
+        varRefExpr.accept(this);
+        if (!(varRefExpr.getType() instanceof BArrayType)) {
+            BLangExceptionHelper.throwSemanticError(arrayLengthAccessExpr, SemanticErrors.MUST_BE_ARRAY_TYPE,
+                    varRefExpr.getSymbolName().getName());
+        }
+    }
+
+    @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
         BType inheritedType = refTypeInitExpr.getInheritedType();
         if (BTypes.isValueType(inheritedType) || inheritedType instanceof BArrayType ||
@@ -2528,8 +2539,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             ((VariableRefExpr) varRefExpr).setVariableDef(varDef);
             exprType = (varDef).getType();
         }
-
-        // Go to the referenced field of this struct
         StructFieldAccessExpr fieldExpr = structFieldAccessExpr.getFieldExpr();
         if (fieldExpr != null) {
             if (!(exprType instanceof StructDef)) {

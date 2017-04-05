@@ -329,6 +329,10 @@ variableReference
     |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
     ;
 
+arrayLength
+     : variableReference ('.length')                # arrayLengthIdentifier
+     ;
+
 expressionList
     :   expression (',' expression)*
     ;
@@ -356,6 +360,7 @@ expression
     |   mapStructLiteral                                # mapStructLiteralExpression
     |   valueTypeName '.' Identifier                    # valueTypeTypeExpression
     |   builtInReferenceTypeName '.' Identifier         # builtInReferenceTypeTypeExpression
+    |   arrayLength                                     # arrayLengthExpression
     |   variableReference                               # variableReferenceExpression
     |   backtickString                                  # templateExpression
     |   nameReference '(' expressionList? ')'           # functionInvocationExpression

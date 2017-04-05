@@ -698,6 +698,18 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code arrayLengthIdentifier}
+	 * labeled alternative in {@link BallerinaParser#arrayLength}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayLengthIdentifier(BallerinaParser.ArrayLengthIdentifierContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code arrayLengthIdentifier}
+	 * labeled alternative in {@link BallerinaParser#arrayLength}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayLengthIdentifier(BallerinaParser.ArrayLengthIdentifierContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#expressionList}.
 	 * @param ctx the parse tree
 	 */
@@ -915,6 +927,18 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code arrayLengthExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayLengthExpression(BallerinaParser.ArrayLengthExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code arrayLengthExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayLengthExpression(BallerinaParser.ArrayLengthExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code binaryCompareExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

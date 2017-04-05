@@ -1057,6 +1057,18 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterArrayLengthIdentifier(BallerinaParser.ArrayLengthIdentifierContext ctx){
+
+    }
+    @Override
+    public void exitArrayLengthIdentifier(BallerinaParser.ArrayLengthIdentifierContext ctx) {
+        if (ctx.exception != null || ctx.getChild(0) == null) {
+            return;
+        }
+        modelBuilder.createArrayLengthAccessExpr(getCurrentLocation(ctx));
+    }
+
+    @Override
     public void enterSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
     }
 
@@ -1257,6 +1269,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) {
 //        modelBuilder.createVarRefExpr();
+    }
+
+    @Override
+    public void enterArrayLengthExpression(BallerinaParser.ArrayLengthExpressionContext ctx){
+
+    }
+
+    @Override
+    public void exitArrayLengthExpression(BallerinaParser.ArrayLengthExpressionContext ctx){
+
     }
 
     @Override
