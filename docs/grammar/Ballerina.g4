@@ -200,6 +200,7 @@ statement
     |   commentStatement
     |   actionInvocationStatement
     |   functionInvocationStatement
+    |   transactionStatement
     ;
 
 variableDefinitionStatement
@@ -340,6 +341,14 @@ functionInvocationStatement
 actionInvocationStatement
     :   actionInvocation ';'
     |   variableReferenceList '=' actionInvocation ';'
+    ;
+
+transactionStatement
+    :   'transaction' '{' statement* '}' rollbackClause
+    ;
+
+rollbackClause
+    :   'onrollback' '{' statement* '}'
     ;
 
 actionInvocation

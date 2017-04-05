@@ -1123,6 +1123,26 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
+
+    }
+
+    @Override
+    public void enterRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+
+    }
+
+    @Override
+    public void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+
+    }
+
+    @Override
     public void enterActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
     }
 
