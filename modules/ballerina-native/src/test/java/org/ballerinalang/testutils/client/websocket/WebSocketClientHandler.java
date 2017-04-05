@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.testutils.websocket.client;
+package org.ballerinalang.testutils.client.websocket;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;

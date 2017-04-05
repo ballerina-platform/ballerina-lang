@@ -1,14 +1,14 @@
 package ballerina.doc;
 
-annotation Description attach function, struct, connector, action {
+annotation Description {
     string value;
 }
 
-annotation Param attach function, connector, action {
+annotation Param attach resource, function, connector, action, typemapper {
     string value;
 }
 
-annotation Return attach function, action {
+annotation Return attach function, action, typemapper {
     string value;
 }
 

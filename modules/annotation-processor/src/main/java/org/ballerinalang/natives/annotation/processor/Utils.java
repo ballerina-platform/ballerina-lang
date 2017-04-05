@@ -56,7 +56,8 @@ public class Utils {
         sb.append(" (");
         for (int i = 1; i <= args.length; i++) {
             Argument arg = args[i - 1];
-            sb.append(getArgumentType(arg.type(), arg.elementType(), arg.structType())).append(" ").append(arg.name());
+            sb.append(getArgumentType(arg.type(), arg.elementType(), arg.structType(), arg.arrayDimensions()))
+                    .append(" ").append(arg.name());
             if (i != args.length) {
                 sb.append(", ");
             }
@@ -77,7 +78,7 @@ public class Utils {
         sb.append(" (");
         for (int i = 1; i <= args.length; i++) {
             ReturnType arg = args[i - 1];
-            sb.append(getArgumentType(arg.type(), arg.elementType(), ""));
+            sb.append(getArgumentType(arg.type(), arg.elementType(), "", arg.arrayDimensions()));
             if (i != args.length) {
                 sb.append(", ");
             }
@@ -93,12 +94,14 @@ public class Utils {
      * @param structType type of the struct
      * @return argument type
      */
-    public static String getArgumentType(TypeEnum argType, TypeEnum argEltType, String structType) {
+    public static String getArgumentType(TypeEnum argType, TypeEnum argEltType, String structType,
+            int arrayDimensions) {
         if (TypeEnum.ARRAY.equals(argType)) {
+            String arraySuffix = createArraySuffix(arrayDimensions);
             if (TypeEnum.STRUCT.equals(argEltType)) {
-                return structType + "[]";
+                return structType + arraySuffix;
             } else {
-                return argEltType.getName() + "[]";
+                return argEltType.getName() + arraySuffix;
             }
         } else {
             if (TypeEnum.STRUCT.equals(argType)) {
@@ -191,10 +194,11 @@ public class Utils {
                 actionNameBuilder.append("." + connectorPkg + ":" + connectorName);
             } else if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
                 // if the argument is arrayType, then append the element type to the method signature
+                String arraySuffix = createArraySuffix(arg.arrayDimensions());
                 if (arg.elementType() == TypeEnum.STRUCT) {
-                    actionNameBuilder.append("." + connectorPkg + ":" + arg.structType() + "[]");
+                    actionNameBuilder.append("." + connectorPkg + ":" + arg.structType() + arraySuffix);
                 } else {
-                    actionNameBuilder.append("." + arg.elementType().getName() + "[]");
+                    actionNameBuilder.append("." + arg.elementType().getName() + arraySuffix);
                 }
             } else {
                 if (arg.type() == TypeEnum.STRUCT) {
@@ -229,7 +233,8 @@ public class Utils {
         for (Argument arg : args) {
             // if the argument is arrayType, then append the element type to the method signature 
             if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
-                funcNameBuilder.append("." + arg.elementType().getName() + "[]");
+                String arraySuffix = createArraySuffix(arg.arrayDimensions());
+                funcNameBuilder.append("." + arg.elementType().getName() + arraySuffix);
             } else {
                 funcNameBuilder.append("." + arg.type().getName());
             }
@@ -258,5 +263,14 @@ public class Utils {
             convertorNameBuilder.append(".").append(returnType.type().getName());
         }
         return convertorNameBuilder.toString();
+    }
+
+    private static String createArraySuffix(int arrayDimensions) {
+        StringBuffer arraySuffix = new StringBuffer("");
+        for (int i = 0; i < arrayDimensions; i++) {
+            arraySuffix = arraySuffix.append("[]");
+        }
+
+        return arraySuffix.toString();
     }
 }

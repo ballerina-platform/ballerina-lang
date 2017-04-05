@@ -6,8 +6,8 @@ function mapAccessTest(int x, int y)(int) {
     testMap["second"] = y;
     testMap["third"] = x + y;
     testMap["forth"] = x - y;
-    xx = testMap["first"];
-    yy = testMap["second"];
+    xx = (int) testMap["first"];
+    yy = (int) testMap["second"];
 
     return xx + yy;
 }
