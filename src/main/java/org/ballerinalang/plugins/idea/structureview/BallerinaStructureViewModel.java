@@ -21,6 +21,7 @@ import com.intellij.ide.structureView.StructureViewModelBase;
 import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.ide.util.treeView.smartTree.Sorter;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.jetbrains.annotations.NotNull;
 
 public class BallerinaStructureViewModel extends StructureViewModelBase
@@ -43,17 +44,12 @@ public class BallerinaStructureViewModel extends StructureViewModelBase
     @Override
     public boolean isAlwaysShowsPlus(StructureViewTreeElement element) {
         Object value = element.getValue();
-        return value instanceof BallerinaFile;
+        return (value instanceof BallerinaFile) || (value instanceof ConnectorNode);
     }
 
     @NotNull
     @Override
     protected Class[] getSuitableClasses() {
-
-        //Todo - add all suitable classes
-        //        return new Class[] {FileRoot.class,
-        //                LexerRuleSpecNode.class,
-        //                ParserRuleSpecNode.class};
         return super.getSuitableClasses();
     }
 }
