@@ -57,7 +57,6 @@ class Tools extends EventChannel {
         DebugManager.on('session-ended',() => { this.render(); });
         DebugManager.on('debug-hit',() => { this.enableNavigation(); });
         DebugManager.on('resume-execution',() => { this.disableNavigation(); });
-        DebugManager.on('session-completed',() => { this.disableNavigation(); });
     }
 
     setArgs(args) {
