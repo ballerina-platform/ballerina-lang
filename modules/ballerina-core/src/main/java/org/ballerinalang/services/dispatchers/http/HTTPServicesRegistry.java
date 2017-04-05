@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -111,8 +110,7 @@ public class HTTPServicesRegistry {
                         "ServerConnector interface not registered for : " + listenerInterface);
             }
             // Delay the startup until all services are deployed
-            BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector,
-                                                                                     Collections.emptyMap());
+            BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector);
         }
         if (servicesOnInterface.containsKey(basePath)) {
             throw new BallerinaException(
