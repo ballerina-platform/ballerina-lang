@@ -47,7 +47,7 @@
 }
 
 .outer-box {
-    border: 1px solid;
+    border: 1px solid #909090;
     border-top: none;
     overflow-x: hidden;
     position: relative;
@@ -55,9 +55,13 @@
     right: 0;
 }
 
+.panel {
+    box-shadow: none;
+}
+
 .panel-title {
     background: white;
-    border: 1px solid #333;
+    border: 1px solid #909090;
     vertical-align: middle;
 }
 
@@ -68,7 +72,7 @@
 
 .panel-icon, .service-icon, .connector-icon, .function-icon {
     padding: 6px 5px 5px;
-    background-color: #333;
+    background-color: #fff;
     font-size: 16px;
     width: 27px;
     text-align: center;
@@ -96,11 +100,11 @@
 }
 
 .btn-icon {
-    opacity: 0.8;
+    /*opacity: 0.8;*/
 }
 
 .btn-icon i{
-    opacity: 0.5;
+    /*opacity: 0.5;*/
 }
 
 .btn-icon:hover {
@@ -680,7 +684,6 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
 .struct-variable-definition-identifier {
     padding: 5px 13px 0 13px;
     min-width: 160px;
-
 }
 
 .struct-variable-definition-wrapper i {
@@ -756,7 +759,7 @@ span.package-pane {
 input#package-name-input {
     margin-left: 2px;
     border: 0 solid #ccc;
-    line-height: 18px;
+    line-height: 19px;
     padding: 2px 10px;
 }
 
@@ -764,7 +767,8 @@ input#package-name-input {
     cursor: pointer;
 }
 
-.package-definition-wrapper, .package-imports-wrapper {
+.package-definition-wrapper,
+.package-imports-wrapper {
     min-height: 57px;
     clear: both;
     float: left;

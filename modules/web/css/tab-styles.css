@@ -29,7 +29,7 @@ button.close {
     bottom: 0px;
     right: 30px;
     z-index: 30;
-    background: #333;
+    background: #34495e;
     color: #fff;
     padding: 0;
     border-radius: 2px 2px 0 0;
@@ -45,9 +45,6 @@ button.close {
 .toggle-to-design {
     width: 30px;
     height: 30px;
-}
-
-.tab-pane {
 }
 
 .grid-background {
@@ -97,7 +94,7 @@ button.close {
 }
 
 .tab-headers {
-    background-color: #333;
+    background-color: #21252b;
 }
 
 .canvas-container {
@@ -112,7 +109,7 @@ button.close {
     padding-right: 17px;
     padding-left: 5px;
     border-right: 1px;
-    background: #555;
+    background: #383b41;
     border-left: 1px solid #333;
 }
 

@@ -379,15 +379,16 @@ text-anchor: start;
     cursor: pointer;
 }
 .default-worker-life-line text{
+    fill: #fff;
     cursor: pointer;
     font-weight: 300;
     font-size: 14px;
 }
 
 .default-worker-life-line rect{
-    stroke: #000;
-    fill: #e2e2e2;
-    stroke-width: 2px;
+    stroke: #fff;
+    fill: #3498db;
+    stroke-width: 0;
 }
 
 .default-worker-life-line line{

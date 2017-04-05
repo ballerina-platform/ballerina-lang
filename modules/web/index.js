@@ -166,7 +166,7 @@ var config = {
                         outer_div: 'panel panel-default container-outer-div',
                         panel_title: 'panel-title',
                         panel_icon: 'panel-icon',
-                        service_icon: 'fw fw-service fw-inverse',
+                        service_icon: 'fw fw-service',
                         struct_icon: 'fw fw-struct fw-inverse',
                         connector_icon:'fw fw-connector fw-inverse',
                         function_icon:'fw fw-function fw-inverse',
