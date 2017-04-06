@@ -88,7 +88,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
 
         // Process all native function, actions, actions and type converters
         processNativeFunctions(balFunctionElements);
-        //processNativeConnectors(balConnectorElements);
+
         processNativeActions(balActionElements);
         processNativeTypeMappers(balTypeMapperElements);
 

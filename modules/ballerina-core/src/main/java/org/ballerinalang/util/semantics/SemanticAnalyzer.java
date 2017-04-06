@@ -2369,7 +2369,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         String pkgPath = actionIExpr.getPackagePath();
         String connectorName = actionIExpr.getConnectorName();
 
-        // First look for the actions
+        // First look for the connectors
         SymbolName connectorSymbolName = new SymbolName(connectorName, pkgPath);
         BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
         if (connectorSymbol == null) {

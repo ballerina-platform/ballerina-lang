@@ -381,7 +381,7 @@ public class ConstructProviderClassBuilder {
      * @param arguments Input parameters for the native construct
      * @param returnTypes Return types of the native construct
      * @param constructVarName Name of the variable that holds the instance of this construct in generated class
-     * @param scopeElements Child elements insertion string for the current construct. Only applicable for actions
+     * @param scopeElements Child elements insertion string for the current construct. Only applicable for connectors
      * @param nativeUnitClass Class type of the current construct instance
      * @param nativeUnitClassVarName Name of the temp variable which holds the class of the native construct in the
      * generated source.
@@ -429,7 +429,7 @@ public class ConstructProviderClassBuilder {
      * @param arguments Input parameters for the native construct
      * @param returnTypes Return types of the native construct
      * @param constructVarName Name of the variable that holds the instance of this construct in generated class
-     * @param scopeElements Child elements insertion string for the current construct. Only applicable for actions
+     * @param scopeElements Child elements insertion string for the current construct. Only applicable for connectors
      * @param nativeUnitClass Class type of the current construct instance
      * @param nativeUnitClassVarName Name of the temp variable which holds the class of the native construct in the
      * generated source.
