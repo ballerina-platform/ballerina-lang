@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.expressions;
 
+import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.values.BValue;
@@ -45,5 +46,10 @@ public class BinaryEqualityExpression extends BinaryExpression {
 
     public void setRefTypeEvalFunc(BiFunction<BValue, BValue, BValueType> refTypeEvalFunc) {
         this.refTypeEvalFunc = refTypeEvalFunc;
+    }
+    
+    @Override
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
     }
 }

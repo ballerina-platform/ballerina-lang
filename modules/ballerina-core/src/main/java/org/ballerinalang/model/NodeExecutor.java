@@ -28,6 +28,7 @@ import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
+import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
@@ -106,6 +107,8 @@ public interface NodeExecutor {
     BValue visit(UnaryExpression unaryExpr);
 
     BValue visit(BinaryExpression binaryExpr);
+    
+    BValue visit(BinaryEqualityExpression binaryEqualityExpr);
 
     BValue visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
@@ -142,5 +145,4 @@ public interface NodeExecutor {
     BValue visit(StructVarLocation structVarLocation);
 
     BValue visit(WorkerVarLocation workerVarLocation);
-
 }

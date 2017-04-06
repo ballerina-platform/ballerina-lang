@@ -137,7 +137,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -881,8 +880,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         next = replyStmtEndNode.next;
         Expression expr = replyStmtEndNode.getStatement().getReplyExpr();
         BMessage bMessage = (BMessage) getTempValue(expr);
-        CarbonMessage cMsg = bMessage != null ? cMsg = bMessage.value() : null;
-        bContext.getBalCallback().done(cMsg);
+        bContext.getBalCallback().done(bMessage != null ? bMessage.value() : null);
     }
 
     @Override

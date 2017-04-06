@@ -699,20 +699,25 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public BValue visit(BinaryExpression binaryExpr) {
         Expression rExpr = binaryExpr.getRExpr();
+        BValueType rValue = (BValueType) rExpr.execute(this);
+        
         Expression lExpr = binaryExpr.getLExpr();
+        BValueType lValue = (BValueType) lExpr.execute(this);
+        
+        return binaryExpr.getEvalFunc().apply(lValue, rValue);
+    }
+
+    @Override
+    public BValue visit(BinaryEqualityExpression binaryEqualityExpr) {
+        Expression rExpr = binaryEqualityExpr.getRExpr();
+        Expression lExpr = binaryEqualityExpr.getLExpr();
  
         BValue rValue = rExpr.execute(this);
         BValue lValue = lExpr.execute(this);
         
-        // if this is a null check, then need to pass the BValue
-        if (binaryExpr instanceof BinaryEqualityExpression &&
-            (rExpr.getType() == BTypes.typeNull || lExpr.getType() == BTypes.typeNull)) {
-            return ((BinaryEqualityExpression) binaryExpr).getRefTypeEvalFunc().apply(lValue, rValue);
-        }
-        
-        return binaryExpr.getEvalFunc().apply((BValueType) lValue, (BValueType) rValue);
+        return binaryEqualityExpr.getRefTypeEvalFunc().apply(lValue, rValue);
     }
-
+    
     @Override
     public BValue visit(ArrayMapAccessExpr arrayMapAccessExpr) {
         VariableRefExpr arrayVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
