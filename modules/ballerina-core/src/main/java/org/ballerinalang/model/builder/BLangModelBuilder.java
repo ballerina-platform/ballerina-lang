@@ -278,20 +278,20 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        Expression expr = null;
+        Expression defaultValExpr = null;
         if (defaultValueAvailable) {
-            // Expression ignored = exprStack.pop();
-            expr = exprStack.pop();
+            defaultValExpr = exprStack.pop();
         }
         
         if (currentScope instanceof StructDef) {
-            // TODO Implement default value support for struct fields
-            VariableDef variableDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
-            currentScope.define(symbolName, variableDef);
-            currentStructBuilder.addField(variableDef);
+            VariableDef fieldDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
+            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, fieldName);
+            fieldRefExpr.setVariableDef(fieldDef);
+            VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
+            currentStructBuilder.addField(fieldDefStmt);
         } else if (currentScope instanceof AnnotationDef) {
             AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, fieldName, typeName, 
-                (BasicLiteral) expr, symbolName, currentScope, currentPackagePath);
+                (BasicLiteral) defaultValExpr, symbolName, currentScope, currentPackagePath);
             currentScope.define(symbolName, annotationField);
             annotationDefBuilder.addAttributeDef(annotationField);
         }

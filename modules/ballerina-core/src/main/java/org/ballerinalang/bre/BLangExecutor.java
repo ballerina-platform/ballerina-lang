@@ -30,7 +30,6 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.TypeMapper;
-import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
@@ -1055,6 +1054,9 @@ public class BLangExecutor implements NodeExecutor {
         } else if (memoryLocation instanceof WorkerVarLocation) {
             int stackFrameOffset = ((WorkerVarLocation) memoryLocation).getworkerMemAddrOffset();
             controlStack.setValue(stackFrameOffset, rValue);
+        } else if (memoryLocation instanceof StructVarLocation) {
+            int structMemOffset = ((StructVarLocation) memoryLocation).getStructMemAddrOffset();
+            controlStack.setValue(structMemOffset, rValue);
         }
     }
 
@@ -1065,20 +1067,13 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(StructInitExpr structInitExpr) {
         StructDef structDef = (StructDef) structInitExpr.getType();
         BValue[] structMemBlock;
-        int offset = 0;
         structMemBlock = new BValue[structDef.getStructMemorySize()];
 
-        Expression[] argExprs = structInitExpr.getArgExprs();
-
-
-        // create a memory block to hold field of the struct, and populate it with default values
-        VariableDef[] fields = structDef.getFields();
-        for (VariableDef field : fields) {
-            structMemBlock[offset] = field.getType().getDefaultValue();
-            offset++;
-        }
-
+        // Invoke the <init> function
+        invokeStructInitFunction(structDef, structMemBlock);
+        
         // iterate through initialized values and re-populate the memory block
+        Expression[] argExprs = structInitExpr.getArgExprs();
         for (int i = 0; i < argExprs.length; i++) {
             MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
             VariableRefExpr varRefExpr = (VariableRefExpr) expr.getKeyExpr();
@@ -1202,7 +1197,7 @@ public class BLangExecutor implements NodeExecutor {
         if (arrayMapValue == null) {
             throw new BallerinaException("field '" + fieldExpr.getVarRef().getSymbolName() + " is null");
         }
-        
+
         // Set the value to arrays/map's index location
         ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
         if (varRef.getRExpr().getType() == BTypes.typeMap) {
@@ -1347,5 +1342,20 @@ public class BLangExecutor implements NodeExecutor {
 
         return arrayVal;
     }
-
+    
+    /**
+     * Invoke the init function of the struct. This will populate the default values for struct fields.
+     * 
+     * @param structDef Struct definition
+     * @param structMemBlock Memory block to be assigned for the new struct instance
+     */
+    private void invokeStructInitFunction(StructDef structDef, BValue[] structMemBlock) {
+        Function initFunction = structDef.getInitFunction();
+        CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
+            initFunction.getNodeLocation());
+        StackFrame stackFrame = new StackFrame(structMemBlock, null, functionInfo);
+        controlStack.pushFrame(stackFrame);
+        initFunction.getCallableUnitBody().execute(this);
+        controlStack.popFrame();
+    }
 }
