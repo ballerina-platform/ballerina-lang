@@ -27,10 +27,7 @@ class AnnotationDefinition extends ASTNode {
     constructor(args) {
         super('Annotation');
         this._annotationName = _.get(args, 'annotationName');
-        this._attachedDefinitions = _.get(args, 'attachedDefinitions', ['service']);
-        this._annotationProperties = _.get(args, 'annotationProperties', []);
-
-        this.BallerinaASTFactory = this.getFactory();
+        this._attachmentPoints = _.get(args, 'attachmentPoints', []);
     }
 
     setAnnotationName(annotationName, options) {
@@ -51,8 +48,16 @@ class AnnotationDefinition extends ASTNode {
         return this._annotationName;
     }
 
-    getAttachedDefinitions() {
-        return this._attachedDefinitions;
+    getAttachmentPoints() {
+        return this._attachmentPoints;
+    }
+
+    setAttachmentPoints(attachmentPoints, options) {
+        this.setAttribute('_attachmentPoints', attachmentPoints, options);
+    }
+
+    getAnnotationDefinitions(){
+
     }
 
     /**
@@ -60,7 +65,14 @@ class AnnotationDefinition extends ASTNode {
      * @override
      * */
     initFromJson(jsonNode) {
+        var self = this;
         this.setAnnotationName(jsonNode.annotation_name, {doSilently: true});
+        this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), {doSilently: true});
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
     }
 
     /**
@@ -68,7 +80,7 @@ class AnnotationDefinition extends ASTNode {
      * @override
      * */
     generateUniqueIdentifiers() {
-        CommonUtils.generateUniqueIdentifier(({
+        CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
                 defaultValue: 'Annotation',
@@ -80,7 +92,7 @@ class AnnotationDefinition extends ASTNode {
                     getter: this.getAnnotationName
                 }]
             }]
-        }))
+        });
     }
 }
 

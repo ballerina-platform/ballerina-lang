@@ -26,11 +26,11 @@ import D3Utils from 'd3utils';
     var toolView = Backbone.View.extend({
 
         toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container <%=classNames%>\"  " +
-            "data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon%>\" " +
+            "data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon.getAttribute(\"src\")%>\" " +
             "class=\"tool-image\"  /><p class=\"tool-title\"><%=title%></p></div>"),
         toolTemplateVertical: _.template("<div id=\"<%=id%>-tool\" class=\"tool-block tool-container-vertical " +
             "<%=classNames%>\"> <div class=\"tool-container-vertical-icon\" data-placement=\"bottom\" " +
-            "data-toggle=\"tooltip\" title='<%=title%>'><img src=\"<%=icon%>\" class=\"tool-image\"  />" +
+            "data-toggle=\"tooltip\" title='<%=title%>'><img src=\"<%=icon.getAttribute(\"src\")%>\" class=\"tool-image\"  />" +
             "</div><div class=\"tool-container-vertical-title\" data-placement=\"bottom\" data-toggle=\"tooltip\" " +
             "title='<%=title%>'><%=title%></div><p class=\"tool-title\"><%=title%></p></div>"),
 
@@ -137,18 +137,15 @@ import D3Utils from 'd3utils';
         },
 
         createCloneCallback: function (view) {
-            var iconSVG,
+            var icon = this.model.icon,
                 self = this,
                 iconSize = _.get(this, 'options.dragIcon.box.size');
-            d3.xml(this.model.icon).mimeType("image/svg+xml").get(function (error, xml) {
-                if (error) throw error;
-                iconSVG = xml.getElementsByTagName("svg")[0];
-                d3.select(iconSVG).attr("width", iconSize).attr("height", iconSize);
-            });
+            var self = this;
+            d3.select(icon).attr("width", iconSize).attr("height", iconSize);
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();
-                div.node().appendChild(iconSVG);
-                self._$draggedToolIcon = $(iconSVG);
+                div.node().appendChild(icon);
+                self._$draggedToolIcon = $(icon);
                 return div.node();
             }
 
