@@ -867,7 +867,8 @@ public class BallerinaPsiImplUtil {
         // If the context is not null, get variables from parent context as well.
         // Ex:- If the current context is function body, we need to get parameters from function definition which is
         // the parent context.
-        if (context != null) {
+        // We need to check the context.getContext() here, otherwise all variables in the file will be suggested.
+        if (context != null && !(context.getContext() instanceof BallerinaFile)) {
             List<PsiElement> allVariablesInResolvableScope = getAllVariablesInResolvableScope(context.getContext());
             for (PsiElement psiElement : allVariablesInResolvableScope) {
                 if (!results.contains(psiElement)) {
