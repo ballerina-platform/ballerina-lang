@@ -41,11 +41,7 @@ import org.slf4j.LoggerFactory;
         consts = {
                 @BallerinaConstant(identifier = "LOG_LEVEL_TRACE", type = TypeEnum.INT, value = "1",
                         argumentRefs = {"logLevel"}),
-                @BallerinaConstant(identifier = "LOG_LEVEL_DEBUG", type = TypeEnum.LONG, value = "2",
-                        argumentRefs = {"logLevel"}),
                 @BallerinaConstant(identifier = "LOG_LEVEL_INFO", type = TypeEnum.FLOAT, value = "3",
-                        argumentRefs = {"logLevel"}),
-                @BallerinaConstant(identifier = "LOG_LEVEL_WARN", type = TypeEnum.DOUBLE, value = "4",
                         argumentRefs = {"logLevel"}),
                 @BallerinaConstant(identifier = "LOG_LEVEL_ERROR", type = TypeEnum.BOOLEAN, value = "5",
                         argumentRefs = {"logLevel"}),
@@ -57,7 +53,7 @@ import org.slf4j.LoggerFactory;
                         argumentRefs = {"logLevel"}),
                 @BallerinaConstant(identifier = "LOG_LEVEL_ERROR", type = TypeEnum.INT, value = "hello",
                         argumentRefs = {"logLevel"})
-        }
+        }//todo do we need to change the order? that is int - 1, float - 2 etc
 )
 public class TestConstantsNativeFunction extends AbstractNativeFunction {
 
@@ -65,6 +61,7 @@ public class TestConstantsNativeFunction extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         // TODO : Improve this with trace log.
+        //here we cast second parameter to int as anyway it only has few log levels
         LogUtil.log(logger, ((BInteger) getArgument(ctx, 0)).intValue(), getArgument(ctx, 1).stringValue());
         return VOID_RETURN;
     }

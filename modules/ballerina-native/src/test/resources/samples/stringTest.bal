@@ -56,16 +56,8 @@ function intValueOf(int i) (string) {
     return strings:valueOf(i);
 }
 
-function longValueOf(long l) (string) {
-    return strings:valueOf(l);
-}
-
 function floatValueOf(float f) (string) {
     return strings:valueOf(f);
-}
-
-function doubleValueOf(double d) (string) {
-    return strings:valueOf(d);
 }
 
 function booleanValueOf(boolean b) (string) {

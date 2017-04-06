@@ -30,7 +30,9 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
  * Native function ballerina.model.arrays:copyOfRange(message[], int, int).
@@ -61,8 +63,20 @@ public class MessageArrayRangeCopy extends AbstractNativeFunction {
         BInteger argFrom = (BInteger) getArgument(context, 1);
         BInteger argTo = (BInteger) getArgument(context, 2);
 
-        int from = argFrom.intValue();
-        int to = argTo.intValue();
+        long fromLong = argFrom.intValue();
+        long toLong = argTo.intValue();
+
+        if (toLong != (int) toLong) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, toLong);
+        }
+        if (fromLong != (int) fromLong) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, fromLong);
+        }
+
+        int from = (int) fromLong;
+        int to = (int) toLong;
 
         if (from < 0 || to > array.size()) {
             throw new BallerinaException(

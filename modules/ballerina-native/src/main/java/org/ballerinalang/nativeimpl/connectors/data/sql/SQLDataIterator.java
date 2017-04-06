@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.connectors.data.sql;
 
 import org.ballerinalang.model.DataIterator;
-import org.ballerinalang.model.values.BLong;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.connectors.data.sql.client.SQLConnectorUtils;
@@ -90,7 +90,8 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-    public long getLong(int index) {
+    @Override
+    public long getInt(int index) {
         try {
             return rs.getLong(index);
         } catch (SQLException e) {
@@ -99,7 +100,7 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public long getLong(String columnName) {
+    public long getInt(String columnName) {
         try {
             return rs.getLong(columnName);
         } catch (SQLException e) {
@@ -107,41 +108,8 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-    public int getInt(int index) {
-        try {
-            return rs.getInt(index);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
     @Override
-    public int getInt(String columnName) {
-        try {
-            return rs.getInt(columnName);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    public float getFloat(int index) {
-        try {
-            return rs.getFloat(index);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public float getFloat(String columnName) {
-        try {
-            return rs.getFloat(columnName);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    public double getDouble(int index) {
+    public double getFloat(int index) {
         try {
             return rs.getDouble(index);
         } catch (SQLException e) {
@@ -150,7 +118,7 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public double getDouble(String columnName) {
+    public double getFloat(String columnName) {
         try {
             return rs.getDouble(columnName);
         } catch (SQLException e) {
@@ -158,6 +126,7 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
+    @Override
     public boolean getBoolean(int index) {
         try {
             return rs.getBoolean(index);
@@ -235,11 +204,11 @@ public class SQLDataIterator implements DataIterator {
             case "nclob":
                 return getBString(rs.getNClob(columnIndex));
             case "date":
-                return new BLong(rs.getDate(columnIndex).getTime());
+                return new BInteger(rs.getDate(columnIndex).getTime());
             case "time":
-                return new BLong(rs.getTime(columnIndex).getTime());
+                return new BInteger(rs.getTime(columnIndex).getTime());
             case "timestamp":
-                return new BLong(rs.getTimestamp(columnIndex).getTime());
+                return new BInteger(rs.getTimestamp(columnIndex).getTime());
             case "binary":
                 return getBString(rs.getBinaryStream(columnIndex));
             }
@@ -261,11 +230,11 @@ public class SQLDataIterator implements DataIterator {
             case "nclob":
                 return getBString(rs.getNClob(columnName));
             case "date":
-                return new BLong(rs.getDate(columnName).getTime());
+                return new BInteger(rs.getDate(columnName).getTime());
             case "time":
-                return new BLong(rs.getTime(columnName).getTime());
+                return new BInteger(rs.getTime(columnName).getTime());
             case "timestamp":
-                return new BLong(rs.getTimestamp(columnName).getTime());
+                return new BInteger(rs.getTimestamp(columnName).getTime());
             case "binary":
                 return getBString(rs.getBinaryStream(columnName));
             }
