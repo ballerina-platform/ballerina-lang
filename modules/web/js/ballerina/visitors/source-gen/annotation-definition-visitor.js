@@ -29,14 +29,12 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitAnnotationDefinition(annotationDefinition) {
-        var self = this;
-
         var constructedSourceSegment = 'annotation ' + annotationDefinition.getAnnotationName() + ' attach ';
         var count = 0;
-        _.forEach(annotationDefinition.getAttachedDefinitions(), function (definition) {
+        _.forEach(annotationDefinition.getAnnotationAttributeDefinitions(), function (definition) {
             count += 1;
             constructedSourceSegment += definition;
-            if (!_.isEqual(count, annotationDefinition.getAttachedDefinitions().length)) {
+            if (!_.isEqual(count, annotationDefinition.getAnnotationAttributeDefinitions().length)) {
                 constructedSourceSegment += ',';
             }
         });

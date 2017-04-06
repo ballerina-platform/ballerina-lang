@@ -825,3 +825,45 @@ input#package-name-input {
     background-color: #333333;
     color: #f17b31;
 }
+
+.annotation-definition-inner-container {
+    left: 0;
+    top: 40px;
+    position: relative;
+}
+
+.annotation-definition-container {
+    height: 100%
+}
+
+.add-annotation-attribute-button-wrapper {
+    height: 28px;
+    position: static;
+    width: 26px;
+    font-size: 11px;
+    float: left;
+    padding: 7px;
+    margin: -1px;
+    border: 1px solid #ddd;
+    background: #fff;
+    opacity: 1;
+}
+
+.attribute-row {
+    position: relative;
+    top: 20px;
+}
+
+.close-btn > i {
+    position:relative;
+    top: calc(50% - 10px); /* 50% - 3/4 of icon height */
+}
+
+.input-label{
+    display: block;
+    height: 40px;
+    font-size: 14px;
+    margin-left: 15px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}

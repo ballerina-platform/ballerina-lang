@@ -25,14 +25,16 @@ import log from 'log';
 class AnnotationAttributeDefinition extends ASTNode {
     constructor(args) {
         super('AnnotationAttribute');
-
+        this._attributeName = _.get(args, 'attributeName');
+        this._attributeType = _.get(args, 'attributeType');
+        this._pkgPath = _.get(args, 'pkgPath');
     }
 
     setAttributeName(attributeName, options) {
         if (!_.isNil(attributeName) && ASTNode.isValidIdentifier(attributeName)) {
             this.setAttribute('_attributeName', attributeName, options);
         } else {
-            var error = "Invalid name for the annotation attribute name: " + attributeName;
+            var error = 'Invalid name for the annotation attribute name: ' + attributeName;
             log.error(error);
             throw  error;
         }
@@ -43,12 +45,35 @@ class AnnotationAttributeDefinition extends ASTNode {
         return this._attributeName;
     }
 
+    getAttributeType(attributeType, options) {
+        this.setAttribute('_attributeType', attributeType, options);
+    }
+
+    setAttributeType() {
+        return this._attributeType;
+    }
+
+    setPackagePath(pkgPath, options){
+        this.setAttribute('_pkgPath', pkgPath, options);
+    }
+
+    getPackagePath(){
+        return this._pkgPath;
+    }
+
     /**
      * @inheritDoc
      * @override
      * */
     initFromJson(jsonNode) {
+        var self = this;
         this.setAttributeName(jsonNode.annotation_attribute_name, {doSilently: true});
+        this.setAttributeType(jsonNode.annotation_attribute_type, {doSilently: true});
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
     }
 }
 

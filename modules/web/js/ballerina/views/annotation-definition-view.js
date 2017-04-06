@@ -131,13 +131,18 @@ class AnnotationDefinitionView extends SVGCanvas {
         annotationColumn3.append(annotationInputGroup3);
         definitionSignatureRow.append(annotationColumn3);
 
-
         annotationDefinitionInnerContainer.append(definitionSignatureRow);
 
         var attachmentLabel = $("<span>Attach:</span>");
         annotationInputGroupAddon2.append(attachmentLabel);
         var attachmentInput = $("<input type='text' class='attachments form-control'/>");
         annotationInputGroup2.append(attachmentInput);
+
+        attachmentInput.on('change', function (e) {
+            if (!_.isNil(attachmentInput.val())) {
+                self.getModel().setAttachmentPoints(_.split(attachmentInput.val()), {doSilently: false});
+            }
+        });
 
         var addAttributeButton = $("<div id='add-attribute-btn' class='add-annotation-attribute-button-wrapper'" +
             "data-toggle='tooltip' data-placement='bottom' data-original-title='Add Attribute'><i class='fw fw-add'></i></div>");
@@ -191,7 +196,6 @@ class AnnotationDefinitionView extends SVGCanvas {
             listItemRow.append(closeButton);
 
             closeButton.on('click', function (e) {
-                debugger;
                 $(this).closest("li").remove();
             });
 
@@ -204,7 +208,6 @@ class AnnotationDefinitionView extends SVGCanvas {
             listItem.append(listItemRow);
 
             listOfAttributes.append(listItem);
-            debugger;
         });
 
         var self = this;
@@ -212,39 +215,39 @@ class AnnotationDefinitionView extends SVGCanvas {
             self.getModel().setAnnotationName($(this).text());
         })
             .on('click', function (event) {
-            event.stopPropagation();
-        })
+                event.stopPropagation();
+            })
             .on('blur', function (event) {
-            if ($(this).text().length > 50) {
-                var textToDisplay = $(this).text().substring(0, 47) + '...';
-                $(this).text(textToDisplay);
-            }
-        })
+                if ($(this).text().length > 50) {
+                    var textToDisplay = $(this).text().substring(0, 47) + '...';
+                    $(this).text(textToDisplay);
+                }
+            })
             .on('focus', function (event) {
-            $(this).text(self.getModel().getAnnotationName());
-        })
+                $(this).text(self.getModel().getAnnotationName());
+            })
             .keypress(function (e) {
-            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
-             (Chrome and IE ignore keypress event of these keys in browser level)*/
-            if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (_.isEqual(enteredKey, 13)) {
-                    e.stopPropagation();
-                    return false;
-                }
+                /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+                 (Chrome and IE ignore keypress event of these keys in browser level)*/
+                if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    // Disabling enter key
+                    if (_.isEqual(enteredKey, 13)) {
+                        e.stopPropagation();
+                        return false;
+                    }
 
-                var newAnnotationName = $(this).text() + String.fromCharCode(enteredKey);
+                    var newAnnotationName = $(this).text() + String.fromCharCode(enteredKey);
 
-                try {
-                    self.getModel().setAnnotationName(newAnnotationName);
-                } catch (error) {
-                    // Alerts.error(error);
-                    e.stopPropagation();
-                    return false;
+                    try {
+                        self.getModel().setAnnotationName(newAnnotationName);
+                    } catch (error) {
+                        // Alerts.error(error);
+                        e.stopPropagation();
+                        return false;
+                    }
                 }
-            }
-        });
+            });
 
         annotationDefinitionContainer.append(annotationDefinitionInnerContainer);
         currentContainer.find('svg').parent().append(annotationDefinitionContainer);
