@@ -27,6 +27,7 @@ import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
+import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -89,7 +90,9 @@ public class BallerinaStructureViewElement implements StructureViewTreeElement, 
             Collection<? extends PsiElement> services = XPath.findAll(BallerinaLanguage.INSTANCE, element,
                     "//serviceDefinition/Identifier");
             for (PsiElement service : services) {
-                treeElements.add(new BallerinaStructureViewElement(service));
+                // In here, instead of using the service, we use service.getParent(). This is done because we
+                // want to show resources under a service node. This is how the sub nodes can be added.
+                treeElements.add(new BallerinaStructureViewElement(service.getParent()));
             }
             // Add functions.
             Collection<? extends PsiElement> functions = XPath.findAll(BallerinaLanguage.INSTANCE, element,
@@ -120,13 +123,24 @@ public class BallerinaStructureViewElement implements StructureViewTreeElement, 
             // Convert the list to an array and return.
             return treeElements.toArray(new TreeElement[treeElements.size()]);
         } else if (element instanceof ConnectorNode) {
-            // If the element is a Connector instance, we get all actions.
+            // If the element is a ConnectorNode instance, we get all actions.
             List<TreeElement> treeElements = new ArrayList<>();
             // Add actions.
             Collection<? extends PsiElement> actions = XPath.findAll(BallerinaLanguage.INSTANCE, element,
                     "//actionDefinition/Identifier");
             for (PsiElement action : actions) {
                 treeElements.add(new BallerinaStructureViewElement(action));
+            }
+            // Convert the list to an array and return.
+            return treeElements.toArray(new TreeElement[treeElements.size()]);
+        } else if (element instanceof ServiceDefinitionNode) {
+            // If the element is a ServiceDefinitionNode instance, we get all resources.
+            List<TreeElement> treeElements = new ArrayList<>();
+            // Add actions.
+            Collection<? extends PsiElement> resources = XPath.findAll(BallerinaLanguage.INSTANCE, element,
+                    "//resourceDefinition/Identifier");
+            for (PsiElement resource : resources) {
+                treeElements.add(new BallerinaStructureViewElement(resource));
             }
             // Convert the list to an array and return.
             return treeElements.toArray(new TreeElement[treeElements.size()]);

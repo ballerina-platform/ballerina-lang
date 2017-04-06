@@ -25,6 +25,7 @@ import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.jetbrains.annotations.Nullable;
@@ -46,14 +47,16 @@ public class BallerinaItemPresentation implements ItemPresentation {
             return AllIcons.Nodes.Field;
         } else if (element.getParent() instanceof ConnectorNode || element instanceof ConnectorNode) {
             return AllIcons.Nodes.Class;
-        } else if (element.getParent() instanceof ServiceDefinitionNode) {
-            return AllIcons.Nodes.ExceptionClass;
+        } else if (element.getParent() instanceof ServiceDefinitionNode || element instanceof ServiceDefinitionNode) {
+            return AllIcons.Nodes.Static;
         } else if (element.getParent() instanceof AnnotationDefinitionNode) {
             return AllIcons.Nodes.Annotationtype;
         } else if (element.getParent() instanceof ActionDefinitionNode) {
-            return AllIcons.Nodes.AnonymousClass;
-        }else if (element.getParent() instanceof StructDefinitionNode) {
-            return AllIcons.Nodes.Static;
+            return AllIcons.Nodes.Advice;
+        } else if (element.getParent() instanceof StructDefinitionNode) {
+            return AllIcons.Json.Object;
+        } else if (element.getParent() instanceof ResourceDefinitionNode) {
+            return AllIcons.Nodes.Advice;
         }
         return BallerinaIcons.ICON;
     }
@@ -61,9 +64,18 @@ public class BallerinaItemPresentation implements ItemPresentation {
     @Nullable
     @Override
     public String getPresentableText() {
+        // Todo - Add parameters, return types
         ASTNode node = element.getNode();
         if (element instanceof ConnectorNode) {
-            return ((ConnectorNode) element).getNameIdentifier().getText();
+            PsiElement nameIdentifier = ((ConnectorNode) element).getNameIdentifier();
+            if (nameIdentifier != null) {
+                return nameIdentifier.getText();
+            }
+        } else if (element instanceof ServiceDefinitionNode) {
+            PsiElement nameIdentifier = ((ServiceDefinitionNode) element).getNameIdentifier();
+            if (nameIdentifier != null) {
+                return nameIdentifier.getText();
+            }
         }
         return node.getText();
     }
