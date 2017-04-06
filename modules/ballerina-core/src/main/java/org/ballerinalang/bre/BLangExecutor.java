@@ -94,7 +94,6 @@ import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -402,8 +401,7 @@ public class BLangExecutor implements NodeExecutor {
         // TODO revisit this logic
         Expression expr = replyStmt.getReplyExpr();
         BMessage bMessage = (BMessage) expr.execute(this);
-        CarbonMessage cMsg = bMessage != null ? cMsg = bMessage.value() : null;
-        bContext.getBalCallback().done(cMsg);
+        bContext.getBalCallback().done(bMessage != null ? bMessage.value() : null);
         returnedOrReplied = true;
     }
 
