@@ -57,7 +57,7 @@ public class WorkspaceServiceRunner {
 
         boolean isCloudMode = Boolean.getBoolean(Constants.SYS_WORKSPACE_ENABLE_CLOUD);
 
-        if (args[1] != null) {
+        if (args.length > 1 && args[1] != null) {
             filePath = args[1];
         } else {
             filePath = "resources/composer/web/resources/samples/helloWorld.bal";
