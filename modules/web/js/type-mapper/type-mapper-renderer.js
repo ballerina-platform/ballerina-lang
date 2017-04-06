@@ -548,6 +548,7 @@ class TypeMapperRenderer {
             var funcName = $('<div>');
             var funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
             var closeButton = $('<span>').attr('id', id + "-button").addClass('fw-stack fw-lg btn btn-remove');
+            var outputContent = $('<div>').attr('id', id + "func-output").addClass('func-output');
 
             var square = $('<i>').addClass('fw fw-square fw-stack-1x');
             var del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
@@ -558,6 +559,7 @@ class TypeMapperRenderer {
             closeButton.append(del);
             funcName.append(closeButton);
             newFunc.append(funcName);
+            newFunc.append(outputContent);
 
             newFunc.css({
                 'top': 0,
@@ -600,7 +602,7 @@ class TypeMapperRenderer {
             });
 
             _.forEach(func.returnType, parameter => {
-                var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, false);
+                var property = self.makeFunctionAttribute($('#' + id + "func-output"), parameter.name, parameter.type, false);
                 self.addSource(property, self, true);
             });
 
@@ -609,7 +611,8 @@ class TypeMapperRenderer {
     }
 
     makeFunctionAttribute(parentId, name, type, input) {
-        var id = parentId.selector.replace("#", "") + this.idNameSeperator + name + this.nameTypeSeperator + type;
+        var id = parentId.selector.replace("#", "").replace("func-output","")
+        + this.idNameSeperator + name + this.nameTypeSeperator + type;
         var property;
         if (input) {
             property = $('<div>').attr('id', id).addClass('func-in-property');
