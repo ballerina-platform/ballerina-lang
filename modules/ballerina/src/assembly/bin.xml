@@ -155,6 +155,7 @@
                 <include>io.netty:netty-codec-http2</include>
                 <include>io.netty:netty-resolver</include>
                 <include>commons-pool.wso2:commons-pool</include>
+                <include>org.apache.commons:commons-pool2</include>
                 <include>org.wso2.orbit.org.yaml:snakeyaml</include>
                 <include>commons-logging:commons-logging</include>
                 <include>org.wso2.staxon:staxon-core</include>
