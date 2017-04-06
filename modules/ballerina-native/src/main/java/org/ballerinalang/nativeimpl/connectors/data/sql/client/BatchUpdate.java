@@ -44,6 +44,7 @@ import org.osgi.service.component.annotations.Component;
                 @Argument(name = "parameters",
                           type = TypeEnum.ARRAY,
                           elementType = TypeEnum.STRUCT,
+                          arrayDimensions = 2,
                           structType = "Parameter")
         },
         returnType = { @ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.INT) })

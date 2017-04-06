@@ -494,7 +494,7 @@ function testBatchUpdate() (int[]) {
     sql:Parameter para3 = {sqlType:"integer", value:20, direction:0};
     sql:Parameter para4 = {sqlType:"double", value:3400.5, direction:0};
     sql:Parameter para5 = {sqlType:"varchar", value:"Colombo", direction:0};
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
+    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
     para1 = {sqlType:"varchar", value:"Alex", direction:0};
@@ -503,7 +503,7 @@ function testBatchUpdate() (int[]) {
     para4 = {sqlType:"double", value:3400.5, direction:0};
     para5 = {sqlType:"varchar", value:"Colombo", direction:0};
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
-    //sql:Parameter[][] parameters = [parameters1, parameters2];
+    sql:Parameter[][] parameters = [parameters1, parameters2];
 
     int[] updateCount;
     updateCount  = sql:ClientConnector.batchUpdate(testDB, "Insert into Customers
