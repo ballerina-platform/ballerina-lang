@@ -307,6 +307,8 @@ class AnnotationDefinitionView extends SVGCanvas {
         var attachmentInput = $("<input type='text' class='attachments form-control'/>");
         annotationInputGroup2.append(attachmentInput);
 
+        attachmentInput.val(_.join(this.getModel().getAttachmentPoints(), ','));
+
         attachmentInput.on('change', function (e) {
             if (!_.isNil(attachmentInput.val())) {
                 self.getModel().setAttachmentPoints(_.split(attachmentInput.val()), {doSilently: false});
