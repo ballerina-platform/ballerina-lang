@@ -68,4 +68,15 @@ function multipleParam(any val, int sam) (int) {
   return sam;
 }
 
+function variableDefTest()(any a) {
+    any val = 5;
+    return val;
+}
+
+function assignmentTest()(any a) {
+    any val;
+    val = 44.3;
+    return val;
+}
+
 

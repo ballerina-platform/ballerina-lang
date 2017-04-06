@@ -42,7 +42,6 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.TypeMapper;
-import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
@@ -83,6 +82,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.MapInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.RefTypeInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructFieldAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.UnaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.AssignStmtEndNode;
@@ -109,7 +109,6 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
-import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.BValueUtils;
@@ -167,6 +166,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private ExecutorService executor;
     private ForkJoinInvocationStatus forkJoinInvocationStatus;
     private boolean completed;
+    private BValue[] structMemBlock;
 
     public BLangAbstractExecutionVisitor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -1008,7 +1008,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             // Check whether this collection access expression is in the left hand of an assignment expression
             // If yes skip setting the value;
             BValue result;
-            if (arrayMapAccessExpr.getType() != BTypes.typeMap) {
+            if (arrayMapAccessExpr.getRExpr().getType() != BTypes.typeMap) {
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
                     BArray bArray = (BArray) collectionValue;
@@ -1120,27 +1120,41 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     @Override
+    public void visit(StructInitExprStartNode structInitExprStartNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing StructInitExpr - StartNode");
+        }
+        
+        StructInitExpr structInitExpr = structInitExprStartNode.getExpression();
+        StructDef structDef = (StructDef) structInitExpr.getType();
+        structMemBlock = new BValue[structDef.getStructMemorySize()];
+
+        // Invoke the <init> function
+        Function initFunction = structDef.getInitFunction();
+        CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
+            initFunction.getNodeLocation());
+        BValue[] returnValues = new BValue[0];
+        BValue[] cacheValues = new BValue[initFunction.getTempStackFrameSize() + 1];
+        StackFrame stackFrame = new StackFrame(structMemBlock, returnValues, cacheValues, functionInfo);
+        controlStack.pushFrame(stackFrame);
+        
+        if (structInitExprStartNode.hasGotoBranchID()) {
+            branchIDStack.push(structInitExprStartNode.getGotoBranchID());
+        }
+        
+        next = structInitExprStartNode.next;
+    }
+    
+    @Override
     public void visit(StructInitExprEndNode structInitExprEndNode) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing StructInitExpr - EndNode");
         }
-        next = structInitExprEndNode.next;
         StructInitExpr structInitExpr = structInitExprEndNode.getExpression();
         StructDef structDef = (StructDef) structInitExpr.getType();
-        BValue[] structMemBlock;
-        int offset = 0;
-        structMemBlock = new BValue[structDef.getStructMemorySize()];
-
+        
+        // Iterate through initialize values and re-populate the memory block
         Expression[] argExprs = structInitExpr.getArgExprs();
-
-        // create a memory block to hold field of the struct, and populate it with default values
-        VariableDef[] fields = structDef.getFields();
-        for (VariableDef field : fields) {
-            structMemBlock[offset] = field.getType().getDefaultValue();
-            offset++;
-        }
-
-        // iterate through initialized values and re-populate the memory block
         for (int i = 0; i < argExprs.length; i++) {
             MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
             VariableRefExpr varRefExpr = (VariableRefExpr) expr.getKeyExpr();
@@ -1148,6 +1162,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             structMemBlock[structVarLoc.getStructMemAddrOffset()] = getTempValue(expr.getValueExpr());
         }
         setTempValue(structInitExpr.getTempOffset(), new BStruct(structDef, structMemBlock));
+        next = structInitExprEndNode.next;
+        structMemBlock = null;
     }
 
     @Override
@@ -1452,7 +1468,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
         ArrayMapAccessExpr accessExpr = lExpr;
-        if (!(accessExpr.getType() == BTypes.typeMap)) {
+        if (!(accessExpr.getRExpr().getType() == BTypes.typeMap)) {
             BArray arrayVal = (BArray) getTempValue(accessExpr.getRExpr());
 
             Expression[] exprs = accessExpr.getIndexExprs();
@@ -1481,19 +1497,20 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         } else if (memoryLocation instanceof ServiceVarLocation) {
             int staticMemOffset = ((ServiceVarLocation) memoryLocation).getStaticMemAddrOffset();
             runtimeEnv.getStaticMemory().setValue(staticMemOffset, rValue);
-
         } else if (memoryLocation instanceof ConnectorVarLocation) {
             // Fist the get the BConnector object. In an action invocation first argument is always the connector
             BConnector bConnector = (BConnector) controlStack.getValue(0);
             if (bConnector == null) {
                 throw new BallerinaException("Connector argument value is null");
             }
-
             int connectorMemOffset = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
             bConnector.setValue(connectorMemOffset, rValue);
         } else if (memoryLocation instanceof WorkerVarLocation) {
             int stackFrameOffset = ((WorkerVarLocation) memoryLocation).getworkerMemAddrOffset();
             controlStack.setValue(stackFrameOffset, rValue);
+        } else if (memoryLocation instanceof StructVarLocation) {
+            int structMemOffset = ((StructVarLocation) memoryLocation).getStructMemAddrOffset();
+            controlStack.setValue(structMemOffset, rValue);
         }
     }
 
@@ -1603,7 +1620,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
 
         // Set the value to arrays/map's index location
-        if (fieldExpr.getRefVarType() instanceof BMapType) {
+        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+        if (varRef.getRExpr().getType() == BTypes.typeMap) {
             BValue indexValue = getTempValue(exprs[0]);
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
@@ -1671,7 +1689,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
         ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
         if (currentVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getVarName() + "' is null");
+            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName() + "' is null");
         }
 
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
@@ -1689,7 +1707,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BValue indexValue;
         BValue unitVal;
         // Get the value from arrays/map's index location
-        if (fieldExpr.getRefVarType() instanceof BMapType) {
+        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+        if (varRef.getRExpr().getType() == BTypes.typeMap) {
             indexValue = getTempValue(indexExpr[0]);
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {

@@ -26,7 +26,22 @@ As all reference-typed variables are allocated on the heap, they must be explici
 
 ## The `any` type
 
-> NOTE: We are planning to add a type named `any` to be the root of the type system. This will be used to represent a variable of any type in the type system and will have additional constraints.
+The `any` type is the root of the Ballerina data types. It represents a variable of any data type in the type system and provides a powerful way to deal with variables whose type is unknown during the compile time. Values of these variables can come from dynamic content, such as request and response messages, user input, etc. 
+
+The `any` type allows you to skip compile-time type checks, but use this wisely. You must always check the type and cast it to correct type when working with `any` type variables. 
+
+> NOTE: Currently, you can't check the type of a variable of type `any`. This will be implemented in a future release. 
+
+Following are examples of using the `any` type:
+
+```
+any a = getParameter();
+any b = "foo";
+any i = 5;
+any j = 10;
+
+int k = (int) i + (int) j;
+```
 
 ## Value types
 
@@ -94,6 +109,22 @@ VariableName = [ Expression, Expression, ... ];
 
 If there are no expressions given (i.e., the right-hand side is `[]`), the variable will be initialized to an array of length 0. Otherwise, it will be an array of the same length as the number of expressions, with each value being stored in the corresponding index of the array.
 
+An array can have arrays as values. Here are some examples: 
+
+```
+int[][] a = [];
+
+a[0] = [1, 2, 3, 5, 6];
+a[1] = [10, 54];
+a[2] = [4, 6, 1];
+
+int i = int[0][0] // Vaue of i is 1
+i = int[2][1]  // value of i is 6 now.
+```
+> NOTE: Currently, you can't initialize the whole array at once. For example, the following is not possible in the current release (we will improve this in a future release): 
+
+> `int[][] a = [ [1, 2, 3, 5, 6], [10, 54], [4, 6, 1]];`
+
 ## Built-in reference types
 
 Ballerina comes with a pre-defined set of reference types that are key to supporting the types of programs that Ballerina developers are expected to write. These are supported by a set of standard library functions found in the packages `ballerina.lang.*`. This section defines each of these types and defines their usage.
@@ -118,7 +149,13 @@ See [Exception Handling](exceptions.md) for more information on exception handli
 
 ### Type: `map`
 
-The `map` type is a hash map with keys of type string mapped to values of any type.
+The `map` type is a hash map with keys of type `string` mapped to values of type `any`. Following are some examples:
+
+```
+map m = { "a" : 1, "b" : 2};
+int i = (int) m["a"] + (int) m ["b"];
+any k = m["a"];
+```
 
 Library functions for accessing information from this type are in the package `ballerina.lang.maps`.
 

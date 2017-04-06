@@ -39,6 +39,7 @@ public class ParameterDef extends VariableDef implements Node {
         super(null, null, null, null, null);
         this.type = type;
         this.symbolName = symbolName;
+        this.annotations = new ArrayList<AnnotationAttachment>();
     }
 
     public ParameterDef(NodeLocation location,
@@ -48,25 +49,24 @@ public class ParameterDef extends VariableDef implements Node {
                         SymbolScope symbolScope) {
 
         super(location, name, typeName, symbolName, symbolScope);
+        this.annotations = new ArrayList<AnnotationAttachment>();
     }
-
-    public List<AnnotationAttachment> getAnnotations() {
-        return annotations;
-    }
-
-    public void setAnnotations(List<AnnotationAttachment> annotations) {
-        this.annotations = annotations;
+    
+    /**
+     * Get all the Annotations attached to this parameter.
+     *
+     * @return List of annotation attachments
+     */
+    public AnnotationAttachment[] getAnnotations() {
+        return this.annotations.toArray(new AnnotationAttachment[annotations.size()]);
     }
 
     /**
-     * Add an {@code Annotation} to the Argument.
+     * Add an {@code AnnotationAttachment} to the Argument.
      *
      * @param annotation Annotation to be added to the Argument
      */
     public void addAnnotation(AnnotationAttachment annotation) {
-        if (annotations == null) {
-            annotations = new ArrayList<>();
-        }
         annotations.add(annotation);
     }
 
