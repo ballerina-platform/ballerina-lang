@@ -4,7 +4,7 @@ import ballerina.doc;
 @doc:Param{value:"value1: double input value"}
 @doc:Param{value:"value2: double input value"}
 @doc:Return{value:"result: Result of the execution"}
-function addValue(double value1, double value2)(double result){
+function addValue(float value1, float value2)(float result){
     result = value1+ value2;
     return;
 }
@@ -16,6 +16,6 @@ function addValue(double value1, double value2)(double result){
 @doc:Param{value:"changeList: map value after"}
 @doc:Return{value:"changedList: result of execution"}
 @doc:Return{value:"status: status of execution"}
-function addValue(double value1, double value2, map originalList, map changeList)(map changedList, boolean status){
+function addValue(float value1, float value2, map originalList, map changeList)(map changedList, boolean status){
     return;
 }
