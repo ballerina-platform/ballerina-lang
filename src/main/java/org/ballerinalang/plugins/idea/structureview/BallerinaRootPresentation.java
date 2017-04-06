@@ -21,7 +21,7 @@ import com.intellij.psi.PsiFile;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class BallerinaRootPresentation implements ItemPresentation {
 

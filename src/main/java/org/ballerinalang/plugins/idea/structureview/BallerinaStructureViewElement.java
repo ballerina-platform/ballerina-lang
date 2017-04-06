@@ -26,6 +26,8 @@ import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.ConnectorNode;
+import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class BallerinaStructureViewElement implements StructureViewTreeElement, SortableTreeElement {
+
     protected final PsiElement element;
 
     public BallerinaStructureViewElement(PsiElement element) {
@@ -80,30 +83,69 @@ public class BallerinaStructureViewElement implements StructureViewTreeElement, 
     @NotNull
     @Override
     public TreeElement[] getChildren() {
-        //Todo - Add more children types
+        // The element can be one of BallerinaFile, ConnectorNode instance.
         if (element instanceof BallerinaFile) {
             List<TreeElement> treeElements = new ArrayList<>();
-
+            // Add services.
             Collection<? extends PsiElement> services = XPath.findAll(BallerinaLanguage.INSTANCE, element,
                     "//serviceDefinition/Identifier");
-            for (PsiElement el : services) {
-                treeElements.add(new BallerinaStructureViewElement(el));
+            for (PsiElement service : services) {
+                // In here, instead of using the service, we use service.getParent(). This is done because we
+                // want to show resources under a service node. This is how the sub nodes can be added.
+                treeElements.add(new BallerinaStructureViewElement(service.getParent()));
             }
-
+            // Add functions.
             Collection<? extends PsiElement> functions = XPath.findAll(BallerinaLanguage.INSTANCE, element,
                     "//functionDefinition/Identifier");
-            for (PsiElement el : functions) {
-                treeElements.add(new BallerinaStructureViewElement(el));
+            for (PsiElement function : functions) {
+                treeElements.add(new BallerinaStructureViewElement(function));
             }
-
+            // Add connectors.
             Collection<? extends PsiElement> connectors = XPath.findAll(BallerinaLanguage.INSTANCE, element,
                     "//connectorDefinition/Identifier");
-            for (PsiElement el : connectors) {
-                treeElements.add(new BallerinaStructureViewElement(el));
+            for (PsiElement connector : connectors) {
+                // In here, instead of using the connector, we use connector.getParent(). This is done because we
+                // want to show actions under a connector node. This is how the sub nodes can be added.
+                treeElements.add(new BallerinaStructureViewElement(connector.getParent()));
             }
-
-            return treeElements.toArray(new TreeElement[functions.size()]);
+            // Add annotations.
+            Collection<? extends PsiElement> annotations = XPath.findAll(BallerinaLanguage.INSTANCE, element,
+                    "//annotationDefinition/Identifier");
+            for (PsiElement annotation : annotations) {
+                treeElements.add(new BallerinaStructureViewElement(annotation));
+            }
+            // Add structs
+            Collection<? extends PsiElement> structs = XPath.findAll(BallerinaLanguage.INSTANCE, element,
+                    "//structDefinition/Identifier");
+            for (PsiElement struct : structs) {
+                treeElements.add(new BallerinaStructureViewElement(struct));
+            }
+            // Convert the list to an array and return.
+            return treeElements.toArray(new TreeElement[treeElements.size()]);
+        } else if (element instanceof ConnectorNode) {
+            // If the element is a ConnectorNode instance, we get all actions.
+            List<TreeElement> treeElements = new ArrayList<>();
+            // Add actions.
+            Collection<? extends PsiElement> actions = XPath.findAll(BallerinaLanguage.INSTANCE, element,
+                    "//actionDefinition/Identifier");
+            for (PsiElement action : actions) {
+                treeElements.add(new BallerinaStructureViewElement(action));
+            }
+            // Convert the list to an array and return.
+            return treeElements.toArray(new TreeElement[treeElements.size()]);
+        } else if (element instanceof ServiceDefinitionNode) {
+            // If the element is a ServiceDefinitionNode instance, we get all resources.
+            List<TreeElement> treeElements = new ArrayList<>();
+            // Add actions.
+            Collection<? extends PsiElement> resources = XPath.findAll(BallerinaLanguage.INSTANCE, element,
+                    "//resourceDefinition/Identifier");
+            for (PsiElement resource : resources) {
+                treeElements.add(new BallerinaStructureViewElement(resource));
+            }
+            // Convert the list to an array and return.
+            return treeElements.toArray(new TreeElement[treeElements.size()]);
         }
+        // If the element type other than what we check above, return an empty array.
         return new TreeElement[0];
     }
 }
