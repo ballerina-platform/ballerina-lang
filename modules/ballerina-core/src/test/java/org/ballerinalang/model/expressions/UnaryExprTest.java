@@ -20,10 +20,8 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -75,38 +73,6 @@ public class UnaryExprTest {
         Assert.assertEquals(y.intValue(), +5, "Invalid value returned.");
     }
 
-    @Test(description = "Test long unary negative expression")
-    public void longUnaryExprTest() {
-        BValue[] args = {new BLong(5)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeLongTest", args);
-
-        Assert.assertEquals(returns.length, 2);
-
-        BLong x = (BLong) returns[0];
-        Assert.assertSame(x.getClass(), BLong.class, "Invalid class type returned.");
-        Assert.assertEquals(x.longValue(), (-5), "Invalid value returned.");
-
-        BLong y = (BLong) returns[1];
-        Assert.assertSame(y.getClass(), BLong.class, "Invalid class type returned.");
-        Assert.assertEquals(y.longValue(), 5, "Invalid value returned.");
-    }
-
-    @Test(description = "Test long positive unary expression")
-    public void positiveLongUnaryExprTest() {
-        BValue[] args = {new BLong(5)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "positiveLongTest", args);
-
-        Assert.assertEquals(returns.length, 2);
-
-        BLong x = (BLong) returns[0];
-        Assert.assertSame(x.getClass(), BLong.class, "Invalid class type returned.");
-        Assert.assertEquals(x.longValue(), (+5), "Invalid value returned.");
-
-        BLong y = (BLong) returns[1];
-        Assert.assertSame(y.getClass(), BLong.class, "Invalid class type returned.");
-        Assert.assertEquals(y.longValue(), +5, "Invalid value returned.");
-    }
-
     @Test(description = "Test float unary negative expression")
     public void floatUnaryExprTest() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeFloatTest");
@@ -115,11 +81,11 @@ public class UnaryExprTest {
 
         BFloat x = (BFloat) returns[0];
         Assert.assertSame(x.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(x.floatValue(), -5.0f, "Invalid value returned.");
+        Assert.assertEquals(x.floatValue(), -5.0D, "Invalid value returned.");
 
         BFloat y = (BFloat) returns[1];
         Assert.assertSame(y.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(y.floatValue(), 5.0f, "Invalid value returned.");
+        Assert.assertEquals(y.floatValue(), 5.0D, "Invalid value returned.");
     }
 
     @Test(description = "Test float positive unary expression")
@@ -130,43 +96,11 @@ public class UnaryExprTest {
 
         BFloat x = (BFloat) returns[0];
         Assert.assertSame(x.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(x.floatValue(), +5f, "Invalid value returned.");
+        Assert.assertEquals(x.floatValue(), +5D, "Invalid value returned.");
 
         BFloat y = (BFloat) returns[1];
         Assert.assertSame(y.getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(y.floatValue(), +5f, "Invalid value returned.");
-    }
-
-    @Test(description = "Test long unary negative expression")
-    public void doubleUnaryExprTest() {
-        BValue[] args = {new BDouble(5.0)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeDoubleTest", args);
-
-        Assert.assertEquals(returns.length, 2);
-
-        BDouble x = (BDouble) returns[0];
-        Assert.assertSame(x.getClass(), BDouble.class, "Invalid class type returned.");
-        Assert.assertEquals(x.doubleValue(), -5.0, "Invalid value returned.");
-
-        BDouble y = (BDouble) returns[1];
-        Assert.assertSame(y.getClass(), BDouble.class, "Invalid class type returned.");
-        Assert.assertEquals(y.doubleValue(), 5.0, "Invalid value returned.");
-    }
-
-    @Test(description = "Test long positive unary expression")
-    public void positiveDoubleUnaryExprTest() {
-        BValue[] args = {new BDouble(5.0)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "positiveDoubleTest", args);
-
-        Assert.assertEquals(returns.length, 2);
-
-        BDouble x = (BDouble) returns[0];
-        Assert.assertSame(x.getClass(), BDouble.class, "Invalid class type returned.");
-        Assert.assertEquals(x.doubleValue(), +5.0, "Invalid value returned.");
-
-        BDouble y = (BDouble) returns[1];
-        Assert.assertSame(y.getClass(), BDouble.class, "Invalid class type returned.");
-        Assert.assertEquals(y.doubleValue(), +5.0, "Invalid value returned.");
+        Assert.assertEquals(y.floatValue(), +5D, "Invalid value returned.");
     }
 
     @Test(description = "Test unary boolean not expression")
@@ -201,10 +135,10 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary negation expression")
     public void unaryNegationTest() {
-        int a = 3;
-        int b = 2;
+        long a = 3;
+        long b = 2;
 
-        int expectedResult = a - -b;
+        long expectedResult = a - -b;
 
         BValue[] args = {new BInteger(a), new BInteger(b)};
 
@@ -213,7 +147,7 @@ public class UnaryExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
 
-        int actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = ((BInteger) returns[0]).intValue();
 
         Assert.assertEquals(actualResult, expectedResult);
 
@@ -221,9 +155,9 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary positive negation expression")
     public void unaryPositiveNegationTest() {
-        int a = 3;
+        long a = 3;
 
-        int expectedResult = +-a;
+        long expectedResult = +-a;
 
         BValue[] args = {new BInteger(a)};
 
@@ -232,7 +166,7 @@ public class UnaryExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
 
-        int actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = ((BInteger) returns[0]).intValue();
 
         Assert.assertEquals(actualResult, expectedResult);
 

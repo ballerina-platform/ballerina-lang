@@ -22,10 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -78,11 +76,11 @@ public class GetArrayByName extends AbstractNativeFunction {
                 } else if (obj instanceof Integer) {
                     returnMap.put(key, new BInteger(Integer.parseInt(obj.toString())));
                 } else if (obj instanceof Long) {
-                    returnMap.put(key, new BLong(Long.parseLong(obj.toString())));
+                    returnMap.put(key, new BInteger(Long.parseLong(obj.toString())));
                 } else if (obj instanceof Float) {
                     returnMap.put(key, new BFloat(Float.parseFloat(obj.toString())));
                 } else if (obj instanceof Double) {
-                    returnMap.put(key, new BDouble(Double.parseDouble(obj.toString())));
+                    returnMap.put(key, new BFloat(Double.parseDouble(obj.toString())));
                 }
             }
         }

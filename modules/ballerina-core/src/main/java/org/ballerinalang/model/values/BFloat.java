@@ -27,30 +27,20 @@ import org.ballerinalang.model.types.BTypes;
  */
 public final class BFloat extends BValueType {
 
-    private float value;
+    private double value;
 
-    public BFloat(float value) {
+    public BFloat(double value) {
         this.value = value;
     }
 
     @Override
-    public int intValue() {
-        return (int) this.value;
-    }
-
-    @Override
-    public long longValue() {
+    public long intValue() {
         return (long) this.value;
     }
 
     @Override
-    public float floatValue() {
+    public double floatValue() {
         return this.value;
-    }
-
-    @Override
-    public double doubleValue() {
-        return (double) this.value;
     }
 
     @Override
@@ -60,7 +50,7 @@ public final class BFloat extends BValueType {
 
     @Override
     public String stringValue() {
-        return Float.toString(value);
+        return Double.toString(value);
     }
 
     @Override

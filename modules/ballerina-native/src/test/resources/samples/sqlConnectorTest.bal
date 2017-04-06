@@ -87,6 +87,30 @@ function testSelectData() (string) {
     return firstName;
 }
 
+function testSelectIntFloatData() (int, int, float, float) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    int int_type;
+    int long_type;
+    float float_type;
+    float double_type;
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT  int_type, long_type, float_type, double_type from DataTypeTable where row_id = 1",
+        parameters);
+    while (datatables:next(dt)) {
+        int_type = datatables:getInt(dt, 1);
+        long_type = datatables:getInt(dt, 2);
+        float_type = datatables:getFloat(dt, 3);
+        double_type = datatables:getFloat(dt, 4);
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return int_type, long_type, float_type, double_type;
+}
+
 function testCallProcedure() (string) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};

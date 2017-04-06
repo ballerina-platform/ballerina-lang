@@ -48,8 +48,8 @@ public class BreakStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 100;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 100;
         Assert.assertEquals(actual, expected);
     }
 
@@ -61,8 +61,8 @@ public class BreakStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 1000;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 1000;
         Assert.assertEquals(actual, expected);
     }
 
@@ -74,8 +74,8 @@ public class BreakStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 40;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 40;
         Assert.assertEquals(actual, expected);
     }
 

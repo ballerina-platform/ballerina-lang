@@ -22,10 +22,8 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 
@@ -52,22 +50,10 @@ public class UnaryExpression extends AbstractExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> POSITIVE_INT_FUNC =
             (lVal, rVal) -> rVal;
 
-    public static final BiFunction<BValueType, BValueType, BValueType> NEGATIVE_LONG_FUNC =
-            (lVal, rVal) -> new BLong(-(rVal.longValue()));
-
-    public static final BiFunction<BValueType, BValueType, BValueType> POSITIVE_LONG_FUNC =
-            (lVal, rVal) -> rVal;
-
     public static final BiFunction<BValueType, BValueType, BValueType> NEGATIVE_FLOAT_FUNC =
             (lVal, rVal) -> new BFloat(-(rVal.floatValue()));
 
     public static final BiFunction<BValueType, BValueType, BValueType> POSITIVE_FLOAT_FUNC =
-            (lVal, rVal) -> rVal;
-
-    public static final BiFunction<BValueType, BValueType, BValueType> NEGATIVE_DOUBLE_FUNC =
-            (lVal, rVal) -> new BDouble(-(rVal.doubleValue()));
-
-    public static final BiFunction<BValueType, BValueType, BValueType> POSITIVE_DOUBLE_FUNC =
             (lVal, rVal) -> rVal;
 
     public BiFunction<BValueType, BValueType, BValueType> getEvalFunc() {

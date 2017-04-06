@@ -24,6 +24,8 @@ import org.ballerinalang.model.DataTableOMDataSource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.util.List;
 import java.util.Map;
@@ -68,72 +70,84 @@ public class BDataTable implements BRefType<Object> {
         iterator.close();
     }
 
-    public String getString(int index) {
-        return iterator.getString(index);
+    public String getString(long index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+        return iterator.getString((int) index);
     }
 
     public String getString(String columnName) {
         return iterator.getString(columnName);
     }
 
-    public long getLong(int index) {
-        return iterator.getLong(index);
+    public long getInt(long index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+        return iterator.getInt((int) index);
     }
 
-    public long getLong(String columnName) {
-        return iterator.getLong(columnName);
-    }
-
-    public int getInt(int index) {
-        return iterator.getInt(index);
-    }
-
-    public int getInt(String columnName) {
+    public long getInt(String columnName) {
         return iterator.getInt(columnName);
     }
 
-    public float getFloat(int index) {
-        return iterator.getFloat(index);
+    public double getFloat(long index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+        return iterator.getFloat((int) index);
     }
 
-    public float getFloat(String columnName) {
+    public double getFloat(String columnName) {
         return iterator.getFloat(columnName);
     }
 
-    public double getDouble(int index) {
-        return iterator.getDouble(index);
-    }
-
-    public double getDouble(String columnName) {
-        return iterator.getDouble(columnName);
-    }
-
-    public boolean getBoolean(int index) {
-        return iterator.getBoolean(index);
+    public boolean getBoolean(long index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+        return iterator.getBoolean((int) index);
     }
 
     public boolean getBoolean(String columnName) {
         return iterator.getBoolean(columnName);
     }
 
-    public BValue get(int index, String type) {
-        return iterator.get(index, type);
+    public BValue get(long index, String type) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+        return iterator.get((int) index, type);
     }
 
     public BValue get(String columnName, String type) {
         return iterator.get(columnName, type);
     }
 
-    public String getObjectAsString(int index) {
-        return iterator.getObjectAsString(index);
+    public String getObjectAsString(long index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+        return iterator.getObjectAsString((int) index);
     }
 
     public String getObjectAsString(String columnName) {
         return iterator.getObjectAsString(columnName);
     }
 
-    public Map<String, Object> getArray(int index) {
-        return iterator.getArray(index);
+    public Map<String, Object> getArray(long index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+        return iterator.getArray((int) index);
     }
 
     public Map<String, Object> getArray(String columnName) {
