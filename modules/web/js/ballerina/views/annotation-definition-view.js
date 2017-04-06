@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import $ from 'jquery';
+import Canvas from './canvas';
 import SVGCanvas from './../../ballerina/views/svg-canvas';
 import AnnotationDefinition from './../ast/annotation-definition';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
@@ -92,30 +93,198 @@ class AnnotationDefinitionView extends SVGCanvas {
             this.getModel().getAnnotationName());
 
         this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.annotation_icon", ""));
+        var self = this;
+
         var currentContainer = $('#' + this.getModel().getID());
         this._container = currentContainer;
         this._package = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage();
+
+        $(_.get(this._viewOptions, "design_view.container", "")).scrollTop(currentContainer.parent().position().top);
+        var headingBox = $('#' + this.getModel().getID() + "_heading");
+        var canvas_heading_new = _.get(this._viewOptions, "cssClass.canvas_heading_new", "");
+        var new_drop_timeout = _.get(this._viewOptions, "design_view.new_drop_timeout", "");
+        headingBox.addClass(canvas_heading_new);
+        setTimeout(function () {
+            headingBox.removeClass(canvas_heading_new);
+        }, new_drop_timeout);
+
+        $(this.getTitle()).text(this.getModel().getAnnotationName()).on('change paste keyup', function () {
+            self.getModel().setAnnotationName($(this).text());
+        })
+            .on('click', function (event) {
+                event.stopPropagation();
+            })
+            .on('blur', function (event) {
+                if ($(this).text().length > 50) {
+                    var textToDisplay = $(this).text().substring(0, 47) + '...';
+                    $(this).text(textToDisplay);
+                }
+            })
+            .on('focus', function (event) {
+                $(this).text(self.getModel().getAnnotationName());
+            })
+            .keypress(function (e) {
+                /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+                 (Chrome and IE ignore keypress event of these keys in browser level)*/
+                if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    // Disabling enter key
+                    if (_.isEqual(enteredKey, 13)) {
+                        e.stopPropagation();
+                        return false;
+                    }
+
+                    var newAnnotationName = $(this).text() + String.fromCharCode(enteredKey);
+
+                    try {
+                        self.getModel().setAnnotationName(newAnnotationName);
+                    } catch (error) {
+                        // Alerts.error(error);
+                        e.stopPropagation();
+                        return false;
+                    }
+                }
+            });
+
+        var annotationContentWrapper = $("<div/>", {
+            id: this.getModel().getID(),
+            class: "annotation-definition-content-wrapper"
+        }).data("model", this.getModel()).appendTo(this.getBodyWrapper());
+
+        var annotationOperationsWrapper = $("<div/>", {
+            class: "annotation-definition-operation-wrapper"
+        }).appendTo(annotationContentWrapper);
+
+        var typeDropDownWrapper = $('<div class="type-drop-wrapper annotation-definition"></div>')
+            .appendTo(annotationOperationsWrapper);
+
+        var typeDropDown = $("<select/>").appendTo(typeDropDownWrapper);
+
+        $(typeDropDown).select2({
+            data: this._getTypeDropdownValues()
+        });
+
+        $(document).ready(function () {
+            $(typeDropDownWrapper).empty();
+            typeDropDown = $("<select/>").appendTo(typeDropDownWrapper);
+            $(typeDropDown).select2({
+                tags: true,
+                selectOnClose: true,
+                data: self._getTypeDropdownValues(),
+                query: function (query) {
+                    var data = {result: []};
+                    if (!_.isNil(query.term)) {
+                        _.forEach(self._getTypeDropdownValues(), function (item) {
+                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                data.results.push(item);
+                            }
+                        });
+                        if (data.results.length == 0) {
+                            data.results.push({id: query.term, text: query.term});
+                        }
+                    } else {
+                        data.results = self._getTypeDropdownValues();
+                    }
+                    query.callback(data);
+                }
+            });
+            $(typeDropDown).on("select2:open", function () {
+                $(".select2-search__field").attr("placeholder", "search");
+            });
+        });
+
+        var attributeIdentifierTextBox = $("<input/>", {
+            type: "text",
+            class: "annotation-attribute-identifier-text-input",
+            "placeholder": "Identifier"
+        }).keypress(function (e) {
+            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Adding new attribute upon enter key.
+                if (_.isEqual(enteredKey, 13)) {
+                    addAnnotationAttributeButton.click();
+                    e.stopPropagation();
+                    return false;
+                }
+
+                var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
+
+                // Validation the identifier against grammar.
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
+                    var errorString = "Invalid identifier for a variable: " + newIdentifier;
+                    Alerts.error(errorString);
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        }).keydown(function (e) {
+            var enteredKey = e.which || e.charCode || e.keyCode;
+
+            // If tab pressed.
+            if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                typeDropDown.dropdownButton.trigger("click");
+            }
+        }).appendTo(annotationOperationsWrapper);
+
+        var valueTextBox = $("<input/>", {
+            type: "text",
+            class: "annotation-default-value-text-input",
+            "placeholder": "Default Value"
+        }).keypress(function (e) {
+            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+             (Chrome and IE ignore keypress event of these keys in browser level)*/
+            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Adding new variable upon enter key.
+                if (_.isEqual(enteredKey, 13)) {
+                    addStructVariableButton.click();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        }).keydown(function (e) {
+            var enteredKey = e.which || e.charCode || e.keyCode;
+
+            // If tab pressed.
+            if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                typeDropdown.dropdownButton.trigger("click");
+            }
+        }).appendTo(annotationOperationsWrapper);
+
+        var addAnnotationAttributeButton = $("<div class='add-annotation-variable-button pull-left'/>")
+            .appendTo(annotationOperationsWrapper);
+
+        $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
+            "<i class='fw fw-check fw-stack-1x fw-inverse add-annotation-variable-button-square'></i></span>").appendTo(addAnnotationAttributeButton);
+
+        $(addAnnotationAttributeButton).click(function () {
+            try {
+                var bType = typeDropdown.select2('data')[0].text;
+                var identifier = $(attributeIdentifierTextBox).val().trim();
+                var defaultValue = $(valueTextBox).val().trim();
+
+                self.getModel().addVariableDefinition(bType, identifier, defaultValue);
+
+                self._renderVariableDefinitions(annotationAttributeVariablesWrapper);
+
+                $(attributeIdentifierTextBox).val("");
+                $(valueTextBox).val("");
+            } catch (e) {
+                Alerts.error(e);
+            }
+        });
+
+        var annotationAttributeVariablesWrapper = $("<div/>", {
+            class: "annotation-attribute-content-variables-wrapper"
+        }).appendTo(annotationContentWrapper);
+
 
         var annotationDefinitionContainerId = "annotation-definition-container___" + this._model.id;
         var annotationDefinitionContainer = $('<div id="' + annotationDefinitionContainerId +
             '" class="annotation-definition-container"></div>');
 
         var annotationDefinitionInnerContainer = $('<div class="annotation-definition-inner-container"></div>');
-        annotationDefinitionInnerContainer.append("<span class='input-label'>Attachments:</span>");
         var definitionSignatureRow = $('<div class="row"></div>');
-
-        // var annotationColumn1 = $('<div class="col-lg-5"></div>');
-        // var annotationInputGroup1 = $('<div class="input-group"></div>');
-        // var annotationInputGroupAddon1 = $('<span class="input-group-addon"></span>');
-
-        // annotationInputGroup1.append(annotationInputGroupAddon1);
-        // annotationColumn1.append(annotationInputGroup1);
-        // definitionSignatureRow.append(annotationColumn1);
-
-        // var annotationLabel = $('<span>Annotation:</span>');
-        // annotationInputGroupAddon1.append(annotationLabel);
-        // var annotationNameInput = $('<input type="text" class="annotation-name form-control"/>');
-        // annotationInputGroup1.append(annotationNameInput);
 
         var annotationColumn2 = $('<div class="col-lg-5"></div>');
         var annotationInputGroup2 = $('<div class="input-group"></div>');
@@ -133,7 +302,7 @@ class AnnotationDefinitionView extends SVGCanvas {
 
         annotationDefinitionInnerContainer.append(definitionSignatureRow);
 
-        var attachmentLabel = $("<span>Attach:</span>");
+        var attachmentLabel = $("<span>Attachments</span>");
         annotationInputGroupAddon2.append(attachmentLabel);
         var attachmentInput = $("<input type='text' class='attachments form-control'/>");
         annotationInputGroup2.append(attachmentInput);
@@ -210,48 +379,25 @@ class AnnotationDefinitionView extends SVGCanvas {
             listOfAttributes.append(listItem);
         });
 
-        var self = this;
-        $(this.getTitle()).text(this.getModel().getAnnotationName()).on('change paste keyup', function () {
-            self.getModel().setAnnotationName($(this).text());
-        })
-            .on('click', function (event) {
-                event.stopPropagation();
-            })
-            .on('blur', function (event) {
-                if ($(this).text().length > 50) {
-                    var textToDisplay = $(this).text().substring(0, 47) + '...';
-                    $(this).text(textToDisplay);
-                }
-            })
-            .on('focus', function (event) {
-                $(this).text(self.getModel().getAnnotationName());
-            })
-            .keypress(function (e) {
-                /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
-                 (Chrome and IE ignore keypress event of these keys in browser level)*/
-                if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
-                    var enteredKey = e.which || e.charCode || e.keyCode;
-                    // Disabling enter key
-                    if (_.isEqual(enteredKey, 13)) {
-                        e.stopPropagation();
-                        return false;
-                    }
-
-                    var newAnnotationName = $(this).text() + String.fromCharCode(enteredKey);
-
-                    try {
-                        self.getModel().setAnnotationName(newAnnotationName);
-                    } catch (error) {
-                        // Alerts.error(error);
-                        e.stopPropagation();
-                        return false;
-                    }
-                }
-            });
-
         annotationDefinitionContainer.append(annotationDefinitionInnerContainer);
         currentContainer.find('svg').parent().append(annotationDefinitionContainer);
         currentContainer.find('svg').remove();
+    }
+
+    _getTypeDropdownValues() {
+        var dropdownData = [];
+        // Adding items to the type dropdown.
+        var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
+        _.forEach(bTypes, function (bType) {
+            dropdownData.push({id: bType, text: bType});
+        });
+
+        // var annotationsTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getAnnotationDefinitions();
+        // _.forEach(annotationsTypes, function (sType) {
+        //     dropdownData.push({id: sType.getAnnotationName(), text: sType.getAnnotationName()});
+        // });
+
+        return dropdownData;
     }
 }
 
