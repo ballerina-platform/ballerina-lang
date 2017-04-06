@@ -307,8 +307,8 @@ public class IndexedTableTestCase {
                     }
                     if (removeEvents != null) {
                         removeEventCount = removeEventCount + removeEvents.length;
-                        eventArrived = true;
                     }
+                    eventArrived = true;
                 }
 
             });
