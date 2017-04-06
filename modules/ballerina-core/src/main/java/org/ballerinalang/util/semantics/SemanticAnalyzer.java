@@ -2487,7 +2487,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BLangExceptionHelper.throwSemanticError(structFieldAccessExpr, SemanticErrors.MUST_BE_STRUCT_TYPE,
                         symbolName.getName());
             }
-            visitStructField(fieldExpr, ((StructDef) exprType).getSymbolScope());
+            visitStructField(fieldExpr, ((StructDef) exprType));
         }
     }
 
