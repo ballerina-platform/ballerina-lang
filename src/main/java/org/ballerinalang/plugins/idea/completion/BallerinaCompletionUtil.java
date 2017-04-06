@@ -25,10 +25,10 @@ public class BallerinaCompletionUtil {
     public static final int PACKAGE_PRIORITY = 35;
     public static final int CONNECTOR_PRIORITY = 35;
     public static final int ANNOTATION_PRIORITY = 35;
-    public static final int FUNCTION_PRIORITY = 35;
+    public static final int FUNCTION_PRIORITY = 40;
     public static final int STRUCT_PRIORITY = 35;
     public static final int VARIABLE_PRIORITY = 35;
-    public static final int ACTION_PRIORITY = 35;
+    public static final int ACTION_PRIORITY = 40;
 
     private BallerinaCompletionUtil() {
 

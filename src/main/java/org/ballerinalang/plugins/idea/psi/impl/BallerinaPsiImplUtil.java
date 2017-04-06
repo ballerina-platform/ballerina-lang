@@ -530,7 +530,10 @@ public class BallerinaPsiImplUtil {
             return getAllConnectorsInPackage((PsiDirectory) element);
         }
         PsiElement parent = element.getParent();
-        return getAllConnectorsInPackage((PsiDirectory) parent);
+        if (parent != null) {
+            return getAllConnectorsInPackage((PsiDirectory) parent);
+        }
+        return new LinkedList<>();
     }
 
     public static List<PsiElement> getAllConnectorsInPackage(PsiDirectory packageElement) {
@@ -550,7 +553,10 @@ public class BallerinaPsiImplUtil {
             return getAllAnnotationsInPackage((PsiDirectory) element);
         }
         PsiElement parent = element.getParent();
-        return getAllAnnotationsInPackage((PsiDirectory) parent);
+        if (parent != null) {
+            return getAllAnnotationsInPackage((PsiDirectory) parent);
+        }
+        return new LinkedList<>();
     }
 
     public static List<PsiElement> getAllAnnotationsInPackage(PsiDirectory packageElement) {
@@ -566,8 +572,14 @@ public class BallerinaPsiImplUtil {
     }
 
     public static List<PsiElement> getAllStructsInCurrentPackage(PsiElement element) {
+        if (element instanceof PsiDirectory) {
+            return getAllStructsInPackage((PsiDirectory) element);
+        }
         PsiElement parent = element.getParent();
-        return getAllStructsInPackage((PsiDirectory) parent);
+        if (parent != null) {
+            return getAllStructsInPackage((PsiDirectory) parent);
+        }
+        return new LinkedList<>();
     }
 
     public static List<PsiElement> getAllStructsInPackage(PsiDirectory packageElement) {
@@ -583,8 +595,14 @@ public class BallerinaPsiImplUtil {
     }
 
     public static List<PsiElement> getAllFunctionsInCurrentPackage(PsiElement element) {
+        if (element instanceof PsiDirectory) {
+            return getAllFunctionsInPackage((PsiDirectory) element);
+        }
         PsiElement parent = element.getParent();
-        return getAllFunctionsInPackage((PsiDirectory) parent);
+        if (parent != null) {
+            return getAllFunctionsInPackage((PsiDirectory) parent);
+        }
+        return new LinkedList<>();
     }
 
     public static List<PsiElement> getAllFunctionsInPackage(PsiDirectory packageElement) {
@@ -849,7 +867,8 @@ public class BallerinaPsiImplUtil {
         // If the context is not null, get variables from parent context as well.
         // Ex:- If the current context is function body, we need to get parameters from function definition which is
         // the parent context.
-        if (context != null) {
+        // We need to check the context.getContext() here, otherwise all variables in the file will be suggested.
+        if (context != null && !(context.getContext() instanceof BallerinaFile)) {
             List<PsiElement> allVariablesInResolvableScope = getAllVariablesInResolvableScope(context.getContext());
             for (PsiElement psiElement : allVariablesInResolvableScope) {
                 if (!results.contains(psiElement)) {
