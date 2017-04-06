@@ -116,6 +116,42 @@ public class BNullValueTest   {
         Assert.assertEquals(vals[0], null);
     }
     
+    @Test(description = "Test null in worker")
+    public void testNullInWorker() {
+        BValue[] vals = BLangFunctions.invoke(bLangProgram, "testNullInWorker", new BValue[]{});
+        Assert.assertEquals(vals[0], null);
+    }
+    
+    @Test(description = "Test null in fork-join")
+    public void testNullInForkJoin() {
+        BValue[] vals = BLangFunctions.invoke(bLangProgram, "testNullInForkJoin", new BValue[]{});
+        Assert.assertEquals(vals[0], null);
+        Assert.assertTrue(vals[1] instanceof BMessage);
+        Assert.assertEquals(((BMessage) vals[1]).stringValue(), "");
+    }
+    
+    @Test(description = "Test array of null values")
+    public void testArrayOfNulls() {
+        BValue[] vals = BLangFunctions.invoke(bLangProgram, "testArrayOfNulls", new BValue[] {});
+        BArray<?> nullArray = (BArray<?>) vals[0];
+        Assert.assertTrue(nullArray.get(0) instanceof BStruct);
+        Assert.assertEquals(nullArray.get(1), null);
+        Assert.assertEquals(nullArray.get(2), null);
+        Assert.assertTrue(nullArray.get(3) instanceof BStruct);
+        Assert.assertEquals(nullArray.get(4), null);
+    }
+    
+    @Test(description = "Test map of null values")
+    public void testMapOfNulls() {
+        BValue[] vals = BLangFunctions.invoke(bLangProgram, "testMapOfNulls", new BValue[] {});
+        BMap<BString, ?> nullMap = (BMap<BString, ?>) vals[0];
+        Assert.assertTrue(nullMap.get(new BString("x1")) instanceof BXML);
+        Assert.assertEquals(nullMap.get(new BString("x2")), null);
+        Assert.assertEquals(nullMap.get(new BString("x3")), null);
+        Assert.assertTrue(nullMap.get(new BString("x4")) instanceof BXML);
+        Assert.assertEquals(nullMap.get(new BString("x5")), null);
+    }
+    
     // Negative Tests
     
     @Test(description = "Test accessing an element in a null array",

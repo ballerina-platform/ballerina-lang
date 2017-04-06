@@ -95,6 +95,7 @@ import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -402,7 +403,8 @@ public class BLangExecutor implements NodeExecutor {
         // TODO revisit this logic
         Expression expr = replyStmt.getReplyExpr();
         BMessage bMessage = (BMessage) expr.execute(this);
-        bContext.getBalCallback().done(bMessage.value());
+        CarbonMessage cMsg = bMessage != null ? cMsg = bMessage.value() : null;
+        bContext.getBalCallback().done(cMsg);
         returnedOrReplied = true;
     }
 
@@ -420,7 +422,7 @@ public class BLangExecutor implements NodeExecutor {
             int sizeOfValueArray = worker.getStackFrameSize();
             BValue[] localVals = new BValue[sizeOfValueArray];
 
-            BValue argValue = inMsg.clone();
+            BValue argValue = inMsg != null ? inMsg.clone() : null;
             // Setting argument value in the stack frame
             localVals[0] = argValue;
 
@@ -458,18 +460,14 @@ public class BLangExecutor implements NodeExecutor {
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
                 BMessage res = invokeAnyWorker(workerRunnerList, timeout);
-                if (res != null) {
-                    resultMsgs.add(res);
-                }
+                resultMsgs.add(res);
             } else {
                 List<WorkerRunner> workerRunnersSpecified = new ArrayList<>();
                 for (String workerName : joinWorkerNames) {
                     workerRunnersSpecified.add(triggeredWorkers.get(workerName));
                 }
                 BMessage res = invokeAnyWorker(workerRunnersSpecified, timeout);
-                if (res != null) {
-                    resultMsgs.add(res);
-                }
+                resultMsgs.add(res);
             }
         } else {
             String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
@@ -551,9 +549,7 @@ public class BLangExecutor implements NodeExecutor {
                 }
 
             }).forEach((BMessage b) -> {
-                if (b != null) {
-                    result.add(b);
-                }
+                result.add(b);
             });
         } catch (InterruptedException e) {
             return result;

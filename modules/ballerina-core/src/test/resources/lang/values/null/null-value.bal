@@ -119,3 +119,55 @@ function testNullLiteralComparison() (boolean) {
 function testReturnNullLiteral() (any) {
     return null;
 }
+
+function testNullInWorker() (any) {
+    worker worker1(message m){
+        message resp;
+        reply resp;
+    }
+
+    message request;
+    request -> worker1;
+    
+    message result;
+    result <- worker1;
+    
+    return result;
+}
+
+function testNullInForkJoin() (message, message) {
+    message m = null;
+    fork (m) {
+        worker foo (message m) {
+            message resp1 = null;
+            reply resp1;
+        }
+
+        worker bar (message m) {
+            message resp2 = {};
+            reply resp2;
+        }
+    } join (all) (message[] allReplies) {
+        return allReplies[0], allReplies[1];
+    } timeout (30000) (message[] msgs) {
+        return null, null;
+    }
+}
+
+function testArrayOfNulls() (Person[]) {
+    Person p1 = {};
+    Person p2;
+    Person p3 = null;
+    Person p4 = {};
+    Person[] personArray = [p1, p2, p3, p4, null];
+    return personArray;
+}
+
+function testMapOfNulls() (map) {
+    xml x1 = `<x1>test xml1<x1>`;
+    xml x2;
+    xml x3 = null;
+    xml x4 = `<x4>test xml4<x4>`;
+    map xmlMap = {"x1":x1, "x2":x2, "x3":x3, "x4":x4, "x5":null};
+    return xmlMap;
+}

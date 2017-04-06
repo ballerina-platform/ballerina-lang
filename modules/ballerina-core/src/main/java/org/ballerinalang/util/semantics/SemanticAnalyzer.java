@@ -1787,7 +1787,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             visitSingleValueExpr(argExprs[i]);
 
             // Types are defined only once, hence the following object equal should work.
-            if (argExprs[i].getType() != expectedElementType) {
+            if ((argExprs[i].getType() == BTypes.typeNull && BTypes.isValueType(expectedElementType)) ||
+                    (argExprs[i].getType() != BTypes.typeNull && argExprs[i].getType() != expectedElementType)) {
                 TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExprs[i]);
                 if (typeCastExpr == null) {
                     BLangExceptionHelper.throwSemanticError(arrayInitExpr,
