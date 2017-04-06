@@ -292,7 +292,7 @@ class LifeLineView extends BallerinaView {
             // Adding svg definitions needed for styling edit and delete buttons.
             var svgDefinitions = deleteButtonPaneGroup.append('defs');
             var deleteButtonPattern = svgDefinitions.append('pattern')
-                .attr('id', 'deleteIcon')
+                .attr('id', 'statementDeleteIcon')
                 .attr('width', '100%')
                 .attr('height', '100%');
 

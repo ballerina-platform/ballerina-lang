@@ -55,6 +55,8 @@ import $ from 'jquery';
         $(propertyInputValue).on("change", function(){
             // Do not set the value to the model directly, instead fire the event.
             property.model.trigger('update-property-text', $(this).val(), property.key);
+        }).on('blur', function () {
+            property.model.trigger('focus-out');
         });
     };
     export default expressionEditorUtil;

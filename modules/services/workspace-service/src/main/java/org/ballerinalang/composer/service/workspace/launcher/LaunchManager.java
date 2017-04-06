@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.apache.commons.io.IOUtils;
 import org.ballerinalang.composer.service.workspace.launcher.dto.CommandDTO;
 import org.ballerinalang.composer.service.workspace.launcher.dto.MessageDTO;
+import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,13 +170,25 @@ public class LaunchManager {
     public void stopProcess() {
         int pid = -1;
         if (this.command != null && this.command.getProgram().isAlive()) {
-            Terminator terminator = new Terminator(this.command);
+
+            String os = getOperatingSystem();
+            Terminator terminator = new TerminatorFactory().getTerminator(os, this.command);
+
             //shutdown error streaming to prevent kill message displaying to user.
             this.command.setErrorOutputEnabled(false);
             terminator.terminate();
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED, LauncherConstants.INFO,
                     LauncherConstants.TERMINATE_MESSAGE);
         }
+    }
+
+    private String getOperatingSystem() {
+        if (LaunchUtils.isWindows()) {
+            return "windows";
+        } else if (LaunchUtils.isMac() || LaunchUtils.isUnix() || LaunchUtils.isSolaris()) {
+            return "unix";
+        }
+        return null;
     }
     
     public void addLaunchSession(Channel channel) {
