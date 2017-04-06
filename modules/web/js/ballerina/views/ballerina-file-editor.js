@@ -20,6 +20,7 @@ import $ from 'jquery';
 import log from 'log';
 import BallerinaView from './ballerina-view';
 import ServiceDefinitionView from './service-definition-view';
+import AnnotationDefinitionView from './annotation-definition-view';
 import FunctionDefinitionView from './function-definition-view';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
@@ -213,6 +214,10 @@ class BallerinaFileEditor extends BallerinaView {
         return false;
     }
 
+    canVisitAnnotationDefinition(){
+        return false;
+    }
+
     /**
      * Creates a packge definition view for a package definition model and calls it's render.
      * @param packageDefinition
@@ -273,6 +278,23 @@ class BallerinaFileEditor extends BallerinaView {
         this.diagramRenderingContext.getViewModelMap()[serviceDefinition.id] = serviceDefinitionView;
         serviceDefinitionView.render(this.diagramRenderingContext);
 
+    }
+
+    /**
+     * Creates an annotation definition for annotation definition.
+     * @param annotationDefinition
+     * */
+    visitAnnotationDefinition(annotationDefinition){
+        var annotationDefinitionView = new AnnotationDefinitionView({
+            viewOptions: this._viewOptions,
+            container: this._$canvasContainer,
+            model: annotationDefinition,
+            parentView: this,
+            toolPalette: this.toolPalette
+        });
+
+        this.diagramRenderingContext.getViewModelMap()[annotationDefinition.id] = annotationDefinitionView;
+        annotationDefinitionView.render(this.diagramRenderingContext);
     }
 
     /**
