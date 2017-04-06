@@ -23,7 +23,8 @@ package org.ballerinalang.util.exceptions;
  */
 public enum RuntimeErrors {
 
-    CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE("casting.any.to.wrong.value.type", "RUNTIME_0001");
+    CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE("casting.any.to.wrong.value.type", "RUNTIME_0001"),
+    CASTING_ANY_TYPE_WITHOUT_INIT("casting.any.without.init", "RUNTIME_0002");
 
     private String errorMsgKey;
     private String errorCode;

@@ -30,7 +30,7 @@ function testStructOfStruct() (string) {
     Person[] emps = [emp1, emp2];
     Department dpt = {employees:emps};
     
-    string country = dpt.employees[0].adrs["country"];
+    string country = (string) dpt.employees[0].adrs["country"];
     return country;
 }
 

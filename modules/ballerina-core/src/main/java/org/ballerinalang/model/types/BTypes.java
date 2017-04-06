@@ -105,10 +105,10 @@ public class BTypes {
         typeXML = new BXMLType(TypeConstants.XML_TNAME, null, globalScope);
         typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null, globalScope);
         typeMessage = new BMessageType(TypeConstants.MESSAGE_TNAME, null, globalScope);
-        typeMap = new BMapType(TypeConstants.MAP_TNAME, null, globalScope);
         typeException = new BExceptionType(TypeConstants.EXCEPTION_TNAME, null, globalScope);
         typeDatatable = new BDataTableType(TypeConstants.DATATABLE_TNAME, null, globalScope);
         typeAny = new BAnyType(TypeConstants.ANY_TNAME, null, globalScope);
+        typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
         initialized = true;
     }
@@ -147,8 +147,7 @@ public class BTypes {
                 return bArrayType;
             } else {
                 SimpleTypeName childSimpleType = new SimpleTypeName(typeName.getName(),
-                        typeName.getPackagePath(), true);
-                childSimpleType.setPkgPath(typeName.getPackagePath());
+                        typeName.getPackagePath(), true, typeName.getDimensions() - 1);
                 childSimpleType.setArrayType(typeName.getDimensions() - 1);
 
                 BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),

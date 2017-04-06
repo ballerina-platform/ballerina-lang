@@ -26,5 +26,6 @@ public class Constants {
     public static final String DOC_PACKAGE_NAME = "ballerina.doc";
     public static final String NON_CALLABLE_NATIVE_ACTION_INIT = "NativeAction.<init>";
     public static final String NATIVE_ACTION_PREFIX = "NativeAction";
+    public static final String NATIVE_INIT_ACTION_NAME = "init";
 
 }
