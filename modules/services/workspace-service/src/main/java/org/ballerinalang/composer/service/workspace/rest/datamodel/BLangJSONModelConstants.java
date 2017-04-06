@@ -67,6 +67,8 @@ public class BLangJSONModelConstants {
     
     public static final String SERVICE_DEFINITION = "service_definition";
 
+    public static final String ANNOTATION_DEFINITION = "annotation_definition";
+
     public static final String SERVICE_NAME = "service_name";
 
     public static final String RESOURCE_DEFINITION = "resource_definition";

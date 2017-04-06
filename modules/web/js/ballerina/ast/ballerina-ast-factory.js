@@ -84,6 +84,7 @@ import variableDefinition from './variable-definition';
 import breakStatement from './statements/break-statement';
 import throwStatement from './statements/throw-statement';
 import commentStatement from './statements/comment-statement';
+import annotationDefinition from './annotation-definition';
 
 
 
@@ -108,6 +109,14 @@ import commentStatement from './statements/comment-statement';
          */
         BallerinaASTFactory.createServiceDefinition = function (args, setDefaults) {
             return new serviceDefinition(args);
+        };
+
+        /**
+         * creates AnnotationDefinition.
+         * @param args
+         * */
+        BallerinaASTFactory.createAnnotationDefinition = function (args) {
+            return new annotationDefinition(args);
         };
 
         /**
@@ -1116,6 +1125,15 @@ import commentStatement from './statements/comment-statement';
         };
 
         /**
+         * instanceof check for Annotation definition.
+         * @param {ASTNode} child - The ast node.
+         * @return {boolean} - true if same type, else false
+         * */
+        BallerinaASTFactory.isAnnotationDefinition = function(child){
+            return child instanceof annotationDefinition;
+        };
+
+        /**
          * instanceof check for variableDefinitionStatement
          * @param {ASTNode} child - The ast node.
          * @returns {boolean} - true if same type, else false
@@ -1155,6 +1173,9 @@ import commentStatement from './statements/comment-statement';
                         break;
                     case 'service_definition':
                         node = BallerinaASTFactory.createServiceDefinition();
+                        break;
+                    case 'annotation_definition':
+                        node = BallerinaASTFactory.createAnnotationDefinition();
                         break;
                     case 'function_definition':
                         node = BallerinaASTFactory.createFunctionDefinition();
