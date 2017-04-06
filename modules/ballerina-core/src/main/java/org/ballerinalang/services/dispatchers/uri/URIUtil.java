@@ -34,16 +34,6 @@ public class URIUtil {
     }
 
     public static String getSubPath(String path, String basePath) {
-//        if (path.startsWith(URI_PATH_DELIMITER)) {
-//            path = path.replaceFirst(URI_PATH_DELIMITER, "");
-//        }
-//
-//        int index = path.indexOf(URI_PATH_DELIMITER);
-//        if (index != -1) {
-//            return path.substring(index, path.length());
-//        }
-//        return URI_PATH_DELIMITER;
-
         if (path.length() == basePath.length()) {
             return URI_PATH_DELIMITER;
         }
