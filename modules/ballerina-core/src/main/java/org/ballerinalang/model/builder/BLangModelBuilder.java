@@ -168,7 +168,7 @@ public class BLangModelBuilder {
     // This is useful when analyzing import functions, actions and types.
     protected Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
-    protected Stack<AnnotationAttributeValue> annotationAttributeValues;
+    protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
     
     protected List<String> errorMsgs = new ArrayList<>();
 
@@ -322,7 +322,6 @@ public class BLangModelBuilder {
         AnnotationAttachment.AnnotationBuilder annotationBuilder = new AnnotationAttachment.AnnotationBuilder();
         annotationBuilder.setNodeLocation(location);
         annonAttachmentBuilderStack.push(annotationBuilder);
-        annotationAttributeValues = new Stack<AnnotationAttributeValue>();
     }
 
     public void createAnnotationKeyValue(String key) {
