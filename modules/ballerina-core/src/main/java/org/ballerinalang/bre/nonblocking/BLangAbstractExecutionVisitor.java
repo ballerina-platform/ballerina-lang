@@ -711,7 +711,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BMessage inMsg = (BMessage) getTempValue(expr);
         List<WorkerRunner> workerRunnerList = new ArrayList<>();
 
-        int timeout = ((BInteger) getTempValue(forkJoinStmt.getTimeout().getTimeoutExpression())).intValue();
+        long timeout = ((BInteger) getTempValue(forkJoinStmt.getTimeout().getTimeoutExpression())).intValue();
 
         Worker[] workers = forkJoinStmt.getWorkers();
         Map<String, WorkerRunner> triggeredWorkers = new HashMap<>();
@@ -815,7 +815,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         forkJoinInvocationStatus = null;
     }
 
-    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, int timeout) {
+    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, long timeout) {
         ExecutorService anyExecutor = Executors.newWorkStealingPool();
         BMessage result;
         try {
@@ -830,7 +830,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         return result;
     }
 
-    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, int timeout) {
+    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, long timeout) {
         ExecutorService allExecutor = Executors.newWorkStealingPool();
         List<BMessage> result = new ArrayList<>();
         try {

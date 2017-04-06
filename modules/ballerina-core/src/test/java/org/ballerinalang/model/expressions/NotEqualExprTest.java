@@ -21,7 +21,6 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -50,8 +49,8 @@ public class NotEqualExprTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "checkIntEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 1;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 1;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[] { new BInteger(5), new BInteger(6) };
@@ -71,8 +70,8 @@ public class NotEqualExprTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "checkFloatEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 1;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 1;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[] { new BFloat(8.0001f), new BFloat(6.9992f) };
@@ -92,8 +91,8 @@ public class NotEqualExprTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "checkBooleanEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 1;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 1;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[] { new BBoolean(true), new BBoolean(false) };
@@ -113,8 +112,8 @@ public class NotEqualExprTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "checkStringEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 1;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 1;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[] { new BString("This is Ballerina !!!"),
@@ -129,26 +128,6 @@ public class NotEqualExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test Float and Double equal expression")
-    public void testFloatAndDoubleEqualExpr() {
-        float a = 20.2f;
-        double b = 20.2d;
-
-        // Should be false since float is a approximation, not an exact number
-        boolean expectedResult = (a == b);
-
-        BValue[] args = {new BFloat(a), new BDouble(b)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "checkFloatAndDoubleEquality", args);
-
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-
-        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
-
-        Assert.assertEquals(actualResult, expectedResult);
-    }
-    
     /*
      * Negative tests
      */

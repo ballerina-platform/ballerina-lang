@@ -1399,12 +1399,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (arithmeticExprType == BTypes.typeFloat) {
             divideExpr.setEvalFunc(DivideExpr.DIV_FLOAT_FUNC);
 
-        } else if (arithmeticExprType == BTypes.typeDouble) {
-            divideExpr.setEvalFunc(DivideExpr.DIV_DOUBLE_FUNC);
-
-        } else if (arithmeticExprType == BTypes.typeLong) {
-            divideExpr.setEvalFunc(DivideExpr.DIV_LONG_FUNC);
-
         } else {
             throwInvalidBinaryOpError(divideExpr);
         }
@@ -1420,12 +1414,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (arithmeticExprType == BTypes.typeFloat) {
             modExpression.setEvalFunc(ModExpression.MOD_FLOAT_FUNC);
 
-        } else if (arithmeticExprType == BTypes.typeDouble) {
-            modExpression.setEvalFunc(ModExpression.MOD_DOUBLE_FUNC);
-
-        } else if (arithmeticExprType == BTypes.typeLong) {
-            modExpression.setEvalFunc(ModExpression.MOD_LONG_FUNC);
-
         } else {
             throwInvalidBinaryOpError(modExpression);
         }
@@ -1439,10 +1427,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (Operator.SUB.equals(unaryExpr.getOperator())) {
             if (unaryExpr.getType() == BTypes.typeInt) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_INT_FUNC);
-            } else if (unaryExpr.getType() == BTypes.typeDouble) {
-                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_DOUBLE_FUNC);
-            } else if (unaryExpr.getType() == BTypes.typeLong) {
-                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_LONG_FUNC);
             } else if (unaryExpr.getType() == BTypes.typeFloat) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_FLOAT_FUNC);
             } else {
@@ -1451,10 +1435,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (Operator.ADD.equals(unaryExpr.getOperator())) {
             if (unaryExpr.getType() == BTypes.typeInt) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_INT_FUNC);
-            } else if (unaryExpr.getType() == BTypes.typeDouble) {
-                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_DOUBLE_FUNC);
-            } else if (unaryExpr.getType() == BTypes.typeLong) {
-                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_LONG_FUNC);
             } else if (unaryExpr.getType() == BTypes.typeFloat) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_FLOAT_FUNC);
             } else {
@@ -1484,12 +1464,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (arithmeticExprType == BTypes.typeFloat) {
             addExpr.setEvalFunc(AddExpression.ADD_FLOAT_FUNC);
 
-        } else if (arithmeticExprType == BTypes.typeLong) {
-            addExpr.setEvalFunc(AddExpression.ADD_LONG_FUNC);
-
-        } else if (arithmeticExprType == BTypes.typeDouble) {
-            addExpr.setEvalFunc(AddExpression.ADD_DOUBLE_FUNC);
-
         } else if (arithmeticExprType == BTypes.typeString) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
 
@@ -1508,12 +1482,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (binaryExprType == BTypes.typeFloat) {
             multExpr.setEvalFunc(MultExpression.MULT_FLOAT_FUNC);
 
-        } else if (binaryExprType == BTypes.typeDouble) {
-            multExpr.setEvalFunc(MultExpression.MULT_DOUBLE_FUNC);
-
-        } else if (binaryExprType == BTypes.typeLong) {
-            multExpr.setEvalFunc(MultExpression.MULT_LONG_FUNC);
-
         } else {
             throwInvalidBinaryOpError(multExpr);
         }
@@ -1528,12 +1496,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (binaryExprType == BTypes.typeFloat) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_FLOAT_FUNC);
-
-        } else if (binaryExprType == BTypes.typeDouble) {
-            subtractExpr.setEvalFunc(SubtractExpression.SUB_DOUBLE_FUNC);
-
-        } else if (binaryExprType == BTypes.typeLong) {
-            subtractExpr.setEvalFunc(SubtractExpression.SUB_LONG_FUNC);
 
         } else {
             throwInvalidBinaryOpError(subtractExpr);
@@ -1558,9 +1520,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.typeInt) {
             equalExpr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
-
-        } else if (compareExprType == BTypes.typeDouble) {
-            equalExpr.setEvalFunc(EqualExpression.EQUAL_DOUBLE_FUNC);
 
         } else if (compareExprType == BTypes.typeFloat) {
             equalExpr.setEvalFunc(EqualExpression.EQUAL_FLOAT_FUNC);
@@ -2388,8 +2347,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                      * scenario where there are more than two ambiguous functions, then this will show only the
                      * first two.
                      */
-                    String ambiguousFunc1 = generateErrorMessage(funcIExpr, functionSymbol);
-                    String ambiguousFunc2 = generateErrorMessage(funcIExpr, (BLangSymbol) entry.getValue());
+                    String ambiguousFunc1 = generateErrorMessage(funcIExpr, functionSymbol, symbolName.getPkgPath());
+                    String ambiguousFunc2 = generateErrorMessage(funcIExpr, (BLangSymbol) entry.getValue(),
+                                                                 symbolName.getPkgPath());
                     BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.AMBIGUOUS_FUNCTIONS,
                                                             funcSymName.getFuncName(), ambiguousFunc1, ambiguousFunc2);
                     break;
@@ -2410,7 +2370,8 @@ public class SemanticAnalyzer implements NodeVisitor {
      * @param functionSymbol
      * @return errorMsg
      */
-    private static String generateErrorMessage(FunctionInvocationExpr funcIExpr, BLangSymbol functionSymbol) {
+    private static String generateErrorMessage(FunctionInvocationExpr funcIExpr, BLangSymbol functionSymbol,
+                                               String packagePath) {
         Function function;
         //in future when native functions support implicit casting invocation, functionSymbol can be either
         //NativeUnitProxy or a Function.
@@ -2432,8 +2393,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         //below getName should always return a valid String value, hence ArrayIndexOutOfBoundsException
         // or NullPointerException cannot happen here.
         String funcName = function.getSymbolName().getName().split("\\.")[0];
-        String firstPart = (function.getSymbolName().getPkgPath() != null) ?
-                           function.getSymbolName().getPkgPath() + ":" + funcName : funcName;
+        String firstPart = (packagePath != null) ? packagePath + ":" + funcName : funcName;
 
         StringBuilder sBuilder = new StringBuilder(firstPart + "(");
         String prefix = "";

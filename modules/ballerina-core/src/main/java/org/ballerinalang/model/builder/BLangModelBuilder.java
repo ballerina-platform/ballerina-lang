@@ -169,7 +169,7 @@ public class BLangModelBuilder {
     // This is useful when analyzing import functions, actions and types.
     protected Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
-    protected Stack<AnnotationAttributeValue> annotationAttributeValues;
+    protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
     
     protected List<String> errorMsgs = new ArrayList<>();
 
@@ -323,7 +323,6 @@ public class BLangModelBuilder {
         AnnotationAttachment.AnnotationBuilder annotationBuilder = new AnnotationAttachment.AnnotationBuilder();
         annotationBuilder.setNodeLocation(location);
         annonAttachmentBuilderStack.push(annotationBuilder);
-        annotationAttributeValues = new Stack<AnnotationAttributeValue>();
     }
 
     public void createAnnotationKeyValue(String key) {
@@ -1326,12 +1325,12 @@ public class BLangModelBuilder {
     // Literal Values
 
     public void createIntegerLiteral(NodeLocation location, String value) {
-        BValueType bValue = new BInteger(Integer.parseInt(value));
+        BValueType bValue = new BInteger(Long.parseLong(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.INT_TNAME), bValue);
     }
 
     public void createFloatLiteral(NodeLocation location, String value) {
-        BValueType bValue = new BFloat(Float.parseFloat(value));
+        BValueType bValue = new BFloat(Double.parseDouble(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.FLOAT_TNAME), bValue);
     }
 

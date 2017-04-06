@@ -20,10 +20,8 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -36,7 +34,7 @@ import org.testng.annotations.Test;
  * Primitive divide expression test.
  */
 public class DivideExprTest {
-
+    private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass
@@ -52,8 +50,8 @@ public class DivideExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 40;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 40;
         Assert.assertEquals(actual, expected);
     }
 
@@ -63,29 +61,12 @@ public class DivideExprTest {
         BLangFunctions.invoke(bLangProgram, "intDivide", args);
     }
 
-    @Test(description = "Test two long divide expression")
-    public void testLongDivideExpr() {
-        long a = Long.MAX_VALUE;
-        long b = 123456789L;
-
-        long expectedResult = a / b;
-
-        BValue[] args = { new BLong(a), new BLong(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "longDivide", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BLong.class);
-
-        long actual = ((BLong) returns[0]).longValue();
-        Assert.assertEquals(actual, expectedResult);
-    }
-
     @Test(description = "Test two float divide expression")
     public void testFloatDivideExpr() {
         float a = 8.5f;
         float b = 4.1f;
 
-        float expectedResult = a / b;
+        double expectedResult = a / b;
 
         BValue[] args = { new BFloat(a), new BFloat(b) };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatDivide", args);
@@ -93,8 +74,8 @@ public class DivideExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
-        float actual = ((BFloat) returns[0]).floatValue();
-        Assert.assertEquals(actual, expectedResult);
+        double actual = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actual, expectedResult, DELTA);
     }
 
     @Test(description = "Test two float divide expression", expectedExceptions = BallerinaException.class)
@@ -103,46 +84,12 @@ public class DivideExprTest {
         BLangFunctions.invoke(bLangProgram, "floatDivide", args);
     }
 
-    @Test(description = "Test two double divide expression")
-    public void testDoubleDivideExpr() {
-        double a = 8.5;
-        double b = 4.1;
-
-        double expectedResult = a / b;
-
-        BValue[] args = { new BDouble(a), new BDouble(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "doubleDivide", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDouble.class);
-
-        double actual = ((BDouble) returns[0]).doubleValue();
-        Assert.assertEquals(actual, expectedResult);
-    }
-
-    @Test(description = "Test integer division by long")
-    public void testIntDivideByLong() {
-        int a = Integer.MAX_VALUE;
-        long b = 123456789L;
-
-        long expectedResult = a / b;
-
-        BValue[] args = { new BInteger(a), new BLong(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intDivideByLong", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BLong.class, "Return type of the division is invalid");
-
-        long actualResult = ((BLong) returns[0]).longValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
-    }
-
     @Test(description = "Test integer division by float")
     public void testIntDivideByFloat() {
         int a = Integer.MAX_VALUE;
-        float b = 1.23456789f;
+        double b = 1.23456789d;
 
-        float expectedResult = a / b;
+        double expectedResult = a / b;
 
         BValue[] args = { new BInteger(a), new BFloat(b) };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intDivideByFloat", args);
@@ -150,84 +97,16 @@ public class DivideExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
 
-        float actualResult = ((BFloat) returns[0]).floatValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
-    }
-
-    @Test(description = "Test integer division by double")
-    public void testIntDivideByDouble() {
-        int a = Integer.MAX_VALUE;
-        double b = 1.23456789d;
-
-        double expectedResult = a / b;
-
-        BValue[] args = { new BInteger(a), new BDouble(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intDivideByDouble", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
-
-        double actualResult = ((BDouble) returns[0]).doubleValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
-    }
-
-    @Test(description = "Test long number division by int")
-    public void testLongDivideByInt() {
-        long a = Long.MAX_VALUE;
-        int b = 123456789;
-
-        long expectedResult = a / b;
-
-        BValue[] args = { new BLong(a), new BInteger(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "longDivideByInt", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BLong.class, "Return type of the division is invalid");
-
-        long actualResult = ((BLong) returns[0]).longValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
-    }
-
-    @Test(description = "Test long number division by float")
-    public void testLongDivideByFloat() {
-        long a = Long.MAX_VALUE;
-        float b = 1.23456789f;
-
-        float expectedResult = a / b;
-
-        BValue[] args = { new BLong(a), new BFloat(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "longDivideByFloat", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
-
-        float actualResult = ((BFloat) returns[0]).floatValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
-    }
-
-    @Test(description = "Test long number division by double")
-    public void testLongDivideByDouble() {
-        long a = Long.MAX_VALUE;
-        double b = 1.23456789d;
-
-        double expectedResult = a / b;
-
-        BValue[] args = { new BLong(a), new BDouble(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "longDivideByDouble", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
-
-        double actualResult = ((BDouble) returns[0]).doubleValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+        double actualResult = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actualResult, expectedResult, DELTA, "Result of the division operation is incorrect");
     }
 
     @Test(description = "Test float number division by integer")
     public void testFloatDivideByInt() {
-        float a = Float.MAX_VALUE;
+        double a = Float.MAX_VALUE;
         int b = 123456789;
 
-        float expectedResult = a / b;
+        double expectedResult = a / b;
 
         BValue[] args = { new BFloat(a), new BInteger(b) };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatDivideByInt", args);
@@ -235,95 +114,10 @@ public class DivideExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
 
-        float actualResult = ((BFloat) returns[0]).floatValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+        double actualResult = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actualResult, expectedResult, DELTA, "Result of the division operation is incorrect");
     }
 
-    @Test(description = "Test float number division by long value")
-    public void testFloatDivideByLong() {
-        float a = Float.MAX_VALUE;
-        long b = 123456789L;
-
-        float expectedResult = a / b;
-
-        BValue[] args = { new BFloat(a), new BLong(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatDivideByLong", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
-
-        float actualResult = ((BFloat) returns[0]).floatValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
-    }
-
-    @Test(description = "Test float number division by double value")
-    public void testFloatDivideByDouble() {
-        float a = Float.MAX_VALUE;
-        double b = 1.23456789d;
-
-        double expectedResult = a / b;
-
-        BValue[] args = { new BFloat(a), new BDouble(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatDivideByDouble", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
-
-        double actualResult = ((BDouble) returns[0]).doubleValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
-    }
-
-    @Test(description = "Test double number division by integer")
-    public void testDoubleDividedByInt() {
-        double a = Double.MAX_VALUE;
-        int b = 123456789;
-
-        double expectedResult = a / b;
-
-        BValue[] args = { new BDouble(a), new BInteger(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "doubleDividedByInt", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
-
-        double actualResult = ((BDouble) returns[0]).doubleValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
-    }
-
-    @Test(description = "Test double number division by long value")
-    public void testDoubleDividedByLong() {
-        double a = Double.MAX_VALUE;
-        long b = 123456789L;
-
-        double expectedResult = a / b;
-
-        BValue[] args = { new BDouble(a), new BLong(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "doubleDividedByLong", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
-
-        double actualResult = ((BDouble) returns[0]).doubleValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
-    }
-
-    @Test(description = "Test double number division by long value")
-    public void testDoubleDividedByFloat() {
-        double a = Double.MAX_VALUE;
-        float b = 1.23456789f;
-
-        double expectedResult = a / b;
-
-        BValue[] args = { new BDouble(a), new BFloat(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "doubleDividedByFloat", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
-
-        double actualResult = ((BDouble) returns[0]).doubleValue();
-        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
-    }
-    
     /*
      * Negative tests
      */

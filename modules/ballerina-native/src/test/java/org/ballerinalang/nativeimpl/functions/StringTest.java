@@ -20,11 +20,9 @@ package org.ballerinalang.nativeimpl.functions;
 import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -73,17 +71,6 @@ public class StringTest {
     }
 
     @Test
-    public void testDoubleValueOf() {
-        BValue[] args = {new BDouble(1.345)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "doubleValueOf", args);
-
-        Assert.assertTrue(returns[0] instanceof BString);
-
-        final String expected = "1.345";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
     public void testEqualsIgnoreCase() {
         BValue[] args = {new BString("WSO2"), new BString("wso2")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "equalsIgnoreCase", args);
@@ -102,7 +89,7 @@ public class StringTest {
         Assert.assertTrue(returns[0] instanceof BString);
 
         final String expected = "1.345";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns[0].stringValue().substring(0, 5), expected);
     }
 
     @Test
@@ -179,17 +166,6 @@ public class StringTest {
         Assert.assertTrue(returns[0] instanceof BInteger);
 
         final String expected = "9";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
-    public void testLongValueOf() {
-        BValue[] args = {new BLong(655555L)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "longValueOf", args);
-
-        Assert.assertTrue(returns[0] instanceof BString);
-
-        final String expected = "655555";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 

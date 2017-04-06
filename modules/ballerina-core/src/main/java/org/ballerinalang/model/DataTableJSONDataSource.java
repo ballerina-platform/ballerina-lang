@@ -78,12 +78,6 @@ public class DataTableJSONDataSource implements JSONDataSource {
                 case INT:
                     objNode.put(name, df.getInt(name));
                     break;
-                case LONG:
-                    objNode.put(name, df.getLong(name));
-                    break;
-                case DOUBLE:
-                    objNode.put(name, df.getDouble(name));
-                    break;
                 case FLOAT:
                     objNode.put(name, df.getFloat(name));
                     break;

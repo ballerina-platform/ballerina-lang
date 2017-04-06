@@ -35,10 +35,10 @@ public final class BString extends BValueType {
     }
 
     @Override
-    public int intValue() {
-        int result;
+    public long intValue() {
+        long result;
         try {
-            result = Integer.parseInt(this.value);
+            result = Long.parseLong(this.value);
         } catch (NumberFormatException e) {
             throw new BallerinaException("input value " + this.value + " cannot be cast to integer");
         }
@@ -46,34 +46,12 @@ public final class BString extends BValueType {
     }
 
     @Override
-    public long longValue() {
-        long result;
-        try {
-           result = Long.parseLong(this.value);
-        } catch (NumberFormatException e) {
-            throw new BallerinaException("input value " + this.value + " cannot be cast to long");
-        }
-        return result;
-    }
-
-    @Override
-    public float floatValue() {
-        float result;
-        try {
-            result = Float.parseFloat(this.value);
-        } catch (NumberFormatException e) {
-            throw new BallerinaException("input value " + this.value + " cannot be cast to float");
-        }
-        return result;
-    }
-
-    @Override
-    public double doubleValue() {
+    public double floatValue() {
         double result;
         try {
             result = Double.parseDouble(this.value);
         } catch (NumberFormatException e) {
-            throw new BallerinaException("input value " + this.value + " cannot be cast to double");
+            throw new BallerinaException("input value " + this.value + " cannot be cast to float");
         }
         return result;
     }
