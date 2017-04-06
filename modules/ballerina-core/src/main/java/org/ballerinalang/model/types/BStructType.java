@@ -39,8 +39,13 @@ public class BStructType extends BType {
         super(typeName, pkgPath, symbolScope, BStruct.class);
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
     public <V extends BValue> V getDefaultValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends BValue> V getInitValue() {
         return (V) new BStruct();
     }
 }

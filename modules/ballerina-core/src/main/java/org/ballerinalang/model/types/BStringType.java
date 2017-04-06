@@ -41,4 +41,9 @@ public class BStringType extends BType {
     public <V extends BValue> V getDefaultValue() {
         return (V) new BString("");
     }
+    
+    @Override
+    public <V extends BValue> V getInitValue() {
+        return (V) new BString("");
+    }
 }

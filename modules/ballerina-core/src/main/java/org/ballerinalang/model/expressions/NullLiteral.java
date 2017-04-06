@@ -15,34 +15,35 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.types;
+package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.NodeExecutor;
+import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BAnyType} represents any type in Ballerina. It is the root of the Ballerina type system.
+ * {@code BasicLiteral} represents a null literal in Ballerina.
  *
- * @since 0.85
+ * @since 0.86
  */
-public class BAnyType extends BType {
+public class NullLiteral extends AbstractExpression {
 
-    /**
-     * Create a {@code BAnyType} which represents the any type.
-     *
-     * @param typeName string name of the type
-     */
-    BAnyType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BValue.class);
+    public NullLiteral(NodeLocation location) {
+        super(location);
     }
 
-    @Override
-    public <V extends BValue> V getDefaultValue() {
+    public BValue getBValue() {
         return null;
     }
-
+    
     @Override
-    public <V extends BValue> V getInitValue() {
-        return null;
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
     }
+
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
+    }
+
 }

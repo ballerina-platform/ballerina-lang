@@ -42,4 +42,9 @@ class BFloatType extends BType {
     public <V extends BValue> V getDefaultValue() {
         return (V) new BFloat(0);
     }
+    
+    @Override
+    public <V extends BValue> V getInitValue() {
+        return (V) new BFloat(0);
+    }
 }

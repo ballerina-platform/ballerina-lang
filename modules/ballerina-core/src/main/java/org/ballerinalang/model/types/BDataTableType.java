@@ -40,9 +40,13 @@ public class BDataTableType extends BType {
         super(typeName, pkgPath, symbolScope, BDataTable.class);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <V extends BValue> V getDefaultValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends BValue> V getInitValue() {
         return (V) new BDataTable(null, new HashMap<>(0), new ArrayList<>(0));
     }
 }

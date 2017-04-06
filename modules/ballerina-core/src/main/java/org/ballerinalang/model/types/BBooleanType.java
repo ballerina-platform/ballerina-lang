@@ -41,4 +41,9 @@ class BBooleanType extends BType {
     public <V extends BValue> V getDefaultValue() {
         return (V) BBoolean.FALSE;
     }
+
+    @Override
+    public <V extends BValue> V getInitValue() {
+        return (V) BBoolean.FALSE;
+    }
 }

@@ -38,8 +38,13 @@ class BDoubleType extends BType {
         super(typeName, pkgPath, symbolScope, BDouble.class);
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
     public <V extends BValue> V getDefaultValue() {
+        return (V) new BDouble(0);
+    }
+
+    @Override
+    public <V extends BValue> V getInitValue() {
         return (V) new BDouble(0);
     }
 }

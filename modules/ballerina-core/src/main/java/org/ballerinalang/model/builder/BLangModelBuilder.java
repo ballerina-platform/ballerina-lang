@@ -61,6 +61,7 @@ import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
+import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
@@ -1345,8 +1346,8 @@ public class BLangModelBuilder {
     }
 
     public void createNullLiteral(NodeLocation location, String value) {
-        throw new RuntimeException("null values are not yet supported in Ballerina in " + location.getFileName()
-                + ":" + location.getLineNumber());
+        NullLiteral nullLiteral = new NullLiteral(location);
+        exprStack.push(nullLiteral);
     }
 
     public void validateAndSetPackagePath(NodeLocation location, NameReference nameReference) {

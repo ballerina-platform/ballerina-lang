@@ -129,6 +129,11 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     }
 
     @Override
+    public <V extends BValue> V getInitValue() {
+        return null;
+    }
+    
+    @Override
     public String getName() {
         return typeName;
     }

@@ -49,6 +49,7 @@ import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
+import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.Expression;
@@ -56,6 +57,7 @@ import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
 import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
+import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
@@ -365,7 +367,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             }
         } catch (Exception e) {
             // If there is an exception in the worker, set an empty value to the return variable
-            BMessage result = BTypes.typeMessage.getDefaultValue();
+            BMessage result = BTypes.typeMessage.getInitValue();
             VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
             assignValueToVarRefExpr(result, variableRefExpr);
         } finally {
@@ -561,7 +563,17 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
         next = variableRefExpr.next;
     }
-
+    
+    @Override
+    public void visit(NullLiteral nullLiteral) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing BasicLiteral {}-\"{}\"", nullLiteral.getType().getName(),
+                nullLiteral.getBValue().stringValue());
+        }
+        setTempValue(nullLiteral.getTempOffset(), nullLiteral.getBValue());
+        next = nullLiteral.next;
+    }
+    
     /* Memory Location */
 
     @Override
@@ -606,7 +618,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         // Fist the get the BConnector object. In an action invocation first argument is always the connector
         BConnector bConnector = (BConnector) controlStack.getValue(0);
         if (bConnector == null) {
-            throw new BallerinaException("Connector argument value is null");
+            throw new BallerinaException("connector argument value is null");
         }
 
         // Now get the connector variable value from the memory block allocated to the BConnector instance.
@@ -775,7 +787,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             // Execute the timeout block
 
             // Creating a new arrays
-            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getDefaultValue();
+            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getInitValue();
 
             for (int i = 0; i < forkJoinInvocationStatus.resultMsgs.size(); i++) {
                 BValue value = forkJoinInvocationStatus.resultMsgs.get(i);
@@ -791,7 +803,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             // Assign values to join block message arrays
 
             // Creating a new arrays
-            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getDefaultValue();
+            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getInitValue();
             for (int i = 0; i < forkJoinInvocationStatus.resultMsgs.size(); i++) {
                 BValue value = forkJoinInvocationStatus.resultMsgs.get(i);
                 bArray.add(i, value);
@@ -915,12 +927,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Expression lExpr = varDefStmt.getLExpr();
         Expression rExpr = varDefStmt.getRExpr();
         if (rExpr == null) {
-            if (BTypes.isValueType(lExpr.getType())) {
-                rValue = lExpr.getType().getDefaultValue();
-            } else {
-                // TODO Implement BNull here ..
-                rValue = null;
-            }
+            rValue = lExpr.getType().getDefaultValue();
         } else {
             rValue = getTempValue(rExpr);
         }
@@ -977,7 +984,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Expression[] argExprs = arrayInitExprEndNode.getExpression().getArgExprs();
 
         // Creating a new arrays
-        BArray bArray = arrayInitExprEndNode.getExpression().getType().getDefaultValue();
+        BArray bArray = arrayInitExprEndNode.getExpression().getType().getInitValue();
 
         for (int i = 0; i < argExprs.length; i++) {
             Expression expr = argExprs[i];
@@ -1051,12 +1058,22 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
         BinaryExpression binaryExpr = binaryExpressionEndNode.getExpression();
         Expression rExpr = binaryExpr.getRExpr();
-        BValueType rValue = (BValueType) getTempValue(rExpr);
-
         Expression lExpr = binaryExpr.getLExpr();
-        BValueType lValue = (BValueType) getTempValue(lExpr);
+
+        BValue rValue = getTempValue(rExpr);
+        BValue lValue = getTempValue(lExpr);
+        BValue binaryExprRslt;
+        
         try {
-            setTempValue(binaryExpr.getTempOffset(), binaryExpr.getEvalFunc().apply(lValue, rValue));
+            if (binaryExpr instanceof BinaryEqualityExpression &&
+                (rExpr.getType() == BTypes.typeNull || lExpr.getType() == BTypes.typeNull)) {
+                // if this is a null check, then need to pass the BValue
+                binaryExprRslt = ((BinaryEqualityExpression) binaryExpr).getRefTypeEvalFunc().apply(lValue, rValue);
+            } else {
+                binaryExprRslt = binaryExpr.getEvalFunc().apply((BValueType) lValue, (BValueType) rValue);
+            }
+            
+            setTempValue(binaryExpr.getTempOffset(), binaryExprRslt);
             next = binaryExpressionEndNode.next;
         } catch (RuntimeException e) {
             handleBException(new BException(e.getMessage()));
@@ -1218,7 +1235,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
         next = refTypeInitExprEndNode.next;
         BType bType = refTypeInitExpr.getType();
-        setTempValue(refTypeInitExpr.getTempOffset(), bType.getDefaultValue());
+        setTempValue(refTypeInitExpr.getTempOffset(), bType.getInitValue());
     }
 
     @Override
@@ -1356,7 +1373,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Expression[] argExprs = mapInitExprEndNode.getExpression().getArgExprs();
 
         // Creating a new arrays
-        BMap bMap = mapInitExprEndNode.getExpression().getType().getDefaultValue();
+        BMap bMap = mapInitExprEndNode.getExpression().getType().getInitValue();
 
         for (int i = 0; i < argExprs.length; i++) {
             MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
@@ -1485,7 +1502,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             // Fist the get the BConnector object. In an action invocation first argument is always the connector
             BConnector bConnector = (BConnector) controlStack.getValue(0);
             if (bConnector == null) {
-                throw new BallerinaException("Connector argument value is null");
+                throw new BallerinaException("connector argument value is null");
             }
 
             int connectorMemOffset = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
@@ -1600,7 +1617,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
         // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
-
+        if (arrayMapValue == null) {
+            throw new BallerinaException("field '" + fieldExpr.getVarRef().getSymbolName() + " is null");
+        }
+        
         // Set the value to arrays/map's index location
         ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
         if (varRef.getRExpr().getType() == BTypes.typeMap) {
@@ -1634,8 +1654,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         // If this is the last field, return the value from memory location
         if (fieldExpr.getFieldExpr() == null) {
             if (currentStructVal.value() == null) {
-                throw new BallerinaException("cannot access field '" + fieldExpr.getSymbolName().getName() +
-                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
+                throw new BallerinaException("variable '" + fieldExpr.getParent().getSymbolName().getName() + 
+                    "' is null");
             }
             // Value stored in the struct can be also an arrays. Hence if its an arrray access,
             // get the aray element value
@@ -1643,8 +1663,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         if (currentStructVal.value() == null) {
-            throw new BallerinaException("cannot access field '" + fieldExpr.getSymbolName().getName() +
-                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
+            throw new BallerinaException("variable '" + fieldExpr.getParent().getSymbolName().getName() + "' is null");
         }
         BValue value = currentStructVal.getValue(fieldLocation);
 
@@ -1671,7 +1690,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
         ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
         if (currentVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getVarName() + "' is null");
+            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName() + "' is null");
         }
 
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {

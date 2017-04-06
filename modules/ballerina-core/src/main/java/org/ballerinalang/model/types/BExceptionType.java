@@ -38,6 +38,11 @@ public class BExceptionType extends BType {
 
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getDefaultValue() {
+        return (V) null;
+    }
+
+    @Override
+    public <V extends BValue> V getInitValue() {
         return (V) new BException();
     }
 }

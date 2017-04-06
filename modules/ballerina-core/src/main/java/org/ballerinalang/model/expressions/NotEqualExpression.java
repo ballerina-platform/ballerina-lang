@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 
 import java.util.function.BiFunction;
@@ -51,10 +52,13 @@ public class NotEqualExpression extends BinaryEqualityExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> NOT_EQUAL_STRING_FUNC =
             (lVal, rVal) -> new BBoolean(!lVal.stringValue().equals(rVal.stringValue()));
 
+    public static final BiFunction<BValue, BValue, BValueType> NOT_EQUAL_NULL_FUNC =
+            (lVal, rVal) -> new BBoolean(lVal != rVal);
+                    
     public NotEqualExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
         super(location, lExpr, NOT_EQUAL, rExpr);
     }
-
+    
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);

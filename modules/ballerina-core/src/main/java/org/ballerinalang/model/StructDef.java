@@ -141,11 +141,15 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <V extends BValue> V getDefaultValue() {
         return null;
     }
 
+    @Override
+    public <V extends BValue> V getInitValue() {
+        return null;
+    }
+    
     public boolean equals(Object obj) {
         if (obj instanceof StructDef) {
             StructDef other = (StructDef) obj;

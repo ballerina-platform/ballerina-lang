@@ -50,8 +50,13 @@ public class BArrayType extends BType implements BIndexedType {
         return elementType;
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
     public <V extends BValue> V getDefaultValue() {
+        return null;
+    }
+    
+    @Override
+    public <V extends BValue> V getInitValue() {
         return (V) new BArray<V>(elementType.getValueClass());
     }
 

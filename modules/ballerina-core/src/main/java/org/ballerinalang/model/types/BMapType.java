@@ -52,6 +52,11 @@ public class BMapType extends BType implements BIndexedType {
 
     @Override
     public <V extends BValue> V getDefaultValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends BValue> V getInitValue() {
         return (V) new BMap<BString, V>();
     }
 }

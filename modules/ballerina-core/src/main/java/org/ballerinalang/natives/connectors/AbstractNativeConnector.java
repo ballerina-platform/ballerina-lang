@@ -185,6 +185,11 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     }
 
     @Override
+    public <V extends BValue> V getInitValue() {
+        return null;
+    }
+    
+    @Override
     public Map<SymbolName, BLangSymbol> getSymbolMap() {
         return Collections.unmodifiableMap(this.symbolMap);
     }

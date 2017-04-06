@@ -17,6 +17,7 @@ struct Family {
 }
 
 function testCreateStruct() (string, map, int){
+    map address1;
     map address = {"country":"USA","state":"CA"};
     Person emp = {name:"Jack", adrs:address, age:25};
     return emp.name, emp.adrs, emp.age;
@@ -36,7 +37,8 @@ function testStructOfStruct() (string) {
 
 function testReturnStructAttributes () (string) {
 	map address = {"country":"USA","state":"CA"};
-	Family fmly= {};
+	string[] chldrn = [];
+	Family fmly= {children:chldrn};
 	Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
     Person emp2;
     Person[] employees = [emp1, emp2];
@@ -87,7 +89,8 @@ function testExpressionAsIndex() (string) {
 function testStructExpressionAsIndex() (string) {
     string country;
     Department dpt= {};
-    Family fmly = {};
+    string[] chldrn = [];
+    Family fmly= {children:chldrn};
     Person emp2;
     map address = {"country":"USA","state":"CA"};
     Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};

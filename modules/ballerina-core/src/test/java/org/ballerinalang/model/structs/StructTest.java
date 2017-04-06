@@ -110,7 +110,7 @@ public class StructTest {
     
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "arrays index out of range: Index: 0, Size: 0")
+            expectedExceptionsMessageRegExp = "field 'employees' is null")
     public void testGetNonInitArrayField() {
         BLangFunctions.invoke(bLangProgram, "testGetNonInitArrayAttribute");
     }
