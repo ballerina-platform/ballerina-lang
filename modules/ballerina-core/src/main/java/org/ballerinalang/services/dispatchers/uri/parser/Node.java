@@ -61,6 +61,7 @@ public abstract class Node {
         if (matchLength < 0) {
             return null;
         } else if (matchLength < uriFragment.length()) {
+            // TODO: Check if we can improve this part of the logic
             if (uriFragment.startsWith("/")) {
                 uriFragment = uriFragment.substring(matchLength);
             } else if (uriFragment.contains("/")) {

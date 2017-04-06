@@ -230,14 +230,12 @@ public class UriTemplateDispatcherTest {
                 , {"/ecommerceservice/products?regId=123"}
                 , {"/ecommerceservice/products/PID123"}
                 , {"/ecommerceservice/products/PID123/"}
-                , {"/ecommerceservice/products/PID123/?regID=RID123"}
                 , {"/ecommerceservice/products/PID123?regID=RID123&"}
                 , {"/ecommerceservice/products/PID123?regID=RID123&param=value"}
                 , {"/ecommerceservice/products/PID123/?regID=RID123&param=value"}
                 , {"/ecommerceservice/products/PID123?regID=RID123&param1=value1&param2=value2"}
                 , {"/ecommerceservice/products/PID123/RID123/ID"}
                 , {"/ecommerceservice/products/PID123?param=value"}
-                , {"/ecommerceservice/products/PID123/?param=value"}
                 , {"/ecommerceservice/products/PID123?regId=value1&param2=value2"}
         };
     }
