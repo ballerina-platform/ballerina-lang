@@ -37,12 +37,12 @@ public class BAnyType extends BType {
     }
 
     @Override
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
         return null;
     }
 
     @Override
-    public <V extends BValue> V getInitValue() {
+    public <V extends BValue> V getEmptyValue() {
         return null;
     }
 }

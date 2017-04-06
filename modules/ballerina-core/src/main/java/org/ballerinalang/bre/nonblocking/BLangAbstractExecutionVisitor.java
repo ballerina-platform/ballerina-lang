@@ -325,7 +325,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 break;
             }
 
-            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            localVals[valueCounter] = returnParam.getType().getZeroValue();
             valueCounter++;
         }
 
@@ -369,7 +369,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             }
         } catch (Exception e) {
             // If there is an exception in the worker, set an empty value to the return variable
-            BMessage result = BTypes.typeMessage.getInitValue();
+            BMessage result = BTypes.typeMessage.getEmptyValue();
             VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
             assignValueToVarRefExpr(result, variableRefExpr);
         } finally {
@@ -461,7 +461,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing InstanceCreationExpr {}", getNodeLocation(instanceCreationExpr.getNodeLocation()));
         }
-        setTempValue(instanceCreationExpr.getTempOffset(), instanceCreationExpr.getType().getDefaultValue());
+        setTempValue(instanceCreationExpr.getTempOffset(), instanceCreationExpr.getType().getZeroValue());
         next = instanceCreationExpr.next;
     }
 
@@ -728,7 +728,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
             // Create default values for all declared local variables
             for (ParameterDef variableDcl : worker.getParameterDefs()) {
-                localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+                localVals[valueCounter] = variableDcl.getType().getZeroValue();
                 valueCounter++;
             }
 
@@ -785,7 +785,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             // Execute the timeout block
 
             // Creating a new arrays
-            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getInitValue();
+            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getEmptyValue();
 
             for (int i = 0; i < forkJoinInvocationStatus.resultMsgs.size(); i++) {
                 BValue value = forkJoinInvocationStatus.resultMsgs.get(i);
@@ -801,7 +801,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             // Assign values to join block message arrays
 
             // Creating a new arrays
-            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getInitValue();
+            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getEmptyValue();
             for (int i = 0; i < forkJoinInvocationStatus.resultMsgs.size(); i++) {
                 BValue value = forkJoinInvocationStatus.resultMsgs.get(i);
                 bArray.add(i, value);
@@ -924,7 +924,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Expression lExpr = varDefStmt.getLExpr();
         Expression rExpr = varDefStmt.getRExpr();
         if (rExpr == null) {
-            rValue = lExpr.getType().getDefaultValue();
+            rValue = lExpr.getType().getZeroValue();
         } else {
             rValue = getTempValue(rExpr);
         }
@@ -952,7 +952,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 break;
             }
 
-            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            localVals[valueCounter] = returnParam.getType().getZeroValue();
             valueCounter++;
         }
 
@@ -981,7 +981,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Expression[] argExprs = arrayInitExprEndNode.getExpression().getArgExprs();
 
         // Creating a new arrays
-        BArray bArray = arrayInitExprEndNode.getExpression().getType().getInitValue();
+        BArray bArray = arrayInitExprEndNode.getExpression().getType().getEmptyValue();
 
         for (int i = 0; i < argExprs.length; i++) {
             Expression expr = argExprs[i];
@@ -1100,7 +1100,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 break;
             }
 
-            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            localVals[valueCounter] = returnParam.getType().getZeroValue();
             valueCounter++;
         }
 
@@ -1207,7 +1207,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                     break;
                 }
 
-                localVals[valueCounter] = returnParam.getType().getDefaultValue();
+                localVals[valueCounter] = returnParam.getType().getZeroValue();
                 valueCounter++;
             }
 
@@ -1248,7 +1248,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
         next = refTypeInitExprEndNode.next;
         BType bType = refTypeInitExpr.getType();
-        setTempValue(refTypeInitExpr.getTempOffset(), bType.getInitValue());
+        setTempValue(refTypeInitExpr.getTempOffset(), bType.getEmptyValue());
     }
 
     @Override
@@ -1386,7 +1386,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Expression[] argExprs = mapInitExprEndNode.getExpression().getArgExprs();
 
         // Creating a new arrays
-        BMap bMap = mapInitExprEndNode.getExpression().getType().getInitValue();
+        BMap bMap = mapInitExprEndNode.getExpression().getType().getEmptyValue();
 
         for (int i = 0; i < argExprs.length; i++) {
             MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];

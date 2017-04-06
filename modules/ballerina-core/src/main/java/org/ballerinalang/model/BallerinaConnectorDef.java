@@ -124,12 +124,12 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     // Methods in BLangSymbol interface
 
     @Override
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
         return null;
     }
 
     @Override
-    public <V extends BValue> V getInitValue() {
+    public <V extends BValue> V getEmptyValue() {
         return null;
     }
     

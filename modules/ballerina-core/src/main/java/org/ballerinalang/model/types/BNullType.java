@@ -38,12 +38,12 @@ public class BNullType extends BType {
         super(typeName, pkgPath, symbolScope, null);
     }
 
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
         return (V) null;
     }
 
     @Override
-    public <V extends BValue> V getInitValue() {
+    public <V extends BValue> V getEmptyValue() {
         return (V) null;
     }
 }

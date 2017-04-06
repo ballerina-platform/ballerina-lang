@@ -180,12 +180,12 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
 
     // Methods in the BType interface
     @Override
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
         return null;
     }
 
     @Override
-    public <V extends BValue> V getInitValue() {
+    public <V extends BValue> V getEmptyValue() {
         return null;
     }
     

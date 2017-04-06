@@ -149,7 +149,7 @@ public class BLangExecutor implements NodeExecutor {
         Expression lExpr = varDefStmt.getLExpr();
         Expression rExpr = varDefStmt.getRExpr();
         if (rExpr == null) {
-            rValue = lExpr.getType().getDefaultValue();
+            rValue = lExpr.getType().getZeroValue();
         } else {
             rValue = rExpr.execute(this);
         }
@@ -318,7 +318,7 @@ public class BLangExecutor implements NodeExecutor {
                 break;
             }
 
-            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            localVals[valueCounter] = returnParam.getType().getZeroValue();
             valueCounter++;
         }
 
@@ -362,7 +362,7 @@ public class BLangExecutor implements NodeExecutor {
             }
         } catch (Exception e) {
             // If there is an exception in the worker, set an empty value to the return variable
-            BMessage result = BTypes.typeMessage.getInitValue();
+            BMessage result = BTypes.typeMessage.getEmptyValue();
             VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
             assignValueToVarRefExpr(result, variableRefExpr);
         } finally {
@@ -430,7 +430,7 @@ public class BLangExecutor implements NodeExecutor {
 
             // Create default values for all declared local variables
             for (ParameterDef variableDcl : worker.getParameterDefs()) {
-                localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+                localVals[valueCounter] = variableDcl.getType().getZeroValue();
                 valueCounter++;
             }
 
@@ -486,7 +486,7 @@ public class BLangExecutor implements NodeExecutor {
             // Execute the timeout block
 
             // Creating a new arrays
-            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getInitValue();
+            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getEmptyValue();
 
             for (int i = 0; i < resultMsgs.size(); i++) {
                 BValue value = resultMsgs.get(i);
@@ -504,7 +504,7 @@ public class BLangExecutor implements NodeExecutor {
             // Assign values to join block message arrays
 
             // Creating a new arrays
-            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getInitValue();
+            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getEmptyValue();
             for (int i = 0; i < resultMsgs.size(); i++) {
                 BValue value = resultMsgs.get(i);
                 bArray.add(i, value);
@@ -575,7 +575,7 @@ public class BLangExecutor implements NodeExecutor {
                 break;
             }
 
-            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            localVals[valueCounter] = returnParam.getType().getZeroValue();
             valueCounter++;
         }
 
@@ -623,7 +623,7 @@ public class BLangExecutor implements NodeExecutor {
                 break;
             }
 
-            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            localVals[valueCounter] = returnParam.getType().getZeroValue();
             valueCounter++;
         }
 
@@ -687,7 +687,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(InstanceCreationExpr instanceCreationExpr) {
-        return instanceCreationExpr.getType().getDefaultValue();
+        return instanceCreationExpr.getType().getZeroValue();
     }
 
     @Override
@@ -758,7 +758,7 @@ public class BLangExecutor implements NodeExecutor {
         Expression[] argExprs = arrayInitExpr.getArgExprs();
 
         // Creating a new arrays
-        BArray bArray = arrayInitExpr.getType().getInitValue();
+        BArray bArray = arrayInitExpr.getType().getEmptyValue();
 
         for (int i = 0; i < argExprs.length; i++) {
             Expression expr = argExprs[i];
@@ -774,7 +774,7 @@ public class BLangExecutor implements NodeExecutor {
         Expression[] argExprs = mapInitExpr.getArgExprs();
 
         // Creating a new arrays
-        BMap bMap = mapInitExpr.getType().getInitValue();
+        BMap bMap = mapInitExpr.getType().getEmptyValue();
 
         for (int i = 0; i < argExprs.length; i++) {
             MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
@@ -789,7 +789,7 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public BValue visit(RefTypeInitExpr refTypeInitExpr) {
         BType bType = refTypeInitExpr.getType();
-        return bType.getInitValue();
+        return bType.getEmptyValue();
     }
 
     @Override
@@ -889,7 +889,7 @@ public class BLangExecutor implements NodeExecutor {
                     break;
                 }
 
-                localVals[valueCounter] = returnParam.getType().getDefaultValue();
+                localVals[valueCounter] = returnParam.getType().getZeroValue();
                 valueCounter++;
             }
 

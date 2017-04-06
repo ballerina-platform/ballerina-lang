@@ -62,7 +62,7 @@ public abstract class BType implements BLangSymbol {
      * 
      * @return Default value of the type
      */
-    public abstract <V extends BValue> V getDefaultValue();
+    public abstract <V extends BValue> V getZeroValue();
 
     /**
      * Get the empty initialized value of this type. For reference types, this is the value of a variable,
@@ -71,7 +71,7 @@ public abstract class BType implements BLangSymbol {
      * 
      * @return Init value of this type
      */
-    public abstract <V extends BValue> V getInitValue();
+    public abstract <V extends BValue> V getEmptyValue();
     
     public String toString() {
         return (pkgPath != null) ? pkgPath + ":" + typeName : typeName;

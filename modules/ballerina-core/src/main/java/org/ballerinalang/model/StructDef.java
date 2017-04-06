@@ -169,12 +169,12 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
     }
 
     @Override
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
         return null;
     }
 
     @Override
-    public <V extends BValue> V getInitValue() {
+    public <V extends BValue> V getEmptyValue() {
         return null;
     }
     

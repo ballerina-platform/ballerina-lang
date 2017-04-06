@@ -51,12 +51,12 @@ public class BArrayType extends BType implements BIndexedType {
     }
 
     @Override
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
         return null;
     }
     
     @Override
-    public <V extends BValue> V getInitValue() {
+    public <V extends BValue> V getEmptyValue() {
         return (V) new BArray<V>(elementType.getValueClass());
     }
 
