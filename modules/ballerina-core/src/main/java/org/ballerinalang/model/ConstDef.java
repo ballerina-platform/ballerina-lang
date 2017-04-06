@@ -21,6 +21,9 @@ import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * {@code ConstDef} represents a Constant in Ballerina.
  *
@@ -29,6 +32,7 @@ import org.ballerinalang.model.values.BValue;
 public class ConstDef extends VariableDef implements CompilationUnit {
     private Expression rhsExpr;
     private BValue value;
+    private List<AnnotationAttachment> annotations;
 
     public ConstDef(NodeLocation location,
                     String name,
@@ -41,6 +45,7 @@ public class ConstDef extends VariableDef implements CompilationUnit {
         super(location, name, typeName, symbolName, symbolScope);
         this.pkgPath = pkgPath;
         this.rhsExpr = rhsExpr;
+        this.annotations = new ArrayList<AnnotationAttachment>();
     }
 
     public Expression getRhsExpr() {
@@ -55,11 +60,29 @@ public class ConstDef extends VariableDef implements CompilationUnit {
         this.value = value;
     }
 
-
+    /**
+     * Add an annotation to the constant.
+     * 
+     * @param annotation Annotation attachment
+     */
+    public void addAnnotation(AnnotationAttachment annotation) {
+        this.annotations.add(annotation);
+    }
+    
+    /**
+     * Get all the Annotations associated with this constant.
+     *
+     * @return List of annotation attachments
+     */
+    public AnnotationAttachment[] getAnnotations() {
+        return this.annotations.toArray(new AnnotationAttachment[annotations.size()]);
+    }
+    
     // Methods in Node interface
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
 }

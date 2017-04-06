@@ -101,6 +101,7 @@ import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -235,6 +236,8 @@ public class BLangModelBuilder {
         ConstDef constantDef = new ConstDef(location, constName, typeName, currentPackagePath,
                 symbolName, currentScope, exprStack.pop());
 
+        getAnnotationAttachments().forEach(attachment -> constantDef.addAnnotation(attachment));
+        
         // Add constant definition to current file;
         bFileBuilder.addConst(constantDef);
 
@@ -274,20 +277,20 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        Expression expr = null;
+        Expression defaultValExpr = null;
         if (defaultValueAvailable) {
-            // Expression ignored = exprStack.pop();
-            expr = exprStack.pop();
+            defaultValExpr = exprStack.pop();
         }
         
         if (currentScope instanceof StructDef) {
-            // TODO Implement default value support for struct fields
-            VariableDef variableDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
-            currentScope.define(symbolName, variableDef);
-            currentStructBuilder.addField(variableDef);
+            VariableDef fieldDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
+            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, fieldName);
+            fieldRefExpr.setVariableDef(fieldDef);
+            VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
+            currentStructBuilder.addField(fieldDefStmt);
         } else if (currentScope instanceof AnnotationDef) {
             AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, fieldName, typeName, 
-                (BasicLiteral) expr, symbolName, currentScope, currentPackagePath);
+                (BasicLiteral) defaultValExpr, symbolName, currentScope, currentPackagePath);
             currentScope.define(symbolName, annotationField);
             annotationDefBuilder.addAttributeDef(annotationField);
         }
@@ -356,6 +359,8 @@ public class BLangModelBuilder {
         annotationDefBuilder.setName(name);
         annotationDefBuilder.setPackagePath(currentPackagePath);
         
+        getAnnotationAttachments().forEach(attachment -> annotationDefBuilder.addAnnotation(attachment));
+        
         AnnotationDef annotationDef = annotationDefBuilder.build();
         bFileBuilder.addAnnotationDef(annotationDef);
         
@@ -408,7 +413,7 @@ public class BLangModelBuilder {
      * @param location Location of the value in the source file
      */
     public void createArrayTypeAttributeValue(NodeLocation location) {
-        SimpleTypeName valueType = new SimpleTypeName(null, true);
+        SimpleTypeName valueType = new SimpleTypeName(null, true, 1);
         AnnotationAttributeValue arrayValue = new AnnotationAttributeValue(
             annotationAttributeValues.toArray(new AnnotationAttributeValue[annotationAttributeValues.size()]),
             valueType, location);
@@ -493,16 +498,20 @@ public class BLangModelBuilder {
         exprStack.push(variableRefExpr);
     }
 
-    public void createMapArrayVarRefExpr(NodeLocation location, String varName) {
+    public void createMapArrayVarRefExpr(NodeLocation location, String varName, int dimensions) {
         SymbolName symName = new SymbolName(varName);
         VariableRefExpr arrayVarRefExpr = new VariableRefExpr(location, varName);
 
-        Expression indexExpr = exprStack.pop();
-        checkArgExprValidity(location, indexExpr);
+        Expression[] indexExprs = new Expression[dimensions];
+        int i = 0;
+        while (i < dimensions) {
+            indexExprs[i++] = exprStack.pop();
+        }
+        checkArgExprValidity(location, Arrays.asList(indexExprs));
 
         ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
         builder.setVarName(symName);
-        builder.setIndexExpr(indexExpr);
+        builder.setIndexExprs(indexExprs);
         builder.setArrayMapVarRefExpr(arrayVarRefExpr);
         builder.setNodeLocation(location);
 

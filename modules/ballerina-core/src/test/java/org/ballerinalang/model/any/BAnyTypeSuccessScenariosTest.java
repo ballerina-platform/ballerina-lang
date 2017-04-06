@@ -20,6 +20,7 @@ package org.ballerinalang.model.any;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
@@ -106,6 +107,24 @@ public class BAnyTypeSuccessScenariosTest {
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intVal = (BInteger) returns[0];
         Assert.assertEquals(intVal.intValue(), 5, "Invalid int value returned.");
+    }
+
+    @Test(description = "Test variable init with any")
+    public void variableDefTest() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "variableDefTest");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger intVal = (BInteger) returns[0];
+        Assert.assertEquals(intVal.intValue(), 5, "Invalid int value returned.");
+    }
+
+    @Test(description = "Test any variable assignment with float")
+    public void assignmentTest() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "assignmentTest");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        BFloat floatVal = (BFloat) returns[0];
+        Assert.assertEquals(floatVal.floatValue(), 44.3f, "Invalid float value returned.");
     }
 
 }

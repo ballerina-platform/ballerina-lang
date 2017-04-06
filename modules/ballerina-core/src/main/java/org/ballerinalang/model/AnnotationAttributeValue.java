@@ -17,7 +17,10 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.types.SimpleTypeName;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+
+import java.util.Arrays;
 
 /**
  * Holds the value of a ballerina annotation attribute.
@@ -78,11 +81,18 @@ public class AnnotationAttributeValue  implements Node {
     @Override
     public String toString() {
         if (bValue != null) {
+            if (bValue instanceof BString) {
+                return "\"" + bValue.stringValue() + "\"";
+            }
             return bValue.stringValue();
         }
         
         if (annotationValue != null) {
             return annotationValue.toString();
+        }
+        
+        if (valueArray != null) {
+            return Arrays.toString(valueArray);
         }
         
         return null;
