@@ -23,7 +23,7 @@ public class TerminatorUnix implements Terminator {
         String[] cmd = {
                 "/bin/sh",
                 "-c",
-                "ps -e --format %P%p%a | grep " + script + " | grep run"
+                "ps -ef | grep " + script + " | grep run | grep -v 'grep' | awk '{print $2}'"
         };
         return cmd;
     }
@@ -39,11 +39,12 @@ public class TerminatorUnix implements Terminator {
             reader = new BufferedReader(new InputStreamReader(findProcess.getInputStream(), Charset.defaultCharset()));
 
             String line = "";
-            String parts[];
             while ((line = reader.readLine()) != null) {
-                parts = line.split(" ");
-                processID = Integer.parseInt(parts[1]);
-                kill(processID);
+                try {
+                    processID = Integer.parseInt(line);
+                    kill(processID);
+                } catch (Throwable e) {
+                }
             }
         } catch (Throwable e) {
             logger.error("Launcher was unable to find the process ID for " + script + ".");

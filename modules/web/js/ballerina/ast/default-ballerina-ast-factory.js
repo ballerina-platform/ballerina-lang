@@ -165,7 +165,7 @@ import BallerinaASTFactory from './ballerina-ast-factory';
      */
     DefaultBallerinaASTFactory.createThrowStatement = function (args) {
         var throwStatement = BallerinaASTFactory.createThrowStatement(args);
-        throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableReferenceName:"e"}));
+        throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableName:"e"}));
         return throwStatement;
     };
 

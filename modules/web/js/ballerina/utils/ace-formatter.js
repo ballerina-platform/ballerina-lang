@@ -15,196 +15,205 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 
+let TokenIterator = ace.require('ace/token_iterator').TokenIterator;
 
-        var TokenIterator = ace.require("ace/token_iterator").TokenIterator;
+let newLinesRules = [
+    {
+        type: 'paren.lparen',
+        value: '{',
+        breakBefore: false,
+        breakAfter: true,
+        avoidBreakAfterUpon: {
+            lastNonWhiteSpaceToken: {type: 'ballerina-operator', value: '='},
+        }
+    },
+    {
+        type: 'paren.rparen',
+        breakBefore: true,
+        breakAfter: true,
+        value: '}',
+        avoidBreakBeforeUpon: {
+            lastNonWhiteSpaceToken: {type: 'paren.lparen', value: '{'}
+        },
+        avoidBreakAfterUpon: {
+            lastNonWhiteSpaceToken: {type: 'paren.lparen', value: '{'}
+        }
+    },
+    {
+        type: 'paren.rparen',
+        breakBefore: true,
+        value: '})',
+        breakAfter: true
+    },
+    {
+        type: 'ballerina-import-package-name-part',
+        breakBefore: false,
+        breakAfter: true
+    },
+    {
+        type: 'ballerina-annotation',
+        breakBefore: true,
+        breakAfter: false
+    },
+    {
+        type: 'punctuation.operator',
+        value: ';',
+        breakBefore: false,
+        breakAfter: true
+    },
+    {
+        type: 'ballerina-keyword-definition',
+        breakBefore: true,
+        breakAfter: false
+    }
+];
 
-        var BallerinaFormatter = {};
+let spaceRules = [
+    {
+        type: 'paren.lparen',
+        value: '{',
+        prepend: true,
+        append: false
+    },
+    {
+        type: 'ballerina-operator',
+        value: '=',
+        prepend: true,
+        append: true
+    },
+    {
+        type: 'ballerina-keyword-control',
+        prepend: false,
+        append: true
+    },
+    {
+        type: 'ballerina-keyword-other',
+        prepend: false,
+        append: true
+    },
+    {
+        type: 'ballerina-keyword-primitive-type',
+        prepend: false,
+        append: true,
+        skipAppendUponNext:{
+            type: 'paren.lparen',
+            value: '['
+        }
+    },
+    {
+        type: 'ballerina-keyword-non-primitive-type',
+        prepend: false,
+        append: true,
+        skipAppendUponNext:{
+            type: 'paren.lparen',
+            value: '['
+        }
+    },
+    {
+        type: 'ballerina-keyword-definition',
+        prepend: false,
+        append: true
+    },
+    {
+        type: 'ballerina-keyword-language',
+        prepend: false,
+        append: true
+    },
+    {
+        type: 'punctuation.operator',
+        value: ',',
+        prepend: false,
+        append: true
+    },
+    {
+        type: 'ballerina-operator',
+        prepend: true,
+        append: true
+    }
+];
 
-        BallerinaFormatter.newLinesRules = [
-            {
-                type: 'paren.lparen',
-                value: '{',
-                breakBefore: false,
-                breakAfter: true,
-                avoidBreakAfterUpon: {
-                    lastNonWhiteSpaceToken: {type: 'ballerina-operator', value: '='},
-                }
-            },
-            {
-                type: 'paren.rparen',
-                breakBefore: true,
-                breakAfter: true,
-                value: '}',
-                avoidBreakBeforeUpon: {
-                    lastNonWhiteSpaceToken: {type: 'paren.lparen', value: "{"}
-                },
-                avoidBreakAfterUpon: {
-                    lastNonWhiteSpaceToken: {type: 'paren.lparen', value: "{"}
-                }
-            },
-            {
-                type: 'paren.rparen',
-                breakBefore: true,
-                value: '})',
-                breakAfter: true
-            },
-            {
-                type: 'ballerina-import-package-name-part',
-                breakBefore: false,
-                breakAfter: true
-            },
-            {
-                type: 'ballerina-annotation',
-                breakBefore: true,
-                breakAfter: false
-            },
-            {
-                type: 'punctuation.operator',
-                value: ";",
-                breakBefore: false,
-                breakAfter: true
-            },
-            {
-                type: 'ballerina-keyword-definition',
-                breakBefore: true,
-                breakAfter: false
+class BallerinaFormatter {
+    static beautify(session, start, end) {
+        if(_.isNil(start)){
+            start = 0;
+        }
+
+        if(_.isNil(end)){
+            end = 0;
+        }
+
+        var iterator = new TokenIterator(session, start, end);
+        this.session = session;
+        var code = this.format(iterator);
+        session.setValue(code);
+    }
+
+    static format(iterator) {
+
+        var token = iterator.getCurrentToken(),
+            code = '',
+            indentation = 0,
+            lastToken = {},
+            lastNonWhiteSpaceToken = {},
+            nextToken = {},
+            value = '',
+            space = ' ',
+            newLine = '\n',
+            tab = '\t',
+            annotationStack = [];
+
+        while (token !== null) {
+
+            if (!token) {
+                token = iterator.stepForward();
+                continue;
             }
-        ];
 
-        BallerinaFormatter.spaceRules = [
-            {
-                type: 'paren.lparen',
-                value: '{',
-                prepend: true,
-                append: false
-            },
-            {
-                type: 'ballerina-operator',
-                value: '=',
-                prepend: true,
-                append: true
-            },
-            {
-                type: 'ballerina-keyword-control',
-                prepend: false,
-                append: true
-            },
-            {
-                type: 'ballerina-keyword-other',
-                prepend: false,
-                append: true
-            },
-            {
-                type: 'ballerina-keyword-primitive-type',
-                prepend: false,
-                append: true,
-                skipAppendUponNext:{
-                    type: 'paren.lparen',
-                    value: '['
-                }
-            },
-            {
-                type: 'ballerina-keyword-non-primitive-type',
-                prepend: false,
-                append: true,
-                skipAppendUponNext:{
-                    type: 'paren.lparen',
-                    value: '['
-                }
-            },
-            {
-                type: 'ballerina-keyword-definition',
-                prepend: false,
-                append: true
-            },
-            {
-                type: 'ballerina-keyword-language',
-                prepend: false,
-                append: true
-            },
-            {
-                type: 'punctuation.operator',
-                value: ",",
-                prepend: false,
-                append: true
-            },
-            {
-                type: 'ballerina-operator',
-                prepend: true,
-                append: true
-            }
-        ];
+            nextToken = iterator.stepForward();
 
-        BallerinaFormatter.beautify = function (session, start, end) {
-            if(_.isNil(start)){
-                start = 0;
+            //trim spaces
+            if (token.type === 'whitespace' && _.isEmpty(annotationStack)) {
+                token.value = token.value.trim();
             }
 
-            if(_.isNil(end)){
-                end = 0;
+            //detect annotation context
+            if (token.type === 'ballerina-annotation') {
+                annotationStack.push(token.value);
             }
 
-            var iterator = new TokenIterator(session, start, end);
-            this.session = session;
-            var code = this.format(iterator);
-            session.setValue(code);
-        };
-
-        BallerinaFormatter.format = function (iterator) {
-
-            var token = iterator.getCurrentToken(),
-                 newLinesRules = this.newLinesRules,
-                 spaceRules = this.spaceRules,
-                 code = '',
-                 indentation = 0,
-                 lastToken = {},
-                 lastNonWhiteSpaceToken = {},
-                 nextToken = {},
-                 value = '',
-                 space = ' ',
-                 newLine = '\n',
-                 tab = '\t';
-
-            while (token !== null) {
-
-                if (!token) {
-                    token = iterator.stepForward();
-                    continue;
-                }
-
-                nextToken = iterator.stepForward();
-
-                //trim spaces
-                if (token.type == 'whitespace') {
-                    token.value = token.value.trim();
-                }
-
-                // add indent counts
-                if (token.type == 'paren.lparen' && token.value === "{") {
+            // add indent counts
+            if (token.type === 'paren.lparen' && token.value === '{') {
+                if(_.isEmpty(annotationStack)){
                     indentation++;
                 }
-                else if (token.type == 'paren.rparen' && token.value === "}") {
+            }
+            else if (token.type === 'paren.rparen' && token.value === '}') {
+                if(_.isEmpty(annotationStack)){
                     indentation--;
                 }
+            }
 
-                //put spaces
-                value = token.value;
+            //put spaces
+            value = token.value;
+            // skip annotations
+            if(_.isEmpty(annotationStack)) {
                 spaceRules.forEach(function(spaceRule){
-                    if (token.type == spaceRule.type && (!spaceRule.value || token.value == spaceRule.value))
+                    if (token.type === spaceRule.type && (!spaceRule.value || token.value === spaceRule.value))
                     {
                         if (spaceRule.prepend && !_.endsWith(code, space)) {
                             value = space + token.value;
                         }
                         if (spaceRule.append) {
                             if(_.has(spaceRule, 'skipAppendUponNext')){
-                               var  skipAppendUponNext = _.get(spaceRule, 'skipAppendUponNext');
-                               if(_.isEqual(skipAppendUponNext.type, nextToken.type)
-                                    && _.isEqual(skipAppendUponNext.value, nextToken.value)){
-                                   // do nothing for now
-                               } else {
-                                   value += space;
-                               }
+                                var  skipAppendUponNext = _.get(spaceRule, 'skipAppendUponNext');
+                                if(_.isEqual(skipAppendUponNext.type, nextToken.type)
+                                  && _.isEqual(skipAppendUponNext.value, nextToken.value)){
+                                 // do nothing for now
+                                } else {
+                                    value += space;
+                                }
                             } else {
                                 value += space;
                             }
@@ -220,7 +229,7 @@
 
                 // put new lines
                 newLinesRules.forEach(function(newLineRule){
-                    if (token.type == newLineRule.type && (!newLineRule.value || token.value == newLineRule.value)) {
+                    if (token.type === newLineRule.type && (!newLineRule.value || token.value === newLineRule.value)) {
                         if (newLineRule.breakBefore && !_.endsWith(code, newLine)) {
                             var skipBreakBefore = false;
                             if(_.has(newLineRule, 'avoidBreakBeforeUpon')){
@@ -237,7 +246,7 @@
                             if(!skipBreakBefore){
                                 code += newLine;
                                 // indent
-                                for (var i = 0; i < indentation; i++) {
+                                for (let i = 0; i < indentation; i++) {
                                     code += tab;
                                 }
                             }
@@ -253,7 +262,7 @@
                                 if(_.isEqual(_.get(avoidBreakAfterUpon, 'lastNonWhiteSpaceToken.type'), _.get(lastNonWhiteSpaceToken, 'type'))
                                     && _.isEqual(_.get(avoidBreakAfterUpon, 'lastNonWhiteSpaceToken.value'), _.get(lastNonWhiteSpaceToken, 'value'))){
                                     // do nothing
-                                    skipBreakAfter = true
+                                    skipBreakAfter = true;
                                 }
                             }
                             if(!skipBreakAfter){
@@ -264,31 +273,41 @@
                                     // if block has no content don't indent so the closing '}' is not unnecessarily indented
                                     indent -= 1;
                                 }
-                                for (var i = 0; i < indent; i++) {
+                                for (let i = 0; i < indent; i++) {
                                     value += tab;
                                 }
                             }
                         }
                     }
                 });
-
-                code += value;
-
-                lastToken = token;
-
-                if(!_.isEqual(token.type, 'whitespace')){
-                    lastNonWhiteSpaceToken = token;
-                }
-
-                token = nextToken;
-
-                if (token === null) {
-                    break;
-                }
             }
 
-            return code;
-        };
+            if (token.type === 'paren.rparen') {
+                let rparens = token.value.split('');
+                rparens.forEach((rparen) => {
+                    if(rparen === '}' && !_.isEmpty(annotationStack)) {
+                        annotationStack.pop();
+                    }
+                });
+            }
 
-        export default BallerinaFormatter;
-    
+            code += value;
+
+            lastToken = token;
+
+            if(!_.isEqual(token.type, 'whitespace')){
+                lastNonWhiteSpaceToken = token;
+            }
+
+            token = nextToken;
+
+            if (token === null) {
+                break;
+            }
+        }
+
+        return code;
+    }
+}
+
+export default BallerinaFormatter;

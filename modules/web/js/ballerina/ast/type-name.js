@@ -40,7 +40,7 @@ class TypeName extends ASTNode {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        this.setTypeName(jsonNode.variable_reference_name, {doSilently: true});
+        this.setTypeName(jsonNode.variable_name, {doSilently: true});
     }
 }
 

@@ -76,7 +76,7 @@ class WorkerInvocationStatement extends Statement {
      */
     initFromJson(jsonNode) {
         var workerName = jsonNode.worker_name;
-        var messageName = jsonNode.invoke_message[0].variable_reference_name;
+        var messageName = jsonNode.invoke_message[0].variable_name;
         var invokeStatement = messageName + ' -> ' + workerName;
         this.setInvocationStatement(invokeStatement);
         var self = this;

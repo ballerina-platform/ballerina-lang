@@ -76,7 +76,7 @@ class WorkerReplyStatement extends Statement {
      */
     initFromJson(jsonNode) {
         var workerName = jsonNode.worker_name;
-        var messageName = jsonNode.reply_message[0].variable_reference_name;
+        var messageName = jsonNode.reply_message[0].variable_name;
         var receiveStatement = messageName + ' <- ' + workerName;
         this.setReplyStatement(receiveStatement);
         var self = this;

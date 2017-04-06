@@ -29,7 +29,6 @@ class StructDefinition extends ASTNode {
     constructor(args) {
         super('StructDefinition');
         this._structName = _.get(args, 'structName');
-        this.BallerinaASTFactory = this.getFactory();
     }
 
     /**
@@ -49,27 +48,25 @@ class StructDefinition extends ASTNode {
     }
 
     /**
-     * Gets all the variables definitions residing in the struct.
-     * @return {VariableDefinition[]} - The variable definitions.
+     * Gets all the variables definition statements residing in the struct.
+     * @return {VariableDefinitionStatement[]} - The variable definition statements.
      */
-    getVariableDefinitions() {
+    getVariableDefinitionStatements() {
         var variableDefinitions = [];
-        var self = this;
 
-        _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDefinition(child)) {
-                variableDefinitions.push(child);
-            }
+        _.forEach(this.filterChildren(this.getFactory().isVariableDefinitionStatement), function (child) {
+            variableDefinitions.push(child);
         });
         return variableDefinitions;
     }
 
     /**
-     * Adds new variable definition.
+     * Adds new variable definition statement.
      * @param {string} bType - The ballerina type of the variable.
      * @param {string} identifier - The identifier of the variable
+     * @param {string} defaultValue - The default value of the variable
      */
-    addVariableDefinition(bType, identifier) {
+    addVariableDefinitionStatement(bType, identifier, defaultValue) {
 
         // if identifier is empty
         if (_.isEmpty(identifier)) {
@@ -79,8 +76,8 @@ class StructDefinition extends ASTNode {
         }
 
         // Check if already variable definition exists with same identifier.
-        var identifierAlreadyExists = _.findIndex(this.getVariableDefinitions(), function (variableDefinition) {
-            return variableDefinition.getName() === identifier;
+        var identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(), function (variableDefinitionStatement) {
+            return variableDefinitionStatement.getIdentifier() === identifier;
         }) !== -1;
 
         // If variable definition with the same identifier exists, then throw an error. Else create the new variable
@@ -91,34 +88,23 @@ class StructDefinition extends ASTNode {
             throw errorString;
         } else {
             // Creating new variable definition.
-            var newVariableDefinition = this.getFactory().createVariableDefinition();
-
-            newVariableDefinition.setTypeName(bType);
-            newVariableDefinition.setName(identifier);
-
-            var self = this;
+            var newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
+            newVariableDefinitionStatement.setLeftExpression(bType + ' ' + identifier);
+            newVariableDefinitionStatement.setRightExpression(defaultValue);
 
             // Get the index of the last definition.
-            var index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.getFactory().isVariableDefinition(child);
-            });
+            var index = this.findLastIndexOfChild(this.getFactory().isVariableDefinitionStatement);
 
-            this.addChild(newVariableDefinition, index + 1);
+            this.addChild(newVariableDefinitionStatement, index + 1);
         }
     }
 
     /**
-     * Removes new variable definition.
+     * Removes new variable definition statement.
      * @param {string} modelID - The model ID of the variable.
      */
-    removeVariableDefinition(modelID) {
-        var self = this;
-        // Removing the variable from the children.
-        var variableDefinitionChild = _.find(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDefinition(child)
-                && child.getID() === modelID;
-        });
-        this.removeChild(variableDefinitionChild);
+    removeVariableDefinitionStatement(modelID) {
+        this.removeChildById(modelID);
     }
 
     /**
@@ -132,7 +118,7 @@ class StructDefinition extends ASTNode {
         this.setStructName(jsonNode.struct_name, {doSilently: true});
 
         _.each(jsonNode.children, function (childNode) {
-            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
@@ -145,7 +131,7 @@ class StructDefinition extends ASTNode {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        return this.BallerinaASTFactory.isVariableDefinition(node)
+        return this.getFactory().isVariableDefinition(node)
     }
 
     /**
@@ -156,10 +142,10 @@ class StructDefinition extends ASTNode {
         var attributesArray = {};
         attributesArray[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_NAME] = this.getStructName();
         attributesArray[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTIES]= [];
-        _.each(this.getVariableDefinitions(), function(variableDefinition) {
+        _.each(this.getVariableDefinitionStatements(), function(variableDefinition) {
             var tempAttr = {};
-            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME] = variableDefinition.getName();
-            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE] = variableDefinition.getTypeName();
+            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME] = variableDefinition.getIdentifier();
+            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE] = variableDefinition.getBType();
             attributesArray[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTIES].push(tempAttr);
         });
         return attributesArray;

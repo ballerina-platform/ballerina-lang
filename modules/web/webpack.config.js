@@ -46,7 +46,7 @@ var config = {
     node: { module: "empty", net: "empty", fs: "empty" },
     devtool: 'source-map',
     resolve: {
-        modules: [path.resolve('./lib'), path.resolve('./js'), path.resolve('./node_modules')],
+        modules: [path.resolve('./lib'), path.resolve('./js'), path.resolve('./node_modules'), path.resolve(__dirname)],
         alias: {
             /////////////////////////
             // third party modules //
@@ -91,7 +91,7 @@ var config = {
             workspace$: "workspace/module",
             ballerina$: "ballerina/module",
             "welcome-page$": "welcome-page/module",
-            jstree : "js-tree-v3.3.2/jstree.js"
+            jstree : "js-tree-v3.3.2/jstree.js",
         }
     }
 

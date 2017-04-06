@@ -39,8 +39,8 @@ class TypeMapperVariableReferenceExpressionVisitor extends AbstractExpressionSou
     }
 
     endVisitVariableReferenceExpression(expression) {
-        if (expression.getVariableReferenceName()) {
-            this.appendSource(expression.getVariableReferenceName());
+        if (expression.getVariableName()) {
+            this.appendSource(expression.getVariableName());
         }
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Type Mapper Variable Reference Expression');

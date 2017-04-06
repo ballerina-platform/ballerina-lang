@@ -24,7 +24,7 @@ class VariableDefinition extends ASTNode {
         super('VariableDefinition');
         this._name = _.get(args, 'name', 'newIdentifier');
         this._typeName = _.get(args, 'typeName', 'newTypeName');
-        this._pkgPath = _.get(args, 'pkgPath', 'newPkgPath');
+        this._pkgPath = _.get(args, 'pkgPath');
         this._isPublic = _.get(args, 'isPublic', false);
     }
 
