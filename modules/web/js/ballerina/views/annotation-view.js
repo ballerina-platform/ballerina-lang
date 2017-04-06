@@ -30,6 +30,7 @@ class AnnotationView {
      * @param {Object} [args.viewOptions={}] - Configuration values for the view.
      */
     createAnnotationPane (args) {
+        debugger;
         var activatorElement = _.get(args, 'activatorElement');
         var model = _.get(args, 'model');
         var paneElement = _.get(args, 'paneAppendElement');

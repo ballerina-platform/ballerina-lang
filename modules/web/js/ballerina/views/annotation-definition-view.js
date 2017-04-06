@@ -18,11 +18,11 @@
 import _ from 'lodash';
 import log from 'log';
 import $ from 'jquery';
-import SVGCanvas from './svg-canvas';
-import Point from './point';
+import SVGCanvas from '../../../../../integration-tests/ui-integration-tests/js/ballerina/views/svg-canvas';
+import Point from '../../../../../integration-tests/ui-integration-tests/js/ballerina/views/point';
 import AnnotationDefinition from './../ast/annotation-definition';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
-import Axis from './axis';
+import Axis from '../../../../../integration-tests/ui-integration-tests/js/ballerina/views/axis';
 import Alerts from 'alerts';
 
 /**
@@ -111,3 +111,5 @@ class AnnotationDefinitionView extends SVGCanvas {
         currentContainer.find('svg').remove();
     }
 }
+
+export default AnnotationDefinitionView;

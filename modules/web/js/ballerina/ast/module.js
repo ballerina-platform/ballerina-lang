@@ -35,6 +35,7 @@ import ReplyStatement from './statements/reply-statement';
 import ResourceDefinition from './resource-definition';
 import ReturnStatement from './statements/return-statement';
 import ServiceDefinition from './service-definition';
+import AnnotationDefinition from './annotation-definition';
 import Statement from './statements/statement';
 import ThrowStatement from './statements/throw-statement';
 import TypeDefinition from './type-definition';
@@ -91,6 +92,7 @@ import TypeCastExpression from './expressions/type-cast-expression';
             ResourceDefinition: ResourceDefinition,
             ReturnStatement: ReturnStatement,
             ServiceDefinition: ServiceDefinition,
+            AnnotationDefinition: AnnotationDefinition,
             Statement: Statement,
             ThrowStatement: ThrowStatement,
             TypeDefinition: TypeDefinition,

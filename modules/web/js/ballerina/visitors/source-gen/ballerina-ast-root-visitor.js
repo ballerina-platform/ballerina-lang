@@ -20,6 +20,7 @@ import log from 'log';
 import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import ServiceDefinitionVisitor from './service-definition-visitor';
+import AnnotationDefinitionVisitor from './annotation-definition-visitor';
 import FunctionDefinitionVisitor from './function-definition-visitor';
 import PackageDefinitionVisitor from './package-definition-visitor';
 import ImportDeclarationVisitor from './import-declaration-visitor';
@@ -52,6 +53,11 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
     visitServiceDefinition(serviceDefinition) {
         var serviceDefinitionVisitor = new ServiceDefinitionVisitor(this);
         serviceDefinition.accept(serviceDefinitionVisitor);
+    }
+
+    visitAnnotationDefinition(annotationDefinition) {
+        var annotationDefinitionVisitor = new AnnotationDefinitionVisitor(this);
+        annotationDefinition.accept(annotationDefinitionVisitor);
     }
 
     visitConnectorDefinition(connectorDefinition) {
