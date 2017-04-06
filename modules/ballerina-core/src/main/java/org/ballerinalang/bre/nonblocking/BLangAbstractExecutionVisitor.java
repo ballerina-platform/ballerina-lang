@@ -73,6 +73,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.ActionInvocationExprS
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayMapAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
@@ -438,6 +439,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         next = expression.next;
     }
 
+    @Override
+    public void visit(BinaryEqualityExpression expression) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing BinaryEqualityExpression {}", getNodeLocation(expression.getNodeLocation()));
+        }
+        next = expression.next;
+    }
+    
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         if (logger.isDebugEnabled()) {
@@ -1055,19 +1064,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
 
-        BValue rValue = getTempValue(rExpr);
-        BValue lValue = getTempValue(lExpr);
-        BValue binaryExprRslt;
+        BValueType rValue = (BValueType) getTempValue(rExpr);
+        BValueType lValue = (BValueType) getTempValue(lExpr);
         
         try {
-            if (binaryExpr instanceof BinaryEqualityExpression &&
-                (rExpr.getType() == BTypes.typeNull || lExpr.getType() == BTypes.typeNull)) {
-                // if this is a null check, then need to pass the BValue
-                binaryExprRslt = ((BinaryEqualityExpression) binaryExpr).getRefTypeEvalFunc().apply(lValue, rValue);
-            } else {
-                binaryExprRslt = binaryExpr.getEvalFunc().apply((BValueType) lValue, (BValueType) rValue);
-            }
-            
+            BValue binaryExprRslt = binaryExpr.getEvalFunc().apply(lValue, rValue);
             setTempValue(binaryExpr.getTempOffset(), binaryExprRslt);
             next = binaryExpressionEndNode.next;
         } catch (RuntimeException e) {
@@ -1075,6 +1076,33 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
     }
 
+    @Override
+    public void visit(BinaryEqualityExpressionEndNode binaryEqualityExpressionEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing BinaryEqualityExpression - EndNode");
+        }
+        BinaryEqualityExpression binaryExpr = binaryEqualityExpressionEndNode.getExpression();
+        Expression rExpr = binaryExpr.getRExpr();
+        Expression lExpr = binaryExpr.getLExpr();
+
+        BValue rValue = getTempValue(rExpr);
+        BValue lValue = getTempValue(lExpr);
+        BValue binaryExprRslt;
+        
+        try {
+            if (rExpr.getType() == BTypes.typeNull || lExpr.getType() == BTypes.typeNull) {
+                // if this is a null check, then need to pass the BValue
+                binaryExprRslt = ((BinaryEqualityExpression) binaryExpr).getRefTypeEvalFunc().apply(lValue, rValue);
+            } else {
+                binaryExprRslt = binaryExpr.getEvalFunc().apply((BValueType) lValue, (BValueType) rValue);
+            }
+            setTempValue(binaryExpr.getTempOffset(), binaryExprRslt);
+            next = binaryEqualityExpressionEndNode.next;
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+        }
+    }
+    
     @Override
     public void visit(FunctionInvocationExprStartNode functionInvocationExprStartNode) {
         FunctionInvocationExpr funcIExpr = functionInvocationExprStartNode.getExpression();

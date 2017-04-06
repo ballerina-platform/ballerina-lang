@@ -715,7 +715,12 @@ public class BLangExecutor implements NodeExecutor {
         BValue rValue = rExpr.execute(this);
         BValue lValue = lExpr.execute(this);
         
-        return binaryEqualityExpr.getRefTypeEvalFunc().apply(lValue, rValue);
+        // if this is a null check, then need to pass the BValue
+        if (rExpr.getType() == BTypes.typeNull || lExpr.getType() == BTypes.typeNull) {
+            return binaryEqualityExpr.getRefTypeEvalFunc().apply(lValue, rValue);
+        }
+        
+        return binaryEqualityExpr.getEvalFunc().apply((BValueType) lValue, (BValueType) rValue);
     }
     
     @Override
