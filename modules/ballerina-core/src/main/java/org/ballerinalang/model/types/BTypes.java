@@ -148,7 +148,7 @@ public class BTypes {
             if (typeName.getDimensions() == 1) {
                 BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
                         bType, typeName.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
-                bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
+                bType.getSymbolScope().define(new SymbolName(typeName.getSymbolName().getName()), bArrayType);
                 return bArrayType;
             } else {
                 SimpleTypeName childSimpleType = new SimpleTypeName(typeName.getName(),
@@ -158,7 +158,7 @@ public class BTypes {
                 BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
                         BTypes.resolveType(childSimpleType, symbolScope, location), typeName.getPackagePath(),
                         bType.getSymbolScope(), typeName.getDimensions());
-                bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
+                bType.getSymbolScope().define(new SymbolName(typeName.getSymbolName().getName()), bArrayType);
 
                 return bArrayType;
             }
