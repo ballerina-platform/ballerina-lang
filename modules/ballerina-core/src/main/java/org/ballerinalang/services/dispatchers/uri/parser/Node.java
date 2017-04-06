@@ -50,9 +50,8 @@ public abstract class Node {
             this.childNodesList.add(node);
         }
 
+        // TODO : Need to improve this logic
         Collections.sort(childNodesList, (o1, o2) -> getIntValue(o2) - getIntValue(o1));
-        Collections.sort(childNodesList, (o1, o2) ->
-                getTokenLengthOfLiteralNode(o2) - getTokenLengthOfLiteralNode(o1));
 
         return node;
     }
@@ -146,7 +145,7 @@ public abstract class Node {
             if (node.getToken().equals("*")) {
                 return 0;
             }
-            return 5;
+            return node.getToken().length() + 5;
         } else if (node instanceof FragmentExpression) {
             return 4;
         } else if (node instanceof ReservedStringExpression) {
@@ -156,12 +155,5 @@ public abstract class Node {
         } else {
             return 1;
         }
-    }
-
-    private int getTokenLengthOfLiteralNode(Node node) {
-        if (node instanceof Literal) {
-            return node.getToken().length();
-        }
-        return 0;
     }
 }
