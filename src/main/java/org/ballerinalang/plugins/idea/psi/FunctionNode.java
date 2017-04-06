@@ -96,7 +96,7 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
                     return builder.toString();
                 }
                 // Get the return types.
-                Collection<TypeNameNode> returnTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
+                Collection<TypeNameNode> returnTypeNodes = PsiTreeUtil.findChildrenOfType(returnTypeListNode,
                         TypeNameNode.class);
                 builder.append(" (");
                 for (TypeNameNode typeNode : returnTypeNodes) {
