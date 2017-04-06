@@ -50,7 +50,6 @@ public abstract class Node {
             this.childNodesList.add(node);
         }
 
-        // TODO : Need to improve this logic
         Collections.sort(childNodesList, (o1, o2) -> getIntValue(o2) - getIntValue(o1));
 
         return node;
