@@ -1092,7 +1092,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         try {
             if (rExpr.getType() == BTypes.typeNull || lExpr.getType() == BTypes.typeNull) {
                 // if this is a null check, then need to pass the BValue
-                binaryExprRslt = ((BinaryEqualityExpression) binaryExpr).getRefTypeEvalFunc().apply(lValue, rValue);
+                binaryExprRslt = binaryExpr.getRefTypeEvalFunc().apply(lValue, rValue);
             } else {
                 binaryExprRslt = binaryExpr.getEvalFunc().apply((BValueType) lValue, (BValueType) rValue);
             }
