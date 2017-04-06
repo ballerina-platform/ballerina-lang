@@ -18,11 +18,9 @@
 import _ from 'lodash';
 import log from 'log';
 import $ from 'jquery';
-import SVGCanvas from '../../../../../integration-tests/ui-integration-tests/js/ballerina/views/svg-canvas';
-import Point from '../../../../../integration-tests/ui-integration-tests/js/ballerina/views/point';
+import SVGCanvas from './../../ballerina/views/svg-canvas';
 import AnnotationDefinition from './../ast/annotation-definition';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
-import Axis from '../../../../../integration-tests/ui-integration-tests/js/ballerina/views/axis';
 import Alerts from 'alerts';
 
 /**
