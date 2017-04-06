@@ -15,48 +15,107 @@
  */
 import _ from 'lodash';
 import $ from 'jquery';
+import 'ace/ace';
+import 'ace/ext-language_tools';
+import 'ace/ext-searchbox';
+import '../ballerina/utils/ace-mode';
+import ballerina from 'ballerina';
+var ace = global.ace;
+var Range = ace.require('ace/range');
+
+// require possible themes
+function requireAll(requireContext) {
+    return requireContext.keys().map(requireContext);
+}
+requireAll(require.context('ace', false, /theme-/));
+
+// require ballerina mode
+var mode = ace.require('ace/mode/ballerina');
+
     var expressionEditorUtil = {};
     expressionEditorUtil.createEditor = function (editorWrapper, wrapperClass, property, callback) {
+        let default_with = $(editorWrapper).width();
         var propertyWrapper = $("<div/>", {
             "class": wrapperClass
         }).appendTo(editorWrapper);
 
         var propertyValue = _.isNil(property.getterMethod.call(property.model)) ? "" : property.getterMethod.call(property.model);
-        var propertyInputValue = $("<input type='text' value=''>").appendTo(propertyWrapper);
+        var propertyInputValue = $("<div class='expression_editor'>").appendTo(propertyWrapper);
         var hiddenSpan = $('<span style="display: none"/>').appendTo(propertyWrapper);
+        var editorContainer = $("<div class='expression_editor_container'>").appendTo(propertyInputValue);
         hiddenSpan.css('white-space', 'pre');
         hiddenSpan.css('padding-left', '15px');
-        $(propertyInputValue).css('border', '1px solid');
-        $(propertyInputValue).css('padding-left', '15px');
-        $(propertyInputValue).val(propertyValue);
+        $(propertyInputValue).css('border', '2px solid #333333');
+        $(propertyInputValue).css('padding-top', '6px');
+        $(propertyInputValue).css('background', 'white');
+        $(editorContainer).css('height', '22px');
+        $(editorContainer).text(propertyValue);
 
+        this._editor =  ace.edit(editorContainer[0]);
+
+        var mode = ace.require("ace/mode/ballerina").Mode;
+        this._editor.getSession().setMode("ace/mode/ballerina");
+        //Avoiding ace warning
+        //this._editor.$blockScrolling = Infinity;
+
+        var editorTheme = ace.require("ace/theme/chrome");
+
+        this._editor.setTheme(editorTheme);
+        this._editor.setFontSize("16px");
+        this._editor.setOptions({
+            enableBasicAutocompletion:true,
+            highlightActiveLine: false,
+            showGutter: false
+        });
+
+        this._editor.setBehavioursEnabled(true);
+        this._editor.focus();
+        var n = this._editor.getSession().getValue().split("\n").length; // To count total no. of lines
+        this._editor.gotoLine(n);
         // returns the width in pixels needed to show a given text
         // This adds the text to the hidden span and takes its width
         // This is done so that we can measure the exact width needed for the input to show the text
         function getNecessaryWidth(text) {
-            hiddenSpan.text(text + 'abc'); // Add 3 charactors so there is a buffer length
-            return hiddenSpan.outerWidth();
+            let width = text.length * 8 + 40;
+            /*hiddenSpan.text(text + 'abc'); // Add 3 charactors so there is a buffer length*/
+            if(width < default_with ){
+                return default_with;
+            };
+            return width;
         }
 
         $(propertyInputValue).css("width", getNecessaryWidth(propertyValue));
         $(propertyInputValue).focus();
 
-        $(propertyInputValue).on("paste keyup", function (e) {
-            var width = getNecessaryWidth($(this).val());
-            $(this).css("width", width);
-
-            if(e.keyCode==13){
-                // Enter pressed.
-                if(_.isFunction(callback)){
-                    callback();
-                }
+        //bind auto complete to key press
+        this._editor.commands.on('afterExec', (event) =>  {
+            if (event.command.name === 'insertstring'&&/^[\w.]$/.test(event.args)) {
+                this._editor.execCommand('startAutocomplete');
             }
         });
-        $(propertyInputValue).on("change", function(){
-            // Do not set the value to the model directly, instead fire the event.
-            property.model.trigger('update-property-text', $(this).val(), property.key);
-        }).on('blur', function () {
-            property.model.trigger('focus-out');
+
+        // remove newlines in pasted text
+        this._editor.on("paste", function(e) {
+            e.text = e.text.replace(/[\r\n]+/g, " ");
         });
+
+        this._editor.commands.bindKey("Enter|Shift-Enter", (e)=>{
+            let text = this._editor.getSession().getValue();
+            property.model.trigger('update-property-text', text , property.key);
+            property.model.trigger('focus-out');
+            if(_.isFunction(callback)){
+                callback();
+            }
+        });
+
+        this._editor.on('change', (event) => {
+            let text = this._editor.getSession().getValue();
+            $(propertyInputValue).css("width" , getNecessaryWidth(text));
+            this._editor.resize();
+        });
+
+        this._editor.resize();
     };
-    export default expressionEditorUtil;
+
+
+export default expressionEditorUtil;
