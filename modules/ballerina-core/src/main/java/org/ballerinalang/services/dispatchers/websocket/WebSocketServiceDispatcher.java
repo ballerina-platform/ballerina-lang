@@ -83,10 +83,10 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         AnnotationAttachment[] annotations = service.getAnnotations();
         for (AnnotationAttachment annotation: annotations) {
             if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
-                annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+                    annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
                 basePathAnnotation = annotation;
-            } else if (annotation.getName().equals(
-                    Constants.PROTOCOL_WEBSOCKET + ":" + Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH)) {
+            } else if (annotation.getPkgName().equals(Constants.PROTOCOL_WEBSOCKET) &&
+                    annotation.getName().equals(Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH)) {
                 websocketUpgradePathAnnotation = annotation;
             }
         }
