@@ -530,7 +530,10 @@ public class BallerinaPsiImplUtil {
             return getAllConnectorsInPackage((PsiDirectory) element);
         }
         PsiElement parent = element.getParent();
-        return getAllConnectorsInPackage((PsiDirectory) parent);
+        if (parent != null) {
+            return getAllConnectorsInPackage((PsiDirectory) parent);
+        }
+        return new LinkedList<>();
     }
 
     public static List<PsiElement> getAllConnectorsInPackage(PsiDirectory packageElement) {
@@ -550,7 +553,10 @@ public class BallerinaPsiImplUtil {
             return getAllAnnotationsInPackage((PsiDirectory) element);
         }
         PsiElement parent = element.getParent();
-        return getAllAnnotationsInPackage((PsiDirectory) parent);
+        if (parent != null) {
+            return getAllAnnotationsInPackage((PsiDirectory) parent);
+        }
+        return new LinkedList<>();
     }
 
     public static List<PsiElement> getAllAnnotationsInPackage(PsiDirectory packageElement) {
@@ -570,7 +576,10 @@ public class BallerinaPsiImplUtil {
             return getAllStructsInPackage((PsiDirectory) element);
         }
         PsiElement parent = element.getParent();
-        return getAllStructsInPackage((PsiDirectory) parent);
+        if (parent != null) {
+            return getAllStructsInPackage((PsiDirectory) parent);
+        }
+        return new LinkedList<>();
     }
 
     public static List<PsiElement> getAllStructsInPackage(PsiDirectory packageElement) {
@@ -590,7 +599,10 @@ public class BallerinaPsiImplUtil {
             return getAllFunctionsInPackage((PsiDirectory) element);
         }
         PsiElement parent = element.getParent();
-        return getAllFunctionsInPackage((PsiDirectory) parent);
+        if (parent != null) {
+            return getAllFunctionsInPackage((PsiDirectory) parent);
+        }
+        return new LinkedList<>();
     }
 
     public static List<PsiElement> getAllFunctionsInPackage(PsiDirectory packageElement) {
