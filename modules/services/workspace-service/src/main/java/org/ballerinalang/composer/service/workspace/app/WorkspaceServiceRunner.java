@@ -20,6 +20,7 @@ import com.google.inject.Injector;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.api.PackagesApi;
 import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
+import org.ballerinalang.composer.service.workspace.rest.BallerinaProgramService;
 import org.ballerinalang.composer.service.workspace.rest.FileServer;
 import org.ballerinalang.composer.service.workspace.rest.WorkspaceService;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangFileRestService;
@@ -45,6 +46,7 @@ public class WorkspaceServiceRunner {
 
     public static void main(String[] args) {
         String balHome = System.getProperty(Constants.SYS_BAL_COMPOSER_HOME);
+        String filePath;
         if (balHome == null) {
             balHome = System.getenv(Constants.SYS_BAL_COMPOSER_HOME);
         }
@@ -54,6 +56,12 @@ public class WorkspaceServiceRunner {
         }
 
         boolean isCloudMode = Boolean.getBoolean(Constants.SYS_WORKSPACE_ENABLE_CLOUD);
+
+        if (args[1] != null) {
+            filePath = args[1];
+        } else {
+            filePath = "resources/composer/web/resources/samples/helloWorld.bal";
+        }
 
 //        // configure possible command line options
 //        Options options = new Options();
@@ -84,6 +92,7 @@ public class WorkspaceServiceRunner {
                 .deploy(new BLangFileRestService())
                 .deploy(new PackagesApi())
                 .deploy(ServicesApiServiceFactory.getServicesApi())
+                .deploy(new BallerinaProgramService(filePath))
                 .start();
 
         int port = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);

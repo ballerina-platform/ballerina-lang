@@ -32,7 +32,8 @@ class BallerinaEnvironment extends EventChannel {
     constructor(args) {
         super();
         this._packages = _.get(args, 'packages', []);
-        this._types = _.get(args, 'types', ['message', 'string', 'boolean', 'int', 'double', 'float', 'long', 'exception', 'json', 'xml', 'map']);
+        this._types = _.get(args, 'types', []);
+        this.initializeNativeTypes();
         this.initializePackages();
     }
 
@@ -42,7 +43,7 @@ class BallerinaEnvironment extends EventChannel {
      * @return {Package}
      */
     findPackage(packageName) {
-        return _.find(this._packages, function(packageInstance){
+        return _.find(this._packages, function (packageInstance) {
             return _.isEqual(packageInstance.getName(), packageName);
         });
     }
@@ -53,16 +54,16 @@ class BallerinaEnvironment extends EventChannel {
      * @fires BallerinaEnvironment#new-package-added
      */
     addPackage(packageInstance) {
-       if(!(packageInstance instanceof Package)){
+        if (!(packageInstance instanceof Package)) {
             var err = packageInstance + " is not an instance of Package.";
             log.error(err);
             throw err;
-       }
-       this._packages.push(packageInstance);
+        }
+        this._packages.push(packageInstance);
         /**
          * @Event BallerinaEnvironment#new-package-added
          */
-       this.trigger("new-package-added", packageInstance);
+        this.trigger("new-package-added", packageInstance);
     }
 
     /**
@@ -77,7 +78,7 @@ class BallerinaEnvironment extends EventChannel {
      * @returns {*}
      */
     getTypes() {
-      return this._types;
+        return this._types;
     }
 
     /**
@@ -92,6 +93,19 @@ class BallerinaEnvironment extends EventChannel {
             var pckg = BallerinaEnvFactory.createPackage();
             pckg.initFromJson(packageNode);
             self._packages.push(pckg);
+        });
+    }
+
+    /**
+     * Initialize native types from Ballerina Program
+     */
+    initializeNativeTypes() {
+        var self = this;
+        var nativeTypesJson = EnvironmentContent.getNativeTypes();
+        _.each(nativeTypesJson, function (nativeType) {
+            if (!_.isNil(nativeType)) {
+                self._types.push(nativeType);
+            }
         });
     }
 
