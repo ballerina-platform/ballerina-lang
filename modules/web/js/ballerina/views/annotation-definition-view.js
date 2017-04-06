@@ -91,20 +91,165 @@ class AnnotationDefinitionView extends SVGCanvas {
         this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(),
             this.getModel().getAnnotationName());
 
-        this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.service_icon", ""));
+        this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.annotation_icon", ""));
         var currentContainer = $('#' + this.getModel().getID());
         this._container = currentContainer;
         this._package = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage();
 
         var annotationDefinitionContainerId = "annotation-definition-container___" + this._model.id;
         var annotationDefinitionContainer = $('<div id="' + annotationDefinitionContainerId +
-            '" class="annotation-definition-container"><div>' +
-            '<span>Annotation:</span>' +
-            '<input type="text" placeholder="eg:-Param"/>' +
-            '<span>attach to:</span>' +
-            '<input type="text" placeholder="eg:-service,function"/>' +
-            '</div>' +
-            '</div>');
+            '" class="annotation-definition-container"></div>');
+
+        var annotationDefinitionInnerContainer = $('<div class="annotation-definition-inner-container"></div>');
+        annotationDefinitionInnerContainer.append("<span class='input-label'>Attachments:</span>");
+        var definitionSignatureRow = $('<div class="row"></div>');
+
+        // var annotationColumn1 = $('<div class="col-lg-5"></div>');
+        // var annotationInputGroup1 = $('<div class="input-group"></div>');
+        // var annotationInputGroupAddon1 = $('<span class="input-group-addon"></span>');
+
+        // annotationInputGroup1.append(annotationInputGroupAddon1);
+        // annotationColumn1.append(annotationInputGroup1);
+        // definitionSignatureRow.append(annotationColumn1);
+
+        // var annotationLabel = $('<span>Annotation:</span>');
+        // annotationInputGroupAddon1.append(annotationLabel);
+        // var annotationNameInput = $('<input type="text" class="annotation-name form-control"/>');
+        // annotationInputGroup1.append(annotationNameInput);
+
+        var annotationColumn2 = $('<div class="col-lg-5"></div>');
+        var annotationInputGroup2 = $('<div class="input-group"></div>');
+        var annotationInputGroupAddon2 = $('<span class="input-group-addon"></span>');
+
+        annotationInputGroup2.append(annotationInputGroupAddon2);
+        annotationColumn2.append(annotationInputGroup2);
+        definitionSignatureRow.append(annotationColumn2);
+
+        var annotationColumn3 = $('<div class="col-lg-2"></div>');
+        var annotationInputGroup3 = $('<div class="input-group"></div>');
+
+        annotationColumn3.append(annotationInputGroup3);
+        definitionSignatureRow.append(annotationColumn3);
+
+        annotationDefinitionInnerContainer.append(definitionSignatureRow);
+
+        var attachmentLabel = $("<span>Attach:</span>");
+        annotationInputGroupAddon2.append(attachmentLabel);
+        var attachmentInput = $("<input type='text' class='attachments form-control'/>");
+        annotationInputGroup2.append(attachmentInput);
+
+        attachmentInput.on('change', function (e) {
+            if (!_.isNil(attachmentInput.val())) {
+                self.getModel().setAttachmentPoints(_.split(attachmentInput.val()), {doSilently: false});
+            }
+        });
+
+        var addAttributeButton = $("<div id='add-attribute-btn' class='add-annotation-attribute-button-wrapper'" +
+            "data-toggle='tooltip' data-placement='bottom' data-original-title='Add Attribute'><i class='fw fw-add'></i></div>");
+        annotationInputGroup3.append(addAttributeButton);
+
+        var attributeRow = $('<div class="row attribute-row"></div>');
+        var listColumn = $('<div class="col-lg-5"></div>');
+        var listOfAttributes = $('<ul class="attribute-list list-group"></ul>');
+
+        annotationDefinitionInnerContainer.append("<span class='input-label'>Attributes:</span>");
+
+        listColumn.append(listOfAttributes);
+        attributeRow.append(listColumn);
+        annotationDefinitionInnerContainer.append(attributeRow);
+
+        addAttributeButton.on('click', function (e) {
+            var leftHandSideInputs = listOfAttributes.find(".left-hand-side");
+            var isEmptyExists = false;
+            if (leftHandSideInputs && leftHandSideInputs.length > 0) {
+                _.forEach(leftHandSideInputs, function (leftHandSideInput) {
+                    if (_.isEqual($(leftHandSideInput).val(), "")) {
+                        isEmptyExists = true;
+                    }
+                });
+
+                if (isEmptyExists) {
+                    return;
+                }
+            }
+
+            var listItem = $('<li class="list-group-item"></li>');
+            var listItemRow = $('<div class="row"></div>');
+            var leftHandSideColumn = $('<div class="col-lg-5"></div>');
+            var leftHandSideInputGroup = $('<div class="input-group"></div>');
+
+            leftHandSideColumn.append(leftHandSideInputGroup);
+            listItemRow.append(leftHandSideColumn);
+
+            listItemRow.append("<div class='col-lg-1'>=</div>");
+
+            var rightHandSideColumn = $('<div class="col-lg-5"></div>');
+            var rightHandSideInputGroup = $('<div class="input-group"></div>');
+
+            rightHandSideColumn.append(rightHandSideInputGroup);
+            listItemRow.append(rightHandSideColumn);
+
+            var closeButton = $("<div class='col-lg-1 close-btn'></div>");
+            var closeIcon = $("<i class='fw fw-cancel '></i>");
+
+            closeButton.append(closeIcon);
+            listItemRow.append(closeButton);
+
+            closeButton.on('click', function (e) {
+                $(this).closest("li").remove();
+            });
+
+            var leftHandSideInput = $('<input type="text" class="left-hand-side form-control" placeholder="eg:-string value"/>');
+            var rightHandSideInput = $('<input type="text" class="right-hand-side form-control"/>');
+
+            leftHandSideInputGroup.append(leftHandSideInput);
+            rightHandSideInputGroup.append(rightHandSideInput);
+
+            listItem.append(listItemRow);
+
+            listOfAttributes.append(listItem);
+        });
+
+        var self = this;
+        $(this.getTitle()).text(this.getModel().getAnnotationName()).on('change paste keyup', function () {
+            self.getModel().setAnnotationName($(this).text());
+        })
+            .on('click', function (event) {
+                event.stopPropagation();
+            })
+            .on('blur', function (event) {
+                if ($(this).text().length > 50) {
+                    var textToDisplay = $(this).text().substring(0, 47) + '...';
+                    $(this).text(textToDisplay);
+                }
+            })
+            .on('focus', function (event) {
+                $(this).text(self.getModel().getAnnotationName());
+            })
+            .keypress(function (e) {
+                /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+                 (Chrome and IE ignore keypress event of these keys in browser level)*/
+                if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    // Disabling enter key
+                    if (_.isEqual(enteredKey, 13)) {
+                        e.stopPropagation();
+                        return false;
+                    }
+
+                    var newAnnotationName = $(this).text() + String.fromCharCode(enteredKey);
+
+                    try {
+                        self.getModel().setAnnotationName(newAnnotationName);
+                    } catch (error) {
+                        // Alerts.error(error);
+                        e.stopPropagation();
+                        return false;
+                    }
+                }
+            });
+
+        annotationDefinitionContainer.append(annotationDefinitionInnerContainer);
         currentContainer.find('svg').parent().append(annotationDefinitionContainer);
         currentContainer.find('svg').remove();
     }

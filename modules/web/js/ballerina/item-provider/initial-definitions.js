@@ -107,7 +107,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var createAnnotationDefTool = {
             id: "annotation",
             name: "Annotation",
-            icon: "images/annotation-black.svg",
+            iconSrc: require("images/tool-icons/annotation-black.svg"),
             title: "Annotation Definition",
             nodeFactoryMethod: BallerinaASTFactory.createAnnotationDefinition
         };
