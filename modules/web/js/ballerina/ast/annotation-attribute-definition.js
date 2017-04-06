@@ -40,16 +40,15 @@ class AnnotationAttributeDefinition extends ASTNode {
         }
     }
 
-
     getAttributeName() {
         return this._attributeName;
     }
 
-    getAttributeType(attributeType, options) {
+    setAttributeType(attributeType, options) {
         this.setAttribute('_attributeType', attributeType, options);
     }
 
-    setAttributeType() {
+    getAttributeType() {
         return this._attributeType;
     }
 
@@ -59,6 +58,15 @@ class AnnotationAttributeDefinition extends ASTNode {
 
     getPackagePath(){
         return this._pkgPath;
+    }
+
+    getAttributeStatementString(){
+        var statement =  this.getAttributeType() + ' ' + this.getAttributeName() ;
+        var valueExpression = this.findChild(this.isExpression);
+        if(!_.isNil(valueExpression)){
+            statement += ' = ' + valueExpression.getExpression();
+        }
+        return statement;
     }
 
     /**

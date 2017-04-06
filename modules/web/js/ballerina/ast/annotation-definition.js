@@ -53,13 +53,11 @@ class AnnotationDefinition extends ASTNode {
     }
 
     setAttachmentPoints(attachmentPoints, options) {
-        debugger;
         this.setAttribute('_attachmentPoints', attachmentPoints, options);
     }
 
     getAnnotationAttributeDefinitions() {
         return this.filterChildren(this.getFactory().isAnnotationAttributeDefinition);
-
     }
 
     /**
