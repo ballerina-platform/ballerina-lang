@@ -223,7 +223,7 @@ class TypeMapperDefinition extends ASTNode {
             return ballerinaASTFactory.isVariableReferenceExpression(child);
         });
 
-        variableReferenceExpression.setVariableReferenceName(identifier);
+        variableReferenceExpression.setVariableName(identifier);
     }
 
     /**
@@ -292,14 +292,14 @@ class TypeMapperDefinition extends ASTNode {
 
         var sourceStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var sourceVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
-        sourceVariableReferenceExpressionForIdentifier.setVariableReferenceName(sourceIdentifier);
+        sourceVariableReferenceExpressionForIdentifier.setVariableName(sourceIdentifier);
         var sourceFieldExpression = this.getFactory().createStructFieldAccessExpression();
         var tempRefOfFieldExpression;
 
         _.forEach(sourceValue, function (sourceVal) {
             var tempFieldExpression;
             var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
-            tempVariableReferenceExpression.setVariableReferenceName(sourceVal);
+            tempVariableReferenceExpression.setVariableName(sourceVal);
             if (_.head(sourceValue) == sourceVal) {
                 sourceFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression = sourceFieldExpression
@@ -316,14 +316,14 @@ class TypeMapperDefinition extends ASTNode {
 
         var targetStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var targetVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
-        targetVariableReferenceExpressionForIdentifier.setVariableReferenceName(targetIdentifier);
+        targetVariableReferenceExpressionForIdentifier.setVariableName(targetIdentifier);
         var targetFieldExpression = this.getFactory().createStructFieldAccessExpression();
         var tempRefOfFieldExpression;
 
         _.forEach(targetValue, function (targetVal) {
             var tempFieldExpression;
             var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
-            tempVariableReferenceExpression.setVariableReferenceName(targetVal);
+            tempVariableReferenceExpression.setVariableName(targetVal);
             if (_.head(targetValue) == targetVal) {
                 targetFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression = targetFieldExpression
@@ -364,14 +364,14 @@ class TypeMapperDefinition extends ASTNode {
         var self = this;
         var structFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var variableReferenceExpression = this.getFactory().createVariableReferenceExpression();
-        variableReferenceExpression.setVariableReferenceName(identifier);
+        variableReferenceExpression.setVariableName(identifier);
         var targetFieldExpression = this.getFactory().createStructFieldAccessExpression();
         var tempRefOfFieldExpression;
 
         _.forEach(properties, function (property) {
             var tempFieldExpression;
             var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
-            tempVariableReferenceExpression.setVariableReferenceName(property);
+            tempVariableReferenceExpression.setVariableName(property);
             if (_.head(properties) == property) {
                 targetFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression = targetFieldExpression

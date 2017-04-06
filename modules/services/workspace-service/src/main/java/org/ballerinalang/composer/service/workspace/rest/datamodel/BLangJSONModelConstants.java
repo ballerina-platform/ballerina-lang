@@ -197,10 +197,6 @@ public class BLangJSONModelConstants {
 
     public static final String VARIABLE_REFERENCE_EXPRESSION = "variable_reference_expression";
 
-    public static final String VARIABLE_REFERENCE_TYPE = "type";
-
-    public static final String VARIABLE_REFERENCE_NAME = "variable_reference_name";
-
     public static final String ARRAY_INIT_EXPRESSION = "array_init_expression";
 
     public static final String ARRAY_MAP_ACCESS_EXPRESSION = "array_map_access_expression";

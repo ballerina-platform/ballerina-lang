@@ -31,25 +31,8 @@ import VariableDeclaration from './../variable-declaration';
 class VariableDefinitionStatement extends Statement {
     constructor(args) {
         super('VariableDefinitionStatement');
-        this._leftExpression = _.get(args, 'leftExpression', "string str");
+        this._leftExpression = _.get(args, 'leftExpression', "int i");
         this._rightExpression = _.get(args, 'rightExpression');
-    }
-
-    /**
-     * initialize VariableDefinitionStatement from json object
-        this._leftExpression = _.get(args, 'leftExpression');
-        this._rightExpression = _.get(args, 'rightExpression');
-     * @param {Object} jsonNode to initialize from
-     */
-    initFromJson(jsonNode) {
-        var self = this;
-
-        // TODO: need to refactor based on the backend response
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
     }
 
     /**
@@ -74,9 +57,9 @@ class VariableDefinitionStatement extends Statement {
      */
     getStatementString() {
         var variableDefinitionStatementString;
-        if(_.isNil(this._rightExpression) || _.isEmpty(this._rightExpression)){
+        if (_.isNil(this._rightExpression) || _.isEmpty(this._rightExpression)) {
             variableDefinitionStatementString = this._leftExpression;
-        }else {
+        } else {
             variableDefinitionStatementString = this._leftExpression + " = " + this._rightExpression;
         }
         return variableDefinitionStatementString;
@@ -114,8 +97,24 @@ class VariableDefinitionStatement extends Statement {
         return (this._leftExpression.split(" ")[1]).trim();
     }
 
+    /**
+     * Gets the identifier of the variable definition statement.
+     * @return {string} - The identifier.
+     */
+    getValue() {
+        return this._rightExpression;
+    }
+
     setIdentifier(identifier) {
         this.setLeftExpression(this.getBType() + " " + identifier);
+    }
+
+    setBType(bType) {
+        this.setLeftExpression(bType + " " + this.getIdentifier());
+    }
+
+    setValue(value) {
+        this.setRightExpression(value);
     }
 
     /**
@@ -171,47 +170,18 @@ class VariableDefinitionStatement extends Statement {
 
     initFromJson(jsonNode) {
         var self = this;
-        var lhs = jsonNode.children[0];
-        var rhs = jsonNode.children[1];
-        if (lhs.type === 'left_operand_expression') {
-            if (!_.isNil(lhs.children[0].variable_def_options)) {
-                /**
-                 * Sample1: message m = 'messageValue';
-                 * Sample2: http:HTTPConnector connector = .....
-                 *          <packageName>:<> <variable reference>
-                 */
-                var expressionValue = (!_.isNil(lhs.children[0].variable_def_options.package_name) ?
-                    lhs.children[0].variable_def_options.package_name + ":" : "")
-                    + lhs.children[0].variable_def_options.type_name
-                    + " " + lhs.children[0].variable_reference_name;
-                this.setLeftExpression(expressionValue);
-            }
-        } else {
 
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
 
-        if (!_.isNil(lhs.variable_def_options)) {
-            /**
-             * Sample1: message m = 'messageValue';
-             * Sample2: http:HTTPConnector connector = .....
-             *          <packageName>:<> <variable reference>
-             */
-            var expressionValue = (!_.isNil(lhs.variable_def_options.package_name) ?
-                lhs.variable_def_options.package_name + ":" : "")
-                + lhs.variable_def_options.type_name
-                + " " + lhs.variable_reference_name;
-            this.setLeftExpression(expressionValue);
+        if (!_.isNil(this.getChildren()[0])){
+            this.setLeftExpression(this.getChildren()[0].getExpression());
         }
-    }
-
-        if (!_.isNil(rhs)) {
-            var rightExpressionChild = self.getFactory().createFromJson(rhs);
-            self.addChild(rightExpressionChild);
-            rightExpressionChild.initFromJson(rhs);
-            if (self.getFactory().isRightOperandExpression(rightExpressionChild)) {
-                this.setRightExpression(rightExpressionChild.getChildren()[0].getExpression());
-            } else {
-                this.setRightExpression(rightExpressionChild.getExpression());
-            }
+        if (!_.isNil(this.getChildren()[1])) {
+            this.setRightExpression(this.getChildren()[1].getExpression());
         }
     }
 }
