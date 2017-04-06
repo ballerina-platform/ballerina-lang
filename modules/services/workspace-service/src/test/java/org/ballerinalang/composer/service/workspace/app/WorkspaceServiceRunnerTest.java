@@ -10,7 +10,7 @@ public class WorkspaceServiceRunnerTest {
     
     @Test
     public void testEnableCloudModeViaArgument() {
-        String[] args = {"-cloudMode"};
+        String[] args = {"-cloudMode", "src/test/resources/samples/service/helloWorld.bal"};
         System.setProperty(Constants.SYS_BAL_COMPOSER_HOME, System.getProperty("basedir"));
         WorkspaceServiceRunner.main(args);
     }
