@@ -31,7 +31,7 @@ public abstract class Node {
     protected Node next;
     protected List<Node> childNodesList = new LinkedList<>();
 
-    protected TestResource resource;
+    protected Resource resource;
 
     protected Node(String token) {
         this.token = token;
@@ -50,21 +50,24 @@ public abstract class Node {
             this.childNodesList.add(node);
         }
 
-//        Collections.sort(childNodesList, new CustomComparator());
         Collections.sort(childNodesList, (o1, o2) -> getIntValue(o2) - getIntValue(o1));
+        Collections.sort(childNodesList, (o1, o2) ->
+                getTokenLengthOfLiteralNode(o2) - getTokenLengthOfLiteralNode(o1));
 
         return node;
     }
 
-    public TestResource matchAll(String uriFragment, Map<String, String> variables, int start) {
+    public Resource matchAll(String uriFragment, Map<String, String> variables, int start) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
             return null;
         } else if (matchLength < uriFragment.length()) {
             if (uriFragment.startsWith("/")) {
                 uriFragment = uriFragment.substring(matchLength);
-            } else {
+            } else if (uriFragment.contains("/")) {
                 uriFragment = uriFragment.substring(matchLength + 1);
+            } else {
+                uriFragment = uriFragment.substring(matchLength);
             }
 
             String segment;
@@ -84,15 +87,11 @@ public abstract class Node {
                             return next.matchAll(uriFragment, variables, start + matchLength);
                         }
                     } else {
-                        if (regex.equals(segment)) {
+                        if (segment.contains(regex)) {
                             next = childNode;
                             return next.matchAll(uriFragment, variables, start + matchLength);
                         }
                     }
-//                    if (segment.matches(regex)) {
-//                        next = childNode;
-//                        return next.matchAll(uriFragment, variables, start + matchLength);
-//                    }
                 } else {
                     next = childNode;
                     return next.matchAll(uriFragment, variables, start + matchLength);
@@ -119,11 +118,11 @@ public abstract class Node {
         }
     }
 
-    public TestResource getTestResource() {
+    public Resource getTestResource() {
         return this.resource;
     }
 
-    public void setTestResource(TestResource resource) {
+    public void setTestResource(Resource resource) {
         this.resource = resource;
     }
 
@@ -142,27 +141,6 @@ public abstract class Node {
         return null;
     }
 
-//    class CustomComparator implements Comparator<Node> {
-//        @Override
-//        public int compare(Node o1, Node o2) {
-//            return getIntValue(o2) - getIntValue(o1);
-//        }
-//
-//        int getIntValue(Node node) {
-//            if (node instanceof Literal) {
-//                return 5;
-//            } else if (node instanceof FragmentExpression) {
-//                return 4;
-//            } else if (node instanceof ReservedStringExpression) {
-//                return 3;
-//            } else if (node instanceof LabelExpression) {
-//                return 2;
-//            } else {
-//                return 1;
-//            }
-//        }
-//    }
-
     private int getIntValue(Node node) {
         if (node instanceof Literal) {
             if (node.getToken().equals("*")) {
@@ -178,5 +156,12 @@ public abstract class Node {
         } else {
             return 1;
         }
+    }
+
+    private int getTokenLengthOfLiteralNode(Node node) {
+        if (node instanceof Literal) {
+            return node.getToken().length();
+        }
+        return 0;
     }
 }

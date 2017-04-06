@@ -19,8 +19,11 @@
 package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -88,6 +91,25 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceRegistered(Service service) {
         HTTPServicesRegistry.getInstance().registerService(service);
+        for (Resource resource : service.getResources()) {
+            AnnotationAttachment subPathAnnotation = resource.getAnnotation(Constants.PROTOCOL_HTTP
+                    , Constants.ANNOTATION_NAME_PATH);
+            String subPathAnnotationVal;
+            if (subPathAnnotation != null) {
+                subPathAnnotationVal = subPathAnnotation.getValue();
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Path not specified in the Resource, using default sub path");
+                }
+                subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
+            }
+
+            try {
+                service.getUriTemplate().parse(subPathAnnotationVal, resource);
+            } catch (URITemplateException e) {
+                log.error("Failed to parse URIs", e);
+            }
+        }
     }
 
     @Override

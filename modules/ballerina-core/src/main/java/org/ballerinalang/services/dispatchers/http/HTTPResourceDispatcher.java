@@ -19,14 +19,10 @@
 package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
-import org.ballerinalang.services.dispatchers.uri.URITemplate;
-import org.ballerinalang.services.dispatchers.uri.URITemplateException;
-import org.ballerinalang.services.dispatchers.uri.parser.TestResource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +38,6 @@ import java.util.Map;
 public class HTTPResourceDispatcher implements ResourceDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
-    private boolean parse = false;
 
     @Override
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
@@ -50,93 +45,33 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
-        subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() -1) : subPath;
+        subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
 
         try {
-//            if (!parse) {
-//                for (Resource resource : service.getResources()) {
-//                    parse = true;
-//                    AnnotationAttachment subPathAnnotation = resource.getAnnotation(Constants.PROTOCOL_HTTP
-//                            , Constants.ANNOTATION_NAME_PATH);
-//                    String subPathAnnotationVal;
-//                    if (subPathAnnotation != null) {
-//                        subPathAnnotationVal = subPathAnnotation.getValue();
-//                    } else {
-//                        if (log.isDebugEnabled()) {
-//                            log.debug("Path not specified in the Resource, using default sub path");
-//                        }
-//                        subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
-//                    }
-//
-//                    URITemplate.getInstance().parse(subPathAnnotationVal, new TestResource("xxx"));
-//                }
-//            }
-//
-//            Map<String, String> resourceArgumentValues = new HashMap<>();
-//
-//            String rawQueryStr = cMsg.getProperty(Constants.RAW_QUERY_STR) != null
-//                    ? "?" + cMsg.getProperty(Constants.RAW_QUERY_STR)
-//                    : "";
-//
-//            Resource resource = matches((subPath + rawQueryStr), resourceArgumentValues);
-//            if (resource != null
-//                    && (resource.getAnnotation(Constants.PROTOCOL_HTTP, method) != null)) {
-//
-//                if (cMsg.getProperty(Constants.QUERY_STR) != null) {
-//                    QueryParamProcessor.processQueryParams
-//                            ((String) cMsg.getProperty(Constants.QUERY_STR))
-//                            .forEach((resourceArgumentValues::put));
-//                }
-//                cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
-//                return resource;
-//            }
+            Map<String, String> resourceArgumentValues = new HashMap<>();
 
-//            for (Resource resource : service.getResources()) {
-//                AnnotationAttachment subPathAnnotation = resource.getAnnotation(Constants.PROTOCOL_HTTP,
-//                        Constants.ANNOTATION_NAME_PATH);
-//                String subPathAnnotationVal;
-//                if (subPathAnnotation != null) {
-//                    subPathAnnotationVal = subPathAnnotation.getValue();
-//                } else {
-//                    if (log.isDebugEnabled()) {
-//                        log.debug("Path not specified in the Resource, using default sub path");
-//                    }
-//                    subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
-//                }
-//
-//                Map<String, String> resourceArgumentValues = new HashMap<>();
-//                //to enable dispatchers with query params products/{productId}?regID={regID}
-//                //queryStr is the encoded value of query params
-//                String rawQueryStr = cMsg.getProperty(Constants.RAW_QUERY_STR) != null
-//                                  ? "?" + cMsg.getProperty(Constants.RAW_QUERY_STR)
-//                                  : "";
-//                if ((matches(subPathAnnotationVal, (subPath + rawQueryStr), resourceArgumentValues) != null ||
-//                        Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
-//                        && (resource.getAnnotation(Constants.PROTOCOL_HTTP, method) != null)) {
-//
-//                    if (cMsg.getProperty(Constants.QUERY_STR) != null) {
-//                        QueryParamProcessor.processQueryParams
-//                                ((String) cMsg.getProperty(Constants.QUERY_STR))
-//                                .forEach((resourceArgumentValues::put));
-//                    }
-//                    cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
-//                    return resource;
-//                }
-//            }
+            String rawQueryStr = cMsg.getProperty(Constants.RAW_QUERY_STR) != null
+                    ? "?" + cMsg.getProperty(Constants.RAW_QUERY_STR)
+                    : "";
+
+            Resource resource = service.getUriTemplate().matches((subPath + rawQueryStr), resourceArgumentValues);
+            if (resource != null
+                    && (resource.getAnnotation(Constants.PROTOCOL_HTTP, method) != null)) {
+
+                if (cMsg.getProperty(Constants.QUERY_STR) != null) {
+                    QueryParamProcessor.processQueryParams
+                            ((String) cMsg.getProperty(Constants.QUERY_STR))
+                            .forEach((resourceArgumentValues::put));
+                }
+                cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
+                return resource;
+            }
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), balContext);
         }
 
         // Throw an exception if the resource is not found.
         throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method);
-    }
-
-    public static TestResource matches(String reqPath,
-                                  Map<String, String> variables) throws URITemplateException {
-//        URITemplate template = new URITemplate();
-//        template.parse(uriTemplate, new TestResource("xxx"));
-        return URITemplate.getInstance().matches(reqPath, variables);
-
     }
 
     @Override

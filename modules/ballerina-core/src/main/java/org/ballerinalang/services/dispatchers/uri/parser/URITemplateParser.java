@@ -33,7 +33,7 @@ public class URITemplateParser {
         this.syntaxTree = rooNode;
     }
 
-    public Node parse(String template, TestResource resource) throws URITemplateException {
+    public Node parse(String template, Resource resource) throws URITemplateException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
         }
