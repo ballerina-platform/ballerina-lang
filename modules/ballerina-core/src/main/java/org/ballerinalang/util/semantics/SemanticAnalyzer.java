@@ -19,7 +19,6 @@ package org.ballerinalang.util.semantics;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
-import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -588,14 +587,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             annotationAttachment.setAttachedPoint(AttachmentPoint.STRUCT);
             annotationAttachment.accept(this);
         }
-        
-        for (VariableDef field : structDef.getFields()) {
-            MemoryLocation location = new StructVarLocation(++structMemAddrOffset);
-            field.setMemoryLocation(location);
-        }
-
-        structDef.setStructMemorySize(structMemAddrOffset + 1);
-        structMemAddrOffset = -1;
     }
 
     @Override
@@ -2639,6 +2630,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             variableDef.setMemoryLocation(new ServiceVarLocation(++staticMemAddrOffset));
         } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
             variableDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
+        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.STRUCT) {
+            variableDef.setMemoryLocation(new StructVarLocation(++structMemAddrOffset));
         }
     }
 
@@ -2921,6 +2914,35 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             currentScope.define(symbolName, structDef);
+            
+            // Create the '<init>' function and inject it to the struct
+            BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(
+                structDef.getNodeLocation(), structDef);
+            for (VariableDefStmt variableDefStmt : structDef.getFieldDefStmts()) {
+                blockStmtBuilder.addStmt(variableDefStmt);
+            }
+
+            BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
+                    new BallerinaFunction.BallerinaFunctionBuilder(structDef);
+            functionBuilder.setNodeLocation(structDef.getNodeLocation());
+            functionBuilder.setName(structDef + ".<init>");
+            functionBuilder.setPkgPath(structDef.getPackagePath());
+            functionBuilder.setBody(blockStmtBuilder.build());
+            structDef.setInitFunction(functionBuilder.buildFunction());
+        }
+        
+        // Define fields in each struct. This is done after defining all the structs,
+        // since a field of a struct can be another struct.
+        for (StructDef structDef : structDefs) {
+            SymbolScope tmpScope = currentScope;
+            currentScope = structDef;
+            for (VariableDefStmt fieldDefStmt : structDef.getFieldDefStmts()) {
+                fieldDefStmt.accept(this);
+            }
+            structDef.setStructMemorySize(structMemAddrOffset + 1);
+            
+            structMemAddrOffset = -1;
+            currentScope = tmpScope;
         }
     }
     
@@ -2945,10 +2967,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void resolveStructFieldTypes(StructDef[] structDefs) {
         for (StructDef structDef : structDefs) {
-            for (VariableDef variableDef : structDef.getFields()) {
-                BType fieldType = BTypes.resolveType(variableDef.getTypeName(), currentScope,
-                        variableDef.getNodeLocation());
-                variableDef.setType(fieldType);
+            for (VariableDefStmt fieldDefStmt : structDef.getFieldDefStmts()) {
+                VariableDef fieldDef = fieldDefStmt.getVariableDef();
+                BType fieldType = BTypes.resolveType(fieldDef.getTypeName(), currentScope,
+                        fieldDef.getNodeLocation());
+                fieldDef.setType(fieldType);
             }
         }
     }
