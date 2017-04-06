@@ -34,7 +34,7 @@ class AnnotationDefinition extends ASTNode {
         if (!_.isNil(annotationName) && ASTNode.isValidIdentifier(annotationName)) {
             this.setAttribute('_annotationName', annotationName, options);
         } else {
-            var error = "Invalid name for the annotation name: " + annotationName;
+            var error = 'Invalid name for the annotation name: ' + annotationName;
             log.error(error);
             throw  error;
         }
@@ -56,8 +56,8 @@ class AnnotationDefinition extends ASTNode {
         this.setAttribute('_attachmentPoints', attachmentPoints, options);
     }
 
-    getAnnotationDefinitions(){
-
+    getAnnotationAttributeDefinitions() {
+        return this.filterChildren(this.getFactory().isAnnotationAttributeDefinition);
     }
 
     /**
