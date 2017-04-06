@@ -27,6 +27,7 @@ class AnnotationAttributeDefinition extends ASTNode {
         super('AnnotationAttribute');
         this._attributeName = _.get(args, 'attributeName');
         this._attributeType = _.get(args, 'attributeType');
+        this._attributeValue = _.get(args, 'attributeValue');
         this._pkgPath = _.get(args, 'pkgPath');
     }
 
@@ -60,13 +61,12 @@ class AnnotationAttributeDefinition extends ASTNode {
         return this._pkgPath;
     }
 
-    getAttributeStatementString(){
-        var statement =  this.getAttributeType() + ' ' + this.getAttributeName() ;
-        var valueExpression = this.findChild(this.isExpression);
-        if(!_.isNil(valueExpression)){
-            statement += ' = ' + valueExpression.getExpression();
-        }
-        return statement;
+    setAttributeValue(value, options){
+        this.setAttribute('_attributeValue', value, options);
+    }
+
+    getAttributeValue(){
+        return this._attributeValue;
     }
 
     /**
@@ -82,6 +82,11 @@ class AnnotationAttributeDefinition extends ASTNode {
             self.addChild(child);
             child.initFromJson(childNode);
         });
+        if (this.getChildren().length > 0) {
+            if (this.getFactory().isExpression(this.getChildren()[0])) {
+                this.setAttributeValue(this.getChildren()[0].getExpression(), {doSilently: true});
+            }
+        }
     }
 }
 

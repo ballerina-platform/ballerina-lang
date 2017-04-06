@@ -60,6 +60,48 @@ class AnnotationDefinition extends ASTNode {
         return this.filterChildren(this.getFactory().isAnnotationAttributeDefinition);
     }
 
+    addAnnotationAttributeDefinition (type, identifier, defaultValue) {
+
+        // if identifier is empty
+        if (_.isEmpty(identifier)) {
+            var errorString = 'Identifier cannot be empty';
+            log.error(errorString);
+            throw errorString;
+        }
+
+        // Check if already variable definition exists with same identifier.
+        var identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (annotationAttributionDefinition) {
+            return annotationAttributionDefinition.getIdentifier() === identifier;
+        }) !== -1;
+
+        // If annotation attribute definition with the same identifier exists, then throw an error,
+        // else create the new annotation attribute definition.
+        if (identifierAlreadyExists) {
+            var errorString = 'A attribute with identifier \'' + identifier + '\' already exists.';
+            log.error(errorString);
+            throw errorString;
+        } else {
+            // Creating new annotation attribute definition.
+            var newAnnotationAttributeDefinition = this.getFactory().createAnnotationAttributeDefinition();
+            newAnnotationAttributeDefinition.setAttributeName(identifier);
+            newAnnotationAttributeDefinition.setAttributeType(type);
+            newAnnotationAttributeDefinition.setAttributeValue(defaultValue);
+
+            // Get the index of the last definition.
+            var index = this.findLastIndexOfChild(this.getFactory().isVariableDefinitionStatement);
+
+            this.addChild(newAnnotationAttributeDefinition, index + 1);
+        }
+    }
+
+     /**
+     * Removes annotation attribute definition.
+     * @param {string} modelID - The model ID of the variable.
+     */
+    removeAnnotationAttributeDefinition(modelID) {
+        this.removeChildById(modelID);
+    }
+
     /**
      * @inheritDoc
      * @override
