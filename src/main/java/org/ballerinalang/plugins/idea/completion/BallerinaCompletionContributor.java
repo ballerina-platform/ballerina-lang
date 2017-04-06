@@ -519,11 +519,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     }
                 } else if (Objects.equals(".", prevToken.getText())) {
                     // Todo - Add struct, map field suggestions
-                    PsiElement identifierNode = prevToken.getPrevSibling().getChildren()[0];
-                    PsiReference reference = identifierNode.getReference();
-                    if (reference != null) {
-                        PsiElement resolvedElement = reference.resolve();
-                    }
                 } else if ("else".equals(prevToken.getText())) {
                     resultSet.addElement(PrioritizedLookupElement.withPriority(IF, CONTEXT_KEYWORD_PRIORITY));
                 } else {
