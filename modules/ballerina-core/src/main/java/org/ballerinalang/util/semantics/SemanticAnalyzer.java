@@ -1516,7 +1516,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(EqualExpression equalExpr) {
-        BType compareExprType = verifyBinaryCompareExprType(equalExpr);
+        BType compareExprType = verifyBinaryEqualityExprType(equalExpr);
 
         if (compareExprType == BTypes.typeInt) {
             equalExpr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
@@ -1540,7 +1540,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(NotEqualExpression notEqualExpr) {
-        BType compareExprType = verifyBinaryCompareExprType(notEqualExpr);
+        BType compareExprType = verifyBinaryEqualityExprType(notEqualExpr);
 
         if (compareExprType == BTypes.typeInt) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
@@ -1565,12 +1565,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(GreaterEqualExpression greaterEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(greaterEqualExpr);
-        
-        if (compareExprType == BTypes.typeNull) {
-            BLangExceptionHelper.throwSemanticError(greaterEqualExpr, 
-                SemanticErrors.INVALID_OPERATION_OPERATOR_NOT_DEFINED, 
-                greaterEqualExpr.getOperator(), BTypes.typeNull);
-        }
 
         if (compareExprType == BTypes.typeInt) {
             greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_INT_FUNC);
@@ -1587,11 +1581,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(GreaterThanExpression greaterThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(greaterThanExpr);
         
-        if (compareExprType == BTypes.typeNull) {
-            BLangExceptionHelper.throwSemanticError(greaterThanExpr,
-                SemanticErrors.INVALID_OPERATION_OPERATOR_NOT_DEFINED, greaterThanExpr.getOperator(), BTypes.typeNull);
-        }
-        
         if (compareExprType == BTypes.typeInt) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
 
@@ -1606,11 +1595,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessEqualExpression lessEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
-
-        if (compareExprType == BTypes.typeNull) {
-            BLangExceptionHelper.throwSemanticError(lessEqualExpr,
-                SemanticErrors.INVALID_OPERATION_OPERATOR_NOT_DEFINED, lessEqualExpr.getOperator(), BTypes.typeNull);
-        }
         
         if (compareExprType == BTypes.typeInt) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
@@ -1626,11 +1610,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessThanExpression lessThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessThanExpr);
-
-        if (compareExprType == BTypes.typeNull) {
-            BLangExceptionHelper.throwSemanticError(lessThanExpr, 
-                SemanticErrors.INVALID_OPERATION_OPERATOR_NOT_DEFINED, lessThanExpr.getOperator(), BTypes.typeNull);
-        }
         
         if (compareExprType == BTypes.typeInt) {
             lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_INT_FUNC);
@@ -2057,55 +2036,51 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private BType verifyBinaryArithmeticExprType(BinaryArithmeticExpression binaryArithmeticExpr) {
+        visitBinaryExpr(binaryArithmeticExpr);
         BType type = verifyBinaryExprType(binaryArithmeticExpr);
-        if (type == BTypes.typeNull) {
-            BLangExceptionHelper.throwSemanticError(binaryArithmeticExpr, 
-                SemanticErrors.INVALID_OPERATION_OPERATOR_NOT_DEFINED,
-                binaryArithmeticExpr.getOperator(), BTypes.typeNull);
-            throw new SemanticException("arithmatic operations are not supported for null");
-        }
         binaryArithmeticExpr.setType(type);
         return type;
     }
 
     private BType verifyBinaryCompareExprType(BinaryExpression binaryExpression) {
+        visitBinaryExpr(binaryExpression);
         BType type = verifyBinaryExprType(binaryExpression);
         binaryExpression.setType(BTypes.typeBoolean);
         return type;
     }
 
-    private BType verifyBinaryExprType(BinaryExpression binaryExpr) {
-        visitBinaryExpr(binaryExpr);
-
-        Expression rExpr = binaryExpr.getRExpr();
-        Expression lExpr = binaryExpr.getLExpr();
-
-        BType rType = rExpr.getType();
-        if (rExpr instanceof TypeCastExpression && rType == null) {
-            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
-        }
-
-        BType lType = lExpr.getType();
-        if (lExpr instanceof TypeCastExpression && lType == null) {
-            lType = BTypes.resolveType(((TypeCastExpression) lExpr).getTypeName(), currentScope, null);
-        }
-
+    private BType verifyBinaryEqualityExprType(BinaryExpression binaryExpression) {
+        visitBinaryExpr(binaryExpression);
+        BType rType = binaryExpression.getRExpr().getType();
+        BType lType = binaryExpression.getLExpr().getType();
+        BType type;
+        
         if (rType == BTypes.typeNull) {
             if (BTypes.isValueType(lType)) {
-                BLangExceptionHelper.throwSemanticError(binaryExpr, 
+                BLangExceptionHelper.throwSemanticError(binaryExpression, 
                     SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, lType, rType);
             }
-            return rType;
-        }
-        
-        if (lType == BTypes.typeNull) {
+            type = rType;
+        } else if (lType == BTypes.typeNull) {
             if (BTypes.isValueType(rType)) {
-                BLangExceptionHelper.throwSemanticError(binaryExpr, 
+                BLangExceptionHelper.throwSemanticError(binaryExpression, 
                     SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, lType, rType);
             }
-            return lType;
+            type = lType;
+        } else {
+            type = verifyBinaryExprType(binaryExpression);
         }
         
+        binaryExpression.setType(BTypes.typeBoolean);
+        return type;
+    }
+    
+    private BType verifyBinaryExprType(BinaryExpression binaryExpr) {
+        Expression rExpr = binaryExpr.getRExpr();
+        Expression lExpr = binaryExpr.getLExpr();
+        BType rType = rExpr.getType();
+        BType lType = lExpr.getType();
+
         if (!(rType.equals(lType))) {
             TypeCastExpression newExpr;
             TypeEdge newEdge;

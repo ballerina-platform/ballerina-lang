@@ -224,8 +224,8 @@ public class BNullValueTest   {
     
     @Test(description = "Test logical operations on null", 
             expectedExceptions = SemanticException.class, 
-            expectedExceptionsMessageRegExp = "logical-operation-on-null.bal:3: invalid operation: operator > not " +
-            "defined on 'null'")
+            expectedExceptionsMessageRegExp = "logical-operation-on-null.bal:3: invalid operation: incompatible " +
+            "types 'null' and 'xml'")
     void testLogicalOperationOnNull() {
         BTestUtils.parseBalFile("lang/values/null/logical-operation-on-null.bal");
     }
