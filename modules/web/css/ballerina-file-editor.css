@@ -867,3 +867,40 @@ input#package-name-input {
     margin-bottom: 20px;
     margin-top: 20px;
 }
+
+.annotation-definition-content-wrapper{
+    margin: 35px 60px;
+    float: left;
+}
+
+.annotation-definition-operation-wrapper{
+    background-color: #3d3d3d;
+    padding: 10px;
+    float: left;
+}
+
+.annotation-attribute-identifier-text-input{
+    float: left;
+    width: 190px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-right: 5px;
+    border: 0;
+    height: 24px;
+}
+
+.annotation-default-value-text-input{
+    float: left;
+    width: 190px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-right: 5px;
+    border: 0;
+    height: 24px;
+}
+
+.add-annotation-variable-button-square{
+    border: 1px solid #FFF;
+    height: 24px;
+    line-height: 22px;
+}
