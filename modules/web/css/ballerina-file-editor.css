@@ -867,3 +867,11 @@ input#package-name-input {
     margin-bottom: 20px;
     margin-top: 20px;
 }
+
+.expression-editor-form-body-property-wrapper .ace_ballerina-keyword-primitive-type{
+    color: #f39100;
+}
+
+.expression-editor-form-body-property-wrapper .ace_ballerina-keyword-non-primitive-type{
+    color: #f39100;
+}
