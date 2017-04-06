@@ -101,6 +101,7 @@ public class LaunchServerHandler extends SimpleChannelInboundHandler<Object> {
         // Check for closing frame
         if (frame instanceof CloseWebSocketFrame) {
             handshaker.close(ctx.channel(), (CloseWebSocketFrame) frame.retain());
+            LaunchManager.getInstance().stopProcess();
             return;
         }
         if (frame instanceof PingWebSocketFrame) {
