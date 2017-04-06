@@ -19,6 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import SimpleStatementView from './simple-statement-view';
 import VariableDefinitionStatement from '../ast/statements/variable-definition-statement';
+import alerts from 'alerts';
 
 /**
  * The view to represent a assignment definition which is an AST visitor.
@@ -89,6 +90,7 @@ class VariableDefinitionStatementView extends SimpleStatementView {
             statementGroup: this.getStatementGroup()
         });
         this.listenTo(model, 'update-property-text', this.updateStatementText);
+        this.listenTo(model, 'focus-out', this.validateNode);
     }
 
     updateStatementText(updatedText) {
@@ -97,6 +99,29 @@ class VariableDefinitionStatementView extends SimpleStatementView {
             var model = this.getModel();
             model.setStatementString(updatedText);
             this.renderDisplayText(model.getStatementString());// Set display text.
+        }
+    }
+
+    /**
+     * Validate the node type on focus out of the statement's expression editor
+     * @override
+     */
+    validateNode() {
+        var ballerinaFileEditor = this._diagramRenderingContext.ballerinaFileEditor;
+        var generatedSource = ballerinaFileEditor.generateSource();
+        var response = ballerinaFileEditor.getModelFromSource(generatedSource);
+        var pathVector = [];
+        if (this.getModel().getFactory().isBallerinaAstRoot(response)) {
+            ballerinaFileEditor.getPathToNode(this.getModel(), pathVector);
+            var parsedNode = ballerinaFileEditor.getNodeByVector(response, pathVector);
+            if (!this.getModel().getFactory().isVariableDefinitionStatement(parsedNode)) {
+                this.getSvgRect().classed('statement-rect', false).classed('statement-rect-error', true);
+                alerts.error('Node type expected to be Variable Definition Statement');
+            } else {
+                this.getSvgRect().classed('statement-rect', true).classed('statement-rect-error', false);
+            }
+        } else {
+            alerts.error(response);
         }
     }
 }

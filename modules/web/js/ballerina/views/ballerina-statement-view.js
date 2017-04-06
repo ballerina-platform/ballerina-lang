@@ -441,6 +441,13 @@ class BallerinaStatementView extends StatementVisitor {
     setDiagramRenderingContext(diagramRenderingContext) {
         this._diagramRenderingContext = diagramRenderingContext;
     }
+
+    /**
+     * Validate the node type on focus out of the statement's expression editor
+     */
+    validateNode() {
+
+    }
 }
 
 export default BallerinaStatementView;
