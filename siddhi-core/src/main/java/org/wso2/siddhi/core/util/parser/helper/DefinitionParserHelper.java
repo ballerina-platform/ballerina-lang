@@ -263,7 +263,7 @@ public class DefinitionParserHelper {
                 Annotation mapAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_MAP,
                         sinkAnnotation.getAnnotations());
                 if (mapAnnotation == null) {
-                    mapAnnotation = Annotation.annotation(SiddhiConstants.ANNOTATION_MAP) .element(SiddhiConstants
+                    mapAnnotation = Annotation.annotation(SiddhiConstants.ANNOTATION_MAP).element(SiddhiConstants
                             .ANNOTATION_ELEMENT_TYPE, "passThrough");
                 }
                 Annotation distributionAnnotation =
@@ -320,8 +320,9 @@ public class DefinitionParserHelper {
                                     streamDefinition, sinkAnnotation, execPlanContext);
 
                            ((DistributedTransport)outputTransport).init(streamDefinition, sinkType,
-                                   transportOptionHolder, payload, execPlanContext, destinationOptHolders,
-                                   sinkAnnotation, publishingStrategy, supportedDynamicOptions);
+                                   transportOptionHolder, outputMapper, mapType, mapOptionHolder, payload,
+                                   execPlanContext, destinationOptHolders, sinkAnnotation, publishingStrategy,
+                                   supportedDynamicOptions);
                         } else {
                             outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
                                     mapOptionHolder, payload, execPlanContext);

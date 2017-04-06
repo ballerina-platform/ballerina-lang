@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.stream.output.sink.distributed;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -65,12 +66,12 @@ public abstract class DistributedTransport extends OutputTransport {
      * @param strategy
      */
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
-                        String payload, ExecutionPlanContext executionPlanContext, List<OptionHolder>
-                                destinationOptionHolders, Annotation sinkAnnotation, PublishingStrategy strategy,
-                     String[] supportedDynamicOptions) {
+                     OutputMapper outputMapper, String mapType, OptionHolder mapOptionHolder,String payload,
+                     ExecutionPlanContext executionPlanContext, List<OptionHolder> destinationOptionHolders,
+                     Annotation sinkAnnotation, PublishingStrategy strategy, String[] supportedDynamicOptions) {
         this.publishingStrategy = strategy;
         this.supportedDynamicOptions = supportedDynamicOptions;
-        init(streamDefinition, type, transportOptionHolder, null, null, null, payload, executionPlanContext);
+        init(streamDefinition, type, transportOptionHolder, outputMapper, mapType, mapOptionHolder, payload, executionPlanContext);
         initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, executionPlanContext);
     }
 

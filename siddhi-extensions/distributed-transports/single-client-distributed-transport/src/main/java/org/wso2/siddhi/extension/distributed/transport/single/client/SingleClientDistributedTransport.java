@@ -71,9 +71,6 @@ public class SingleClientDistributedTransport extends DistributedTransport {
     @Override
     public void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders, Annotation
             sinkAnnotation, ExecutionPlanContext executionPlanContext) {
-        // No need to map again in the distributed transport as it's being already mapped when it receives to
-        // the publish of distributed transport. therefore, it's safe to pass null when initialing the
-        // the transport.
         final String transportType = sinkOptionHolder.validateAndGetStaticValue(SiddhiConstants
                 .ANNOTATION_ELEMENT_TYPE);
         org.wso2.siddhi.query.api.extension.Extension sink = DefinitionParserHelper.constructExtension
@@ -85,19 +82,18 @@ public class SingleClientDistributedTransport extends DistributedTransport {
             optionHolder.merge(sinkOptionHolder);
             allDynamicOptionKeys.forEach(optionKey -> {
                 String optionValue = optionHolder.getOrCreateOption(optionKey, null).getValue();
-
                 if (optionValue == null || optionValue.isEmpty()){
                     throw new ExecutionPlanValidationException("Destination properties can only contain " +
                             "non-empty static values.");
                 }
+
                 Option sinkOption = sinkOptionHolder.getOrAddStaticOption(optionKey, optionValue);
-                sinkOption.resetValue();
                 sinkOption.addVariableValue(optionValue);
                 destinationCount++;
             });
         });
 
-        OutputTransport outputTransport = (OutputTransport) SiddhiClassLoader.loadExtensionImplementation(
+        OutputTransport outputTransport = (OutputTransport)SiddhiClassLoader.loadExtensionImplementation(
                 sink, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
         transport = outputTransport;
         transport.initOnlyTransport(streamDefinition, sinkOptionHolder, executionPlanContext);

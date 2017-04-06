@@ -17,9 +17,7 @@ public class Option {
         this.templateBuilder = templateBuilder;
     }
 
-    public void resetValue(){
-        value = null;
-    }
+
 
     public int addVariableValue(String value){
         variableValues.add(value);
@@ -39,7 +37,7 @@ public class Option {
     }
 
     public String getValue(DynamicOptions dynamicOptions) {
-        if (dynamicOptions.getVariableOptionIndex() != -1) {
+        if (dynamicOptions.getVariableOptionIndex() != -1 && !variableValues.isEmpty()) {
             return variableValues.get(dynamicOptions.getVariableOptionIndex());
         } else if (value != null) {
             return value;
