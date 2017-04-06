@@ -622,13 +622,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(VariableDef variableDef) {
-        JsonObject variableDclObj = new JsonObject();
-        this.addPosition(variableDclObj, variableDef.getNodeLocation());
-        variableDclObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
+        JsonObject variableDefObj = new JsonObject();
+        this.addPosition(variableDefObj, variableDef.getNodeLocation());
+        variableDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .VARIABLE_DEFINITION);
-        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getName());
-        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getTypeName().toString());
-        tempJsonArrayRef.peek().add(variableDclObj);
+        variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getName());
+        variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getTypeName().toString());
+        variableDefObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, variableDef.getTypeName().getPackageName());
+        tempJsonArrayRef.peek().add(variableDefObj);
     }
 
     @Override
@@ -1128,17 +1129,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(VariableRefExpr variableRefExpr) {
         JsonObject variableRefObj = new JsonObject();
         this.addPosition(variableRefObj, variableRefExpr.getNodeLocation());
-        variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_TYPE, BLangJSONModelConstants
-                .VARIABLE_REFERENCE_NAME);
-        variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME, variableRefExpr.getSymbolName()
+        variableRefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
+                .VARIABLE_REFERENCE_EXPRESSION);
+        variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableRefExpr.getSymbolName()
                 .getName());
         if (variableRefExpr.getVariableDef() != null) {
-            JsonObject variableDef = new JsonObject();
-            variableDef.addProperty(BLangJSONModelConstants.TYPE_NAME, variableRefExpr.getVariableDef().getTypeName()
-                    .getSymbolName().getName());
-            variableDef.addProperty(BLangJSONModelConstants.PACKAGE_NAME, variableRefExpr.getVariableDef()
-                    .getTypeName().getPackageName());
-            variableRefObj.add(BLangJSONModelConstants.VARIABLE_DEF_OPTIONS, variableDef);
+            tempJsonArrayRef.push(new JsonArray());
+            variableRefExpr.getVariableDef().accept(this);
+            variableRefObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
         }
         tempJsonArrayRef.peek().add(variableRefObj);
 
@@ -1365,9 +1364,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         structObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.STRUCT_DEFINITION);
         structObj.addProperty(BLangJSONModelConstants.STRUCT_NAME, ballerinaStruct.getSymbolName().getName());
         tempJsonArrayRef.push(new JsonArray());
-        if (ballerinaStruct.getFields() != null) {
-            for (VariableDef variableDef : ballerinaStruct.getFields()) {
-                variableDef.accept(this);
+        if (ballerinaStruct.getFieldDefStmts() != null) {
+            for (VariableDefStmt variableDefStmt : ballerinaStruct.getFieldDefStmts()) {
+                variableDefStmt.accept(this);
             }
         }
         structObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());

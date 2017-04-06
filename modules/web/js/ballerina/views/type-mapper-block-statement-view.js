@@ -137,14 +137,12 @@ class TypeMapperBlockStatementView extends BallerinaView {
         var tempType = "";
         var tempAttr = {};
 
-        var variableRefExpression = _.find(fieldExpression.getChildren(), function (child) {
-            return BallerinaASTFactory.isVariableReferenceExpression(child);
-        });
+        var variableRefExpression = fieldExpression.findChild(BallerinaASTFactory.isVariableReferenceExpression);
 
-        tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME] = variableRefExpression.getVariableReferenceName();
+        tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME] = variableRefExpression.getVariableName();
 
         _.each(structSchema.getAttributesArray().properties, function (property) {
-            if (property.name == variableRefExpression.getVariableReferenceName()) {
+            if (property.name == variableRefExpression.getVariableName()) {
                 tempType = property.type;
                 return false;
             }
@@ -201,7 +199,7 @@ class TypeMapperBlockStatementView extends BallerinaView {
             var functionInvocationExp = targetModel.getChildren()[1].getChildren()[0];
             var functionInvocationExpParams = functionInvocationExp.getParams();
             var structFieldAccess = BallerinaASTFactory.createStructFieldAccessExpression({isLHSExpr: false});
-            var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression({variableReferenceName: resourceParam.identifier});
+            var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression({variableName: resourceParam.identifier});
             structFieldAccess.addChild(variableRefExp);
             var index = _.findIndex(targetFuncSchema.parameters, function (param) {
                 return param.name === connection.targetProperty[0];
@@ -210,7 +208,7 @@ class TypeMapperBlockStatementView extends BallerinaView {
             var root = structFieldAccess;
             _.forEach(connection.sourceProperty, function (sourceProperty) {
                 structFieldAccess = BallerinaASTFactory.createStructFieldAccessExpression({isLHSExpr: false});
-                variableRefExp = BallerinaASTFactory.createVariableReferenceExpression({variableReferenceName: sourceProperty});
+                variableRefExp = BallerinaASTFactory.createVariableReferenceExpression({variableName: sourceProperty});
                 structFieldAccess.addChild(variableRefExp);
                 parentStructFieldExp.addChild(structFieldAccess);
                 parentStructFieldExp = structFieldAccess;
@@ -282,7 +280,7 @@ class TypeMapperBlockStatementView extends BallerinaView {
             var structInput = functionInvocationExp.getChildren()[index];
             structInput.remove();
             var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
-            variableRefExp.setVariableReferenceName('');
+            variableRefExp.setVariableName('');
             functionInvocationExp.addChild(variableRefExp, index);
         } else if (BallerinaASTFactory.isAssignmentStatement(sourceModel)
             && BallerinaASTFactory.isReturnType(targetModel)) {
@@ -301,7 +299,7 @@ class TypeMapperBlockStatementView extends BallerinaView {
                 return param.name === connection.targetProperty[0];
             });
             var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
-            variableRefExp.setVariableReferenceName('');
+            variableRefExp.setVariableName('');
             if (targetFunctionInvocation.getChildren().length > index) {
                 targetFunctionInvocation.getChildren()[index].remove();
                 targetFunctionInvocation.addChild(variableRefExp, index);

@@ -1092,6 +1092,33 @@ class BallerinaFileEditor extends BallerinaView {
             aView.hideDebugIndicator();
         });
     }
+
+    getModelFromSource(source) {
+        var response = this.parserBackend.parse(source);
+        if (response.error && !_.isEmpty(response.message)) {
+            return response.message;
+        }
+        return this.deserializer.getASTModel(response);
+    }
+
+    getPathToNode(node, pathVector) {
+        var nodeParent = node.getParent();
+        if (!_.isNil(nodeParent)) {
+            var nodeIndex = _.findIndex(nodeParent.getChildren(), node);
+            pathVector.push(nodeIndex);
+            this.getPathToNode(nodeParent, pathVector);
+        }
+    }
+
+    getNodeByVector(root, pathVector) {
+        var returnNode = root;
+        var reverseVector = _.reverse(pathVector);
+
+        _.forEach(reverseVector, function (index) {
+            returnNode = returnNode.getChildren()[index];
+        });
+        return returnNode;
+    }
 }
 
 

@@ -45,7 +45,7 @@ class ArrayInitExpression extends Expression {
     }
 
     generateExpression() {
-        this._expression = this.getVariableReferenceName()
+        this._expression = this.getVariableName();
     }
 }
 

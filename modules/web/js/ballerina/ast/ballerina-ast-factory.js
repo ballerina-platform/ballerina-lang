@@ -1164,10 +1164,6 @@ import annotationDefinition from './annotation-definition';
             var node;
             var nodeType = jsonNode.type;
 
-            if (_.isUndefined(jsonNode.type)) {
-                var statement = jsonNode.statement;
-                node = BallerinaASTFactory.createAssignment();
-            } else {
                 switch (nodeType) {
                     case 'package':
                         node = BallerinaASTFactory.createPackageDefinition();
@@ -1225,9 +1221,6 @@ import annotationDefinition from './annotation-definition';
                         break;
                     case 'function_invocation_expression':
                         node = BallerinaASTFactory.createFunctionInvocationExpression();
-                        break;
-                    case 'variable_reference_name':
-                        node = BallerinaASTFactory.createVariableReferenceExpression();
                         break;
                     case 'variable_reference_expression':
                         node = BallerinaASTFactory.createVariableReferenceExpression();
@@ -1376,7 +1369,7 @@ import annotationDefinition from './annotation-definition';
                     default:
                         throw new Error("Unknown node definition for " + jsonNode.type);
                 }
-            }
+            
             node.setLineNumber(jsonNode.line_number, {doSilently: true});
             return node;
         };

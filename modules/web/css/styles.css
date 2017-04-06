@@ -197,10 +197,23 @@ ol#breadcrumbList {
     stroke-width: 1;
 }
 
+.statement-rect-error {
+    fill: #ffffff;
+    stroke: #ff0202;
+    stroke-width: 1;
+}
+
 .background-empty-rect {
     fill: #ffffff;
     fill-opacity: 0;
     stroke: #000000;
+    stroke-width: 1;
+}
+
+.background-empty-rect-error {
+    fill: #ffffff;
+    fill-opacity: 0;
+    stroke: #ff0202;
     stroke-width: 1;
 }
 
@@ -1148,9 +1161,19 @@ button.variable-list {
     stroke: #818181;
 }
 
+.statement-title-rect-error {
+    fill: #FFFFFF;
+    stroke: #ff0202;
+}
+
 .statement-title-polyline {
     fill: none;
     stroke: #000000;
+}
+
+.statement-title-polyline-error {
+    fill: none;
+    stroke: #ff0202;
 }
 
 .arguments-main-action-wrapper {

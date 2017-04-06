@@ -23,7 +23,7 @@ import BallerinaView from './ballerina-view';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import Canvas from './canvas';
 import ASTNode from './../ast/node';
-import StructVariableDefinitionView from './struct-variable-definition-view';
+import StructVariableDefinitionStatementView from './struct-variable-definition-statement-view';
 
 class StructDefinitionView extends Canvas {
     constructor(args) {
@@ -81,10 +81,10 @@ class StructDefinitionView extends Canvas {
                         return false;
                     }
 
-                    var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
+                    var newStructName = $(this).val() + String.fromCharCode(enteredKey);
 
                     try {
-                        self.getModel().setStructName(newServiceName);
+                        self.getModel().setStructName(newStructName);
                     } catch (error) {
                         Alerts.error(error);
                         e.stopPropagation();
@@ -181,6 +181,32 @@ class StructDefinitionView extends Canvas {
             }
         }).appendTo(structOperationsWrapper);
 
+        // Creating the default value text box.
+        var defaultValueTextBox = $("<input/>", {
+            type: "text",
+            class: "struct-default-value-text-input",
+            "placeholder": "Default Value"
+        }).keypress(function (e) {
+            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+             (Chrome and IE ignore keypress event of these keys in browser level)*/
+            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Adding new variable upon enter key.
+                if (_.isEqual(enteredKey, 13)) {
+                    addStructVariableButton.click();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        }).keydown(function(e){
+            var enteredKey = e.which || e.charCode || e.keyCode;
+
+            // If tab pressed.
+            if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                typeDropdown.dropdownButton.trigger("click");
+            }
+        }).appendTo(structOperationsWrapper);
+
         // Creating cancelling add new constant button.
         var addStructVariableButton = $("<div class='add-struct-variable-button pull-left'/>")
             .appendTo(structOperationsWrapper);
@@ -191,12 +217,14 @@ class StructDefinitionView extends Canvas {
             try {
                 var bType = typeDropdown.select2('data')[0].text;
                 var identifier = $(identifierTextBox).val().trim();
+                var defaultValue = $(defaultValueTextBox).val().trim();
 
-                self.getModel().addVariableDefinition(bType, identifier);
+                self.getModel().addVariableDefinitionStatement(bType, identifier, defaultValue);
 
-                self._renderVariableDefinitions(structVariablesWrapper);
+                self._renderVariableDefinitionStatements(structVariablesWrapper);
 
                 $(identifierTextBox).val("");
+                $(defaultValueTextBox).val("");
             } catch (e) {
                 Alerts.error(e);
             }
@@ -210,7 +238,7 @@ class StructDefinitionView extends Canvas {
             class: "struct-content-variables-wrapper"
         }).appendTo(structContentWrapper);
 
-        this._renderVariableDefinitions(structVariablesWrapper);
+        this._renderVariableDefinitionStatements(structVariablesWrapper);
 
         $(structVariablesWrapper).click(function(e){
             e.preventDefault();
@@ -221,40 +249,40 @@ class StructDefinitionView extends Canvas {
 
         // On window click.
         $(window).click(function (event) {
-            self._renderVariableDefinitions(structVariablesWrapper);
+            self._renderVariableDefinitionStatements(structVariablesWrapper);
         });
     }
 
-    _renderVariableDefinitions(wrapper) {
+    _renderVariableDefinitionStatements(wrapper) {
         $(wrapper).empty();
         var self = this;
 
-        _.forEach(this._model.getVariableDefinitions(), function(variableDefinition) {
+        _.forEach(this._model.getVariableDefinitionStatements(), function(variableDefinitionStatement) {
 
-            var variableDefinitionView = new StructVariableDefinitionView({
+            var variableDefinitionStatementView = new StructVariableDefinitionStatementView({
                 parent: self.getModel(),
-                model: variableDefinition,
+                model: variableDefinitionStatement,
                 container: wrapper,
                 toolPalette: self.getToolPalette(),
                 messageManager: self.getMessageManager(),
                 parentView: self
             });
 
-            self.getDiagramRenderingContext().getViewModelMap()[variableDefinition.id] = variableDefinitionView;
+            self.getDiagramRenderingContext().getViewModelMap()[variableDefinitionStatement.id] = variableDefinitionStatementView;
 
-            variableDefinitionView.render(self.getDiagramRenderingContext());
+            variableDefinitionStatementView.render(self.getDiagramRenderingContext());
 
-            $(variableDefinitionView.getDeleteButton()).click(function () {
+            $(variableDefinitionStatementView.getDeleteButton()).click(function () {
                 self._renderVariableDefinitions(wrapper);
             });
 
-            $(variableDefinitionView.getWrapper()).click({
-                modelID: variableDefinition.getID()
+            $(variableDefinitionStatementView.getWrapper()).click({
+                modelID: variableDefinitionStatement.getID()
             }, function (event) {
-                self._renderVariableDefinitions(wrapper);
-                var variableDefinitionView = self.getDiagramRenderingContext()
+                self._renderVariableDefinitionStatements(wrapper);
+                var variableDefinitionStatementView = self.getDiagramRenderingContext()
                     .getViewModelMap()[event.data.modelID];
-                variableDefinitionView.renderEditView();
+                variableDefinitionStatementView.renderEditView();
             });
         });
     }
