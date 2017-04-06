@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.services.dispatchers.websocket;
+package org.ballerinalang.services.dispatchers.ws;
 
 import java.util.List;
 import java.util.Map;

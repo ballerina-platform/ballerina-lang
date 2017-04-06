@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.services.dispatchers.websocket.WebSocketConnectionManager;
+import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 
 /**
  * Remove connection from the connection store.

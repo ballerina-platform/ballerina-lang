@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.services.dispatchers.websocket;
+package org.ballerinalang.services.dispatchers.ws;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.AnnotationAttachment;

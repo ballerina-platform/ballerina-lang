@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.services.dispatchers.http.Constants;
-import org.ballerinalang.services.dispatchers.websocket.WebSocketConnectionManager;
+import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import javax.websocket.Session;
