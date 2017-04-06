@@ -47,7 +47,7 @@ public class BallerinaStructDocGenTest {
 
             Assert.assertEquals(structs.size(), 1);
             StructDef struct = (StructDef) structs.iterator().next();
-            Assert.assertEquals(struct.getFields().length, 3);
+            Assert.assertEquals(struct.getFieldDefStmts().length, 3);
             Assert.assertEquals(struct.getAnnotations().length, 4);
         } catch (IOException e) {
             Assert.fail();
