@@ -27,8 +27,8 @@ class AnnotationDefinition extends ASTNode {
     constructor(args) {
         super('Annotation');
         this._annotationName = _.get(args, 'annotationName');
-        this._attachedDefinitions = _.get(args, 'attachedDefinitions', ['service']);
-        this._annotationProperties = _.get(args, 'annotationProperties', []);
+        this._annotationAttachments = _.get(args, 'annotationAttachment', ['service']);
+        this._annotationAttributes = _.get(args, 'annotationAttributes', []);
 
         this.BallerinaASTFactory = this.getFactory();
     }
@@ -44,7 +44,7 @@ class AnnotationDefinition extends ASTNode {
     }
 
     addAttachDefinition(definition) {
-        this._attachedDefinitions.push(definition);
+        this._annotationAttributes.push(definition);
     }
 
     getAnnotationName() {
@@ -52,7 +52,7 @@ class AnnotationDefinition extends ASTNode {
     }
 
     getAttachedDefinitions() {
-        return this._attachedDefinitions;
+        return this._annotationAttachments;
     }
 
     /**
