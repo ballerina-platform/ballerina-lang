@@ -350,10 +350,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 connectDcl.accept(this);
             }
         }
-        JsonObject returnTypeObj = new JsonObject();
-        returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
-        JsonArray returnTypeArray = new JsonArray();
-        if (function.getReturnParameters() != null) {
+
+        if (function.getReturnParameters() != null && function.getReturnParameters().length > 0) {
+            JsonObject returnTypeObj = new JsonObject();
+            returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
+            JsonArray returnTypeArray = new JsonArray();
             for (ParameterDef parameterDef : function.getReturnParameters()) {
                 JsonObject typeObj = new JsonObject();
                 typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_ARGUMENT);
@@ -364,14 +365,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 }
                 returnTypeArray.add(typeObj);
             }
+            returnTypeObj.add(BLangJSONModelConstants.CHILDREN, returnTypeArray);
+            tempJsonArrayRef.peek().add(returnTypeObj);
         }
         if (function.getWorkers() != null) {
             for (Worker worker : function.getWorkers()) {
                 worker.accept(this);
             }
         }
-        returnTypeObj.add(BLangJSONModelConstants.CHILDREN, returnTypeArray);
-        tempJsonArrayRef.peek().add(returnTypeObj);
+
         function.getCallableUnitBody().accept(this);
         jsonFunc.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
