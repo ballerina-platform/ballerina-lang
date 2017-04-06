@@ -126,7 +126,10 @@ svg.plumbConnect path {
     width:200px;
     height:calc(100% - 33px);
     border: 0.5px solid gray;
-    background-color: #ffffff;
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    background-color: transparent;
     color: #446191;
     position:absolute; right:0
 
