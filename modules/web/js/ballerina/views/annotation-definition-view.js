@@ -20,6 +20,8 @@ import log from 'log';
 import $ from 'jquery';
 import SVGCanvas from './../../ballerina/views/svg-canvas';
 import AnnotationDefinition from './../ast/annotation-definition';
+import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
+import Alerts from 'alerts';
 
 /**
  * The view to represent an annotation definition which is an AST Visitor.
@@ -28,14 +30,14 @@ class AnnotationDefinitionView extends SVGCanvas {
     constructor(args) {
         super(args);
 
-        this._annotationName = _.get(args, 'annotationName', "");
-        this._annotationAttachments = _.get(args, 'annotationAttachment', []);
-        this._annotationAttributes = _.get(args, 'annotationAttributes', []);
+        this._annotationName = _.get(args, 'definitionName', "");
+        this._attachedDefinitions = _.get(args, 'attachedDefinitions', []);
+        this._annotationProperties = _.get(args, 'annotationProperties', []);
         this._parentView = _.get(args, 'parentView');
         this._viewOptions.offsetTop = _.get(args, 'viewOptionsOffsetTop', 75);
         this._viewOptions.topBottomTotalGap = _.get(args, 'viewOptionsTopBottomTotalGap', 100);
-        this._viewOptions.panelIcon = _.get(args.viewOptions, 'cssClass.annotation_icon');
-        this._viewOptions.minHeight = _.get(args, 'minHeight', 200);
+        this._viewOptions.panelIcon = _.get(args.viewOptions, 'cssClass.service_icon');
+        this._viewOptions.minHeight = _.get(args, 'minHeight', 300);
 
         this._totalHeight = 170;
 

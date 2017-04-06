@@ -59,6 +59,19 @@ class ToolPaletteItemProvider extends EventChannel {
         // views added to tool palette for each imported package keyed by package name
         this._importedPackagesViews = {};
 
+        this.iconSrcs = {
+            function: require('images/tool-icons/function.svg'),
+            connector: require('images/tool-icons/connector.svg'),
+            action: require('images/tool-icons/action.svg'),
+        };
+
+        this.icons = {};
+        Object.keys(this.iconSrcs).forEach((iconName) => {
+            var icon = document.createElement('img');
+            icon.setAttribute('src', this.iconSrcs[iconName]);
+            this.icons[iconName] = icon;
+        });
+
         this.init();
     }
 
@@ -225,7 +238,7 @@ class ToolPaletteItemProvider extends EventChannel {
                 params: getParamString()
             };
             //TODO : use a generic icon
-            connector.icon = "images/tool-icons/connector.svg";
+            connector.icon = self.icons.connector;
             connector.title = connector.getName();
             connector.id = connector.getName();
             definitions.push(connector);
@@ -260,7 +273,8 @@ class ToolPaletteItemProvider extends EventChannel {
                     actionPackageName: packageName,
                     fullPackageName: pckg.getName()
                 };
-                action.icon = "images/tool-icons/action.svg";
+                action.icon = self.icons.action;
+
                 action.title = action.getName();
 
                 action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
@@ -277,7 +291,7 @@ class ToolPaletteItemProvider extends EventChannel {
                 });
             });
             connector.on('connector-action-added', function (action) {
-                var actionIcon = "images/tool-icons/action.svg";
+                var actionIcon = self.icons.action;
                 var toolGroupID = pckg.getName() + "-tool-group";
                 action.classNames = "tool-connector-action";
 
@@ -325,7 +339,8 @@ class ToolPaletteItemProvider extends EventChannel {
                 operandType: getReturnParamString(functionDef.getReturnParams()),
                 fullPackageName: pckg.getName()
             };
-            functionDef.icon = "images/tool-icons/function.svg";
+            functionDef.icon = self.icons.function;
+
             functionDef.title = functionDef.getName();
             functionDef.id = functionDef.getName();
             definitions.push(functionDef);
@@ -348,7 +363,7 @@ class ToolPaletteItemProvider extends EventChannel {
             var packageName = _.last(_.split(pckg.getName(), '.'));
             var nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
             var toolGroupID = pckg.getName() + "-tool-group";
-            var icon = "images/tool-icons/connector.svg";
+            var icon = self.icons.connector;
 
             var getParamString = function() {
                 var params = _.map(connector.getParams(), function(p){return p.identifier});
@@ -377,7 +392,7 @@ class ToolPaletteItemProvider extends EventChannel {
             });
 
             connector.on('connector-action-added', function (action) {
-                var actionIcon = "images/tool-icons/action.svg";
+                var actionIcon = self.icons.action;
                 action.classNames = "tool-connector-action";
                 action.setId(action.getId());
                 var actionNodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
@@ -424,7 +439,7 @@ class ToolPaletteItemProvider extends EventChannel {
                 functionName: functionDef.getName()
             };
             var toolGroupID = pckg.getName() + "-tool-group";
-            var icon = "images/tool-icons/function.svg";
+            var icon = self.icons.function;
             this.addToToolGroup(toolGroupID, functionDef, nodeFactoryMethod, icon);
 
             functionDef.on('name-modified', function(newName, oldName){

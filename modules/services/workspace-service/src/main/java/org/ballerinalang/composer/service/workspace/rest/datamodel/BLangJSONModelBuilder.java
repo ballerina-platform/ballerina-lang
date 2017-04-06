@@ -27,6 +27,7 @@ import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
+import org.ballerinalang.composer.service.workspace.api.StringUtil;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
@@ -1376,35 +1377,55 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(AnnotationAttributeDef annotationAttributeDef) {
+        JsonObject annotationAttributeDefObj = new JsonObject();
+        this.addPosition(annotationAttributeDefObj, annotationAttributeDef.getNodeLocation());
+        annotationAttributeDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
+                                              BLangJSONModelConstants.ANNOTATION_ATTRIBUTE_DEFINITION);
+        annotationAttributeDefObj
+                .addProperty(BLangJSONModelConstants.ANNOTATION_ATTRIBUTE_NAME, annotationAttributeDef.getName());
+        annotationAttributeDefObj.addProperty(BLangJSONModelConstants.ANNOTATION_ATTRIBUTE_TYPE,
+                                              annotationAttributeDef.getTypeName().getSymbolName().getName());
+        annotationAttributeDefObj.addProperty(BLangJSONModelConstants.ANNOTATION_ATTRIBUTE_PACKAGE_PATH,
+                                              annotationAttributeDef.getPackagePath());
 
+        tempJsonArrayRef.push(new JsonArray());
+        if (annotationAttributeDef.getAttributeValue() != null) {
+            annotationAttributeDef.getAttributeValue().accept(this);
+        }
+        annotationAttributeDefObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(annotationAttributeDefObj);
     }
 
     @Override
     public void visit(AnnotationDef annotationDef) {
-        JsonObject annotationDefinition = new JsonObject();
-        this.addPosition(annotationDefinition, annotationDef.getNodeLocation());
-        annotationDefinition.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
-                BLangJSONModelConstants.ANNOTATION_DEFINITION);
-        annotationDefinition.addProperty(BLangJSONModelConstants.ANNOTATION_NAME,
-                annotationDef.getSymbolName().getName());
-        tempJsonArrayRef.push(new JsonArray());
+        JsonObject annotationDefObj = new JsonObject();
+        this.addPosition(annotationDefObj, annotationDef.getNodeLocation());
+        annotationDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
+                                            BLangJSONModelConstants.ANNOTATION_DEFINITION);
+        annotationDefObj.addProperty(BLangJSONModelConstants.ANNOTATION_NAME,
+                                            annotationDef.getSymbolName().getName());
+        annotationDefObj.addProperty(BLangJSONModelConstants.ANNOTATION_ATTACHMENT_POINTS, StringUtil.join(
+                                     annotationDef.getAttachmentPoints(), ","));
 
-        if (annotationDef.getAttributeDefs() != null) {
-            for (AnnotationAttributeDef annotationAttribute : annotationDef.getAttributeDefs()) {
-                annotationAttribute.accept(this);
-            }
-        }
+        tempJsonArrayRef.push(new JsonArray());
         if (annotationDef.getAnnotations() != null) {
             for (AnnotationAttachment annotationAttachment : annotationDef.getAnnotations()) {
                 annotationAttachment.accept(this);
             }
         }
+        annotationDefObj.add(BLangJSONModelConstants.ANNOTATION_ATTACHMENTS, this.tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
 
-        annotationDefinition.add(BLangJSONModelConstants.ANNOTATION_ATTACHMENTS, this.tempJsonArrayRef.peek());
+        tempJsonArrayRef.push(new JsonArray());
+        if (annotationDef.getAttributeDefs() != null) {
+            for (AnnotationAttributeDef annotationAttribute : annotationDef.getAttributeDefs()) {
+                annotationAttribute.accept(this);
+            }
+        }
+        annotationDefObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
-        annotationDefinition.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-        tempJsonArrayRef.pop();
-        tempJsonArrayRef.peek().add(annotationDefinition);
+        tempJsonArrayRef.peek().add(annotationDefObj);
     }
 
     @Override
