@@ -95,7 +95,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             AnnotationAttachment subPathAnnotation = resource.getAnnotation(Constants.PROTOCOL_HTTP
                     , Constants.ANNOTATION_NAME_PATH);
             String subPathAnnotationVal;
-            if (subPathAnnotation != null) {
+            if (subPathAnnotation != null && subPathAnnotation.getValue() != null  &&
+                    !subPathAnnotation.getValue().trim().isEmpty()) {
                 subPathAnnotationVal = subPathAnnotation.getValue();
             } else {
                 if (log.isDebugEnabled()) {
