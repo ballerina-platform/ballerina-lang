@@ -506,3 +506,32 @@ function testArrayInOutParameters() (any, any, any, any, any, any, any) {
     sql:ClientConnector.close(testDB);
     return para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value;
 }
+
+function testBatchUpdate() (int[]) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                         "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    //Batch 1
+    sql:Parameter para1 = {sqlType:"varchar", value:"Alex", direction:0};
+    sql:Parameter para2 = {sqlType:"varchar", value:"Smith", direction:0};
+    sql:Parameter para3 = {sqlType:"integer", value:20, direction:0};
+    sql:Parameter para4 = {sqlType:"double", value:3400.5, direction:0};
+    sql:Parameter para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
+
+    //Batch 2
+    para1 = {sqlType:"varchar", value:"Alex", direction:0};
+    para2 = {sqlType:"varchar", value:"Smith", direction:0};
+    para3 = {sqlType:"integer", value:20, direction:0};
+    para4 = {sqlType:"double", value:3400.5, direction:0};
+    para5 = {sqlType:"varchar", value:"Colombo", direction:0};
+    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
+    sql:Parameter[][] parameters = [parameters1, parameters2];
+
+    int[] updateCount;
+    updateCount  = sql:ClientConnector.batchUpdate(testDB, "Insert into Customers
+                (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters);
+    sql:ClientConnector.close(testDB);
+    return updateCount;
+}
