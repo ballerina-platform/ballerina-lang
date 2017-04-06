@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.connectors;
 
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -264,13 +265,6 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(dependsOnGroups = "ConnectorTest")
-    public void testCloseConnectionPool() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCloseConnectionPool");
-        BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(retValue.intValue(), 1);
-    }
-
     @Test(groups = "ConnectorTest")
     public void testArrayInParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testArrayInParameters");
@@ -334,6 +328,22 @@ public class SQLConnectorTest {
         Assert.assertEquals(returns[5].stringValue(), "[true,false,true]");
         Assert.assertEquals(returns[6].stringValue(), "[Hello,Ballerina]");
     }
+
+    @Test(groups = "ConnectorTest")
+    public void testBatchUpdate() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBatchUpdate");
+        BArray retValue = (BArray) returns[0];
+        Assert.assertEquals(retValue.get(0).stringValue(), "1");
+        Assert.assertEquals(retValue.get(1).stringValue(), "1");
+    }
+
+    @Test(dependsOnGroups = "ConnectorTest")
+    public void testCloseConnectionPool() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCloseConnectionPool");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
 
     @AfterSuite
     public void cleanup() {

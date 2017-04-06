@@ -159,6 +159,45 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         }
     }
 
+    protected void executeBatchUpdate(Context context, SQLConnector connector, String query, BArray parameters) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = connector.getSQLConnection();
+            stmt = conn.prepareStatement(query);
+            setConnectionAutoCommit(conn, false);
+            int paramArrayCount = parameters.size();
+            for (int index = 0; index < paramArrayCount; index++) {
+                BArray params = (BArray) parameters.get(index);
+                createProcessedStatement(conn, stmt, params);
+                stmt.addBatch();
+            }
+            int[] updatedCount = stmt.executeBatch();
+            conn.commit();
+            BArray<BInteger> arrayValue = new BArray<>(BInteger.class);
+            int iSize = updatedCount.length;
+            for (int i = 0; i < iSize; ++i) {
+                arrayValue.add(i, new BInteger(updatedCount[i]));
+            }
+            context.getControlStack().setReturnValue(0, arrayValue);
+        } catch (SQLException e) {
+            throw new BallerinaException("execute update failed: " + e.getMessage(), e);
+        } finally {
+            setConnectionAutoCommit(conn, true);
+            SQLConnectorUtils.cleanupConnection(null, stmt, conn);
+        }
+    }
+
+    private void setConnectionAutoCommit(Connection conn, boolean status) {
+        try {
+            if (conn != null) {
+                conn.setAutoCommit(status);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("set connection commit status failed: " + e.getMessage(), e);
+        }
+    }
+
     protected void closeConnections(SQLConnector connector) {
         connector.closeConnectionPool();
     }
