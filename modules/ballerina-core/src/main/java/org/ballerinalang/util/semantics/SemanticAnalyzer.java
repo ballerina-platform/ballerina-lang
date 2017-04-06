@@ -105,6 +105,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -1190,6 +1191,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         //closing the fork join statement scope
         closeScope();
 
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        transactionRollbackStmt.getTransactionBlock().accept(this);
+        transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().accept(this);
     }
 
     @Override

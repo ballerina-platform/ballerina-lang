@@ -64,6 +64,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -523,6 +524,15 @@ public class BLangExecutor implements NodeExecutor {
             forkJoinStmt.getJoin().getJoinBlock().execute(this);
         }
 
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        try {
+            transactionRollbackStmt.getTransactionBlock().execute(this);
+        } catch (Exception e) {
+            transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().execute(this);
+        }
     }
 
     private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, int timeout) {

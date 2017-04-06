@@ -1146,7 +1146,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.addRollbackClause(getCurrentLocation(ctx));
+            modelBuilder.addRollbackClause();
         }
     }
 

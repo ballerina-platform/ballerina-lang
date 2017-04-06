@@ -108,6 +108,7 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
@@ -122,6 +123,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -637,6 +639,23 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         joinBlock.setParent(forkJoinStmt);
         timeoutBlock.accept(this);
         joinBlock.accept(this);
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        TransactionRollbackStmtEndNode endNode = new TransactionRollbackStmtEndNode(transactionRollbackStmt);
+        Statement transactionBlock = transactionRollbackStmt.getTransactionBlock();
+        Statement rollbackBlock = transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt();
+        // Visit Transaction block.
+        transactionBlock.setParent(transactionRollbackStmt);
+        transactionRollbackStmt.setNext(transactionBlock);
+        transactionBlock.setNextSibling(endNode);
+        transactionBlock.accept(this);
+        endNode.setNext(findNext(transactionRollbackStmt));
+
+        // Visit Rollback Block.
+        rollbackBlock.setParent(transactionRollbackStmt);
+        rollbackBlock.accept(this);
     }
 
     @Override
