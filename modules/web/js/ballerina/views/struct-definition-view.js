@@ -81,10 +81,10 @@ class StructDefinitionView extends Canvas {
                         return false;
                     }
 
-                    var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
+                    var newStructName = $(this).val() + String.fromCharCode(enteredKey);
 
                     try {
-                        self.getModel().setStructName(newServiceName);
+                        self.getModel().setStructName(newStructName);
                     } catch (error) {
                         Alerts.error(error);
                         e.stopPropagation();
@@ -181,6 +181,32 @@ class StructDefinitionView extends Canvas {
             }
         }).appendTo(structOperationsWrapper);
 
+        // Creating the default value text box.
+        var defaultValueTextBox = $("<input/>", {
+            type: "text",
+            class: "struct-default-value-text-input",
+            "placeholder": "Default Value"
+        }).keypress(function (e) {
+            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+             (Chrome and IE ignore keypress event of these keys in browser level)*/
+            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Adding new variable upon enter key.
+                if (_.isEqual(enteredKey, 13)) {
+                    addStructVariableButton.click();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        }).keydown(function(e){
+            var enteredKey = e.which || e.charCode || e.keyCode;
+
+            // If tab pressed.
+            if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                typeDropdown.dropdownButton.trigger("click");
+            }
+        }).appendTo(structOperationsWrapper);
+
         // Creating cancelling add new constant button.
         var addStructVariableButton = $("<div class='add-struct-variable-button pull-left'/>")
             .appendTo(structOperationsWrapper);
@@ -191,12 +217,14 @@ class StructDefinitionView extends Canvas {
             try {
                 var bType = typeDropdown.select2('data')[0].text;
                 var identifier = $(identifierTextBox).val().trim();
+                var defaultValue = $(defaultValueTextBox).val().trim();
 
-                self.getModel().addVariableDefinitionStatement(bType, identifier);
+                self.getModel().addVariableDefinitionStatement(bType, identifier, defaultValue);
 
                 self._renderVariableDefinitionStatements(structVariablesWrapper);
 
                 $(identifierTextBox).val("");
+                $(defaultValueTextBox).val("");
             } catch (e) {
                 Alerts.error(e);
             }

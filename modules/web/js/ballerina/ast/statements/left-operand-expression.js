@@ -27,7 +27,7 @@ class LeftOperandExpression extends Statement {
     constructor(args) {
         super('LeftOperandExpression');
         this._operand_type = _.get(args, "operandType", "");
-        this._left_operand_expression_string = _.get(args, "variableReferenceName", "var1");
+        this._left_operand_expression_string = _.get(args, "variableName", "var1");
     }
 
     /**

@@ -297,7 +297,7 @@ class ActionInvocationStatementView extends SimpleStatementView {
                 return actionExpression;
             }
         } else if (BallerinaASTFactory.isVariableDefinitionStatement(this.getModel())) {
-            actionExpression = this.getModel().getChildren()[0];
+            actionExpression = this.getModel().getChildren()[1];
             if (BallerinaASTFactory.isActionInvocationExpression(actionExpression)) {
                 return actionExpression;
             }

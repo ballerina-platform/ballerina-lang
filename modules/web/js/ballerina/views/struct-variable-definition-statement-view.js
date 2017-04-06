@@ -53,18 +53,25 @@ class StructVariableDefinitionStatementView extends BallerinaView {
         this._structVariableWrapper = structVariableDefinitionWrapper.get(0);
 
         var structVariableDefinitionTypeWrapper = $("<div/>", {
-            text: this.getModel().getTypeName(),
+            text: this.getModel().getBType(),
             class: "struct-variable-definition-type pull-left"
         }).appendTo(structVariableDefinitionWrapper);
 
         this._typeWrapper = structVariableDefinitionTypeWrapper.get(0);
 
         var structVariableDefinitionIdentifierWrapper = $("<div/>", {
-            text: this.getModel().getVariableName(),
+            text: this.getModel().getIdentifier(),
             class: "struct-variable-definition-identifier pull-left"
         }).appendTo(structVariableDefinitionWrapper);
 
         this._identifierWrapper = structVariableDefinitionIdentifierWrapper.get(0);
+
+        var structVariableDefinitionValueWrapper = $("<div/>", {
+            text: this.getModel().getValue(),
+            class: "struct-variable-definition-value pull-left"
+        }).appendTo(structVariableDefinitionWrapper);
+
+        this._valueWrapper = structVariableDefinitionValueWrapper.get(0);
 
         // Creating delete button.
         var deleteButton = $("<i class='fw fw-cancel'></i>").css("visibility", "hidden")
@@ -81,36 +88,36 @@ class StructVariableDefinitionStatementView extends BallerinaView {
         // Removes the value of the argument in the model and rebind the arguments to the arguments view.
         $(deleteButton).click(function () {
             $(structVariableDefinitionWrapper).remove();
-            self.getParent().removeVariableDefinition(self.getModel().getID());
+            self.getParent().removeVariableDefinitionStatement(self.getModel().getID());
         });
     }
 
     /**
      * @inheritDoc
-     * Implements the view for a constant definition.
+     * Implements the view for a variable definition statements.
      */
     renderEditView() {
         var self = this;
 
         $(this._typeWrapper).empty();
 
-        var typeEditWrapper = $("<div/>",{
-            click: function(e) {e.stopPropagation();}
+        var typeEditWrapper = $("<div/>", {
+            click: function (e) { e.stopPropagation(); }
         }).appendTo(this._typeWrapper);
 
         //Initialize the select2 control
         var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-edit"></div>')
             .appendTo(typeEditWrapper);
 
-        $(document).ready(function(){
+        $(document).ready(function () {
             var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
 
             $(typeDropdown).select2({
                 tags: true,
                 selectOnClose: true,
-                data : self._getTypeDropdownValues(),
+                data: self._getTypeDropdownValues(),
                 query: function (query) {
-                    var data = {results: []};
+                    var data = { results: [] };
                     if (!_.isNil(query.term)) {
                         _.forEach(self._getTypeDropdownValues(), function (item) {
                             if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
@@ -118,8 +125,8 @@ class StructVariableDefinitionStatementView extends BallerinaView {
                             }
                         });
                         // Adding user typed string when there is no any matching item in the list
-                        if(data.results.length == 0){
-                            data.results.push({id: query.term, text: query.term});
+                        if (data.results.length == 0) {
+                            data.results.push({ id: query.term, text: query.term });
                         }
                     } else {
                         data.results = self._getTypeDropdownValues();
@@ -128,28 +135,28 @@ class StructVariableDefinitionStatementView extends BallerinaView {
                 }
             });
 
-            $(typeDropdown).on("select2:open", function() {
+            $(typeDropdown).on("select2:open", function () {
                 $(".select2-search__field").attr("placeholder", "Search");
             });
 
-            $(typeDropdown).val(self.getModel().getTypeName()).change();
+            $(typeDropdown).val(self.getModel().getBType()).change();
 
-            $(typeDropdown).on("select2:select", function() {
-                self.getModel().setTypeName(typeDropdown.select2('data')[0].text);
+            $(typeDropdown).on("select2:select", function () {
+                self.getModel().setBType(typeDropdown.select2('data')[0].text);
             });
         });
 
         $(this._identifierWrapper).empty();
 
-        var identifierEditWrapper = $("<div/>",{
-            click: function(e) {e.stopPropagation();}
+        var identifierEditWrapper = $("<div/>", {
+            click: function (e) { e.stopPropagation(); }
         }).appendTo(this._identifierWrapper);
 
         // Creating the identifier text box.
         var identifierTextBox = $("<input/>", {
             type: "text",
             class: "struct-variable-identifier-text-input",
-            val: this.getModel().getVariableName()
+            val: this.getModel().getIdentifier()
         }).keypress(function (e) {
             /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
              (Chrome and IE ignore keypress event of these keys in browser level)*/
@@ -164,23 +171,66 @@ class StructVariableDefinitionStatementView extends BallerinaView {
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
                 try {
-                    self.getModel().setName(newIdentifier);
+                    self.getModel().setIdentifier(newIdentifier);
                 } catch (error) {
                     Alerts.error(error);
                     e.stopPropagation();
                     return false;
                 }
             }
-        }).keydown(function(e){
+        }).keydown(function (e) {
             var enteredKey = e.which || e.charCode || e.keyCode;
 
             // If tab pressed.
             if (e.shiftKey && _.isEqual(enteredKey, 9)) {
                 typeDropdown.dropdownButton.trigger("click");
             }
-        }).keyup(function(){
-            self.getModel().setName($(this).val());
+        }).keyup(function () {
+            self.getModel().setIdentifier($(this).val());
         }).appendTo($(identifierEditWrapper));
+
+        $(this._valueWrapper).empty();
+
+        var valueEditWrapper = $("<div/>", {
+            click: function (e) { e.stopPropagation(); }
+        }).appendTo(this._valueWrapper);
+
+        // Creating the identifier text box.
+        var valueTextBox = $("<input/>", {
+            type: "text",
+            class: "struct-variable-identifier-text-input",
+            val: this.getModel().getValue()
+        }).keypress(function (e) {
+            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+             (Chrome and IE ignore keypress event of these keys in browser level)*/
+            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (_.isEqual(enteredKey, 13)) {
+                    e.stopPropagation();
+                    return false;
+                }
+
+                var newValue = $(this).val() + String.fromCharCode(enteredKey);
+
+                try {
+                    self.getModel().setValue(newValue);
+                } catch (error) {
+                    Alerts.error(error);
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        }).keydown(function (e) {
+            var enteredKey = e.which || e.charCode || e.keyCode;
+
+            // If tab pressed.
+            if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                typeDropdown.dropdownButton.trigger("click");
+            }
+        }).keyup(function () {
+            self.getModel().setValue($(this).val());
+        }).appendTo($(valueEditWrapper));
 
     }
 
@@ -197,12 +247,12 @@ class StructVariableDefinitionStatementView extends BallerinaView {
         // Adding items to the type dropdown.
         var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
         _.forEach(bTypes, function (bType) {
-            dropdownData.push({id: bType, text: bType});
+            dropdownData.push({ id: bType, text: bType });
         });
 
         var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
         _.forEach(structTypes, function (sType) {
-            dropdownData.push({id: sType.getStructName(), text: sType.getStructName()});
+            dropdownData.push({ id: sType.getStructName(), text: sType.getStructName() });
         });
 
         return dropdownData;
@@ -210,4 +260,4 @@ class StructVariableDefinitionStatementView extends BallerinaView {
 }
 
 export default StructVariableDefinitionStatementView;
-    
+

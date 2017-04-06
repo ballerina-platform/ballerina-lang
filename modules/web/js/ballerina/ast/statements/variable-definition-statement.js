@@ -36,23 +36,6 @@ class VariableDefinitionStatement extends Statement {
     }
 
     /**
-     * initialize VariableDefinitionStatement from json object
-        this._leftExpression = _.get(args, 'leftExpression');
-        this._rightExpression = _.get(args, 'rightExpression');
-     * @param {Object} jsonNode to initialize from
-     */
-    initFromJson(jsonNode) {
-        var self = this;
-
-        // TODO: need to refactor based on the backend response
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
-    }
-
-    /**
      * Get the left expression
      * @return {string} _leftExpression - Left expression
      */
@@ -114,8 +97,24 @@ class VariableDefinitionStatement extends Statement {
         return (this._leftExpression.split(" ")[1]).trim();
     }
 
+    /**
+     * Gets the identifier of the variable definition statement.
+     * @return {string} - The identifier.
+     */
+    getValue() {
+        return this._rightExpression;
+    }
+
     setIdentifier(identifier) {
         this.setLeftExpression(this.getBType() + " " + identifier);
+    }
+
+    setBType(bType) {
+        this.setLeftExpression(bType + " " + this.getIdentifier());
+    }
+
+    setValue(value) {
+        this.setRightExpression(value);
     }
 
     /**
@@ -169,27 +168,6 @@ class VariableDefinitionStatement extends Statement {
         }
     }
 
-    getTypeName(){
-        var varDef = this.getVariableDef();
-        if (!_.isNil){
-            return varDef.getTypeName();
-        }
-    }
-
-    getVariableName(){
-        var varDef = this.getVariableDef();
-        if (!_.isNil){
-            return varDef.getName();
-        }
-    }
-
-    getVariableDef(){
-        var leftExp = this.getChildren()[0];
-        if (!_.isNil(leftExp)){
-            return leftExp.findChild(this.getFactory().isVariableDefinition);
-        }
-    }
-
     initFromJson(jsonNode) {
         var self = this;
 
@@ -202,7 +180,7 @@ class VariableDefinitionStatement extends Statement {
         if (!_.isNil(this.getChildren()[0])){
             this.setLeftExpression(this.getChildren()[0].getExpression());
         }
-        if (!_.isNil(this.getChildren()[1])){
+        if (!_.isNil(this.getChildren()[1])) {
             this.setRightExpression(this.getChildren()[1].getExpression());
         }
     }

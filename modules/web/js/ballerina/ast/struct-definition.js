@@ -53,7 +53,6 @@ class StructDefinition extends ASTNode {
      */
     getVariableDefinitionStatements() {
         var variableDefinitions = [];
-        var self = this;
 
         _.forEach(this.filterChildren(this.getFactory().isVariableDefinitionStatement), function (child) {
             variableDefinitions.push(child);
@@ -78,7 +77,7 @@ class StructDefinition extends ASTNode {
 
         // Check if already variable definition exists with same identifier.
         var identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(), function (variableDefinitionStatement) {
-            return variableDefinitionStatement.getName() === identifier;
+            return variableDefinitionStatement.getIdentifier() === identifier;
         }) !== -1;
 
         // If variable definition with the same identifier exists, then throw an error. Else create the new variable
@@ -89,34 +88,23 @@ class StructDefinition extends ASTNode {
             throw errorString;
         } else {
             // Creating new variable definition.
-            var newVariableDefinition = this.getFactory().createVariableDefinitionStatement();
-
-            newVariableDefinition.setTypeName(bType);
-            newVariableDefinition.setName(identifier);
-
-            var self = this;
+            var newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
+            newVariableDefinitionStatement.setLeftExpression(bType + ' ' + identifier);
+            newVariableDefinitionStatement.setRightExpression(defaultValue);
 
             // Get the index of the last definition.
-            var index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.getFactory().isVariableDefinition(child);
-            });
+            var index = this.findLastIndexOfChild(this.getFactory().isVariableDefinitionStatement);
 
-            this.addChild(newVariableDefinition, index + 1);
+            this.addChild(newVariableDefinitionStatement, index + 1);
         }
     }
 
     /**
-     * Removes new variable definition.
+     * Removes new variable definition statement.
      * @param {string} modelID - The model ID of the variable.
      */
-    removeVariableDefinitionStatements(modelID) {
-        var self = this;
-        // Removing the variable definition statement from the children.
-        var variableDefinitionStmtChild = _.find(this.getChildren(), function (child) {
-            return self.getFactory().isVariableDefinitionStatement(child)
-                && child.getID() === modelID;
-        });
-        this.removeChild(variableDefinitionStmtChild);
+    removeVariableDefinitionStatement(modelID) {
+        this.removeChildById(modelID);
     }
 
     /**
@@ -154,10 +142,10 @@ class StructDefinition extends ASTNode {
         var attributesArray = {};
         attributesArray[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_NAME] = this.getStructName();
         attributesArray[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTIES]= [];
-        _.each(this.getVariableDefinitions(), function(variableDefinition) {
+        _.each(this.getVariableDefinitionStatements(), function(variableDefinition) {
             var tempAttr = {};
-            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME] = variableDefinition.getName();
-            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE] = variableDefinition.getTypeName();
+            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME] = variableDefinition.getIdentifier();
+            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE] = variableDefinition.getBType();
             attributesArray[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTIES].push(tempAttr);
         });
         return attributesArray;

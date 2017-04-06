@@ -246,7 +246,15 @@ class ASTNode extends EventChannel {
      */
     findChild(predicateFunction) {
         return _.find(this.getChildren(), predicateFunction);
-    };
+    }
+
+    /**
+     * Find last index of matching children from the predicate function
+     * @param predicateFunction a function returning a boolean to match find condition from children
+     */
+    findLastIndexOfChild(predicateFunction) {
+        return _.findLastIndex(this.getChildren(), predicateFunction);
+    }
 
     initFromJson(jsonNode) {
         throw "InitFromJson not implemented";
