@@ -55,4 +55,20 @@ public class ArrayIndexTooLargeTest {
         BValue[] args = {new BInteger(2147483648L)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "accessTooLargeIndex", args);
     }
+
+    @Test(description = "Test adding minus index to an array",
+          expectedExceptions = {BallerinaException.class },
+          expectedExceptionsMessageRegExp = "array index out of range: Index: '-4', Size: '0'")
+    public void addMinusIndex() {
+        BValue[] args = {new BInteger(-4), new BInteger(7)};
+        BLangFunctions.invoke(bLangProgram, "addMinusIndex", args);
+    }
+
+    @Test(description = "Test accessing minus index from an array",
+          expectedExceptions = {BallerinaException.class },
+          expectedExceptionsMessageRegExp = "array index out of range: Index: '-4', Size: '0'")
+    public void accessMinusIndex() {
+        BValue[] args = {new BInteger(-4)};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "accessMinusIndex", args);
+    }
 }
