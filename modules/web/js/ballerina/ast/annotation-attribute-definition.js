@@ -69,6 +69,10 @@ class AnnotationAttributeDefinition extends ASTNode {
         return this._attributeValue;
     }
 
+    getAttributeStatementString(){
+
+    }
+
     /**
      * @inheritDoc
      * @override
