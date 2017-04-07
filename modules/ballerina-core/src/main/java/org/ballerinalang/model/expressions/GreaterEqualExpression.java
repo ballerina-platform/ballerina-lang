@@ -36,14 +36,8 @@ public class GreaterEqualExpression extends BinaryCompareExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> GREATER_EQUAL_INT_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.intValue() >= rVal.intValue());
 
-    public static final BiFunction<BValueType, BValueType, BValueType> GREATER_EQUAL_LONG_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.longValue() >= rVal.longValue());
-
     public static final BiFunction<BValueType, BValueType, BValueType> GREATER_EQUAL_FLOAT_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.floatValue() >= rVal.floatValue());
-
-    public static final BiFunction<BValueType, BValueType, BValueType> GREATER_EQUAL_DOUBLE_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.doubleValue() >= rVal.doubleValue());
 
     public GreaterEqualExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
         super(location, lExpr, GREATER_EQUAL, rExpr);

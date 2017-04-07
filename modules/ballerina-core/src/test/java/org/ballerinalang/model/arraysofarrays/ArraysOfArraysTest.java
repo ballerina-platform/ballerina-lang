@@ -85,4 +85,10 @@ public class ArraysOfArraysTest {
     public void testAssignIncorrectValue() {
         bLangProgram = BTestUtils.parseBalFile("lang/arraysofarrays/arraysOfArraysFailures.bal");
     }
+
+    @Test(description = "Test Basic arrays of arrays operations")
+    public void testTwoDarrayStruct() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "twoDarrayStructTest");
+        Assert.assertEquals(returns[0].stringValue(), "2");
+    }
 }

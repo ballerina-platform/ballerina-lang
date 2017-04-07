@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.lang.datatables;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BDataTable;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,36 +33,36 @@ import java.util.Locale;
 
 /**
  * Native function to get some special type to ballerina supported types. Eg:- Blob, Clob, NClob, Date, Timestamp
- * ballerina.model.datatables:getLong(datatable, string, string)
+ * ballerina.model.datatables:getInt(datatable, int, string)
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.datatables",
-        functionName = "getLong",
+        functionName = "getInt",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
-                @Argument(name = "column", type = TypeEnum.STRING),
+                @Argument(name = "index", type = TypeEnum.INT),
                 @Argument(name = "type", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.LONG)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Retrieves the long value of the designated column in "
-                + "the current row for the given column type: date, time, or timestamp") })
+        value = "Retrieves the int value of the designated column in the "
+                + "current row for the given column type: date, time, or timestamp") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
         value = "The datatable object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
-        value = "The column name of the output result.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "index",
+        value = "The column index position of the result. The first column is 1, the second is 2, etc. ") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "type",
         value = "Database table column type. Supported values are date, time, timestamp") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "long",
-        value = "The column value as a long") })
-public class GetByNameLongReturn extends AbstractNativeFunction {
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
+        value = "The column value as a int") })
+public class GetByIndexIntReturn extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        String columnName = (getArgument(ctx, 1)).stringValue();
+        long index = ((BInteger) getArgument(ctx, 1)).intValue();
         String type = (getArgument(ctx, 2)).stringValue();
-        return getBValues(dataTable.get(columnName, type.toLowerCase(Locale.ENGLISH)));
+        return getBValues(dataTable.get(index, type.toLowerCase(Locale.ENGLISH)));
     }
 }

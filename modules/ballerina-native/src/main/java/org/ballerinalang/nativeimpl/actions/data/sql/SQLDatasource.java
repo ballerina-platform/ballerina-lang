@@ -22,7 +22,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -210,9 +209,7 @@ public class SQLDatasource implements BValue {
                 if (value instanceof BString) {
                     config.addDataSourceProperty(keyValue, value.stringValue());
                 } else if (value instanceof BInteger) {
-                    config.addDataSourceProperty(keyValue, Integer.parseInt(value.stringValue()));
-                } else if (value instanceof BLong) {
-                    config.addDataSourceProperty(keyValue, Long.parseLong(value.stringValue()));
+                    config.addDataSourceProperty(keyValue, ((BInteger) value).intValue());
                 } else if (value instanceof BBoolean) {
                     config.addDataSourceProperty(keyValue, Boolean.parseBoolean(value.stringValue()));
                 }

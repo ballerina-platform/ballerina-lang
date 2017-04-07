@@ -36,14 +36,8 @@ public class EqualExpression extends BinaryEqualityExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_INT_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.intValue() == rVal.intValue());
 
-    public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_LONG_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.longValue() == rVal.longValue());
-
     public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_FLOAT_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.floatValue() == rVal.floatValue());
-
-    public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_DOUBLE_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.doubleValue() == rVal.doubleValue());
 
     public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_BOOLEAN_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.booleanValue() == rVal.booleanValue());

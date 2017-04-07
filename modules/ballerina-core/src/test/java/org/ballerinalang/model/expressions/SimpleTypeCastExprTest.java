@@ -22,7 +22,6 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -39,15 +38,6 @@ public class SimpleTypeCastExprTest {
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("lang/expressions/simple-type-cast.bal");
-    }
-
-    @Test
-    public void testIntToLong() {
-        BValue[] args = {new BInteger(55555555)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "inttolong", args);
-        Assert.assertTrue(returns[0] instanceof BLong);
-        final String expected = "55555555";
-        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
@@ -90,7 +80,7 @@ public class SimpleTypeCastExprTest {
         testFloatToBooleanCast(0, false);
     }
 
-    private void testBooleanToIntCast(Boolean input, int excepted, String functionName) {
+    private void testBooleanToIntCast(Boolean input, long excepted, String functionName) {
         BValue[] args = { new BBoolean(input) };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, functionName, args);
         Assert.assertEquals(returns.length, 1);
@@ -98,7 +88,7 @@ public class SimpleTypeCastExprTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), excepted);
     }
 
-    private void testBooleanToFloatCast(Boolean input, float excepted, String functionName) {
+    private void testBooleanToFloatCast(Boolean input, double excepted, String functionName) {
         BValue[] args = { new BBoolean(input) };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, functionName, args);
         Assert.assertEquals(returns.length, 1);

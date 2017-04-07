@@ -29,7 +29,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
  * Set HTTP StatusCode to the message.
@@ -52,8 +54,12 @@ public class SetStatusCode extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         try {
             BMessage bMsg = (BMessage) getArgument(context, 0);
-            int statusCode = ((BInteger) getArgument(context, 1)).intValue();
-            bMsg.value().setProperty(Constants.HTTP_STATUS_CODE, statusCode);
+            long statusCode = ((BInteger) getArgument(context, 1)).intValue();
+            if (statusCode != (int) statusCode) {
+                throw BLangExceptionHelper
+                        .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, statusCode);
+            }
+            bMsg.value().setProperty(Constants.HTTP_STATUS_CODE, (int) statusCode);
         } catch (ClassCastException e) {
             throw new BallerinaException("Invalid message or Status Code");
         }
