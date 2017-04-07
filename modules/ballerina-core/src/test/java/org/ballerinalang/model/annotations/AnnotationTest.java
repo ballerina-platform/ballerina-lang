@@ -137,7 +137,8 @@ public class AnnotationTest {
         AnnotationAttributeValue[] annotationArray = annottations[0].getAttribute("queryParamValue").getValueArray();
         Assert.assertEquals(annotationArray.length, 3, "Wrong annotation array length");
         
-        String attributeValue = annotationArray[0].getAnnotationValue().getAttribute("name").getLiteralValue().stringValue();
+        String attributeValue = annotationArray[0].getAnnotationValue().getAttribute("name").getLiteralValue()
+                .stringValue();
         Assert.assertEquals(attributeValue, "paramName");
         
         attributeValue = annotationArray[1].getAnnotationValue().getAttribute("name").getLiteralValue().stringValue();
