@@ -61,7 +61,9 @@
 
 .panel-title {
     background: white;
-    border: 1px solid #909090;
+    border-top: 1px solid #909090;
+    border-bottom: 1px solid #909090;
+    border-right: 1px solid #909090;
     vertical-align: middle;
 }
 
@@ -70,7 +72,10 @@
     text-decoration: none;
 }
 
-.panel-icon, .service-icon, .connector-icon, .function-icon {
+.panel-icon,
+.service-icon,
+.connector-icon,
+.function-icon {
     padding: 6px 5px 5px;
     background-color: #fff;
     font-size: 16px;

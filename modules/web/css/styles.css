@@ -62,6 +62,7 @@ svg text::selection {
 
 .canvas-heading {
     cursor: pointer;
+    border-left: 3px solid #3498db;
 }
 
 /** Editor canvas related styles | -> End **/

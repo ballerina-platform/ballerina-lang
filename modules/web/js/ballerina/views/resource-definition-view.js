@@ -558,8 +558,8 @@ class ResourceDefinitionView extends BallerinaView {
         this._headerIconGroup = headingIconsGroup;
 
         // Drawing resource icon
-        var headingRectIconHolder = D3utils.rect(headingStart.x(),
-            headingStart.y(), this._viewOptions.heading.icon.width,
+        var headingRectIconHolder = D3utils.rect(headingStart.x() + 1,
+            headingStart.y() + 1, this._viewOptions.heading.icon.width,
             this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("resourceHeadingIconHolder",true);
 
         var headingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,

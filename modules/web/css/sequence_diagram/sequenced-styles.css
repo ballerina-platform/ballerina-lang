@@ -42,8 +42,8 @@
 .headingRect {
     fill: #FFFFFF;
     stroke-width: 1;
-    stroke: #000000;
-
+    stroke: #909090;
+    shape-rendering: crispEdges;
 }
 
 .headingRectIcon {
@@ -54,11 +54,11 @@
     fill: url(/#connectorActionIcon);
 }
 .resourceHeadingIconHolder{
-    fill:#000000;
+    fill:#fff;
 }
 
 .connectorActionHeadingIconHolder{
-    fill:#000000;
+    fill:#fff;
 }
 
 .headingCollapsedIcon {
@@ -125,7 +125,8 @@ svg use svg {
     fill: #008000;
     fill-opacity: 0;
     stroke-width: 1;
-    stroke: #000000;
+    shape-rendering: crispEdges;
+    stroke: #909090;
 }
 
 .connector-action-content {
@@ -133,6 +134,7 @@ svg use svg {
     fill-opacity: 0;
     stroke-width: 1;
     stroke: #000000;
+    shape-rendering: crispEdges; 
 }
 
 .client rect {
