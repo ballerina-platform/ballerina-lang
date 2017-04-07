@@ -847,6 +847,20 @@ button.variable-list {
     float: left;
 }
 
+.attachment-action-wrapper {
+    float: left;
+}
+
+.attachment-add-icon-wrapper {
+    height: 16px;
+    position: static;
+    width: 15px;
+    font-size: 11px;
+    float: left;
+    margin: 7px 2px 0 7px;
+    opacity: 1;
+}
+
 .variable-add-action-wrapper {
     display: none;
     width: 515px;
@@ -969,7 +983,8 @@ button.variable-list {
 
 .constant-pane-collapser-wrapper, 
 .import-pane-collapser-wrapper, 
-.variable-pane-collapser-wrapper {
+.variable-pane-collapser-wrapper,
+.attachment-pane-collapser-wrapper {
     font-size: 12px;
     padding: 9px;
     background-color: #efefef;
@@ -996,6 +1011,37 @@ button.variable-list {
     vertical-align: top;
     top: 8px;
     right: 7px;
+}
+
+.attachment-pane-collapser-wrapper {
+    font-size: 14px;
+    padding: 9px;
+    background-color: #efefef;
+    height: 27px;
+    width: 23px;
+    margin-left: 4px;
+    position: absolute;
+    right: -23px;
+    top: 0;
+}
+
+.attachment-pane-collapser-wrapper:hover{
+    background-color: #333;
+    color: #fff;
+}
+
+.attachment-pane-collapser-wrapper:hover{
+    cursor: pointer;
+    opacity: 1;
+}
+
+.attachment-pane-collapser-wrapper i{
+    font-size: 12px;
+    position: absolute;
+    vertical-align: top;
+    top: 8px;
+    right: 7px;
+    opacity: 0.5;
 }
 
 .constant-pane-collapser-wrapper:hover {
@@ -1446,7 +1492,8 @@ span.fw-stack.fw-lg {
 .constants-btn,
 .package-name-btn,
 .imports-btn,
-.variable-btn {
+.variable-btn,
+.attachments-btn {
     background: #eee;
     width: 69px;
     color: #000005;
@@ -1523,5 +1570,3 @@ span.fw-stack.fw-lg {
 .select2-container--default .select2-selection--single {
     border-radius: 0 !important;
 }
-
-

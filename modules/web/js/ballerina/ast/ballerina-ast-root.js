@@ -271,6 +271,22 @@ class BallerinaASTRoot extends ASTNode {
 
     //// End of constant definition functions
 
+    //// Start of annotation definitions functions
+
+    getAnnotationDefinitions() {
+        var annotationDefinition = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isAnnotationDefinition(child)) {
+                annotationDefinition.push(child);
+            }
+        });
+        return annotationDefinition;
+    }
+
+    //// End of annotation definitions functions
+
     //// Start of service definitions functions
 
     getServiceDefinitions() {
@@ -375,6 +391,7 @@ class BallerinaASTRoot extends ASTNode {
             || BallerinaASTFactory.isConnectorDefinition(node)
             || BallerinaASTFactory.isStructDefinition(node)
             || BallerinaASTFactory.isTypeMapperDefinition(node)
+            || BallerinaASTFactory.isAnnotationDefinition(node)
     }
 
     /**

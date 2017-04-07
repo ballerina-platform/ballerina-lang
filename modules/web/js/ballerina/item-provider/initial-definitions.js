@@ -104,9 +104,17 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
             nodeFactoryMethod: BallerinaASTFactory.createWorkerDeclaration
         };
 
+        var createAnnotationDefTool = {
+            id: "annotation",
+            name: "Annotation",
+            iconSrc: require("images/tool-icons/annotation-black.svg"),
+            title: "Annotation Definition",
+            nodeFactoryMethod: BallerinaASTFactory.createAnnotationDefinition
+        };
+
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
             createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
-            createTypeMapperDefTool, createWorkerDecTool];
+            createTypeMapperDefTool, createWorkerDecTool, createAnnotationDefTool];
 
         var elements = new ToolGroup({
             toolGroupName: "Elements",

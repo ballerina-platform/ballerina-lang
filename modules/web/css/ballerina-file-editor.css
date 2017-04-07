@@ -552,6 +552,13 @@
     float: left;
 }
 
+.attribute-content-operations-wrapper {
+    background-color: #3d3d3d;
+    padding: 10px;
+    float: left;
+    margin-top: 40px;
+}
+
 .struct-identifier-text-input {
     float: left;
     width: 190px;
@@ -834,6 +841,16 @@ input#package-name-input {
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
     background-color: #333333;
     color: #f17b31;
+}
+
+.annotation-definition-inner-container {
+    left: 0;
+    top: 40px;
+    position: relative;
+}
+
+.annotation-definition-container {
+    height: 100%
 }
 
 .expression-editor-form-body-property-wrapper .ace_ballerina-keyword-primitive-type{

@@ -167,6 +167,7 @@ var config = {
                         panel_title: 'panel-title',
                         panel_icon: 'panel-icon',
                         service_icon: 'fw fw-service',
+                        annotation_icon: 'fw fw-annotation',
                         struct_icon: 'fw fw-struct',
                         connector_icon:'fw fw-connector',
                         function_icon:'fw fw-function',
