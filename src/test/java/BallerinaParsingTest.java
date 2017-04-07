@@ -23,6 +23,21 @@ public class BallerinaParsingTest extends ParsingTestCase {
         super("", "bal", new BallerinaParserDefinition());
     }
 
+    @Override
+    protected String getTestDataPath() {
+        return "src/test/resources/testData/parsing";
+    }
+
+    @Override
+    protected boolean skipSpaces() {
+        return false;
+    }
+
+    @Override
+    protected boolean includeRanges() {
+        return true;
+    }
+
     public void testEchoService() {
         doTest(true);
     }
@@ -45,20 +60,5 @@ public class BallerinaParsingTest extends ParsingTestCase {
 
     public void testTwitterConnector() {
         doTest(true);
-    }
-
-    @Override
-    protected String getTestDataPath() {
-        return "src/test/resources/testData/parsing";
-    }
-
-    @Override
-    protected boolean skipSpaces() {
-        return false;
-    }
-
-    @Override
-    protected boolean includeRanges() {
-        return true;
     }
 }
