@@ -20,6 +20,7 @@ import 'ace/ext-language_tools';
 import 'ace/ext-searchbox';
 import '../ballerina/utils/ace-mode';
 import ballerina from 'ballerina';
+import { completerFactory } from './completer-factory.js';
 var ace = global.ace;
 var Range = ace.require('ace/range');
 
@@ -37,7 +38,7 @@ var langTools = ace.require("ace/ext/language_tools");
 
 class ExpressionEditor{
 
-    constructor(editorWrapper, wrapperClass, property, callback) {
+    constructor(editorWrapper, wrapperClass, property, packageScope , callback) {
         this._property = property;
         this.default_with = $(editorWrapper).width();
         var propertyWrapper = $("<div/>", {
@@ -70,19 +71,10 @@ class ExpressionEditor{
             this._editor.setFontSize("12pt");
         }
 
-        var rhymeCompleter = {
-            getCompletions: function(editor, session, pos, prefix, callback) {
-                console.log(prefix, pos);
-                if (prefix.length === 0) { callback(null, []); return }
-                // wordList like [{"word":"flow","freq":24,"score":300,"flags":"bc","syllables":"1"}]
-                //callback(null, [{"word":"flosw","freq":24,"score":300000,"flags":"bc","syllables":"1"}]);
-                var completions = [];
-                 completions.push({ name:"testing1", value:"testing1", meta: "code1" });
-                 completions.push({ name:"testing2", value:"testing2", meta: "code2" });
-                 callback(null, completions);
-            }
-        };
-        langTools.setCompleters([rhymeCompleter]);
+        let completers = completerFactory.getCompleters(property.key, packageScope);
+        if(completers){
+            langTools.setCompleters(completers);
+        }
 
         this._editor.setOptions({
             enableBasicAutocompletion:true,

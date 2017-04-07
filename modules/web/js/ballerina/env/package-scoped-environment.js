@@ -32,7 +32,7 @@ class PackageScopedEnvironment {
     }
 
     getCurrentPackage() {
-      return this._currentPackage;
+        return this._currentPackage;
     }
 
     resetCurrentPackage() {
@@ -60,4 +60,3 @@ class PackageScopedEnvironment {
 }
 
 export default PackageScopedEnvironment;
-

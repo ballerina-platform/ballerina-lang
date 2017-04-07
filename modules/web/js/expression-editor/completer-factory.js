@@ -15,10 +15,97 @@
  */
 import _ from 'lodash';
 import $ from 'jquery';
-
+import BallerinaEnvironment from './../ballerina/env/environment';
 
 class CompleterFactory{
-    //todo implement
+    constructor() {
+        this.variable_dec = /([a-z])+ .*/i;
+        this.package_dec = /([a-z0-9])+:.*/i;
+    }
+
+    getCompleters(key , packageScope){
+        switch (key) {
+            case "VariableDefinition":
+                return this.getVariableDefinitionCompleters();
+                break;
+            case "Function":
+                return this.getFunctionCompleters(packageScope);
+                break;
+            default:
+                return false;
+        }
+    }
+
+    getVariableDefinitionCompleters(){
+        return [{
+            getCompletions: (editor, session, pos, prefix, callback) => {
+                 if(this.variable_dec.exec(editor.getSession().getValue())){
+                     return [];
+                 }
+                 let types = BallerinaEnvironment.getTypes();
+                 var completions = types.map(function(item){
+                    return { name:item, value:item + " ", meta: "type" };
+                 });
+                 callback(null, completions);
+            }
+        }];
+    }
+
+    getFunctionCompleters(packageScope){
+        return [{
+            getCompletions: (editor, session, pos, prefix, callback) => {
+                let completions = [];
+                if(!this.package_dec.exec(editor.getSession().getValue())){
+                    let packages = BallerinaEnvironment.
+                        searchPackage(editor.getSession().getValue().trim(),null);
+                    completions = packages.map((item) => {
+                        return {
+                          name: item.getName(),
+                          caption: item.getName(),
+                          value: this.getPackagePrefix(item.getName()) + ":",
+                          meta: "package",
+                          score:1
+                        };
+                    });
+
+                    let scopeFunctions = packageScope.getCurrentPackage()
+                        .getFunctionDefinitions();
+                    var functions = scopeFunctions.map((item) => {
+                        return {
+                          name:item.getName(),
+                          caption: item.getName(),
+                          value: item.getName() + "(",
+                          meta: "local function",
+                          score:100
+                        };
+                    });
+
+                    callback(null, _.concat(completions, functions));
+                }else{
+                    let packages = BallerinaEnvironment.
+                        searchPackage(editor.getSession().getValue().split(":")[0].trim());
+                    if(_.isArray(packages) && packages.length > 0){
+                        let packageItem = packages[0];
+                        let functions = packageItem.getFunctionDefinitions();
+                        completions = functions.map((item) => {
+                            return {
+                              name:item.getName(),
+                              caption: item.getName(),
+                              value: item.getName() + "(",
+                              meta: "function"
+                            };
+                        });
+                    }
+                    callback(null, completions);
+                }
+            }
+        }];
+    }
+
+    getPackagePrefix(name){
+        let array = name.split(".");
+        return array[array.length -1 ];
+    }
 }
 
-export default CompleterFactory;
+export let completerFactory = new CompleterFactory();

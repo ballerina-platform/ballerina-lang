@@ -248,9 +248,9 @@ class BallerinaStatementView extends StatementVisitor {
             var propertyPaneBody = $('<div/>', {
                 'class': viewOptions.propertyForm.body.class
             }).appendTo(propertyPaneWrapper);
-
+            let packageScope = this.getDiagramRenderingContext().packagedScopedEnvironemnt;
             this.expressionEditor = new ExpressionEditor(propertyPaneBody, viewOptions.propertyForm.body.property.wrapper,
-                editableProperties, function () {
+                editableProperties, packageScope , function () {
                     self.trigger('edit-mode-disabled');
             });
         }
@@ -263,7 +263,6 @@ class BallerinaStatementView extends StatementVisitor {
         });
 
         $(jumpButtonRect.node()).click(function(event){
-            //@todo implement
         });
 
         $(toggleBreakpointButtonRect.node()).click(function(event){
