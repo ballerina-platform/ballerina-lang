@@ -245,6 +245,15 @@ class SourceView extends EventChannel {
     markClean() {
         this._editor.getSession().getUndoManager().markClean();
     }
+
+    jumpToLine({expression=''}) {
+        var range = this._editor.find(expression.trim() , {
+            regExp:false,
+        });
+        if(!range) {
+            return;
+        }
+    }
 }
 
 export default SourceView;
