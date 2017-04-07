@@ -22,6 +22,7 @@ import FileEditor from './../views/ballerina-file-editor';
 import ServiceDefinitionView from './../views/service-definition-view';
 import ResourceDefinitionView from './../views/resource-definition-view';
 import FunctionDefinitionView from './../views/function-definition-view';
+import AnnotationDefinitionView from './../views/annotation-definition-view';
 
 class DiagramRenderingVisitor extends ASTVisitor {
     constructor(containerView) {
@@ -61,6 +62,20 @@ class DiagramRenderingVisitor extends ASTVisitor {
         var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new return statement view and call render
         return false;
+    }
+
+    visitAnnotationDefinition(astNode) {
+        log.debug("Visiting AnnotationDefinition");
+        var parent = astNode.getParent();
+        var parentView = _.find(this._viewsList, ['_model', parent]);
+        for (var id in parent.annotationDefinitions) {
+            var annotationDefinition = parent.annotationDefinition[id];
+            var canvas = parentView.canvaslist[id];
+            var annotationDefinitionView = new AnnotationDefinitionView(annotationDefinition, canvas);
+            this._viewsList.push(annotationDefinitionView);
+            annotationDefinitionView.render();
+        }
+        return true;
     }
 
     visitServiceDefinition(astNode) {

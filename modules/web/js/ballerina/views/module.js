@@ -25,6 +25,7 @@ import ReplyStatementView from './reply-statement-view';
 import ResourceDefinitionView from './resource-definition-view';
 import ReturnStatementView from './return-statement-view';
 import ServiceDefinitionView from './service-definition-view';
+import AnnotationDefinitionView from './annotation-definition-view';
 import ThrowStatementView from './throw-statement-view';
 import WhileStatementView from './while-statement-view';
 import WorkerDeclarationView from './worker-declaration-view';
@@ -47,6 +48,7 @@ export default  {
     ResourceDefinitionView: ResourceDefinitionView,
     ReturnStatementView: ReturnStatementView,
     ServiceDefinitionView: ServiceDefinitionView,
+    AnnotationDefinitionView: AnnotationDefinitionView,
     ThrowStatementView: ThrowStatementView,
     WhileStatementView: WhileStatementView,
     WorkerDeclarationView: WorkerDeclarationView,

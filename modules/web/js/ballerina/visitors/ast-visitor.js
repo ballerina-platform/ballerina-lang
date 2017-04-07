@@ -33,6 +33,8 @@ class ASTVisitor extends EventChannel {
             return this.canVisitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
             return this.canVisitServiceDefinition(node);
+        } else if (node instanceof AST.AnnotationDefinition) {
+            return this.canVisitAnnotationDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
             return this.canVisitResourceDefinition(node);
         } else if(node instanceof AST.FunctionDefinition){
@@ -88,6 +90,8 @@ class ASTVisitor extends EventChannel {
             return this.beginVisitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
             return this.beginVisitServiceDefinition(node);
+        } else if (node instanceof AST.AnnotationDefinition) {
+            return this.beginVisitAnnotationDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
             return this.beginVisitResourceDefinition(node);
         } else if(node instanceof AST.FunctionDefinition){
@@ -143,6 +147,8 @@ class ASTVisitor extends EventChannel {
             return this.visitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
             return this.visitServiceDefinition(node);
+        } else if (node instanceof AST.AnnotationDefinition) {
+            return this.visitAnnotationDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
             return this.visitResourceDefinition(node);
         } else if(node instanceof AST.FunctionDefinition){
@@ -199,6 +205,8 @@ class ASTVisitor extends EventChannel {
             return this.endVisitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
             return this.endVisitServiceDefinition(node);
+        } else if (node instanceof AST.AnnotationDefinition) {
+            return this.endVisitAnnotationDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
             return this.endVisitResourceDefinition(node);
         } else if(node instanceof AST.FunctionDefinition){
@@ -264,6 +272,10 @@ class ASTVisitor extends EventChannel {
         return false;
     }
 
+    canVisitAnnotationDefinition(annotationDefinition){
+        return false;
+    }
+
     beginVisitServiceDefinition(serviceDefinition) {
     }
 
@@ -271,6 +283,15 @@ class ASTVisitor extends EventChannel {
     }
 
     endVisitServiceDefinition(serviceDefinition) {
+    }
+
+    beginVisitAnnotationDefinition(annotationDefinition) {
+    }
+
+    visitAnnotationDefinition(annotationDefinition) {
+    }
+
+    endVisitAnnotationDefinition(annotationDefinition){
     }
 
     canVisitConnectorDefinition(connectorDefinition) {
