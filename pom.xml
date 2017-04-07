@@ -281,6 +281,6 @@
 
     <properties>
         <cobertura.version>2.7</cobertura.version>
-        <ballerina.version>0.86-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.86</ballerina.version>
     </properties>
 </project>
