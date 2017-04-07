@@ -836,71 +836,10 @@ input#package-name-input {
     height: 100%
 }
 
-.add-annotation-attribute-button-wrapper {
-    height: 28px;
-    position: static;
-    width: 26px;
-    font-size: 11px;
-    float: left;
-    padding: 7px;
-    margin: -1px;
-    border: 1px solid #ddd;
-    background: #fff;
-    opacity: 1;
+.expression-editor-form-body-property-wrapper .ace_ballerina-keyword-primitive-type{
+    color: #f39100;
 }
 
-.attribute-row {
-    position: relative;
-    top: 20px;
-}
-
-.close-btn > i {
-    position:relative;
-    top: calc(50% - 10px); /* 50% - 3/4 of icon height */
-}
-
-.input-label{
-    display: block;
-    height: 40px;
-    font-size: 14px;
-    margin-left: 15px;
-    margin-bottom: 20px;
-    margin-top: 20px;
-}
-
-.annotation-definition-content-wrapper{
-    margin: 35px 60px;
-    float: left;
-}
-
-.annotation-definition-operation-wrapper{
-    background-color: #3d3d3d;
-    padding: 10px;
-    float: left;
-}
-
-.annotation-attribute-identifier-text-input{
-    float: left;
-    width: 190px;
-    padding-left: 8px;
-    padding-right: 8px;
-    margin-right: 5px;
-    border: 0;
-    height: 24px;
-}
-
-.annotation-default-value-text-input{
-    float: left;
-    width: 190px;
-    padding-left: 8px;
-    padding-right: 8px;
-    margin-right: 5px;
-    border: 0;
-    height: 24px;
-}
-
-.add-annotation-variable-button-square{
-    border: 1px solid #FFF;
-    height: 24px;
-    line-height: 22px;
+.expression-editor-form-body-property-wrapper .ace_ballerina-keyword-non-primitive-type{
+    color: #f39100;
 }
