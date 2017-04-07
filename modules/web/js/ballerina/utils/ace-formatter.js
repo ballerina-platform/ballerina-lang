@@ -66,6 +66,9 @@ let newLinesRules = [
     {
         type: 'ballerina-keyword-definition',
         breakBefore: true,
+        avoidBreakBeforeUpon: {
+            contexts: ['annotationDef']
+        },
         breakAfter: false
     }
 ];
@@ -86,16 +89,19 @@ let spaceRules = [
     {
         type: 'ballerina-keyword-control',
         prepend: false,
+        forceSpaceBefore: true,
         append: true
     },
     {
         type: 'ballerina-keyword-other',
         prepend: false,
+        forceSpaceBefore: true,
         append: true
     },
     {
         type: 'ballerina-keyword-primitive-type',
         prepend: false,
+        forceSpaceBefore: true,
         append: true,
         skipAppendUponNext:{
             type: 'paren.lparen',
@@ -105,6 +111,7 @@ let spaceRules = [
     {
         type: 'ballerina-keyword-non-primitive-type',
         prepend: false,
+        forceSpaceBefore: true,
         append: true,
         skipAppendUponNext:{
             type: 'paren.lparen',
@@ -114,17 +121,20 @@ let spaceRules = [
     {
         type: 'ballerina-keyword-definition',
         prepend: false,
+        forceSpaceBefore: true,
         append: true
     },
     {
         type: 'ballerina-keyword-language',
         prepend: false,
+        forceSpaceBefore: true,
         append: true
     },
     {
         type: 'punctuation.operator',
         value: ',',
         prepend: false,
+        forceNoSpaceBefore: true,
         append: true
     },
     {
@@ -162,7 +172,8 @@ class BallerinaFormatter {
             space = ' ',
             newLine = '\n',
             tab = '\t',
-            annotationStack = [];
+            annotationStack = [],
+            inAnnotationDef = false;
 
         while (token !== null) {
 
@@ -178,9 +189,14 @@ class BallerinaFormatter {
                 token.value = token.value.trim();
             }
 
-            //detect annotation context
+            //detect annotation attachment context
             if (token.type === 'ballerina-annotation') {
                 annotationStack.push(token.value);
+            }
+
+            //detect annotation definition context
+            if (token.type === 'ballerina-keyword-definition' && token.value === 'annotation') {
+                inAnnotationDef = true;
             }
 
             // add indent counts
@@ -193,6 +209,10 @@ class BallerinaFormatter {
                 if(_.isEmpty(annotationStack)){
                     indentation--;
                 }
+                // exitting annotation def context
+                if(inAnnotationDef) {
+                    inAnnotationDef = false;
+                }
             }
 
             //put spaces
@@ -204,6 +224,12 @@ class BallerinaFormatter {
                     {
                         if (spaceRule.prepend && !_.endsWith(code, space)) {
                             value = space + token.value;
+                        }
+                        if (spaceRule.forceSpaceBefore && !_.endsWith(code, space)) {
+                            code += space;
+                        }
+                        if (spaceRule.forceNoSpaceBefore && _.endsWith(code, space)) {
+                            code = code.slice(0, -1);
                         }
                         if (spaceRule.append) {
                             if(_.has(spaceRule, 'skipAppendUponNext')){
@@ -241,6 +267,13 @@ class BallerinaFormatter {
                                 if(_.isEqual(_.get(avoidBreakBeforeUpon, 'lastNonWhiteSpaceToken.type'), _.get(lastNonWhiteSpaceToken, 'type'))
                                     && _.isEqual(_.get(avoidBreakBeforeUpon, 'lastNonWhiteSpaceToken.value'), _.get(lastNonWhiteSpaceToken, 'value'))){
                                     skipBreakBefore = true;
+                                }
+                                if(_.has(avoidBreakBeforeUpon, 'contexts')) {
+                                    avoidBreakBeforeUpon.contexts.forEach(context => {
+                                        if (_.isEqual(context, 'annotationDef') && inAnnotationDef && !_.isEqual(token.value, 'annotation')) {
+                                            skipBreakBefore = true;
+                                        }
+                                    });
                                 }
                             }
                             if(!skipBreakBefore){
