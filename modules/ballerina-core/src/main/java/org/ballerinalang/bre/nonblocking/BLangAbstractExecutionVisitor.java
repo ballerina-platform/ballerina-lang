@@ -1351,11 +1351,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BValue[] localVals = new BValue[1];
         localVals[0] = bConnector;
 
-        // Create an arrays in the stack frame to hold return values;
         BValue[] returnVals = new BValue[0];
 
-        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
-        // return values and function invocation location;
         CallableUnitInfo functionInfo = new CallableUnitInfo(action.getName(), action.getPackagePath(),
                 action.getNodeLocation());
 
