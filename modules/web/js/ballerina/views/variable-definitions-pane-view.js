@@ -60,7 +60,6 @@ class VariableDeclarationsPaneView {
         variableButton.css('left', parseInt(this._viewOptions.position.x) + 'px');
         variableButton.css('top', parseInt(this._viewOptions.position.y) + 'px');
 
-
         $('<span class=\'btn-icon\'> Variables </span>').appendTo(variableButton);
 
         var variablePaneWrapper = $('<div class=\'variable-pane\'/>').appendTo($(this._paneAppendElement));

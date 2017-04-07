@@ -530,14 +530,14 @@ class AnnotationDefinitionView extends SVGCanvas {
 
     _renderAttachments(attachmentPaneWrapper, collapserWrapper) {
         // Clear existing variables on UI.
-        $(attachmentPaneWrapper).find('.variable-wrapper').remove();
+        $(attachmentPaneWrapper).find('.attachment-wrapper').remove();
 
         var self = this;
 
         _.forEach(this._model.getAttachmentPoints(), function (attachmentPoint) {
             var variableDefinitionWrapper = $('<div/>', {
                 id: self.getModel().getID(),
-                class: 'variable-wrapper variable-wrapper-message'
+                class: 'attachment-wrapper variable-wrapper-message'
             }).data('model', self.getModel()).appendTo(attachmentPaneWrapper);
 
             self._variableDefinitionWrapper = variableDefinitionWrapper;
