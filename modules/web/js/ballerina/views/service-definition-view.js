@@ -243,8 +243,8 @@ class ServiceDefinitionView extends SVGCanvas {
             viewOfModel: this,
             viewOptions: {
                 position: {
-                    x: 8,
-                    y: 7
+                    x: 45,
+                    y: 20
                 },
                 width: $(this.getChildContainer().node().ownerSVGElement.parentElement).width() - (2 * 36)
             }

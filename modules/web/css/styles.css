@@ -294,12 +294,17 @@ button.variable-list {
     height: 20px;
 }
 
-.variable-wrapper i {
+.variable-wrapper i,
+.attachment-wrapper i {
     padding:6px;
     font-size: 8px;
     background-color: #fff;
     color: #19b89c;
     opacity: 0.5;
+}
+
+.attachment-wrapper i {
+    color: #000005;
 }
 
 .variable-wrapper i:hover {
@@ -839,14 +844,9 @@ button.variable-list {
     fill: #eaeaea;
 }
 
-.variables-content-wrapper {
-    float: left;
-}
-
-.variables-action-wrapper {
-    float: left;
-}
-
+.variables-content-wrapper,
+attachment-content-wrapper,
+.variables-action-wrapper,
 .attachment-action-wrapper {
     float: left;
 }
@@ -860,6 +860,22 @@ button.variable-list {
     margin: 7px 2px 0 7px;
     opacity: 1;
 }
+
+.attachment-add-action-wrapper{
+    display: none;
+    width: 517px;
+    background-color: #ddd;
+    height: 26px;
+    padding: 2px 4px;
+ }
+
+.attachment-add-action-wrapper input{
+    width: 88%;
+    margin-left: 4px;
+    height: 22px;
+    padding-left: 5px;
+    border: 1px solid #dfdfdf;
+ }
 
 .variable-add-action-wrapper {
     display: none;
@@ -877,24 +893,31 @@ button.variable-list {
     border: 1px solid #dfdfdf;
 }
 
-.variable-add-complete-action-wrapper {
+.variable-add-complete-action-wrapper,
+.attachment-add-complete-action-wrapper {
     height: 22px;
     position: static;
     float: right;
 }
 
-.variable-add-cancel-action-wrapper {
+.variable-add-cancel-action-wrapper,
+.attachment-add-cancel-action-wrapper {
     height: 22px;
     position: static;
     float: right;
 }
 
-.variable-wrapper {
+.variable-wrapper,
+.attachment-wrapper {
     float: left;
     border: 1px solid #19b89c;
     margin: 2px;
     font-size: 12px;
     height: 22px;
+}
+
+.attachment-wrapper {
+   border: 1px solid #000005; 
 }
 
 /** Start of Constants view **/
@@ -981,6 +1004,16 @@ button.variable-list {
     margin-bottom: 3px;
 }
 
+.attachment-pane {
+    border: 1px solid #dddddd;
+    background-color: #fff;
+    position: absolute;
+    top: 9px;
+    left: 28px;
+    margin: auto;
+    min-height: 28px;
+ }
+
 .constant-pane-collapser-wrapper, 
 .import-pane-collapser-wrapper, 
 .variable-pane-collapser-wrapper,
@@ -1000,6 +1033,14 @@ button.variable-list {
 
 .constant-pane-collapser-wrapper { background-color: #9b59b6; }
 .import-pane-collapser-wrapper { background-color: #f39c12; }
+.attachment-pane-collapser-wrapper {
+    margin-left: 4px;
+    height: 27px;
+    right: -23px;
+    top: 0;
+    background-color: #000005;
+    padding: 9px;
+}
 .variable-pane-collapser-wrapper {
     background-color: #3498db;
     top: 0;
@@ -1011,23 +1052,6 @@ button.variable-list {
     vertical-align: top;
     top: 8px;
     right: 7px;
-}
-
-.attachment-pane-collapser-wrapper {
-    font-size: 14px;
-    padding: 9px;
-    background-color: #efefef;
-    height: 27px;
-    width: 23px;
-    margin-left: 4px;
-    position: absolute;
-    right: -23px;
-    top: 0;
-}
-
-.attachment-pane-collapser-wrapper:hover{
-    background-color: #333;
-    color: #fff;
 }
 
 .attachment-pane-collapser-wrapper:hover{
@@ -1509,6 +1533,10 @@ span.fw-stack.fw-lg {
 .package-name-btn { border-left-color: #16a085; }
 .imports-btn { border-left-color: #f39c12; }
 .variable-btn { border-left-color: #3498db; }
+.attachments-btn {
+    position: absolute;
+    width: 90px;
+}
 
 .import-declaration-type{
     float: left;
