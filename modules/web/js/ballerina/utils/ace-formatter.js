@@ -194,11 +194,6 @@ class BallerinaFormatter {
                 annotationStack.push(token.value);
             }
 
-            //detect annotation definition context
-            if (token.type === 'ballerina-keyword-definition' && token.value === 'annotation') {
-                inAnnotationDef = true;
-            }
-
             // add indent counts
             if (token.type === 'paren.lparen' && token.value === '{') {
                 if(_.isEmpty(annotationStack)){
@@ -225,7 +220,9 @@ class BallerinaFormatter {
                         if (spaceRule.prepend && !_.endsWith(code, space)) {
                             value = space + token.value;
                         }
-                        if (spaceRule.forceSpaceBefore && !_.endsWith(code, space)) {
+                        if (spaceRule.forceSpaceBefore && (!_.endsWith(code, space)
+                                      && !_.endsWith(code, tab)
+                                      && !_.endsWith(code, newLine))) {
                             code += space;
                         }
                         if (spaceRule.forceNoSpaceBefore && _.endsWith(code, space)) {
@@ -270,7 +267,7 @@ class BallerinaFormatter {
                                 }
                                 if(_.has(avoidBreakBeforeUpon, 'contexts')) {
                                     avoidBreakBeforeUpon.contexts.forEach(context => {
-                                        if (_.isEqual(context, 'annotationDef') && inAnnotationDef && !_.isEqual(token.value, 'annotation')) {
+                                        if (_.isEqual(context, 'annotationDef') && inAnnotationDef) {
                                             skipBreakBefore = true;
                                         }
                                     });
@@ -313,6 +310,11 @@ class BallerinaFormatter {
                         }
                     }
                 });
+            }
+
+            //detect annotation definition context
+            if (token.type === 'ballerina-keyword-definition' && token.value === 'annotation') {
+                inAnnotationDef = true;
             }
 
             if (token.type === 'paren.rparen') {
