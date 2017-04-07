@@ -100,7 +100,6 @@ class ExpressionEditor{
 
         // when enter is pressed we will commit the change.
         this._editor.commands.bindKey("Enter|Shift-Enter", (e)=>{
-            debugger;
             let text = this._editor.getSession().getValue();
             property.model.trigger('update-property-text', text , property.key);
             property.model.trigger('focus-out');

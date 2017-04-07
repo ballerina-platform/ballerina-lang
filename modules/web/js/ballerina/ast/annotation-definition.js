@@ -76,7 +76,7 @@ class AnnotationDefinition extends ASTNode {
         // If annotation attribute definition with the same identifier exists, then throw an error,
         // else create the new annotation attribute definition.
         if (identifierAlreadyExists) {
-            var errorString = 'A attribute with identifier \'' + identifier + '\' already exists.';
+            var errorString = 'An attribute with identifier \'' + identifier + '\' already exists.';
             log.error(errorString);
             throw errorString;
         } else {
@@ -91,6 +91,38 @@ class AnnotationDefinition extends ASTNode {
 
             this.addChild(newAnnotationAttributeDefinition, index + 1);
         }
+    }
+
+    /**
+     * Add Annotation attachments to the model.
+     * @param {string} identifier - attachment name.
+     * */
+    addAnnotationAttachmentPoint(identifier) {
+        if (_.isEmpty(identifier)) {
+            var errorString = 'Identifier cannot be empty';
+            log.error(errorString);
+            throw errorString;
+        }
+
+        var identifierAlreadyExists = _.findIndex(this.getAttachmentPoints(), function (attachmentPoint) {
+                return _.isEqual(identifier, attachmentPoint);
+            }) !== -1;
+
+        if(identifierAlreadyExists){
+            var errorString = 'An attribute with identifier "'+identifier+'" already exists.';
+            log.error(errorString);
+            throw errorString;
+        }else{
+            this._attachmentPoints.push(identifier);
+        }
+    }
+
+    /**
+     * Remove annotation attachment points.
+     * @param {string} identifier - identifier for the attachment point.
+     * */
+    removeAnnotationAttachmentPoints(identifier) {
+        _.pull(this._attachmentPoints,identifier);
     }
 
      /**
@@ -109,7 +141,7 @@ class AnnotationDefinition extends ASTNode {
         var self = this;
         this.setAnnotationName(jsonNode.annotation_name, {doSilently: true});
         if (!_.isNil(jsonNode.annotation_attachment_points)){
-            this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), {doSilently: true});
+        this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), {doSilently: true});
         }
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);

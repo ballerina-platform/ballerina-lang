@@ -252,6 +252,16 @@ ol#breadcrumbList {
     min-height: 28px;
 }
 
+.attachment-pane {
+    border: 1px solid #dddddd;
+    background-color: #fff;
+    position: absolute;
+    top: 9px;
+    left: 28px;
+    margin: auto;
+    min-height: 28px;
+}
+
 .resource-variable-pane {
     background-color: #f3f3f3;
     padding: 7px 7px 0 7px;
@@ -634,7 +644,18 @@ button.variable-list {
     opacity: 0.4;
 }
 
+.attachments-btn{
+    position: absolute;
+    z-index: 30;
+    opacity: 0.4;
+}
+
 .variable-btn:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.attachments-btn:hover{
     opacity: 1;
     cursor: pointer;
 }
@@ -861,8 +882,24 @@ button.variable-list {
     padding: 2px 4px;
 }
 
+.attachment-add-action-wrapper{
+    display: none;
+    width: 517px;
+    background-color: #ddd;
+    height: 26px;
+    padding: 2px 4px;
+}
+
 .variable-add-action-wrapper input {
     width: 163px;
+    margin-left: 4px;
+    height: 22px;
+    padding-left: 5px;
+    border: 1px solid #dfdfdf;
+}
+
+.attachment-add-action-wrapper input{
+    width: 88%;
     margin-left: 4px;
     height: 22px;
     padding-left: 5px;
@@ -1469,6 +1506,17 @@ span.fw-stack.fw-lg {
 .constants-btn, .package-name-btn, .imports-btn, .variable-btn {
     background: #333;
     width: 69px;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px 0 0 5px;
+    height: 28px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.attachments-btn {
+    background: #333;
+    width: 80px;
     color: #fff;
     padding: 5px 10px;
     border-radius: 5px 0 0 5px;

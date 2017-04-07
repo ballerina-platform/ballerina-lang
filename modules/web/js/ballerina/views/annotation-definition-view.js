@@ -108,7 +108,9 @@ class AnnotationDefinitionView extends SVGCanvas {
         var canvas_heading_new = _.get(this._viewOptions, "cssClass.canvas_heading_new", "");
         var new_drop_timeout = _.get(this._viewOptions, "design_view.new_drop_timeout", "");
         hadingBox.addClass(canvas_heading_new);
-        setTimeout(function(){hadingBox.removeClass(canvas_heading_new);}, new_drop_timeout);
+        setTimeout(function () {
+            hadingBox.removeClass(canvas_heading_new);
+        }, new_drop_timeout);
 
         $(this.getTitle()).text(this.getModel().getAnnotationName())
             .on("change paste keyup", function () {
@@ -137,202 +139,186 @@ class AnnotationDefinitionView extends SVGCanvas {
                 }
             }
         });
-
-
-
         /////////////////////////////////////////////////
-        this._constantDefinitionsButton = $('<div class=\'constants-btn\' data-toggle=\'tooltip\' title=\'Constants\' ' +
-            'data-placement=\'bottom\'></div>')
-            .appendTo(this._paneAppendElement);
 
-        $('<span class=\'btn-icon\'>' +
-            ' Const. </span>')
-            .appendTo(this._constantDefinitionsButton).tooltip();
+        var attachmentButton = $('<div class="attachments-btn" data-toggle="tooltip" title="Attachments" data-placement="bottom"></div>')
+            .appendTo(this.getBodyWrapper()).tooltip();
 
-        this._constantsDefinitionsMainWrapper = $('<div class=\'constants-pane\'/>').appendTo(this._paneAppendElement);
+        // Positioning the attachment button.
+        attachmentButton.css('left', '5px');
+        attachmentButton.css('top', '5px');
 
-        var constantsWrapper = $('<div class=\'constants-wrapper\'/>').appendTo(this._constantsDefinitionsMainWrapper);
+        $('<span class="btn-icon">Attachments</span>').appendTo(attachmentButton);
 
-        var collapserWrapper = $('<div class=\'constant-pane-collapser-wrapper\' data-placement=\'bottom\' ' +
-            ' title=\'Open Constant Pane\' data-toggle=\'tooltip\'/>')
+        var attachmentPaneWrapper = $('<div class="attachment-pane"/>').appendTo($(this.getBodyWrapper()));
+        // Positioning the variable pane from the left border of the container(service, resource, etc).
+        attachmentPaneWrapper.css('left', (5 + 80) + 'px');
+        // Positioning the variable pane from the top border of the container(service, resource, etc).
+        attachmentPaneWrapper.css('top', (5 - 0) + 'px');
+        // Setting max-width of the variable wrapper.
+        attachmentPaneWrapper.css('max-width', this._viewOptions.width + 'px');
+        attachmentPaneWrapper.css('margin-bottom', 10 + 'px');
+
+        var attachmentContentWrapper = $('<div class="variables-content-wrapper"/>').appendTo(attachmentPaneWrapper);
+
+        var collapserWrapper = $('<div class="variable-pane-collapser-wrapper"/>')
             .data('collapsed', 'true')
-            .appendTo(constantsWrapper);
-        $('<i class=\'fw fw-right\'></i>').appendTo(collapserWrapper);
+            .appendTo(attachmentPaneWrapper);
+        $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
 
-        var constantsActionWrapper = $('<div class=\'constants-action-wrapper\'/>').appendTo(constantsWrapper);
+        var variablesActionWrapper = $('<div class="variables-action-wrapper"/>').appendTo(attachmentContentWrapper);
 
-        // Creating add constant editor button.
-        var addConstantButton = $('<div class=\'action-icon-wrapper constant-add-icon-wrapper\' title=\'Add Constant\'' +
-            'data-toggle=\'tooltip\' data-placement=\'bottom\'/>')
-            .appendTo(constantsActionWrapper);
-        $('<i class=\'fw fw-add\'></i>').appendTo(addConstantButton);
+        // Creating add variable editor button.
+        var addVariableButton = $('<div class="action-icon-wrapper variable-add-icon-wrapper" ' +
+            'data-toggle="tooltip" title="Add Attachment" data-placement="bottom"/>')
+            .appendTo(variablesActionWrapper).tooltip();
+        $('<i class="fw fw-add"></i>').appendTo(addVariableButton);
 
-        var constantsAddPane = $('<div class=\'action-content-wrapper-heading constant-add-action-wrapper\'/>')
-            .appendTo(constantsActionWrapper);
+        var variableAddPane = $('<div class="action-content-wrapper-heading attachment-add-action-wrapper"/>')
+            .appendTo(variablesActionWrapper);
 
-        var typeDropdownWrapper = $('<div class="type-drop-wrapper"></div>').appendTo(constantsAddPane);
-        var constantIdentifierText = $('<input id=\'text\' placeholder=\'Identifier\'/>').appendTo(constantsAddPane);
-        var constantValueText = $('<input id=\'text\' placeholder=\'Value\'/>').appendTo(constantsAddPane);
+        // Creating the variable type dropdown.
+        var variableIdentifier = $('<input id="text" placeholder="Identifier"/>').appendTo(variableAddPane);
 
-        var constantBTypeSelect = $('<select/>').appendTo(typeDropdownWrapper);
-
-        $(constantBTypeSelect).select2({
-            data: this._getTypeDropdownValues(),
-            tags: true,
-            selectOnClose: true
-        });
-
-        $(document).ready(function() {
-            $(typeDropdownWrapper).empty();
-            constantBTypeSelect = $('<select/>').appendTo(typeDropdownWrapper);
-            $(constantBTypeSelect).select2({
-                tags: true,
-                selectOnClose: true,
-                data : self._getTypeDropdownValues(),
-                query: function (query) {
-                    var data = {results: []};
-                    if (!_.isNil(query.term)) {
-                        _.forEach(self._getTypeDropdownValues(), function (item) {
-                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
-                                data.results.push(item);
-                            }
-                        });
-                        // Adding user typed string when there is no any matching item in the list
-                        if(data.results.length == 0){
-                            data.results.push({id: query.term, text: query.term});
-                        }
-                    } else {
-                        data.results = self._getTypeDropdownValues();
-                    }
-                    query.callback(data);
-                }
-            });
-
-            $(constantBTypeSelect).on('select2:open', function() {
-                $('.select2-search__field').attr('placeholder', 'Search');
-            });
-        });
-
-        // Add new constant upon enter key.
-        $(constantIdentifierText).keypress(function (e) {
-            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
-             (Chrome and IE ignore keypress event of these keys in browser level)*/
-            if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (_.isEqual(enteredKey, 13)) {
-                    constantAddCompleteButtonPane.click();
-                    e.stopPropagation();
-                    return false;
-                }
-
-                var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
-
-                // Validation the identifier against grammar.
-                if (!ASTNode.isValidIdentifier(newIdentifier)) {
-                    var errorString = 'Invalid identifier for a parameter: ' + newIdentifier;
-                    log.error(errorString);
-                    Alerts.error(errorString);
-                    e.stopPropagation();
-                    return false;
-                }
+        // Add new variable upon enter key.
+        $(variableIdentifier).on('change paste keydown', function (e) {
+            if (_.isEqual(e.which, 13)) {
+                variableAddCompleteButtonPane.click();
             }
-        });
-
-        // Add new constant when pressed enter on value field.
-        $(constantValueText).keypress(function(e){
+        }).keypress(function (e) {
             var enteredKey = e.which || e.charCode || e.keyCode;
+
             // Disabling enter key
             if (_.isEqual(enteredKey, 13)) {
-                constantAddCompleteButtonPane.click();
+                e.stopPropagation();
+                return false;
+            }
+
+            var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
+
+            // Validation the identifier against grammar.
+            if (!ASTNode.isValidIdentifier(newIdentifier)) {
+                var errorString = 'Invalid identifier for a variable: ' + newIdentifier;
+                log.error(errorString);
+                Alerts.error(errorString);
                 e.stopPropagation();
                 return false;
             }
         });
 
-        // Creating cancelling add new constant button.
-        var constantAddCancelButtonPane = $('<div class=\'action-icon-wrapper constant-add-cancel-action-wrapper\' ' +
-            'data-placement=\'bottom\' title=\'Cancel\' data-toggle=\'tooltip\'/>')
-            .appendTo(constantsAddPane);
-        $('<span class=\'fw-stack fw-lg\'><i class=\'fw fw-square fw-stack-2x\'></i>' +
-            '<i class=\'fw fw-cancel fw-stack-1x fw-inverse\'></i></span>').appendTo(constantAddCancelButtonPane);
-        // Creating add new constant button.
-        var constantAddCompleteButtonPane = $('<div class=\'action-icon-wrapper ' +
-            'constant-add-complete-action-wrapper\' title=\'Add\' data-placement=\'bottom\' data-toggle=\'tooltip\'/>')
-            .appendTo(constantsAddPane);
-        $('<span class=\'fw-stack fw-lg\'><i class=\'fw fw-square fw-stack-2x\'></i>' +
-            '<i class=\'fw fw-check fw-stack-1x fw-inverse\'></i></span>').appendTo(constantAddCompleteButtonPane);
+        // Creating cancelling add new variable button.
+        var variableAddCancelButtonPane = $('<div class="action-icon-wrapper variable-add-cancel-action-wrapper"/>')
+            .appendTo(variableAddPane);
+        $('<span class="fw-stack fw-lg"><i class="fw fw-square fw-stack-2x"></i>' +
+            '<i class="fw-cancel fw-stack-1x fw-inverse"></i></span>').appendTo(variableAddCancelButtonPane);
+        // Creating add new variable button.
+        var variableAddCompleteButtonPane = $('<div class="action-icon-wrapper ' +
+            'variable-add-complete-action-wrapper">').appendTo(variableAddPane);
+        $('<span class="fw-stack fw-lg"><i class="fw fw-square fw-stack-2x"></i>' +
+            '<i class="fw fw-check fw-stack-1x fw-inverse"></i></span>').appendTo(variableAddCompleteButtonPane);
 
-        // Add new constant activate button.
-        $(addConstantButton).click(function () {
-            $(constantsAddPane).show();
+        // Add new variable activate button.
+        $(addVariableButton).click(function () {
+            $(variableAddPane).show();
             $(this).hide();
-            $(constantIdentifierText).focus();
-            self._constantDefinitionsButton.css('opacity', '1');
+            $(variableIdentifier).focus();
         });
 
-        // Cancel adding a new constant.
-        $(constantAddCancelButtonPane).click(function () {
-            $(constantsAddPane).hide();
-            $(addConstantButton).show();
-            self._constantDefinitionsButton.css('opacity', '');
+        // Cancel adding a new variable.
+        $(variableAddCancelButtonPane).click(function () {
+            $(variableAddPane).hide();
+            $(addVariableButton).show();
         });
 
-        var constantsDefinitionsContentWrapper = $('<div class=\'constants-content-wrapper\'/>')
-            .appendTo(constantsWrapper);
-        this._constantsDefViewsContainer = constantsDefinitionsContentWrapper;
+        // Rendering the variables
+        this._renderAttachments(attachmentContentWrapper, collapserWrapper);
 
         // When a new variable is created.
-        $(constantAddCompleteButtonPane).click(function () {
-            var typeOfNewConstant = constantBTypeSelect.val();
-            var identifierOfNewConstant = constantIdentifierText.val();
-            var valueOfNewConstant = constantValueText.val();
+        $(variableAddCompleteButtonPane).click(function () {
+            var identifierOfNewVariable = variableIdentifier.val().trim();
 
             try {
-                self._model.addConstantDefinition(typeOfNewConstant, identifierOfNewConstant, valueOfNewConstant);
+                self._model.addAnnotationAttachmentPoint(identifierOfNewVariable);
+                var oldWrapperSize = $(attachmentContentWrapper).height();
 
-                // Clearing values in inputs.
-                constantIdentifierText.val('');
-                constantValueText.val('');
-
+                // Recreating the arguments details view.
+                self._renderAttachments(attachmentContentWrapper, collapserWrapper);
 
                 // Changing the content of the collapser.
                 collapserWrapper.empty();
                 collapserWrapper.data('collapsed', 'false');
                 $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
-                constantsWrapper.show();
-                self._constantsDefinitionsMainWrapper.css('width', '92%');
+                attachmentContentWrapper.show();
+
+                // Clearing values in inputs.
+                variableIdentifier.val('');
+
+                // Trigger the event to inform that a new variable has been added and the height of the variable pane
+                // has been changed
+                $(attachmentContentWrapper).trigger('contentWrapperShown', $(attachmentContentWrapper).height() - oldWrapperSize);
             } catch (error) {
+                log.error(error);
                 Alerts.error(error);
             }
         });
 
-        // The click event for hiding and showing constants.
+        // Hiding/showing the attachments depending on the default "collapsed" value of collapserWrapper.
+        if (_.isEqual(collapserWrapper.data('collapsed'), 'false')) {
+            $(collapserWrapper).empty();
+            $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
+            attachmentContentWrapper.find('.variable-wrapper').show();
+            var dh = $(attachmentContentWrapper).height() !== this._minHeight ?
+                $(attachmentContentWrapper).height() - this._minHeight : 0;
+            $(attachmentPaneWrapper).trigger('contentWrapperShown', dh);
+        } else {
+            $(collapserWrapper).empty();
+            $('<i class=\'fw fw-right\'></i>').appendTo(collapserWrapper);
+            attachmentContentWrapper.find('.variable-wrapper').hide();
+            var height = $(attachmentContentWrapper).height();
+            $(attachmentPaneWrapper).trigger('contentWrapperHidden', height);
+        }
+
+        // The click event for hiding and showing attachments.
         collapserWrapper.click(function () {
             $(this).empty();
             if ($(this).data('collapsed') === 'false') {
-                $(this).data('collapsed', 'true').attr('data-original-title', 'Open Constant Pane').tooltip('hide');
+                $(this).data('collapsed', 'true');
                 $('<i class=\'fw fw-right\'></i>').appendTo(this);
-                constantsWrapper.find('.constants-content-wrapper').hide();
-                constantsActionWrapper.hide();
-                self._constantsDefinitionsMainWrapper.css('width', '0%');
+                attachmentContentWrapper.find('.variable-wrapper').hide();
+                $(attachmentContentWrapper).trigger('contentWrapperHidden');
             } else {
-                $(this).data('collapsed', 'false').attr('data-original-title', 'Close Constant Pane').tooltip('hide');
+                $(this).data('collapsed', 'false');
                 $('<i class=\'fw fw-left\'></i>').appendTo(this);
-                constantsActionWrapper.show();
-                constantsWrapper.find('.constants-content-wrapper').show();
-                self._constantsDefinitionsMainWrapper.css('width', '92%');
+                attachmentContentWrapper.find('.variable-wrapper').show();
+                var dh = $(attachmentContentWrapper).height() !== self._minHeight ?
+                    $(attachmentContentWrapper).height() - self._minHeight : 0;
+                $(attachmentContentWrapper).trigger('contentWrapperShown', dh);
+            }
+        });
+
+        // By default the variable pane is shown on pane load.
+        $(attachmentButton).css('opacity', 1);
+
+        // When the variable button is clicked we show and hide the variable pane.
+        $(attachmentButton).click(function () {
+            if ($(attachmentPaneWrapper).is(':visible')) {
+                // Variable pane is already shown.
+                $(this).css({opacity: ''});
+                attachmentPaneWrapper.hide();
+
+            } else {
+                // Variable pane is hidden.
+                $(this).css('opacity', 1);
+                attachmentPaneWrapper.show();
             }
         });
 
         // Stop propagating event to elements behind. This is needed for closing the wrapper when clicked outside.
-        this._constantsDefinitionsMainWrapper.click(function (event) {
+        attachmentPaneWrapper.click(function (event) {
             event.stopPropagation();
         });
+
         /////////////////////////////////////////////////
-
-
-
 
         var structContentWrapper = $("<div/>", {
             id: this.getModel().getID(),
@@ -542,8 +528,49 @@ class AnnotationDefinitionView extends SVGCanvas {
             });
         });
     }
+
+    _renderAttachments(attachmentPaneWrapper, collapserWrapper) {
+        // Clear existing variables on UI.
+        $(attachmentPaneWrapper).find('.variable-wrapper').remove();
+
+        var self = this;
+
+        _.forEach(this._model.getAttachmentPoints(), function (attachmentPoint) {
+            var variableDefinitionWrapper = $('<div/>', {
+                id: self.getModel().getID(),
+                class: 'variable-wrapper variable-wrapper-message'
+            }).data('model', self.getModel()).appendTo(attachmentPaneWrapper);
+
+            self._variableDefinitionWrapper = variableDefinitionWrapper;
+
+            var variableDefintionStatementWrapper = $('<span/>', {
+                text: attachmentPoint,
+                'contenteditable': true,
+                class: 'variable-identifier variable-identifier-message',
+                'prevValue': attachmentPoint
+            }).keyup(function() {
+                try {
+                    self.getModel().removeAnnotationAttachmentPoints($(variableDefintionStatementWrapper).attr('prevValue'));
+                    self.getModel().addAnnotationAttachmentPoint($(this).text().trim()+'');
+                    $(variableDefintionStatementWrapper).attr('prevValue',$(this).text().trim()+'');
+                } catch (error) {
+                    Alerts.error(error);
+                }
+            }).appendTo(variableDefinitionWrapper);
+
+            // Creating delete button.
+            var deleteButton = $('<i class=\'fw fw-cancel\'></i>').appendTo(variableDefinitionWrapper);
+
+            self._deleteButton = deleteButton.get(0);
+
+            $(self._deleteButton).click(() => {
+                var oldWrapperSize = $('.variables-content-wrapper').height();
+                self.removeAnnotationAttachmentPoints($(variableDefintionStatementWrapper).text().trim()+'');
+                self._renderAttachments(attachmentPaneWrapper, collapserWrapper);
+                $('.variables-content-wrapper').trigger('contentWrapperShown', $('.variables-content-wrapper').height() - oldWrapperSize);
+            });
+        });
+    }
 }
-
 AnnotationDefinitionView.prototype.constructor = Canvas;
-
 export default AnnotationDefinitionView;
