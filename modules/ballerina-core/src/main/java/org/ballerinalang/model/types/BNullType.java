@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,35 +18,32 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BConnectorType} represents a {@code Connector} in Ballerina.
+ * {@code BNullType} represents the type of a {@code NullLiteral}.
  *
- * @since 0.8.0
+ * @since 0.86
  */
-public class BConnectorType extends BType {
+public class BNullType extends BType {
 
     /**
-     * Create a {@code BConnectorType} which represents the boolean type.
+     * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
      *
      * @param typeName string name of the type
-     * @param pkgPath package of the connector
-     * @param symbolScope symbol scope of the connector
+     * @param pkgPath package path
+     * @param symbolScope symbol scope of the type
      */
-    public BConnectorType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BConnector.class);
+    BNullType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, null);
     }
 
-    @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        return (V) null;
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BConnector();
+        return (V) null;
     }
 }
-

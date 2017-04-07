@@ -18,6 +18,7 @@ struct Family {
 }
 
 function testCreateStruct() (string, map, int){
+    map address1;
     map address = {"country":"USA","state":"CA"};
     Person emp = {name:"Jack", adrs:address, age:25};
     return emp.name, emp.adrs, emp.age;

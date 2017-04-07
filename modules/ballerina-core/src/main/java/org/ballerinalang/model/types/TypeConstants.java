@@ -40,5 +40,6 @@ public class TypeConstants {
     static final String NATIVE_PACKAGE = "ballerina.model.typemappers";
     static final String DATATABLE_TNAME = "datatable";
     static final String ANY_TNAME = "any";
+    public static final String NULL_TNAME = "null";
 }
 

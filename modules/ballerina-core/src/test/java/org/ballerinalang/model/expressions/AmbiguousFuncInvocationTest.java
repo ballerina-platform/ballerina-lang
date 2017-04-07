@@ -35,7 +35,6 @@ public class AmbiguousFuncInvocationTest {
 
     }
 
-
     @Test(description = "Test invoking ambiguous function",
           expectedExceptions = {SemanticException.class },
           expectedExceptionsMessageRegExp = "ambiguous-func-invocation.bal:3: function reference 'ambiguousFunc' " +
