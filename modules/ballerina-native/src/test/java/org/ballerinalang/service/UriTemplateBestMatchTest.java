@@ -93,6 +93,22 @@ public class UriTemplateBestMatchTest {
                 , "Resource dispatched to wrong template");
     }
 
+    @Test(description = "Test dispatching with URL. /hello/echo2/shafreen-anfar")
+    public void testMostSpecificWithPathParam() {
+        String path = "/hello/echo2/shafreen-anfar";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+
+        Assert.assertEquals(bJson.value().get("first").asText(), "shafreen"
+                , "Resource dispatched to wrong template");
+
+        Assert.assertEquals(bJson.value().get("second").asText(), "anfar"
+                , "Resource dispatched to wrong template");
+    }
+
     @AfterClass
     public void tearDown() {
         EnvironmentInitializer.cleanup(application);

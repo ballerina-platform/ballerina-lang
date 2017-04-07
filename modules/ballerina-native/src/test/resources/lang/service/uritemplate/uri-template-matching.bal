@@ -12,6 +12,15 @@ service echo4 {
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+
+    @http:GET{}
+    @http:Path {value:"/echo2/{abc}-{xyz}"}
+    resource echo1 (message m, @http:PathParam {value:"abc"} string abc, @http:PathParam {value:"xyz"} string xyz) {
+        message response = {};
+        json responseJson = `{"first":${abc}, "second":${xyz}}`;
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
 }
 
 @http:BasePath {value:"/hello/world"}
