@@ -20,8 +20,10 @@ import 'ace/ext-language_tools';
 import 'ace/ext-searchbox';
 import '../ballerina/utils/ace-mode';
 import ballerina from 'ballerina';
+import { completerFactory } from './completer-factory.js';
 var ace = global.ace;
 var Range = ace.require('ace/range');
+
 
 // require possible themes
 function requireAll(requireContext) {
@@ -31,10 +33,12 @@ requireAll(require.context('ace', false, /theme-/));
 
 // require ballerina mode
 var mode = ace.require('ace/mode/ballerina');
+var langTools = ace.require("ace/ext/language_tools");
+
 
 class ExpressionEditor{
 
-    constructor(editorWrapper, wrapperClass, property, callback) {
+    constructor(editorWrapper, wrapperClass, property, packageScope , callback) {
         this._property = property;
         this.default_with = $(editorWrapper).width();
         var propertyWrapper = $("<div/>", {
@@ -67,6 +71,10 @@ class ExpressionEditor{
             this._editor.setFontSize("12pt");
         }
 
+        let completers = completerFactory.getCompleters(property.key, packageScope);
+        if(completers){
+            langTools.setCompleters(completers);
+        }
 
         this._editor.setOptions({
             enableBasicAutocompletion:true,
@@ -76,12 +84,11 @@ class ExpressionEditor{
 
         this._editor.setBehavioursEnabled(true);
         this._editor.focus();
-        var n = this._editor.getSession().getValue().split("\n").length; // To count total no. of lines
-        this._editor.gotoLine(n, propertyValue.length);
-        // returns the width in pixels needed to show a given text
-        // This adds the text to the hidden span and takes its width
-        // This is done so that we can measure the exact width needed for the input to show the text
 
+        //we need to place the cursor at the end of the text
+        this._editor.gotoLine(1, propertyValue.length);
+
+        // resize the editor to the text width.
         $(propertyInputValue).css("width", this.getNecessaryWidth(propertyValue));
         $(propertyInputValue).focus();
         this._editor.resize();

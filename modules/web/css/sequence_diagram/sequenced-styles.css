@@ -317,6 +317,18 @@ text-anchor: start;
     opacity: 1;
     fill: url(/#debugRemoveIcon);
 }
+
+.property-pane-action-button-jump {
+    opacity: 0.3;
+    fill: url(/#statementJumpIcon);
+}
+
+.property-pane-action-button-jump:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(/#statementJumpIcon);
+}
+
 .statement-view-breakpoint-indicator {
     opacity: 0.8;
     fill: url(/#debugIcon);
