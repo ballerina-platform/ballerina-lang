@@ -849,7 +849,7 @@ button.variable-list {
 
 .variable-add-action-wrapper {
     display: none;
-    width: 517px;
+    width: 515px;
     background-color: #ddd;
     height: 28px;
     padding: 2px 4px;
@@ -857,7 +857,7 @@ button.variable-list {
 
 .variable-add-action-wrapper input {
     width: 163px;
-    margin-left: 4px;
+    margin-left: 2px;
     height: 22px;
     padding-left: 5px;
     border: 1px solid #dfdfdf;
@@ -988,14 +988,7 @@ button.variable-list {
 .variable-pane-collapser-wrapper {
     background-color: #3498db;
     top: 0;
-    right: -23px;
-}
-
-.variable-pane-collapser-wrapper:hover {
-    background-color: #333;
-    color: #fff;
-    cursor: pointer;
-    opacity: 1;
+    right: -21px;
 }
 
 .variable-pane-collapser-wrapper i {

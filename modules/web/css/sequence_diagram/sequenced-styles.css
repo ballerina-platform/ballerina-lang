@@ -404,16 +404,13 @@ text-anchor: start;
 
 .connector-life-line text {
     cursor: pointer;
+    fill: #fff;
 }
 
-.connector-life-line-top-polygon {
-    fill: white;
-    stroke: black;
-}
-
+.connector-life-line-top-polygon,
 .connector-life-line-bottom-polygon {
-    fill: white;
-    stroke: black;
+    fill: #8e8e8e;
+    stroke-width: 0;
 }
 
 .connector-life-line line{
@@ -426,6 +423,7 @@ text-anchor: start;
 
 .worker-life-line text {
     cursor: pointer;
+    fill: #222;
 }
 
 .worker-life-line-top-polygon {
@@ -552,7 +550,6 @@ text-anchor: start;
 }
 
 .worker-lifeline-grayed {
-    fill: #e2e2e2;
-    stroke: #000000;
-    stroke-width: 2px;
+    fill: #dcdcdc;
+    stroke-width: 0;
 }
