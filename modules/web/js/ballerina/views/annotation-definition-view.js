@@ -108,7 +108,9 @@ class AnnotationDefinitionView extends SVGCanvas {
         var canvas_heading_new = _.get(this._viewOptions, "cssClass.canvas_heading_new", "");
         var new_drop_timeout = _.get(this._viewOptions, "design_view.new_drop_timeout", "");
         hadingBox.addClass(canvas_heading_new);
-        setTimeout(function(){hadingBox.removeClass(canvas_heading_new);}, new_drop_timeout);
+        setTimeout(function () {
+            hadingBox.removeClass(canvas_heading_new);
+        }, new_drop_timeout);
 
         $(this.getTitle()).text(this.getModel().getAnnotationName())
             .on("change paste keyup", function () {
@@ -138,6 +140,188 @@ class AnnotationDefinitionView extends SVGCanvas {
             }
         });
 
+
+        /////////////////////////////////////////////////
+
+        var attachmentButton = $('<div class="attachments-btn" data-toggle="tooltip" title="Attachments" data-placement="bottom"></div>')
+            .appendTo(this.getBodyWrapper()).tooltip();
+
+        // Positioning the attachment button.
+        attachmentButton.css('left', '5px');
+        attachmentButton.css('top', '5px');
+
+        $('<span class="btn-icon">Attachments</span>').appendTo(attachmentButton);
+
+        var attachmentPaneWrapper = $('<div class="attachment-pane"/>').appendTo($(this.getBodyWrapper()));
+        // Positioning the variable pane from the left border of the container(service, resource, etc).
+        attachmentPaneWrapper.css('left', (5 + 80) + 'px');
+        // Positioning the variable pane from the top border of the container(service, resource, etc).
+        attachmentPaneWrapper.css('top', (5 - 0) + 'px');
+        // Setting max-width of the variable wrapper.
+        attachmentPaneWrapper.css('max-width', this._viewOptions.width + 'px');
+        attachmentPaneWrapper.css('margin-bottom', 10 + 'px');
+
+        var attachmentContentWrapper = $('<div class="variables-content-wrapper"/>').appendTo(attachmentPaneWrapper);
+
+        var collapserWrapper = $('<div class="variable-pane-collapser-wrapper"/>')
+            .data('collapsed', 'true')
+            .appendTo(attachmentPaneWrapper);
+        $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
+
+        var variablesActionWrapper = $('<div class="variables-action-wrapper"/>').appendTo(attachmentContentWrapper);
+
+        // Creating add variable editor button.
+        var addVariableButton = $('<div class="action-icon-wrapper variable-add-icon-wrapper" ' +
+            'data-toggle="tooltip" title="Add Attachment" data-placement="bottom"/>')
+            .appendTo(variablesActionWrapper).tooltip();
+        $('<i class="fw fw-add"></i>').appendTo(addVariableButton);
+
+        var variableAddPane = $('<div class="action-content-wrapper-heading attachment-add-action-wrapper"/>')
+            .appendTo(variablesActionWrapper);
+
+        // Creating the variable type dropdown.
+        var variableIdentifier = $('<input id="text" placeholder="Identifier"/>').appendTo(variableAddPane);
+
+        // Add new variable upon enter key.
+        $(variableIdentifier).on('change paste keydown', function (e) {
+            if (_.isEqual(e.which, 13)) {
+                variableAddCompleteButtonPane.click();
+            }
+        }).keypress(function (e) {
+            var enteredKey = e.which || e.charCode || e.keyCode;
+
+            // Disabling enter key
+            if (_.isEqual(enteredKey, 13)) {
+                e.stopPropagation();
+                return false;
+            }
+
+            var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
+
+            // Validation the identifier against grammar.
+            if (!ASTNode.isValidIdentifier(newIdentifier)) {
+                var errorString = 'Invalid identifier for a variable: ' + newIdentifier;
+                log.error(errorString);
+                Alerts.error(errorString);
+                e.stopPropagation();
+                return false;
+            }
+        });
+
+        // Creating cancelling add new variable button.
+        var variableAddCancelButtonPane = $('<div class="action-icon-wrapper variable-add-cancel-action-wrapper"/>')
+            .appendTo(variableAddPane);
+        $('<span class="fw-stack fw-lg"><i class="fw fw-square fw-stack-2x"></i>' +
+            '<i class="fw-cancel fw-stack-1x fw-inverse"></i></span>').appendTo(variableAddCancelButtonPane);
+        // Creating add new variable button.
+        var variableAddCompleteButtonPane = $('<div class="action-icon-wrapper ' +
+            'variable-add-complete-action-wrapper">').appendTo(variableAddPane);
+        $('<span class="fw-stack fw-lg"><i class="fw fw-square fw-stack-2x"></i>' +
+            '<i class="fw fw-check fw-stack-1x fw-inverse"></i></span>').appendTo(variableAddCompleteButtonPane);
+
+        // Add new variable activate button.
+        $(addVariableButton).click(function () {
+            $(variableAddPane).show();
+            $(this).hide();
+            $(variableIdentifier).focus();
+        });
+
+        // Cancel adding a new variable.
+        $(variableAddCancelButtonPane).click(function () {
+            $(variableAddPane).hide();
+            $(addVariableButton).show();
+        });
+
+        // Rendering the variables
+        this._renderAttachments(attachmentContentWrapper, collapserWrapper);
+
+        // When a new variable is created.
+        $(variableAddCompleteButtonPane).click(function () {
+            var identifierOfNewVariable = variableIdentifier.val().trim();
+
+            try {
+                self._model.addAnnotationAttachmentPoint(identifierOfNewVariable);
+                var oldWrapperSize = $(attachmentContentWrapper).height();
+
+                // Recreating the arguments details view.
+                self._renderAttachments(attachmentContentWrapper, collapserWrapper);
+
+                // Changing the content of the collapser.
+                collapserWrapper.empty();
+                collapserWrapper.data('collapsed', 'false');
+                $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
+                attachmentContentWrapper.show();
+
+                // Clearing values in inputs.
+                variableIdentifier.val('');
+
+                // Trigger the event to inform that a new variable has been added and the height of the variable pane
+                // has been changed
+                $(attachmentContentWrapper).trigger('contentWrapperShown', $(attachmentContentWrapper).height() - oldWrapperSize);
+            } catch (error) {
+                log.error(error);
+                Alerts.error(error);
+            }
+        });
+
+        // Hiding/showing the attachments depending on the default "collapsed" value of collapserWrapper.
+        if (_.isEqual(collapserWrapper.data('collapsed'), 'false')) {
+            $(collapserWrapper).empty();
+            $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
+            attachmentContentWrapper.find('.variable-wrapper').show();
+            var dh = $(attachmentContentWrapper).height() !== this._minHeight ?
+                $(attachmentContentWrapper).height() - this._minHeight : 0;
+            $(attachmentPaneWrapper).trigger('contentWrapperShown', dh);
+        } else {
+            $(collapserWrapper).empty();
+            $('<i class=\'fw fw-right\'></i>').appendTo(collapserWrapper);
+            attachmentContentWrapper.find('.variable-wrapper').hide();
+            var height = $(attachmentContentWrapper).height();
+            $(attachmentPaneWrapper).trigger('contentWrapperHidden', height);
+        }
+
+        // The click event for hiding and showing attachments.
+        collapserWrapper.click(function () {
+            $(this).empty();
+            if ($(this).data('collapsed') === 'false') {
+                $(this).data('collapsed', 'true');
+                $('<i class=\'fw fw-right\'></i>').appendTo(this);
+                attachmentContentWrapper.find('.variable-wrapper').hide();
+                $(attachmentContentWrapper).trigger('contentWrapperHidden');
+            } else {
+                $(this).data('collapsed', 'false');
+                $('<i class=\'fw fw-left\'></i>').appendTo(this);
+                attachmentContentWrapper.find('.variable-wrapper').show();
+                var dh = $(attachmentContentWrapper).height() !== self._minHeight ?
+                    $(attachmentContentWrapper).height() - self._minHeight : 0;
+                $(attachmentContentWrapper).trigger('contentWrapperShown', dh);
+            }
+        });
+
+        // By default the variable pane is shown on pane load.
+        $(attachmentButton).css('opacity', 1);
+
+        // When the variable button is clicked we show and hide the variable pane.
+        $(attachmentButton).click(function () {
+            if ($(attachmentPaneWrapper).is(':visible')) {
+                // Variable pane is already shown.
+                $(this).css({opacity: ''});
+                attachmentPaneWrapper.hide();
+
+            } else {
+                // Variable pane is hidden.
+                $(this).css('opacity', 1);
+                attachmentPaneWrapper.show();
+            }
+        });
+
+        // Stop propagating event to elements behind. This is needed for closing the wrapper when clicked outside.
+        attachmentPaneWrapper.click(function (event) {
+            event.stopPropagation();
+        });
+
+        /////////////////////////////////////////////////
+
         var structContentWrapper = $("<div/>", {
             id: this.getModel().getID(),
             class: "struct-content-wrapper"
@@ -155,17 +339,17 @@ class AnnotationDefinitionView extends SVGCanvas {
         var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
 
         $(typeDropdown).select2({
-            data : this._getTypeDropdownValues()
+            data: this._getTypeDropdownValues()
         });
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             $(typeDropdownWrapper).empty();
             typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
             console.log("destroying");
             $(typeDropdown).select2({
                 tags: true,
                 selectOnClose: true,
-                data : self._getTypeDropdownValues(),
+                data: self._getTypeDropdownValues(),
                 query: function (query) {
                     var data = {results: []};
                     if (!_.isNil(query.term)) {
@@ -175,7 +359,7 @@ class AnnotationDefinitionView extends SVGCanvas {
                             }
                         });
                         // Adding user typed string when there is no any matching item in the list
-                        if(data.results.length == 0){
+                        if (data.results.length == 0) {
                             data.results.push({id: query.term, text: query.term});
                         }
                     } else {
@@ -185,7 +369,7 @@ class AnnotationDefinitionView extends SVGCanvas {
                 }
             });
 
-            $(typeDropdown).on("select2:open", function() {
+            $(typeDropdown).on("select2:open", function () {
                 $(".select2-search__field").attr("placeholder", "Search");
             });
         });
@@ -217,7 +401,7 @@ class AnnotationDefinitionView extends SVGCanvas {
                     return false;
                 }
             }
-        }).keydown(function(e){
+        }).keydown(function (e) {
             var enteredKey = e.which || e.charCode || e.keyCode;
 
             // If tab pressed.
@@ -243,7 +427,7 @@ class AnnotationDefinitionView extends SVGCanvas {
                     return false;
                 }
             }
-        }).keydown(function(e){
+        }).keydown(function (e) {
             var enteredKey = e.which || e.charCode || e.keyCode;
 
             // If tab pressed.
@@ -279,13 +463,13 @@ class AnnotationDefinitionView extends SVGCanvas {
 
         //// Creating struct content panel
 
-        var structVariablesWrapper = $("<div/>",{
+        var structVariablesWrapper = $("<div/>", {
             class: "struct-content-variables-wrapper"
         }).appendTo(structContentWrapper);
 
-        this._renderVariableDefinitionStatements(structVariablesWrapper);
+        this._renderAttributeDefinition(structVariablesWrapper);
 
-        $(structVariablesWrapper).click(function(e){
+        $(structVariablesWrapper).click(function (e) {
             e.preventDefault();
             return false;
         });
@@ -294,114 +478,9 @@ class AnnotationDefinitionView extends SVGCanvas {
 
         // On window click.
         $(window).click(function (event) {
-            self._renderVariableDefinitionStatements(structVariablesWrapper);
+            self._renderAttributeDefinition(structVariablesWrapper);
         });
 
-
-        // var annotationDefinitionContainerId = "annotation-definition-container___" + this._model.id;
-        // var annotationDefinitionContainer = $('<div id="' + annotationDefinitionContainerId +
-        //     '" class="annotation-definition-container"></div>');
-        //
-        // var annotationDefinitionInnerContainer = $('<div class="annotation-definition-inner-container"></div>');
-        // var definitionSignatureRow = $('<div class="row"></div>');
-        //
-        // var annotationColumn2 = $('<div class="col-lg-5"></div>');
-        // var annotationInputGroup2 = $('<div class="input-group"></div>');
-        // var annotationInputGroupAddon2 = $('<span class="input-group-addon"></span>');
-        //
-        // annotationInputGroup2.append(annotationInputGroupAddon2);
-        // annotationColumn2.append(annotationInputGroup2);
-        // definitionSignatureRow.append(annotationColumn2);
-        //
-        // var annotationColumn3 = $('<div class="col-lg-2"></div>');
-        // var annotationInputGroup3 = $('<div class="input-group"></div>');
-        //
-        // annotationColumn3.append(annotationInputGroup3);
-        // definitionSignatureRow.append(annotationColumn3);
-        //
-        // annotationDefinitionInnerContainer.append(definitionSignatureRow);
-        //
-        // var attachmentLabel = $("<span>Attachments</span>");
-        // annotationInputGroupAddon2.append(attachmentLabel);
-        // var attachmentInput = $("<input type='text' class='attachments form-control'/>");
-        // annotationInputGroup2.append(attachmentInput);
-        //
-        // attachmentInput.val(_.join(this.getModel().getAttachmentPoints(), ','));
-        //
-        // attachmentInput.on('change', function (e) {
-        //     if (!_.isNil(attachmentInput.val())) {
-        //         self.getModel().setAttachmentPoints(_.split(attachmentInput.val()), {doSilently: false});
-        //     }
-        // });
-        //
-        // var addAttributeButton = $("<div id='add-attribute-btn' class='add-annotation-attribute-button-wrapper'" +
-        //     "data-toggle='tooltip' data-placement='bottom' data-original-title='Add Attribute'><i class='fw fw-add'></i></div>");
-        // annotationInputGroup3.append(addAttributeButton);
-        //
-        // var attributeRow = $('<div class="row attribute-row"></div>');
-        // var listColumn = $('<div class="col-lg-5"></div>');
-        // var listOfAttributes = $('<ul class="attribute-list list-group"></ul>');
-        //
-        // annotationDefinitionInnerContainer.append("<span class='input-label'>Attributes:</span>");
-        //
-        // listColumn.append(listOfAttributes);
-        // attributeRow.append(listColumn);
-        // annotationDefinitionInnerContainer.append(attributeRow);
-        //
-        // addAttributeButton.on('click', function (e) {
-        //     var leftHandSideInputs = listOfAttributes.find(".left-hand-side");
-        //     var isEmptyExists = false;
-        //     if (leftHandSideInputs && leftHandSideInputs.length > 0) {
-        //         _.forEach(leftHandSideInputs, function (leftHandSideInput) {
-        //             if (_.isEqual($(leftHandSideInput).val(), "")) {
-        //                 isEmptyExists = true;
-        //             }
-        //         });
-        //
-        //         if (isEmptyExists) {
-        //             return;
-        //         }
-        //     }
-        //
-        //     var listItem = $('<li class="list-group-item"></li>');
-        //     var listItemRow = $('<div class="row"></div>');
-        //     var leftHandSideColumn = $('<div class="col-lg-5"></div>');
-        //     var leftHandSideInputGroup = $('<div class="input-group"></div>');
-        //
-        //     leftHandSideColumn.append(leftHandSideInputGroup);
-        //     listItemRow.append(leftHandSideColumn);
-        //
-        //     listItemRow.append("<div class='col-lg-1'>=</div>");
-        //
-        //     var rightHandSideColumn = $('<div class="col-lg-5"></div>');
-        //     var rightHandSideInputGroup = $('<div class="input-group"></div>');
-        //
-        //     rightHandSideColumn.append(rightHandSideInputGroup);
-        //     listItemRow.append(rightHandSideColumn);
-        //
-        //     var closeButton = $("<div class='col-lg-1 close-btn'></div>");
-        //     var closeIcon = $("<i class='fw fw-cancel '></i>");
-        //
-        //     closeButton.append(closeIcon);
-        //     listItemRow.append(closeButton);
-        //
-        //     closeButton.on('click', function (e) {
-        //         $(this).closest("li").remove();
-        //     });
-        //
-        //     var leftHandSideInput = $('<input type="text" class="left-hand-side form-control" placeholder="eg:-string value"/>');
-        //     var rightHandSideInput = $('<input type="text" class="right-hand-side form-control"/>');
-        //
-        //     leftHandSideInputGroup.append(leftHandSideInput);
-        //     rightHandSideInputGroup.append(rightHandSideInput);
-        //
-        //     listItem.append(listItemRow);
-        //
-        //     listOfAttributes.append(listItem);
-        // });
-        //
-        // annotationkaDefinitionContainer.append(annotationDefinitionInnerContainer);
-        // currentContainer.find('svg').parent().append(annotationDefinitionContainer);
         currentContainer.find('svg').remove();
     }
 
@@ -421,10 +500,10 @@ class AnnotationDefinitionView extends SVGCanvas {
         return dropdownData;
     }
 
-    _renderVariableDefinitionStatements(wrapper){
+    _renderAttributeDefinition(wrapper) {
         $(wrapper).empty();
         var self = this;
-        _.forEach(this._model.getAnnotationAttributeDefinitions(), function(attributeDefinition) {
+        _.forEach(this._model.getAnnotationAttributeDefinitions(), function (attributeDefinition) {
             var annotationAttributeDefinitionView = new AnnotationAttributeDefinitionView({
                 parent: self.getModel(),
                 model: attributeDefinition,
@@ -438,17 +517,60 @@ class AnnotationDefinitionView extends SVGCanvas {
 
             annotationAttributeDefinitionView.render(self.getDiagramRenderingContext());
 
-            $(annotationAttributeDefinitionView.getDeleteButton()).click(function(){
-                self._renderVariableDefinitionStatements(wrapper);
+            $(annotationAttributeDefinitionView.getDeleteButton()).click(function () {
+                self._renderAttributeDefinition(wrapper);
             });
 
             $(annotationAttributeDefinitionView.getWrapper()).click({
                 modelID: attributeDefinition.getID()
-            }, function(event){
-                self._renderVariableDefinitionStatements(wrapper);
+            }, function (event) {
+                self._renderAttributeDefinition(wrapper);
                 var annotationAttributeDefinitionView = self.getDiagramRenderingContext()
                     .getViewModelMap()[event.data.modelID];
                 annotationAttributeDefinitionView.renderEditView();
+            });
+        });
+    }
+
+    _renderAttachments(attachmentPaneWrapper, collapserWrapper) {
+        // Clear existing variables on UI.
+        $(attachmentPaneWrapper).find('.variable-wrapper').remove();
+
+        var self = this;
+
+        _.forEach(this._model.getAttachmentPoints(), function (attachmentPoint) {
+            var variableDefinitionWrapper = $('<div/>', {
+                id: self.getModel().getID(),
+                class: 'variable-wrapper variable-wrapper-message'
+            }).data('model', self.getModel()).appendTo(attachmentPaneWrapper);
+
+            self._variableDefinitionWrapper = variableDefinitionWrapper;
+
+            var variableDefintionStatementWrapper = $('<span/>', {
+                text: attachmentPoint,
+                'contenteditable': true,
+                class: 'variable-identifier variable-identifier-message',
+                'prevValue': attachmentPoint
+            }).keyup(function() {
+                try {
+                    self.getModel().removeAnnotationAttachmentPoints($(variableDefintionStatementWrapper).attr('prevValue'));
+                    self.getModel().addAnnotationAttachmentPoint($(this).text().trim()+'');
+                    $(variableDefintionStatementWrapper).attr('prevValue',$(this).text().trim()+'');
+                } catch (error) {
+                    Alerts.error(error);
+                }
+            }).appendTo(variableDefinitionWrapper);
+
+            // Creating delete button.
+            var deleteButton = $('<i class=\'fw fw-cancel\'></i>').appendTo(variableDefinitionWrapper);
+
+            self._deleteButton = deleteButton.get(0);
+
+            $(self._deleteButton).click(() => {
+                var oldWrapperSize = $('.variables-content-wrapper').height();
+                self.removeAnnotationAttachmentPoints($(variableDefintionStatementWrapper).text().trim()+'');
+                self._renderAttachments(attachmentPaneWrapper, collapserWrapper);
+                $('.variables-content-wrapper').trigger('contentWrapperShown', $('.variables-content-wrapper').height() - oldWrapperSize);
             });
         });
     }

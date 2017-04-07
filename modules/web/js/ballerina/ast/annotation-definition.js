@@ -60,8 +60,10 @@ class AnnotationDefinition extends ASTNode {
         return this.filterChildren(this.getFactory().isAnnotationAttributeDefinition);
     }
 
-    addAnnotationAttributeDefinition (type, identifier, defaultValue) {
-debugger;
+    /**
+     *
+     * */
+    addAnnotationAttributeDefinition(type, identifier, defaultValue) {
         // if identifier is empty
         if (_.isEmpty(identifier)) {
             var errorString = 'Identifier cannot be empty';
@@ -71,14 +73,13 @@ debugger;
 
         // Check if already variable definition exists with same identifier.
         var identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (annotationAttributionDefinition) {
-            debugger;
-            return annotationAttributionDefinition.getIdentifier() === identifier;
-        }) !== -1;
+                return annotationAttributionDefinition.getIdentifier() === identifier;
+            }) !== -1;
 
         // If annotation attribute definition with the same identifier exists, then throw an error,
         // else create the new annotation attribute definition.
         if (identifierAlreadyExists) {
-            var errorString = 'A attribute with identifier \'' + identifier + '\' already exists.';
+            var errorString = 'An attribute with identifier \'' + identifier + '\' already exists.';
             log.error(errorString);
             throw errorString;
         } else {
@@ -95,7 +96,39 @@ debugger;
         }
     }
 
-     /**
+    /**
+     * Add Annotation attachments to the model.
+     * @param {string} identifier - attachment name.
+     * */
+    addAnnotationAttachmentPoint(identifier) {
+        if (_.isEmpty(identifier)) {
+            var errorString = 'Identifier cannot be empty';
+            log.error(errorString);
+            throw errorString;
+        }
+
+        var identifierAlreadyExists = _.findIndex(this.getAttachmentPoints(), function (attachmentPoint) {
+                return _.isEqual(identifier, attachmentPoint);
+            }) !== -1;
+
+        if(identifierAlreadyExists){
+            var errorString = 'An attribute with identifier "'+identifier+'" already exists.';
+            log.error(errorString);
+            throw errorString;
+        }else{
+            this._attachmentPoints.push(identifier);
+        }
+    }
+
+    /**
+     * Remove annotation attachment points.
+     * @param {string} identifier - identifier for the attachment point.
+     * */
+    removeAnnotationAttachmentPoints(identifier) {
+        _.pull(this._attachmentPoints,identifier);
+    }
+
+    /**
      * Removes annotation attribute definition.
      * @param {string} modelID - The model ID of the variable.
      */
