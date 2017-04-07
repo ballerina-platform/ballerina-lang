@@ -151,7 +151,7 @@
         <tool.swagger.version>0.86-SNAPSHOT</tool.swagger.version>
         <ballerina.container.version>0.86-SNAPSHOT</ballerina.container.version>
         <docerina.version>0.86-SNAPSHOT</docerina.version>
-        <docerina.maven.plugin.version>0.86-SNAPSHOT</docerina.maven.plugin.version>
+        <docerina.maven.plugin.version>${ballerina.runtime.version}</docerina.maven.plugin.version>
         <ballerina.connectors.version>0.86-SNAPSHOT</ballerina.connectors.version>
         <commons-net.version>3.6</commons-net.version>
     </properties>
