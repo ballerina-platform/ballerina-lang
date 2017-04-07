@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,7 +22,6 @@ import Canvas from './canvas';
 import SVGCanvas from './../../ballerina/views/svg-canvas';
 import AnnotationDefinition from './../ast/annotation-definition';
 import ASTNode from './../ast/node';
-import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import Alerts from 'alerts';
 import AnnotationAttributeDefinitionView from './annotation-attribute-definition-view';
 
@@ -33,9 +32,9 @@ class AnnotationDefinitionView extends SVGCanvas {
     constructor(args) {
         super(args);
 
-        this._annotationName = _.get(args, 'definitionName', "");
-        this._attachedDefinitions = _.get(args, 'attachedDefinitions', []);
-        this._annotationProperties = _.get(args, 'annotationProperties', []);
+        this._annotationName = _.get(args, 'annotationName', "");
+        this._attachmentPoints = _.get(args, 'attachmentPoints', []);
+        this._attributeDefinitions = _.get(args, 'attributeDefinitions', []);
         this._parentView = _.get(args, 'parentView');
         this._viewOptions.offsetTop = _.get(args, 'viewOptionsOffsetTop', 75);
         this._viewOptions.topBottomTotalGap = _.get(args, 'viewOptionsTopBottomTotalGap', 100);
@@ -139,37 +138,37 @@ class AnnotationDefinitionView extends SVGCanvas {
                 }
             }
         });
-        /////////////////////////////////////////////////
+
+        ////// Start implementation for Attachment View
 
         var attachmentButton = $('<div class="attachments-btn" data-toggle="tooltip" title="Attachments" data-placement="bottom"></div>')
             .appendTo(this.getBodyWrapper()).tooltip();
 
         // Positioning the attachment button.
-        attachmentButton.css('left', '5px');
-        attachmentButton.css('top', '5px');
+        attachmentButton.css('left', '60px');
+        attachmentButton.css('top', '20px');
 
         $('<span class="btn-icon">Attachments</span>').appendTo(attachmentButton);
 
         var attachmentPaneWrapper = $('<div class="attachment-pane"/>').appendTo($(this.getBodyWrapper()));
-        // Positioning the variable pane from the left border of the container(service, resource, etc).
-        attachmentPaneWrapper.css('left', (5 + 80) + 'px');
+        // Positioning the  pane from the left border of the container(service, resource, etc).
+        attachmentPaneWrapper.css('left', (60 + 87) + 'px');
         // Positioning the variable pane from the top border of the container(service, resource, etc).
-        attachmentPaneWrapper.css('top', (5 - 0) + 'px');
+        attachmentPaneWrapper.css('top', (20 - 0) + 'px');
         // Setting max-width of the variable wrapper.
         attachmentPaneWrapper.css('max-width', this._viewOptions.width + 'px');
-        attachmentPaneWrapper.css('margin-bottom', 10 + 'px');
 
-        var attachmentContentWrapper = $('<div class="variables-content-wrapper"/>').appendTo(attachmentPaneWrapper);
+        var attachmentContentWrapper = $('<div class="attachment-content-wrapper"/>').appendTo(attachmentPaneWrapper);
 
-        var collapserWrapper = $('<div class="variable-pane-collapser-wrapper"/>')
+        var collapserWrapper = $('<div class="attachment-pane-collapser-wrapper"/>')
             .data('collapsed', 'true')
             .appendTo(attachmentPaneWrapper);
         $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
 
-        var variablesActionWrapper = $('<div class="variables-action-wrapper"/>').appendTo(attachmentContentWrapper);
+        var variablesActionWrapper = $('<div class="attachment-action-wrapper"/>').appendTo(attachmentContentWrapper);
 
         // Creating add variable editor button.
-        var addVariableButton = $('<div class="action-icon-wrapper variable-add-icon-wrapper" ' +
+        var addVariableButton = $('<div class="action-icon-wrapper attachment-add-icon-wrapper" ' +
             'data-toggle="tooltip" title="Add Attachment" data-placement="bottom"/>')
             .appendTo(variablesActionWrapper).tooltip();
         $('<i class="fw fw-add"></i>').appendTo(addVariableButton);
@@ -207,13 +206,13 @@ class AnnotationDefinitionView extends SVGCanvas {
         });
 
         // Creating cancelling add new variable button.
-        var variableAddCancelButtonPane = $('<div class="action-icon-wrapper variable-add-cancel-action-wrapper"/>')
+        var variableAddCancelButtonPane = $('<div class="action-icon-wrapper attachment-add-cancel-action-wrapper"/>')
             .appendTo(variableAddPane);
         $('<span class="fw-stack fw-lg"><i class="fw fw-square fw-stack-2x"></i>' +
             '<i class="fw-cancel fw-stack-1x fw-inverse"></i></span>').appendTo(variableAddCancelButtonPane);
         // Creating add new variable button.
         var variableAddCompleteButtonPane = $('<div class="action-icon-wrapper ' +
-            'variable-add-complete-action-wrapper">').appendTo(variableAddPane);
+            'attachment-add-complete-action-wrapper">').appendTo(variableAddPane);
         $('<span class="fw-stack fw-lg"><i class="fw fw-square fw-stack-2x"></i>' +
             '<i class="fw fw-check fw-stack-1x fw-inverse"></i></span>').appendTo(variableAddCompleteButtonPane);
 
@@ -318,7 +317,7 @@ class AnnotationDefinitionView extends SVGCanvas {
             event.stopPropagation();
         });
 
-        /////////////////////////////////////////////////
+        ////// End implementation for Attachment View
 
         var structContentWrapper = $("<div/>", {
             id: this.getModel().getID(),
@@ -328,7 +327,7 @@ class AnnotationDefinitionView extends SVGCanvas {
         //// Creating operational panel
 
         var structOperationsWrapper = $("<div/>", {
-            class: "struct-content-operations-wrapper"
+            class: "attribute-content-operations-wrapper"
         }).appendTo(structContentWrapper);
 
         var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-view"></div>')
@@ -565,7 +564,7 @@ class AnnotationDefinitionView extends SVGCanvas {
 
             $(self._deleteButton).click(() => {
                 var oldWrapperSize = $('.variables-content-wrapper').height();
-                self.removeAnnotationAttachmentPoints($(variableDefintionStatementWrapper).text().trim()+'');
+                self.getModel().removeAnnotationAttachmentPoints($(variableDefintionStatementWrapper).text().trim()+'');
                 self._renderAttachments(attachmentPaneWrapper, collapserWrapper);
                 $('.variables-content-wrapper').trigger('contentWrapperShown', $('.variables-content-wrapper').height() - oldWrapperSize);
             });

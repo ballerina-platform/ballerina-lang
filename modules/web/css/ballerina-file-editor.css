@@ -543,6 +543,13 @@
     float: left;
 }
 
+.attribute-content-operations-wrapper {
+    background-color: #3d3d3d;
+    padding: 10px;
+    float: left;
+    margin-top: 40px;
+}
+
 .struct-identifier-text-input {
     float: left;
     width: 190px;
