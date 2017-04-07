@@ -93,6 +93,9 @@
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="org.ballerinalang.plugins.idea.marker.BallerinaRecursiveCallMarkerProvider"/>
 
+        <!--spell checking-->
+        <spellchecker.support language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>
+
         <!--find usage-->
         <lang.findUsagesProvider language="Ballerina"
                                  implementationClass="org.ballerinalang.plugins.idea.usage.BallerinaFindUsageProvider"/>
