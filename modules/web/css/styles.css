@@ -1499,7 +1499,8 @@ span.fw-stack.fw-lg {
     float: left;
     color: #fff;
     min-height: 28px;
-    width: 26px;
+    border-left: 2px solid #ddd;
+    width: 25px;
     padding: 8px 3px 0 9px;
     font-size: 12px;
 }
