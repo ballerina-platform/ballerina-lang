@@ -47,6 +47,7 @@ public class BTypes {
     public static BType typeDatatable;
     public static BType typeAny;
     public static BType typeConnector;
+    public static BType typeNull;
 
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
@@ -104,6 +105,8 @@ public class BTypes {
         typeAny = new BAnyType(TypeConstants.ANY_TNAME, null, globalScope);
         typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
+        typeNull = new BNullType(TypeConstants.NULL_TNAME, null, globalScope);
+        
         initialized = true;
     }
 

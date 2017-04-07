@@ -114,7 +114,7 @@ public class BLangFunctions {
                 break;
             }
 
-            argValues[stackIndex] = returnParam.getType().getDefaultValue();
+            argValues[stackIndex] = returnParam.getType().getZeroValue();
             stackIndex++;
         }
 

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -19,37 +19,31 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.Operator;
+import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
-
-import java.util.function.BiFunction;
 
 /**
- * {@code BinaryEqualityExpression} represents a equality expression in Ballerina.
+ * {@code BasicLiteral} represents a null literal in Ballerina.
  *
- * @see EqualExpression
- * @see NotEqualExpression
- * @since 0.8.0
+ * @since 0.86
  */
-public class BinaryEqualityExpression extends BinaryExpression {
+public class NullLiteral extends AbstractExpression {
 
-    BiFunction<BValue, BValue, BValueType> refTypeEvalFunc;
-    
-    public BinaryEqualityExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
-        super(location, lExpr, op, rExpr);
+    public NullLiteral(NodeLocation location) {
+        super(location);
     }
 
-    public BiFunction<BValue, BValue, BValueType> getRefTypeEvalFunc() {
-        return refTypeEvalFunc;
-    }
-
-    public void setRefTypeEvalFunc(BiFunction<BValue, BValue, BValueType> refTypeEvalFunc) {
-        this.refTypeEvalFunc = refTypeEvalFunc;
+    public BValue getBValue() {
+        return null;
     }
     
     @Override
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
     }
+
 }
