@@ -52,6 +52,11 @@ public abstract class Node {
 
         Collections.sort(childNodesList, (o1, o2) -> getIntValue(o2) - getIntValue(o1));
 
+        // TODO: need to smartly decide which one is the best child
+        if (childNodesList != null) {
+            this.next = childNodesList.get(0);
+        }
+
         return node;
     }
 
