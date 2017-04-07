@@ -42,7 +42,7 @@ public class ArrayIndexTooLargeTest {
 
     @Test(description = "Test adding too large index to an array",
           expectedExceptions = {BallerinaException.class },
-          expectedExceptionsMessageRegExp = "index number too large: '2,147,483,648'")
+          expectedExceptionsMessageRegExp = "index number too large: 2,147,483,648")
     public void addTooLargeIndex() {
         BValue[] args = {new BInteger(2147483648L), new BInteger(7)};
         BLangFunctions.invoke(bLangProgram, "addTooLargeIndex", args);
@@ -50,7 +50,7 @@ public class ArrayIndexTooLargeTest {
 
     @Test(description = "Test accessing too large index from an array",
           expectedExceptions = {BallerinaException.class },
-          expectedExceptionsMessageRegExp = "index number too large: '2,147,483,648'")
+          expectedExceptionsMessageRegExp = "index number too large: 2,147,483,648")
     public void accessTooLargeIndex() {
         BValue[] args = {new BInteger(2147483648L)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "accessTooLargeIndex", args);
@@ -58,7 +58,7 @@ public class ArrayIndexTooLargeTest {
 
     @Test(description = "Test adding minus index to an array",
           expectedExceptions = {BallerinaException.class },
-          expectedExceptionsMessageRegExp = "array index out of range: Index: '-4', Size: '0'")
+          expectedExceptionsMessageRegExp = "array index out of range: Index: -4, Size: 0")
     public void addMinusIndex() {
         BValue[] args = {new BInteger(-4), new BInteger(7)};
         BLangFunctions.invoke(bLangProgram, "addMinusIndex", args);
@@ -66,7 +66,7 @@ public class ArrayIndexTooLargeTest {
 
     @Test(description = "Test accessing minus index from an array",
           expectedExceptions = {BallerinaException.class },
-          expectedExceptionsMessageRegExp = "array index out of range: Index: '-4', Size: '0'")
+          expectedExceptionsMessageRegExp = "array index out of range: Index: -4, Size: 0")
     public void accessMinusIndex() {
         BValue[] args = {new BInteger(-4)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "accessMinusIndex", args);

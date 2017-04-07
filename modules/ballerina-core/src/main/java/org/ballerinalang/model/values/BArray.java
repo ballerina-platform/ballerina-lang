@@ -138,7 +138,7 @@ public final class BArray<V extends BValue> implements BRefType {
 
     private void grow(int capacityRequired, int bucketIndex) {
         if (capacityRequired > MAX_ARRAY_SIZE) {
-            throw new BallerinaException("Requested arrays size " + capacityRequired +
+            throw new BallerinaException("Requested array size " + capacityRequired +
                     " exceeds limit: " + MAX_ARRAY_SIZE);
         }
 
