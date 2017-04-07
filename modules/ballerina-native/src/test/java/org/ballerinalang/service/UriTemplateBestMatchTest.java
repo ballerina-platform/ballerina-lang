@@ -80,6 +80,19 @@ public class UriTemplateBestMatchTest {
                 , "Resource dispatched to wrong template");
     }
 
+    @Test(description = "Test dispatching with URL. /hello/echo2?regid=abc")
+    public void testMostSpecificServiceDispatch() {
+        String path = "/hello/echo2?regid=abc";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+
+        Assert.assertEquals(bJson.value().get("echo5").asText(), "echo5"
+                , "Resource dispatched to wrong template");
+    }
+
     @AfterClass
     public void tearDown() {
         EnvironmentInitializer.cleanup(application);

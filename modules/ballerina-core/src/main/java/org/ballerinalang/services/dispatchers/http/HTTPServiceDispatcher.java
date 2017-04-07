@@ -32,6 +32,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -62,7 +63,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
 
             // Most of the time we will find service from here
-            String basePath = findTheLeastSpecificBasePath(requestUri.getPath(), servicesOnInterface);
+            String basePath = findTheMostSpecificBasePath(requestUri.getPath(), servicesOnInterface);
             Service service = servicesOnInterface.get(basePath);
             if (service == null) {
                 throw new BallerinaException("no service found to handle incoming request recieved to : " + uriStr);
@@ -130,19 +131,19 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         return interfaceId;
     }
 
-    private String findTheLeastSpecificBasePath(String requestURIPath, Map<String, Service> services) {
+    private String findTheMostSpecificBasePath(String requestURIPath, Map<String, Service> services) {
+        Object[] keys = services.keySet().toArray();
+        Arrays.sort(keys, (o1, o2) -> o2.toString().length() - o1.toString().length());
+
+        for (Object key : keys) {
+            if (requestURIPath.contains(key.toString())) {
+                return key.toString();
+            }
+        }
+
         if (services.containsKey(Constants.DEFAULT_BASE_PATH)) {
             return Constants.DEFAULT_BASE_PATH;
         }
-
-        String basePath = "";
-        String[] basePathSegments = URIUtil.getPathSegments(requestURIPath);
-        for (String pathSegment : basePathSegments) {
-            basePath = basePath + Constants.DEFAULT_BASE_PATH + pathSegment;
-            if (services.containsKey(basePath)) {
-                break;
-            }
-        }
-        return basePath;
+        return null;
     }
 }

@@ -1,6 +1,19 @@
 import ballerina.net.http;
 import ballerina.lang.messages;
 
+@http:BasePath {value:"/hello"}
+service echo4 {
+
+    @http:GET{}
+    @http:Path {value:"/echo2?regid={abc}"}
+    resource echo1 (message m) {
+        message response = {};
+        json responseJson = `{"echo5":"echo5"}`;
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+}
+
 @http:BasePath {value:"/hello/world"}
 service echo {
 
