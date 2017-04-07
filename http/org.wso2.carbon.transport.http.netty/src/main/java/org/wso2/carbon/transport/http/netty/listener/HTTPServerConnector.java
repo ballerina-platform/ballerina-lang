@@ -26,7 +26,7 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 
-import java.util.Map;
+import java.util.Collections;
 
 /**
  * HTTP ServerConnector implementation
@@ -42,11 +42,11 @@ public class HTTPServerConnector extends ServerConnector {
     private ServerConnectorController serverConnectorController;
 
     public HTTPServerConnector(String id) {
-        super(id);
+        super(id, Collections.emptyMap());
     }
 
     @Override
-    public void start(Map<String, String> map) throws ServerConnectorException {
+    public void start() throws ServerConnectorException {
         if (listenerConfiguration.isBindOnStartup()) { // Already bind at the startup, hence skipping
             return;
         }
