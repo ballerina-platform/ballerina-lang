@@ -1524,4 +1524,8 @@ span.fw-stack.fw-lg {
 }
 .orange{ color: #f17b31;}
 
+.select2-container--default .select2-selection--single {
+    border-radius: 0 !important;
+}
+
 
