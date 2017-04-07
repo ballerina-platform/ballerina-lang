@@ -28,7 +28,6 @@ import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -114,8 +113,8 @@ public class PackagesApiServiceImpl extends PackagesApiService {
 
                 BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(packageProxy);
                 packageBuilder.setBallerinaFileList(pkgSource.getSourceFileStreamMap().entrySet()
-                        .stream()
-                        .map(entry -> BLangFiles.loadFile(entry.getKey(), packagePath, entry.getValue(), packageBuilder))
+                        .stream().map(entry -> BLangFiles
+                                .loadFile(entry.getKey(), packagePath, entry.getValue(), packageBuilder))
                         .collect(Collectors.toList()));
 
                 BLangPackage bLangPackage = packageBuilder.build();
