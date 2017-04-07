@@ -400,8 +400,8 @@ class ConnectorActionView extends BallerinaView {
         this._headerIconGroup = headingIconsGroup;
 
         // Drawing connector action icon
-        var headingRectIconHolder = D3utils.rect(headingStart.x(),
-            headingStart.y(), this._viewOptions.heading.icon.width,
+        var headingRectIconHolder = D3utils.rect(headingStart.x() + 1,
+            headingStart.y() + 1, this._viewOptions.heading.icon.width,
             this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed('connectorActionHeadingIconHolder',true);
 
         var actionHeadingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
