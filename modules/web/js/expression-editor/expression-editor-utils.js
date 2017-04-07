@@ -23,6 +23,7 @@ import ballerina from 'ballerina';
 var ace = global.ace;
 var Range = ace.require('ace/range');
 
+
 // require possible themes
 function requireAll(requireContext) {
     return requireContext.keys().map(requireContext);
@@ -31,6 +32,8 @@ requireAll(require.context('ace', false, /theme-/));
 
 // require ballerina mode
 var mode = ace.require('ace/mode/ballerina');
+var langTools = ace.require("ace/ext/language_tools");
+
 
 class ExpressionEditor{
 
@@ -67,6 +70,19 @@ class ExpressionEditor{
             this._editor.setFontSize("12pt");
         }
 
+        var rhymeCompleter = {
+            getCompletions: function(editor, session, pos, prefix, callback) {
+                console.log(prefix, pos);
+                if (prefix.length === 0) { callback(null, []); return }
+                // wordList like [{"word":"flow","freq":24,"score":300,"flags":"bc","syllables":"1"}]
+                //callback(null, [{"word":"flosw","freq":24,"score":300000,"flags":"bc","syllables":"1"}]);
+                var completions = [];
+                 completions.push({ name:"testing1", value:"testing1", meta: "code1" });
+                 completions.push({ name:"testing2", value:"testing2", meta: "code2" });
+                 callback(null, completions);
+            }
+        };
+        langTools.setCompleters([rhymeCompleter]);
 
         this._editor.setOptions({
             enableBasicAutocompletion:true,
@@ -76,12 +92,11 @@ class ExpressionEditor{
 
         this._editor.setBehavioursEnabled(true);
         this._editor.focus();
-        var n = this._editor.getSession().getValue().split("\n").length; // To count total no. of lines
-        this._editor.gotoLine(n, propertyValue.length);
-        // returns the width in pixels needed to show a given text
-        // This adds the text to the hidden span and takes its width
-        // This is done so that we can measure the exact width needed for the input to show the text
 
+        //we need to place the cursor at the end of the text
+        this._editor.gotoLine(1, propertyValue.length);
+
+        // resize the editor to the text width.
         $(propertyInputValue).css("width", this.getNecessaryWidth(propertyValue));
         $(propertyInputValue).focus();
         this._editor.resize();
