@@ -780,7 +780,7 @@ span.package-pane {
 input#package-name-input {
     margin-left: 2px;
     border: 0 solid #ccc;
-    line-height: 19px;
+    line-height: 18px;
     padding: 2px 10px;
 }
 

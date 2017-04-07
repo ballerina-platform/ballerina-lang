@@ -851,7 +851,7 @@ button.variable-list {
     display: none;
     width: 517px;
     background-color: #ddd;
-    height: 26px;
+    height: 28px;
     padding: 2px 4px;
 }
 
@@ -1501,7 +1501,8 @@ span.fw-stack.fw-lg {
     min-height: 28px;
     border-left: 2px solid #ddd;
     width: 25px;
-    padding: 8px 3px 0 9px;
+    padding-top: 8px;
+    text-align: center;
     font-size: 12px;
 }
 
@@ -1510,6 +1511,7 @@ span.fw-stack.fw-lg {
     background-color: #989898;
     height: 16px;
     position: static;
+    width: 28px;
     font-size: 11px;
     float: left;
 }
