@@ -34,7 +34,7 @@ class BlockStatement extends ASTNode {
         var args = {
             leftExpression: leftExpression,
             rightExpression: '',
-            variableReferenceName:  name,
+            variableName:  name,
             typeName: type,
             name: name
         };

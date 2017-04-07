@@ -22,7 +22,7 @@ import * as d3 from 'd3';
 import D3Utils from 'd3utils';
 import Point from './point';
 import BBox from './bounding-box';
-import expressionEditor from 'expression_editor_utils';
+import ExpressionEditor from 'expression_editor_utils';
 import DebugManager from 'debugger/debug-manager';
 import $ from 'jquery';
 
@@ -232,10 +232,10 @@ class BallerinaStatementView extends StatementVisitor {
                 'class': viewOptions.propertyForm.body.class
             }).appendTo(propertyPaneWrapper);
 
-            expressionEditor.createEditor(propertyPaneBody, viewOptions.propertyForm.body.property.wrapper,
+            this.expressionEditor = new ExpressionEditor(propertyPaneBody, viewOptions.propertyForm.body.property.wrapper,
                 editableProperties, function () {
                     self.trigger('edit-mode-disabled');
-                });
+            });
         }
 
         $(deleteButtonRect.node()).click(function(event){
@@ -262,7 +262,8 @@ class BallerinaStatementView extends StatementVisitor {
 
         this._isEditControlsActive = true;
 
-        this.once('edit-mode-disabled', function(){
+        this.once('edit-mode-disabled', () => {
+            this.expressionEditor.distroy();
             $(propertyPaneWrapper).remove();
             $(propertyButtonPaneGroup.node()).remove();
             $(deleteButtonPaneGroup.node()).remove();
@@ -440,6 +441,13 @@ class BallerinaStatementView extends StatementVisitor {
      */
     setDiagramRenderingContext(diagramRenderingContext) {
         this._diagramRenderingContext = diagramRenderingContext;
+    }
+
+    /**
+     * Validate the node type on focus out of the statement's expression editor
+     */
+    validateNode() {
+
     }
 }
 

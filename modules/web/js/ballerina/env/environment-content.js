@@ -16,28 +16,50 @@
 
 import $ from 'jquery';
 import _ from 'lodash';
-    var environment_content = {};
+var environment_content = {};
 
-    /**
-     * Get the packages from the package list api.
-     * */
-    environment_content.getPackages = function () {
-        var data = [];
+/**
+ * Get the packages from the package list api.
+ * */
+environment_content.getPackages = function () {
+    var data = [];
 
-        // TODO: remove the following hard coded url and use a value from application config
-        $.ajax({
-            type: "GET",
-            url: "http://localhost:8289/service/packages",
-            contentType: "application/json; charset=utf-8",
-            async: false,
-            dataType: "json",
-            success: function (response) {
-                data = response;
-            },
-            error: function (xhr, textStatus, errorThrown) {
-                data = {"error": true, "message": "Unable to retrieve packages."};
-            }
-        });
-        return data;
-    };
-    export default environment_content;
+    // TODO: remove the following hard coded url and use a value from application config
+    $.ajax({
+        type: "GET",
+        url: "http://localhost:8289/service/packages",
+        contentType: "application/json; charset=utf-8",
+        async: false,
+        dataType: "json",
+        success: function (response) {
+            data = response;
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            data = { "error": true, "message": "Unable to retrieve packages." };
+        }
+    });
+    return data;
+};
+
+/**
+ *  Get native types from the Ballerina program service
+ */
+environment_content.getNativeTypes = function () {
+    var data = [];
+    // TODO: remove the following hard coded url and use a value from application config
+    $.ajax({
+        type: "GET",
+        url: "http://localhost:8289/service/program/native/types",
+        contentType: "application/json; charset=utf-8",
+        async: false,
+        dataType: "json",
+        success: function (response) {
+            data = response;
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            data = { "error": true, "message": "Unable to retrieve native types." };
+        }
+    });
+    return data;
+};
+export default environment_content;

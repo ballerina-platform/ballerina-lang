@@ -321,7 +321,7 @@ class TypeMapperDefinitionView extends SVGCanvas {
                             var rightOperand = nodeBeingDragged.getChildren()[1];
                             _.forEach(functionSchema.parameters, function (params) {
                                 var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
-                                variableRefExp.setVariableReferenceName('');
+                                variableRefExp.setVariableName('');
                                 functionInvocationExp.addChild(variableRefExp);
                             });
                             rightOperand.setRightOperandExpressionString('');
@@ -332,7 +332,7 @@ class TypeMapperDefinitionView extends SVGCanvas {
                             var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
                             _.forEach(functionSchema.parameters, function (params) {
                                 var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
-                                variableRefExp.setVariableReferenceName('');
+                                variableRefExp.setVariableName('');
                                 functionInvocationExp.addChild(variableRefExp);
                             });
                         }
@@ -479,7 +479,7 @@ class TypeMapperDefinitionView extends SVGCanvas {
 
         _.each(self.getSourceInfo().sourceStruct.getChildren(), function (variableDef) {
             _.each(predefinedStructs, function (predefinedStruct) {
-                if (_.isEqual(variableDef.getTypeName(), predefinedStruct.getStructName())) {
+                if (_.isEqual(variableDef.getBType(), predefinedStruct.getStructName())) {
                     traverseChildren(self, predefinedStructs, predefinedStruct);
                 }
             });
@@ -525,7 +525,7 @@ class TypeMapperDefinitionView extends SVGCanvas {
 
         _.each(self.getTargetInfo().targetStruct.getChildren(), function (variableDef) {
             _.each(predefinedStructs, function (predefinedStruct) {
-                if (_.isEqual(variableDef.getTypeName(), predefinedStruct.getStructName())) {
+                if (_.isEqual(variableDef.getBType(), predefinedStruct.getStructName())) {
                     traverseChildren(self, predefinedStructs, predefinedStruct);
                 }
             });

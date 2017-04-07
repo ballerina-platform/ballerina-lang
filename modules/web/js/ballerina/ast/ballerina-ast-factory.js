@@ -1146,10 +1146,6 @@ import commentStatement from './statements/comment-statement';
             var node;
             var nodeType = jsonNode.type;
 
-            if (_.isUndefined(jsonNode.type)) {
-                var statement = jsonNode.statement;
-                node = BallerinaASTFactory.createAssignment();
-            } else {
                 switch (nodeType) {
                     case 'package':
                         node = BallerinaASTFactory.createPackageDefinition();
@@ -1204,9 +1200,6 @@ import commentStatement from './statements/comment-statement';
                         break;
                     case 'function_invocation_expression':
                         node = BallerinaASTFactory.createFunctionInvocationExpression();
-                        break;
-                    case 'variable_reference_name':
-                        node = BallerinaASTFactory.createVariableReferenceExpression();
                         break;
                     case 'variable_reference_expression':
                         node = BallerinaASTFactory.createVariableReferenceExpression();
@@ -1355,7 +1348,7 @@ import commentStatement from './statements/comment-statement';
                     default:
                         throw new Error("Unknown node definition for " + jsonNode.type);
                 }
-            }
+            
             node.setLineNumber(jsonNode.line_number, {doSilently: true});
             return node;
         };
