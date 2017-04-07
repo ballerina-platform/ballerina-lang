@@ -61,7 +61,6 @@ class AnnotationDefinition extends ASTNode {
     }
 
     addAnnotationAttributeDefinition (type, identifier, defaultValue) {
-debugger;
         // if identifier is empty
         if (_.isEmpty(identifier)) {
             var errorString = 'Identifier cannot be empty';
@@ -71,7 +70,6 @@ debugger;
 
         // Check if already variable definition exists with same identifier.
         var identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (annotationAttributionDefinition) {
-            debugger;
             return annotationAttributionDefinition.getIdentifier() === identifier;
         }) !== -1;
 
