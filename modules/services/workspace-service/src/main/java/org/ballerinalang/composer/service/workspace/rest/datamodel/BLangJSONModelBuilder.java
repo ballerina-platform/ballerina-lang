@@ -73,6 +73,7 @@ import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
+import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
@@ -1143,6 +1144,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             tempJsonArrayRef.pop();
         }
         tempJsonArrayRef.peek().add(variableRefObj);
+
+    }
+
+    @Override
+    public void visit(NullLiteral nullLiteral) {
 
     }
 

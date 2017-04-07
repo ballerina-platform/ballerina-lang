@@ -65,6 +65,7 @@ import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
+import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
@@ -570,7 +571,12 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         bufferStack.push(buffer);
         buffer.append(variableRefExpr.getSymbolName().getName());
     }
-    
+
+    @Override
+    public void visit(NullLiteral nullLiteral) {
+
+    }
+
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
         
