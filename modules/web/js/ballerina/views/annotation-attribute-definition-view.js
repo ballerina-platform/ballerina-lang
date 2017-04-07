@@ -19,13 +19,13 @@ import _ from 'lodash';
 import $ from 'jquery';
 import log from 'log';
 import Alerts from 'alerts';
-import BallertinaView from './ballerina-view';
+import BallerinaView from './ballerina-view';
 
-class AnnotationAttributeDefinitionView extends BallertinaView {
+class AnnotationAttributeDefinitionView extends BallerinaView {
     constructor(args) {
         super(args);
         this._parentView = _.get(args, "parentView");
-        this._attributeVariableWrapper = undefined;
+        this._annotationAttributeDefinitionTypeWrapper = undefined;
         this._typeWrapper = undefined;
         this._identifierWrapper = undefined;
         this._deleteButton = undefined;
@@ -55,7 +55,14 @@ class AnnotationAttributeDefinitionView extends BallertinaView {
             class: "struct-variable-definition-identifier pull-left"
         }).appendTo(annotationAttributeDefinitionWrapper);
 
-        this._attributeNameWrapper = annotationAttributeDefinitionIdentifierWrapper.get(0);
+        this._nameWrapper = annotationAttributeDefinitionIdentifierWrapper.get(0);
+
+        var annotationAttributeDefinitionValueWrapper = $("<div/>", {
+            text: this.getModel().getAttributeValue(),
+            class: "struct-variable-definition-value pull-left"
+        }).appendTo(annotationAttributeDefinitionWrapper);
+
+        this._valueWrapper = annotationAttributeDefinitionValueWrapper.get(0);
 
         var deleteButton = $("<i class='fw fw-cancel'></i>").css("visibility", "hidden")
             .appendTo(annotationAttributeDefinitionWrapper);
@@ -124,11 +131,11 @@ class AnnotationAttributeDefinitionView extends BallertinaView {
             });
         });
 
-        $(this._identifierWrapper).empty();
+        $(this._nameWrapper).empty();
 
         var identifierEditWrapper = $("<div/>",{
             click: function(e) {e.stopPropagation();}
-        }).appendTo(this._identifierWrapper);
+        }).appendTo(this._nameWrapper);
 
         // Creating the identifier text box.
         var identifierTextBox = $("<input/>", {
@@ -167,6 +174,49 @@ class AnnotationAttributeDefinitionView extends BallertinaView {
             self.getModel().setAttributeName($(this).val());
         }).appendTo($(identifierEditWrapper));
 
+        $(this._valueWrapper).empty();
+
+        var valueEditWrapper = $("<div/>", {
+            click: function (e) { e.stopPropagation(); }
+        }).appendTo(this._valueWrapper);
+
+        // Creating the identifier text box.
+        var valueTextBox = $("<input/>", {
+            type: "text",
+            class: "struct-variable-identifier-text-input",
+            val: this.getModel().getAttributeValue()
+        }).keypress(function (e) {
+            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+             (Chrome and IE ignore keypress event of these keys in browser level)*/
+            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (_.isEqual(enteredKey, 13)) {
+                    e.stopPropagation();
+                    return false;
+                }
+
+                var newValue = $(this).val() + String.fromCharCode(enteredKey);
+
+                try {
+                    self.getModel().setAttributeValue(newValue);
+                } catch (error) {
+                    Alerts.error(error);
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        }).keydown(function (e) {
+            var enteredKey = e.which || e.charCode || e.keyCode;
+
+            // If tab pressed.
+            if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                typeDropdown.dropdownButton.trigger("click");
+            }
+        }).keyup(function () {
+            self.getModel().setAttributeValue($(this).val());
+        }).appendTo($(valueEditWrapper));
+
     }
 
 
@@ -175,7 +225,7 @@ class AnnotationAttributeDefinitionView extends BallertinaView {
     }
 
     getWrapper() {
-        return this._attributeVariableWrapper;
+        return this._annotationAttributeDefinitionTypeWrapper;
     }
 
     _getTypeDropdownValues() {
@@ -186,7 +236,7 @@ class AnnotationAttributeDefinitionView extends BallertinaView {
             dropdownData.push({id: bType, text: bType});
         });
 
-        var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getAnnotationDefinitions();
+        var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
         _.forEach(structTypes, function (sType) {
             dropdownData.push({id: sType.getAnnotationName(), text: sType.getAnnotationName()});
         });

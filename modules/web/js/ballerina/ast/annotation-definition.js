@@ -60,10 +60,7 @@ class AnnotationDefinition extends ASTNode {
         return this.filterChildren(this.getFactory().isAnnotationAttributeDefinition);
     }
 
-    /**
-     *
-     * */
-    addAnnotationAttributeDefinition(type, identifier, defaultValue) {
+    addAnnotationAttributeDefinition (type, identifier, defaultValue) {
         // if identifier is empty
         if (_.isEmpty(identifier)) {
             var errorString = 'Identifier cannot be empty';
@@ -72,9 +69,9 @@ class AnnotationDefinition extends ASTNode {
         }
 
         // Check if already variable definition exists with same identifier.
-        var identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (annotationAttributionDefinition) {
-                return annotationAttributionDefinition.getIdentifier() === identifier;
-            }) !== -1;
+        var identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (attDef) {
+            return attDef.getAttributeName() === identifier;
+        }) !== -1;
 
         // If annotation attribute definition with the same identifier exists, then throw an error,
         // else create the new annotation attribute definition.
@@ -128,7 +125,7 @@ class AnnotationDefinition extends ASTNode {
         _.pull(this._attachmentPoints,identifier);
     }
 
-    /**
+     /**
      * Removes annotation attribute definition.
      * @param {string} modelID - The model ID of the variable.
      */
@@ -143,7 +140,9 @@ class AnnotationDefinition extends ASTNode {
     initFromJson(jsonNode) {
         var self = this;
         this.setAnnotationName(jsonNode.annotation_name, {doSilently: true});
+        if (!_.isNil(jsonNode.annotation_attachment_points)){
         this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), {doSilently: true});
+        }
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);

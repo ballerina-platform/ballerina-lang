@@ -139,8 +139,6 @@ class AnnotationDefinitionView extends SVGCanvas {
                 }
             }
         });
-
-
         /////////////////////////////////////////////////
 
         var attachmentButton = $('<div class="attachments-btn" data-toggle="tooltip" title="Attachments" data-placement="bottom"></div>')
@@ -339,17 +337,16 @@ class AnnotationDefinitionView extends SVGCanvas {
         var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
 
         $(typeDropdown).select2({
-            data: this._getTypeDropdownValues()
+            data : this._getTypeDropdownValues()
         });
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             $(typeDropdownWrapper).empty();
             typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
-            console.log("destroying");
             $(typeDropdown).select2({
                 tags: true,
                 selectOnClose: true,
-                data: self._getTypeDropdownValues(),
+                data : self._getTypeDropdownValues(),
                 query: function (query) {
                     var data = {results: []};
                     if (!_.isNil(query.term)) {
@@ -359,7 +356,7 @@ class AnnotationDefinitionView extends SVGCanvas {
                             }
                         });
                         // Adding user typed string when there is no any matching item in the list
-                        if (data.results.length == 0) {
+                        if(data.results.length == 0){
                             data.results.push({id: query.term, text: query.term});
                         }
                     } else {
@@ -369,7 +366,7 @@ class AnnotationDefinitionView extends SVGCanvas {
                 }
             });
 
-            $(typeDropdown).on("select2:open", function () {
+            $(typeDropdown).on("select2:open", function() {
                 $(".select2-search__field").attr("placeholder", "Search");
             });
         });
@@ -401,7 +398,7 @@ class AnnotationDefinitionView extends SVGCanvas {
                     return false;
                 }
             }
-        }).keydown(function (e) {
+        }).keydown(function(e){
             var enteredKey = e.which || e.charCode || e.keyCode;
 
             // If tab pressed.
@@ -414,7 +411,7 @@ class AnnotationDefinitionView extends SVGCanvas {
         var defaultValueTextBox = $("<input/>", {
             type: "text",
             class: "struct-default-value-text-input",
-            "placeholder": "Default Value"
+            placeholder: "Default Value"
         }).keypress(function (e) {
             /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
              (Chrome and IE ignore keypress event of these keys in browser level)*/
@@ -427,7 +424,7 @@ class AnnotationDefinitionView extends SVGCanvas {
                     return false;
                 }
             }
-        }).keydown(function (e) {
+        }).keydown(function(e){
             var enteredKey = e.which || e.charCode || e.keyCode;
 
             // If tab pressed.
@@ -450,7 +447,7 @@ class AnnotationDefinitionView extends SVGCanvas {
 
                 self.getModel().addAnnotationAttributeDefinition(bType, identifier, defaultValue);
 
-                self._renderVariableDefinitionStatements(structVariablesWrapper);
+                self._renderAttributeDefinitions(structVariablesWrapper);
 
                 $(identifierTextBox).val("");
                 $(defaultValueTextBox).val("");
@@ -463,13 +460,13 @@ class AnnotationDefinitionView extends SVGCanvas {
 
         //// Creating struct content panel
 
-        var structVariablesWrapper = $("<div/>", {
+        var structVariablesWrapper = $("<div/>",{
             class: "struct-content-variables-wrapper"
         }).appendTo(structContentWrapper);
 
-        this._renderAttributeDefinition(structVariablesWrapper);
+        this._renderAttributeDefinitions(structVariablesWrapper);
 
-        $(structVariablesWrapper).click(function (e) {
+        $(structVariablesWrapper).click(function(e){
             e.preventDefault();
             return false;
         });
@@ -478,7 +475,7 @@ class AnnotationDefinitionView extends SVGCanvas {
 
         // On window click.
         $(window).click(function (event) {
-            self._renderAttributeDefinition(structVariablesWrapper);
+            self._renderAttributeDefinitions(structVariablesWrapper);
         });
 
         currentContainer.find('svg').remove();
@@ -500,10 +497,10 @@ class AnnotationDefinitionView extends SVGCanvas {
         return dropdownData;
     }
 
-    _renderAttributeDefinition(wrapper) {
+    _renderAttributeDefinitions(wrapper){
         $(wrapper).empty();
         var self = this;
-        _.forEach(this._model.getAnnotationAttributeDefinitions(), function (attributeDefinition) {
+        _.forEach(this._model.getAnnotationAttributeDefinitions(), function(attributeDefinition) {
             var annotationAttributeDefinitionView = new AnnotationAttributeDefinitionView({
                 parent: self.getModel(),
                 model: attributeDefinition,
@@ -517,14 +514,14 @@ class AnnotationDefinitionView extends SVGCanvas {
 
             annotationAttributeDefinitionView.render(self.getDiagramRenderingContext());
 
-            $(annotationAttributeDefinitionView.getDeleteButton()).click(function () {
-                self._renderAttributeDefinition(wrapper);
+            $(annotationAttributeDefinitionView.getDeleteButton()).click(function(){
+                self._renderAttributeDefinitions(wrapper);
             });
 
             $(annotationAttributeDefinitionView.getWrapper()).click({
                 modelID: attributeDefinition.getID()
-            }, function (event) {
-                self._renderAttributeDefinition(wrapper);
+            }, function(event){
+                self._renderAttributeDefinitions(wrapper);
                 var annotationAttributeDefinitionView = self.getDiagramRenderingContext()
                     .getViewModelMap()[event.data.modelID];
                 annotationAttributeDefinitionView.renderEditView();
@@ -575,5 +572,5 @@ class AnnotationDefinitionView extends SVGCanvas {
         });
     }
 }
-
+AnnotationDefinitionView.prototype.constructor = Canvas;
 export default AnnotationDefinitionView;
