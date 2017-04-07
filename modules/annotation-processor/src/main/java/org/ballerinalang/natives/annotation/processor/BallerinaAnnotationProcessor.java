@@ -157,6 +157,9 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     private void processNativeFunctions(Set<Element> balFunctionElements) {
         for (Element element : balFunctionElements) {
             BallerinaFunction balFunction = element.getAnnotation(BallerinaFunction.class);
+            if (IGNORE.equalsIgnoreCase(balFunction.functionName())) {
+                continue;
+            }
             BallerinaAnnotation[] annot = getBallerinaAnnotations(element);
             String packageName = balFunction.packageName();
             String className = Utils.getClassName(element);
