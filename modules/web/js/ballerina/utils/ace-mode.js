@@ -31,10 +31,10 @@ ace.define('ace/mode/ballerina',
 
             var keywordMapper = this.createKeywordMapper({
                 "ballerina-keyword-control": "if|else|iterator|try|catch|fork|join|while|throw|throws|return|break|timeout",
-                "ballerina-keyword-other": "import|version|public",
+                "ballerina-keyword-other": "import|version|public|attach",
                 "ballerina-keyword-primitive-type": "boolean|int|long|float|double|string",
                 "ballerina-keyword-non-primitive-type": "message|map|exception|json|xml|xmlDocument",
-                "ballerina-keyword-definition": "package|type|typemapper|connector|function|resource|service|action|worker|struct",
+                "ballerina-keyword-definition": "annotation|package|type|typemapper|connector|function|resource|service|action|worker|struct",
                 "ballerina-keyword-language": "const|true|false|reply|create"
             }, "ballerina-identifier");
 
