@@ -24,27 +24,21 @@ import org.ballerinalang.composer.service.workspace.model.Connector;
 import org.ballerinalang.composer.service.workspace.model.Function;
 import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.model.Parameter;
-import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
-import org.ballerinalang.util.program.BLangFiles;
-import org.ballerinalang.util.program.BLangPackages;
-import org.ballerinalang.util.program.BLangPrograms;
-import org.ballerinalang.util.repository.PackageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.core.Response;
 
@@ -66,7 +60,8 @@ public class PackagesApiServiceImpl extends PackagesApiService {
     private GlobalScope globalScope;
 
     public PackagesApiServiceImpl() {
-        this.globalScope = BLangPrograms.populateGlobalScope();
+        this.globalScope = GlobalScope.getInstance();
+        BuiltInNativeConstructLoader.loadConstructs(this.globalScope);
     }
 
     @Override
@@ -101,24 +96,11 @@ public class PackagesApiServiceImpl extends PackagesApiService {
      * @return {Map} <Package name, package functions and connectors>
      * */
     private Map<String, ModelPackage> getAllPackages() {
-        
         Map<String, ModelPackage> packages = new HashMap<>();
 
         globalScope.getSymbolMap().values().stream().forEach(symbol -> {
             if (symbol instanceof NativePackageProxy) {
-                NativePackageProxy packageProxy = ((NativePackageProxy) symbol);
-                Path packagePath = BLangPackages.getPathFromPackagePath(packageProxy.load().getName());
-                PackageRepository.PackageSource pkgSource =
-                        packageProxy.load().getPackageRepository().loadPackage(packagePath);
-
-                BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(packageProxy);
-                packageBuilder.setBallerinaFileList(pkgSource.getSourceFileStreamMap().entrySet()
-                        .stream().map(entry -> BLangFiles
-                                .loadFile(entry.getKey(), packagePath, entry.getValue(), packageBuilder))
-                        .collect(Collectors.toList()));
-
-                BLangPackage bLangPackage = packageBuilder.build();
-                bLangPackage.getSymbolMap().values().stream().forEach(bLangSymbol -> {
+                ((NativePackageProxy) symbol).load().getSymbolMap().values().stream().forEach(bLangSymbol -> {
                     NativeUnitProxy nativeUnitProxy = (NativeUnitProxy) bLangSymbol;
                     if (nativeUnitProxy.load() instanceof AbstractNativeFunction) {
                         extractFunction(packages, nativeUnitProxy);
