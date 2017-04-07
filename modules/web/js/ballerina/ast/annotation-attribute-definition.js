@@ -27,7 +27,7 @@ class AnnotationAttributeDefinition extends ASTNode {
         super('AnnotationAttribute');
         this._attributeName = _.get(args, 'attributeName');
         this._attributeType = _.get(args, 'attributeType');
-        this._attributeValue = _.get(args, 'attributeValue');
+        this._attributeValue = _.get(args, 'attributeValue', '');
         this._pkgPath = _.get(args, 'pkgPath');
     }
 
@@ -70,7 +70,11 @@ class AnnotationAttributeDefinition extends ASTNode {
     }
 
     getAttributeStatementString(){
-
+        var statement =  this.getAttributeType() + ' ' + this.getAttributeName() ;
+        if (!_.isEmpty(this.getAttributeValue())) {
+            statement += ' = ' + this.getAttributeValue();
+        }
+        return statement;
     }
 
     /**

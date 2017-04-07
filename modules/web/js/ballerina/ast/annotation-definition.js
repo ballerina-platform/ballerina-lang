@@ -69,8 +69,8 @@ class AnnotationDefinition extends ASTNode {
         }
 
         // Check if already variable definition exists with same identifier.
-        var identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (annotationAttributionDefinition) {
-            return annotationAttributionDefinition.getIdentifier() === identifier;
+        var identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (attDef) {
+            return attDef.getAttributeName() === identifier;
         }) !== -1;
 
         // If annotation attribute definition with the same identifier exists, then throw an error,
@@ -108,7 +108,9 @@ class AnnotationDefinition extends ASTNode {
     initFromJson(jsonNode) {
         var self = this;
         this.setAnnotationName(jsonNode.annotation_name, {doSilently: true});
-        this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), {doSilently: true});
+        if (!_.isNil(jsonNode.annotation_attachment_points)){
+            this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), {doSilently: true});
+        }
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);

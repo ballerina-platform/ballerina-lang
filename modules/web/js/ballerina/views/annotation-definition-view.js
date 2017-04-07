@@ -87,6 +87,414 @@ class AnnotationDefinitionView extends SVGCanvas {
 
     getViewOptions() {
         return this._viewOptions;
+    }
+
+    render(diagramRenderingContext) {
+        this.setDiagramRenderingContext(diagramRenderingContext);
+
+        // Draws the outlying body of the struct definition.
+        this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().getType().toLowerCase(), this.getModel().getAnnotationName());
+
+        // Setting the styles for the canvas icon.
+        this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.annotation_icon", ""));
+
+        var self = this;
+
+        //Scroll to the added position and highlight the heading
+        var currentContainer = $('#' + this.getModel().getID());
+
+        $(_.get(this._viewOptions, "design_view.container", "")).scrollTop(currentContainer.parent().position().top);
+        var hadingBox = $('#' + this.getModel().getID() + "_heading");
+        var canvas_heading_new = _.get(this._viewOptions, "cssClass.canvas_heading_new", "");
+        var new_drop_timeout = _.get(this._viewOptions, "design_view.new_drop_timeout", "");
+        hadingBox.addClass(canvas_heading_new);
+        setTimeout(function(){hadingBox.removeClass(canvas_heading_new);}, new_drop_timeout);
+
+        $(this.getTitle()).text(this.getModel().getAnnotationName())
+            .on("change paste keyup", function () {
+                self.getModel().setAnnotationName($(this).text());
+            }).on("click", function (event) {
+            event.stopPropagation();
+        }).keypress(function (e) {
+            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+             (Chrome and IE ignore keypress event of these keys in browser level)*/
+            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (_.isEqual(enteredKey, 13)) {
+                    e.stopPropagation();
+                    return false;
+                }
+
+                var newAnnotationName = $(this).val() + String.fromCharCode(enteredKey);
+
+                try {
+                    self.getModel().setAnnotationName(newAnnotationName);
+                } catch (error) {
+                    Alerts.error(error);
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        });
+
+
+
+        /////////////////////////////////////////////////
+        this._constantDefinitionsButton = $('<div class=\'constants-btn\' data-toggle=\'tooltip\' title=\'Constants\' ' +
+            'data-placement=\'bottom\'></div>')
+            .appendTo(this._paneAppendElement);
+
+        $('<span class=\'btn-icon\'>' +
+            ' Const. </span>')
+            .appendTo(this._constantDefinitionsButton).tooltip();
+
+        this._constantsDefinitionsMainWrapper = $('<div class=\'constants-pane\'/>').appendTo(this._paneAppendElement);
+
+        var constantsWrapper = $('<div class=\'constants-wrapper\'/>').appendTo(this._constantsDefinitionsMainWrapper);
+
+        var collapserWrapper = $('<div class=\'constant-pane-collapser-wrapper\' data-placement=\'bottom\' ' +
+            ' title=\'Open Constant Pane\' data-toggle=\'tooltip\'/>')
+            .data('collapsed', 'true')
+            .appendTo(constantsWrapper);
+        $('<i class=\'fw fw-right\'></i>').appendTo(collapserWrapper);
+
+        var constantsActionWrapper = $('<div class=\'constants-action-wrapper\'/>').appendTo(constantsWrapper);
+
+        // Creating add constant editor button.
+        var addConstantButton = $('<div class=\'action-icon-wrapper constant-add-icon-wrapper\' title=\'Add Constant\'' +
+            'data-toggle=\'tooltip\' data-placement=\'bottom\'/>')
+            .appendTo(constantsActionWrapper);
+        $('<i class=\'fw fw-add\'></i>').appendTo(addConstantButton);
+
+        var constantsAddPane = $('<div class=\'action-content-wrapper-heading constant-add-action-wrapper\'/>')
+            .appendTo(constantsActionWrapper);
+
+        var typeDropdownWrapper = $('<div class="type-drop-wrapper"></div>').appendTo(constantsAddPane);
+        var constantIdentifierText = $('<input id=\'text\' placeholder=\'Identifier\'/>').appendTo(constantsAddPane);
+        var constantValueText = $('<input id=\'text\' placeholder=\'Value\'/>').appendTo(constantsAddPane);
+
+        var constantBTypeSelect = $('<select/>').appendTo(typeDropdownWrapper);
+
+        $(constantBTypeSelect).select2({
+            data: this._getTypeDropdownValues(),
+            tags: true,
+            selectOnClose: true
+        });
+
+        $(document).ready(function() {
+            $(typeDropdownWrapper).empty();
+            constantBTypeSelect = $('<select/>').appendTo(typeDropdownWrapper);
+            $(constantBTypeSelect).select2({
+                tags: true,
+                selectOnClose: true,
+                data : self._getTypeDropdownValues(),
+                query: function (query) {
+                    var data = {results: []};
+                    if (!_.isNil(query.term)) {
+                        _.forEach(self._getTypeDropdownValues(), function (item) {
+                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                data.results.push(item);
+                            }
+                        });
+                        // Adding user typed string when there is no any matching item in the list
+                        if(data.results.length == 0){
+                            data.results.push({id: query.term, text: query.term});
+                        }
+                    } else {
+                        data.results = self._getTypeDropdownValues();
+                    }
+                    query.callback(data);
+                }
+            });
+
+            $(constantBTypeSelect).on('select2:open', function() {
+                $('.select2-search__field').attr('placeholder', 'Search');
+            });
+        });
+
+        // Add new constant upon enter key.
+        $(constantIdentifierText).keypress(function (e) {
+            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+             (Chrome and IE ignore keypress event of these keys in browser level)*/
+            if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (_.isEqual(enteredKey, 13)) {
+                    constantAddCompleteButtonPane.click();
+                    e.stopPropagation();
+                    return false;
+                }
+
+                var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
+
+                // Validation the identifier against grammar.
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
+                    var errorString = 'Invalid identifier for a parameter: ' + newIdentifier;
+                    log.error(errorString);
+                    Alerts.error(errorString);
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        });
+
+        // Add new constant when pressed enter on value field.
+        $(constantValueText).keypress(function(e){
+            var enteredKey = e.which || e.charCode || e.keyCode;
+            // Disabling enter key
+            if (_.isEqual(enteredKey, 13)) {
+                constantAddCompleteButtonPane.click();
+                e.stopPropagation();
+                return false;
+            }
+        });
+
+        // Creating cancelling add new constant button.
+        var constantAddCancelButtonPane = $('<div class=\'action-icon-wrapper constant-add-cancel-action-wrapper\' ' +
+            'data-placement=\'bottom\' title=\'Cancel\' data-toggle=\'tooltip\'/>')
+            .appendTo(constantsAddPane);
+        $('<span class=\'fw-stack fw-lg\'><i class=\'fw fw-square fw-stack-2x\'></i>' +
+            '<i class=\'fw fw-cancel fw-stack-1x fw-inverse\'></i></span>').appendTo(constantAddCancelButtonPane);
+        // Creating add new constant button.
+        var constantAddCompleteButtonPane = $('<div class=\'action-icon-wrapper ' +
+            'constant-add-complete-action-wrapper\' title=\'Add\' data-placement=\'bottom\' data-toggle=\'tooltip\'/>')
+            .appendTo(constantsAddPane);
+        $('<span class=\'fw-stack fw-lg\'><i class=\'fw fw-square fw-stack-2x\'></i>' +
+            '<i class=\'fw fw-check fw-stack-1x fw-inverse\'></i></span>').appendTo(constantAddCompleteButtonPane);
+
+        // Add new constant activate button.
+        $(addConstantButton).click(function () {
+            $(constantsAddPane).show();
+            $(this).hide();
+            $(constantIdentifierText).focus();
+            self._constantDefinitionsButton.css('opacity', '1');
+        });
+
+        // Cancel adding a new constant.
+        $(constantAddCancelButtonPane).click(function () {
+            $(constantsAddPane).hide();
+            $(addConstantButton).show();
+            self._constantDefinitionsButton.css('opacity', '');
+        });
+
+        var constantsDefinitionsContentWrapper = $('<div class=\'constants-content-wrapper\'/>')
+            .appendTo(constantsWrapper);
+        this._constantsDefViewsContainer = constantsDefinitionsContentWrapper;
+
+        // When a new variable is created.
+        $(constantAddCompleteButtonPane).click(function () {
+            var typeOfNewConstant = constantBTypeSelect.val();
+            var identifierOfNewConstant = constantIdentifierText.val();
+            var valueOfNewConstant = constantValueText.val();
+
+            try {
+                self._model.addConstantDefinition(typeOfNewConstant, identifierOfNewConstant, valueOfNewConstant);
+
+                // Clearing values in inputs.
+                constantIdentifierText.val('');
+                constantValueText.val('');
+
+
+                // Changing the content of the collapser.
+                collapserWrapper.empty();
+                collapserWrapper.data('collapsed', 'false');
+                $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
+                constantsWrapper.show();
+                self._constantsDefinitionsMainWrapper.css('width', '92%');
+            } catch (error) {
+                Alerts.error(error);
+            }
+        });
+
+        // The click event for hiding and showing constants.
+        collapserWrapper.click(function () {
+            $(this).empty();
+            if ($(this).data('collapsed') === 'false') {
+                $(this).data('collapsed', 'true').attr('data-original-title', 'Open Constant Pane').tooltip('hide');
+                $('<i class=\'fw fw-right\'></i>').appendTo(this);
+                constantsWrapper.find('.constants-content-wrapper').hide();
+                constantsActionWrapper.hide();
+                self._constantsDefinitionsMainWrapper.css('width', '0%');
+            } else {
+                $(this).data('collapsed', 'false').attr('data-original-title', 'Close Constant Pane').tooltip('hide');
+                $('<i class=\'fw fw-left\'></i>').appendTo(this);
+                constantsActionWrapper.show();
+                constantsWrapper.find('.constants-content-wrapper').show();
+                self._constantsDefinitionsMainWrapper.css('width', '92%');
+            }
+        });
+
+        // Stop propagating event to elements behind. This is needed for closing the wrapper when clicked outside.
+        this._constantsDefinitionsMainWrapper.click(function (event) {
+            event.stopPropagation();
+        });
+        /////////////////////////////////////////////////
+
+
+
+
+        var structContentWrapper = $("<div/>", {
+            id: this.getModel().getID(),
+            class: "struct-content-wrapper"
+        }).data("model", this.getModel()).appendTo(this.getBodyWrapper());
+
+        //// Creating operational panel
+
+        var structOperationsWrapper = $("<div/>", {
+            class: "struct-content-operations-wrapper"
+        }).appendTo(structContentWrapper);
+
+        var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-view"></div>')
+            .appendTo(structOperationsWrapper);
+
+        var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+
+        $(typeDropdown).select2({
+            data : this._getTypeDropdownValues()
+        });
+
+        $(document).ready(function() {
+            $(typeDropdownWrapper).empty();
+            typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+            $(typeDropdown).select2({
+                tags: true,
+                selectOnClose: true,
+                data : self._getTypeDropdownValues(),
+                query: function (query) {
+                    var data = {results: []};
+                    if (!_.isNil(query.term)) {
+                        _.forEach(self._getTypeDropdownValues(), function (item) {
+                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                data.results.push(item);
+                            }
+                        });
+                        // Adding user typed string when there is no any matching item in the list
+                        if(data.results.length == 0){
+                            data.results.push({id: query.term, text: query.term});
+                        }
+                    } else {
+                        data.results = self._getTypeDropdownValues();
+                    }
+                    query.callback(data);
+                }
+            });
+
+            $(typeDropdown).on("select2:open", function() {
+                $(".select2-search__field").attr("placeholder", "Search");
+            });
+        });
+
+        // Creating the identifier text box.
+        var identifierTextBox = $("<input/>", {
+            type: "text",
+            class: "struct-identifier-text-input",
+            "placeholder": "Identifier"
+        }).keypress(function (e) {
+            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+             (Chrome and IE ignore keypress event of these keys in browser level)*/
+            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Adding new variable upon enter key.
+                if (_.isEqual(enteredKey, 13)) {
+                    addStructVariableButton.click();
+                    e.stopPropagation();
+                    return false;
+                }
+
+                var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
+
+                // Validation the identifier against grammar.
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
+                    var errorString = "Invalid identifier for a variable: " + newIdentifier;
+                    Alerts.error(errorString);
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        }).keydown(function(e){
+            var enteredKey = e.which || e.charCode || e.keyCode;
+
+            // If tab pressed.
+            if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                typeDropdown.dropdownButton.trigger("click");
+            }
+        }).appendTo(structOperationsWrapper);
+
+        // Creating the default value text box.
+        var defaultValueTextBox = $("<input/>", {
+            type: "text",
+            class: "struct-default-value-text-input",
+            placeholder: "Default Value"
+        }).keypress(function (e) {
+            /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+             (Chrome and IE ignore keypress event of these keys in browser level)*/
+            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Adding new variable upon enter key.
+                if (_.isEqual(enteredKey, 13)) {
+                    addStructVariableButton.click();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        }).keydown(function(e){
+            var enteredKey = e.which || e.charCode || e.keyCode;
+
+            // If tab pressed.
+            if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                typeDropdown.dropdownButton.trigger("click");
+            }
+        }).appendTo(structOperationsWrapper);
+
+        // Creating cancelling add new constant button.
+        var addStructVariableButton = $("<div class='add-struct-variable-button pull-left'/>")
+            .appendTo(structOperationsWrapper);
+        $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
+            "<i class='fw fw-check fw-stack-1x fw-inverse add-struct-variable-button-square'></i></span>").appendTo(addStructVariableButton);
+
+        $(addStructVariableButton).click(function () {
+            try {
+                var bType = typeDropdown.select2('data')[0].text;
+                var identifier = $(identifierTextBox).val().trim();
+                var defaultValue = $(defaultValueTextBox).val().trim();
+
+                self.getModel().addAnnotationAttributeDefinition(bType, identifier, defaultValue);
+
+                self._renderAttributeDefinitions(structVariablesWrapper);
+
+                $(identifierTextBox).val("");
+                $(defaultValueTextBox).val("");
+            } catch (e) {
+                Alerts.error(e);
+            }
+        });
+
+        //// End of operational panel.
+
+        //// Creating struct content panel
+
+        var structVariablesWrapper = $("<div/>",{
+            class: "struct-content-variables-wrapper"
+        }).appendTo(structContentWrapper);
+
+        this._renderAttributeDefinitions(structVariablesWrapper);
+
+        $(structVariablesWrapper).click(function(e){
+            e.preventDefault();
+            return false;
+        });
+
+        //// End of struct content panel
+
+        // On window click.
+        $(window).click(function (event) {
+            self._renderAttributeDefinitions(structVariablesWrapper);
+        });
+
+        currentContainer.find('svg').remove();
+    }
+
     _getTypeDropdownValues() {
         var dropdownData = [];
         // Adding items to the type dropdown.
@@ -103,7 +511,7 @@ class AnnotationDefinitionView extends SVGCanvas {
         return dropdownData;
     }
 
-    _renderVariableDefinitionStatements(wrapper){
+    _renderAttributeDefinitions(wrapper){
         $(wrapper).empty();
         var self = this;
         _.forEach(this._model.getAnnotationAttributeDefinitions(), function(attributeDefinition) {
@@ -121,13 +529,13 @@ class AnnotationDefinitionView extends SVGCanvas {
             annotationAttributeDefinitionView.render(self.getDiagramRenderingContext());
 
             $(annotationAttributeDefinitionView.getDeleteButton()).click(function(){
-                self._renderVariableDefinitionStatements(wrapper);
+                self._renderAttributeDefinitions(wrapper);
             });
 
             $(annotationAttributeDefinitionView.getWrapper()).click({
                 modelID: attributeDefinition.getID()
             }, function(event){
-                self._renderVariableDefinitionStatements(wrapper);
+                self._renderAttributeDefinitions(wrapper);
                 var annotationAttributeDefinitionView = self.getDiagramRenderingContext()
                     .getViewModelMap()[event.data.modelID];
                 annotationAttributeDefinitionView.renderEditView();
@@ -135,5 +543,7 @@ class AnnotationDefinitionView extends SVGCanvas {
         });
     }
 }
+
+AnnotationDefinitionView.prototype.constructor = Canvas;
 
 export default AnnotationDefinitionView;
