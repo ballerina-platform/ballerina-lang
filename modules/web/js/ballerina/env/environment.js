@@ -107,6 +107,7 @@ class BallerinaEnvironment extends EventChannel {
                 self._types.push(nativeType);
             }
         });
+        self._types = _.sortBy(self._types, [function (type) { return type }]);
     }
 
     searchPackage(query, exclude) {
