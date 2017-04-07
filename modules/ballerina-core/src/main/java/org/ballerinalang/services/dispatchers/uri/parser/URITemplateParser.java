@@ -29,8 +29,8 @@ public class URITemplateParser {
     private Node syntaxTree;
     private Node currentNode;
 
-    public URITemplateParser(Node rooNode) {
-        this.syntaxTree = rooNode;
+    public URITemplateParser(Node rootNode) {
+        this.syntaxTree = rootNode;
     }
 
     public Node parse(String template, Resource resource) throws URITemplateException {
