@@ -750,7 +750,7 @@ var traverseChildren = function (view, predefinedStructs, structOfVariableDef) {
     registerListeners(view, structOfVariableDef);
     _.each(structOfVariableDef.getChildren(), function (innerVariableDef) {
         _.each(predefinedStructs, function (predefinedStruct) {
-            if (innerVariableDef.getTypeName() === predefinedStruct.getStructName()) {
+            if (innerVariableDef.getBType() === predefinedStruct.getStructName()) {
                 if (innerVariableDef.getChildren().length == 0) {
                     registerListeners(view, predefinedStruct);
                 } else {
