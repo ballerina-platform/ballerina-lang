@@ -1407,8 +1407,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                                             BLangJSONModelConstants.ANNOTATION_DEFINITION);
         annotationDefObj.addProperty(BLangJSONModelConstants.ANNOTATION_NAME,
                                             annotationDef.getSymbolName().getName());
-        annotationDefObj.addProperty(BLangJSONModelConstants.ANNOTATION_ATTACHMENT_POINTS, StringUtil.join(
-                                     annotationDef.getAttachmentPoints(), ","));
+        if (annotationDef.getAttachmentPoints().length > 0) {
+            annotationDefObj.addProperty(BLangJSONModelConstants.ANNOTATION_ATTACHMENT_POINTS, StringUtil.join(
+                    annotationDef.getAttachmentPoints(), ","));
+        }
 
         tempJsonArrayRef.push(new JsonArray());
         if (annotationDef.getAnnotations() != null) {
