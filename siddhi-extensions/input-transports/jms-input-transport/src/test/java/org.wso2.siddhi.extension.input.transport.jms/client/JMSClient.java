@@ -40,18 +40,7 @@ import java.util.Properties;
  * (ActiveMQ, WSO2 Message Broker, Qpid Broker)
  */
 public class JMSClient {
-
-    private static Log log = LogFactory.getLog(JMSClient.class);
-    private static final String filePath = "/home/sachith/git/personal/siddhi/modules/siddhi-extensions/input-transports/jms-input-transport/src/test/resources/events/events.csv";
-
-    public static void main(String[] args) {
-
-        String topicName = "Test Topic";
-        String queueName = "Test Topic";
-        String broker = "activemq";
-        String format = "text";
-//        sendJMSEvents(filePath, topicName, queueName, format, broker);
-    }
+    private Log log = LogFactory.getLog(JMSClient.class);
 
     public void sendJMSEvents(String filePath, String topicName, String queueName, String format, String broker) {
         if (format == null || "map".equals(format)) {

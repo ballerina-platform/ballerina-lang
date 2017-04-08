@@ -20,7 +20,6 @@ package org.wso2.siddhi.extension.input.transport.jms;
 
 import junit.framework.Assert;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
