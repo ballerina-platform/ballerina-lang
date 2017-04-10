@@ -21,6 +21,7 @@ package org.wso2.siddhi.extension.input.transport.jms;
 import org.apache.axis2.transport.base.threads.NativeWorkerPool;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
@@ -50,6 +51,7 @@ public class JMSInputTransport extends InputTransport {
     private OptionHolder optionHolder;
     private JMSConnectionFactory jmsConnectionFactory;
     private JMSListener jmsListener;
+    private ExecutionPlanContext executionPlanContext;
 
     private int minThreadPoolSize;
     private int maxThreadPoolSize;
@@ -59,9 +61,11 @@ public class JMSInputTransport extends InputTransport {
     private String inputAdapterName;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
+                     ExecutionPlanContext executionPlanContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
+        this.executionPlanContext = executionPlanContext;
 
         minThreadPoolSize = JMSInputTransportConstants.DEFAULT_MIN_THREAD_POOL_SIZE;
         maxThreadPoolSize = JMSInputTransportConstants.DEFAULT_MAX__THREAD_POOL_SIZE;
@@ -105,6 +109,16 @@ public class JMSInputTransport extends InputTransport {
 
     @Override
     public void destroy() {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
 
     }
 
@@ -189,5 +203,15 @@ public class JMSInputTransport extends InputTransport {
             }
         }
         return table;
+    }
+
+    @Override
+    public Map<String, Object> currentState() {
+        return null;
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+
     }
 }
