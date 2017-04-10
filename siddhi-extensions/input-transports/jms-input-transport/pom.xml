@@ -101,16 +101,13 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- todo: add the proper versioning here-->
         <dependency>
             <groupId>org.apache.axis2.wso2</groupId>
             <artifactId>axis2</artifactId>
-            <version>1.6.1.wso2v20</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-impl</artifactId>
-            <version>1.2.20</version>
         </dependency>
 
     </dependencies>
@@ -126,7 +123,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.siddhi.extension.input.transport.kafka.*
+                            org.wso2.siddhi.extension.input.transport.jms.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional
