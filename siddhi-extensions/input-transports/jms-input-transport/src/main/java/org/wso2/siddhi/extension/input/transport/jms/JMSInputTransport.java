@@ -195,13 +195,11 @@ public class JMSInputTransport extends InputTransport {
 
     private Hashtable<String, String> convertMapToHashTable(Map<String, String> map) {
         Hashtable<String, String> table = new Hashtable<>();
-        for (Map.Entry<String, String> stringStringEntry : map.entrySet()) {
-            Map.Entry pair = (Map.Entry) stringStringEntry;
-            //null values will be removed
-            if (pair.getValue() != null) {
-                table.put(pair.getKey().toString(), pair.getValue().toString());
+        map.forEach( (key, value) -> {
+            if (value != null) {
+                table.put(key.toString(), value.toString());
             }
-        }
+        });
         return table;
     }
 
