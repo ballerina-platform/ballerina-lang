@@ -55,12 +55,10 @@ public class JMSListener implements Runnable {
         this.jmsTaskManager = jmsTaskManager;
     }
 
-
     /**
      * Listen for JMS messages on behalf of the given service
      */
     private void start() {
-
         JMSTaskManager stm = jmsTaskManager;
         boolean connected = false;
 
@@ -69,7 +67,6 @@ public class JMSListener implements Runnable {
         long retryDuration = 10000;
         double reconnectionProgressionFactor = 2.0;
         long maxReconnectDuration = 1000 * 60 * 60; // 1 hour
-
 
         // First we will check whether jms provider is started or not, as if not it will throw a continuous error log
         // If jms provider not started we will wait for exponentially increasing time intervals,

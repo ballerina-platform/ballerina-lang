@@ -57,7 +57,4 @@ public class JMSInputTransportConstants {
     public static final String ENTRY_SEPARATOR = ":";
     public static final String ADAPTER_JMS_CONCURRENT_CONSUMERS = "transport.jms.ConcurrentConsumers";
     public static final String ADAPTER_JMS_MAX_CONCURRENT_CONSUMERS = "transport.jms.MaxConcurrentConsumers";
-
-
-
 }

@@ -114,12 +114,12 @@ public class JMSInputTransport extends InputTransport {
 
     @Override
     public void pause() {
-
+        //todo: implement this
     }
 
     @Override
     public void resume() {
-
+        //todo: implement this
     }
 
     private Map<String, String> initJMSProperties() {
@@ -207,11 +207,11 @@ public class JMSInputTransport extends InputTransport {
 
     @Override
     public Map<String, Object> currentState() {
-        return null;
+        return new HashMap<>();
     }
 
     @Override
     public void restoreState(Map<String, Object> state) {
-
+        //todo: implement this
     }
 }
