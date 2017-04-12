@@ -71,7 +71,7 @@ public class AddIntToObject extends AbstractJSONFunction {
             BJSON json = (BJSON) getArgument(ctx, 0);
             jsonPath = getArgument(ctx, 1).stringValue();
             String key = getArgument(ctx, 2).stringValue();
-            int value = ((BInteger) getArgument(ctx, 3)).intValue();
+            long value = ((BInteger) getArgument(ctx, 3)).intValue();
 
             // Adding the value to JSON Object
             WriteContext jsonCtx = JsonPath.parse(json.value());

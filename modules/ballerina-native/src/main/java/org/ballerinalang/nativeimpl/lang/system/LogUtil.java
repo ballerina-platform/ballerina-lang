@@ -18,6 +18,8 @@
 
 package org.ballerinalang.nativeimpl.lang.system;
 
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 
 /**
@@ -29,10 +31,17 @@ public class LogUtil {
      * Log given value in specified log level using provided logger instance.
      *
      * @param logger   Log instance
-     * @param logLevel log level whether debug, info etc
+     * @param logLevelLong log level whether debug, info etc
      * @param value    String value that need to log
      */
-    public static void log(Logger logger, int logLevel, String value) {
+    public static void log(Logger logger, long logLevelLong, String value) {
+        if (logLevelLong != (int) logLevelLong) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, logLevelLong);
+        }
+
+        int logLevel = (int) logLevelLong;
+
         switch (logLevel) {
         case 1:
             logTrace(logger, value);
