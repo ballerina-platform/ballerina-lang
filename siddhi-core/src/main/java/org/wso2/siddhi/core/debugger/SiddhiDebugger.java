@@ -41,11 +41,14 @@ public class SiddhiDebugger {
     private static final Logger log = Logger.getLogger(SiddhiDebugger.class);
 
     /**
-     * SiddhiDebugger allows to add breakpoints only at the beginning and the end of a query.
+     * Thread local flag to indicate whether the next endpoint must be blocked or not.
      */
-    public enum QueryTerminal {
-        IN, OUT
-    }
+    private static final ThreadLocal<Boolean> threadLocalNextFlag = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return false;
+        }
+    };
 
     /**
      * Semaphore is used to pause the Siddhi thread at breakpoints.
@@ -73,16 +76,6 @@ public class SiddhiDebugger {
      * Snapshot service to retrieve the internal states of queries.
      */
     private SnapshotService snapshotService;
-
-    /**
-     * Thread local flag to indicate whether the next endpoint must be blocked or not.
-     */
-    private static final ThreadLocal<Boolean> threadLocalNextFlag = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
 
     /**
      * Create a new SiddhiDebugger instance for the given {@link ExecutionPlanContext}.
@@ -187,9 +180,7 @@ public class SiddhiDebugger {
      * For example, if user adds breakpoint only for the IN of query 1, next will track the event in OUT of query 1.
      */
     public void next() {
-        synchronized (this) {
-            this.enableNext.set(true);
-        }
+        this.enableNext.set(true);
         this.breakPointLock.release();
     }
 
@@ -220,7 +211,6 @@ public class SiddhiDebugger {
         return this.snapshotService.queryState(queryName);
     }
 
-
     /**
      * Determine whether this checkpoint is enabled by the previous checkpoint.
      *
@@ -250,5 +240,12 @@ public class SiddhiDebugger {
      */
     private String createBreakpointName(String queryName, QueryTerminal queryTerminal) {
         return queryName + ":" + queryTerminal;
+    }
+
+    /**
+     * SiddhiDebugger allows to add breakpoints only at the beginning and the end of a query.
+     */
+    public enum QueryTerminal {
+        IN, OUT
     }
 }

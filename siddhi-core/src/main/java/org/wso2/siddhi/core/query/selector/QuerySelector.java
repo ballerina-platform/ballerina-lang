@@ -106,13 +106,12 @@ public class QuerySelector implements Processor {
                             complexEventChunk.remove();
                         }
                         break;
-                    case TIMER:
-                        complexEventChunk.remove();
-                        break;
                     case RESET:
                         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
                             attributeProcessor.process(event);
                         }
+                    case TIMER:
+                        complexEventChunk.remove();
                         break;
                 }
             }
