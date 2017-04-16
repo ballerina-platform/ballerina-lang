@@ -877,7 +877,7 @@ public class JoinTestCase {
 
     @Test
     public void joinTest20() throws InterruptedException {
-        log.info("Join test19");
+        log.info("Join test20");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
