@@ -16,9 +16,8 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.distributed.transport.single.client;
+package org.wso2.siddhi.core.util.transport;
 
-import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
@@ -45,12 +44,6 @@ import java.util.Set;
  *      to send events to all the partitions within the topic.
  *      - The same email client can send email to different addresses.
  */
-
-@Extension(
-        name = "singleClient",
-        namespace = "outputtransport",
-        description = ""
-)
 public class SingleClientDistributedTransport extends DistributedTransport {
 
     private OutputTransport transport;
@@ -63,7 +56,7 @@ public class SingleClientDistributedTransport extends DistributedTransport {
             transportOptions.setVariableOptionIndex(destinationId);
             transport.publish(payload, transportOptions);
         } catch (ConnectionUnavailableException e){
-            publishingStrategy.suspend();
+            publishingStrategy.destinationAvailable(destinationId);
             throw e;
         }
     }

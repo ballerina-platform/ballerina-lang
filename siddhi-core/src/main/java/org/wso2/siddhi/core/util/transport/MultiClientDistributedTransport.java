@@ -16,10 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.distributed.transport.multi.client;
+package org.wso2.siddhi.core.util.transport;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
@@ -28,8 +27,6 @@ import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.OutputTransportExecutorExtensionHolder;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
-import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 
 import java.util.ArrayList;
@@ -42,11 +39,6 @@ import java.util.Map;
  * will be a separate independent {@link OutputTransport} instance connecting to each destination. This class interacts
  * with OutputTransport interface and it does not make any assumptions on the underlying transport implementation.
  */
-@Extension(
-        name = "multiClient",
-        namespace = "outputtransport",
-        description = ""
-)
 public class MultiClientDistributedTransport extends DistributedTransport {
     private static final Logger log = Logger.getLogger(MultiClientDistributedTransport.class);
 
@@ -59,7 +51,7 @@ public class MultiClientDistributedTransport extends DistributedTransport {
             OutputTransport transport = transports.get(destinationId);
             transport.publish(payload, transportOptions);
         } catch (ConnectionUnavailableException e) {
-            publishingStrategy.destinationFailed(destinationId);
+            strategy.destinationFailed(destinationId);
             log.warn("Failed to publish payload to destination ID " + destinationId);
             throw e;
         }
@@ -97,7 +89,7 @@ public class MultiClientDistributedTransport extends DistributedTransport {
             try {
                 if (!transports.get(i).isConnected()) {
                     transports.get(i).connect();
-                    publishingStrategy.destinationAvailable(i);
+                    strategy.destinationAvailable(i);
                     log.info("Connected to destination Id " + i);
                 }
             } catch (ConnectionUnavailableException e) {

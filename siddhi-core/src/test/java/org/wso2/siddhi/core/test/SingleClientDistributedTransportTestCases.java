@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.distributed.transport.single.client.test;
+package org.wso2.siddhi.core.test;
 
 import org.I0Itec.zkclient.exception.ZkTimeoutException;
 import org.junit.Test;
