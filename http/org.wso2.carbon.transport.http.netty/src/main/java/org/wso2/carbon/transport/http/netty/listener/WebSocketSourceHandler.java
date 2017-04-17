@@ -44,7 +44,6 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import javax.websocket.Session;
 
 /**
  * This class handles all kinds of WebSocketFrames
@@ -151,7 +150,6 @@ public class WebSocketSourceHandler extends SourceHandler {
 
     private void sendOnOpenMessage(ChannelHandlerContext ctx, boolean isSecured, String uri) throws URISyntaxException {
         cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
-        Session session = new WebSocketSessionImpl(ctx, isSecured, uri, channelId);
         setupCarbonMessage(ctx);
         cMsg.setProperty(Constants.CONNECTION, Constants.UPGRADE);
         cMsg.setProperty(Constants.UPGRADE, Constants.WEBSOCKET_UPGRADE);
