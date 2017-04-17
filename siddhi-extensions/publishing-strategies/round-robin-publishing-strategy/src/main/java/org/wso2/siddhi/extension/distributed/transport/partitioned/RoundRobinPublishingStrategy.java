@@ -46,7 +46,7 @@ public class RoundRobinPublishingStrategy extends PublishingStrategy {
     private static final List<Integer> EMPTY_RETURN_VALUE = new ArrayList<>();
 
     /**
-     * Initialize actual publishingStrategy implementations. Required information for publishingStrategy implementation can be fetched
+     * Initialize actual strategy implementations. Required information for strategy implementation can be fetched
      * inside this method
      */
     @Override

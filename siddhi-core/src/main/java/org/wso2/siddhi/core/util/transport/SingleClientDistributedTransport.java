@@ -26,9 +26,6 @@ import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.OutputTransportExecutorExtensionHolder;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
-import org.wso2.siddhi.core.util.transport.Option;
-import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
@@ -56,7 +53,7 @@ public class SingleClientDistributedTransport extends DistributedTransport {
             transportOptions.setVariableOptionIndex(destinationId);
             transport.publish(payload, transportOptions);
         } catch (ConnectionUnavailableException e){
-            publishingStrategy.destinationAvailable(destinationId);
+            strategy.destinationFailed(destinationId);
             throw e;
         }
     }
@@ -101,7 +98,7 @@ public class SingleClientDistributedTransport extends DistributedTransport {
     public void connect() throws ConnectionUnavailableException {
         transport.connect();
         for (int i = 0; i < destinationCount; i++){
-            publishingStrategy.destinationAvailable(i);
+            strategy.destinationAvailable(i);
         }
     }
 

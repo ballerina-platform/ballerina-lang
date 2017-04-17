@@ -17,8 +17,6 @@ public class Option {
         this.templateBuilder = templateBuilder;
     }
 
-
-
     public int addVariableValue(String value){
         variableValues.add(value);
         return (variableValues.size() - 1);

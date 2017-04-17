@@ -40,8 +40,8 @@ public class SingleClientDistributedTransportTestCases {
                     "define stream FooStream (symbol string, price float, volume int); " +
 
                     "@sink(type='kafka', topic='kafka_topic', bootstrap.servers='localhost:9092'," +
-                        "@map(type='text')," +
-                        "@distribution(publishingStrategy='roundRobin', partitionKey='symbol', " +
+                    "    @map(type='text')," +
+                    "    @distribution(strategy='roundRobin', partitionKey='symbol', " +
                     "       @destination(partition.no='1')," +
                     "       @destination(partition.no='2')))" +
                     "@info(name = 'query1')" +

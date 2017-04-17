@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Parent class for the Distributed publishing publishingStrategy extensions. Note that destinationId of the each
+ * Parent class for the Distributed publishing strategy extensions. Note that destinationId of the each
  * destination is implied by the order which @destination annotations appear in @sink annotation. Therefore, when
  * implementing a strategy, if the implementation wants refer to a certain @destination the ID can be derived by
  * looking at the listing order of @destination
@@ -21,10 +21,9 @@ public abstract class PublishingStrategy {
     protected OptionHolder transportOptionHolder;
     protected List<OptionHolder> destinationOptionHolders;
     protected List<Integer> destinationIds = new CopyOnWriteArrayList<>();
-    protected boolean isSuspended = false;
 
     /**
-     * Initialize the Distribution publishingStrategy with the information it will require to make decisions.
+     * Initialize the Distribution strategy with the information it will require to make decisions.
      * @param streamDefinition The stream attached to the sink this PublishingStrategy is used in
      * @param transportOptionHolder Sink options of the sink which uses this PublishingStrategy
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
@@ -39,7 +38,7 @@ public abstract class PublishingStrategy {
 
 
     /**
-     * Initialize actual publishingStrategy implementations. Required information for publishingStrategy implementation can be fetched
+     * Initialize actual strategy implementations. Required information for strategy implementation can be fetched
      * inside this method
      */
     protected abstract void initStrategy();
@@ -79,9 +78,5 @@ public abstract class PublishingStrategy {
         //assigned. Therefore, sorting the Ids once a new ID is added to keep the IDs in the same order as their
         //respective @destination annotations are listed
         Collections.sort(destinationIds);
-    }
-
-    public void suspend(){
-        isSuspended = true;
     }
 }

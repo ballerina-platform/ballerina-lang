@@ -36,7 +36,7 @@ import java.util.List;
 public abstract class DistributedTransport extends OutputTransport {
     private static final Logger log = Logger.getLogger(DistributedTransport.class);
     private OptionHolder sinkOptionHolder;
-    protected PublishingStrategy publishingStrategy;
+    protected PublishingStrategy strategy;
     protected StreamDefinition streamDefinition;
     protected ExecutionPlanContext executionPlanContext;
     private String[] supportedDynamicOptions;
@@ -69,7 +69,7 @@ public abstract class DistributedTransport extends OutputTransport {
                      OutputMapper outputMapper, String mapType, OptionHolder mapOptionHolder,String payload,
                      ExecutionPlanContext executionPlanContext, List<OptionHolder> destinationOptionHolders,
                      Annotation sinkAnnotation, PublishingStrategy strategy, String[] supportedDynamicOptions) {
-        this.publishingStrategy = strategy;
+        this.strategy = strategy;
         this.supportedDynamicOptions = supportedDynamicOptions;
         init(streamDefinition, type, transportOptionHolder, outputMapper, mapType, mapOptionHolder, payload, executionPlanContext);
         initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, executionPlanContext);
@@ -79,7 +79,7 @@ public abstract class DistributedTransport extends OutputTransport {
     public void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException {
         int errorCount = 0;
         StringBuilder errorMessages = null;
-        List<Integer> destinationsToPublish = publishingStrategy.getDestinationsToPublish(payload, transportOptions);
+        List<Integer> destinationsToPublish = strategy.getDestinationsToPublish(payload, transportOptions);
         for  (Integer destinationId : destinationsToPublish){
             try {
                 publish(payload, transportOptions, destinationId);

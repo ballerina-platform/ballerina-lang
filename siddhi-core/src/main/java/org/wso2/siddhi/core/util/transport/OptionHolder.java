@@ -46,7 +46,7 @@ public class OptionHolder {
         dynamicOptions.keySet().forEach(key ->  dynamicOptionsKeys.add(key));
     }
 
-    public Option validateAndGetOption(String optionKey) {
+   public Option validateAndGetOption(String optionKey) {
         Option option = options.get(optionKey);
         if (option == null) {
             throw new ExecutionPlanValidationException("Option '" + optionKey + "' does not exist in the configuration" +
@@ -55,7 +55,7 @@ public class OptionHolder {
         return option;
     }
 
-    public Option getOrCreateOption(String optionKey, String defaultValue) {
+    Option getOrCreateOption(String optionKey, String defaultValue) {
         Option option = options.get(optionKey);
         if (option == null) {
             option = new Option(optionKey, defaultValue, null);
@@ -63,7 +63,7 @@ public class OptionHolder {
         return option;
     }
 
-    public Option getOrAddStaticOption(String optionKey, String value) {
+    Option getOrAddStaticOption(String optionKey, String value) {
         Option option = options.get(optionKey);
         if (option == null) {
             option = new Option(optionKey, value, null);
@@ -101,7 +101,7 @@ public class OptionHolder {
         }
     }
 
-    public OptionHolder merge(OptionHolder optionHolderToMerge){
+    OptionHolder merge(OptionHolder optionHolderToMerge){
         optionHolderToMerge.getDynamicOptionsKeys().forEach(key -> {
             Option optionToMerge = optionHolderToMerge.validateAndGetOption(key);
             options.put(key, optionToMerge);
@@ -115,10 +115,6 @@ public class OptionHolder {
         });
 
         return this;
-    }
-
-    public boolean isOptionExists(String optionKey) {
-        return (options.get(optionKey) != null);
     }
 
     public Set<String> getDynamicOptionsKeys() {

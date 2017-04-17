@@ -29,8 +29,10 @@ import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.source.InputMapper;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.stream.output.sink.*;
-import org.wso2.siddhi.core.stream.output.sink.distributed.PublishingStrategy;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
+import org.wso2.siddhi.core.util.transport.MultiClientDistributedTransport;
+import org.wso2.siddhi.core.stream.output.sink.distributed.PublishingStrategy;
+import org.wso2.siddhi.core.util.transport.SingleClientDistributedTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
 import org.wso2.siddhi.core.trigger.CronEventTrigger;
@@ -242,7 +244,7 @@ public class DefinitionParserHelper {
 
                     List<InputTransport> eventSources = eventSourceMap.get(streamDefinition.getId());
                     if (eventSources == null) {
-                        eventSources = new ArrayList<InputTransport>();
+                        eventSources = new ArrayList<>();
                         eventSources.add(inputTransport);
                         eventSourceMap.put(streamDefinition.getId(), eventSources);
                     } else {
@@ -275,11 +277,11 @@ public class DefinitionParserHelper {
                     List<OptionHolder> destinationOptHolders = new ArrayList<>();
                     String sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);;
                     final boolean isDistributedTransport = (distributionAnnotation != null);
-
+                    boolean isMultiClient = false;
                     if (isDistributedTransport){
                         OutputTransport clientTransport = createOutputTransport(sinkType, sinkAnnotation,
                                 streamDefinition, execPlanContext);
-                        sinkType = getDistributedTransportType(clientTransport, streamDefinition, distributionAnnotation);
+                        isMultiClient = isMultiClientDistributedTransport(clientTransport, streamDefinition, distributionAnnotation);
                         supportedDynamicOptions = clientTransport.getSupportedDynamicOptions();
                         destinationOptHolders = createDestinationOptionHolders(distributionAnnotation,
                                 streamDefinition, clientTransport);
@@ -287,9 +289,14 @@ public class DefinitionParserHelper {
 
                     final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                     if (sinkType != null && mapType != null) {
-                        // load output transport extension
-                        OutputTransport outputTransport = createOutputTransport(sinkType, sinkAnnotation,
-                                streamDefinition, execPlanContext);
+                        OutputTransport outputTransport;
+                        if (isDistributedTransport){
+                            outputTransport = (isMultiClient) ? new MultiClientDistributedTransport() :
+                                    new SingleClientDistributedTransport();
+                        } else {
+                            outputTransport = createOutputTransport(sinkType, sinkAnnotation, streamDefinition,
+                                    execPlanContext);
+                        }
                         if (supportedDynamicOptions == null){
                             supportedDynamicOptions = outputTransport.getSupportedDynamicOptions();
                         }
@@ -464,7 +471,7 @@ public class DefinitionParserHelper {
         return new OptionHolder(streamDefinition, options, dynamicOptions, extension);
     }
 
-    private static String getDistributedTransportType(OutputTransport clientTransport, StreamDefinition
+    private static boolean isMultiClientDistributedTransport(OutputTransport clientTransport, StreamDefinition
                                                       streamDefinition, Annotation distributionAnnotation){
 
         // fetch the @distribution annotations from the @sink annotation
@@ -476,18 +483,18 @@ public class DefinitionParserHelper {
         for (OptionHolder optionHolder: destinationOptHolders){
             for (String key: optionHolder.getDynamicOptionsKeys()){
                 if (!dynamicOptions.contains(key)){
-                    return SiddhiConstants.EXTENSION_MULTI_CLIENT_DISTRIBUTED_TRANSPORT;
+                    return true;
                 }
             }
 
             for (String key: optionHolder.getStaticOptionsKeys()){
                 if (!dynamicOptions.contains(key)){
-                    return SiddhiConstants.EXTENSION_MULTI_CLIENT_DISTRIBUTED_TRANSPORT;
+                    return true;
                 }
             }
         }
 
-        return SiddhiConstants.EXTENSION_SINGLE_CLIENT_DISTRIBUTED_TRANSPORT;
+        return false;
     }
 
     private static OutputTransport createOutputTransport(String type, Annotation sinkAnnotation, StreamDefinition
