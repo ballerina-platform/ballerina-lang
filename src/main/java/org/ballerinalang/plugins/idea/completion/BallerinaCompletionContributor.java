@@ -29,6 +29,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.patterns.PlatformPatterns;
+import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
@@ -668,7 +669,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             // Todo - Handle scenario
         } else {
             // If we are currently at an identifier node, no need to suggest.
-            if (element instanceof IdentifierPSINode) {
+            if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
                 return;
             }
             if (parentPrevSibling == null) {
