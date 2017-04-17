@@ -36,13 +36,6 @@ import java.util.List;
 public class JMSInputTransportTestCase {
     private List<String> receivedEventNameList;
 
-    @BeforeClass
-    public static void init() throws InterruptedException {
-        // starting the embedded JMS server for the test
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
-        Thread.sleep(5000);
-    }
-
     @Test
     public void TestJMSTopicInputTransport() throws InterruptedException {
         receivedEventNameList = new ArrayList<>(2);
@@ -84,7 +77,6 @@ public class JMSInputTransportTestCase {
         });
         executionPlanRuntime.start();
         Thread.sleep(10000);
-
         List<String> expected = new ArrayList<>(2);
         expected.add("\nJohn");
         expected.add("\nMike");
