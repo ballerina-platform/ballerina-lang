@@ -665,6 +665,9 @@ public class BallerinaPsiImplUtil {
      * @return all functions in the given directory(package)
      */
     public static List<PsiElement> getAllMatchingElementsFromPackage(PsiDirectory directory, String xpath) {
+        if (directory == null) {
+            return new LinkedList<>();
+        }
         Project project = directory.getProject();
         List<PsiElement> results = new ArrayList<>();
         VirtualFile virtualFile = directory.getVirtualFile();
