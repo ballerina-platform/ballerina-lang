@@ -412,7 +412,7 @@ class ServiceDefinitionView extends SVGCanvas {
 
         connectorDeclarationView.setParent(this);
 
-        connectorDeclarationView.render();
+        connectorDeclarationView.render(this.getDiagramRenderingContext);
 
         connectorDeclarationView.listenTo(this.getTopHorizontalMargin(), 'moved', function (offset) {
             connectorDeclarationView.getBoundingBox().move(0, offset);

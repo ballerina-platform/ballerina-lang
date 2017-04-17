@@ -268,7 +268,7 @@ class FunctionDefinitionView extends SVGCanvas {
             };
             var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
             workerDeclarationView.setParent(this);
-            workerDeclarationView.render();
+            workerDeclarationView.render(this.diagramRenderingContext);
 
             // Creating Expression Editor
             var editableProperty = {
@@ -660,7 +660,7 @@ class FunctionDefinitionView extends SVGCanvas {
         connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
         this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
         connectorDeclarationView.setParent(this);
-        connectorDeclarationView.render();
+        connectorDeclarationView.render(this.diagramRenderingContext);
 
         connectorDeclarationView.createPropertyPane();
 

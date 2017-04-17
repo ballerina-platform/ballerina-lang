@@ -939,7 +939,7 @@ class ConnectorActionView extends BallerinaView {
         this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
 
         connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
-        connectorDeclarationView.render();
+        connectorDeclarationView.render(this.diagramRenderingContext);
 
         // Creating property pane
         var editableProperty = {
@@ -1033,7 +1033,7 @@ class ConnectorActionView extends BallerinaView {
             };
             var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
             workerDeclarationView.setParent(this);
-            workerDeclarationView.render();
+            workerDeclarationView.render(this.diagramRenderingContext);
 
             // Creating Expression Editor
             var editableProperty = {
