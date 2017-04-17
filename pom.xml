@@ -19,14 +19,14 @@
   <parent>
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerinalang</artifactId>
-    <version>0.86-SNAPSHOT</version>
+    <version>0.87-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.ballerinalang</groupId>
   <artifactId>ballerina-maven-plugins</artifactId>
-  <version>0.86-SNAPSHOT</version>
+  <version>0.87-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Ballerina Maven Plugins - Parent Pom</name>
@@ -66,7 +66,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <docerina.version>0.86-SNAPSHOT</docerina.version>
+    <docerina.version>0.86</docerina.version>
   </properties>
 
   <modules>
