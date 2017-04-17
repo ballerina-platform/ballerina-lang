@@ -31,6 +31,7 @@ import java.util.Map;
  */
 public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol, StructuredUnit {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
     private String[] attachmentPoints;
     private SymbolName symbolName;
     private AnnotationAttributeDef[] attributes;
@@ -55,6 +56,15 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 
     /**

@@ -28,6 +28,7 @@ import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
@@ -213,6 +214,10 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
         return null;
     }
 
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return null;
+    }
 
     // Methods in BLangSymbol interface
 

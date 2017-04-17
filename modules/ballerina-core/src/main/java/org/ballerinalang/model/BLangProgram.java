@@ -172,6 +172,11 @@ public class BLangProgram implements SymbolScope, Node {
         return null;
     }
 
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return null;
+    }
+
 
     /**
      * Indicates whether this program is a main program or a service program.

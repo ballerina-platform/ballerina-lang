@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * Represents an abstract statement. All statements nodes extends this abstract class.
@@ -31,6 +32,7 @@ import org.ballerinalang.model.NodeLocation;
  */
 public abstract class AbstractStatement implements Statement {
     protected NodeLocation location;
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     public LinkedNode next;
     protected LinkedNode sibling, parent;
 
@@ -40,6 +42,15 @@ public abstract class AbstractStatement implements Statement {
 
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 
     @Override

@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
@@ -33,6 +34,7 @@ import org.ballerinalang.util.exceptions.FlowBuilderException;
  */
 public abstract class AbstractExpression implements Expression {
     protected NodeLocation location;
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected BType type;
 
     public LinkedNode next;
@@ -71,6 +73,15 @@ public abstract class AbstractExpression implements Expression {
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 
     @Override

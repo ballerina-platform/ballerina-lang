@@ -50,6 +50,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
     private Future<BMessage> resultFuture;
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
     protected String name;
@@ -99,6 +100,15 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return null;
     }
 
     /**

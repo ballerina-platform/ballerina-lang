@@ -46,6 +46,7 @@ import java.util.Map;
  */
 public class BallerinaFunction implements Function, SymbolScope, CompilationUnit {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
     protected String name;
@@ -193,6 +194,15 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 
 

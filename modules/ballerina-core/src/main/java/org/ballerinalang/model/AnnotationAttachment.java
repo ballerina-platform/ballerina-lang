@@ -39,6 +39,7 @@ public class AnnotationAttachment implements Node {
     private String pkgPath;
     private Map<String, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
     AttachmentPoint attachedPoint;
     
     public AnnotationAttachment(NodeLocation location, String name, String pkgName, String pkgPath,
@@ -105,7 +106,21 @@ public class AnnotationAttachment implements Node {
     public NodeLocation getNodeLocation() {
         return location;
     }
-    
+
+    /**
+     * Set the whitespace descriptor for this node.
+     *
+     * @param whiteSpaceDescriptor descriptor
+     */
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
     /**
      * Set the construct where this annotation is attached.
      * 

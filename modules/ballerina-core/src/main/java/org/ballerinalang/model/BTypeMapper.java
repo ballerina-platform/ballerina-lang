@@ -34,6 +34,7 @@ import java.util.Map;
  */
 public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
     protected String name;
@@ -161,6 +162,15 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 
 

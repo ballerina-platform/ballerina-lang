@@ -153,6 +153,11 @@ public class BallerinaFile implements Node {
         return null;
     }
 
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return null;
+    }
+
     /**
      * Builds a BFile node which represents physical ballerina source file.
      *

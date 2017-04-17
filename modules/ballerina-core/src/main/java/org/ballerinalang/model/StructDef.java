@@ -37,6 +37,7 @@ import java.util.Map;
  */
 public class StructDef extends BType implements CompilationUnit, SymbolScope, StructuredUnit {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
     private AnnotationAttachment[] annotations;
     private VariableDefStmt[] fields;
     private int structMemorySize;
@@ -52,6 +53,15 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return null;
     }
 
     /**

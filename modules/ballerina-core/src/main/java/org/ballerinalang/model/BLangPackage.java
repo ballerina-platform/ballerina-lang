@@ -259,6 +259,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         return null;
     }
 
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return null;
+    }
+
     /**
      * @since 0.8.0
      */
