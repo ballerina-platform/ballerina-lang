@@ -1,6 +1,11 @@
 {
     "sources":{
         "source":[
+            "any/any-type-invalid-cast.bal",
+            "any/any-type-success.bal",
+            "any/any-type-to-int-implicit-cast.bal",
+            "arraysofarrays/arraysOfArrays.bal",
+            "arraysofarrays/arraysOfArraysFailures.bal",
             "connectors/connector-actions.bal",
             "connectors/duplicate-action.bal",
             "connectors/duplicate-connector.bal",

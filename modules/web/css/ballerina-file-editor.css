@@ -47,7 +47,7 @@
 }
 
 .outer-box {
-    border: 1px solid;
+    border: 1px solid #909090;
     border-top: none;
     overflow-x: hidden;
     position: relative;
@@ -55,9 +55,15 @@
     right: 0;
 }
 
+.panel {
+    box-shadow: none;
+}
+
 .panel-title {
     background: white;
-    border: 1px solid #333;
+    border-top: 1px solid #909090;
+    border-bottom: 1px solid #909090;
+    border-right: 1px solid #909090;
     vertical-align: middle;
 }
 
@@ -66,9 +72,12 @@
     text-decoration: none;
 }
 
-.panel-icon, .service-icon, .connector-icon, .function-icon {
+.panel-icon,
+.service-icon,
+.connector-icon,
+.function-icon {
     padding: 6px 5px 5px;
-    background-color: #333;
+    background-color: #fff;
     font-size: 16px;
     width: 27px;
     text-align: center;
@@ -96,11 +105,11 @@
 }
 
 .btn-icon {
-    opacity: 0.8;
+    /*opacity: 0.8;*/
 }
 
 .btn-icon i{
-    opacity: 0.5;
+    /*opacity: 0.5;*/
 }
 
 .btn-icon:hover {
@@ -543,7 +552,24 @@
     float: left;
 }
 
+.attribute-content-operations-wrapper {
+    background-color: #3d3d3d;
+    padding: 10px;
+    float: left;
+    margin-top: 40px;
+}
+
 .struct-identifier-text-input {
+    float: left;
+    width: 190px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-right: 5px;
+    border: 0;
+    height: 24px;
+}
+
+.struct-default-value-text-input {
     float: left;
     width: 190px;
     padding-left: 8px;
@@ -666,7 +692,7 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
     background: #FFF;
     margin-top: 2px;
     cursor: pointer;
-    width: 433px;
+    width: 627px;
     height: 31px;
     display: block;
 }
@@ -678,9 +704,14 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
 }
 
 .struct-variable-definition-identifier {
+    width: 196px;
+    border-right: 1px solid #CCC;
+    padding: 5px 13px;
+}
+
+.struct-variable-definition-value {
     padding: 5px 13px 0 13px;
     min-width: 160px;
-
 }
 
 .struct-variable-definition-wrapper i {
@@ -764,7 +795,8 @@ input#package-name-input {
     cursor: pointer;
 }
 
-.package-definition-wrapper, .package-imports-wrapper {
+.package-definition-wrapper,
+.package-imports-wrapper {
     min-height: 57px;
     clear: both;
     float: left;
@@ -809,4 +841,22 @@ input#package-name-input {
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
     background-color: #333333;
     color: #f17b31;
+}
+
+.annotation-definition-inner-container {
+    left: 0;
+    top: 40px;
+    position: relative;
+}
+
+.annotation-definition-container {
+    height: 100%
+}
+
+.expression-editor-form-body-property-wrapper .ace_ballerina-keyword-primitive-type{
+    color: #f39100;
+}
+
+.expression-editor-form-body-property-wrapper .ace_ballerina-keyword-non-primitive-type{
+    color: #f39100;
 }

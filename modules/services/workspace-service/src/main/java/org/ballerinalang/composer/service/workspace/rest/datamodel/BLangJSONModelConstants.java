@@ -45,6 +45,8 @@ public class BLangJSONModelConstants {
 
     public static final String ANNOTATION_NAME = "annotation_name";
 
+    public static final String ANNOTATION_ATTACHMENT_POINTS = "annotation_attachment_points";
+
     public static final String ANNOTATION_VALUE = "annotation_value";
 
     public static final String PACKAGE_DEFINITION = "package";
@@ -66,6 +68,16 @@ public class BLangJSONModelConstants {
     public static final String CONSTANT_DEFINITION_VALUE = "constant_definition_value";
     
     public static final String SERVICE_DEFINITION = "service_definition";
+
+    public static final String ANNOTATION_DEFINITION = "annotation_definition";
+
+    public static final String ANNOTATION_ATTRIBUTE_DEFINITION = "annotation_attribute_definition";
+
+    public static final String ANNOTATION_ATTRIBUTE_NAME = "annotation_attribute_name";
+
+    public static final String ANNOTATION_ATTRIBUTE_TYPE = "annotation_attribute_type";
+
+    public static final String ANNOTATION_ATTRIBUTE_PACKAGE_PATH = "annotation_attribute_package_path";
 
     public static final String SERVICE_NAME = "service_name";
 
@@ -196,10 +208,6 @@ public class BLangJSONModelConstants {
     public static final String LESS_THAN_EXPRESSION = "less_than_expression";
 
     public static final String VARIABLE_REFERENCE_EXPRESSION = "variable_reference_expression";
-
-    public static final String VARIABLE_REFERENCE_TYPE = "type";
-
-    public static final String VARIABLE_REFERENCE_NAME = "variable_reference_name";
 
     public static final String ARRAY_INIT_EXPRESSION = "array_init_expression";
 

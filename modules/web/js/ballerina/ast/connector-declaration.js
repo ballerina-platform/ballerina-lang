@@ -193,7 +193,7 @@ class ConnectorDeclaration extends ASTNode {
                 this.setConnectorPkgName(undefined, {doSilently: true});
             }
         }
-        this.setConnectorVariable(jsonNode.children[0].variable_reference_name, {doSilently: true});
+        this.setConnectorVariable(jsonNode.children[0].variable_name, {doSilently: true});
         this.setConnectorType('ConnectorDeclaration', {doSilently: true});
         var self = this;
         self._arguments = [];

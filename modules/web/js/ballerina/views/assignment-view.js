@@ -19,6 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import SimpleStatementView from './simple-statement-view';
 import AssignmentStatement from './../ast/assignment';
+import alerts from 'alerts';
 
 /**
  * The view to represent a assignment definition which is an AST visitor.
@@ -83,13 +84,38 @@ class AssignmentStatementView extends SimpleStatementView {
             statementGroup: statementGroup,
             editableProperties: editableProperty
         });
+
         this.listenTo(model, 'update-property-text', this.updateStatementText);
+        this.listenTo(model, 'focus-out', this.validateNode);
 
         this._createDebugIndicator({
             statementGroup: statementGroup
         });
 
         return statementGroup;
+    }
+
+    /**
+     * Validate the node type on focus out of the statement's expression editor
+     * @override
+     */
+    validateNode() {
+        var ballerinaFileEditor = this._diagramRenderingContext.ballerinaFileEditor;
+        var generatedSource = ballerinaFileEditor.generateSource();
+        var response = ballerinaFileEditor.getModelFromSource(generatedSource);
+        var pathVector = [];
+        if (this.getModel().getFactory().isBallerinaAstRoot(response)) {
+            ballerinaFileEditor.getPathToNode(this.getModel(), pathVector);
+            var parsedNode = ballerinaFileEditor.getNodeByVector(response, pathVector);
+            if (!this.getModel().getFactory().isAssignmentStatement(parsedNode)) {
+                this.getSvgRect().classed('statement-rect', false).classed('statement-rect-error', true);
+                alerts.error('Node type expected to be Assignment Statement');
+            } else {
+                this.getSvgRect().classed('statement-rect', true).classed('statement-rect-error', false);
+            }
+        } else {
+            alerts.error(response);
+        }
     }
 
     updateStatementText(newStatementText) {

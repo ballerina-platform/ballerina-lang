@@ -171,7 +171,7 @@ public class LaunchManager {
         int pid = -1;
         if (this.command != null && this.command.getProgram().isAlive()) {
 
-            String os = getOs();
+            String os = getOperatingSystem();
             Terminator terminator = new TerminatorFactory().getTerminator(os, this.command);
 
             //shutdown error streaming to prevent kill message displaying to user.
@@ -182,7 +182,7 @@ public class LaunchManager {
         }
     }
 
-    private String getOs() {
+    private String getOperatingSystem() {
         if (LaunchUtils.isWindows()) {
             return "windows";
         } else if (LaunchUtils.isMac() || LaunchUtils.isUnix() || LaunchUtils.isSolaris()) {

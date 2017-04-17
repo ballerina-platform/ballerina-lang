@@ -42,8 +42,8 @@
 .headingRect {
     fill: #FFFFFF;
     stroke-width: 1;
-    stroke: #000000;
-
+    stroke: #909090;
+    shape-rendering: crispEdges;
 }
 
 .headingRectIcon {
@@ -54,11 +54,11 @@
     fill: url(/#connectorActionIcon);
 }
 .resourceHeadingIconHolder{
-    fill:#000000;
+    fill:#fff;
 }
 
 .connectorActionHeadingIconHolder{
-    fill:#000000;
+    fill:#fff;
 }
 
 .headingCollapsedIcon {
@@ -125,7 +125,8 @@ svg use svg {
     fill: #008000;
     fill-opacity: 0;
     stroke-width: 1;
-    stroke: #000000;
+    shape-rendering: crispEdges;
+    stroke: #909090;
 }
 
 .connector-action-content {
@@ -133,6 +134,7 @@ svg use svg {
     fill-opacity: 0;
     stroke-width: 1;
     stroke: #000000;
+    shape-rendering: crispEdges; 
 }
 
 .client rect {
@@ -315,6 +317,18 @@ text-anchor: start;
     opacity: 1;
     fill: url(/#debugRemoveIcon);
 }
+
+.property-pane-action-button-jump {
+    opacity: 0.3;
+    fill: url(/#statementJumpIcon);
+}
+
+.property-pane-action-button-jump:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(/#statementJumpIcon);
+}
+
 .statement-view-breakpoint-indicator {
     opacity: 0.8;
     fill: url(/#debugIcon);
@@ -379,15 +393,16 @@ text-anchor: start;
     cursor: pointer;
 }
 .default-worker-life-line text{
+    fill: #fff;
     cursor: pointer;
     font-weight: 300;
     font-size: 14px;
 }
 
 .default-worker-life-line rect{
-    stroke: #000;
-    fill: #e2e2e2;
-    stroke-width: 2px;
+    stroke: #fff;
+    fill: #3498db;
+    stroke-width: 0;
 }
 
 .default-worker-life-line line{
@@ -401,16 +416,13 @@ text-anchor: start;
 
 .connector-life-line text {
     cursor: pointer;
+    fill: #fff;
 }
 
-.connector-life-line-top-polygon {
-    fill: white;
-    stroke: black;
-}
-
+.connector-life-line-top-polygon,
 .connector-life-line-bottom-polygon {
-    fill: white;
-    stroke: black;
+    fill: #8e8e8e;
+    stroke-width: 0;
 }
 
 .connector-life-line line{
@@ -423,6 +435,7 @@ text-anchor: start;
 
 .worker-life-line text {
     cursor: pointer;
+    fill: #222;
 }
 
 .worker-life-line-top-polygon {
@@ -549,7 +562,6 @@ text-anchor: start;
 }
 
 .worker-lifeline-grayed {
-    fill: #e2e2e2;
-    stroke: #000000;
-    stroke-width: 2px;
+    fill: #dcdcdc;
+    stroke-width: 0;
 }

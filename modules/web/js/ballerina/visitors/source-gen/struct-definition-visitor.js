@@ -36,8 +36,8 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
 
     beginVisitStructDefinition(structDefinition) {
         var constructedSourceSegment = 'struct ' + structDefinition.getStructName() + "{ \n";
-        _.forEach(structDefinition.getVariableDefinitions(), function (variable) {
-            constructedSourceSegment = constructedSourceSegment + variable.getVariableDefinitionAsString() + "\n";
+        _.forEach(structDefinition.getVariableDefinitionStatements(), function (variableDefStatement) {
+            constructedSourceSegment = constructedSourceSegment + variableDefStatement.getStatementString() + ";\n";
         });
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit FunctionDefinition');

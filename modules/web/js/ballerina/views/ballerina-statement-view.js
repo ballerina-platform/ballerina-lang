@@ -22,7 +22,7 @@ import * as d3 from 'd3';
 import D3Utils from 'd3utils';
 import Point from './point';
 import BBox from './bounding-box';
-import expressionEditor from 'expression_editor_utils';
+import ExpressionEditor from 'expression_editor_utils';
 import DebugManager from 'debugger/debug-manager';
 import $ from 'jquery';
 
@@ -126,7 +126,7 @@ class BallerinaStatementView extends StatementVisitor {
         var statementBoundingBox = self.getBoundingBox();
 
         // Calculating width for edit and delete button.
-        var propertyButtonPaneRectWidth = viewOptions.actionButton.width * 2;
+        var propertyButtonPaneRectWidth = viewOptions.actionButton.width * 3;
 
         // Creating an SVG group for the edit and delete buttons.
         var propertyButtonPaneGroup = D3Utils.group(statementGroup);
@@ -168,6 +168,18 @@ class BallerinaStatementView extends StatementVisitor {
             .attr('width', '14')
             .attr('height', '14');
 
+        var jumpButtonPattern = svgDefinitions.append('pattern')
+            .attr('id', 'statementJumpIcon')
+            .attr('width', '100%')
+            .attr('height', '100%');
+
+        jumpButtonPattern.append('image')
+            .attr('xlink:href', 'images/code-design.svg')
+            .attr('x', (viewOptions.actionButton.width) - (36 / 2))
+            .attr('y', (viewOptions.actionButton.height / 2) - (14 / 2))
+            .attr('width', '14')
+            .attr('height', '14');
+
         // Bottom center point.
 
         var centerPointX = statementBoundingBox.x()+ (statementBoundingBox.w() / 2);
@@ -203,6 +215,11 @@ class BallerinaStatementView extends StatementVisitor {
             propertyButtonPaneRectWidth / 2, viewOptions.actionButton.height, 0, 0, deleteButtonPaneGroup)
             .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.breakpointClass, true);
 
+        // Creating the edit action button.
+        var jumpButtonRect = D3Utils.rect(centerPointX + viewOptions.actionButton.width * 2 - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
+            propertyButtonPaneRectWidth / 2, viewOptions.actionButton.height, 0, 0, deleteButtonPaneGroup)
+            .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.jumpClass, true);
+
         // show a remove breakpoint icon if there is a breakpoint already
         var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
         var lineNumber = self._model.getLineNumber();
@@ -231,11 +248,11 @@ class BallerinaStatementView extends StatementVisitor {
             var propertyPaneBody = $('<div/>', {
                 'class': viewOptions.propertyForm.body.class
             }).appendTo(propertyPaneWrapper);
-
-            expressionEditor.createEditor(propertyPaneBody, viewOptions.propertyForm.body.property.wrapper,
-                editableProperties, function () {
+            let packageScope = this.getDiagramRenderingContext().packagedScopedEnvironemnt;
+            this.expressionEditor = new ExpressionEditor(propertyPaneBody, viewOptions.propertyForm.body.property.wrapper,
+                editableProperties, packageScope , function () {
                     self.trigger('edit-mode-disabled');
-                });
+            });
         }
 
         $(deleteButtonRect.node()).click(function(event){
@@ -243,6 +260,15 @@ class BallerinaStatementView extends StatementVisitor {
             self._model.remove();
             self.trigger('edit-mode-disabled');
             $(statementGroup).remove();
+        });
+
+        $(jumpButtonRect.node()).click(() => {
+            const expression = _.isNil(editableProperties.getterMethod.call(editableProperties.model))
+                       ? '' : editableProperties.getterMethod.call(editableProperties.model);
+            this.trigger('edit-mode-disabled');
+            const container = this.getDiagramRenderingContext().ballerinaFileEditor._container;
+            $(container).find('.view-source-btn').trigger('click');
+            this.getDiagramRenderingContext().ballerinaFileEditor.getSourceView().jumpToLine({expression});
         });
 
         $(toggleBreakpointButtonRect.node()).click(function(event){
@@ -260,9 +286,14 @@ class BallerinaStatementView extends StatementVisitor {
             $(this).toggleClass('active');
         });
 
+        $(jumpButtonRect.node()).click(function(event){
+            event.stopPropagation();
+        });
+
         this._isEditControlsActive = true;
 
-        this.once('edit-mode-disabled', function(){
+        this.once('edit-mode-disabled', () => {
+            this.expressionEditor.distroy();
             $(propertyPaneWrapper).remove();
             $(propertyButtonPaneGroup.node()).remove();
             $(deleteButtonPaneGroup.node()).remove();
@@ -288,6 +319,7 @@ class BallerinaStatementView extends StatementVisitor {
         viewOptions.actionButton.wrapper.class = _.get(args, 'actionButton.wrapper.class', 'property-pane-action-button-wrapper');
         viewOptions.actionButton.disableClass = _.get(args, 'viewOptions.actionButton.disableClass', 'property-pane-action-button-disable');
         viewOptions.actionButton.deleteClass = _.get(args, 'viewOptions.actionButton.deleteClass', 'property-pane-action-button-delete');
+        viewOptions.actionButton.jumpClass = _.get(args, 'viewOptions.actionButton.jumpClass', 'property-pane-action-button-jump');
         viewOptions.actionButton.breakpointClass = _.get(args, 'viewOptions.actionButton.breakpointClass', 'property-pane-action-button-breakpoint');
         viewOptions.actionButton.breakpointActiveClass = _.get(args, 'viewOptions.actionButton.breakpointActiveClass', 'active');
 
@@ -440,6 +472,13 @@ class BallerinaStatementView extends StatementVisitor {
      */
     setDiagramRenderingContext(diagramRenderingContext) {
         this._diagramRenderingContext = diagramRenderingContext;
+    }
+
+    /**
+     * Validate the node type on focus out of the statement's expression editor
+     */
+    validateNode() {
+
     }
 }
 

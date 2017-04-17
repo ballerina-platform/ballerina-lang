@@ -23,6 +23,7 @@ import Backbone from 'backbone';
         initialize: function (args) {
             this.name = _.get(args, 'name', null);
             this.icon = _.get(args, 'icon', null);
+            this.iconSrc = _.get(args, 'iconSrc', null);
             this.nodeFactoryMethod = _.get(args, 'nodeFactoryMethod', null);
             this.dragCursorOffset = _.get(args, 'dragCursorOffset', undefined);
             this.classNames = _.get(args, 'classNames', undefined);
@@ -80,4 +81,3 @@ import Backbone from 'backbone';
     });
 
     export default tool;
-

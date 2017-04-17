@@ -57,7 +57,7 @@ class AssignmentStatement extends Statement {
      */
     getStatementString() {
         return (!_.isNil(this.getChildren()[0].getLeftOperandExpressionString())
-                ? this.getChildren()[0].getLeftOperandExpressionString() : "leftExpression") + " = " +
+                ? this.getChildren()[0].getLeftOperandExpressionString() : "leftExpression") + "=" +
             (!_.isNil(this.getChildren()[1].getRightOperandExpressionString())
                 ? this.getChildren()[1].getRightOperandExpressionString() : "rightExpression");
     }
@@ -93,4 +93,3 @@ class AssignmentStatement extends Statement {
 }
 
 export default AssignmentStatement;
-

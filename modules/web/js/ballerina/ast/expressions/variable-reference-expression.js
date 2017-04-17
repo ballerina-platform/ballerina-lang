@@ -26,38 +26,50 @@ import Expression from './expression';
 class VariableReferenceExpression extends Expression {
     constructor(args) {
         super('VariableReferenceExpression');
-        this._variableReferenceName = _.get(args, 'variableReferenceName');
+        this._variableName = _.get(args, 'variableName');
         this.setExpression(this.generateExpression(), {doSilently: true});
     }
 
     /**
-     * Setter for Variable Reference
-     * @param variableReference
+     * Setter for Variable Name
+     * @param variableName
      */
-    setVariableReferenceName(variableReferenceName, options) {
-        this.setAttribute('_variableReferenceName', variableReferenceName, options);
+    setVariableName(variableName, options) {
+        this.setAttribute('_variableName', variableName, options);
     }
 
     /**
-     * Getter for VariableReference
-     * @returns variableReference
+     * Getter for Variable Name
+     * @returns variableName
      */
-    getVariableReferenceName() {
-        return this._variableReferenceName;
+    getVariableName() {
+        return this._variableName;
     }
 
     /**
      * initialize VariableReferenceExpression from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.variable_reference_name] - Symbol name of the VariableReferenceExpression
+     * @param {string} [jsonNode.variable_name] - Variable name of the VariableReferenceExpression
      */
     initFromJson(jsonNode) {
-        this.setVariableReferenceName(jsonNode.variable_reference_name, {doSilently: true});
+        var self = this;
+        this.setVariableName(jsonNode.variable_name, {doSilently: true});
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
         this.setExpression(this.generateExpression(), {doSilently: true});
     }
 
     generateExpression() {
-        return this.getVariableReferenceName();
+        var varDef = this.findChild(this.getFactory().isVariableDefinition);
+        if (!_.isNil(varDef)) {
+            return (!_.isNil(varDef.getPkgPath()) ?
+                varDef.getPkgPath() + ":" : "") + varDef.getTypeName() + " " + varDef.getName();
+        } else {
+            return this.getVariableName();
+        }
     }
 }
 
