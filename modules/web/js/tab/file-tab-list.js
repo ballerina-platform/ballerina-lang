@@ -87,7 +87,9 @@ import File from '../workspace/file';
                     var activeTab = _.find(this.getTabList(), function(t){
                         return t.cid === activeTabId
                     });
-                    this.setActiveTab(activeTab);
+                    if(!_.isUndefined(activeTab)){
+                        this.setActiveTab(activeTab);
+                    }
                 }
             }
         },

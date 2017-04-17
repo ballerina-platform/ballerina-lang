@@ -9,6 +9,7 @@
     "dist": "npm run pre-build && build",
     "dist-all": "npm run pre-build && build --mac --win --linux",
     "pre-build": "node pre-build.js",
+    "start": "cross-env NODE_ENV=electron-dev electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "build": {
@@ -49,6 +50,7 @@
   },
   "homepage": "https://github.com/ballerinalang/composer#readme",
   "devDependencies": {
+    "cross-env": "^3.2.3",
     "decompress": "^4.0.0",
     "electron": "^1.6.2",
     "electron-builder": "^16.4.2",
