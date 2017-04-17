@@ -3,8 +3,8 @@ var webpack = require("webpack");
 
 var config = {
     entry: {
-      bundle: './index.js',
-      'worker-ballerina': './js/ballerina/utils/ace-worker.js'
+      bundle: './target/index.js',
+      'worker-ballerina': './target/js/ballerina/utils/ace-worker.js'
     },
     output: {
         filename: '[name].js',
@@ -46,7 +46,7 @@ var config = {
     node: { module: "empty", net: "empty", fs: "empty" },
     devtool: 'source-map',
     resolve: {
-        modules: [path.resolve('./lib'), path.resolve('./js'), path.resolve('./node_modules')],
+        modules: [path.resolve('./target/lib'), path.resolve('./target/js'), path.resolve('./node_modules')],
         alias: {
             /////////////////////////
             // third party modules //

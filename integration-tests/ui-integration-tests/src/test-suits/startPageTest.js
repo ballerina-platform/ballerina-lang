@@ -62,7 +62,7 @@ describe("Ballerina UI Tests", function () {
      * @return {Object} WebDriverIO
      * */
     after(function () {
-        // utils.killChildProcess();
+        utils.killChildProcess();
         return driver.end();
     })
 });

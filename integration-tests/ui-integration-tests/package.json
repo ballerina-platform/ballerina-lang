@@ -7,10 +7,11 @@
     "build": "npm run webpack",
     "webpack": "cross-env NODE_ENV=production webpack --config webpack.config.js",
     "dev": "webpack-dev-server --hot --inline --progress",
-    "runTests": "cross-env NODE_ENV=test mocha-webpack --require ./js/tests/js/spec/setup.js --webpack-config ./webpack.config.js ./js/tests/js/spec/BallerinaTest.js;",
+    "runTests": "cross-env NODE_ENV=test mocha-webpack --require ./target/js/tests/js/spec/setup.js --webpack-config ./webpack.config.js ./target/js/tests/js/spec/BallerinaTest.js;",
     "test": "node src/test-setup-scripts/test-startup-script/run-tests.js",
     "composer": "node initialize-composer-process.js",
-    "ui-test": "node src/test-setup-scripts/test-startup-script/run-ui-test.js"
+    "ui-test": "node src/test-setup-scripts/test-startup-script/run-ui-test.js",
+    "terminate": "node src/test-setup-scripts/test-startup-script/terminate-test-processes.js"
   },
   "repository": {
     "type": "git",

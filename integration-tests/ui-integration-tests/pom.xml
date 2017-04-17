@@ -5,11 +5,11 @@
     <parent>
         <artifactId>integration-tests</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.8.15-SNAPSHOT</version>
+        <version>0.87-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ui-integration-tests</artifactId>
-    <version>0.8.15-SNAPSHOT</version>
+    <version>0.87-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -164,10 +164,27 @@
                             </goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/js</outputDirectory>
+                            <outputDirectory>${basedir}/target/js</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/../../modules/web/js</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-resources-images</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>
+                                copy-resources
+                            </goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/images</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/../../modules/web/images</directory>
                                 </resource>
                             </resources>
                         </configuration>
@@ -181,7 +198,7 @@
                             </goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/lib</outputDirectory>
+                            <outputDirectory>${basedir}/target/lib</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/../../modules/web/lib</directory>
@@ -198,10 +215,30 @@
                             </goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/css</outputDirectory>
+                            <outputDirectory>${basedir}/target/css</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/../../modules/web/css</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-resources-indexjs</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>
+                                copy-resources
+                            </goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/../../modules/web</directory>
+                                    <includes>
+                                        <include>index.js</include>
+                                    </includes>
                                 </resource>
                             </resources>
                         </configuration>
@@ -355,6 +392,22 @@
                             <arguments>
                                 <argument>run</argument>
                                 <argument>ui-test</argument>
+                                <argument>--</argument>
+                                <argument>--skipTests=${maven.test.skip}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm run terminate</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>terminate</argument>
                                 <argument>--</argument>
                                 <argument>--skipTests=${maven.test.skip}</argument>
                             </arguments>
