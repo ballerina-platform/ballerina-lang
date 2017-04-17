@@ -134,7 +134,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
 
     @Override
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-        return null;
+        return whiteSpaceDescriptor;
     }
 
 

@@ -61,7 +61,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
 
     @Override
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-        return null;
+        return whiteSpaceDescriptor;
     }
 
     /**

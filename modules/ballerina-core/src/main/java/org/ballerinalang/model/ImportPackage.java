@@ -129,6 +129,6 @@ public class ImportPackage implements Node {
 
     @Override
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-        return null;
+        return whiteSpaceDescriptor;
     }
 }

@@ -224,7 +224,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
 
     @Override
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-        return null;
+        return whiteSpaceDescriptor;
     }
 
 

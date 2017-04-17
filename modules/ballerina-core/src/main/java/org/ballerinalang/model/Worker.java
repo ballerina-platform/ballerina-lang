@@ -108,7 +108,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
     @Override
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-        return null;
+        return whiteSpaceDescriptor;
     }
 
     /**

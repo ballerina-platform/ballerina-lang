@@ -127,7 +127,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
     @Override
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-        return null;
+        return whiteSpaceDescriptor;
     }
 
 
