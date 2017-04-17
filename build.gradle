@@ -8,8 +8,12 @@ plugins {
     id "org.jetbrains.intellij" version "0.2.5"
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
-    compile files('lib/antlr4-runtime-4.6.jar')
+    compile group: 'org.antlr', name: 'antlr4-runtime', version: '4.6'
 }
 
 apply plugin: 'idea'
