@@ -167,8 +167,8 @@ public class WebSocketClient {
     }
 
     /**
-     * Send a pong message to the server.
-     * @param buf content of the pong message to be sent.
+     * Send a ping message to the server.
+     * @param buf content of the ping message to be sent.
      */
     public void sendPing(ByteBuffer buf) {
         if (channel == null) {
