@@ -20,13 +20,14 @@ package org.ballerinalang.nativeimpl.functions.ws;
 
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.testutils.EnvironmentInitializer;
-import org.ballerinalang.testutils.client.websocket.WebSocketClient;
+import org.ballerinalang.testutils.MessageUtils;
+import org.ballerinalang.testutils.Services;
+import org.ballerinalang.testutils.ws.MockWebSocketSession;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.net.URISyntaxException;
-import javax.net.ssl.SSLException;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * Test connected client scenarios. When the client connects, send  and receive text and closing the connection.
@@ -34,24 +35,45 @@ import javax.net.ssl.SSLException;
 public class WebSocketEndpointTest {
 
     private BLangProgram application;
-    private WebSocketClient client1;
-    private WebSocketClient client2;
-    private final int sleepTime = 200;
-    private String url = "ws://localhost:8080/test/websocket";
+    private final String uri = "/test/websocket";
+
+    // Client properties
+    MockWebSocketSession session1 = new MockWebSocketSession("session1");
+    MockWebSocketSession session2 = new MockWebSocketSession("session2");
 
     @BeforeClass
     public void setup() throws InterruptedException {
         application = EnvironmentInitializer.setup("samples/websocket/endpointTest.bal");
-        client1 = new WebSocketClient();
-        client2 = new WebSocketClient();
     }
 
-    @Test
-    public void testClientConnected() throws InterruptedException, SSLException, URISyntaxException {
-        client1.handhshake(url);
-        client2.handhshake(url);
+    @Test(description = "Test the client connection establishment and broadcast.")
+    public void testClientConnected() {
         String expectedText = "new client connected";
-        Thread.sleep(sleepTime);
-        Assert.assertEquals(client1.getTextReceived(), expectedText);
+        CarbonMessage client1Message = MessageUtils.generateWebSocketOnOpenMessage(session1, uri);
+        CarbonMessage client2Message = MessageUtils.generateWebSocketOnOpenMessage(session2, uri);
+        Services.invoke(client1Message);
+        Services.invoke(client2Message);
+        Assert.assertEquals(session1.getTextReceived(), expectedText);
+    }
+
+    @Test(description = "Test the sending and receiving of client messages.")
+    public void testPushText() {
+        String expectedText = "Hi, Test";
+        CarbonMessage client1Message = MessageUtils.generateWebSocketTextMessage(expectedText, session1, uri);
+        Services.invoke(client1Message);
+        Assert.assertEquals(session1.getTextReceived(), expectedText);
+    }
+
+    @Test(description = "Test closing a connection and broadcast.")
+    public void textConnectionClose() {
+        String expectedText = "client left";
+        CarbonMessage client1Message = MessageUtils.generateWebSocketOnCloseMessage(session1, uri);
+        Services.invoke(client1Message);
+        Assert.assertEquals(session2.getTextReceived(), expectedText);
+    }
+
+    @AfterClass
+    public void cleanUp() {
+        EnvironmentInitializer.cleanup(application);
     }
 }
