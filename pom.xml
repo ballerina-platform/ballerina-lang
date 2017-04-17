@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
-        <version>0.86</version>
+        <version>0.87-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -186,7 +186,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.86</ballerina.version>
+        <ballerina.version>${project.version}</ballerina.version>
 
         <!-- Maven plugins -->
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
