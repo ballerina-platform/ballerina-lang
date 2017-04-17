@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
-        <version>0.86</version>
+        <version>0.87-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -145,14 +145,14 @@
     </modules>
 
     <properties>
-        <ballerina.runtime.version>0.86</ballerina.runtime.version>
-        <ballerina.composer.version>0.86</ballerina.composer.version>
-        <testerina.version>0.86</testerina.version>
-        <tool.swagger.version>0.86</tool.swagger.version>
-        <ballerina.container.version>0.86</ballerina.container.version>
-        <docerina.version>0.86</docerina.version>
+        <ballerina.runtime.version>${project.version}</ballerina.runtime.version>
+        <ballerina.composer.version>${ballerina.runtime.version}</ballerina.composer.version>
+        <testerina.version>${ballerina.runtime.version}</testerina.version>
+        <tool.swagger.version>${ballerina.runtime.version}</tool.swagger.version>
+        <ballerina.container.version>${ballerina.runtime.version}</ballerina.container.version>
+        <docerina.version>${ballerina.runtime.version}</docerina.version>
         <docerina.maven.plugin.version>${ballerina.runtime.version}</docerina.maven.plugin.version>
-        <ballerina.connectors.version>0.86</ballerina.connectors.version>
+        <ballerina.connectors.version>${ballerina.runtime.version}</ballerina.connectors.version>
         <commons-net.version>3.6</commons-net.version>
     </properties>
 </project>
