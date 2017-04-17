@@ -371,7 +371,7 @@ class ResourceDefinitionView extends BallerinaView {
             };
             var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
             workerDeclarationView.setParent(this);
-            workerDeclarationView.render();
+            workerDeclarationView.render(this.getDiagramRenderingContext());
 
             // Creating Expression Editor
             var editableProperty = {
@@ -1056,7 +1056,7 @@ class ResourceDefinitionView extends BallerinaView {
         this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
         connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
 
-        connectorDeclarationView.render();
+        connectorDeclarationView.render(this.diagramRenderingContext);
         connectorDeclarationView.createPropertyPane();
 
         if (_.isNil(lastConnectorLifeLine)) {

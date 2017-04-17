@@ -23,7 +23,7 @@ import log from 'log';
 import D3Utils from 'd3utils';
 import Point from './point';
 import BallerinaView from './ballerina-view';
-import expressionEditor from 'expression_editor_utils';
+import ExpressionEditor from 'expression_editor_utils';
 
 /**
  * View for a generic lifeline
@@ -119,7 +119,8 @@ class LifeLineView extends BallerinaView {
 
     }
 
-    render() {
+    render(diagramRenderingContext) {
+        this._diagramRenderingContext = diagramRenderingContext;
         var self = this;
         this.renderMiddleLine();
         this.renderTopPolygon();
@@ -372,13 +373,16 @@ class LifeLineView extends BallerinaView {
             }).appendTo(propertyPaneWrapper);
 
             // Creating the property form.
-            expressionEditor.createEditor(propertyPaneBody,
-                viewOptions.propertyForm.body.property.wrapper, self._editableProperties, closeAllPopUps);
+            let packageScope = self.getDiagramRenderingContext().packagedScopedEnvironemnt;
+            self.expressionEditor = new ExpressionEditor(propertyPaneBody, viewOptions.propertyForm.body.property.wrapper,
+                self._editableProperties, packageScope , function () {
+                    self.trigger('edit-mode-disabled');
+            });
 
             //Calculating the position of the text box
             var windowWidth = $('.svg-container').width();
-            var textBoxWidth = $('input', propertyPaneWrapper).width();
-            var textBoxHeight = $('input', propertyPaneWrapper).height();
+            var textBoxWidth = $(propertyPaneWrapper).width();
+            var textBoxHeight = $(propertyPaneWrapper).height();
             var textBoxX = self._topCenter.x() - textBoxWidth/2;
 
             //Check if the text box going outside of the window and set it's position correctly
@@ -396,6 +400,7 @@ class LifeLineView extends BallerinaView {
 
             // Close the popups of property pane body.
             function closeAllPopUps() {
+                self.expressionEditor.distroy();
                 $(propertyPaneWrapper).remove();
                 $(deleteButtonPaneGroup.node()).remove();
 
@@ -449,6 +454,10 @@ class LifeLineView extends BallerinaView {
 
     moveBottomCenter(dx, dy) {
         this._bottomCenter.move(dx, dy);
+    }
+
+    getDiagramRenderingContext() {
+        return this._diagramRenderingContext;
     }
 }
 

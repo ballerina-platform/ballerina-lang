@@ -429,7 +429,7 @@ class ConnectorDefinitionView extends SVGCanvas {
         connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
         this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
 
-        connectorDeclarationView.render();
+        connectorDeclarationView.render(this.diagramRenderingContext);
 
         connectorDeclarationView.listenTo(this.getTopHorizontalMargin(), 'moved', function (offset) {
             connectorDeclarationView.getBoundingBox().move(0, offset);
