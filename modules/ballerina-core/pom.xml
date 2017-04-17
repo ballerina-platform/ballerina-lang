@@ -173,13 +173,13 @@
                                     </limits> -->
                                     <excludes>
                                         <exclude>*Test</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaBaseListener*</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaLexer*</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaListener*</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaParser*</exclude>
                                     </excludes>
                                 </rule>
