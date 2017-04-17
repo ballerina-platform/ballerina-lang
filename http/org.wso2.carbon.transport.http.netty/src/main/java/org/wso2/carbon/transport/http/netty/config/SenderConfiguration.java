@@ -48,9 +48,6 @@ public class SenderConfiguration {
     private String id;
 
     @XmlAttribute
-    private String senderWorkerThreads = "4";
-
-    @XmlAttribute
     private String scheme = "http";
 
     @XmlAttribute
@@ -110,14 +107,6 @@ public class SenderConfiguration {
 
     public void setKeyStorePass(String keyStorePass) {
         this.keyStorePass = keyStorePass;
-    }
-
-    public String getSenderWorkerThreads() {
-        return senderWorkerThreads;
-    }
-
-    public void setSenderWorkerThreads(String senderWorkerThreads) {
-        this.senderWorkerThreads = senderWorkerThreads;
     }
 
     public String getScheme() {
