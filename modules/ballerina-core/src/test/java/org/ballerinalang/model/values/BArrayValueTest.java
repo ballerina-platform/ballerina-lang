@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
  * @since 0.8.0
  */
 public class BArrayValueTest {
+    private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass
@@ -39,7 +40,7 @@ public class BArrayValueTest {
     }
 
     @Test(description = "Test lazy arrays creation", expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "arrays index out of range: Index: 0, Size: 0")
+            expectedExceptionsMessageRegExp = "array index out of range: Index: 0, Size: 0")
     public void testLazyArrayCreation() {
         BLangFunctions.invoke(bLangProgram, "lazyInitThrowArrayIndexOutOfBound", new BValue[0]);
     }
@@ -97,21 +98,23 @@ public class BArrayValueTest {
         Assert.assertEquals(arrayValue.size(), 200, "Invalid arrays size.");
 
         Assert.assertSame(arrayValue.get(0).getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(arrayValue.get(0).floatValue(), new Float(-10.0), "Invalid value returned.");
+        Assert.assertEquals(arrayValue.get(0).floatValue(), new Double(-10.0), DELTA, "Invalid value returned.");
         Assert.assertEquals(arrayValue.get(15).getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(arrayValue.get(15).floatValue(), new Float(2.5), "Invalid value returned.");
+        Assert.assertEquals(arrayValue.get(15).floatValue(), new Double(2.5), DELTA, "Invalid value returned.");
 
         Assert.assertEquals(arrayValue.get(99).getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(arrayValue.get(99).floatValue(), new Float(2147483647.1), "Invalid value returned.");
+        Assert.assertEquals(arrayValue.get(99).floatValue(), new Double(2147483647.1), DELTA,
+                            "Invalid value returned.");
 
         Assert.assertEquals(arrayValue.get(100).getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(arrayValue.get(100).floatValue(), new Float(4.3), "Invalid value returned.");
+        Assert.assertEquals(arrayValue.get(100).floatValue(), new Double(4.3), DELTA, "Invalid value returned.");
 
         Assert.assertEquals(arrayValue.get(115).getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(arrayValue.get(115).floatValue(), new Float(-2147483647.7), "Invalid value returned.");
+        Assert.assertEquals(arrayValue.get(115).floatValue(), new Double(-2147483647.7), DELTA,
+                            "Invalid value returned.");
 
         Assert.assertEquals(arrayValue.get(199).getClass(), BFloat.class, "Invalid class type returned.");
-        Assert.assertEquals(arrayValue.get(199).floatValue(), new Float(6.9), "Invalid value returned.");
+        Assert.assertEquals(arrayValue.get(199).floatValue(), new Double(6.9), DELTA, "Invalid value returned.");
 
     }
 }

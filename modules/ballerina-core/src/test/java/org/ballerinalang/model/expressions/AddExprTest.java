@@ -20,10 +20,8 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -50,8 +48,8 @@ public class AddExprTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 300;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 300;
         Assert.assertEquals(actual, expected);
 
         returns = BLangFunctions.invoke(bLangProgram, "intSubtract", args);
@@ -62,19 +60,6 @@ public class AddExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test two long add expression")
-    public void testLongAddExpr() {
-        BValue[] args = {new BLong(100), new BLong(200)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "longAdd", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BLong.class);
-
-        long actual = ((BLong) returns[0]).longValue();
-        long expected = 300;
-        Assert.assertEquals(actual, expected);
-    }
-
     @Test(description = "Test two float add expression")
     public void testFloatAddExpr() {
         BValue[] args = {new BFloat(100.0f), new BFloat(200.0f)};
@@ -82,8 +67,8 @@ public class AddExprTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
-        float actual = ((BFloat) returns[0]).floatValue();
-        float expected = 300.0f;
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = 300.0f;
         Assert.assertEquals(actual, expected);
 
         returns = BLangFunctions.invoke(bLangProgram, "floatSubtract", args);
@@ -91,19 +76,6 @@ public class AddExprTest {
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         actual = ((BFloat) returns[0]).floatValue();
         expected = -100.0f;
-        Assert.assertEquals(actual, expected);
-    }
-
-    @Test(description = "Test two double add expression")
-    public void testDoubleAddExpr() {
-        BValue[] args = {new BDouble(100), new BDouble(200)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "doubleAdd", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDouble.class);
-
-        double actual = ((BDouble) returns[0]).doubleValue();
-        double expected = 300;
         Assert.assertEquals(actual, expected);
     }
 
@@ -125,14 +97,14 @@ public class AddExprTest {
         int a = -10;
         int b = -20;
 
-        int expectedResult = a + b;
+        long expectedResult = a + b;
 
         BValue[] args = {new BInteger(a), new BInteger(b)};
 
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(actualResult, expectedResult);
 
 

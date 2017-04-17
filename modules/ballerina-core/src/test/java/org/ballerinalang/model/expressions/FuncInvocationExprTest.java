@@ -49,8 +49,8 @@ public class FuncInvocationExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 116;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 116;
         Assert.assertEquals(actual, expected);
     }
 
@@ -62,8 +62,8 @@ public class FuncInvocationExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 28;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 28;
         Assert.assertEquals(actual, expected);
 
     }
@@ -76,8 +76,8 @@ public class FuncInvocationExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 322;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 322;
         Assert.assertEquals(actual, expected);
     }
 }

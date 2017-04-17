@@ -22,10 +22,8 @@ import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -55,20 +53,9 @@ public class AssignStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 100;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 100;
         Assert.assertEquals(actual, expected);
-
-        // Long assignment test
-        args = new BValue[] { new BLong(100) };
-        returns = BLangFunctions.invoke(bLangProgram, "testLongAssignStmt", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BLong.class);
-
-        long actualLong = ((BLong) returns[0]).longValue();
-        long expectedLong = 100;
-        Assert.assertEquals(actualLong, expectedLong);
 
         // Float assignment test
         args = new BValue[] { new BFloat(2.3f) };
@@ -77,20 +64,9 @@ public class AssignStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
-        float actualFloat = ((BFloat) returns[0]).floatValue();
-        float expectedFloat = 2.3f;
+        double actualFloat = ((BFloat) returns[0]).floatValue();
+        double expectedFloat = 2.3f;
         Assert.assertEquals(actualFloat, expectedFloat);
-
-        // Double assignment test
-        args = new BValue[] { new BDouble(1234.1234) };
-        returns = BLangFunctions.invoke(bLangProgram, "testDoubleAssignStmt", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDouble.class);
-
-        double actualDouble = ((BDouble) returns[0]).doubleValue();
-        double expectedDouble = 1234.1234;
-        Assert.assertEquals(actualDouble, expectedDouble);
 
         // Boolean assignment test
         args = new BValue[] { new BBoolean(true) };

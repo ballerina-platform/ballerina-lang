@@ -7,10 +7,10 @@ connector TestConnector(string param1, string param2, int param3) {
 
     action action1(TestConnector testConnector, message msg) (message){
           worker sampleWorker (message m)  {
-            double amount;
-            double sumD;
+            float amount;
+            float sumD;
             int quantity;
-            double a;
+            float a;
             json j;
 
             j = `{"name":"chanaka"}`;
@@ -23,7 +23,7 @@ connector TestConnector(string param1, string param2, int param3) {
             system:println(sumD);
             reply m;
           }
-          double aa;
+          float aa;
           message result;
 
           aa = 13;

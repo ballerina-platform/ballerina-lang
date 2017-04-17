@@ -130,6 +130,25 @@ public class AnnotationTest {
         Assert.assertEquals(attributeValue, "first query param name");
     }
     
+    @Test(description = "Test annotation array")
+    public void testAnnotationArray() {
+        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getFunctions()[0].getAnnotations();
+        
+        AnnotationAttributeValue[] annotationArray = annottations[0].getAttribute("queryParamValue").getValueArray();
+        Assert.assertEquals(annotationArray.length, 3, "Wrong annotation array length");
+        
+        String attributeValue = annotationArray[0].getAnnotationValue().getAttribute("name").getLiteralValue()
+                .stringValue();
+        Assert.assertEquals(attributeValue, "paramName");
+        
+        attributeValue = annotationArray[1].getAnnotationValue().getAttribute("name").getLiteralValue().stringValue();
+        Assert.assertEquals(attributeValue, "paramName2");
+        
+        attributeValue = annotationArray[2].getAnnotationValue().getAttribute("name").getLiteralValue().stringValue();
+        Assert.assertEquals(attributeValue, "paramName3");
+        
+    }
+    
     // Negative tests
     
     @Test(description = "Test child annotation from a wrong package",

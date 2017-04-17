@@ -20,10 +20,8 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.Operator;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueType;
 
@@ -39,14 +37,8 @@ public class AddExpression extends BinaryArithmeticExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> ADD_INT_FUNC =
             (lVal, rVal) -> new BInteger(lVal.intValue() + rVal.intValue());
 
-    public static final BiFunction<BValueType, BValueType, BValueType> ADD_LONG_FUNC =
-            (lVal, rVal) -> new BLong(lVal.longValue() + rVal.longValue());
-
     public static final BiFunction<BValueType, BValueType, BValueType> ADD_FLOAT_FUNC =
             (lVal, rVal) -> new BFloat(lVal.floatValue() + rVal.floatValue());
-
-    public static final BiFunction<BValueType, BValueType, BValueType> ADD_DOUBLE_FUNC =
-            (lVal, rVal) -> new BDouble(lVal.doubleValue() + rVal.doubleValue());
 
     public static final BiFunction<BValueType, BValueType, BValueType> ADD_STRING_FUNC =
             (lVal, rVal) -> new BString(lVal.stringValue() + rVal.stringValue());
