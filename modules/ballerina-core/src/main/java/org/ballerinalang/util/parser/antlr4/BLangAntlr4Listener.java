@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.util.parser.antlr4;
 
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -92,6 +94,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
     protected boolean isTypeMapperStarted = false;
     protected boolean processingActionInvocationStmt = false;
 
+    // token stream is required for listener to access hidden whiteSpace
+    // such as whitespace/newlines while building model for composer use
+    private CommonTokenStream tokenStream;
+
+    // flag to indicate whether additional information
+    // from source needs to be captured, eg: whitespace
+    private boolean isVerboseMode = false;
+
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder, Path sourceFilePath) {
         this.modelBuilder = modelBuilder;
         this.fileName = sourceFilePath.getFileName().toString();
@@ -101,6 +111,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
         } else {
             this.packageDirPath = null;
         }
+    }
+
+    public BLangAntlr4Listener(boolean isVerboseMode, CommonTokenStream tokenStream,
+                               BLangModelBuilder modelBuilder, Path sourceFilePath) {
+        this(modelBuilder, sourceFilePath);
+        this.isVerboseMode = isVerboseMode;
+        this.tokenStream = tokenStream;
     }
 
     @Override
@@ -1550,5 +1567,31 @@ public class BLangAntlr4Listener implements BallerinaListener {
         // Here childCount is always an odd number.
         // noOfArguments = childCount mod 2 + 1
         return childCountExprList / 2 + 1;
+    }
+
+    protected String getWhitespaceToRight(int tokenIndex) {
+        StringBuilder whitespaceBuilder = new StringBuilder();
+        if (this.tokenStream != null) {
+            List<Token> hiddenTokensToRight = this.tokenStream.getHiddenTokensToRight(tokenIndex, Token.HIDDEN_CHANNEL);
+            if (hiddenTokensToRight != null) {
+                for (Token next : hiddenTokensToRight) {
+                    whitespaceBuilder.append(next.getText());
+                }
+            }
+        }
+        return whitespaceBuilder.toString();
+    }
+
+    protected String getWhitespaceToLeft(int tokenIndex) {
+        StringBuilder whitespaceBuilder = new StringBuilder();
+        if (this.tokenStream != null) {
+            List<Token> hiddenTokensToRight = this.tokenStream.getHiddenTokensToLeft(tokenIndex, Token.HIDDEN_CHANNEL);
+            if (hiddenTokensToRight != null) {
+                for (Token next : hiddenTokensToRight) {
+                    whitespaceBuilder.append(next.getText());
+                }
+            }
+        }
+        return whitespaceBuilder.toString();
     }
 }
