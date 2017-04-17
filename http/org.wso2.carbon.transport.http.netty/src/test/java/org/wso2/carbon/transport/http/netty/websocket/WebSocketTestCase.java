@@ -42,7 +42,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 /**
- * Test class for WebSocket Upgrade
+ * Test class for WebSocket protocol.
  */
 public class WebSocketTestCase {
 
@@ -98,10 +98,10 @@ public class WebSocketTestCase {
         primaryClient.shutDown();
     }
 
-    /*
-    Primary client is the one who is checking the connections of the Server.
-    When secondary server is connecting to the endpoint, message will be sent to the primary
-    client indicating the state of the secondary client.
+    /**
+     * Primary client is the one who is checking the connections of the Server.
+     * When secondary server is connecting to the endpoint, message will be sent to the primary
+     * client indicating the state of the secondary client.
      */
     @Test
     public void testClientConnected() throws InterruptedException, SSLException, URISyntaxException {
@@ -117,10 +117,10 @@ public class WebSocketTestCase {
         primaryClient.shutDown();
     }
 
-    /*
-    Primary client is the one who is checking the connections of the Server.
-    When secondary server is closing the connection, message will be sent to the primary
-    client indicating the state of the secondary client.
+    /**
+     * Primary client is the one who is checking the connections of the Server.
+     * When secondary server is closing the connection, message will be sent to the primary
+     * client indicating the state of the secondary client.
      */
     @Test
     public void testClientCloseConnection() throws InterruptedException, URISyntaxException, SSLException {
