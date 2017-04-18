@@ -62,14 +62,9 @@ public class WebSocketTestCase {
     }
 
     @Test
-    public void handshakeTest() throws URISyntaxException, SSLException {
-        try {
-            assertTrue(primaryClient.handhshake());
-            logger.info("Handshake test completed.");
-        } catch (InterruptedException e) {
-            logger.error("Handshake interruption.");
-            assertTrue(false);
-        }
+    public void handshakeTest() throws URISyntaxException, SSLException, InterruptedException {
+        assertTrue(primaryClient.handhshake());
+        logger.info("Handshake test completed.");
     }
 
     @Test

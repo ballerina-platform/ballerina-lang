@@ -162,7 +162,7 @@ public class WebSocketClient {
     public void sendBinary(ByteBuffer buf) throws IOException {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
-            throw new IOException("Cannot find the channel to write");
+            throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buf)));
     }
@@ -174,7 +174,7 @@ public class WebSocketClient {
     public void sendPing(ByteBuffer buf) throws IOException {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
-            throw new IOException("Cannot find the channel to write");
+            throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(buf)));
     }
