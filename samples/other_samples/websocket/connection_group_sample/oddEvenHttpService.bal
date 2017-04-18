@@ -3,7 +3,7 @@ import ballerina.net.ws;
 import ballerina.net.http;
 
 @http:BasePath {value:"/data"}
-service oddEvenService {
+service oddEvenHttpService {
 
     string evenWebSocketConnectionGroupName = "evenGroup";
     string oddWebSocketConnectionGroupName = "oddGroup";
