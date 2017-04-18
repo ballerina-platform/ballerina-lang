@@ -111,4 +111,14 @@ if (process.env.NODE_ENV === 'test') {
   config.target = 'node';
 }
 
+if (process.env.NODE_ENV === 'electron-dev' || process.env.NODE_ENV === 'electron') {
+  // we run tests on nodejs. So compile for nodejs
+  config.target = 'electron-renderer';
+
+  // reassign entry so it uses the entry point for the electron app
+  config.entry = {
+    bundle: './electron-index.js'
+  }
+}
+
 module.exports = config;

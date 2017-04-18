@@ -99,4 +99,3 @@ import EventChannel from 'event_channel';
     };
 
     export default MenuItem;
-        
