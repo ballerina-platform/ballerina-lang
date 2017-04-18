@@ -49,7 +49,10 @@ module.exports = {
 
                     pixelmatch(img1.data, img2.data, diff.data, img1.width, img1.height, {threshold: 0.1});
 
-                    diff.pack().pipe(fs.createWriteStream('src/resources/differences/'+diffName+'.png'));
+                    diff.pack().pipe(fs.createWriteStream('target/' + diffName + '.png', {
+                        defaultEncoding: 'utf8',
+                        autoClose: true
+                    }));
                 }
             }
             callback(equal);
@@ -85,10 +88,113 @@ module.exports = {
     },
 
     /**
+     * Get the diff image path.
+     * @return {string} diff image path.
+     * */
+    getDiffImagePath: function () {
+        return 'src/resources/differences/';
+    },
+
+    /**
+     * Get the path for actual images which captured during the test.
+     * @return {string} path string to actual images.
+     * */
+    getActualImagePath: function () {
+        return 'src/resources/screenshots/capturedimages/';
+    },
+
+    /**
      * Get the Base URL of the Composer.
      * @return {string} composer base url.
      * */
     getComposerBaseUrl: function () {
         return "http://localhost:9091/";
+    },
+
+    /**
+     * Drag and Drop a container to canvas.
+     * @return {string} javascript query for drag and drop.
+     * */
+    dragAndDropContainer: function (dragTarget, dropLocation, options) {
+        var query = "var dragTarget = $('" + dragTarget + "');" +
+            "var dropLocation = $('" + dropLocation + "');" +
+            "var dropLocationOffset = dropLocation.offset();" +
+            "var dragTargetOffset = dragTarget.offset();";
+
+        if (options.dropTargetClass) {
+            query += "$('" + dropLocation + "').addClass('" + options.dropTargetClass + "');";
+        }
+
+        if (options.dx) {
+            query += "var dx = " + options.dx + ";";
+        } else {
+            query += "var dx = dropLocationOffset.left - dragTargetOffset.left;";
+        }
+
+        if (options.dy) {
+            query += "var dy = " + options.dy + ";";
+        } else {
+            query += "var dy = dropLocationOffset.top - dragTargetOffset.top;";
+        }
+
+        query += "dragTarget.simulate('drag', {" +
+            "    dx: dx," +
+            "    dy: dy," +
+            "    mouseOver: function(){" +
+            "       $('" + dropLocation + "').mouseenter();" +
+            "    }" +
+            "});";
+
+        return query;
+    },
+
+    /**
+     * Drag and Drop a tool to a container.
+     * @param {string} dragTarget id of element to be dragged.
+     * @param {string} dropLocation id or class of the drop location.
+     * @param {object} options
+     * @return {string} javascript query for drag and drop.
+     * */
+    dragAndDropTool: function (dragTarget, dropLocation, options) {
+        return "var gadget = $('#service');" +
+            "var target = $('.canvas-container');" +
+            "var targetOffset = target.offset();" +
+            "var gadgetOffset = gadget.offset();" +
+            "$('.canvas-container').addClass('main-drop-zone-hover');" +
+            "var dx = targetOffset.left - gadgetOffset.left;" +
+            "var dy = targetOffset.top - gadgetOffset.top;" +
+            "gadget.simulate('drag', {" +
+            "    dx: dx," +
+            "    dy: dy," +
+            "mouseOver: function(){" +
+            "$('.canvas-container').mouseenter();" +
+            "}" +
+            "});";
+    },
+
+    /**
+     * Create a service on the canvas.
+     * @return {string} javascript query.
+     * */
+    createService: function () {
+        return "var serviceDef = window.composer.tabController.getActiveTab()" +
+            ".getBallerinaFileEditor()._model.getFactory().createServiceDefinition();" +
+            "var resourceDef = window.composer.tabController.getActiveTab()" +
+            ".getBallerinaFileEditor()._model.getFactory().createResourceDefinition({});" +
+            "var resourceArg = window.composer.tabController.getActiveTab()" +
+            ".getBallerinaFileEditor()._model.getFactory().createResourceParameter();" +
+            "resourceArg.setType('message');" +
+            "resourceArg.setIdentifier('m');" +
+            "resourceDef.addChild(resourceArg);" +
+            "serviceDef.addChild(resourceDef);" +
+            "window.composer.tabController.getActiveTab().getBallerinaFileEditor()._model.addChild(serviceDef);";
+    },
+
+    renderSyntax: function (model, driver) {
+        var modelString = JSON.stringify(model);
+        driver.execute("window.composer.tabController.getActiveTab().getBallerinaFileEditor()" +
+            ".setModel(window.composer.tabController.getActiveTab().getBallerinaFileEditor()" +
+            ".deserializer.getASTModel(JSON.parse('" + modelString + "')));" +
+            "window.composer.tabController.getActiveTab().getBallerinaFileEditor().reDraw();");
     }
 };

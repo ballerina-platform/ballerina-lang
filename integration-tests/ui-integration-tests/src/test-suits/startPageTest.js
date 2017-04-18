@@ -19,6 +19,7 @@ var fs = require('fs');
 var temp = require('temp');
 var path = require('path');
 var utils = require('./utils/ui-test-common-utils.js');
+var models = require('./utils/syntax-models.js');
 
 console.log('running Test Suit');
 describe("Ballerina UI Tests", function () {
@@ -42,19 +43,53 @@ describe("Ballerina UI Tests", function () {
         driver.url(utils.getComposerBaseUrl())// navigate to the web page
             .click('.new-welcome-button')
             .pause(3000)
-            .saveScreenshot('./serviceActual.png') // Save the screenshot to disk
+            .then(function () {
+                var argument = models.getArgumentDeclarationModel(3, "m", "message");
+                var resource = models.getResourceModel(2, "resource1", [argument]);
+                var service = models.getServiceModel(1, "service1", [resource]);
+                var packages = models.getPackageModel(".");
+                var root = models.getRootModel();
+                root.root.push(packages);
+                root.root.push(service);
+
+                utils.renderSyntax(root, driver);
+            })
+            .pause(3000)
+            .saveScreenshot('./' + utils.getActualImagePath() + 'serviceActual.png') // Save the screenshot to disk
             .getTitle().then(function (title) {
             console.log('Title was: ' + title);
             var callback = function (equal) {
                 expect(equal).to.be.true;
                 done();
             };
-            utils.compareImages(utils.getScreenShotBaselinePath() + 'serviceExpected.png', 'serviceActual.png', 'serviceDiff', callback);
+            // Compare the images with given expected screenshot
+            utils.compareImages(utils.getScreenShotBaselinePath() + 'serviceExpected.png', utils.getActualImagePath() + 'serviceActual.png', 'createServiceDiff', callback);
         });
     });
 
-    it('Drag and Drop', function (done) {
-        done();
+    it('Drag and Drop A Service Container', function (done) {
+        driver.click('.fw-delete.delete-icon')
+            .pause(2000)
+            .then(function () {
+                driver.execute(utils.dragAndDropContainer("#service", ".canvas-container", {
+                    dropTargetClass: "design-view-hover"
+                }));
+            })
+            .pause(2000)
+            .then(function () {
+                done();
+            });
+    });
+
+    it('Drag and Drop A Assignment', function (done) {
+        driver.pause(2000)
+            .then(function () {
+
+            })
+            .pause(2000)
+            .then(function () {
+                done();
+            });
     });
 
     /**
