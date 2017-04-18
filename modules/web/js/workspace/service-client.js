@@ -194,6 +194,7 @@ class ServiceClient extends EventChannel {
             success: function (response) {
                 data = response;
                 file.setDirty(false)
+                    .setPersisted(true)
                     .setLastPersisted(_.now())
                     .save();
                 log.debug('File ' + file.getName() + ' saved successfully at '+ file.getPath());

@@ -159,32 +159,66 @@ class WorkspaceManager {
     }
 
     openFileSaveDialog (options) {
-        if(_.isNil(this._saveFileDialog)){
-            this._saveFileDialog = new Dialogs.save_to_file_dialog(this.app);
-        }
-        this._saveFileDialog.render();
+        if(this.app.isElectronMode()) {
+            this.openNativeFileSaveDialog(options);
+        } else {
+            if(_.isNil(this._saveFileDialog)){
+                this._saveFileDialog = new Dialogs.save_to_file_dialog(this.app);
+            }
+            this._saveFileDialog.render();
 
-        if(!_.isNil(options) && _.isFunction(options.callback)){
-            var isSaved = false;
-            this._saveFileDialog.once('save-completed', function(success){
-                isSaved = success;
-            }, this);
-            this._saveFileDialog.once('unloaded', function(){
-                options.callback(isSaved);
-            }, this);
-        }
-
-        this._saveFileDialog.show();
-        var activeTab = this.app.tabController.getActiveTab();
-        if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)){
-            var activeFile = activeTab.getFile();
-            if(activeFile.isPersisted()){
-                this._saveFileDialog.once('loaded', function(){
-                    this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
+            if(!_.isNil(options) && _.isFunction(options.callback)){
+                var isSaved = false;
+                this._saveFileDialog.once('save-completed', function(success){
+                    isSaved = success;
+                }, this);
+                this._saveFileDialog.once('unloaded', function(){
+                    options.callback(isSaved);
                 }, this);
             }
-        }
 
+            this._saveFileDialog.show();
+            var activeTab = this.app.tabController.getActiveTab();
+            if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)){
+                var activeFile = activeTab.getFile();
+                if(activeFile.isPersisted()){
+                    this._saveFileDialog.once('loaded', function(){
+                        this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
+                    }, this);
+                }
+            }
+        }
+    }
+
+    openNativeFileSaveDialog (options) {
+        let renderer = this.app.getNativeRenderProcess(),
+            fileSavedCallback = (!_.isNil(options)) ? options.callback : undefined;
+        renderer.send('show-file-save-dialog');
+        renderer.once('file-save-path-selected', (event, path) => {
+            let activeTab = this.app.tabController.getActiveTab();
+            if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)) {
+                let activeFile = activeTab.getFile(),
+                    folderPath = path.substring(0, path.lastIndexOf(this.app.getPathSeperator())),
+                    fileName = path.substring(path.lastIndexOf(this.app.getPathSeperator()) + 1),
+                    config = activeTab.getBallerinaFileEditor().getContent();
+
+                activeFile.setPath(folderPath)
+                          .setName(fileName)
+                          .setContent(config);
+
+                let result = this._serviceClient.writeFile(activeFile);
+                if(!_.isNil(fileSavedCallback) && _.isFunction(fileSavedCallback)) {
+                    if (_.isNil(result) || result.error) {
+                        fileSavedCallback(false);
+                        if(!_.isNil(result.message)) {
+                            alerts.error(result.message);
+                        }
+                    } else {
+                        fileSavedCallback(true);
+                    }
+                }
+            }
+        });
     }
 
     openSettingsDialog(){
@@ -216,7 +250,7 @@ class WorkspaceManager {
     openNativeFolderOpenDialog () {
         let renderer = this.app.getNativeRenderProcess();
         renderer.send('show-folder-open-dialog');
-        renderer.on('folder-opened', (event, path) => {
+        renderer.once('folder-opened', (event, path) => {
             this.app.commandManager.dispatch('open-folder', path);
         });
     }
@@ -236,7 +270,7 @@ class WorkspaceManager {
     openNativeFileOpenDialog () {
         let renderer = this.app.getNativeRenderProcess();
         renderer.send('show-file-open-dialog');
-        renderer.on('file-opened', (event, path) => {
+        renderer.once('file-opened', (event, path) => {
             this.app.commandManager.dispatch('open-file', path);
         });
     }

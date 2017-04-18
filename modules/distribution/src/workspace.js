@@ -16,6 +16,20 @@ function setupNativeWizards(mainWindow) {
           );
       });
 
+      ipcMain.on('show-file-save-dialog', function (event) {
+          dialog.showSaveDialog(
+            mainWindow,
+            {
+              title: 'Save Ballerina File',
+              filters: [
+                  {name: 'Ballerina Files (*.bal) ', extensions: ['bal']},
+              ]
+            }, function (file) {
+              if (file) event.sender.send('file-save-path-selected', file)
+            }
+          );
+      });
+
       ipcMain.on('show-folder-open-dialog', function (event) {
           dialog.showOpenDialog(
             mainWindow,
