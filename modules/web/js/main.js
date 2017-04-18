@@ -188,8 +188,13 @@ class Application {
         return _.isEqual(this.getOperatingSystem(), 'Windows') ? '\\' : '/';
     }
 
-    setElectronMode(isElectronMode) {
+    setElectronMode(isElectronMode, renderProcess) {
         this._isElectronMode = isElectronMode;
+        this._renderProcess = renderProcess;
+    }
+
+    getNativeRenderProcess () {
+        return this._renderProcess;
     }
 
     isElectronMode() {

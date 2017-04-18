@@ -200,21 +200,45 @@ class WorkspaceManager {
     }
 
     showFolderOpenDialog () {
-        if(_.isNil(this._folderOpenDialog)){
-            var opts = _.cloneDeep(_.get(this.app.config, 'open_folder_dialog'));
-            _.set(opts, 'application', this.app);
-            this._folderOpenDialog = new Dialogs.FolderOpenDialog(opts);
+        if(this.app.isElectronMode()) {
+            this.openNativeFolderOpenDialog();
+        } else {
+            if(_.isNil(this._folderOpenDialog)){
+                var opts = _.cloneDeep(_.get(this.app.config, 'open_folder_dialog'));
+                _.set(opts, 'application', this.app);
+                this._folderOpenDialog = new Dialogs.FolderOpenDialog(opts);
+            }
+            this._folderOpenDialog.render();
+            this._folderOpenDialog.show();
         }
-        this._folderOpenDialog.render();
-        this._folderOpenDialog.show();
+    }
+
+    openNativeFolderOpenDialog () {
+        let renderer = this.app.getNativeRenderProcess();
+        renderer.send('show-folder-open-dialog');
+        renderer.on('folder-opened', (event, path) => {
+            this.app.commandManager.dispatch('open-folder', path);
+        });
     }
 
     openFileOpenDialog () {
-        if(_.isNil(this._openFileDialog)){
-            this._openFileDialog = new Dialogs.open_file_dialog(this.app);
+        if(this.app.isElectronMode()) {
+            this.openNativeFileOpenDialog();
+        } else {
+            if(_.isNil(this._openFileDialog)){
+                this._openFileDialog = new Dialogs.open_file_dialog(this.app);
+            }
+            this._openFileDialog.render();
+            this._openFileDialog.show();
         }
-        this._openFileDialog.render();
-        this._openFileDialog.show();
+    }
+
+    openNativeFileOpenDialog () {
+        let renderer = this.app.getNativeRenderProcess();
+        renderer.send('show-file-open-dialog');
+        renderer.on('file-opened', (event, path) => {
+            this.app.commandManager.dispatch('open-file', path);
+        });
     }
 
     openCloseFileConfirmDialog (options) {
