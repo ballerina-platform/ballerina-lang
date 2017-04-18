@@ -85,6 +85,11 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
         return isSecure;
     }
 
+    @Override
+    public boolean isOpen() {
+        return isOpen;
+    }
+
     public void setIsOpen(boolean isOpen) {
         this.isOpen = isOpen;
     }
