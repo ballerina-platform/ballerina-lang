@@ -534,7 +534,7 @@ var getArgumentString = function(args){
  * */
 var getReturnParamString = function(args){
     if(!_.isNil(args) && args.length !== 0) {
-        return args[0].type;
+        return args[0].name;
     }
 };
 
