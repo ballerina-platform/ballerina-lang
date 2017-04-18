@@ -67,7 +67,7 @@ public class AddFloatToArray extends AbstractJSONFunction {
             // Accessing Parameters.
             BJSON json = (BJSON) getArgument(ctx, 0);
             jsonPath = getArgument(ctx, 1).stringValue();
-            float value = ((BFloat) getArgument(ctx, 2)).floatValue();
+            double value = ((BFloat) getArgument(ctx, 2)).floatValue();
 
             // Adding the value to JSON Array
             WriteContext jsonCtx = JsonPath.parse(json.value());

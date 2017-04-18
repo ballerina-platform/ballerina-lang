@@ -679,7 +679,7 @@ public class SQLConnectorUtils {
         case Types.INTEGER:
             return TypeEnum.INT;
         case Types.BIGINT:
-            return TypeEnum.LONG;
+            return TypeEnum.INT;
         case Types.REAL:
             return TypeEnum.FLOAT;
         case Types.BIT:
@@ -689,7 +689,7 @@ public class SQLConnectorUtils {
         case Types.DECIMAL:
         case Types.FLOAT:
         case Types.DOUBLE:
-            return TypeEnum.DOUBLE;
+            return TypeEnum.FLOAT;
         case Types.DATE:
         case Types.TIME:
         case Types.TIMESTAMP:

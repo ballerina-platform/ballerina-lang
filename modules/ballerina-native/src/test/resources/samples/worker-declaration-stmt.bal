@@ -3,10 +3,10 @@ import ballerina.lang.messages;
 
 function testworker(message msg)(message) {
   worker sampleWorker (message m)  {
-    double amount;
-    double sumD;
+    float amount;
+    float sumD;
     int quantity;
-    double a;
+    float a;
     json j;
     j = `{"name":"chanaka"}`;
     messages:setJsonPayload(m, j);
@@ -18,7 +18,7 @@ function testworker(message msg)(message) {
     system:println(sumD);
     reply m;
   }
-  double aa;
+  float aa;
   message result;
   //message msg = {};
   aa = 13;

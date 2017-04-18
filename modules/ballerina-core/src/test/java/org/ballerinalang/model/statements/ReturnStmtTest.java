@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
  * Test class for return statement.
  */
 public class ReturnStmtTest {
+    private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass
@@ -113,7 +114,7 @@ public class ReturnStmtTest {
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(50, ((BInteger) returns[0]).intValue());
         Assert.assertEquals("john", ((BString) returns[1]).stringValue());
-        Assert.assertEquals(1.0f, ((BFloat) returns[2]).floatValue());
+        Assert.assertEquals(1.0f, ((BFloat) returns[2]).floatValue(), DELTA);
     }
 
     @Test(description = "Test one parameter and one return value")

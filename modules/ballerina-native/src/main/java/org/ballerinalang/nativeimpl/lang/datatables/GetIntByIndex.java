@@ -55,7 +55,7 @@ public class GetIntByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        int index = ((BInteger) getArgument(ctx, 1)).intValue();
+        long index = ((BInteger) getArgument(ctx, 1)).intValue();
         return getBValues(new BInteger(dataTable.getInt(index)));
     }
 }

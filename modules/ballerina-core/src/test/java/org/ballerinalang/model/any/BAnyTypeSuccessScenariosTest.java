@@ -124,7 +124,7 @@ public class BAnyTypeSuccessScenariosTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatVal = (BFloat) returns[0];
-        Assert.assertEquals(floatVal.floatValue(), 44.3f, "Invalid float value returned.");
+        Assert.assertEquals(floatVal.floatValue(), 44.3d, "Invalid float value returned.");
     }
 
 }

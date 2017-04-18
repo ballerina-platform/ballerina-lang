@@ -18,7 +18,9 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -51,24 +53,38 @@ public final class BArray<V extends BValue> implements BRefType {
         this.valueClass = valueClass;
     }
 
-    public <V extends BValue> void add(int index, V value) {
-        ensureCapacity(index);
+    public <V extends BValue> void add(long index, V value) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+        int indexVal = (int) index;
+        if (indexVal < 0) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+        }
+        ensureCapacity(indexVal);
 
-        int bucketIndex = index / DEFAULT_ARRAY_SIZE;
-        int slot = index % DEFAULT_ARRAY_SIZE;
+        int bucketIndex = indexVal / DEFAULT_ARRAY_SIZE;
+        int slot = indexVal % DEFAULT_ARRAY_SIZE;
         arrayBucket[bucketIndex][slot] = value;
 
         if (index >= size) {
-            size = index + 1;
+            size = indexVal + 1;
         }
     }
 
     @SuppressWarnings("unchecked")
-    public V get(int index) {
-        rangeCheck(index);
+    public V get(long index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+        int indexVal = (int) index;
+        rangeCheck(indexVal);
 
-        int bucketIndex = index / DEFAULT_ARRAY_SIZE;
-        int slot = index % DEFAULT_ARRAY_SIZE;
+        int bucketIndex = indexVal / DEFAULT_ARRAY_SIZE;
+        int slot = indexVal % DEFAULT_ARRAY_SIZE;
 
         return (V) arrayBucket[bucketIndex][slot];
     }
@@ -106,13 +122,10 @@ public final class BArray<V extends BValue> implements BRefType {
     }
 
     private void rangeCheck(int index) {
-        if (index >= size) {
-            throw new BallerinaException("arrays index out of range: " + outOfBoundsMsg(index));
+        if (index < 0 || index >= size) {
+            throw BLangExceptionHelper
+                    .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
-    }
-
-    private String outOfBoundsMsg(int index) {
-        return "Index: " + index + ", Size: " + size;
     }
 
     private void ensureCapacity(int capacityRequired) {
@@ -125,7 +138,7 @@ public final class BArray<V extends BValue> implements BRefType {
 
     private void grow(int capacityRequired, int bucketIndex) {
         if (capacityRequired > MAX_ARRAY_SIZE) {
-            throw new BallerinaException("Requested arrays size " + capacityRequired +
+            throw new BallerinaException("Requested array size " + capacityRequired +
                     " exceeds limit: " + MAX_ARRAY_SIZE);
         }
 
