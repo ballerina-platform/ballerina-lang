@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
@@ -106,6 +107,10 @@ public class WebSocketSourceHandler extends SourceHandler {
             ctx.channel().close();
             session.setIsOpen(false);
             cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, statusCode, reasonText);
+
+        } else if (msg instanceof PingWebSocketFrame) {
+            PingWebSocketFrame pingWebSocketFrame = (PingWebSocketFrame) msg;
+            ctx.channel().writeAndFlush(new PongWebSocketFrame(pingWebSocketFrame.content()));
 
         } else if (msg instanceof PongWebSocketFrame) {
             //Control message for WebSocket is Pong Message
