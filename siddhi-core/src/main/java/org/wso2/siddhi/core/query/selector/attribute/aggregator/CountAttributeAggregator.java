@@ -105,6 +105,6 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     @Override
     public void restoreState(Map<String, Object> state) {
-        count = (int) state.get("Count");
+        count = (long) state.get("Count");
     }
 }
