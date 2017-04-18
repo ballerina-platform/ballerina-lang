@@ -40,15 +40,17 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
 
     private final ChannelHandlerContext ctx;
     private final boolean isSecure;
-    private final String requestedUri;
+    private final URI requestedUri;
     private final String sessionId;
+    private boolean isOpen;
 
     public WebSocketSessionImpl(ChannelHandlerContext ctx, boolean isSecure,
-                                String requestedUri, String sessionId) {
+                                String requestedUri, String sessionId) throws URISyntaxException {
         this.ctx = ctx;
         this.isSecure = isSecure;
-        this.requestedUri = requestedUri;
+        this.requestedUri = new URI(requestedUri);
         this.sessionId = sessionId;
+        this.isOpen = true;
     }
 
     @Override
@@ -68,23 +70,22 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
     }
 
     @Override
-    public void close(CloseReason closeReason) throws IOException {
-        ctx.channel().write(new CloseWebSocketFrame(closeReason.getCloseCode().getCode(),
+    public void close(CloseReason closeReason) {
+        ctx.channel().writeAndFlush(new CloseWebSocketFrame(closeReason.getCloseCode().getCode(),
                                                     closeReason.getReasonPhrase()));
     }
 
     @Override
     public URI getRequestURI() {
-        try {
-            return new URI(requestedUri);
-        } catch (URISyntaxException e) {
-            logger.error(e.toString());
-            return null;
-        }
+        return requestedUri;
     }
 
     @Override
     public boolean isSecure() {
         return isSecure;
+    }
+
+    public void setIsOpen(boolean isOpen) {
+        this.isOpen = isOpen;
     }
 }
