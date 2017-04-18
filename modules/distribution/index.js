@@ -40,7 +40,20 @@ function createService(){
                       "-jar", path.join(appDir, "workspace-service.jar")]);
 
 	serviceProcess.stdout.on("data", function(data){
-		logger.info("Service info: " + data);
+		  logger.info("Service info: " + data);
+
+      // IMPORTANT: Wait till workspace-service is started to create window
+      if (data.includes('Microservices server started')) {
+          if (win === undefined) {
+            win = createWindow();
+            win.on("closed", () => {
+                // Dereference the window object, usually you would store windows
+                // in an array if your app supports multi windows, this is the time
+                // when you should delete the corresponding element.
+                win = null
+            });
+          }
+      }
 	});
 
 	serviceProcess.stderr.on("data", function(data){
@@ -58,15 +71,6 @@ function createService(){
 app.on("ready", () => {
     createLogger();
     createService();
-    win = createWindow();
-
-    win.on("closed", () => {
-        // Dereference the window object, usually you would store windows
-        // in an array if your app supports multi windows, this is the time
-        // when you should delete the corresponding element.
-        win = null
-    });
-
 });
 
 // Quit when all windows are closed.

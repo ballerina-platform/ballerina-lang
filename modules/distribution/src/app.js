@@ -2,6 +2,7 @@ const url = require("url");
 const path = require("path");
 const {app, BrowserWindow, Menu} = require("electron");
 const registerMenuLoader = require("./menu.js");
+const setupNativeWizards = require("./workspace.js");
 
 let win;
 
@@ -13,6 +14,7 @@ function createWindow () {
   win.maximize();
 
   registerMenuLoader();
+  setupNativeWizards(win);
 
   let windowUrl = url.format({
     pathname: path.join(__dirname, "..", "resources", "composer", "web", "index.html"),
