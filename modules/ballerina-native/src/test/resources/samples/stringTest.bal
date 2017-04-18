@@ -83,3 +83,7 @@ function length(string j) (int) {
 function unescape(string j) (string) {
     return strings:unescape(j);
 }
+
+function split(string j, string k) (string[]) {
+    return strings:split(j, k);
+}
