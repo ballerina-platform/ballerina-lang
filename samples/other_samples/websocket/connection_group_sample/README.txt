@@ -36,6 +36,6 @@ In order to work both those services should run parallel.
 Checking the capability
 =======================
 First connect to the WebSocket endpoint using several WebSocket clients. When they are connecting remember the order that they are connected.
-Then post some data to the any http endpoint that you like mentioned above and see how those messages are delivered to the accurate group of connections.
+Then post some data to any http endpoint that you like mentioned above and see how those messages are delivered to the accurate group of connections.
 
-Once you read the example bal files you can learn more about how to create WebSocket connection groups.
+Once you read the sample .bal files you can learn more about how to create WebSocket connection groups.
