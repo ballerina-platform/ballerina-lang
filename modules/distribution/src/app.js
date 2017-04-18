@@ -24,7 +24,6 @@ function createWindow () {
       windowUrl = 'http://localhost:8080'
   }
 
-      console.log('not devmode!!!', windowUrl);
   win.loadURL(windowUrl);
 
   if (process.env.NODE_ENV === 'electron-dev') {
