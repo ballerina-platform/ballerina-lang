@@ -215,6 +215,14 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
         return this.returnParams;
     }
 
+    /**
+     * Get all the Workers associated with a Worker.
+     *
+     * @return list of Workers
+     */
+    public Worker[] getWorkers() {
+        return workers;
+    }
 
     /**
      * Returns size of the stack frame which should be allocated for each invocations.
@@ -337,6 +345,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
             bWorker.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bWorker.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            bWorker.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
             bWorker.workerBody = this.body;
             return bWorker;
         }

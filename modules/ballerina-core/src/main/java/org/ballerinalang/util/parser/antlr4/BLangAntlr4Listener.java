@@ -445,13 +445,35 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
-        if (ctx.exception == null && ctx.Identifier() != null) {
+        if (ctx.exception == null && ctx.workerDefinition().Identifier() != null) {
             modelBuilder.endCallableUnitBody();
 
-            String workerName = ctx.Identifier().get(0).getText();
-            String workerParamName = ctx.Identifier().get(1).getText();
-            modelBuilder.createWorker(getCurrentLocation(ctx), workerName, workerParamName);
+            String workerName = ctx.workerDefinition().Identifier().getText();
+            modelBuilder.createWorker(getCurrentLocation(ctx), workerName);
             isWorkerStarted = false;
+        }
+    }
+
+    /**
+     * Enter a parse tree produced by {@link BallerinaParser#workerDefinition}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterWorkerDefinition(BallerinaParser.WorkerDefinitionContext ctx) {
+
+    }
+
+    /**
+     * Exit a parse tree produced by {@link BallerinaParser#workerDefinition}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitWorkerDefinition(BallerinaParser.WorkerDefinitionContext ctx) {
+        if (ctx.exception == null) {
+            String workerName = ctx.Identifier().getText();
+            modelBuilder.createWorkerDefinition(getCurrentLocation(ctx), workerName);
         }
     }
 
@@ -1016,7 +1038,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitTriggerWorker(BallerinaParser.TriggerWorkerContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createWorkerInvocationStmt(ctx.Identifier(0).getText(), ctx.Identifier(1).getText(),
+            modelBuilder.createWorkerInvocationStmt(ctx.Identifier().getText(),
                     getCurrentLocation(ctx));
         }
     }
@@ -1028,7 +1050,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createWorkerReplyStmt(ctx.Identifier(0).getText(), ctx.Identifier(1).getText(),
+            modelBuilder.createWorkerReplyStmt(ctx.Identifier().getText(),
                     getCurrentLocation(ctx));
         }
     }

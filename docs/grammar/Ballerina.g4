@@ -46,7 +46,7 @@ resourceDefinition
     ;
 
 callableUnitBody
-    : '{' workerDeclaration* statement* '}'
+    : '{' statement* workerDeclaration* '}'
     ;
 
 functionDefinition
@@ -118,7 +118,11 @@ constantDefinition
     ;
 
 workerDeclaration
-    :   'worker' Identifier '(' 'message' Identifier ')'  '{' statement* '}'
+    :   workerDefinition '{' statement* workerDeclaration*'}'
+    ;
+
+workerDefinition
+    :   'worker' Identifier
     ;
 
 typeName
@@ -311,12 +315,12 @@ workerInteractionStatement
 
 // below left Identifier is of type 'message' and the right Identifier is of type 'worker'
 triggerWorker
-    :   Identifier '->' Identifier ';'
+    :   expressionList '->' Identifier? ';'
     ;
 
 // below left Identifier is of type 'worker' and the right Identifier is of type 'message'
 workerReply
-    :   Identifier '<-' Identifier ';'
+    :   expressionList '<-' Identifier? ';'
     ;
 
 commentStatement

@@ -26,6 +26,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.lang.annotation.Repeatable;
+
 /**
  * Test cases for usages of worker in functions.
  */
@@ -43,7 +45,27 @@ public class WorkerInFunctionTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testworker", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMessage);
-        final String expected = "{\"name\":\"chanaka\"}";
+        final String expected = "{\"name\":\"WSO2\"}";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(description = "Test worker declaration")
+    public void testWorkerDeclaration1() {
+        BValue[] args = {new BMessage()};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testworker", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BMessage);
+        final String expected = "{\"name\":\"WSO2\"}";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(description = "Test worker declaration")
+    public void testWorkerDeclaration2() {
+        BValue[] args = {new BMessage()};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testworker", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BMessage);
+        final String expected = "{\"name\":\"WSO2\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 }

@@ -4,21 +4,23 @@ import ballerina.lang.messages;
 const int index = 12;
 
 function testWorker()(message) {
-  worker sampleWorker (message m)  {
-    message result;
-    system:println("constant value is " + index);
-    result = changeMessage(m);
-    reply result;
-  }
-
   message result;
   message msg = {};
   msg -> sampleWorker;
-  system:println("After worker");
+  system:println("Worker calling function test started");
   result <- sampleWorker;
   string s = messages:getStringPayload(result);
   system:println(s);
   return result;
+
+  worker sampleWorker {
+  message result;
+  message m;
+  m <- default;
+  system:println("constant value is " + index);
+  result = changeMessage(m);
+  result -> default;
+}
 
 }
 

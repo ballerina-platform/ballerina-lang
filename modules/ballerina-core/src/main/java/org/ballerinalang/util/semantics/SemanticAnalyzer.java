@@ -130,6 +130,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
+import org.ballerinalang.runtime.worker.WorkerInteractionDataHolder;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.LinkerException;
 import org.ballerinalang.util.exceptions.SemanticErrors;
@@ -142,6 +143,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -159,7 +161,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     private String currentPkg;
     private TypeLattice packageTypeLattice;
     private CallableUnit currentCallableUnit = null;
-    private CallableUnit parentCallableUnit = null;
+    private Stack<CallableUnit> parentCallableUnit = new Stack<>();
+    private Stack<SymbolScope> parentScope = new Stack<>();
     // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
     private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
     private static final Pattern compiledPattern = Pattern.compile(patternString);
@@ -222,11 +225,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         defineTypeMappers(bLangPackage.getTypeMappers());
         defineServices(bLangPackage.getServices());
         defineAnnotations(bLangPackage.getAnnotationDefs());
+
         
         for (CompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
 
+        resolveWorkerInteractions(bLangPackage.getWorkerInteractionDataHolders());
         bLangPackage.setSymbolsDefined(true);
     }
 
@@ -338,8 +343,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (Worker worker : resource.getWorkers()) {
-            visit(worker);
             addWorkerSymbol(worker);
+            visit(worker);
         }
 
         BlockStmt blockStmt = resource.getResourceBody();
@@ -386,8 +391,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (!function.isNative()) {
             for (Worker worker : function.getWorkers()) {
-                worker.accept(this);
                 addWorkerSymbol(worker);
+                worker.accept(this);
             }
 
             BlockStmt blockStmt = function.getCallableUnitBody();
@@ -502,8 +507,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (!action.isNative()) {
             for (Worker worker : action.getWorkers()) {
-                worker.accept(this);
                 addWorkerSymbol(worker);
+                worker.accept(this);
             }
 
             BlockStmt blockStmt = action.getCallableUnitBody();
@@ -529,9 +534,9 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(Worker worker) {
         // Open a new symbol scope. This is done manually to avoid falling back to package scope
-        SymbolScope parentScope = currentScope;
+        parentScope.push(currentScope);
         currentScope = worker;
-        parentCallableUnit = currentCallableUnit;
+        parentCallableUnit.push(currentCallableUnit);
         currentCallableUnit = worker;
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
@@ -553,6 +558,14 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDef.accept(this);
         }
 
+        // Define the worker at symbol scope so that workers defined within this worker can invoke this
+        // addWorkerSymbol(worker);
+
+        for (Worker worker2 : worker.getWorkers()) {
+            addWorkerSymbol(worker2);
+            worker2.accept(this);
+        }
+
         BlockStmt blockStmt = worker.getCallableUnitBody();
         blockStmt.accept(this);
 
@@ -568,9 +581,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         workerMemAddrOffset = -1;
-        currentCallableUnit = parentCallableUnit;
+        currentCallableUnit = parentCallableUnit.pop();
         // Close symbol scope. This is done manually to avoid falling back to package scope
-        currentScope = parentScope;
+        currentScope = parentScope.pop();
     }
 
     private void addWorkerSymbol(Worker worker) {
@@ -1096,34 +1109,43 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
-        VariableRefExpr variableRefExpr = workerInvocationStmt.getInMsg();
-        variableRefExpr.accept(this);
-
-        linkWorker(workerInvocationStmt);
-
-        //Find the return types of this function invocation expression.
-        ParameterDef[] returnParams = workerInvocationStmt.getCallableUnit().getReturnParameters();
-        BType[] returnTypes = new BType[returnParams.length];
-        for (int i = 0; i < returnParams.length; i++) {
-            returnTypes[i] = returnParams[i].getType();
+        Expression[] expressions = workerInvocationStmt.getExpressionList();
+        for (Expression expression : expressions) {
+            expression.accept(this);
         }
-        workerInvocationStmt.setTypes(returnTypes);
+
+        if (!workerInvocationStmt.getCallableUnitName().equals("default")) {
+            linkWorker(workerInvocationStmt);
+
+            //Find the return types of this function invocation expression.
+            ParameterDef[] returnParams = workerInvocationStmt.getCallableUnit().getReturnParameters();
+            BType[] returnTypes = new BType[returnParams.length];
+            for (int i = 0; i < returnParams.length; i++) {
+                returnTypes[i] = returnParams[i].getType();
+            }
+            workerInvocationStmt.setTypes(returnTypes);
+        }
     }
 
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
         String workerName = workerReplyStmt.getWorkerName();
         SymbolName workerSymbol = new SymbolName(workerName);
-        VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
-        variableRefExpr.accept(this);
-        
-        BLangSymbol worker = currentScope.resolve(workerSymbol);
-        if (!(worker instanceof Worker)) {
-            BLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, 
-                    workerSymbol);
+
+        Expression[] expressions = workerReplyStmt.getExpressionList();
+        for (Expression expression : expressions) {
+            expression.accept(this);
         }
-        
-        workerReplyStmt.setWorker((Worker) worker);
+
+        if (!workerName.equals("default")) {
+            BLangSymbol worker = currentScope.resolve(workerSymbol);
+            if (!(worker instanceof Worker)) {
+                BLangExceptionHelper.throwSemanticError(expressions[0], SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
+                        workerSymbol);
+            }
+
+            workerReplyStmt.setWorker((Worker) worker);
+        }
     }
 
     @Override
@@ -2455,7 +2477,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void linkWorker(WorkerInvocationStmt workerInvocationStmt) {
-
         String workerName = workerInvocationStmt.getCallableUnitName();
         SymbolName workerSymbolName = new SymbolName(workerName);
         Worker worker = (Worker) currentScope.resolve(workerSymbolName);
@@ -2936,6 +2957,51 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             
             currentScope.define(symbolName, annotationDef);
+        }
+    }
+
+    private void resolveWorkerInteractions(WorkerInteractionDataHolder[] workerInteractionDataHolders) {
+        for (WorkerInteractionDataHolder workerInteraction : workerInteractionDataHolders) {
+            if (workerInteraction.getSourceWorker() == null || workerInteraction.getWorkerReplyStmt() == null) {
+                // Invalid worker reply statement
+                // TODO: Need to have a specific error message
+                BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerReplyStmt(),
+                        SemanticErrors.WORKER_INTERACTION_NOT_VALID);
+            }
+
+            if (workerInteraction.getTargetWorker() == null || workerInteraction.getWorkerInvocationStmt() == null) {
+                // Invalid worker invocation statement
+                // TODO: Need to have a specific error message
+                BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerReplyStmt(),
+                        SemanticErrors.WORKER_INTERACTION_NOT_VALID);
+            }
+
+            if (workerInteraction.getSourceWorker() == workerInteraction.getTargetWorker()) {
+                // Worker cannot invoke itself.
+                // TODO: Need to have a specific error message
+                    BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerReplyStmt(),
+                            SemanticErrors.WORKER_INTERACTION_NOT_VALID);
+            }
+
+            if (workerInteraction.getWorkerReplyStmt() != null && workerInteraction.getWorkerInvocationStmt() != null) {
+                // Check for number of variables send and received
+                Expression[] invokeParams = workerInteraction.getWorkerInvocationStmt().getExpressionList();
+                Expression[] receiveParams = workerInteraction.getWorkerReplyStmt().getExpressionList();
+                if (invokeParams.length != receiveParams.length) {
+                    // TODO: Need to have a specific error message
+                    BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerReplyStmt(),
+                            SemanticErrors.WORKER_INTERACTION_NOT_VALID);
+                } else {
+                    int i = 0;
+                    for (Expression invokeParam : invokeParams) {
+                        if (!(receiveParams[i++].getType().equals(invokeParam.getType()))) {
+                            // TODO: Need to have a specific error message
+                            BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerReplyStmt(),
+                                    SemanticErrors.WORKER_INTERACTION_NOT_VALID);
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -26,9 +26,11 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
@@ -166,6 +168,11 @@ public class BLangFunctions {
 
             // Invoke main function
             BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+
+            // Start the workers if there is any
+            for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
+                executor.executeWorker(worker);
+            }
             function.getCallableUnitBody().execute(executor);
             return returnValues;
         }

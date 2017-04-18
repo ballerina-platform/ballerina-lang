@@ -7,14 +7,14 @@ function testForkJoinAll(message m)(message[]) {
         json error;
         system:println("Airfare ");
         fork (m) {
-            worker ABC_Airline (message m) {
+            worker ABC_Airline {
                 json payload;
                 payload = `{"name":"abc"}`;
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
 
-            worker XYZ_Airline (message m) {
+            worker XYZ_Airline {
                 json payload;
                 payload = `{"name":"xyz"}`;
                 messages:setJsonPayload(m, payload);
@@ -40,14 +40,14 @@ function testForkJoinAny(message m)(message[]) {
         json error;
         system:println("Airfare ");
         fork (m) {
-            worker ABC_Airline (message m) {
+            worker ABC_Airline {
                 json payload;
                 payload = `{"name":"abc"}`;
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
 
-            worker XYZ_Airline (message m) {
+            worker XYZ_Airline {
                 json payload;
                 payload = `{"name":"xyz"}`;
                 messages:setJsonPayload(m, payload);
@@ -72,21 +72,21 @@ function testForkJoinAllOfSpecific(message m)(message[]) {
         json error;
         system:println("Airfare ");
         fork (m) {
-            worker ABC_Airline (message m) {
+            worker ABC_Airline {
                 json payload;
                 payload = `{"name":"abc"}`;
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
 
-            worker XYZ_Airline (message m) {
+            worker XYZ_Airline {
                 json payload;
                 payload = `{"name":"xyz"}`;
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
 
-            worker PQR_Airline (message m) {
+            worker PQR_Airline {
                 json payload;
                 payload = `{"name":"pqr"}`;
                 messages:setJsonPayload(m, payload);
@@ -112,21 +112,21 @@ function testForkJoinAnyOfSpecific(message m)(message[]) {
         json error;
         system:println("Airfare ");
         fork (m) {
-            worker ABC_Airline (message m) {
+            worker ABC_Airline {
                 json payload;
                 payload = `{"name":"abc"}`;
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
 
-            worker XYZ_Airline (message m) {
+            worker XYZ_Airline {
                 json payload;
                 payload = `{"name":"xyz"}`;
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
 
-            worker PQR_Airline (message m) {
+            worker PQR_Airline {
                 json payload;
                 payload = `{"name":"pqr"}`;
                 messages:setJsonPayload(m, payload);

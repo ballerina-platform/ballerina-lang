@@ -20,6 +20,7 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.natives.NativePackageProxy;
+import org.ballerinalang.runtime.worker.WorkerInteractionDataHolder;
 import org.ballerinalang.util.repository.PackageRepository;
 
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     protected Function mainFunction;
     protected TypeMapper[] typeMappers;
     protected AnnotationDef[] annotationDefs;
+    protected WorkerInteractionDataHolder[] workerInteractionDataHolders;
 
     protected List<BLangPackage> dependentPkgs = new ArrayList<>();
 
@@ -166,6 +168,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     public AnnotationDef[] getAnnotationDefs() {
         return annotationDefs;
     }
+
+    public WorkerInteractionDataHolder[] getWorkerInteractionDataHolders() {
+        return workerInteractionDataHolders;
+    }
     
     // Methods in the SymbolScope interface
 
@@ -275,6 +281,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         private TypeLattice typeLattice = new TypeLattice();
         private List<TypeMapper> typeMapperList = new ArrayList<>();
         private List<AnnotationDef> annotationDefList = new ArrayList<>();
+        private List<WorkerInteractionDataHolder> workerInteractionDataHolderList = new ArrayList<>();
         
         private List<BallerinaFile> ballerinaFileList = new ArrayList<>();
 
@@ -328,6 +335,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             this.compilationUnitList.add(annotationDef);
             this.annotationDefList.add(annotationDef);
         }
+
+        public void addWorkerInteractionDataHolder(WorkerInteractionDataHolder workerInteractionDataHolder) {
+            this.workerInteractionDataHolderList.add(workerInteractionDataHolder);
+        }
         
         public void addBallerinaFile(BallerinaFile bFile) {
             this.ballerinaFileList.add(bFile);
@@ -349,6 +360,9 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             bLangPackage.ballerinaFiles = ballerinaFileList.toArray(new BallerinaFile[0]);
             bLangPackage.typeMappers = this.typeMapperList.toArray(new TypeMapper[0]);
             bLangPackage.annotationDefs = this.annotationDefList.toArray(new AnnotationDef[0]);
+            bLangPackage.workerInteractionDataHolders =
+                    this.workerInteractionDataHolderList.toArray
+                            (new WorkerInteractionDataHolder[workerInteractionDataHolderList.size()]);
             return bLangPackage;
         }
     }

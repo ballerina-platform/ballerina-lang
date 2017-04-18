@@ -301,18 +301,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         int sizeOfValueArray = worker.getStackFrameSize();
         BValue[] localVals = new BValue[sizeOfValueArray];
 
+        // Get values for all the worker arguments
+        int valueCounter = 0;
         // Evaluate the argument expression
-        BValue argValue = getTempValue(workerInvocationStmt.getInMsg());
-
-        if (argValue instanceof BMessage) {
-            argValue = ((BMessage) argValue).clone();
+        Expression[] expressions = workerInvocationStmt.getExpressionList();
+        for (Expression expression : expressions) {
+            localVals[valueCounter++] = getTempValue(expression);
         }
 
-        // Setting argument value in the stack frame
-        localVals[0] = argValue;
-
-        // Get values for all the worker arguments
-        int valueCounter = 1;
 
         for (ParameterDef returnParam : worker.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
@@ -357,8 +353,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Future<BMessage> future = worker.getResultFuture();
         try {
             BMessage result = future.get(60, TimeUnit.SECONDS);
-            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
-            assignValueToVarRefExpr(result, variableRefExpr);
+            Expression[] expressions = workerReplyStmt.getExpressionList();
+            for (Expression expression: expressions) {
+                assignValueToVarRefExpr(result, (VariableRefExpr) expression);
+            }
             executor.shutdown();
             if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
@@ -366,8 +364,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         } catch (Exception e) {
             // If there is an exception in the worker, set an empty value to the return variable
             BMessage result = BTypes.typeMessage.getDefaultValue();
-            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
-            assignValueToVarRefExpr(result, variableRefExpr);
+            Expression[] expressions = workerReplyStmt.getExpressionList();
+            for (Expression expression: expressions) {
+                assignValueToVarRefExpr(result, (VariableRefExpr) expression);
+            }
         } finally {
             // Finally, try again to shutdown if not done already
             executor.shutdownNow();

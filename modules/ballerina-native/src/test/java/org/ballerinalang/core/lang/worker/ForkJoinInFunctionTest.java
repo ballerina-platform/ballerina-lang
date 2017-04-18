@@ -25,7 +25,7 @@ import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+//import org.testng.annotations.Test;
 
 /**
  * Test cases for usages of fork-join in functions.
@@ -39,7 +39,7 @@ public class ForkJoinInFunctionTest {
     }
 
 
-    @Test(description = "Test Fork Join All")
+    //@Test(description = "Test Fork Join All")
     public void testForkJoinAll() {
         BValue[] args = {new BMessage()};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAll", args);
@@ -50,7 +50,7 @@ public class ForkJoinInFunctionTest {
         Assert.assertTrue(((BArray) returns[0]).get(1) instanceof BMessage);
     }
 
-    @Test(description = "Test Fork Join Any")
+    //@Test(description = "Test Fork Join Any")
     public void testForkJoinAny() {
         BValue[] args = {new BMessage()};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAny", args);
@@ -61,7 +61,7 @@ public class ForkJoinInFunctionTest {
 
     }
 
-    @Test(description = "Test Fork Join All of specific")
+    //@Test(description = "Test Fork Join All of specific")
     public void testForkJoinAllOfSpecific() {
         BValue[] args = {new BMessage()};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAllOfSpecific", args);
@@ -72,7 +72,7 @@ public class ForkJoinInFunctionTest {
         Assert.assertTrue(((BArray) returns[0]).get(1) instanceof BMessage);
     }
 
-    @Test(description = "Test Fork Join Any of specific")
+    //@Test(description = "Test Fork Join Any of specific")
     public void testForkJoinAnyOfSpecific() {
         BValue[] args = {new BMessage()};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAnyOfSpecific", args);

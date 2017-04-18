@@ -6,34 +6,35 @@ connector TestConnector(string param1, string param2, int param3) {
     boolean action2Invoked;
 
     action action1(TestConnector testConnector, message msg) (message){
-          worker sampleWorker (message m)  {
-            double amount;
-            double sumD;
-            int quantity;
-            double a;
-            json j;
-
-            j = `{"name":"chanaka"}`;
-            messages:setJsonPayload(m, j);
-            sumD = 123d;
-            amount = 222d;
-            quantity = 12;
-            a = 123d;
-            sumD = sumD + ( amount * quantity );
-            system:println(sumD);
-            reply m;
-          }
           double aa;
           message result;
-
           aa = 13;
           system:println(aa);
           msg -> sampleWorker;
-          system:println("After worker");
+          system:println("Worker in action test started");
           system:println("Doing something else");
           system:println("Doing another thing");
           result <- sampleWorker;
           return result;
+
+          worker sampleWorker {
+          double amount;
+          double sumD;
+          int quantity;
+          double a;
+          json j;
+          message m;
+          m <- default;
+          j = `{"name":"chanaka"}`;
+          messages:setJsonPayload(m, j);
+          sumD = 123d;
+          amount = 222d;
+          quantity = 12;
+          a = 123d;
+          sumD = sumD + ( amount * quantity );
+          system:println(sumD);
+          m -> default;
+    }
     }
 
 }
