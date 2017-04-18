@@ -1,10 +1,10 @@
 const {app, BrowserWindow, Menu} = require("electron");
 const path = require("path");
-const url = require("url");
 const process = require("process");
 const fs = require("fs");
 const log = require("log");
 const {spawn} = require("child_process");
+const {createWindow} = require("./src/app")
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -52,43 +52,21 @@ function createService(){
 	});
 }
 
-
-function createWindow () {
-  // Create the browser window.
-  win = new BrowserWindow({width: 1024, height: 768, frame: true});
-
-  // maximize the window
-  win.maximize();
-
-  //disable native menu
-  Menu.setApplicationMenu(Menu.buildFromTemplate([]));
-
-  // and load the index.html of the app.
-  win.loadURL(url.format({
-    pathname: path.join(__dirname, "resources", "composer", "web", "index.html"),
-    protocol: "file:",
-    slashes: true
-  }));
-
-  // Open the DevTools.
-  //win.webContents.openDevTools()
-
-  // Emitted when the window is closed.
-  win.on("closed", () => {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    win = null
-  });
-}
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
     createLogger();
     createService();
-    createWindow();
+    win = createWindow();
+
+    win.on("closed", () => {
+        // Dereference the window object, usually you would store windows
+        // in an array if your app supports multi windows, this is the time
+        // when you should delete the corresponding element.
+        win = null
+    });
+
 });
 
 // Quit when all windows are closed.
