@@ -9,18 +9,17 @@ service oddEvenWebSocketConnector {
 
     string evenConnectionGroupName = "evenGroup";
     string oddConnectionGroupName = "oddGroup";
-    int i = 1;
 
     @ws:OnOpen {}
     resource onOpen(message m) {
         system:println("New client connected to the server.");
-        system:println(i);
-        if (i % 2 == 0) {
+        string group = messages:getHeader(m, "group");
+        if (group == "even") {
             ws:addConnectionToGroup(evenConnectionGroupName);
-        } else {
+        }
+        if (group == "odd") {
             ws:addConnectionToGroup(oddConnectionGroupName);
         }
-        i = i + 1;
     }
 
     @ws:OnTextMessage {}

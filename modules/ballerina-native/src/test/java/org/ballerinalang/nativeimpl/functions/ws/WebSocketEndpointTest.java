@@ -29,6 +29,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.util.HashMap;
+
 /**
  * Test connected client scenarios. When the client connects, send  and receive text and closing the connection.
  */
@@ -49,8 +51,8 @@ public class WebSocketEndpointTest {
     @Test(description = "Test the client connection establishment and broadcast.")
     public void testClientConnected() {
         String expectedText = "new client connected";
-        CarbonMessage client1Message = MessageUtils.generateWebSocketOnOpenMessage(session1, uri);
-        CarbonMessage client2Message = MessageUtils.generateWebSocketOnOpenMessage(session2, uri);
+        CarbonMessage client1Message = MessageUtils.generateWebSocketOnOpenMessage(session1, uri, new HashMap<>());
+        CarbonMessage client2Message = MessageUtils.generateWebSocketOnOpenMessage(session2, uri, new HashMap<>());
         Services.invoke(client1Message);
         Services.invoke(client2Message);
         Assert.assertEquals(session1.getTextReceived(), expectedText);

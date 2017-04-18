@@ -29,6 +29,7 @@ import org.wso2.carbon.messaging.TextCarbonMessage;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import javax.websocket.Session;
 
 /**
@@ -90,11 +91,17 @@ public class MessageUtils {
         return setWebSocketCommonProperties(textMessage, session, path);
     }
 
-    public static CarbonMessage generateWebSocketOnOpenMessage(Session session, String path) {
+    public static CarbonMessage generateWebSocketOnOpenMessage(Session session, String path,
+                                                               Map<String, String> headers) {
         StatusCarbonMessage statusCarbonMessage = new StatusCarbonMessage(
                 org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
         statusCarbonMessage.setProperty(Constants.CONNECTION, Constants.UPGRADE);
         statusCarbonMessage.setProperty(Constants.UPGRADE, Constants.WEBSOCKET_UPGRADE);
+        headers.entrySet().stream().forEach(
+                entry -> {
+                    statusCarbonMessage.setHeader(entry.getKey(), entry.getValue());
+                }
+        );
         return setWebSocketCommonProperties(statusCarbonMessage, session, path);
     }
 
