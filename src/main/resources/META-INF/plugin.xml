@@ -1,8 +1,7 @@
-<idea-plugin version="2">
+<idea-plugin>
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.8.2</version>
-    <category>Custom Languages</category>
+    <version>0.8.3</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -12,18 +11,15 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Support Ballerina v0.85 grammar.</li>
-        <li>Add Ballerina application run support.</li>
-        <li>Update Ballerina file run configuration.</li>
-        <li>Improve find usage support.</li>
-        <li>Improve parameter info support.</li>
+        <li>Add spellchecking support.</li>
+        <li>Add code folding support.</li>
       </ul>
-      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/3?closed=1">View all changes and bug fixes.</a>
+      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/4?closed=1">View all changes and bug fixes.</a>
     ]]>
     </change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="141.0"/>
+    <idea-version since-build="163"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
