@@ -8,6 +8,7 @@ const config = require('./config').default;
 
 const app = new Application(config);
 
+app.setElectronMode(true);
 app.render();
 app.displayInitialView();
 

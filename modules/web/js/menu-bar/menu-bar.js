@@ -57,6 +57,14 @@ import MenuGroup from './menu-group';
             );
         };
 
+        MenuBar.prototype.setVisible = function(isVisible) {
+            if(isVisible) {
+                this._$parent_el.show();
+            } else {
+                this._$parent_el.hide();
+            }
+        };
+
         MenuBar.prototype.getMenuItemByID = function (id) {
             return _.get(this._menuGroups, id);
         };

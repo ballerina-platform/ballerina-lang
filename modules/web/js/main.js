@@ -145,6 +145,10 @@ class Application {
         log.debug("start: rendering tab controller");
         this.tabController.render();
         log.debug("end: rendering tab controller");
+
+        if(this.isElectronMode()) {
+            this.menuBar.setVisible(false);
+        }
     }
 
     displayInitialView() {
@@ -182,6 +186,14 @@ class Application {
 
     getPathSeperator() {
         return _.isEqual(this.getOperatingSystem(), 'Windows') ? '\\' : '/';
+    }
+
+    setElectronMode(isElectronMode) {
+        this._isElectronMode = isElectronMode;
+    }
+
+    isElectronMode() {
+        return this._isElectronMode;
     }
 
 }
