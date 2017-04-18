@@ -32,6 +32,7 @@ import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -84,7 +85,7 @@ public class WebSocketTestCase {
     }
 
     @Test
-    public void testBinary() throws InterruptedException, URISyntaxException, SSLException {
+    public void testBinary() throws InterruptedException, URISyntaxException, IOException {
         primaryClient.handhshake();
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
@@ -138,7 +139,7 @@ public class WebSocketTestCase {
     }
 
     @Test
-    public void testPingPongMessage() throws InterruptedException, SSLException, URISyntaxException {
+    public void testPingPongMessage() throws InterruptedException, IOException, URISyntaxException {
         primaryClient.handhshake();
         byte[] bytes = {6, 7, 8, 9, 10, 11};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);

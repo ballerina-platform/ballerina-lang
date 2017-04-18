@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -149,7 +150,7 @@ public class WebSocketClient {
     public void sendText(String text) {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
-            throw new NullPointerException("Cannot find the channel to write");
+            throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new TextWebSocketFrame(text));
     }
@@ -158,10 +159,10 @@ public class WebSocketClient {
      * Send binary data to server.
      * @param buf buffer containing the data need to be sent.
      */
-    public void sendBinary(ByteBuffer buf) {
+    public void sendBinary(ByteBuffer buf) throws IOException {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
-            throw new NullPointerException("Cannot find the channel to write");
+            throw new IOException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buf)));
     }
@@ -170,10 +171,10 @@ public class WebSocketClient {
      * Send a ping message to the server.
      * @param buf content of the ping message to be sent.
      */
-    public void sendPing(ByteBuffer buf) {
+    public void sendPing(ByteBuffer buf) throws IOException {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
-            throw new NullPointerException("Cannot find the channel to write");
+            throw new IOException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(buf)));
     }
