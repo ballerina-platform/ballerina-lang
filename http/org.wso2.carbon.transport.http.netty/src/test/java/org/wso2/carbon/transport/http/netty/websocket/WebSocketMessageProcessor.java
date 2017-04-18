@@ -60,7 +60,7 @@ public class WebSocketMessageProcessor implements CarbonMessageProcessor {
                 try {
                     String protocol = (String) carbonMessage.getProperty(Constants.PROTOCOL);
 
-                    if (!Constants.WEBSOCKET_PROTOCOL_NAME.equals(protocol)) {
+                    if (!Constants.WEBSOCKET_PROTOCOL.equals(protocol)) {
                         throw new ProtocolException("Protocol is not valid :" + protocol);
                     }
                     if (carbonMessage instanceof TextCarbonMessage) {
