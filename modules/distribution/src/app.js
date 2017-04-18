@@ -14,7 +14,7 @@ function createWindow () {
   win.maximize();
 
   registerMenuLoader();
-  setupNativeWizards();
+  setupNativeWizards(win);
 
   let windowUrl = url.format({
     pathname: path.join(__dirname, "..", "resources", "composer", "web", "index.html"),

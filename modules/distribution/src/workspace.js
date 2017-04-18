@@ -1,8 +1,10 @@
 const {ipcMain, dialog} = require('electron');
 
-function setupNativeWizards() {
+function setupNativeWizards(mainWindow) {
       ipcMain.on('show-file-open-dialog', function (event) {
-          dialog.showOpenDialog({
+          dialog.showOpenDialog(
+            mainWindow,
+            {
               title: 'Open Ballerina File',
               filters: [
                   {name: 'Ballerina Files (*.bal) ', extensions: ['bal']},
@@ -15,7 +17,9 @@ function setupNativeWizards() {
       });
 
       ipcMain.on('show-folder-open-dialog', function (event) {
-          dialog.showOpenDialog({
+          dialog.showOpenDialog(
+            mainWindow,
+            {
                 title: 'Open Ballerina Folder',
                 properties: ['openDirectory', 'createDirectory']
             }, function (folder) {
