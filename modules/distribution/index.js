@@ -37,7 +37,8 @@ function createService(){
 	let debugArgs="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006";
 
 	serviceProcess = spawn("java", [log4jConfProp, logsDirSysProp, balComposerHomeProp,
-                      "-jar", path.join(appDir, "workspace-service.jar")]);
+                      "-jar", path.join(appDir, "workspace-service.jar")
+                              .replace('app.asar', 'app.asar.unpacked')]);
 
 	serviceProcess.stdout.on("data", function(data){
 		  logger.info("Service info: " + data);
