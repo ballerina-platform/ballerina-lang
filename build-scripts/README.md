@@ -35,6 +35,7 @@ Properties Content section, enter following properties in KEY=VALUE
 format.
 
 GIT_CREDENTIALS_ID - This is the id of the git credentials you added  
+GIT_EMAIL - This is the email of the git user associated with the above credentials  
 SETTINGS_XML_ID - This is the id of the settings.xml you added  
 MAVEN_TOOL=One of the appropriate maven installations you added  
 JDK - JDK 8 installation you added  
@@ -43,6 +44,7 @@ organization. This can be changed as needed)
  
 eg:  
 GIT_CREDENTIALS_ID=git-credentials-id  
+GIT_EMAIL=ballerinalang@wso2.com  
 SETTINGS_XML_ID=adb07180-fa9c-4bea-94c4-130813b8018c  
 MAVEN_TOOL=apache-maven-3.3.9  
 JDK=Oracle-JDK-1.8.0_45  
