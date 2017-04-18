@@ -42,14 +42,16 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
     private boolean tryConnect = false;
     private String elementId;
 
-    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder, OutputMapper outputMapper,
-                     String mapType, OptionHolder mapOptionHolder, String payload, ExecutionPlanContext executionPlanContext) {
+    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder, OutputMapper
+            outputMapper, String mapType, OptionHolder mapOptionHolder, String payload, ExecutionPlanContext
+            executionPlanContext) {
         this.type = type;
         this.optionHolder = transportOptionHolder;
         this.streamDefinition = streamDefinition;
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
         init(streamDefinition, transportOptionHolder, executionPlanContext);
-        outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload, transportOptionHolder, executionPlanContext);
+        outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload, transportOptionHolder,
+                executionPlanContext);
         this.mapper = outputMapper;
     }
 
