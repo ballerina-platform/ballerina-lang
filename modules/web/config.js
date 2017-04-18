@@ -14,10 +14,6 @@ export default {
             buttonOpen: " btn btn-block open-welcome-button",
             samples: "welcome-samples",
             headingTop: "top-heading",
-            /**
-             *
-             */
-
             btnWrap1: "btn-wrap"
         },
         samples: ["resources/samples/echoService.bal", "resources/samples/helloWorld.bal",
@@ -164,11 +160,12 @@ export default {
                         outer_div: 'panel panel-default container-outer-div',
                         panel_title: 'panel-title',
                         panel_icon: 'panel-icon',
-                        service_icon: 'fw fw-service fw-inverse',
-                        struct_icon: 'fw fw-struct fw-inverse',
-                        connector_icon:'fw fw-connector fw-inverse',
-                        function_icon:'fw fw-function fw-inverse',
-                        main_function_icon:'fw fw-main-function fw-inverse',
+                        service_icon: 'fw fw-service',
+                        annotation_icon: 'fw fw-annotation',
+                        struct_icon: 'fw fw-struct',
+                        connector_icon:'fw fw-connector',
+                        function_icon:'fw fw-function',
+                        main_function_icon:'fw fw-main-function',
                         title_link:'collapsed canvas-title',
                         panel_right_icon:'fw fw-up pull-right right-icon-clickable collapser hoverable',
                         head_div: 'canvas-heading',
@@ -183,7 +180,7 @@ export default {
                         panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
                         panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
                         panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',
-                        type_mapper_icon: 'fw fw-type-converter fw-inverse',
+                        type_mapper_icon: 'fw fw-type-converter',
                         type_struct_icon: 'fw fw-dgm-service fw-inverse',
                         canvas_heading_new: 'canvas-heading-new'
                     },
