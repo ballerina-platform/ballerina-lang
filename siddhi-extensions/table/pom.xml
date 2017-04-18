@@ -32,7 +32,7 @@
     <name>Siddhi Record Table Extensions</name>
 
     <modules>
-        <!--<module>record-table-rdbms</module>-->
+        <module>record-table-rdbms</module>
     </modules>
 
 </project>
