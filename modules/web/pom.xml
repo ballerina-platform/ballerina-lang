@@ -111,7 +111,7 @@
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>run</argument>
-                                <argument>build</argument>
+                                <argument>${npm.build.command}</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -136,7 +136,7 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <profiles>
         <profile>
             <id>platform-windows</id>
@@ -150,10 +150,18 @@
                 <npm.executable>npm.cmd</npm.executable>
             </properties>
         </profile>
+        <profile>
+            <id>electron-build</id>
+            <properties>
+                <!-- for electron the build command should be build-electron -->
+                <npm.build.command>build-electron</npm.build.command>
+            </properties>
+        </profile>
     </profiles>
 
     <properties>
         <maven.test.skip>false</maven.test.skip>
         <npm.executable>npm</npm.executable>
+        <npm.build.command>build</npm.build.command>
     </properties>
 </project>
