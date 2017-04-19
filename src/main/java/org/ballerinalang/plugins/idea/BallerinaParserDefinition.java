@@ -57,6 +57,7 @@ import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
@@ -254,6 +255,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new AnnotationAttributeValueNode(node);
             case BallerinaParser.RULE_structBody:
                 return new StructBodyNode(node);
+            case BallerinaParser.RULE_returnParameters:
+                return new ReturnParametersNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
