@@ -11,7 +11,6 @@ service oddEvenWebSocketService {
     string oddConnectionGroupName = "oddGroup";
     int i = 1;
 
-    // Add connections to odd and even groups considering the i value
     @ws:OnOpen {}
     resource onOpen(message m) {
         if (i % 2 == 0) {
@@ -23,7 +22,6 @@ service oddEvenWebSocketService {
         i = i + 1;
     }
 
-    // Send different messages to the group
     @ws:OnTextMessage {}
     resource onTextMessage(message m) {
         ws:pushTextToGroup(oddConnectionGroupName, oddConnectionGroupName + ": " + messages:getStringPayload(m));

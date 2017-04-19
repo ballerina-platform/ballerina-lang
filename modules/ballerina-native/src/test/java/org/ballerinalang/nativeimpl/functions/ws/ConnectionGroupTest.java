@@ -49,7 +49,7 @@ public class ConnectionGroupTest {
 
     @BeforeClass
     public void  setup() {
-        wsApp = EnvironmentInitializer.setup("samples/websocket/connection_group/oddEvenWebSocketConnector.bal");
+        wsApp = EnvironmentInitializer.setup("samples/websocket/connectionGroupTest.bal");
     }
 
     @Test
@@ -66,10 +66,24 @@ public class ConnectionGroupTest {
         Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session3, wsEndpointPath, oddGroup));
         Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session4, wsEndpointPath, evenGroup));
         Services.invoke(MessageUtils.generateWebSocketTextMessage(sentText, session1, wsEndpointPath));
-        Assert.assertEquals(session2.getTextReceived(), textExpectedForEven);
-        Assert.assertEquals(session4.getTextReceived(), textExpectedForEven);
         Assert.assertEquals(session1.getTextReceived(), textExpectedForOdd);
+        Assert.assertEquals(session2.getTextReceived(), textExpectedForEven);
         Assert.assertEquals(session3.getTextReceived(), textExpectedForOdd);
+        Assert.assertEquals(session4.getTextReceived(), textExpectedForEven);
+    }
+
+    @Test
+    public void testRemoveConnectionFromGroup() {
+        String sentTextToRemove = "removeOddConnection";
+        Services.invoke(MessageUtils.generateWebSocketTextMessage(sentTextToRemove, session1, wsEndpointPath));
+        String sentText = "hello again";
+        String textExpectedForEven = "evenGroup: " + sentText;
+        String textExpectedForOdd = "oddGroup: " + sentText;
+        Services.invoke(MessageUtils.generateWebSocketTextMessage(sentText, session2, wsEndpointPath));
+        Assert.assertEquals(session1.getTextReceived(), null);
+        Assert.assertEquals(session2.getTextReceived(), textExpectedForEven);
+        Assert.assertEquals(session3.getTextReceived(), textExpectedForOdd);
+        Assert.assertEquals(session4.getTextReceived(), textExpectedForEven);
     }
 
     @AfterClass

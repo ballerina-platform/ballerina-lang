@@ -91,6 +91,14 @@ public class MessageUtils {
         return setWebSocketCommonProperties(textMessage, session, path);
     }
 
+    public static CarbonMessage generateWebSocketOnOpenMessage(Session session, String path) {
+        StatusCarbonMessage statusCarbonMessage = new StatusCarbonMessage(
+                org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
+        statusCarbonMessage.setProperty(Constants.CONNECTION, Constants.UPGRADE);
+        statusCarbonMessage.setProperty(Constants.UPGRADE, Constants.WEBSOCKET_UPGRADE);
+        return setWebSocketCommonProperties(statusCarbonMessage, session, path);
+    }
+
     public static CarbonMessage generateWebSocketOnOpenMessage(Session session, String path,
                                                                Map<String, String> headers) {
         StatusCarbonMessage statusCarbonMessage = new StatusCarbonMessage(

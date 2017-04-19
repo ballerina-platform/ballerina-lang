@@ -8,7 +8,6 @@ service oddEvenHttpService {
     string evenWebSocketConnectionGroupName = "evenGroup";
     string oddWebSocketConnectionGroupName = "oddGroup";
 
-    // Send the message to to even group
     @http:POST {}
     @http:Path {value:"/even"}
     resource evenSend (message m) {
@@ -17,7 +16,6 @@ service oddEvenHttpService {
         reply res;
     }
 
-    // Send the message to to odd group
     @http:POST {}
     @http:Path {value:"/odd"}
     resource oddSend (message m) {
@@ -26,7 +24,6 @@ service oddEvenHttpService {
         reply res;
     }
 
-    // Remove the even group
     @http:GET {}
     @http:Path {value:"/rm-even"}
     resource deleteEven (message m) {
@@ -35,7 +32,6 @@ service oddEvenHttpService {
         reply res;
     }
 
-    // Remove the odd group
     @http:GET {}
     @http:Path {value:"/rm-odd"}
     resource deleteOdd (message m) {

@@ -30,15 +30,19 @@ import javax.websocket.RemoteEndpoint;
  */
 public class MockBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
-    private String textReceived;
-    private ByteBuffer bufferReceived;
+    private String textReceived = null;
+    private ByteBuffer bufferReceived = null;
 
     public String getTextReceived() {
-        return textReceived;
+        String tmp = textReceived;
+        textReceived = null;
+        return tmp;
     }
 
     public ByteBuffer getBufferReceived() {
-        return bufferReceived;
+        ByteBuffer tmp = bufferReceived;
+        bufferReceived = null;
+        return tmp;
     }
 
     @Override
