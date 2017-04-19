@@ -48,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -467,25 +467,21 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         // context.setItemsToShow() in showParameterInfo method.
         if (p instanceof ParameterListNode) {
             // Caste the object.
-            PsiElement element = (ParameterListNode) p;
-            // Get parameter nodes.
-            Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(element, ParameterNode.class);
+            ParameterListNode element = (ParameterListNode) p;
+            // Get the parameter presentations.
+            List<String> parameterPresentations = getParameterPresentations(element);
             // These will be used to identify which parameter is selected. This will be highlighted in the popup.
             int start = 0;
             int end = 0;
             StringBuilder builder = new StringBuilder();
             // If there are no parameter nodes, set "no parameters" message.
-            if (parameterNodes.isEmpty()) {
+            if (parameterPresentations.isEmpty()) {
                 builder.append(CodeInsightBundle.message("parameter.info.no.parameters"));
             } else {
                 // Get the current parameter index.
                 int selected = context.getCurrentParameterIndex();
-                // Get the iterator.
-                Iterator<ParameterNode> iterator = parameterNodes.iterator();
-                // Run the for loop for parameterNodes.size() times.
-                for (int i = 0; i < parameterNodes.size(); i++) {
-                    // Get the next element from the iterator.
-                    ParameterNode next = iterator.next();
+                // Iterate through each parameter presentation.
+                for (int i = 0; i < parameterPresentations.size(); i++) {
                     // If i != 0, we need to add the , between parameters.
                     if (i != 0) {
                         builder.append(", ");
@@ -495,7 +491,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                         start = builder.length();
                     }
                     // Append the parameter.
-                    builder.append(next.getText());
+                    builder.append(parameterPresentations.get(i));
                     // If the current parameter is the selected parameter, get the end index.
                     if (i == selected) {
                         end = builder.length();
@@ -516,5 +512,24 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             // Disable the popup for other types.
             context.setUIComponentEnabled(false);
         }
+    }
+
+    /**
+     * Creates a list of parameter presentations.
+     *
+     * @param node parameterListNode which contains the parameters
+     * @return list of parameter presentations
+     */
+    public static List<String> getParameterPresentations(ParameterListNode node) {
+        List<String> params = new LinkedList<>();
+        if (node == null) {
+            return params;
+        }
+        // Get parameter nodes.
+        Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(node, ParameterNode.class);
+        for (ParameterNode parameterNode : parameterNodes) {
+            params.add(parameterNode.getText());
+        }
+        return params;
     }
 }
