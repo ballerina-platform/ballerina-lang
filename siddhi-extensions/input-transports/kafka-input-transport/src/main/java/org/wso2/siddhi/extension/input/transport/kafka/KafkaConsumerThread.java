@@ -68,8 +68,9 @@ public class KafkaConsumerThread implements Runnable {
                 if (null == topicOffsetMap.get(topic)) {
                     this.topicOffsetMap.put(topic, new HashMap<>());
                 }
+                consumer.subscribe(Arrays.asList(topic));
+                consumer.seekToBeginning(new TopicPartition(topic, 0));
             }
-            consumer.subscribe(Arrays.asList(topics));
         }
         log.info("Subscribed for topics: " + Arrays.toString(topics));
     }
