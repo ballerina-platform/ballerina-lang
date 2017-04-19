@@ -1,0 +1,20 @@
+<html lang="en" class="webkit chrome mac js gr__localhost" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Error while starting Ballerina Composer</title>
+</head>
+<body>
+    <p id="error"></p>
+    <script>
+      function getParameterByName(name) {
+          var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+          return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+      }
+      document.getElementById("error").innerHTML = "Error Code: "
+                      + getParameterByName('errorCode')
+                      + '</br> Error Message: ' + atob(getParameterByName('errorMessage'));
+    </script>
+</body>

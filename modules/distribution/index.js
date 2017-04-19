@@ -4,7 +4,9 @@ const process = require("process");
 const fs = require("fs");
 const log = require("log");
 const {spawn} = require("child_process");
-const {createWindow} = require("./src/app")
+const {createWindow} = require("./src/app");
+const {createErrorWindow} = require('./src/error-window');
+const {ErrorCodes} = require('./src/error-codes');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -19,14 +21,12 @@ function createLogger(){
 	if (!fs.existsSync(logsDir)){
 		fs.mkdirSync(logsDir);
 	}
-	fs.access(logsDir, fs.W_OK, function(err) {
-		if(err){
-			logger.error("can't write to log folder.");
-		}
-		else{
-			logger = new log("info", fs.createWriteStream(path.join(logsDir, "app.log")));
-		}
-	});
+	let accessError = fs.accessSync(logsDir, fs.W_OK);
+  if(accessError) {
+    logger.error("can't write to log folder.");
+  } else {
+    logger = new log("info", fs.createWriteStream(path.join(logsDir, "app.log")));
+  }
 }
 
 function createService(){
@@ -35,16 +35,18 @@ function createService(){
 	let log4jConfProp = "-Dlog4j.configuration=" + "file:" + log4jConfPath;
   let balComposerHomeProp = "-Dbal.composer.home=" + appDir;
 	let debugArgs="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006";
+  let errorWin;
 
 	serviceProcess = spawn("java", [log4jConfProp, logsDirSysProp, balComposerHomeProp,
                       "-jar", path.join(appDir, "workspace-service.jar")
                               .replace('app.asar', 'app.asar.unpacked')]);
-
+  logger.info('Verifying whether the backend services are started successfully');
 	serviceProcess.stdout.on("data", function(data){
 		  logger.info("Service info: " + data);
 
       // IMPORTANT: Wait till workspace-service is started to create window
       if (data.includes('Microservices server started')) {
+          logger.info('Backend services are properly started, starting composer GUI');
           if (win === undefined) {
             win = createWindow();
             win.on("closed", () => {
@@ -58,6 +60,10 @@ function createService(){
 	});
 
 	serviceProcess.stderr.on("data", function(data){
+    if (!errorWin) {
+        errorWin = createErrorWindow({errorCode: ErrorCodes.SERVICE_FAILED,
+          errorMessage: data});
+    }
 		logger.error("Service error: " + data);
 	});
 
@@ -66,12 +72,40 @@ function createService(){
 	});
 }
 
+function checkJava(callback) {
+    let callbackInvoked = false,
+        javaCheck = spawn('java', ['-version']);
+    javaCheck.on('error', function(err){
+        if(!callbackInvoked) {
+            callbackInvoked = true;
+            callback(true, JSON.stringify(err));
+        }
+    })
+    javaCheck.stderr.on('data', function(data) {
+        if(!callbackInvoked) {
+            callbackInvoked = true;
+            callback(false, data);
+        }
+    });
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
     createLogger();
-    createService();
+    logger.info('verifying availability of java runtime in path');
+    checkJava((error, message) => {
+        if (!error) {
+            logger.info('Starting composer backend services');
+            createService();
+        } else {
+            logger.error('Failed verifying availability of java runtime in path');
+            logger.error('Error: ' + message);
+            let errorWin = createErrorWindow({errorCode: ErrorCodes.JAVA_NOT_FOUND,
+                errorMessage: message});
+        }
+    });
 });
 
 // Quit when all windows are closed.
@@ -81,7 +115,9 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
-  serviceProcess.kill();
+  if(serviceProcess != undefined) {
+    serviceProcess.kill();
+  }
 });
 
 app.on("activate", () => {
