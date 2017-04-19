@@ -14,7 +14,6 @@ function createErrorWindow(args) {
         win.loadURL(windowUrl + '?errorCode=' + args.errorCode
                 + '&errorMessage='
                 + new Buffer(args.errorMessage).toString('base64'));
-        win.webContents.openDevTools();
         return win;
 }
 
