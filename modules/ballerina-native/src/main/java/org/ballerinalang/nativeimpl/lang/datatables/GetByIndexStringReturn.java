@@ -61,7 +61,7 @@ public class GetByIndexStringReturn extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        int index = ((BInteger) getArgument(ctx, 1)).intValue();
+        long index = ((BInteger) getArgument(ctx, 1)).intValue();
         String type = (getArgument(ctx, 2)).stringValue();
         return getBValues(dataTable.get(index, type.toLowerCase(Locale.ENGLISH)));
     }

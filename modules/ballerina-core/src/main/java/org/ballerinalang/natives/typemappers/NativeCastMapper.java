@@ -19,10 +19,8 @@ package org.ballerinalang.natives.typemappers;
 
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
@@ -36,14 +34,8 @@ import java.util.function.Function;
  */
 public class NativeCastMapper {
 
-    public static final Function<BValueType, BValueType> INT_TO_LONG_FUNC =
-            (rVal) -> new BLong(rVal.longValue());
-
     public static final Function<BValueType, BValueType> INT_TO_FLOAT_FUNC =
             (rVal) -> new BFloat(rVal.floatValue());
-
-    public static final Function<BValueType, BValueType> INT_TO_DOUBLE_FUNC =
-            (rVal) -> new BDouble(rVal.doubleValue());
 
     public static final Function<BValueType, BValueType> INT_TO_STRING_FUNC =
             (rVal) -> new BString(rVal.stringValue());
@@ -54,24 +46,6 @@ public class NativeCastMapper {
     public static final Function<BValueType, BValueType> INT_TO_INT_FUNC =
             (rVal) -> rVal;
 
-    public static final Function<BValueType, BValueType> LONG_TO_FLOAT_FUNC =
-            (rVal) -> new BFloat(rVal.floatValue());
-
-    public static final Function<BValueType, BValueType> LONG_TO_DOUBLE_FUNC =
-            (rVal) -> new BDouble(rVal.doubleValue());
-
-    public static final Function<BValueType, BValueType> LONG_TO_STRING_FUNC =
-            (rVal) -> new BString(rVal.stringValue());
-
-    public static final Function<BValueType, BValueType> LONG_TO_INT_FUNC =
-            (rVal) -> new BInteger(rVal.intValue());
-
-    public static final Function<BValueType, BValueType> LONG_TO_LONG_FUNC =
-            (rVal) -> rVal;
-
-    public static final Function<BValueType, BValueType> FLOAT_TO_DOUBLE_FUNC =
-            (rVal) -> new BDouble(rVal.doubleValue());
-
     public static final Function<BValueType, BValueType> FLOAT_TO_STRING_FUNC =
             (rVal) -> new BString(rVal.stringValue());
 
@@ -81,38 +55,14 @@ public class NativeCastMapper {
     public static final Function<BValueType, BValueType> FLOAT_TO_FLOAT_FUNC =
             (rVal) -> rVal;
 
-    public static final Function<BValueType, BValueType> FLOAT_TO_LONG_FUNC =
-            (rVal) -> new BLong(rVal.longValue());
-
     public static final Function<BValueType, BValueType> FLOAT_TO_INT_FUNC =
             (rVal) -> new BInteger(rVal.intValue());
-
-    public static final Function<BValueType, BValueType> DOUBLE_TO_STRING_FUNC =
-            (rVal) -> new BString(rVal.stringValue());
-
-    public static final Function<BValueType, BValueType> DOUBLE_TO_DOUBLE_FUNC =
-            (rVal) -> rVal;
-
-    public static final Function<BValueType, BValueType> DOUBLE_TO_FLOAT_FUNC =
-            (rVal) -> new BFloat(rVal.floatValue());
-
-    public static final Function<BValueType, BValueType> DOUBLE_TO_INT_FUNC =
-            (rVal) -> new BInteger(rVal.intValue());
-
-    public static final Function<BValueType, BValueType> DOUBLE_TO_LONG_FUNC =
-            (rVal) -> new BLong(rVal.longValue());
 
     public static final Function<BValueType, BValueType> STRING_TO_INT_FUNC =
             (rVal) -> new BInteger(rVal.intValue());
 
-    public static final Function<BValueType, BValueType> STRING_TO_LONG_FUNC =
-            (rVal) -> new BLong(rVal.longValue());
-
     public static final Function<BValueType, BValueType> STRING_TO_FLOAT_FUNC =
             (rVal) -> new BFloat(rVal.floatValue());
-
-    public static final Function<BValueType, BValueType> STRING_TO_DOUBLE_FUNC =
-            (rVal) -> new BDouble(rVal.doubleValue());
 
     public static final Function<BValueType, BValueType> STRING_TO_BOOLEAN_FUNC =
             (rVal) -> new BBoolean(rVal.booleanValue());
@@ -145,12 +95,6 @@ public class NativeCastMapper {
     public static final Function<BValue, BValue> INT_TO_ANY_FUNC =
             (rVal) -> rVal;
 
-    public static final Function<BValue, BValue> LONG_TO_ANY_FUNC =
-            (rVal) -> rVal;
-
-    public static final Function<BValue, BValue> DOUBLE_TO_ANY_FUNC =
-            (rVal) -> rVal;
-
     public static final Function<BValue, BValue> FLOAT_TO_ANY_FUNC =
             (rVal) -> rVal;
 
@@ -178,7 +122,7 @@ public class NativeCastMapper {
     public static final Function<BValue, BValue> ANY_TO_INT_FUNC =
             (rVal) -> {
                 if (rVal == null) {
-                    throw new BLangExceptionHelper()
+                    throw BLangExceptionHelper
                             .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeInt);
                 }
                 if (rVal.getType() == BTypes.typeInt) {
@@ -188,23 +132,10 @@ public class NativeCastMapper {
                                                          rVal.getType(), BTypes.typeInt);
             };
 
-    public static final Function<BValue, BValue> ANY_TO_LONG_FUNC =
-            (rVal) -> {
-                if (rVal == null) {
-                    throw new BLangExceptionHelper()
-                            .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeLong);
-                }
-                if (rVal.getType() == BTypes.typeLong) {
-                    return rVal;
-                }
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
-                                                         rVal.getType(), BTypes.typeLong);
-            };
-
     public static final Function<BValue, BValue> ANY_TO_FLOAT_FUNC =
             (rVal) -> {
                 if (rVal == null) {
-                    throw new BLangExceptionHelper()
+                    throw BLangExceptionHelper
                             .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeFloat);
                 }
                 if (rVal.getType() == BTypes.typeFloat) {
@@ -214,23 +145,10 @@ public class NativeCastMapper {
                                                          rVal.getType(), BTypes.typeFloat);
             };
 
-    public static final Function<BValue, BValue> ANY_TO_DOUBLE_FUNC =
-            (rVal) -> {
-                if (rVal == null) {
-                    throw new BLangExceptionHelper()
-                            .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeDouble);
-                }
-                if (rVal.getType() == BTypes.typeDouble) {
-                    return rVal;
-                }
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
-                                                         rVal.getType(), BTypes.typeDouble);
-            };
-
     public static final Function<BValue, BValue> ANY_TO_STRING_FUNC =
             (rVal) -> {
                 if (rVal == null) {
-                    throw new BLangExceptionHelper()
+                    throw BLangExceptionHelper
                             .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeString);
                 }
                 if (rVal.getType() == BTypes.typeString) {
@@ -243,7 +161,7 @@ public class NativeCastMapper {
     public static final Function<BValue, BValue> ANY_TO_BOOLEAN_FUNC =
             (rVal) -> {
                 if (rVal == null) {
-                    throw new BLangExceptionHelper()
+                    throw BLangExceptionHelper
                             .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeBoolean);
                 }
                 if (rVal.getType() == BTypes.typeBoolean) {
@@ -256,7 +174,7 @@ public class NativeCastMapper {
     public static final Function<BValue, BValue> ANY_TO_JSON_FUNC =
             (rVal) -> {
                 if (rVal == null) {
-                    throw new BLangExceptionHelper()
+                    throw BLangExceptionHelper
                             .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeJSON);
                 }
                 if (rVal.getType() == BTypes.typeJSON) {
@@ -269,7 +187,7 @@ public class NativeCastMapper {
     public static final Function<BValue, BValue> ANY_TO_XML_FUNC =
             (rVal) -> {
                 if (rVal == null) {
-                    throw new BLangExceptionHelper()
+                    throw BLangExceptionHelper
                             .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeXML);
                 }
                 if (rVal.getType() == BTypes.typeXML) {
@@ -282,7 +200,7 @@ public class NativeCastMapper {
     public static final Function<BValue, BValue> ANY_TO_CONNECTOR_FUNC =
             (rVal) -> {
                 if (rVal == null) {
-                    throw new BLangExceptionHelper()
+                    throw BLangExceptionHelper
                             .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeConnector);
                 }
                 if (rVal.getType() == BTypes.typeConnector) {
@@ -295,7 +213,7 @@ public class NativeCastMapper {
     public static final Function<BValue, BValue> ANY_TO_EXCEPTION_FUNC =
             (rVal) -> {
                 if (rVal == null) {
-                    throw new BLangExceptionHelper()
+                    throw BLangExceptionHelper
                             .getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeException);
                 }
                 if (rVal.getType() == BTypes.typeException) {

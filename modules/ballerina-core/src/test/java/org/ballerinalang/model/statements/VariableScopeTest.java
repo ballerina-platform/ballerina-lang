@@ -77,7 +77,7 @@ public class VariableScopeTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
+        long actual = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(actual, expected);
     }
 

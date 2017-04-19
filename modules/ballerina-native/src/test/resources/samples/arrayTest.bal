@@ -1,12 +1,5 @@
 import ballerina.lang.arrays;
 
-function testDoubleArrayLength(double[] arg)(int, int){
-    double[] defined;
-    defined = [ 10.1, 11.1];
-    defined[2] = 12.1;
-    return arrays:length(arg) , arrays:length(defined);
-}
-
 function testFloatArrayLength(float[] arg)(int, int){
     float[] defined;
     defined = [10.1, 11.1];
@@ -16,13 +9,6 @@ function testFloatArrayLength(float[] arg)(int, int){
 
 function testIntArrayLength(int[] arg)(int, int){
     int[] defined;
-    defined = [ 1, 2, 3];
-    defined[3] = 4;
-    return arrays:length(arg) , arrays:length(defined);
-}
-
-function testLongArrayLength(long[] arg)(int, int){
-    long[] defined;
     defined = [ 1, 2, 3];
     defined[3] = 4;
     return arrays:length(arg) , arrays:length(defined);
@@ -68,15 +54,6 @@ function testMessageArrayLength(message[] arg)(int, int){
     return arrays:length(arg) , arrays:length(defined);
 }
 
-function testDoubleArrayCopy(double[] arg)(double[]){
-    double[] defined;
-    defined = arrays:copyOf(arg);
-    defined[0] = 1;
-    defined[1] = 1.1;
-    defined[2] = 1.2;
-    return defined;
-}
-
 function testFloatArrayCopy(float[] arg)(float[]){
     float[] defined;
     defined = arrays:copyOf(arg);
@@ -88,15 +65,6 @@ function testFloatArrayCopy(float[] arg)(float[]){
 
 function testIntArrayCopy(int[] arg)(int[]){
     int[] defined;
-    defined = arrays:copyOf(arg);
-    defined[0] = 1;
-    defined[1] = 2;
-    defined[2] = 3;
-    return defined;
-}
-
-function testLongArrayCopy(long[] arg)(long[]){
-    long[] defined;
     defined = arrays:copyOf(arg);
     defined[0] = 1;
     defined[1] = 2;
@@ -140,12 +108,6 @@ function testMessageArrayCopy(message[] arg)(message[]){
     return defined;
 }
 
-function testDoubleArrayCopyRange(double[] arg, int from, int to)(double[]){
-    double[] defined;
-    defined = arrays:copyOfRange(arg, from, to);
-    return defined;
-}
-
 function testFloatArrayCopyRange(float[] arg, int from, int to)(float[]){
     float[] defined;
     defined = arrays:copyOfRange(arg, from, to);
@@ -154,12 +116,6 @@ function testFloatArrayCopyRange(float[] arg, int from, int to)(float[]){
 
 function testIntArrayCopyRange(int[] arg, int from, int to)(int[]){
     int[] defined;
-    defined = arrays:copyOfRange(arg, from, to);
-    return defined;
-}
-
-function testLongArrayCopyRange(long[] arg, int from, int to)(long[]){
-    long[] defined;
     defined = arrays:copyOfRange(arg, from, to);
     return defined;
 }

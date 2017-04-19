@@ -66,7 +66,7 @@ public class SetInt extends AbstractJSONFunction {
             // Accessing Parameters.
             BJSON json = (BJSON) getArgument(ctx, 0);
             jsonPath = getArgument(ctx, 1).stringValue();
-            int value = ((BInteger) getArgument(ctx, 2)).intValue();
+            long value = ((BInteger) getArgument(ctx, 2)).intValue();
 
             // Setting the value to JSON
             WriteContext jsonCtx = JsonPath.parse(json.value());
