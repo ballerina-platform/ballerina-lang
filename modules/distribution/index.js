@@ -34,7 +34,7 @@ function createService(){
 	let log4jConfPath = path.join(appDir, "conf", "log4j.properties")
                           .replace('app.asar', 'app.asar.unpacked');
 	let log4jConfProp = "-Dlog4j.configuration=" + "file:" + log4jConfPath;
-  let balComposerHomeProp = "-Dbal.composer.home=" + appDir;
+  let balComposerHomeProp = "-Dbal.composer.home=" + appDir.replace('app.asar', 'app.asar.unpacked');
 	let debugArgs="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006";
   let errorWin;
 

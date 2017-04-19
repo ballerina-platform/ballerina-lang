@@ -16,11 +16,7 @@ function createWindow () {
   registerMenuLoader();
   setupNativeWizards(win);
 
-  let windowUrl = url.format({
-    pathname: path.join(__dirname, "..", "resources", "composer", "web", "index.html"),
-    protocol: "file:",
-    slashes: true
-  });
+  let windowUrl = 'http://localhost:9091';
 
   if (process.env.NODE_ENV === 'electron-dev') {
       windowUrl = 'http://localhost:8080'
