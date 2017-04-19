@@ -20,13 +20,11 @@ package org.ballerinalang.composer.service.workspace.rest;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.ballerinalang.BLangProgramLoader;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.program.BLangPrograms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.nio.file.Paths;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
@@ -46,13 +44,9 @@ public class BallerinaProgramService {
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceService.class);
     private SymbolScope globalScope;
 
-    public BallerinaProgramService(String file) {
-        java.nio.file.Path programPath = Paths.get(System.getProperty("user.dir"));
-        java.nio.file.Path filePath = Paths.get(file);
+    public BallerinaProgramService() {
 
-        BLangProgram bLangProgram = new BLangProgramLoader()
-                .loadMain(programPath, filePath);
-        this.globalScope = bLangProgram.getEnclosingScope();
+        this.globalScope = BLangPrograms.populateGlobalScope();
     }
 
     @GET
