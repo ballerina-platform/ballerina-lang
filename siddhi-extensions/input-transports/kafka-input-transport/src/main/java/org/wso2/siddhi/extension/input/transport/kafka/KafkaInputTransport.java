@@ -132,6 +132,7 @@ public class KafkaInputTransport extends InputTransport{
         // and its partitions will be assigned to another process
         props.put("session.timeout.ms", "30000");
         props.put("enable.auto.commit", "false");
+        props.put("auto.offset.reset", "earliest");
         props.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
 

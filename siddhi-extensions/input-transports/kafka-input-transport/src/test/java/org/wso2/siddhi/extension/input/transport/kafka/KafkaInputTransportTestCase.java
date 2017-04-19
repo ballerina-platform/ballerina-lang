@@ -258,8 +258,6 @@ public class KafkaInputTransportTestCase {
                 }
             });
 
-            // start the execution plan
-            executionPlanRuntime.start();
             // start publishing events to Kafka
             Future eventSender = executorService.submit(new Runnable() {
                 @Override
@@ -267,9 +265,12 @@ public class KafkaInputTransportTestCase {
                     kafkaPublisher(topics, 1, 50, 1000);
                 }
             });
+            Thread.sleep(2000);
+            // start the execution plan
+            executionPlanRuntime.start();
 
             // wait for some time
-            Thread.sleep(30000);
+            Thread.sleep(28000);
             // initiate a checkpointing task
             Future perisistor = executionPlanRuntime.persist();
             // waits till the checkpointing task is done
