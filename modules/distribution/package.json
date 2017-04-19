@@ -15,7 +15,7 @@
   "build": {
     "appId": "org.ballerinalang.composer",
     "asar": true,
-    "asarUnpack": ["**/*.jar"],
+    "asarUnpack": ["**/*.jar", "conf/"],
     "mac": {
       "category": "public.app-category.productivity",
       "target": "zip"

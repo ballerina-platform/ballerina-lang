@@ -13,8 +13,8 @@ const {ErrorCodes} = require('./src/error-codes');
 let win,
     serviceProcess,
     logger = new log("info"),
-    logsDir = path.join(__dirname, "logs"),
     appDir = app.getAppPath(),
+    logsDir = path.join(appDir, "..", "..", "logs"),
     ballerinaHome = path.join(__dirname, "bre");
 
 function createLogger(){
@@ -31,7 +31,8 @@ function createLogger(){
 
 function createService(){
 	let logsDirSysProp = "-DlogsDirectory=" + logsDir;
-	let log4jConfPath = path.join(appDir, "conf", "log4j.properties");
+	let log4jConfPath = path.join(appDir, "conf", "log4j.properties")
+                          .replace('app.asar', 'app.asar.unpacked');
 	let log4jConfProp = "-Dlog4j.configuration=" + "file:" + log4jConfPath;
   let balComposerHomeProp = "-Dbal.composer.home=" + appDir;
 	let debugArgs="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006";
@@ -41,9 +42,7 @@ function createService(){
                       "-jar", path.join(appDir, "workspace-service.jar")
                               .replace('app.asar', 'app.asar.unpacked')]);
   logger.info('Verifying whether the backend services are started successfully');
-	serviceProcess.stdout.on("data", function(data){
-		  logger.info("Service info: " + data);
-
+	serviceProcess.stdout.on("data", function(data) {
       // IMPORTANT: Wait till workspace-service is started to create window
       if (data.includes('Microservices server started')) {
           logger.info('Backend services are properly started, starting composer GUI');
@@ -64,11 +63,11 @@ function createService(){
         errorWin = createErrorWindow({errorCode: ErrorCodes.SERVICE_FAILED,
           errorMessage: data});
     }
-		logger.error("Service error: " + data);
+		logger.error("Failed to start backend services: " + data);
 	});
 
 	serviceProcess.on("close", function(code){
-		logger.debug("Service closed: " + code);
+		logger.info("Services are shutdown. Exit code: " + code);
 	});
 }
 
