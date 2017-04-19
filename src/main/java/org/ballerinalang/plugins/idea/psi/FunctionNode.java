@@ -21,7 +21,6 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
@@ -30,8 +29,6 @@ import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 import javax.swing.Icon;
 
@@ -70,43 +67,7 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
                 if (nameIdentifier == null) {
                     return null;
                 }
-                // Create a new StringBuilder. We will use this to build the presentable text.
-                StringBuilder builder = new StringBuilder(nameIdentifier.getText());
-                // Get the parameter list node.
-                ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(FunctionNode.this,
-                        ParameterListNode.class);
-                if (parameterListNode == null) {
-                    return builder.toString();
-                }
-                // Get the parameters.
-                Collection<TypeNameNode> parameterTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
-                        TypeNameNode.class);
-                builder.append(" (");
-                for (TypeNameNode typeNode : parameterTypeNodes) {
-                    builder.append(typeNode.getText()).append(",");
-                }
-                // Remove the extra ',' at the end.
-                builder.deleteCharAt(builder.length() - 1);
-                builder.append(")");
-
-                // Get the return type list node.
-                ReturnTypeListNode returnTypeListNode = PsiTreeUtil.findChildOfType(FunctionNode.this,
-                        ReturnTypeListNode.class);
-                if (returnTypeListNode == null) {
-                    return builder.toString();
-                }
-                // Get the return types.
-                Collection<TypeNameNode> returnTypeNodes = PsiTreeUtil.findChildrenOfType(returnTypeListNode,
-                        TypeNameNode.class);
-                builder.append(" (");
-                for (TypeNameNode typeNode : returnTypeNodes) {
-                    builder.append(typeNode.getText()).append(",");
-                }
-                // Remove the extra ',' at the end.
-                builder.deleteCharAt(builder.length() - 1);
-                builder.append(")");
-                // Return the presentable text.
-                return builder.toString();
+                return nameIdentifier.getText();
             }
 
             @Nullable
