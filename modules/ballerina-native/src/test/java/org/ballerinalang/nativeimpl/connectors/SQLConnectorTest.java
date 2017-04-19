@@ -18,11 +18,10 @@
 package org.ballerinalang.nativeimpl.connectors;
 
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -42,7 +41,7 @@ import java.io.File;
  * @since 0.8.0
  */
 public class SQLConnectorTest {
-
+    private static final double DELTA = 0.01;
     BLangProgram bLangProgram;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
 
@@ -94,6 +93,28 @@ public class SQLConnectorTest {
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test(groups = "ConnectorTest for int float types")
+    public void testSelectIntFloatData() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSelectIntFloatData");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertSame(returns[2].getClass(), BFloat.class);
+        Assert.assertSame(returns[3].getClass(), BFloat.class);
+        BInteger intVal = (BInteger) returns[0];
+        BInteger longVal = (BInteger) returns[1];
+        BFloat floatVal = (BFloat) returns[2];
+        BFloat doubleVal = (BFloat) returns[3];
+        long intExpected = 10;
+        long longExpected = 9223372036854774807L;
+        double floatExpected = 123.34;
+        double doubleExpected = 2139095039;
+        Assert.assertEquals(intVal.intValue(), intExpected);
+        Assert.assertEquals(longVal.intValue(), longExpected);
+        Assert.assertEquals(floatVal.floatValue(), floatExpected, DELTA);
+        Assert.assertEquals(doubleVal.floatValue(), doubleExpected);
     }
 
     @Test(groups = "ConnectorTest")
@@ -148,14 +169,14 @@ public class SQLConnectorTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testOutParameters");
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertEquals(((BLong) returns[1]).longValue(), 9223372036854774807L);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34f);
-        Assert.assertEquals(((BDouble) returns[3]).doubleValue(), 2139095039D);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
-        Assert.assertEquals(((BDouble) returns[6]).doubleValue(), 1234.567D);
-        Assert.assertEquals(((BDouble) returns[7]).doubleValue(), 1234.567D);
-        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567F);
+        Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
@@ -168,14 +189,14 @@ public class SQLConnectorTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullOutParameters");
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BLong) returns[1]).longValue(), 0);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0F);
-        Assert.assertEquals(((BDouble) returns[3]).doubleValue(), 0.0D);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0D);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 0.0D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
         Assert.assertEquals(returns[5].stringValue(), null);
-        Assert.assertEquals(((BDouble) returns[6]).doubleValue(), 0.0D);
-        Assert.assertEquals(((BDouble) returns[7]).doubleValue(), 0.0D);
-        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0F);
+        Assert.assertEquals(((BFloat) returns[6]).floatValue(), 0.0D);
+        Assert.assertEquals(((BFloat) returns[7]).floatValue(), 0.0D);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0D);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 0);
         Assert.assertEquals(returns[11].stringValue(), null);
@@ -202,14 +223,14 @@ public class SQLConnectorTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testINOutParameters");
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertEquals(((BLong) returns[1]).longValue(), 9223372036854774807L);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34F);
-        Assert.assertEquals(((BDouble) returns[3]).doubleValue(), 2139095039D);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
-        Assert.assertEquals(((BDouble) returns[6]).doubleValue(), 1234.567D);
-        Assert.assertEquals(((BDouble) returns[7]).doubleValue(), 1234.567D);
-        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567F);
+        Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
@@ -222,14 +243,14 @@ public class SQLConnectorTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullINOutParameters");
         Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BLong) returns[1]).longValue(), 0);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0f);
-        Assert.assertEquals(((BDouble) returns[3]).doubleValue(), 0.0D);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0D);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 0.0D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
         Assert.assertEquals(returns[5].stringValue(), null);
-        Assert.assertEquals(((BDouble) returns[6]).doubleValue(), 0.0D);
-        Assert.assertEquals(((BDouble) returns[7]).doubleValue(), 0.0D);
-        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0F);
+        Assert.assertEquals(((BFloat) returns[6]).floatValue(), 0.0D);
+        Assert.assertEquals(((BFloat) returns[7]).floatValue(), 0.0D);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0D);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 0);
         Assert.assertEquals(returns[11].stringValue(), null);
@@ -240,13 +261,6 @@ public class SQLConnectorTest {
     @Test(groups = "ConnectorTest")
     public void testEmptySQLType() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testEmptySQLType");
-        BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(retValue.intValue(), 1);
-    }
-
-    @Test(dependsOnGroups = "ConnectorTest")
-    public void testCloseConnectionPool() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCloseConnectionPool");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -262,16 +276,16 @@ public class SQLConnectorTest {
         Assert.assertEquals(intArray.get(new BString("0")).intValue(), 1);
 
         Assert.assertTrue(returns[2] instanceof BMap);
-        BMap<BString, BLong> longArray = (BMap) returns[2];
-        Assert.assertEquals(longArray.get(new BString("0")).longValue(), 10000000);
-        Assert.assertEquals(longArray.get(new BString("1")).longValue(), 20000000);
-        Assert.assertEquals(longArray.get(new BString("2")).longValue(), 30000000);
+        BMap<BString, BInteger> longArray = (BMap) returns[2];
+        Assert.assertEquals(longArray.get(new BString("0")).intValue(), 10000000);
+        Assert.assertEquals(longArray.get(new BString("1")).intValue(), 20000000);
+        Assert.assertEquals(longArray.get(new BString("2")).intValue(), 30000000);
 
         Assert.assertTrue(returns[3] instanceof BMap);
-        BMap<BString, BDouble> doubleArray = (BMap) returns[3];
-        Assert.assertEquals(doubleArray.get(new BString("0")).doubleValue(), 245.23);
-        Assert.assertEquals(doubleArray.get(new BString("1")).doubleValue(), 5559.49);
-        Assert.assertEquals(doubleArray.get(new BString("2")).doubleValue(), 8796.123);
+        BMap<BString, BFloat> doubleArray = (BMap) returns[3];
+        Assert.assertEquals(doubleArray.get(new BString("0")).floatValue(), 245.23);
+        Assert.assertEquals(doubleArray.get(new BString("1")).floatValue(), 5559.49);
+        Assert.assertEquals(doubleArray.get(new BString("2")).floatValue(), 8796.123);
 
         Assert.assertTrue(returns[4] instanceof BMap);
         BMap<BString, BString> stringArray = (BMap) returns[4];
@@ -285,10 +299,10 @@ public class SQLConnectorTest {
         Assert.assertEquals(booleanArray.get(new BString("2")).booleanValue(), true);
 
         Assert.assertTrue(returns[6] instanceof BMap);
-        BMap<BString, BDouble> floatArray = (BMap) returns[6];
-        Assert.assertEquals(floatArray.get(new BString("0")).doubleValue(), 245.23);
-        Assert.assertEquals(floatArray.get(new BString("1")).doubleValue(), 5559.49);
-        Assert.assertEquals(floatArray.get(new BString("2")).doubleValue(), 8796.123);
+        BMap<BString, BFloat> floatArray = (BMap) returns[6];
+        Assert.assertEquals(floatArray.get(new BString("0")).floatValue(), 245.23);
+        Assert.assertEquals(floatArray.get(new BString("1")).floatValue(), 5559.49);
+        Assert.assertEquals(floatArray.get(new BString("2")).floatValue(), 8796.123);
     }
 
     @Test(groups = "ConnectorTest")
@@ -314,6 +328,22 @@ public class SQLConnectorTest {
         Assert.assertEquals(returns[5].stringValue(), "[true,false,true]");
         Assert.assertEquals(returns[6].stringValue(), "[Hello,Ballerina]");
     }
+
+    @Test(groups = "ConnectorTest")
+    public void testBatchUpdate() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBatchUpdate");
+        BArray retValue = (BArray) returns[0];
+        Assert.assertEquals(retValue.get(0).stringValue(), "1");
+        Assert.assertEquals(retValue.get(1).stringValue(), "1");
+    }
+
+    @Test(dependsOnGroups = "ConnectorTest")
+    public void testCloseConnectionPool() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCloseConnectionPool");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
 
     @AfterSuite
     public void cleanup() {

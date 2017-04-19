@@ -37,7 +37,12 @@ public class BExceptionType extends BType {
     }
 
     @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
+        return (V) null;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
         return (V) new BException();
     }
 }

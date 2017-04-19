@@ -25,8 +25,6 @@ package org.ballerinalang.model.types;
 public class TypeConstants {
 
     public static final String INT_TNAME = "int";
-    public static final String LONG_TNAME = "long";
-    public static final String DOUBLE_TNAME = "double";
     public static final String FLOAT_TNAME = "float";
     public static final String BOOLEAN_TNAME = "boolean";
     public static final String STRING_TNAME = "string";
@@ -42,5 +40,6 @@ public class TypeConstants {
     static final String NATIVE_PACKAGE = "ballerina.model.typemappers";
     static final String DATATABLE_TNAME = "datatable";
     static final String ANY_TNAME = "any";
+    public static final String NULL_TNAME = "null";
 }
 

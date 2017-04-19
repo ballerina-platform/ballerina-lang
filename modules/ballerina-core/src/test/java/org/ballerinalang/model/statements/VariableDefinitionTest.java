@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
  * Test Cases for defining variable.
  */
 public class VariableDefinitionTest {
+    private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass
@@ -47,7 +48,7 @@ public class VariableDefinitionTest {
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int i = ((BInteger) returns[0]).intValue();
+        long i = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(i, 0);
 
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -59,8 +60,8 @@ public class VariableDefinitionTest {
         Assert.assertEquals(s, "");
 
         Assert.assertSame(returns[3].getClass(), BFloat.class);
-        float f = ((BFloat) returns[3]).floatValue();
-        Assert.assertEquals(f, 0.0f);
+        double f = ((BFloat) returns[3]).floatValue();
+        Assert.assertEquals(f, 0.0f, DELTA);
     }
 
     @Test
@@ -69,7 +70,7 @@ public class VariableDefinitionTest {
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int i = ((BInteger) returns[0]).intValue();
+        long i = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(i, 10);
 
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -81,8 +82,8 @@ public class VariableDefinitionTest {
         Assert.assertEquals(s, "hello");
 
         Assert.assertSame(returns[3].getClass(), BFloat.class);
-        float f = ((BFloat) returns[3]).floatValue();
-        Assert.assertEquals(f, 2.6f);
+        double f = ((BFloat) returns[3]).floatValue();
+        Assert.assertEquals(f, 2.6f, DELTA);
     }
 
     @Test
@@ -90,7 +91,7 @@ public class VariableDefinitionTest {
         int v1 = 56;
         boolean v3 = false;
         String v4 = "newstr";
-        float v5 = 68.3325f;
+        double v5 = 68.3325f;
 
         BValue[] args = {
                 new BInteger(v1), new BBoolean(v3), new BString(v4), new BFloat(v5)
@@ -100,7 +101,7 @@ public class VariableDefinitionTest {
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int i = ((BInteger) returns[0]).intValue();
+        long i = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(i, v1);
 
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -112,8 +113,8 @@ public class VariableDefinitionTest {
         Assert.assertEquals(s, v4);
 
         Assert.assertSame(returns[3].getClass(), BFloat.class);
-        float f = ((BFloat) returns[3]).floatValue();
-        Assert.assertEquals(f, v5);
+        double f = ((BFloat) returns[3]).floatValue();
+        Assert.assertEquals(f, v5, DELTA);
     }
 
     @Test
@@ -121,7 +122,7 @@ public class VariableDefinitionTest {
         int v1 = 56;
         boolean v3 = false;
         String v4 = "newstr";
-        float v5 = 68.3325f;
+        double v5 = 68.3325f;
 
         BValue[] args = {
                 new BInteger(v1), new BBoolean(v3), new BString(v4), new BFloat(v5)
@@ -131,7 +132,7 @@ public class VariableDefinitionTest {
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int i = ((BInteger) returns[0]).intValue();
+        long i = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(i, v1);
 
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -143,8 +144,8 @@ public class VariableDefinitionTest {
         Assert.assertEquals(s, v4);
 
         Assert.assertSame(returns[3].getClass(), BFloat.class);
-        float f = ((BFloat) returns[3]).floatValue();
-        Assert.assertEquals(f, v5);
+        double f = ((BFloat) returns[3]).floatValue();
+        Assert.assertEquals(f, v5, DELTA);
     }
 
 

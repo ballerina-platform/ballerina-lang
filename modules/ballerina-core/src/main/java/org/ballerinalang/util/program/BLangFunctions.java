@@ -29,11 +29,9 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
@@ -107,7 +105,7 @@ public class BLangFunctions {
                 break;
             }
 
-            argValues[stackIndex] = returnParam.getType().getDefaultValue();
+            argValues[stackIndex] = returnParam.getType().getZeroValue();
             stackIndex++;
         }
 
@@ -200,12 +198,8 @@ public class BLangFunctions {
             bType = BTypes.typeString;
         } else if (bValue instanceof BInteger) {
             bType = BTypes.typeInt;
-        } else if (bValue instanceof BLong) {
-            bType = BTypes.typeLong;
         } else if (bValue instanceof BFloat) {
             bType = BTypes.typeFloat;
-        } else if (bValue instanceof BDouble) {
-            bType = BTypes.typeDouble;
         } else if (bValue instanceof BBoolean) {
             bType = BTypes.typeBoolean;
         } else if (bValue instanceof BXML) {

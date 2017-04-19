@@ -39,7 +39,12 @@ class BFloatType extends BType {
     }
 
     @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
+        return (V) new BFloat(0);
+    }
+    
+    @Override
+    public <V extends BValue> V getEmptyValue() {
         return (V) new BFloat(0);
     }
 }

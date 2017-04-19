@@ -97,6 +97,36 @@ public class StructTest {
         Assert.assertEquals(returns[0].stringValue(), "emily");
     }
     
+    @Test(description = "Test default value of a struct field")
+    public void testDefaultValue() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDefaultVal");
+        
+        // Check default value of a field where the default value is set
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "default first name");
+        
+        // Check the default value of a field where the default value is not set
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "");
+        
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
+    }
+    
+    @Test(description = "Test default value of a nested struct field")
+    public void testNestedFieldDefaultValue() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNestedFieldDefaultVal");
+        
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "default first name");
+        
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "Smith");
+        
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
+    }
+    
     /*
      *  Negative tests
      */
@@ -110,7 +140,7 @@ public class StructTest {
     
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "arrays index out of range: Index: 0, Size: 0")
+            expectedExceptionsMessageRegExp = "field 'employees' is null")
     public void testGetNonInitArrayField() {
         BLangFunctions.invoke(bLangProgram, "testGetNonInitArrayAttribute");
     }

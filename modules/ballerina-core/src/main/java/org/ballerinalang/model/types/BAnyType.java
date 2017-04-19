@@ -36,8 +36,13 @@ public class BAnyType extends BType {
         super(typeName, pkgPath, symbolScope, BValue.class);
     }
 
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
-        return (V) null;
+    @Override
+    public <V extends BValue> V getZeroValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
+        return null;
     }
 }

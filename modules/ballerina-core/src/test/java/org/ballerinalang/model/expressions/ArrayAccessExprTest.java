@@ -51,8 +51,8 @@ public class ArrayAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 210;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 210;
         Assert.assertEquals(actual, expected);
     }
 
@@ -84,14 +84,14 @@ public class ArrayAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 11;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 11;
         Assert.assertEquals(actual, expected);
     }
     
     @Test(description = "Test accessing an out of bound arrays-index",
             expectedExceptions = { BallerinaException.class },
-            expectedExceptionsMessageRegExp = "arrays index out of range: Index: 5, Size: 2")
+            expectedExceptionsMessageRegExp = "array index out of range: Index: 5, Size: 2")
     public void testArrayIndexOutOfBoundError() {
         BLangFunctions.invoke(bLangProgram, "arrayIndexOutOfBoundTest");
     }

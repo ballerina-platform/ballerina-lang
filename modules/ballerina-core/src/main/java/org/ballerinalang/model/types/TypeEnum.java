@@ -24,9 +24,7 @@ package org.ballerinalang.model.types;
  */
 public enum TypeEnum {
     INT("int"),
-    LONG("long"),
     FLOAT("float"),
-    DOUBLE("double"),
     BOOLEAN("boolean"),
     STRING("string"),
     MESSAGE("message"),
