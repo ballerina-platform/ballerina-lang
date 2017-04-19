@@ -519,10 +519,32 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        boolean error = false;
+        BallerinaTransactionManager ballerinaTransactionManager = bContext.getBallerinaTransactionManager();
+        if (ballerinaTransactionManager == null) {
+            ballerinaTransactionManager = new BallerinaTransactionManager();
+            bContext.setBallerinaTransactionManager(ballerinaTransactionManager);
+        }
+        ballerinaTransactionManager.beginTransactionBlock();
+
+        StackFrame current = bContext.getControlStack().getCurrentFrame();
         try {
             transactionRollbackStmt.getTransactionBlock().execute(this);
         } catch (Exception e) {
+            error = true;
+            while (bContext.getControlStack().getCurrentFrame() != current) {
+                if (controlStack.getStack().size() > 0) {
+                    controlStack.popFrame();
+                } else {
+                    throw new BallerinaException(e);
+                }
+            }
             transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().execute(this);
+        } finally {
+            boolean isOuterTxBlock = ballerinaTransactionManager.endTransactionBlock(error);
+            if (isOuterTxBlock) {
+                bContext.setBallerinaTransactionManager(null);
+            }
         }
     }
 

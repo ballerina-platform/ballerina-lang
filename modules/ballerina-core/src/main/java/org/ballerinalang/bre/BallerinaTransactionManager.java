@@ -26,7 +26,7 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
 /**
- * {@code BallerinaTransactionManager} manages local and distributed transactions in ballerina
+ * {@code BallerinaTransactionManager} manages local and distributed transactions in ballerina.
  *
  * @since 0.8.7
  */
@@ -52,21 +52,25 @@ public class BallerinaTransactionManager {
         ++transactionLevel;
     }
 
-    public void endTransactionBlock(boolean error) {
+    public boolean endTransactionBlock(boolean error) {
+        boolean isOuterTransactionBlock = false;
         --transactionLevel;
         if (transactionLevel > 0) {
-            return;
-        }
-        if (error) {
-            transactionContextStore.forEach((k, v) -> {
-                v.rollback();
-            });
-            rollbackXATransaction();
+            return isOuterTransactionBlock;
         } else {
-            transactionContextStore.forEach((k, v) -> {
-                v.commit();
-            });
-            commitXATransaction();
+            isOuterTransactionBlock = true;
+            if (error) {
+                transactionContextStore.forEach((k, v) -> {
+                    v.rollback();
+                });
+                rollbackXATransaction();
+            } else {
+                transactionContextStore.forEach((k, v) -> {
+                    v.commit();
+                });
+                commitXATransaction();
+            }
+            return isOuterTransactionBlock;
         }
     }
 
