@@ -28,6 +28,7 @@ import java.util.Map;
 public class Event {
 
     protected long timestamp = -1;
+    protected long id = -1;
     protected Object[] data;
     protected boolean isExpired = false;
     private Map<String, Object> arbitraryDataMap;
@@ -43,6 +44,14 @@ public class Event {
 
     public Event(int dataSize) {
         this.data = new Object[dataSize];
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public long getTimestamp() {

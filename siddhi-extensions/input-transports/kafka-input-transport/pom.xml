@@ -71,6 +71,13 @@
             <artifactId>zookeeper</artifactId>
             <version>3.4.0</version>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- todo: remove this - added to test the whole flow -->
         <dependency>
             <groupId>org.wso2.siddhi</groupId>

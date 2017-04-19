@@ -53,27 +53,33 @@ public class SnapshotService {
 
     public byte[] snapshot() {
         HashMap<String, Map<String, Object>> snapshots = new HashMap<>(snapshotableMap.size());
-        List<Snapshotable> snapshotableList = new ArrayList<Snapshotable>();
-        log.debug("Taking snapshot ...");
+        List<Snapshotable> snapshotableList = new ArrayList<>();
+        byte[] serializedSnapshots;
+        if (log.isDebugEnabled()) {
+            log.debug("Taking snapshot ...");
+        }
         try {
             executionPlanContext.getThreadBarrier().lock();
             for (Map.Entry<String, List<Snapshotable>> entry : snapshotableMap.entrySet()) {
                 snapshotableList = entry.getValue();
-                List<Object> snaps = new ArrayList<Object>();
-                for (Snapshotable snapshotableElement : snapshotableList) {
-                    snapshots.put(snapshotableElement.getElementId(), snapshotableElement.currentState());
-                }
+                snapshotableList.forEach(snapshotableElement -> snapshots.put(snapshotableElement.getElementId(),
+                        snapshotableElement.currentState()));
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Snapshot serialization started ...");
+            }
+            serializedSnapshots = ByteSerializer.OToB(snapshots);
+            if (log.isDebugEnabled()) {
+                log.debug("Snapshot serialization finished.");
             }
         } finally {
             executionPlanContext.getThreadBarrier().unlock();
         }
-        log.info("Snapshot taken of Execution Plan '" + executionPlanContext.getName() + "'");
+        if (log.isDebugEnabled()) {
+            log.debug("Snapshot taken for Execution Plan '" + executionPlanContext.getName() + "'");
+        }
 
-        log.debug("Snapshot serialization started ...");
-        byte[] serializedSnapshots = ByteSerializer.OToB(snapshots);
-        log.debug("Snapshot serialization finished.");
         return serializedSnapshots;
-
     }
 
     public Map<String, Object> queryState(String queryName) {

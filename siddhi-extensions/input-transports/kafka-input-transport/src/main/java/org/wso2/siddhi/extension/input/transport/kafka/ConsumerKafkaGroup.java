@@ -29,14 +29,13 @@ public class ConsumerKafkaGroup {
     private final String partitions[];
     private final Properties props;
     private List<KafkaConsumerThread> kafkaConsumerThreadList = new ArrayList<>();
-    private HashMap<String, HashMap<Integer, Long>> topicOffsetMap = new HashMap<>();
+    private Map<String, Map<Integer, Long>> topicOffsetMap = new HashMap<>();
     private ScheduledExecutorService executorService;
     private String threadingOption;
     private static final Logger log = Logger.getLogger(ConsumerKafkaGroup.class);
 
-    public ConsumerKafkaGroup(String topics[], String partitions[], Properties props, HashMap<String,
-                              HashMap<Integer, Long>> topicOffsetMap, String threadingOption,
-                              ScheduledExecutorService executorService) {
+    public ConsumerKafkaGroup(String topics[], String partitions[], Properties props, Map<String, Map<Integer, Long>>
+            topicOffsetMap, String threadingOption, ScheduledExecutorService executorService) {
         this.threadingOption = threadingOption;
         this.topicOffsetMap = topicOffsetMap;
         this.topics = topics;
@@ -51,6 +50,10 @@ public class ConsumerKafkaGroup {
 
     public void resume() {
         kafkaConsumerThreadList.forEach(KafkaConsumerThread::resume);
+    }
+
+    public void restore(final Map<String, Map<Integer, Long>> topic) {
+        kafkaConsumerThreadList.forEach(kafkaConsumerThread -> kafkaConsumerThread.restore(topic));
     }
 
     public void shutdown() {
@@ -94,11 +97,11 @@ public class ConsumerKafkaGroup {
         }
     }
 
-    public HashMap<String, HashMap<Integer, Long>> getTopicOffsetMap() {
-        HashMap<String, HashMap<Integer, Long>> topicOffsetMap = new HashMap<>();
+    public Map<String, Map<Integer, Long>> getTopicOffsetMap() {
+        Map<String, Map<Integer, Long>> topicOffsetMap = new HashMap<>();
         for (KafkaConsumerThread kafkaConsumerThread : kafkaConsumerThreadList) {
-            HashMap<String, HashMap<Integer, Long>> topicOffsetMapTemp = kafkaConsumerThread.getTopicOffsetMap();
-            for (Map.Entry<String, HashMap<Integer, Long>> entry : topicOffsetMapTemp.entrySet()) {
+            Map<String, Map<Integer, Long>> topicOffsetMapTemp = kafkaConsumerThread.getTopicOffsetMap();
+            for (Map.Entry<String, Map<Integer, Long>> entry : topicOffsetMapTemp.entrySet()) {
                 topicOffsetMap.put(entry.getKey(), entry.getValue());
             }
         }
