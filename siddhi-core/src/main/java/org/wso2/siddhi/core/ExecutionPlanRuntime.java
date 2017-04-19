@@ -166,10 +166,6 @@ public class ExecutionPlanRuntime {
         return eventSourceMap.values();
     }
 
-    public ExecutionPlanContext getExecutionPlanContext() {
-        return executionPlanContext;
-    }
-
     public synchronized void shutdown() {
         for (List<InputTransport> inputTransports : eventSourceMap.values()) {
             for (InputTransport inputTransport : inputTransports) {
@@ -277,6 +273,18 @@ public class ExecutionPlanRuntime {
             // start the snapshot persisting task asynchronously
             return executionPlanContext.getExecutorService().submit(new AsyncSnapshotPersistor(snapshots,
                     executionPlanContext.getSiddhiContext().getPersistenceStore(), executionPlanContext.getName()));
+        } finally {
+            // at the end, resume the event sources
+            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::resume));
+        }
+    }
+
+    public byte[] snapshot() {
+        try {
+            // first, pause all the event sources
+            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::pause));
+            // take snapshots of execution units
+            return executionPlanContext.getSnapshotService().snapshot();
         } finally {
             // at the end, resume the event sources
             eventSourceMap.values().forEach(list -> list.forEach(InputTransport::resume));

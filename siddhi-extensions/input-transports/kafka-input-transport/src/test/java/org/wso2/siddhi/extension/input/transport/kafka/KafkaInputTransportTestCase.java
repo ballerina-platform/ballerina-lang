@@ -62,6 +62,8 @@ import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static junit.framework.Assert.assertEquals;
@@ -72,6 +74,7 @@ public class KafkaInputTransportTestCase {
     private static final Logger log = Logger.getLogger(KafkaInputTransportTestCase.class);
     private static TestingServer zkTestServer;
     private static KafkaServerStartable kafkaServer;
+    private static ExecutorService executorService;
     private static final String kafkaLogDir = "tmp_kafka_dir";
     private volatile int count;
     private volatile boolean eventArrived;
@@ -79,6 +82,7 @@ public class KafkaInputTransportTestCase {
     @BeforeClass
     public static void init() throws Exception {
         try {
+            executorService = Executors.newFixedThreadPool(5);
             cleanLogDir();
             setupKafkaBroker();
             Thread.sleep(3000);
@@ -180,8 +184,7 @@ public class KafkaInputTransportTestCase {
                 }
             });
             executionPlanRuntime.start();
-            Future eventSender = executionPlanRuntime.getExecutionPlanContext().getExecutorService().submit(new Runnable
-                    () {
+            Future eventSender = executorService.submit(new Runnable() {
                 @Override
                 public void run() {
                     kafkaPublisher(topics, 2, 4);
@@ -199,8 +202,7 @@ public class KafkaInputTransportTestCase {
             inputTransports.forEach(e -> e.forEach(InputTransport::pause));
 
             init2();
-            eventSender = executionPlanRuntime.getExecutionPlanContext().getExecutorService().submit(new Runnable
-                    () {
+            eventSender = executorService.submit(new Runnable() {
                 @Override
                 public void run() {
                     kafkaPublisher(topics, 2, 4);
@@ -259,8 +261,7 @@ public class KafkaInputTransportTestCase {
             // start the execution plan
             executionPlanRuntime.start();
             // start publishing events to Kafka
-            Future eventSender = executionPlanRuntime.getExecutionPlanContext().getExecutorService().submit(new Runnable
-                    () {
+            Future eventSender = executorService.submit(new Runnable() {
                 @Override
                 public void run() {
                     kafkaPublisher(topics, 1, 50, 1000);
