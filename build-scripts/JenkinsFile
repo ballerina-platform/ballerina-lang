@@ -1,0 +1,669 @@
+#!groovy
+String BUILD = "Build", RELEASE = "Release", CLEANRELEASE = "Clean Release";
+String YES = "Yes", NO = "No";
+def expectedAction;
+String yesNoString = "${NO}\n${YES}";
+
+String buildInputParams = "${BUILD}\n${RELEASE}\n${CLEANRELEASE}";
+expectedAction = input(
+        id: 'userInput', message: 'Please choose Build Or Release option', parameters: [
+        [$class: 'ChoiceParameterDefinition', defaultValue: BUILD, choices: buildInputParams, description: 'Build Or Release', name: 'build-or-release'],
+        [$class: 'ChoiceParameterDefinition', defaultValue: YES, choices: yesNoString, description: 'Clean Or Keep dir', name: 'clean-dir']
+]);
+
+boolean isRelease = RELEASE.equals(expectedAction['build-or-release']);
+boolean isBuild = BUILD.equals(expectedAction['build-or-release']);
+boolean isCleanRelease = CLEANRELEASE.equals(expectedAction['build-or-release']);
+boolean needCleanUp = YES.equals(expectedAction['clean-dir']);
+
+String ballerinaVersion, ballerinaReleaseTag, ballerinaDevVersion, ballerinaSkipTests;
+String composerVersion, composerReleaseTag, composerDevVersion, composerSkipTests;
+String docerinaVersion, docerinaReleaseTag, docerinaDevVersion, docerinaSkipTests;
+String testerinaVersion, testerinaReleaseTag, testerinaDevVersion, testerinaSkipTests;
+String containerSupportVersion, containerSupportReleaseTag, containerSupportDevVersion, containerSupportSkipTests;
+String connectorsVersion, connectorsReleaseTag, connectorsDevVersion, connectorsSkipTests;
+String toolSwaggerVersion, toolSwaggerReleaseTag, toolSwaggerDevVersion, toolSwaggerSkipTests;
+String toolsDistVersion, toolsDistReleaseTag, toolsDistDevVersion, toolsDistSkipTests;
+String pluginMavenVersion, pluginMavenReleaseTag, pluginMavenDevVersion, pluginMavenSkipTests;
+String ballerinaParentVersion, ballerinaParentReleaseTag, ballerinaParentDevVersion;
+String releaseVersionToClean, releaseTagToClean;
+String allowCleanUpAfterReleaseFailure = NO;
+String nodeLabel;
+String enableFailFast;
+boolean failFast = true;
+
+def releaseParamInput, buildParamInput, cleanReleaseParamInput;
+
+String TEXT_PARAM_DEF_CLASS = "TextParameterDefinition";
+String CHOICE_PARAM_DEF_CLASS = "ChoiceParameterDefinition";
+
+if (isRelease) {
+    releaseParamInput = input(
+            id: 'userInput', message: 'Please provide following parameters', parameters: [
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Provide the node label to perform the release', name: 'node-label'],
+
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Enable fail-fast for parallel builds', name: 'fail-fast'],
+
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Delete newly created tags/branches after failure', name: 'clean-up-after-failure'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Release Version', name: 'ballerina-release-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Next Development Version', name: 'ballerina-next-development-version'],
+
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-ballerina-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-composer-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-docerina-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-testerina-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-container-support-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-connectors-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-tool-swagger-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-tools-distrbution-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-plugin-maven-tests']
+    ]);
+    allowCleanUpAfterReleaseFailure = releaseParamInput['clean-up-after-failure'];
+    nodeLabel = releaseParamInput['node-label'];
+    enableFailFast = releaseParamInput['fail-fast'];
+
+    ballerinaParentVersion = releaseParamInput['ballerina-release-version'];
+    ballerinaParentReleaseTag = "v" + ballerinaParentVersion;
+    ballerinaParentDevVersion = releaseParamInput['ballerina-next-development-version'];
+
+    ballerinaVersion = ballerinaParentVersion;
+    ballerinaReleaseTag = ballerinaParentReleaseTag;
+    ballerinaDevVersion = ballerinaParentDevVersion;
+    ballerinaSkipTests = releaseParamInput['skip-ballerina-tests'];
+
+    composerVersion = ballerinaParentVersion;
+    composerReleaseTag = ballerinaParentReleaseTag;
+    composerDevVersion = ballerinaParentDevVersion;
+    composerSkipTests = releaseParamInput['skip-composer-tests'];
+
+    docerinaVersion = ballerinaParentVersion;
+    docerinaReleaseTag = ballerinaParentReleaseTag;
+    docerinaDevVersion = ballerinaParentDevVersion;
+    docerinaSkipTests = releaseParamInput['skip-docerina-tests'];
+
+    testerinaVersion = ballerinaParentVersion;
+    testerinaReleaseTag = ballerinaParentReleaseTag;
+    testerinaDevVersion = ballerinaParentDevVersion;
+    testerinaSkipTests = releaseParamInput['skip-testerina-tests'];
+
+    containerSupportVersion = ballerinaParentVersion;
+    containerSupportReleaseTag = ballerinaParentReleaseTag;
+    containerSupportDevVersion = ballerinaParentDevVersion;
+    containerSupportSkipTests = releaseParamInput['skip-container-support-tests'];
+
+    connectorsVersion = ballerinaParentVersion;
+    connectorsReleaseTag = ballerinaParentReleaseTag;
+    connectorsDevVersion = ballerinaParentDevVersion;
+    connectorsSkipTests = releaseParamInput['skip-connectors-tests'];
+
+    toolSwaggerVersion = ballerinaParentVersion;
+    toolSwaggerReleaseTag = ballerinaParentReleaseTag;
+    toolSwaggerDevVersion = ballerinaParentDevVersion;
+    toolSwaggerSkipTests = releaseParamInput['skip-tool-swagger-tests'];
+
+    toolsDistVersion = ballerinaParentVersion;
+    toolsDistReleaseTag = ballerinaParentReleaseTag;
+    toolsDistDevVersion = ballerinaParentDevVersion;
+    toolsDistSkipTests = releaseParamInput['skip-tools-distrbution-tests'];
+
+    pluginMavenVersion = ballerinaParentVersion;
+    pluginMavenReleaseTag = ballerinaParentReleaseTag;
+    pluginMavenDevVersion = ballerinaParentDevVersion;
+    pluginMavenSkipTests = releaseParamInput['skip-plugin-maven-tests'];
+
+}
+
+if (isBuild) {
+    buildParamInput = input(
+            id: 'userInput', message: 'Please provide following parameters', parameters: [
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Provide the node label to perform the build', name: 'node-label'],
+
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Enable fail-fast for parallel builds', name: 'fail-fast'],
+
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip ballerina Tests', name: 'skip-ballerina-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip composer Tests', name: 'skip-composer-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip docerina Tests', name: 'skip-docerina-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip testerina Tests', name: 'skip-testerina-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip container-support Tests', name: 'skip-container-support-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip connectors Tests', name: 'skip-connectors-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip tool-swagger-ballerina Tests', name: 'skip-tool-swagger-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip tools-distribution Tests', name: 'skip-tools-distrbution-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip plugin-maven Tests', name: 'skip-plugin-maven-tests']
+    ]);
+
+    nodeLabel = buildParamInput['node-label'];
+    enableFailFast = buildParamInput['fail-fast'];
+    ballerinaSkipTests = buildParamInput['skip-ballerina-tests'];
+    composerSkipTests = buildParamInput['skip-composer-tests'];
+    docerinaSkipTests = buildParamInput['skip-docerina-tests'];
+    testerinaSkipTests = buildParamInput['skip-testerina-tests'];
+    containerSupportSkipTests = buildParamInput['skip-container-support-tests'];
+    connectorsSkipTests = buildParamInput['skip-connectors-tests'];
+    toolSwaggerSkipTests = buildParamInput['skip-tool-swagger-tests'];
+    toolsDistSkipTests = buildParamInput['skip-tools-distrbution-tests'];
+    pluginMavenSkipTests = buildParamInput['skip-plugin-maven-tests'];
+}
+
+if (isCleanRelease) {
+    cleanReleaseParamInput = input(
+            id: 'userInput', message: 'Please provide following parameters', parameters: [
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Provide the node label to perform the release', name: 'node-label'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Release Version to clean', name: 'ballerina-release-version']
+    ]);
+
+    nodeLabel = cleanReleaseParamInput['node-label'];
+
+    releaseVersionToClean = cleanReleaseParamInput['ballerina-release-version'];
+    releaseTagToClean = "v" + releaseVersionToClean;
+
+}
+
+failFast = YES.equals(enableFailFast);
+
+node ("${nodeLabel}") {
+    def tagMap = [];
+    String user = env.GIT_USER;
+    String gitCredentialsID = env.GIT_CREDENTIALS_ID;
+    String gitEmail = env.GIT_EMAIL;
+    String settingsXMLID = env.SETTINGS_XML_ID;
+    String ballerinaRepository = "ballerina";
+    String composerRepository = "composer";
+    String docerinaRepository = "docerina";
+    String testerinaRepository = "testerina";
+    String connectorsRepository = "connectors";
+    String containerSupportRepository = "container-support";
+    String toolsDistributionRepository = "tools-distribution";
+    String toolSwaggerBallerinaRepository = "tool-swagger-ballerina";
+    String pluginMavenRepository = "plugin-maven";
+    String ballerinaParentRepository = "ballerina-parent";
+    String ballerinaGroudId = "org.ballerinalang";
+    String ballerinaConnectorsGroupId = "org.wso2.ballerina.connectors"
+    String propertyUpdateCommitMessage = "Update versions of org.ballerinalang.* dependencies";
+    String parentUpdateCommitMessage = "Update ballerina-parent version";
+
+    try {
+        stage('Building ballerina-parent') {
+            cloneRepository(ballerinaParentRepository, user, gitCredentialsID, gitEmail);
+            if (isRelease) {
+                tagMap.add([ballerinaParentRepository, ballerinaParentReleaseTag, ballerinaParentVersion]);
+                release(settingsXMLID, ballerinaParentRepository, ballerinaParentVersion, ballerinaParentReleaseTag, ballerinaParentDevVersion, YES);
+            }
+
+            if (isBuild) {
+                build(settingsXMLID, ballerinaParentRepository, YES);
+            }
+
+            if (isCleanRelease) {
+                cleanRelease(ballerinaParentRepository, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+            }
+        }
+
+        stage('Building ballerina') {
+            cloneRepository(ballerinaRepository, user, gitCredentialsID, gitEmail);
+            if (isRelease) {
+                updateParent(ballerinaRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
+                tagMap.add([ballerinaRepository, ballerinaReleaseTag, ballerinaVersion]);
+                release(settingsXMLID, ballerinaRepository, ballerinaVersion, ballerinaReleaseTag, ballerinaDevVersion, ballerinaSkipTests);
+                //Following two steps are for updating ballerina-parent to latest snapshot
+                updateParent(ballerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                pushCurrentBranch(ballerinaRepository, gitCredentialsID, user);
+            }
+
+            if (isBuild) {
+                build(settingsXMLID, ballerinaRepository, ballerinaSkipTests);
+            }
+
+            if (isCleanRelease) {
+                cleanRelease(ballerinaRepository, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+            }
+        }
+
+        stage('Building docerina') {
+            cloneRepository(docerinaRepository, user, gitCredentialsID, gitEmail);
+            if (isRelease) {
+                updateParent(docerinaRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
+                updateProperties(docerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*", !isRelease);
+                tagMap.add([docerinaRepository, docerinaReleaseTag, docerinaVersion]);
+                release(settingsXMLID, docerinaRepository, docerinaVersion, docerinaReleaseTag, docerinaDevVersion, docerinaSkipTests);
+                //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                updateParent(docerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                updateProperties(docerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*", true);
+                pushCurrentBranch(docerinaRepository, gitCredentialsID, user);
+            }
+
+            if (isBuild) {
+                build(settingsXMLID, docerinaRepository, docerinaSkipTests);
+            }
+
+            if (isCleanRelease) {
+                cleanRelease(docerinaRepository, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+            }
+        }
+
+        stage('Building plugin-maven') {
+            cloneRepository(pluginMavenRepository, user, gitCredentialsID, gitEmail);
+            if (isRelease) {
+                updateParent(pluginMavenRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
+                updateProperties(pluginMavenRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:docerina", !isRelease);
+                tagMap.add([pluginMavenRepository, pluginMavenReleaseTag, pluginMavenVersion]);
+                release(settingsXMLID, pluginMavenRepository, pluginMavenVersion, pluginMavenReleaseTag, pluginMavenDevVersion, pluginMavenSkipTests);
+                //Following two steps are for updating ballerina-parent to latest snapshot
+                updateParent(pluginMavenRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                updateProperties(pluginMavenRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:docerina", true);
+                pushCurrentBranch(pluginMavenRepository, gitCredentialsID, user);
+            }
+
+            if (isBuild) {
+                build(settingsXMLID, pluginMavenRepository, pluginMavenSkipTests);
+            }
+
+            if (isCleanRelease) {
+                cleanRelease(pluginMavenRepository, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+            }
+        }
+
+        stage('Building composer, testerina, connectors, container-support, tool-swagger-ballerina') {
+            parallel composerBuild: {
+                cloneRepository(composerRepository, user, gitCredentialsID, gitEmail);
+                if (isRelease) {
+                    updateParent(composerRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
+                    updateProperties(composerRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", !isRelease);
+                    tagMap.add([composerRepository, composerReleaseTag, composerVersion]);
+                    release(settingsXMLID, composerRepository, composerVersion, composerReleaseTag, composerDevVersion, composerSkipTests);
+                    //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                    updateParent(composerRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                    updateProperties(composerRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", true);
+                    pushCurrentBranch(composerRepository, gitCredentialsID, user);
+                }
+
+                if (isBuild) {
+                    build(settingsXMLID, composerRepository, composerSkipTests);
+                }
+
+                if (isCleanRelease) {
+                    cleanRelease(composerRepository, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+                }
+            }, testerinaBuild: {
+                cloneRepository(testerinaRepository, user, gitCredentialsID, gitEmail);
+                if (isRelease) {
+                    updateParent(testerinaRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
+                    updateProperties(testerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", !isRelease);
+                    tagMap.add([testerinaRepository, testerinaReleaseTag, testerinaVersion]);
+                    release(settingsXMLID, testerinaRepository, testerinaVersion, testerinaReleaseTag, testerinaDevVersion, testerinaSkipTests);
+                    //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                    updateParent(testerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                    updateProperties(testerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", true);
+                    pushCurrentBranch(testerinaRepository, gitCredentialsID, user);
+                }
+
+                if (isBuild) {
+                    build(settingsXMLID, testerinaRepository, testerinaSkipTests);
+                }
+
+                if (isCleanRelease) {
+                    cleanRelease(testerinaRepository, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+                }
+            }, connectorsBuild: {
+                cloneRepository(connectorsRepository, user, gitCredentialsID, gitEmail);
+                if (isRelease) {
+                    updateParent(connectorsRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
+                    updateProperties(connectorsRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", !isRelease);
+                    tagMap.add([connectorsRepository, connectorsReleaseTag, connectorsVersion]);
+                    release(settingsXMLID, connectorsRepository, connectorsVersion, connectorsReleaseTag, connectorsDevVersion, connectorsSkipTests);
+                    //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                    updateParent(connectorsRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                    updateProperties(connectorsRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", true);
+                    pushCurrentBranch(connectorsRepository, gitCredentialsID, user);
+                }
+
+                if (isBuild) {
+                    build(settingsXMLID, connectorsRepository, connectorsSkipTests);
+                }
+
+                if (isCleanRelease) {
+                    cleanRelease(connectorsRepository, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+                }
+            }, containerSupportBuild: {
+                cloneRepository(containerSupportRepository, user, gitCredentialsID, gitEmail);
+                if (isRelease) {
+                    updateParent(containerSupportRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
+                    updateProperties(containerSupportRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", !isRelease);
+                    tagMap.add([containerSupportRepository, containerSupportReleaseTag, containerSupportVersion]);
+                    release(settingsXMLID, containerSupportRepository, containerSupportVersion, containerSupportReleaseTag, containerSupportDevVersion, containerSupportSkipTests);
+                    //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                    updateParent(containerSupportRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                    updateProperties(containerSupportRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", true);
+                    pushCurrentBranch(containerSupportRepository, gitCredentialsID, user);
+                }
+
+                if (isBuild) {
+                    build(settingsXMLID, containerSupportRepository, containerSupportSkipTests);
+                }
+
+                if (isCleanRelease) {
+                    cleanRelease(containerSupportRepository, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+                }
+            }, toolSwaggerBallerinaBuild: {
+                cloneRepository(toolSwaggerBallerinaRepository, user, gitCredentialsID, gitEmail);
+                if (isRelease) {
+                    updateParent(toolSwaggerBallerinaRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
+                    updateProperties(toolSwaggerBallerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", !isRelease);
+                    tagMap.add([toolSwaggerBallerinaRepository, toolSwaggerReleaseTag, toolSwaggerVersion]);
+                    release(settingsXMLID, toolSwaggerBallerinaRepository, toolSwaggerVersion, toolSwaggerReleaseTag, toolSwaggerDevVersion, toolSwaggerSkipTests);
+                    //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                    updateParent(toolSwaggerBallerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                    updateProperties(toolSwaggerBallerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", true);
+                    pushCurrentBranch(toolSwaggerBallerinaRepository, gitCredentialsID, user);
+                }
+
+                if (isBuild) {
+                    build(settingsXMLID, toolSwaggerBallerinaRepository, toolSwaggerSkipTests);
+                }
+
+                if (isCleanRelease) {
+                    cleanRelease(toolSwaggerBallerinaRepository, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+                }
+            }, failFast: failFast
+        }
+
+        stage('Building tools-distribution') {
+            cloneRepository(toolsDistributionRepository, user, gitCredentialsID, gitEmail);
+            if (isRelease) {
+                updateParent(toolsDistributionRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
+                updateProperties(toolsDistributionRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*,${ballerinaConnectorsGroupId}:connectors", !isRelease);
+                tagMap.add([toolsDistributionRepository, toolsDistReleaseTag, toolsDistVersion]);
+                release(settingsXMLID, toolsDistributionRepository, toolsDistVersion, toolsDistReleaseTag, toolsDistDevVersion, toolsDistSkipTests);
+                //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                updateParent(toolsDistributionRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                updateProperties(toolsDistributionRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*,${ballerinaConnectorsGroupId}:connectors", true);
+                pushCurrentBranch(toolsDistributionRepository, gitCredentialsID, user);
+            }
+
+            if (isBuild) {
+                build(settingsXMLID, toolsDistributionRepository, toolsDistSkipTests);
+            }
+
+            if (isCleanRelease) {
+                cleanRelease(toolsDistributionRepository, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+            }
+
+        }
+    } catch (Exception e) {
+        println("An exception has occurred in during the build process");
+        if (isRelease && YES.equals(allowCleanUpAfterReleaseFailure)) {
+            for (entry in tagMap) {
+                cleanupRepositoryAfterFailure(entry[0].toString(), user, entry[1].toString(), entry[2].toString(), gitCredentialsID)
+            }
+        }
+        throw e;
+
+    } finally {
+        stage('Clean Up') {
+            if (needCleanUp) {
+                try {
+                    deleteDir();
+                } catch (Exception e) {
+                    println("Unable to delete directory. Please manually delete");
+                }
+            } else {
+                println("You have chosen not to clean the workspace");
+            }
+        }
+    }
+}
+
+
+/**
+ * This method clones a given repository from github.
+ *
+ * @param repositoryName The repository directory
+ * @param user The git user
+ * @param credentials GIT credentials ID to be used, in Jenkins credentials
+ * @param gitEmail Email of the git user
+ */
+def cloneRepository(String repositoryName, String user, String credentials, String gitEmail) {
+    withCredentials(
+            [[$class          : 'UsernamePasswordMultiBinding',
+              credentialsId   : credentials,
+              usernameVariable: 'GIT_USERNAME',
+              passwordVariable: 'GIT_PASSWORD']]) {
+
+        checkout([
+                $class                           : 'GitSCM',
+                branches                         : [[name: '*/master']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions                       : [[$class: 'LocalBranch', localBranch: 'master'],
+                                                    [$class: 'RelativeTargetDirectory', relativeTargetDir: repositoryName]],
+                submoduleCfg                     : [],
+                userRemoteConfigs                :
+                        [[credentialsId: credentials,
+                          url          : "https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${user}/${repositoryName}.git"]]]);
+
+        dir(repositoryName) {
+            setupGitUser(credentials, gitEmail);
+        }
+    }
+}
+
+/**
+ * This method updates version properties of a given repository.
+ *
+ * @param repositoryName The repository directory
+ * @param settingsXml settingsXml ID of the settings.xml file to be used which is added under managed files in Jenkins
+ * @param commitMessage The message for the property update commit
+ * @param propertiesList GroupID:artifactID based filter for updating properties
+ * @param allowSnapshots Whether to consider snapshot versions when updating properties
+ */
+def updateProperties(String repositoryName, String settingsXml, String commitMessage, String propertiesList, boolean allowSnapshots) {
+    configFileProvider(
+            [configFile(fileId: settingsXml, variable: 'MAVEN_SETTINGS')]) {
+        dir(repositoryName) {
+            withEnv(["JAVA_HOME=${ tool env.JDK }", "PATH+MAVEN=${tool env.MAVEN_TOOL}/bin:${env.JAVA_HOME}/bin"]) {
+                if (!allowSnapshots) {
+                    sh "mvn -s $MAVEN_SETTINGS versions:update-properties -Dincludes=${propertiesList}"
+                } else {
+                    sh "mvn -s $MAVEN_SETTINGS versions:update-properties -Dincludes=${propertiesList} -DallowSnapshots=true"
+                }
+                boolean changesPresent = sh(
+                        script: "git diff-index --quiet HEAD",
+                        returnStatus: true
+                ) == 1
+                if (changesPresent) {
+                    sh("git add -u")
+                    sh("git commit -m '${commitMessage}'");
+                }
+            }
+        }
+    }
+}
+
+/**
+ * This method updates parent version of a given repository.
+ *
+ * @param repositoryName The repository directory
+ * @param settingsXml settingsXml ID of the settings.xml file to be used which is added under managed files in Jenkins
+ * @param commitMessage The message for the parent update commit
+ * @param allowSnapshots Whether to consider snapshot versions when updating parent
+ */
+def updateParent(String repositoryName, String settingsXml, String commitMessage, boolean allowSnapshots) {
+    configFileProvider(
+            [configFile(fileId: settingsXml, variable: 'MAVEN_SETTINGS')]) {
+        dir(repositoryName) {
+            withEnv(["JAVA_HOME=${ tool env.JDK }", "PATH+MAVEN=${tool env.MAVEN_TOOL}/bin:${env.JAVA_HOME}/bin"]) {
+                if (!allowSnapshots) {
+                    sh "mvn -s $MAVEN_SETTINGS versions:update-parent";
+                } else {
+                    sh "mvn -s $MAVEN_SETTINGS versions:update-parent -DallowSnapshots=true";
+                }
+                boolean changesPresent = sh(
+                        script: "git diff-index --quiet HEAD",
+                        returnStatus: true
+                ) == 1
+                if (changesPresent) {
+                    sh("git add -u")
+                    sh("git commit -m '${commitMessage}'");
+                }
+            }
+        }
+    }
+}
+
+/**
+ * This method pushes current branch to the remote repository.
+ *
+ * @param repositoryName The repository directory
+ * @param credentials GIT credentials ID to be used, in Jenkins credentials
+ * @param user The git user
+ */
+def pushCurrentBranch(String repositoryName, String credentials, String user) {
+    dir(repositoryName) {
+        withCredentials(
+                [[$class          : 'UsernamePasswordMultiBinding',
+                  credentialsId   : credentials,
+                  usernameVariable: 'GIT_USERNAME',
+                  passwordVariable: 'GIT_PASSWORD']]) {
+            sh("git push origin HEAD");
+        }
+    }
+}
+
+
+/**
+ * This method perform release prepare,perform on a given repository. Deployment is skipped therefore artifacts will be
+ * installed only in local m2 repository.
+ *
+ * @param settingsXml settingsXml ID of the settings.xml file to be used which is added under managed files in Jenkins
+ * @param repositoryDir The repository directory
+ * @param releaseVersion The release version
+ * @param releaseTag The release tag
+ * @param nextDevVersion The version for the next development iteration
+ * @param skipTests Whether to skip tests when releasing
+ */
+def release(String settingsXml, String repositoryDir, String releaseVersion, String releaseTag, String nextDevVersion, String skipTests) {
+    configFileProvider(
+            [configFile(fileId: settingsXml, variable: 'MAVEN_SETTINGS')]) {
+        dir(repositoryDir) {
+            sh("git checkout -b release-" + releaseVersion);
+            withEnv(["JAVA_HOME=${ tool env.JDK }", "M2_HOME=${tool env.MAVEN_TOOL}", "PATH+MVN=${ tool env.JDK }/bin:${tool env.MAVEN_TOOL}/bin"]) {
+                if ("Yes".equals(skipTests)) {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS release:prepare release:perform -B -Darguments="-Dmaven.deploy.skip=true -DskipTests=true" -DreleaseVersion=' + releaseVersion + ' -Dtag=' + releaseTag + ' -DdevelopmentVersion=' + nextDevVersion;
+                } else {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS release:prepare release:perform -B -Darguments="-Dmaven.deploy.skip=true" -DreleaseVersion=' + releaseVersion + ' -Dtag=' + releaseTag + ' -DdevelopmentVersion=' + nextDevVersion;
+
+                }
+            }
+        }
+
+        // This is to install newest snapshot version in local m2
+        build(settingsXml, repositoryDir, "Yes");
+    }
+}
+
+/**
+ * This method builds the provided repository.
+ *
+ * @param settingsXml ID of the settings.xml file to be used which is added under managed files in Jenkins
+ * @param repositoryDir The repository directory
+ * @param skipTests Whether to skip tests or not, when building
+ */
+def build(String settingsXml, String repositoryDir, String skipTests) {
+    configFileProvider(
+            [configFile(fileId: settingsXml, variable: 'MAVEN_SETTINGS')]) {
+        dir(repositoryDir) {
+            withEnv(["JAVA_HOME=${ tool env.JDK }", "M2_HOME=${tool env.MAVEN_TOOL}", "PATH+MVN=${ tool env.JDK }/bin:${tool env.MAVEN_TOOL}/bin"]) {
+                if ("Yes".equals(skipTests)) {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS clean install -DskipTests=true'
+                } else {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS clean install'
+                }
+            }
+        }
+    }
+}
+
+/**
+ * This method deletes any tags/branches created for the release.
+ *
+ * @param repositoryName The repository directory
+ * @param user The git user
+ * @param releaseTag The release tag to be deleted
+ * @param releaseVersion The release version
+ * @param credentials GIT credentials ID to be used, in Jenkins credentials
+ */
+def cleanupRepositoryAfterFailure(String repositoryName, String user, String releaseTag, String releaseVersion, String credentials) {
+    println("Cleaning up ${repositoryName} repository.");
+    dir(repositoryName) {
+        withCredentials(
+                [[$class          : 'UsernamePasswordMultiBinding',
+                  credentialsId   : credentials,
+                  usernameVariable: 'GIT_USERNAME',
+                  passwordVariable: 'GIT_PASSWORD']]) {
+            println("Deleting tag ${releaseTag} of ${repositoryName}");
+            sh(
+                    script: "git push --delete origin ${releaseTag}",
+                    returnStatus: true
+            );
+            println("Deleting release branch of ${repositoryName}");
+            sh(
+                    script: "git push --delete origin release-" + releaseVersion,
+                    returnStatus: true
+            );
+        }
+    }
+}
+
+/**
+ * Cleanup an already created release branch and tag for a given release version.
+ *
+ * @param repositoryName Repository to clean
+ * @param user The git user
+ * @param releaseTagToClean The release tag to clean
+ * @param releaseVersionToClean The release version to clean
+ * @param gitCredentialsID Git credentials Id to use to delete
+ */
+def cleanRelease(String repositoryName, String user, String releaseTagToClean, String releaseVersionToClean, String gitCredentialsID) {
+    try {
+        cleanupRepositoryAfterFailure(repositoryName, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+    } catch (Exception e) {
+        println("Could not clean " + repositoryName + " release");
+    }
+}
+
+/**
+ * Set git user for current repository. This user will be used for commit, push .etc for the current repository
+ *
+ * @param gitCredentialsID The credentials Id to use
+ * @param gitEmail Email of the git user
+ */
+def setupGitUser(String gitCredentialsID, String gitEmail) {
+    withCredentials(
+            [[$class          : 'UsernamePasswordMultiBinding',
+              credentialsId   : gitCredentialsID,
+              usernameVariable: 'GIT_USERNAME',
+              passwordVariable: 'GIT_PASSWORD']]) {
+        sh("git config user.name ${GIT_USERNAME}");
+        sh("git config user.email ${gitEmail}");
+    }
+}
