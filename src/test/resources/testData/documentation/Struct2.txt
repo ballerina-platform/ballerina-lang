@@ -1,0 +1,1 @@
+<b>org.test<br><br>struct Person { }</b><br><DL><DT>Represents a person</DT></DL><DL><DT><b>Fields:</b></DT><DD>name - name of the person</DD><DD>age - age of the person</DD></DL>
