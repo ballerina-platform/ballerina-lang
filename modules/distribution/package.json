@@ -1,7 +1,7 @@
 {
-  "name": "ballerina-composer",
-  "version": "1.0.0",
-  "description": "A Electron based standalone distribution of Ballerina Composer",
+  "name": "BallerinaComposer",
+  "version": "0.9.0",
+  "description": "Electron based standalone distribution of Ballerina Composer",
   "main": "index.js",
   "scripts": {
     "postinstall": "install-app-deps",
@@ -14,19 +14,20 @@
   },
   "build": {
     "appId": "org.ballerinalang.composer",
-    "asar": false,
+    "asar": true,
+    "asarUnpack": ["**/*.jar", "conf/", "resources/"],
     "mac": {
       "category": "public.app-category.productivity",
       "target": "zip"
     },
     "win": {
       "target": [
-        "zip"
+        "nsis"
       ]
     },
     "linux": {
       "target": [
-        "zip"
+        "deb"
       ]
     }
   },
