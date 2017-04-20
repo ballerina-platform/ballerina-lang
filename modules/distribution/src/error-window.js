@@ -4,7 +4,8 @@ const {app, BrowserWindow, Menu} = require("electron");
 
 function createErrorWindow(args) {
         // Create the browser window.
-        let win = new BrowserWindow({width: 1024, height: 768, frame: true});
+        let win = new BrowserWindow({width: 600, height: 500,
+            resizable: false, frame: true});
         let windowUrl = url.format({
             pathname: path.join(__dirname, "..", "pages", "error.html"),
             protocol: "file:",

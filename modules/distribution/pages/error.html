@@ -1,13 +1,69 @@
-<html lang="en" class="webkit chrome mac js gr__localhost" xmlns="http://www.w3.org/1999/html">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Error while starting Ballerina Composer</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css">
+    <script>
+        window.jQuery = window.$ = require('./js/jquery.min');
+    </script>
+    <style>
+        body {
+            background-color: #F1F1F1;
+            margin: 50px;
+        }
+        .heading {
+            text-align: center;
+            color: #FF0000;
+        }
+        .message {
+        }
+        .grey {
+            color: #3F5F5F;
+        }
+        pre {
+            white-space: pre-wrap;
+        }
+        .info-icon {
+            font-size: 40px;
+        }
+        #seeMore{
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
 <body>
-    <p id="error"></p>
+    <div class="container">
+      <div class="row">
+            <div class="col-sm-12">
+                  <p class="heading">
+                        <span class="glyphicon glyphicon-info-sign info-icon" aria-hidden="true">
+                        </span>
+                  <p>
+                  <h1 class="heading">Ooops! Something went wrong.</h1>
+                  <p class="lead message grey">
+                      Ballerina Composer failed to start due to an error.
+                      Please find the error report below.
+                  </p>
+                  <pre id="error" class="well"></pre>
+                  <a  id="seeMore" role="button" data-toggle="collapse" href="#moreDetailsContainer"
+                    aria-expanded="false" aria-controls="moreDetailsContainer">
+                       show more details
+                  </a>
+                  <div class="collapse" id="moreDetailsContainer">
+                    <div class="well">
+                      <p id="moreDetails">
+                      <p>
+                    </div>
+                  </div>
+            </div>
+      </div>
+    </div>
+    <script src="js/bootstrap.min.js"></script>
     <script>
       function getParameterByName(name) {
           var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
@@ -15,6 +71,7 @@
       }
       document.getElementById("error").innerHTML = "Error Code: "
                       + getParameterByName('errorCode')
-                      + '</br> Error Message: ' + atob(getParameterByName('errorMessage'));
+                      + '</br>Error Message: ' + atob(getParameterByName('errorMessage'));
     </script>
 </body>
+</html>
