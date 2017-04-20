@@ -62,6 +62,7 @@ public class TextOutputMapper extends OutputMapper {
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
+        updateEventIds(events);
         if (this.payloadTemplateBuilder != null) {
             for (Event event : events) {
                 outputTransportListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
@@ -77,6 +78,7 @@ public class TextOutputMapper extends OutputMapper {
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
+        updateEventId(event);
         if (this.payloadTemplateBuilder != null) {
             outputTransportListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
         } else {

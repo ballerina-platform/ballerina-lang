@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.query.join;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,11 +26,13 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
+import junit.framework.Assert;
 
 public class JoinTestCase {
     private static final Logger log = Logger.getLogger(JoinTestCase.class);
@@ -813,6 +814,119 @@ public class JoinTestCase {
             dataIn.send(new Object[]{4, "item4"});
             countIn.send(new Object[]{1});
             deleteIn.send(new Object[]{1});
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
+    }
+
+    @Test
+    public void joinTest19() throws InterruptedException {
+        log.info("Join test19");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream dataIn (id int, data string); " +
+                "define stream countIn (id int); " +
+                "define stream deleteIn (id int); " +
+                "define table dataTable (id int, data string); ";
+
+        String query = "" +
+                "from dataIn\n" +
+                "insert into dataTable;\n" +
+                "" +
+                "from deleteIn \n" +
+                "delete dataTable\n" +
+                "    on dataTable.id == id;\n" +
+                "" +
+                "@info(name = 'query1') " +
+                "from countIn as c join dataTable as d\n" +
+                "select count() as count\n" +
+                "insert into countOut; ";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            InputHandler dataIn = executionPlanRuntime.getInputHandler("dataIn");
+            InputHandler countIn = executionPlanRuntime.getInputHandler("countIn");
+            InputHandler deleteIn = executionPlanRuntime.getInputHandler("deleteIn");
+            executionPlanRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    inEventCount.incrementAndGet();
+                    if (inEventCount.get() == 1) {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        Assert.assertTrue((Long) inEvents[0].getData(0) == 3L);
+                    } else {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        Assert.assertTrue((Long) inEvents[0].getData(0) == 2L);
+                    }
+                }
+            });
+            executionPlanRuntime.start();
+
+            Thread.sleep(100);
+            dataIn.send(new Object[]{1, "item1"});
+            dataIn.send(new Object[]{2, "item2"});
+            dataIn.send(new Object[]{3, "item3"});
+            countIn.send(new Object[]{1});
+            deleteIn.send(new Object[]{1});
+            countIn.send(new Object[]{1});
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
+    }
+
+    @Test
+    public void joinTest20() throws InterruptedException {
+        log.info("Join test20");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream dataIn (id int, data string); " +
+                "define stream countIn (id int); " +
+                "define stream deleteIn (id int); " +
+                "define table dataTable (id int, data string); ";
+
+        String query = "" +
+                "from dataIn\n" +
+                "insert into dataTable;\n" +
+                "" +
+                "from deleteIn \n" +
+                "delete dataTable\n" +
+                "    on dataTable.id == id;\n" +
+                "" +
+                "@info(name = 'query1') " +
+                "from countIn as c left outer join dataTable as d\n" +
+                "on d.data == 'abc'\n" +
+                "select count() as count\n" +
+                "insert into countOut; ";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            InputHandler dataIn = executionPlanRuntime.getInputHandler("dataIn");
+            InputHandler countIn = executionPlanRuntime.getInputHandler("countIn");
+            InputHandler deleteIn = executionPlanRuntime.getInputHandler("deleteIn");
+            executionPlanRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    inEventCount.incrementAndGet();
+                    if (inEventCount.get() == 1) {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        Assert.assertTrue((Long) inEvents[0].getData(0) == 3L);
+                    } else {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        Assert.assertTrue((Long) inEvents[0].getData(0) == 2L);
+                    }
+                }
+            });
+            executionPlanRuntime.start();
+
+            Thread.sleep(100);
+            dataIn.send(new Object[]{1, "abc"});
+            dataIn.send(new Object[]{2, "abc"});
+            dataIn.send(new Object[]{3, "abc"});
+            countIn.send(new Object[]{1});
+            deleteIn.send(new Object[]{1});
+            countIn.send(new Object[]{1});
         } finally {
             executionPlanRuntime.shutdown();
         }

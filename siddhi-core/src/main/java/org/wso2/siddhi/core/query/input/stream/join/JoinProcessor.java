@@ -75,9 +75,9 @@ public class JoinProcessor implements Processor {
                     if (eventType == ComplexEvent.Type.TIMER) {
                         continue;
                     } else if (eventType == ComplexEvent.Type.RESET) {
-                        if (outerJoinProcessor && !leftJoinProcessor) {
+                        if (!leftJoinProcessor) {
                             returnEventChunk.add(joinEventBuilder(null, streamEvent, eventType));
-                        } else if (outerJoinProcessor && leftJoinProcessor) {
+                        } else {
                             returnEventChunk.add(joinEventBuilder(streamEvent, null, eventType));
                         }
                     } else {

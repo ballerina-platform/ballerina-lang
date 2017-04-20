@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.extension.input.transport.kafka;
 
-import junit.framework.Assert;
 import kafka.admin.AdminUtils;
 import kafka.common.TopicExistsException;
 import kafka.server.KafkaConfig;
@@ -28,6 +27,7 @@ import kafka.utils.ZkUtils;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.ZkConnection;
 import org.I0Itec.zkclient.exception.ZkTimeoutException;
+import org.apache.commons.io.FileUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -43,6 +43,8 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
+import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 import org.wso2.siddhi.extension.input.mapper.text.TextInputMapper;
 import org.wso2.siddhi.extension.output.mapper.text.TextOutputMapper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
@@ -54,22 +56,34 @@ import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Variable;
 
+import java.io.File;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class KafkaInputTransportTestCase {
     private static final Logger log = Logger.getLogger(KafkaInputTransportTestCase.class);
     private static TestingServer zkTestServer;
     private static KafkaServerStartable kafkaServer;
+    private static ExecutorService executorService;
+    private static final String kafkaLogDir = "tmp_kafka_dir";
     private volatile int count;
     private volatile boolean eventArrived;
 
     @BeforeClass
     public static void init() throws Exception {
         try {
+            executorService = Executors.newFixedThreadPool(5);
+            cleanLogDir();
             setupKafkaBroker();
             Thread.sleep(3000);
         }catch (Exception e) {
@@ -85,22 +99,22 @@ public class KafkaInputTransportTestCase {
 
     @Test
     public void testKafkaMultipleTopicPartitionPartitionWiseSubscription() throws InterruptedException {
-        try{
+        try {
             log.info("Creating test for multiple topics and partitions and thread partition wise");
-            String topics[] = new String[]{"kafka_topic","kafka_topic2"};
+            String topics[] = new String[]{"kafka_topic", "kafka_topic2"};
             createTopic(topics, 2);
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("inputmapper:text", TextInputMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
-                    "define stream BarStream (symbol string, price float, volume long); " +
-                    "@info(name = 'query1') " +
-                        "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', " +
+                            "define stream BarStream (symbol string, price float, volume long); " +
+                            "@info(name = 'query1') " +
+                            "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', " +
                             "threading.option='partition.wise', bootstrap.servers='localhost:9092', " +
                             "partition.no.list='0,1', " +
                             "@map(type='text'))" +
-                                "Define stream FooStream (symbol string, price float, volume long);" +
-                    "from FooStream select symbol, price, volume insert into BarStream;");
+                            "Define stream FooStream (symbol string, price float, volume long);" +
+                            "from FooStream select symbol, price, volume insert into BarStream;");
             executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
@@ -110,16 +124,16 @@ public class KafkaInputTransportTestCase {
                         count++;
                         switch (count) {
                             case 1:
-                                Assert.assertEquals(0, event.getData(2));
+                                assertEquals(0, event.getData(2));
                                 break;
                             case 2:
-                                Assert.assertEquals(0, event.getData(2));
+                                assertEquals(0, event.getData(2));
                                 break;
                             case 3:
-                                Assert.assertEquals(1, event.getData(2));
+                                assertEquals(1, event.getData(2));
                                 break;
                             case 4:
-                                Assert.assertEquals(1, event.getData(2));
+                                assertEquals(1, event.getData(2));
                                 break;
                             default:
                                 org.junit.Assert.fail();
@@ -132,8 +146,8 @@ public class KafkaInputTransportTestCase {
             Thread.sleep(2000);
             kafkaPublisher(topics, 2, 2);
             Thread.sleep(5000);
-            Assert.assertEquals(4, count);
-            Assert.assertTrue(eventArrived);
+            assertEquals(4, count);
+            assertTrue(eventArrived);
             executionPlanRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
@@ -141,10 +155,10 @@ public class KafkaInputTransportTestCase {
     }
 
     @Test
-    public void testKafkaPauseAndResume() throws InterruptedException {
-        try{
-            log.info("Creating test for multiple topics and partitions and thread partition wise");
-            String topics[] = new String[]{"kafka_topic3","kafka_topic4"};
+    public void testAKafkaPauseAndResume() throws InterruptedException {
+        try {
+            log.info("Test to verify the pause and resume functionality of Kafka transport");
+            String topics[] = new String[]{"kafka_topic3"};
             createTopic(topics, 2);
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("inputmapper:text", TextInputMapper.class);
@@ -152,7 +166,7 @@ public class KafkaInputTransportTestCase {
                     "@Plan:name('TestExecutionPlan') " +
                             "define stream BarStream (symbol string, price float, volume long); " +
                             "@info(name = 'query1') " +
-                            "@source(type='kafka', topic='kafka_topic3,kafka_topic4', group.id='test', threading" +
+                            "@source(type='kafka', topic='kafka_topic3', group.id='test1', threading" +
                             ".option='partition.wise', " +
                             "bootstrap.servers='localhost:9092', partition.no.list='0,1', " +
                             "@map(type='text'))" +
@@ -170,27 +184,133 @@ public class KafkaInputTransportTestCase {
                 }
             });
             executionPlanRuntime.start();
+            Future eventSender = executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    kafkaPublisher(topics, 2, 4);
+                }
+            });
+            while (!eventSender.isDone()) {
+                Thread.sleep(1000);
+            }
             Thread.sleep(2000);
-            kafkaPublisher(topics, 2, 2);
-            Thread.sleep(5000);
-            Assert.assertEquals(4, count);
-            Assert.assertTrue(eventArrived);
+            assertEquals(4, count);
+            assertTrue(eventArrived);
 
             Collection<List<InputTransport>> inputTransports = executionPlanRuntime.getInputTransports();
             // pause the transports
             inputTransports.forEach(e -> e.forEach(InputTransport::pause));
 
-            eventArrived = false;
-            count = 0;
-            kafkaPublisher(topics, 2, 2);
+            init2();
+            eventSender = executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    kafkaPublisher(topics, 2, 4);
+                }
+            });
+            while (!eventSender.isDone()) {
+                Thread.sleep(1000);
+            }
             Thread.sleep(5000);
-            Assert.assertFalse(eventArrived);
+            assertFalse(eventArrived);
 
             // resume the transports
             inputTransports.forEach(e -> e.forEach(InputTransport::resume));
+            Thread.sleep(2000);
+            assertEquals(4, count);
+            assertTrue(eventArrived);
+
+            executionPlanRuntime.shutdown();
+        } catch (ZkTimeoutException ex) {
+            log.warn("No zookeeper may not be available.", ex);
+        }
+    }
+
+    @Test
+    public void testRecoveryOnFailureWithKafka() throws InterruptedException {
+        try {
+            log.info("Test to verify recovering process of a Siddhi node on a failure when Kafka is the event source");
+            String topics[] = new String[]{"kafka_topic4"};
+            createTopic(topics, 1);
+            PersistenceStore persistenceStore = new InMemoryPersistenceStore();
+            SiddhiManager siddhiManager = new SiddhiManager();
+            siddhiManager.setPersistenceStore(persistenceStore);
+            siddhiManager.setExtension("inputmapper:text", TextInputMapper.class);
+
+            String query = "@Plan:name('TestExecutionPlan') " +
+                    "define stream BarStream (count long); " +
+                    "@info(name = 'query1') " +
+                    "@source(type='kafka', topic='kafka_topic4', group.id='test', " +
+                    "threading.option='topic.wise', bootstrap.servers='localhost:9092', partition.no.list='0', " +
+                    "@map(type='text'))" +
+                    "Define stream FooStream (symbol string, price float, volume long);" +
+                    "from FooStream select count(symbol) as count insert into BarStream;";
+            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(query);
+            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+                @Override
+                public void receive(Event[] events) {
+                    for (Event event : events) {
+                        eventArrived = true;
+                        System.out.println(event);
+                        count = Math.toIntExact((long) event.getData(0));
+                    }
+
+                }
+            });
+
+            // start publishing events to Kafka
+            Future eventSender = executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    kafkaPublisher(topics, 1, 50, 1000);
+                }
+            });
+            Thread.sleep(2000);
+            // start the execution plan
+            executionPlanRuntime.start();
+
+            // wait for some time
+            Thread.sleep(28000);
+            // initiate a checkpointing task
+            Future perisistor = executionPlanRuntime.persist();
+            // waits till the checkpointing task is done
+            while (!perisistor.isDone()) {
+                Thread.sleep(100);
+            }
+            // let few more events to be published
             Thread.sleep(5000);
-            Assert.assertEquals(4, count);
-            Assert.assertTrue(eventArrived);
+            // initiate a execution plan shutdown - to demonstrate a node failure
+            executionPlanRuntime.shutdown();
+            // let few events to be published while the execution plan is down
+            Thread.sleep(5000);
+            // recreate the execution plan
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(query);
+            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+                @Override
+                public void receive(Event[] events) {
+                    for (Event event : events) {
+                        eventArrived = true;
+                        System.out.println(event);
+                        count = Math.toIntExact((long) event.getData(0));
+                    }
+
+                }
+            });
+            // start the execution plan
+            executionPlanRuntime.start();
+            // immediately trigger a restore from last revision
+            executionPlanRuntime.restoreLastRevision();
+            Thread.sleep(5000);
+
+            // waits till all the events are published
+            while (!eventSender.isDone()) {
+                Thread.sleep(2000);
+            }
+
+            Thread.sleep(20000);
+            assertTrue(eventArrived);
+            // assert the count
+            assertEquals(50, count);
 
             executionPlanRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
@@ -339,9 +459,10 @@ public class KafkaInputTransportTestCase {
             props.put("broker.id", "0");
             props.put("host.name", "localhost");
             props.put("port", "9092");
-            props.put("log.dir", "/tmp/tmp_kafka_dir");
+            props.put("log.dir", kafkaLogDir);
             props.put("zookeeper.connect", zkTestServer.getConnectString());
-            props.put("replica.socket.timeout.ms", "1500");
+            props.put("replica.socket.timeout.ms", "30000");
+            props.put("delete.topic.enable", "true");
             KafkaConfig config = new KafkaConfig(props);
             kafkaServer = new KafkaServerStartable(config);
             kafkaServer.startup();
@@ -351,7 +472,7 @@ public class KafkaInputTransportTestCase {
     }
 
     private void createTopic(String topics[], int numOfPartitions) {
-        ZkClient zkClient = new ZkClient(zkTestServer.getConnectString(), 10000, 10000, ZKStringSerializer$.MODULE$);
+        ZkClient zkClient = new ZkClient(zkTestServer.getConnectString(), 30000, 30000, ZKStringSerializer$.MODULE$);
         ZkConnection zkConnection = new ZkConnection(zkTestServer.getConnectString());
         ZkUtils zkUtils = new ZkUtils(zkClient, zkConnection, false);
         for (String topic : topics) {
@@ -375,6 +496,7 @@ public class KafkaInputTransportTestCase {
                 zkTestServer.stop();
             }
             Thread.sleep(5000);
+            cleanLogDir();
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
         } catch (IOException e) {
@@ -382,7 +504,17 @@ public class KafkaInputTransportTestCase {
         }
     }
 
-    private void kafkaPublisher(String topics[], int numOfPartitions, int numberOfEvents) {
+    private static void cleanLogDir() {
+        try {
+            File f = new File(kafkaLogDir);
+            FileUtils.deleteDirectory(f);
+        } catch (IOException e) {
+            log.error("Failed to clean up: " + e);
+        }
+    }
+
+    private void kafkaPublisher(String topics[], int numOfPartitions, int numberOfEvents, long sleep) {
+
         Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:9092");
         props.put("acks", "all");
@@ -393,24 +525,27 @@ public class KafkaInputTransportTestCase {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         Producer<String, String> producer = new KafkaProducer<String, String>(props);
-        for(int i = 0; i < numberOfEvents; i++) {
+        for (int i = 0; i < numberOfEvents; i++) {
             String msg = "wso2,12.5," + i;
-            System.out.println(msg);
             try {
-                Thread.sleep(1000);
+                Thread.sleep(sleep);
             } catch (InterruptedException e) {
-                e.printStackTrace();
             }
             for (String topic : topics) {
                 if (numOfPartitions > 1) {
                     System.out.println("producing: " + msg + " into partition: " + (i % numOfPartitions));
                     producer.send(new ProducerRecord<>(topic, String.valueOf(i % numOfPartitions), msg));
                 } else {
+                    System.out.println("Produced " + i);
                     producer.send(new ProducerRecord<>(topic, msg));
                 }
             }
         }
         producer.close();
+    }
+
+    private void kafkaPublisher(String topics[], int numOfPartitions, int numberOfEvents) {
+        kafkaPublisher(topics, numOfPartitions, numberOfEvents, 1000);
     }
 
     private class KafkaFlow implements Runnable {
