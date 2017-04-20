@@ -34,7 +34,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
     private static final String SQL_COMPARE_GREATER_THAN = ">";
     private static final String SQL_COMPARE_LESS_THAN_EQUAL = "<=";
     private static final String SQL_COMPARE_GREATER_THAN_EQUAL = ">=";
-    private static final String SQL_COMPARE_EQUAL = "==";
+    private static final String SQL_COMPARE_EQUAL = "=";
     private static final String SQL_COMPARE_NOT_EQUAL = "!=";
     private static final String SQL_MATH_ADD = "+";
     private static final String SQL_MATH_DIVIDE = "/";
@@ -203,7 +203,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitConstant(Object value, Attribute.Type type) {
-        
+
     }
 
     @Override
@@ -256,7 +256,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void endVisitMathRightOperand(MathOperator mathOperator) {
-        
+
     }
 
     @Override
