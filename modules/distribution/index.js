@@ -59,9 +59,22 @@ function createService(){
 	});
 
 	serviceProcess.stderr.on("data", function(data){
+    let errorWindowLoaded = false,
+        logsBuffer = [];
     if (!errorWin) {
         errorWin = createErrorWindow({errorCode: ErrorCodes.SERVICE_FAILED,
           errorMessage: data});
+    }
+    errorWin.webContents.on('did-finish-load', () => {
+        errorWindowLoaded = true;
+        while (logsBuffer.length > 0) {
+            errorWin.webContents.send("error-log", logsBuffer.pop());
+        }
+    })
+    if(!errorWindowLoaded) {
+        logsBuffer.push(data);
+    } else {
+        errorWin.webContents.send("error-log", data);
     }
 		logger.error("Failed to start backend services: " + data);
 	});

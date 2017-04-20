@@ -15,6 +15,7 @@
         body {
             background-color: #F1F1F1;
             margin: 50px;
+            overflow-x: hidden;
         }
         .heading {
             text-align: center;
@@ -33,6 +34,9 @@
         }
         #seeMore{
             margin-bottom: 5px;
+        }
+        #moreDetails {
+            overflow-x:scroll;
         }
     </style>
 </head>
@@ -56,8 +60,8 @@
                   </a>
                   <div class="collapse" id="moreDetailsContainer">
                     <div class="well">
-                      <p id="moreDetails">
-                      <p>
+                      <div id="moreDetails">
+                      <div>
                     </div>
                   </div>
             </div>
@@ -72,6 +76,11 @@
       document.getElementById("error").innerHTML = "Error Code: "
                       + getParameterByName('errorCode')
                       + '</br>Error Message: ' + atob(getParameterByName('errorMessage'));
+
+      require('electron').ipcRenderer.on('error-log', function(event, log){
+           console.log(log);
+           $("#moreDetails").append('<div>' + log + '</div>');
+       })
     </script>
 </body>
 </html>
