@@ -44,7 +44,7 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
     private int inputExecutorLength;
 
     /**
-     * The configure method of the StreamFunction
+     * The init method of the StreamFunction
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors for the function parameters

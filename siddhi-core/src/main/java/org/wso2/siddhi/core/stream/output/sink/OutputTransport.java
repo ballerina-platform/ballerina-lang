@@ -44,8 +44,6 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
     private String elementId;
     private AtomicBoolean isConnected =  new AtomicBoolean(false);
 
-
-
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder, OutputMapper
             outputMapper, String mapType, OptionHolder mapOptionHolder, String payload, ExecutionPlanContext
             executionPlanContext) {
@@ -55,7 +53,7 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
         init(streamDefinition, transportOptionHolder, executionPlanContext);
         if (outputMapper != null) {
-            outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload, transportOptionHolder);
+            outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload, transportOptionHolder, executionPlanContext);
             this.mapper = outputMapper;
         }
 

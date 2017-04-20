@@ -1,78 +1,95 @@
-/*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 package org.wso2.siddhi.core.test;
 
-import org.I0Itec.zkclient.exception.ZkTimeoutException;
+import org.apache.log4j.Logger;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.extension.output.mapper.text.TextOutputMapper;
+import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 
-/**
- * Created by sajith on 3/8/17.
- */
+import java.util.concurrent.atomic.AtomicInteger;
+
+
 public class SingleClientDistributedTransportTestCases {
+    static final Logger log = Logger.getLogger(SingleClientDistributedTransportTestCases.class);
+    private AtomicInteger wso2Count = new AtomicInteger(0);
+    private AtomicInteger ibmCount = new AtomicInteger(0);
+
+    @Before
+    public void init() {
+        wso2Count.set(0);
+        ibmCount.set(0);
+    }
+
     @Test
-    public void testPublisherWithPartitionedKafkaPublisher() throws InterruptedException {
-        try {
+    public void singleClientRoundRobin() throws InterruptedException {
+        log.info("Test inMemorySink And EventMapping With SiddhiQL Dynamic Params");
 
-            String inStreamDefinition = "" +
-                    "define stream FooStream (symbol string, price float, volume int); " +
+        InMemoryBroker.Subscriber subscriptionWSO2 = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                wso2Count.incrementAndGet();
+            }
 
-                    "@sink(type='kafka', topic='kafka_topic', bootstrap.servers='localhost:9092'," +
-                    "    @map(type='text')," +
-                    "    @distribution(strategy='roundRobin', partitionKey='symbol', " +
-                    "       @destination(partition.no='1')," +
-                    "       @destination(partition.no='2')))" +
-                    "@info(name = 'query1')" +
-                    "define stream BarStream (symbol string, price float, volume int);";
+            @Override
+            public String getTopic() {
+                return "topic1";
+            }
+        };
 
-            String query = ("@info(name = 'query1') " +
-                    "from FooStream " +
-                    "select symbol, price, volume " +
-                    "insert into BarStream;");
+        InMemoryBroker.Subscriber subscriptionIBM = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                ibmCount.incrementAndGet();
+            }
 
-            SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("outputmapper:text", TextOutputMapper.class);
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                    .createExecutionPlanRuntime(inStreamDefinition + query);
-            executionPlanRuntime.addCallback("query1", new QueryCallback() {
-                        @Override
-                        public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                            EventPrinter.print(timeStamp, inEvents, removeEvents);
-                        }
-                    });
+            @Override
+            public String getTopic() {
+                return "topic2";
+            }
+        };
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriptionWSO2);
+        InMemoryBroker.subscribe(subscriptionIBM);
 
-            executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
-            stockStream.send(new Object[]{"IBM", 75.6f, 100L});
-            stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
-            Thread.sleep(10000);
-            executionPlanRuntime.shutdown();
-        } catch (ZkTimeoutException ex) {
-            //log.warn("No zookeeper may not be available.", ex);
-        }
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', @map(type='passThrough'), " +
+                "   @distribution(strategy='roundRobin', " +
+                "       @destination(topic = 'topic1'), " +
+                "       @destination(topic = 'topic2'))) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+
+        executionPlanRuntime.start();
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Number of WSO2 events", 3, wso2Count.get());
+        Assert.assertEquals("Number of IBM events", 2, ibmCount.get());
+        executionPlanRuntime.shutdown();
+
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriptionWSO2);
+        InMemoryBroker.unsubscribe(subscriptionIBM);
+
     }
 }

@@ -55,7 +55,7 @@ public class OptionHolder {
         return option;
     }
 
-    Option getOrCreateOption(String optionKey, String defaultValue) {
+    public Option getOrCreateOption(String optionKey, String defaultValue) {
         Option option = options.get(optionKey);
         if (option == null) {
             option = new Option(optionKey, defaultValue, null);
@@ -115,6 +115,10 @@ public class OptionHolder {
         });
 
         return this;
+    }
+
+    public boolean isOptionExists(String optionKey) {
+        return (options.get(optionKey) != null);
     }
 
     public Set<String> getDynamicOptionsKeys() {

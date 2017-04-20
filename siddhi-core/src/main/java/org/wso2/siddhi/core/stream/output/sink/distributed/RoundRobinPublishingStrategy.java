@@ -16,10 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.distributed.transport.partitioned;
+package org.wso2.siddhi.core.stream.output.sink.distributed;
 
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.stream.output.sink.distributed.PublishingStrategy;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class RoundRobinPublishingStrategy extends PublishingStrategy {
      */
     @Override
     public List<Integer> getDestinationsToPublish(Object payload, DynamicOptions transportOptions) {
-        if (isSuspended){
+        if (destinationIds.isEmpty()){
             return EMPTY_RETURN_VALUE;
         }
 
