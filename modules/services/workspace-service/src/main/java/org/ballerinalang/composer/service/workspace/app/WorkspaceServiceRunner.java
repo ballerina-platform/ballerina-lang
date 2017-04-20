@@ -57,31 +57,6 @@ public class WorkspaceServiceRunner {
 
         boolean isCloudMode = Boolean.getBoolean(Constants.SYS_WORKSPACE_ENABLE_CLOUD);
 
-        if (args.length > 1 && args[1] != null) {
-            filePath = args[1];
-        } else {
-            filePath = "resources/composer/web/resources/samples/helloWorld.bal";
-        }
-
-//        // configure possible command line options
-//        Options options = new Options();
-//        Option cloudModeOption = new Option(Constants.CLOUD_MODE_INDICATOR_ARG,
-//                Constants.CLOUD_MODE_INDICATOR_ARG_DESC);
-//        options.addOption(cloudModeOption);
-//        // read console args and process options
-//        CommandLineParser parser = new DefaultParser();
-//        HelpFormatter formatter = new HelpFormatter();
-//        CommandLine commandLine;
-//        try {
-//            commandLine = parser.parse(options, args);
-//            isCloudMode = commandLine.hasOption(Constants.CLOUD_MODE_INDICATOR_ARG);
-//            logger.debug(isCloudMode ? "Cloud mode enabled." : "Running in local mode.");
-//        } catch (ParseException e) {
-//            // not a blocker
-//            logger.warn("Exception while parsing console arguments.", e);
-//            formatter.printHelp("workspace-service", options);
-//        }
-
         Injector injector = Guice.createInjector(new WorkspaceServiceModule(isCloudMode));
         new MicroservicesRunner(Integer.getInteger(Constants.SYS_WORKSPACE_PORT, Constants.DEFAULT_WORKSPACE_PORT))
                 .addExceptionMapper(new SemanticExceptionMapper())
@@ -92,7 +67,7 @@ public class WorkspaceServiceRunner {
                 .deploy(new BLangFileRestService())
                 .deploy(new PackagesApi())
                 .deploy(ServicesApiServiceFactory.getServicesApi())
-                .deploy(new BallerinaProgramService(filePath))
+                .deploy(new BallerinaProgramService())
                 .start();
 
         int port = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
