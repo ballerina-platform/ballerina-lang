@@ -1,7 +1,7 @@
 {
-  "name": "ballerina-composer",
-  "version": "1.0.0",
-  "description": "A Electron based standalone distribution of Ballerina Composer",
+  "name": "BallerinaComposer",
+  "version": "0.9.0",
+  "description": "Electron based standalone distribution of Ballerina Composer",
   "main": "index.js",
   "scripts": {
     "postinstall": "install-app-deps",
