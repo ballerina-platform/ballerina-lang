@@ -51,6 +51,12 @@ import java.util.List;
 
 public class BallerinaDocumentationProvider extends AbstractDocumentationProvider {
 
+    public static final String DOC_PACKAGE_NAME = "doc";
+    public static final String DOC_DESCRIPTION = "Description";
+    public static final String DOC_PARAM = "Param";
+    public static final String DOC_RETURN = "Return";
+    public static final String DOC_FIELD = "Field";
+
     @Nullable
     @Override
     public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
@@ -77,307 +83,407 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
         String signature = getSignature(element, originalElement);
         signature = StringUtil.isNotEmpty(signature) ? "<b>" + signature + "</b><br>" : signature;
         // Then we get the text from docs.
-        return StringUtil.nullize(signature + getDocText(element, originalElement));
+        String generatedDoc = StringUtil.nullize(signature + getDocText(element, originalElement));
+        return generatedDoc == null || generatedDoc.isEmpty() ? null : generatedDoc;
     }
 
     @NotNull
-    public static String getSignature(PsiElement element, PsiElement originalElement) {
+    private static String getSignature(PsiElement element, PsiElement originalElement) {
         if (element == null) {
             return "";
         }
+        StringBuilder stringBuilder = new StringBuilder();
+        // element will be an identifier. So we need to get the parent of the element to identify the type to
+        // generate the signature.
         PsiElement parent = element.getParent();
+        // Generate the signature according to the parent type.
         if (parent instanceof FunctionNode) {
-            StringBuilder stringBuilder = new StringBuilder();
-            // Add the containing package if there is any.
-            PsiElement packagePathNode = getContainingPackage(element);
-            if (packagePathNode != null) {
-                stringBuilder.append(packagePathNode.getText()).append("<br><br>");
-            }
             // Add the function signature.
             stringBuilder.append("func ");
             stringBuilder.append(element.getText());
-            stringBuilder.append("(");
 
             // Get parameters.
             ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(parent, ParameterListNode.class);
             List<String> presentations = BallerinaParameterInfoHandler.getParameterPresentations(parameterListNode);
             String params = StringUtil.join(presentations, ", ");
+            // Add parameters.
+            stringBuilder.append("(");
             stringBuilder.append(params);
             stringBuilder.append(")");
 
-            // Get return parameters.
-            List<String> returnParamsList = getReturnParams(parent);
+            // Get return types. These can be either return types or return parameters.
+            List<String> returnParamsList = getReturnTypes(parent);
             String returnParams = StringUtil.join(returnParamsList, ", ");
             if (!returnParams.isEmpty()) {
+                // Add return types/parameters.
                 stringBuilder.append("(");
                 stringBuilder.append(returnParams);
                 stringBuilder.append(")");
             }
-            // Return the function signature.
-            return stringBuilder.toString();
         } else if (parent instanceof ActionDefinitionNode) {
-            // Todo
+            // Add the action signature.
+            stringBuilder.append("action ");
+            stringBuilder.append(element.getText());
+
+            // Get parameters.
+            ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(parent, ParameterListNode.class);
+            List<String> presentations = BallerinaParameterInfoHandler.getParameterPresentations(parameterListNode);
+            String params = StringUtil.join(presentations, ", ");
+            // Add parameters.
+            stringBuilder.append("(");
+            stringBuilder.append(params);
+            stringBuilder.append(")");
+
+            // Get return types/parameters.
+            List<String> returnParamsList = getReturnTypes(parent);
+            String returnParams = StringUtil.join(returnParamsList, ", ");
+            if (!returnParams.isEmpty()) {
+                // Add return types/parameters.
+                stringBuilder.append("(");
+                stringBuilder.append(returnParams);
+                stringBuilder.append(")");
+            }
         } else if (parent instanceof ConnectorNode) {
-            // Todo
+            // Add the connector signature.
+            stringBuilder.append("connector ");
+            stringBuilder.append(element.getText());
+
+            // Get parameters.
+            ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(parent, ParameterListNode.class);
+            List<String> presentations = BallerinaParameterInfoHandler.getParameterPresentations(parameterListNode);
+            String params = StringUtil.join(presentations, ", ");
+            // Add parameters.
+            stringBuilder.append("(");
+            stringBuilder.append(params);
+            stringBuilder.append(")");
         } else if (parent instanceof StructDefinitionNode) {
-            // Todo
+            // Add the function signature.
+            stringBuilder.append("struct ");
+            stringBuilder.append(element.getText());
+            stringBuilder.append(" { }");
         }
-        return "";
+
+        // If the doc is available, add package to the top.
+        if (!stringBuilder.toString().isEmpty()) {
+            // Add the containing package to the quick doc if there is any.
+            PsiElement packagePathNode = getContainingPackage(element);
+            if (packagePathNode != null) {
+                stringBuilder.insert(0, packagePathNode.getText() + "<br><br>");
+            }
+        }
+        // Return the signature.
+        return stringBuilder.toString();
     }
 
     @NotNull
-    public static String getDocText(PsiElement element, PsiElement originalElement) {
+    private static String getDocText(PsiElement element, PsiElement originalElement) {
         if (element == null) {
             return "";
         }
         if (originalElement == null) {
             return "";
         }
-        PsiElement parent = element.getParent();
         // Get all doc annotations.
         List<PsiElement> annotations = getDocAnnotations(element);
-        if (parent instanceof FunctionNode) {
-            StringBuilder stringBuilder = new StringBuilder();
-            // Get the function description.
-            String description = getDescriptionFromDoc(annotations);
+
+        StringBuilder stringBuilder = new StringBuilder();
+        // Get the function description.
+        String description = getDescriptionFromDoc(annotations);
+        // Add the description to the string builder.
+        if (!description.isEmpty()) {
             stringBuilder.append("<DL><DT>").append(description).append("</DT></DL>");
-            // Get the parameter descriptions from docs.
-            List<String> params = getParamDescriptions(annotations);
-            if (!params.isEmpty()) {
-                stringBuilder.append("<DL>");
-                stringBuilder.append("<DT><b>").append("Parameters:").append("</b></DT>");
-                for (String param : params) {
-                    stringBuilder.append("<DD>").append(param).append("</DD>");
-                }
-                stringBuilder.append("</DL>");
-            }
-            // Get return value descriptions from docs.
-            List<String> returnTypes = getReturnValueDescriptions(annotations);
-            if (!returnTypes.isEmpty()) {
-                stringBuilder.append("<DL>");
-                stringBuilder.append("<DT><b>").append("Returns:").append("</b></DT>");
-                for (String returnType : returnTypes) {
-                    stringBuilder.append("<DD>").append(returnType).append("</DD>");
-                }
-                stringBuilder.append("</DL>");
-            }
-            return stringBuilder.toString();
-        } else if (parent instanceof ActionDefinitionNode) {
-            //Todo
-        } else if (parent instanceof ConnectorNode) {
-            //Todo
-        } else if (parent instanceof StructDefinitionNode) {
-            //Todo
         }
-        return "";
+        // Get the parameter descriptions from docs.
+        List<String> params = getParamDescriptions(annotations);
+        if (!params.isEmpty()) {
+            // Generate parameters section.
+            generateSection(stringBuilder, "Parameters:", params);
+        }
+        // Get return value descriptions from docs.
+        List<String> returnTypes = getReturnValueDescriptions(annotations);
+        if (!returnTypes.isEmpty()) {
+            // Generate return values section.
+            generateSection(stringBuilder, "Returns:", returnTypes);
+        }
+        if (element.getParent() instanceof StructDefinitionNode) {
+            // Get return value descriptions from docs.
+            List<String> fields = getFieldDescriptions(annotations);
+            if (!fields.isEmpty()) {
+                // Generate return values section.
+                generateSection(stringBuilder, "Fields:", fields);
+            }
+        }
+        return stringBuilder.toString();
     }
 
-    private static List<String> getReturnParams(PsiElement functionNode) {
+    /**
+     * Returns the return types of the given definition node. This return types are later used to generate the
+     * signature.
+     *
+     * @param definitionNode definition node which we want to get the return types
+     * @return list of return type strings.
+     */
+    private static List<String> getReturnTypes(PsiElement definitionNode) {
         List<String> results = new LinkedList<>();
-        ReturnParametersNode node = PsiTreeUtil.findChildOfType(functionNode, ReturnParametersNode.class);
+        // Parameters are in the ReturnParametersNode. So we first get the ReturnParametersNode from the definition
+        // node.
+        ReturnParametersNode node = PsiTreeUtil.findChildOfType(definitionNode, ReturnParametersNode.class);
         if (node == null) {
             return results;
         }
+        // But there can be two possible scenarios. The actual return types can be in either ReturnTypeListNode or
+        // ParameterListNode. This is because return types can be named parameters. In that case, ParameterListNode is
+        // available.
+
+        // First we check for ReturnTypeListNode.
         ReturnTypeListNode returnTypeListNode = PsiTreeUtil.findChildOfType(node, ReturnTypeListNode.class);
+        // If it is available, that means the return types are not named parameters.
         if (returnTypeListNode != null) {
+            // Each parameter will be of type TypeNameNode. So we get all return types.
             Collection<TypeNameNode> typeNameNodes =
                     PsiTreeUtil.findChildrenOfType(returnTypeListNode, TypeNameNode.class);
-            for (TypeNameNode typeNameNode : typeNameNodes) {
-                results.add(typeNameNode.getText());
-            }
+            // Add each TypeNameNode to the result list.
+            typeNameNodes.forEach(typeNameNode -> results.add(typeNameNode.getText()));
+            // Return the results.
             return results;
         }
 
+        // If there is no return type node, we check for ParameterListNode.
         ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(node, ParameterListNode.class);
         if (parameterListNode != null) {
+            // Actual parameters are in ParameterNodes.
             Collection<ParameterNode> parameterNodes =
                     PsiTreeUtil.findChildrenOfType(parameterListNode, ParameterNode.class);
-            for (ParameterNode parameterNode : parameterNodes) {
-                results.add(parameterNode.getText());
-            }
+            // Add each ParameterNode to the result list.
+            parameterNodes.forEach(parameterNode -> results.add(parameterNode.getText()));
+            // Return the results.
             return results;
         }
+        // Return empty list.
         return results;
     }
 
+    /**
+     * Returns the package which contains the given element.
+     *
+     * @param element element which needs to be used to get the package
+     * @return the package which contains the given element.
+     */
     @Nullable
-    private static PsiElement getContainingPackage(PsiElement element) {
+    private static PackagePathNode getContainingPackage(PsiElement element) {
+        // Get the containing file.
         PsiFile containingFile = element.getContainingFile();
+        if (containingFile == null) {
+            return null;
+        }
+        // Get the PackageDeclarationNode from the file.
         PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(containingFile,
                 PackageDeclarationNode.class);
         if (packageDeclarationNode == null) {
             return null;
         }
+        // Return the PackagePathNode since it contains the package.
         return PsiTreeUtil.findChildOfType(packageDeclarationNode, PackagePathNode.class);
     }
 
+    /**
+     * Returns all doc annotations which precedes the given element.
+     *
+     * @param element element which is used to get the annotations
+     * @return all annotation nodes which precedes the given element.
+     */
     @NotNull
     private static List<PsiElement> getDocAnnotations(PsiElement element) {
         List<PsiElement> annotations = new LinkedList<>();
-        PsiElement superParent = element.getParent().getParent();
-        PsiElement prevSibling = superParent.getPrevSibling();
-
-        while (prevSibling != null && (prevSibling instanceof AnnotationAttachmentNode ||
-                prevSibling instanceof PsiWhiteSpace)) {
-            if (!(prevSibling instanceof PsiWhiteSpace)) {
-                annotations.add(0, prevSibling);
+        PsiElement definitionNode;
+        if (element.getParent() instanceof ActionDefinitionNode) {
+            // Action definition itself contains the annotations.
+            definitionNode = element.getParent();
+            // So we directly get all annotations from the action definition node.
+            Collection<AnnotationAttachmentNode> attachmentNodes = PsiTreeUtil.findChildrenOfType(definitionNode,
+                    AnnotationAttachmentNode.class);
+            annotations.addAll(attachmentNodes);
+        } else {
+            // For other types of nodes, annotations precedes the super parent node.
+            definitionNode = element.getParent().getParent();
+            PsiElement prevSibling = definitionNode.getPrevSibling();
+            // We iterate through all nodes ignoring PsiWhiteSpace nodes.
+            while (prevSibling != null && (prevSibling instanceof AnnotationAttachmentNode ||
+                    prevSibling instanceof PsiWhiteSpace)) {
+                // If the prevSibling is not a PsiWhiteSpace, that means it is an AnnotationAttachmentNode.
+                if (!(prevSibling instanceof PsiWhiteSpace)) {
+                    annotations.add(0, prevSibling);
+                }
+                prevSibling = prevSibling.getPrevSibling();
             }
-            prevSibling = prevSibling.getPrevSibling();
         }
+        // Return the annotations.
         return annotations;
     }
 
+    /**
+     * Returns the description from the {@code Description} doc annotation.
+     *
+     * @param annotations list of all annotations
+     * @return the description as a string
+     */
     @NotNull
     private static String getDescriptionFromDoc(List<PsiElement> annotations) {
         for (PsiElement annotation : annotations) {
-            NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(annotation, NameReferenceNode.class);
-            if (nameReferenceNode == null) {
-                continue;
-            }
-            PsiElement nameReferenceNodeIdentifier = nameReferenceNode.getNameIdentifier();
-            if (nameReferenceNodeIdentifier == null) {
-                continue;
-            }
-            if (!"Description".equals(nameReferenceNodeIdentifier.getText())) {
-                continue;
-            }
-            PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(nameReferenceNode, PackageNameNode.class);
-            if (packageNameNode == null) {
-                continue;
-            }
-            PsiElement packageNameNodeIdentifier = packageNameNode.getNameIdentifier();
-            if (packageNameNodeIdentifier == null) {
-                continue;
-            }
-            if (!"doc".equals(packageNameNodeIdentifier.getText())) {
-                continue;
-            }
-            AnnotationAttributeValueNode valueNode = PsiTreeUtil.findChildOfType(annotation,
-                    AnnotationAttributeValueNode.class);
+            AnnotationAttributeValueNode valueNode = getAnnotationAttributeNode(annotation, DOC_DESCRIPTION);
             if (valueNode == null) {
                 continue;
             }
-            return valueNode.getText().substring(1, valueNode.getText().length() - 1);
+            String text = valueNode.getText();
+            // We ignore the " in the beginning and end.
+            return text.substring(1, text.length() - 1);
         }
         return "";
     }
 
+    /**
+     * Returns the parameters from the {@code Param}  doc annotations.
+     *
+     * @param annotations list of all annotations
+     * @return list of parameter strings
+     */
     @NotNull
     private static List<String> getParamDescriptions(List<PsiElement> annotations) {
         List<String> params = new LinkedList<>();
         for (PsiElement annotation : annotations) {
-            NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(annotation, NameReferenceNode.class);
-            if (nameReferenceNode == null) {
-                continue;
-            }
-            PsiElement nameReferenceNodeIdentifier = nameReferenceNode.getNameIdentifier();
-            if (nameReferenceNodeIdentifier == null) {
-                continue;
-            }
-            if (!"Param".equals(nameReferenceNodeIdentifier.getText())) {
-                continue;
-            }
-            PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(nameReferenceNode, PackageNameNode.class);
-            if (packageNameNode == null) {
-                continue;
-            }
-            PsiElement packageNameNodeIdentifier = packageNameNode.getNameIdentifier();
-            if (packageNameNodeIdentifier == null) {
-                continue;
-            }
-            if (!"doc".equals(packageNameNodeIdentifier.getText())) {
-                continue;
-            }
-            AnnotationAttributeValueNode valueNode = PsiTreeUtil.findChildOfType(annotation,
-                    AnnotationAttributeValueNode.class);
+            AnnotationAttributeValueNode valueNode = getAnnotationAttributeNode(annotation, DOC_PARAM);
             if (valueNode == null) {
                 continue;
             }
-            params.add(valueNode.getText().substring(1, valueNode.getText().length() - 1).replaceFirst(":", " -"));
+            String text = valueNode.getText();
+            // We ignore the " in the beginning and end. We also replace the ":" with " -" to increase the
+            // readability of the docs.
+            params.add(text.substring(1, text.length() - 1).replaceFirst(":", " -"));
         }
         return params;
     }
 
+    /**
+     * Returns the return value descriptions from the {@code Return} doc annotations.
+     *
+     * @param annotations list of all annotations
+     * @return list of return value strings
+     */
     @NotNull
     private static List<String> getReturnValueDescriptions(List<PsiElement> annotations) {
         List<String> returnTypes = new LinkedList<>();
         for (PsiElement annotation : annotations) {
-            NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(annotation, NameReferenceNode.class);
-            if (nameReferenceNode == null) {
-                continue;
-            }
-            PsiElement nameReferenceNodeIdentifier = nameReferenceNode.getNameIdentifier();
-            if (nameReferenceNodeIdentifier == null) {
-                continue;
-            }
-            if (!"Return".equals(nameReferenceNodeIdentifier.getText())) {
-                continue;
-            }
-            PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(nameReferenceNode, PackageNameNode.class);
-            if (packageNameNode == null) {
-                continue;
-            }
-            PsiElement packageNameNodeIdentifier = packageNameNode.getNameIdentifier();
-            if (packageNameNodeIdentifier == null) {
-                continue;
-            }
-            if (!"doc".equals(packageNameNodeIdentifier.getText())) {
-                continue;
-            }
-            AnnotationAttributeValueNode valueNode = PsiTreeUtil.findChildOfType(annotation,
-                    AnnotationAttributeValueNode.class);
+            AnnotationAttributeValueNode valueNode = getAnnotationAttributeNode(annotation, DOC_RETURN);
             if (valueNode == null) {
                 continue;
             }
-            returnTypes.add(valueNode.getText().substring(1, valueNode.getText().length() - 1).replaceFirst(":",
-                    " -"));
+            String text = valueNode.getText();
+            // We ignore the " in the beginning and end. We also replace the ":" with " -" to increase the
+            // readability of the docs.
+            returnTypes.add(text.substring(1, text.length() - 1).replaceFirst(":", " -"));
         }
         return returnTypes;
     }
 
-    //    @NotNull
-    //    private static String getReturnValueDescriptions(List<PsiElement> annotations) {
-    //        for (PsiElement annotation : annotations) {
-    //            NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(annotation, NameReferenceNode
-    // .class);
-    //            if (nameReferenceNode == null) {
-    //                continue;
-    //            }
-    //            PsiElement nameReferenceNodeIdentifier = nameReferenceNode.getNameIdentifier();
-    //            if (nameReferenceNodeIdentifier == null) {
-    //                continue;
-    //            }
-    //            if (!"Return".equals(nameReferenceNodeIdentifier.getText())) {
-    //                continue;
-    //            }
-    //            PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(nameReferenceNode, PackageNameNode
-    // .class);
-    //            if (packageNameNode == null) {
-    //                continue;
-    //            }
-    //            PsiElement packageNameNodeIdentifier = packageNameNode.getNameIdentifier();
-    //            if (packageNameNodeIdentifier == null) {
-    //                continue;
-    //            }
-    //            if (!"doc".equals(packageNameNodeIdentifier.getText())) {
-    //                continue;
-    //            }
-    //            AnnotationAttributeValueNode valueNode = PsiTreeUtil.findChildOfType(annotation,
-    //                    AnnotationAttributeValueNode.class);
-    //            if (valueNode == null) {
-    //                continue;
-    //            }
-    //            return valueNode.getText().substring(1, valueNode.getText().length() - 1);
-    //        }
-    //        return "";
-    //    }
+    /**
+     * Returns the field descriptions from the {@code Field} doc annotations.
+     *
+     * @param annotations list of all annotations
+     * @return list of field description strings
+     */
+    @NotNull
+    private static List<String> getFieldDescriptions(List<PsiElement> annotations) {
+        List<String> returnTypes = new LinkedList<>();
+        for (PsiElement annotation : annotations) {
+            AnnotationAttributeValueNode valueNode = getAnnotationAttributeNode(annotation, DOC_FIELD);
+            if (valueNode == null) {
+                continue;
+            }
+            String text = valueNode.getText();
+            // We ignore the " in the beginning and end. We also replace the ":" with " -" to increase the
+            // readability of the docs.
+            returnTypes.add(text.substring(1, text.length() - 1).replaceFirst(":", " -"));
+        }
+        return returnTypes;
+    }
 
-    private static void createElementLink(StringBuilder sb, PsiElement element, String str) {
-        sb.append("&nbsp;&nbsp;<a href=\"" + DocumentationManagerProtocol.PSI_ELEMENT_PROTOCOL);
-        sb.append(JavaDocUtil.getReferenceText(element.getProject(), element));
-        sb.append("\">");
-        sb.append(str);
-        sb.append("</a>");
-        sb.append("<br>");
+    /**
+     * Extract and return the {@link AnnotationAttributeValueNode} if the provided annotation matches the provided type.
+     *
+     * @param annotation     annotation element
+     * @param annotationType annotation type
+     * @return {@link AnnotationAttributeValueNode} of the given element if the annotation matches the given type.
+     * {@code null}
+     * otherwise.
+     */
+    private static AnnotationAttributeValueNode getAnnotationAttributeNode(PsiElement annotation,
+                                                                           String annotationType) {
+        NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(annotation, NameReferenceNode.class);
+        if (nameReferenceNode == null) {
+            return null;
+        }
+        PsiElement nameReferenceNodeIdentifier = nameReferenceNode.getNameIdentifier();
+        if (nameReferenceNodeIdentifier == null) {
+            return null;
+        }
+        if (!annotationType.equals(nameReferenceNodeIdentifier.getText())) {
+            return null;
+        }
+        PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(nameReferenceNode, PackageNameNode.class);
+        if (packageNameNode == null) {
+            return null;
+        }
+        PsiElement packageNameNodeIdentifier = packageNameNode.getNameIdentifier();
+        if (packageNameNodeIdentifier == null) {
+            return null;
+        }
+        if (!DOC_PACKAGE_NAME.equals(packageNameNodeIdentifier.getText())) {
+            return null;
+        }
+        return PsiTreeUtil.findChildOfType(annotation, AnnotationAttributeValueNode.class);
+    }
+
+    /**
+     * Generates sections in doc like parameters, return values, etc.
+     *
+     * @param stringBuilder stringBuilder object which is used to generate the doc
+     * @param title         title of the section
+     * @param tags          list of values(parameter descriptions, return type descriptions, etc) which needs to be
+     *                      added to the section
+     */
+    private static void generateSection(StringBuilder stringBuilder, String title, List<String> tags) {
+        stringBuilder.append("<DL>");
+        stringBuilder.append("<DT><b>").append(title).append("</b></DT>");
+        for (String tag : tags) {
+            generateOneTag(stringBuilder, tag);
+        }
+        stringBuilder.append("</DL>");
+    }
+
+    /**
+     * generate a single tag in the doc.
+     *
+     * @param stringBuilder stringBuilder object which is used to generate the doc
+     * @param tag           value(parameter description, return type description, etc) which needs to be added to
+     *                      the section
+     */
+    private static void generateOneTag(StringBuilder stringBuilder, String tag) {
+        stringBuilder.append("<DD>").append(tag).append("</DD>");
+    }
+
+    /**
+     * Creates element link in the doc.
+     *
+     * @param stringBuilder stringBuilder object which is used to generate the doc
+     * @param element       element which needs to be linked
+     * @param displayName   display text of the link
+     */
+    private static void createElementLink(StringBuilder stringBuilder, PsiElement element, String displayName) {
+        stringBuilder.append("&nbsp;&nbsp;<a href=\"" + DocumentationManagerProtocol.PSI_ELEMENT_PROTOCOL);
+        stringBuilder.append(JavaDocUtil.getReferenceText(element.getProject(), element));
+        stringBuilder.append("\">");
+        stringBuilder.append(displayName);
+        stringBuilder.append("</a>");
+        stringBuilder.append("<br>");
     }
 }
