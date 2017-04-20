@@ -52,6 +52,7 @@ import java.util.List;
 public class BallerinaDocumentationProvider extends AbstractDocumentationProvider {
 
     public static final String DOC_PACKAGE_NAME = "doc";
+    public static final String DOC_SEPARATOR = ":";
     public static final String DOC_DESCRIPTION = "Description";
     public static final String DOC_PARAM = "Param";
     public static final String DOC_RETURN = "Return";
@@ -358,7 +359,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             String text = valueNode.getText();
             // We ignore the " in the beginning and end. We also replace the ":" with " -" to increase the
             // readability of the docs.
-            params.add(text.substring(1, text.length() - 1).replaceFirst(":", " -"));
+            params.add(text.substring(1, text.length() - 1).replaceFirst(DOC_SEPARATOR, " -"));
         }
         return params;
     }
@@ -380,7 +381,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             String text = valueNode.getText();
             // We ignore the " in the beginning and end. We also replace the ":" with " -" to increase the
             // readability of the docs.
-            returnTypes.add(text.substring(1, text.length() - 1).replaceFirst(":", " -"));
+            returnTypes.add(text.substring(1, text.length() - 1).replaceFirst(DOC_SEPARATOR, " -"));
         }
         return returnTypes;
     }
@@ -402,7 +403,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             String text = valueNode.getText();
             // We ignore the " in the beginning and end. We also replace the ":" with " -" to increase the
             // readability of the docs.
-            returnTypes.add(text.substring(1, text.length() - 1).replaceFirst(":", " -"));
+            returnTypes.add(text.substring(1, text.length() - 1).replaceFirst(DOC_SEPARATOR, " -"));
         }
         return returnTypes;
     }
