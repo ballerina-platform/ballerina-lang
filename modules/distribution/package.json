@@ -22,12 +22,12 @@
     },
     "win": {
       "target": [
-        "zip"
+        "nsis"
       ]
     },
     "linux": {
       "target": [
-        "zip"
+        "deb"
       ]
     }
   },
