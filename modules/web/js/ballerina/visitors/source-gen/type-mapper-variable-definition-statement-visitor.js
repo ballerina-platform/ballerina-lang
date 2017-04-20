@@ -33,6 +33,9 @@ class TypeMapperVariableDefinitionStatementVisitor extends AbstractStatementSour
 
     beginVisitVariableDefinitionStatement(variableDefinitionStatement) {
         this.appendSource(variableDefinitionStatement.getLeftExpression());
+        if (variableDefinitionStatement.getRightExpression() != null) {
+            this.appendSource(" = "+ variableDefinitionStatement.getRightExpression());
+        }
         log.debug('Begin Visit Type Mapper Variable Definition Statement');
     }
 

@@ -70,39 +70,12 @@ class BlockStatement extends ASTNode {
      * @param {ASTNode} child
      * @param {number} index
      */
-    addChild(child, index, isModified, willVisit) {
-        var self = this;
-
-        if(self.getFactory().isAssignmentStatement(child)){
-            index = _.findLastIndex(self.getChildren());
-        }
-        if (!_.isUndefined(willVisit) && willVisit != true){
-
-            if (_.isUndefined(index)) {
-                self.children.push(child);
-            } else {
-                self.children.splice(index, 0, child);
-            }
-            //setting the parent node - doing silently avoid subsequent change events
-            child.setParent(self, {doSilently:true});
-            child.generateUniqueIdentifiers();
-        }else{
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child,index);
-        }
+    addChild(child, index) {
+        Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child,index);
     }
 
-    removeChild(child, ignoreModifiedTreeEvent, willVisit) {
-        if (!_.isUndefined(willVisit) && willVisit != true) {
-            var parentModelChildren = this.children;
-            for (var itr = 0; itr < parentModelChildren.length; itr++) {
-                if (parentModelChildren[itr].id === child.id) {
-                    parentModelChildren.splice(itr, 1);
-                    break;
-                }
-            }
-        } else {
-            Object.getPrototypeOf(this.constructor.prototype).removeChild.call(this, child, ignoreModifiedTreeEvent);
-        }
+    removeChild(child) {
+        Object.getPrototypeOf(this.constructor.prototype).removeChild.call(this, child, ignoreModifiedTreeEvent);
     }
 }
 
