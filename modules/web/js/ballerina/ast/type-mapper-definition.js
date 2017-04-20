@@ -445,9 +445,11 @@ class TypeMapperDefinition extends ASTNode {
         });
         var blockStatementNode = ballerinaASTFactory.createBlockStatement();
         var childrenArray = self.getChildren();
+        var index = 0;
         _.forEach(childrenArray, function (child) {
-            if (!(ballerinaASTFactory.isArgument(child) || ballerinaASTFactory.isVariableDefinitionStatement(child))) {
-                blockStatementNode.addChild(child);
+            if (!(ballerinaASTFactory.isArgument(child))) {
+                blockStatementNode.addChild(child, index);
+                index++;
             }
         });
 
