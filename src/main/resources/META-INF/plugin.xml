@@ -146,6 +146,10 @@
                              dynamic="true"/>
         <!--folding builder-->
         <lang.foldingBuilder language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaFoldingBuilder"/>
+
+        <!--documentation-->
+        <lang.documentationProvider language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider"/>
+
     </extensions>
 
     <actions>
