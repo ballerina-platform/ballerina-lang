@@ -48,16 +48,13 @@ public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
     @Override
     public void sendText(String text) throws IOException {
-        ctx.channel().write(new TextWebSocketFrame(text));
-        ctx.channel().flush();
+        ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
     }
 
     @Override
     public void sendBinary(ByteBuffer data) throws IOException {
-        byte[] bytes = data.array();
-        ByteBuf byteBuf = Unpooled.wrappedBuffer(bytes);
-        ctx.channel().write(new BinaryWebSocketFrame(byteBuf));
-        ctx.channel().flush();
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(data);
+        ctx.channel().writeAndFlush(new BinaryWebSocketFrame(byteBuf));
     }
 
     @Override
@@ -67,10 +64,8 @@ public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
     @Override
     public void sendBinary(ByteBuffer partialByte, boolean isLast) throws IOException {
-        byte[] bytes = partialByte.array();
-        ByteBuf partialByteBuf = Unpooled.wrappedBuffer(bytes);
-        ctx.channel().write(new BinaryWebSocketFrame(isLast, 0, partialByteBuf));
-        ctx.channel().flush();
+        ByteBuf partialByteBuf = Unpooled.wrappedBuffer(partialByte);
+        ctx.channel().writeAndFlush(new BinaryWebSocketFrame(isLast, 0, partialByteBuf));
     }
 
     @Override
@@ -107,14 +102,12 @@ public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
     @Override
     public void sendPing(ByteBuffer applicationData) throws IOException, IllegalArgumentException {
         ByteBuf applicationDataBuf = Unpooled.wrappedBuffer(applicationData.array());
-        ctx.channel().write(new PingWebSocketFrame(applicationDataBuf));
-        ctx.channel().flush();
+        ctx.channel().writeAndFlush(new PingWebSocketFrame(applicationDataBuf));
     }
 
     @Override
     public void sendPong(ByteBuffer applicationData) throws IOException, IllegalArgumentException {
         ByteBuf applicationDataBuf = Unpooled.wrappedBuffer(applicationData.array());
-        ctx.channel().write(new PongWebSocketFrame(applicationDataBuf));
-        ctx.channel().flush();
+        ctx.channel().writeAndFlush(new PongWebSocketFrame(applicationDataBuf));
     }
 }
