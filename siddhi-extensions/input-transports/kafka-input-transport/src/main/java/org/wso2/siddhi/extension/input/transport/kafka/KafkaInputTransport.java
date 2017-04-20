@@ -43,7 +43,7 @@ public class KafkaInputTransport extends InputTransport{
     private OptionHolder optionHolder;
     private ConsumerKafkaGroup consumerKafkaGroup;
     private static final Logger log = Logger.getLogger(KafkaInputTransport.class);
-    private HashMap<String, HashMap<Integer, Long>> topicOffsetMap = new HashMap<>();
+    private Map<String, Map<Integer, Long>> topicOffsetMap = new HashMap<>();
 
     private final static String ADAPTOR_SUBSCRIBER_TOPIC = "topic";
     private final static String ADAPTOR_SUBSCRIBER_GROUP_ID = "group.id";
@@ -64,6 +64,7 @@ public class KafkaInputTransport extends InputTransport{
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
         this.executorService = executionPlanContext.getScheduledExecutorService();
+        executionPlanContext.getSnapshotService().addSnapshotable("kafka-sink", this);
     }
 
     @Override
@@ -131,6 +132,7 @@ public class KafkaInputTransport extends InputTransport{
         // and its partitions will be assigned to another process
         props.put("session.timeout.ms", "30000");
         props.put("enable.auto.commit", "false");
+        props.put("auto.offset.reset", "earliest");
         props.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
 
@@ -153,11 +155,13 @@ public class KafkaInputTransport extends InputTransport{
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> currentState = new HashMap<>();
-        return (Map<String, Object>) currentState.put(TOPIC_OFFSET_MAP, consumerKafkaGroup.getTopicOffsetMap());
+        currentState.put(TOPIC_OFFSET_MAP, this.topicOffsetMap);
+        return currentState;
     }
 
     @Override
     public void restoreState(Map<String, Object> state) {
-        this.topicOffsetMap = (HashMap<String, HashMap<Integer, Long>>)state.get(TOPIC_OFFSET_MAP);
+        this.topicOffsetMap = (Map<String, Map<Integer, Long>>) state.get(TOPIC_OFFSET_MAP);
+        consumerKafkaGroup.restore(topicOffsetMap);
     }
 }

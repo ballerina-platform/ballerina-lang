@@ -46,8 +46,9 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
 
 
 
-    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder, OutputMapper outputMapper,
-                     String mapType, OptionHolder mapOptionHolder, String payload, ExecutionPlanContext executionPlanContext) {
+    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder, OutputMapper
+            outputMapper, String mapType, OptionHolder mapOptionHolder, String payload, ExecutionPlanContext
+            executionPlanContext) {
         this.type = type;
         this.optionHolder = transportOptionHolder;
         this.streamDefinition = streamDefinition;
