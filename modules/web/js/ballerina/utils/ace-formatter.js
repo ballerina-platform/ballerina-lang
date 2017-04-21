@@ -311,6 +311,14 @@ class BallerinaFormatter {
                         }
                     }
                 });
+            } else {
+                if(_.isEqual(annotationStack.length, 1) && _.isEqual(token.type, 'ballerina-annotation')) {
+                    code += newLine;
+                    // indent
+                    for (let i = 0; i < indentation; i++) {
+                        code += tab;
+                    }
+                }
             }
 
             //detect annotation definition context
