@@ -118,14 +118,14 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             }
             Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(root,
                     ImportDeclarationNode.class);
-            if (importDeclarationNodes.size() > 0) {
+            if (!importDeclarationNodes.isEmpty()) {
                 ImportDeclarationNode[] importDeclarationNodesArray = importDeclarationNodes.toArray(new
                         ImportDeclarationNode[importDeclarationNodes.size()]);
                 ImportDeclarationNode firstImport = importDeclarationNodesArray[0];
                 ImportDeclarationNode lastImport = importDeclarationNodesArray[importDeclarationNodes.size() - 1];
 
                 PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(firstImport, PackagePathNode.class);
-                if (packagePathNode == null) {
+                if (packagePathNode == null || packagePathNode.getText().isEmpty()) {
                     return;
                 }
                 int startOffset = packagePathNode.getTextRange().getStartOffset();
