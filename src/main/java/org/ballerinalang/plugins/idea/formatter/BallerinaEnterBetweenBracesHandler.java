@@ -35,8 +35,10 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         if (!file.getLanguage().is(BallerinaLanguage.INSTANCE)) {
             return Result.Continue;
         }
+        // We need to save the file before checking. Otherwise issues can occur when we press enter in a string.
+        Project project = file.getProject();
+        PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
         if (isInsideABlock(file, editor)) {
-            Project project = file.getProject();
             // Todo - get the spacing from settings
             EditorModificationUtil.insertStringAtCaret(editor, "    ", false, 4);
             PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
