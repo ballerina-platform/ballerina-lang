@@ -46,7 +46,7 @@ public class BallerinaConnectorManager {
     private boolean connectorsInitialized = false;
     
     /* ServerConnectors which startup is delayed at the service deployment time */
-    private List<StartupDelayedServerConnectorHolder> startupDelayedServerConnectors = new ArrayList<>();
+    private List<ServerConnector> startupDelayedServerConnectors = new ArrayList<>();
 
     private BallerinaConnectorManager() {
     }
@@ -85,10 +85,10 @@ public class BallerinaConnectorManager {
      * @param id unique id to use when creating the server connector instance.
      * @return returns the newly created instance.
      */
-    public ServerConnector createServerConnector(String protocol, String id) {
+    public ServerConnector createServerConnector(String protocol, String id, Map<String, String> parameters) {
         ServerConnector serverConnector;
         try {
-            serverConnector = connectorManager.createServerConnector(protocol, id);
+            serverConnector = connectorManager.createServerConnector(protocol, id, parameters);
         } catch (ServerConnectorException e) {
             throw new BallerinaException("Error occurred while creating a server connector for protocol : '" +
                     protocol + "' with the given id : '" + id + "'", e);
@@ -159,10 +159,9 @@ public class BallerinaConnectorManager {
      * Add a ServerConnector which startup is delayed at the service deployment time.
      *
      * @param serverConnector ServerConnector
-     * @param parameters      parameter map required to start the ServerConnector
      */
-    public void addStartupDelayedServerConnector(ServerConnector serverConnector, Map<String, String> parameters) {
-        startupDelayedServerConnectors.add(new StartupDelayedServerConnectorHolder(serverConnector, parameters));
+    public void addStartupDelayedServerConnector(ServerConnector serverConnector) {
+        startupDelayedServerConnectors.add(serverConnector);
     }
 
     /**
@@ -173,9 +172,9 @@ public class BallerinaConnectorManager {
      */
     public List<ServerConnector> startPendingConnectors() throws ServerConnectorException {
         List<ServerConnector> startedConnectors = new ArrayList<>();
-        for (StartupDelayedServerConnectorHolder connectorHolder: startupDelayedServerConnectors) {
-            connectorHolder.getServerConnector().start(connectorHolder.getParameters());
-            startedConnectors.add(connectorHolder.getServerConnector());
+        for (ServerConnector serverConnector: startupDelayedServerConnectors) {
+            serverConnector.start();
+            startedConnectors.add(serverConnector);
         }
         startupDelayedServerConnectors.clear();
         return startedConnectors;
@@ -190,28 +189,6 @@ public class BallerinaConnectorManager {
         ServiceLoader<ServiceDispatcher> serviceDispatcherServiceLoader = ServiceLoader.load(ServiceDispatcher.class);
         serviceDispatcherServiceLoader.forEach(serviceDispatcher ->
                 DispatcherRegistry.getInstance().registerServiceDispatcher(serviceDispatcher));
-    }
-
-    /**
-     * DataHolder for store startup delayed ServerConnectors.
-     * TODO: We may get rid of this later with a messaging api change
-     */
-    private class StartupDelayedServerConnectorHolder {
-        Map<String, String> parameters;
-        ServerConnector serverConnector;
-
-        private StartupDelayedServerConnectorHolder(ServerConnector serverConnector, Map<String, String> parameters) {
-            this.parameters = parameters;
-            this.serverConnector = serverConnector;
-        }
-
-        private Map<String, String> getParameters() {
-            return parameters;
-        }
-
-        private ServerConnector getServerConnector() {
-            return serverConnector;
-        }
     }
 
 }

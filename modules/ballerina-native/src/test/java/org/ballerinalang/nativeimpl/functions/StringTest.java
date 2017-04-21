@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.functions;
 
 import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -283,6 +284,20 @@ public class StringTest {
     public void testXmlValueOfNegative() {
         BValue[] args = {new BXML("<test>name<test>")};
         BLangFunctions.invoke(bLangProgram, "xmlValueOf", args);
+    }
+
+    @Test
+    public void testSplit() {
+        BValue[] args = {new BString("name1 name2 name3"), new BString(" ")};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "split", args);
+
+        Assert.assertTrue((((BArray) returns[0]).get(0)) instanceof BString);
+        Assert.assertTrue((((BArray) returns[0]).get(1)) instanceof BString);
+        Assert.assertTrue((((BArray) returns[0]).get(2)) instanceof BString);
+
+        Assert.assertEquals((((BArray) returns[0]).get(0)).stringValue(), "name1");
+        Assert.assertEquals((((BArray) returns[0]).get(1)).stringValue(), "name2");
+        Assert.assertEquals((((BArray) returns[0]).get(2)).stringValue(), "name3");
     }
 
 }
