@@ -222,7 +222,8 @@ class BallerinaFormatter {
                         }
                         if (spaceRule.forceSpaceBefore && (!_.endsWith(code, space)
                                       && !_.endsWith(code, tab)
-                                      && !_.endsWith(code, newLine))) {
+                                      && !_.endsWith(code, newLine)
+                                      && !_.isEmpty(code))) {
                             code += space;
                         }
                         if (spaceRule.forceNoSpaceBefore && _.endsWith(code, space)) {
