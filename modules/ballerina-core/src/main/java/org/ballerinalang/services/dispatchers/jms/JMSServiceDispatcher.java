@@ -104,9 +104,9 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
             serviceMap.put(serviceId, service);
             annotationKeyValuePairs.putIfAbsent(Constants.JMS_DESTINATION, serviceId);
             ServerConnector serverConnector = BallerinaConnectorManager.getInstance()
-                    .createServerConnector(Constants.PROTOCOL_JMS, serviceId);
+                    .createServerConnector(Constants.PROTOCOL_JMS, serviceId, annotationKeyValuePairs);
             try {
-                serverConnector.start(annotationKeyValuePairs);
+                serverConnector.start();
             } catch (ServerConnectorException e) {
                 throw new BallerinaException("Error when starting to listen to the queue/topic while " + serviceId +
                         " deployment", e);
