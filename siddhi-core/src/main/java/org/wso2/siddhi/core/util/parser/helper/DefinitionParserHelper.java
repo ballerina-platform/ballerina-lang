@@ -325,6 +325,8 @@ public class DefinitionParserHelper {
                                     distributionAnnotation, outputTransportExt, supportedDynamicOptions);
                             PublishingStrategy publishingStrategy = constructPublishingStrategy(distributionOptHolder,
                                     streamDefinition, sinkAnnotation, execPlanContext);
+                            publishingStrategy.init(streamDefinition, transportOptionHolder, distributionOptHolder,
+                                    destinationOptHolders);
 
                            ((DistributedTransport)outputTransport).init(streamDefinition, sinkType,
                                    transportOptionHolder, outputMapper, mapType, mapOptionHolder, payload,
