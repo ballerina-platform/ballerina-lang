@@ -222,7 +222,8 @@ class BallerinaFormatter {
                         }
                         if (spaceRule.forceSpaceBefore && (!_.endsWith(code, space)
                                       && !_.endsWith(code, tab)
-                                      && !_.endsWith(code, newLine))) {
+                                      && !_.endsWith(code, newLine)
+                                      && !_.isEmpty(code))) {
                             code += space;
                         }
                         if (spaceRule.forceNoSpaceBefore && _.endsWith(code, space)) {
@@ -310,6 +311,14 @@ class BallerinaFormatter {
                         }
                     }
                 });
+            } else {
+                if(_.isEqual(annotationStack.length, 1) && _.isEqual(token.type, 'ballerina-annotation')) {
+                    code += newLine;
+                    // indent
+                    for (let i = 0; i < indentation; i++) {
+                        code += tab;
+                    }
+                }
             }
 
             //detect annotation definition context
