@@ -43,6 +43,7 @@ public class BallerinaFile implements Node {
 
     private ImportPackage[] importPkgs;
     private CompilationUnit[] compilationUnits;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     private BallerinaFile(
             String pkgName,
@@ -153,9 +154,13 @@ public class BallerinaFile implements Node {
         return null;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
     @Override
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-        return null;
+        return whiteSpaceDescriptor;
     }
 
     /**

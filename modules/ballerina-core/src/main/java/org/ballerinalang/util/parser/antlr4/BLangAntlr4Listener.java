@@ -122,6 +122,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
+        if (isVerboseMode) {
+            String fileStartingWhiteSpace = getWhitespaceToLeft(1);
+        }
     }
 
     @Override
