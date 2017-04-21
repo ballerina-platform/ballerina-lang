@@ -922,8 +922,8 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <carbon.transport.version>4.2.9</carbon.transport.version>
-        <carbon.messaging.version>2.2.3</carbon.messaging.version>
+        <carbon.transport.version>4.3.0</carbon.transport.version>
+        <carbon.messaging.version>2.3.3</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <slf4j.version>1.7.22</slf4j.version>
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
