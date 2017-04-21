@@ -25,12 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class implements a the distributed transport that could publish to multiple destination using a single
- * client/publisher. Following are some examples,
- *      - In a case where there are multiple partitions in a single topic in Kafka, the same kafka client can be used
- *      to send events to all the partitions within the topic.
- *      - The same email client can send email to different addresses.
- */
+ * Publishing strategy to implement messages in a round robin manner to multiple destinations
+ * */
 
 @Extension(
         name = "roundRobin",

@@ -27,8 +27,8 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by sajith on 4/21/17.
+ /**
+ * Publishing strategy to allow publish messages to multiple destination by partitioning
  */
 @Extension(
         name = "partitioned",
