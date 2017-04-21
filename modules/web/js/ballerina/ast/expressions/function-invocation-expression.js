@@ -164,8 +164,8 @@ class FunctionInvocationExpression extends Expression {
             }
         }
 
-        var functionName = (_.isNil(this.getPackageName()))? this.getFunctionName()
-            : this.getPackageName() + ":" + this.getFunctionName();
+        var functionName = (_.isNil(this.getPackageName()) || _.isEqual(this.getPackageName(), 'Current Package') )
+            ? this.getFunctionName() : this.getPackageName() + ":" + this.getFunctionName();
 
         return functionName + '(' + this._params +  ')';
     }
