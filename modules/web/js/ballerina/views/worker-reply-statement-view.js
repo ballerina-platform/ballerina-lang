@@ -352,4 +352,4 @@ class WorkerReplyStatementView extends SimpleStatementView {
 
 export default WorkerReplyStatementView;
 
-    
+

@@ -60,9 +60,9 @@ class ToolPaletteItemProvider extends EventChannel {
         this._importedPackagesViews = {};
 
         this.iconSrcs = {
-            function: require('images/tool-icons/function.svg'),
-            connector: require('images/tool-icons/connector.svg'),
-            action: require('images/tool-icons/action.svg'),
+            function: require('./../../../images/tool-icons/function.svg'),
+            connector: require('./../../../images/tool-icons/connector.svg'),
+            action: require('./../../../images/tool-icons/action.svg'),
         };
 
         this.icons = {};

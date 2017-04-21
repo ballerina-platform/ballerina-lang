@@ -326,4 +326,3 @@ class WorkerInvocationView extends SimpleStatementView {
 
 export default WorkerInvocationView;
 
-    

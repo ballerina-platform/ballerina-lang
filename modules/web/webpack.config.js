@@ -63,6 +63,7 @@ var config = {
             // hence dagre is added to libs
             // https://github.com/cpettitt/graphlib/issues/58
             dagre : "dagre-0.7.4/dagre.min.js",
+
             ///////////////////////
             // custom modules ////
             //////////////////////
