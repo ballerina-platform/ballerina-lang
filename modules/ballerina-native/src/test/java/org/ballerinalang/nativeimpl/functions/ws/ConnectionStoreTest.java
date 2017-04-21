@@ -20,10 +20,16 @@ package org.ballerinalang.nativeimpl.functions.ws;
 
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.testutils.EnvironmentInitializer;
+import org.ballerinalang.testutils.MessageUtils;
+import org.ballerinalang.testutils.Services;
 import org.ballerinalang.testutils.ws.MockWebSocketSession;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Test scenarios of WebSocket connection store.
@@ -31,6 +37,7 @@ import org.testng.annotations.Test;
 public class ConnectionStoreTest {
 
     private BLangProgram wsApp;
+    private BLangProgram httpApp;
 
     // Client are identified here by Sessions
     private MockWebSocketSession session1 = new MockWebSocketSession("session1");
@@ -38,18 +45,75 @@ public class ConnectionStoreTest {
     private MockWebSocketSession session3 = new MockWebSocketSession("session3");
     private MockWebSocketSession session4 = new MockWebSocketSession("session4");
 
+    private final String wsPath = "/chat/ws";
+    private final String httpBasePath = "/data";
+
     @BeforeClass
     public void  setup() {
-        wsApp = EnvironmentInitializer.setup("samples/websocket/connectionGroupTest.bal");
+        wsApp = EnvironmentInitializer.setup("samples/websocket/connection_store_sample/websocketEndpoint.bal");
+        httpApp = EnvironmentInitializer.setup("samples/websocket/connection_store_sample/httpService.bal");
+
+        //Registering WebSocket clients
+        Map<String, String> headers = new HashMap<>();
+        headers.put("id", "1");
+        Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session1, wsPath, headers));
+        headers.put("id", "2");
+        Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session2, wsPath, headers));
+        headers.put("id", "3");
+        Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session3, wsPath, headers));
+        headers.put("id", "4");
+        Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session4, wsPath, headers));
     }
 
-    @Test
+    @Test(priority = 0)
     public void testStoringConnections() {
+        String textSent;
+        //Sending message to client 1 and check
+        textSent = "Hi store 1";
+        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/1", "POST", textSent));
+        Assert.assertEquals(session1.getTextReceived(), textSent);
+        Assert.assertEquals(session2.getTextReceived(), null);
+        Assert.assertEquals(session3.getTextReceived(), null);
+        Assert.assertEquals(session4.getTextReceived(), null);
 
+        //Sending message to client 1 and check
+        textSent = "Hi store 2";
+        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/2", "POST", textSent));
+        Assert.assertEquals(session1.getTextReceived(), null);
+        Assert.assertEquals(session2.getTextReceived(), textSent);
+        Assert.assertEquals(session3.getTextReceived(), null);
+        Assert.assertEquals(session4.getTextReceived(), null);
+
+        //Sending message to client 1 and check
+        textSent = "Hi store 3";
+        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/3", "POST", textSent));
+        Assert.assertEquals(session1.getTextReceived(), null);
+        Assert.assertEquals(session2.getTextReceived(), null);
+        Assert.assertEquals(session3.getTextReceived(), textSent);
+        Assert.assertEquals(session4.getTextReceived(), null);
+
+        //Sending message to client 1 and check
+        textSent = "Hi store 4";
+        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/4", "POST", textSent));
+        Assert.assertEquals(session1.getTextReceived(), null);
+        Assert.assertEquals(session2.getTextReceived(), null);
+        Assert.assertEquals(session3.getTextReceived(), null);
+        Assert.assertEquals(session4.getTextReceived(), textSent);
+    }
+
+    @Test(priority = 1)
+    public void removeConnection() {
+        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/rm/1", "GET"));
+        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/1", "POST", "test"));
+        Assert.assertEquals(session1.getTextReceived(), null);
+        Assert.assertEquals(session2.getTextReceived(), null);
+        Assert.assertEquals(session3.getTextReceived(), null);
+        Assert.assertEquals(session4.getTextReceived(), null);
     }
 
     @AfterClass
     public void cleanUp() {
         EnvironmentInitializer.cleanup(wsApp);
+        EnvironmentInitializer.cleanup(httpApp);
     }
 }

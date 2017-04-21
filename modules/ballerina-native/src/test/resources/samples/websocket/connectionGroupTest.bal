@@ -21,12 +21,11 @@ service oddEvenWebSocketConnector {
     @ws:OnTextMessage {}
     resource onTextMessage(message m) {
         string text = messages:getStringPayload(m);
-
         if ("removeOddGroup" == text) {
             ws:removeConnectionGroup("oddGroup");
         } else if ("removeEvenGroup" == text) {
             ws:removeConnectionGroup("evenGroup");
-        } else if ("removeOddConnection") {
+        } else if ("removeOddConnection" == text) {
             ws:removeConnectionFromGroup("oddGroup");
         } else if ("removeEvenConnection" == text) {
             ws:removeConnectionFromGroup("evenGroup");

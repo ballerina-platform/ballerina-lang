@@ -86,6 +86,17 @@ public class ConnectionGroupTest {
         Assert.assertEquals(session4.getTextReceived(), textExpectedForEven);
     }
 
+    @Test
+    public void testRemoveConnectionGroup() {
+        String sentTextToRemove = "removeEvenGroup";
+        Services.invoke(MessageUtils.generateWebSocketTextMessage(sentTextToRemove, session3, wsEndpointPath));
+        String sentText = "hello only odd";
+        Assert.assertEquals(session1.getTextReceived(), null);
+        Assert.assertEquals(session2.getTextReceived(), null);
+        Assert.assertEquals(session3.getTextReceived(), "oddGroup: " + sentText);
+        Assert.assertEquals(session4.getTextReceived(), null);
+    }
+
     @AfterClass
     public void cleanUp() {
         EnvironmentInitializer.cleanup(wsApp);
