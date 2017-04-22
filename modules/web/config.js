@@ -1,4 +1,4 @@
-export default {
+let config = {
     container: "#page-content",
     welcome:{
         container:"#welcome-container",
@@ -19,7 +19,9 @@ export default {
         samples: ["resources/samples/echoService.bal", "resources/samples/helloWorld.bal",
             "resources/samples/passthroughService.bal", "resources/samples/routingServices.bal"]
     },
-    services:   {
+    // you can overide service urls by uncommenting the following.
+    // if the following are not set they will be taken automatically from the composer file server.
+    /*services: {
         workspace:  {
             endpoint: "http://localhost:8289/service/workspace"
         },
@@ -36,9 +38,9 @@ export default {
             endpoint: "http://localhost:8289/ballerina/validate"
         },
         launcher: {
-            endpoint: "ws://localhost:9092/launch"
+            endpoint: "ws://localhost:9097/launch"
         }
-    },
+    },*/
     alerts: {
         container: "#alerts-container",
         cssClass: {
@@ -377,3 +379,26 @@ export default {
         }
     }
 };
+
+
+// PRODUCTION is a global variable set by webpack DefinePlugin
+// it will be set to "true" in the production build.
+let configUrl = "";
+if(PRODUCTION != undefined && PRODUCTION){    
+    configUrl = "/config";
+}else{
+    //following is to support development mode where we will have static config for services.
+    configUrl = "http://localhost:9091/config"
+}
+
+// lets overide configs sent from the server
+$.ajax({
+    url: configUrl ,
+    dataType: "json",
+    success: (data) => {
+        config = _.merge(data, config);
+    },
+    async: false
+});
+
+export default config;

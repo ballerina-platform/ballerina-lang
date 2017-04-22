@@ -37,6 +37,12 @@ import org.ballerinalang.composer.service.workspace.launcher.dto.MessageDTO;
  */
 public class LaunchServer {
 
+    private int port;
+
+    LaunchServer(int port) {
+        this.port = port;
+    }
+
     /**
      *  Debug server initializer class
      */
@@ -62,7 +68,6 @@ public class LaunchServer {
     }
 
     private void startListning() {
-        int port = Integer.parseInt(LauncherConstants.LAUNCHER_PORT);
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {

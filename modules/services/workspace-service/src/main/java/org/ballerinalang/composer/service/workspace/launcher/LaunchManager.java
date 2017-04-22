@@ -68,10 +68,10 @@ public class LaunchManager {
     }
     
     
-    public void init() {
+    public void init(int port) {
         // start the debug server if it is not started yet.
         if (this.launchServer == null) {
-            this.launchServer = new LaunchServer();
+            this.launchServer = new LaunchServer(port);
             this.launchServer.startServer();
         }
     }

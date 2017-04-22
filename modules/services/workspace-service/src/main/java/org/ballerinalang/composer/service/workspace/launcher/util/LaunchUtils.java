@@ -18,10 +18,8 @@ package org.ballerinalang.composer.service.workspace.launcher.util;
 
 
 import org.ballerinalang.composer.service.workspace.launcher.LauncherConstants;
+import org.ballerinalang.composer.service.workspace.utils.WorkspaceUtils;
 
-import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.ServerSocket;
 import java.util.Locale;
 
 /**
@@ -49,50 +47,11 @@ public class LaunchUtils {
 
     public static int getFreePort() {
         for (int i = LauncherConstants.MIN_PORT_NUMBER; i < LauncherConstants.MAX_PORT_NUMBER; i++) {
-            if (available(i)) {
+            if (WorkspaceUtils.available(i)) {
                 return i;
             }
         }
         return -1;
-    }
-
-    /**
-     * Checks to see if a specific port is available.
-     *
-     * @param port the port number to check for availability
-     * @return <tt>true</tt> if the port is available, or <tt>false</tt> if not
-     * @throws IllegalArgumentException is thrown if the port number is out of range
-     */
-    public static boolean available(int port) throws IllegalArgumentException {
-        if (port < LauncherConstants.MIN_PORT_NUMBER || port > LauncherConstants.MAX_PORT_NUMBER) {
-            throw new IllegalArgumentException("Invalid start currentMinPort: " + port);
-        }
-
-        ServerSocket ss = null;
-        DatagramSocket ds = null;
-        try {
-            ss = new ServerSocket(port);
-            ss.setReuseAddress(true);
-            ds = new DatagramSocket(port);
-            ds.setReuseAddress(true);
-            return true;
-        } catch (IOException e) {
-            // Do nothing
-        } finally {
-            if (ds != null) {
-                ds.close();
-            }
-
-            if (ss != null) {
-                try {
-                    ss.close();
-                } catch (IOException e) {
-                    /* should not be thrown */
-                }
-            }
-        }
-
-        return false;
     }
 
 }
