@@ -250,22 +250,19 @@ class TypeMapperFunctionAssignmentView extends BallerinaView {
      */
     getFunctionSchema(functionInvocationExp, diagramRenderingContext) {
         var schema;
-        var packages = diagramRenderingContext.getPackagedScopedEnvironment().getPackages();
         var funcName = functionInvocationExp.getFunctionName();
-        if (funcName.split(':').length > 1) {
-            funcName = funcName.split(':')[1];
+        var packageName = functionInvocationExp.getPackageName();
+        var fullPackageName = functionInvocationExp.getFullPackageName();
+        var functionPackage ;
+        if (!_.isEmpty(fullPackageName)) {
+            functionPackage = diagramRenderingContext.getPackagedScopedEnvironment().getPackageByName(fullPackageName);
+        } else {
+            functionPackage = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage();
         }
-        var functionPackage = _.find(packages, function (aPackage) {
-            return aPackage.getFunctionDefinitionByName(funcName);
-        });
-        //This fix is done bcz the packages array returned from package scope environment doesn't have
-        // the current package populated correctly. The functions definitions are missing there.
         var functionDef;
         if (functionPackage) {
             functionDef = functionPackage.getFunctionDefinitionByName(funcName);
-        } else {
-            functionDef = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getFunctionDefinitionByName(funcName);
-        }
+        } 
         var mergedParams = [];
         mergedParams = mergedParams.concat(functionDef.getReturnParams());
         mergedParams = mergedParams.concat(functionDef.getParameters());
@@ -273,6 +270,7 @@ class TypeMapperFunctionAssignmentView extends BallerinaView {
         if (functionDef) {
             schema = {};
             schema['name'] = funcName;
+            schema['packageName'] = _.isNil(packageName) ? '' : packageName;
             schema['returnType'] = uniqueParams.slice(0, functionDef.getReturnParams().length);
             schema['parameters'] = uniqueParams.slice(functionDef.getReturnParams().length, uniqueParams.length);
         }

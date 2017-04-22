@@ -114,6 +114,7 @@ class FunctionInvocationExpression extends Expression {
     initFromJson(jsonNode) {
         var self = this;
         this.setPackageName(jsonNode.package_name, {doSilently: true});
+        this.setFullPackageName(jsonNode.package_path, {doSilently: true});
         this.setFunctionName(jsonNode.function_name, {doSilently: true});
         this.setParams(this._generateArgsString(jsonNode),  {doSilently: true});
         this.setExpression(this.generateExpression());
