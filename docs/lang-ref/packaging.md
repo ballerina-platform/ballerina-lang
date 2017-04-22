@@ -1,5 +1,7 @@
 # Packaging and Running Programs
 
+## About Ballerina packages
+
 A Ballerina program can consist of a number of Ballerina files, which you can organize into packages simply by creating subdirectories as follows:
 
 ```
@@ -90,7 +92,7 @@ You can execute Ballerina programs directly from the program directory. However,
 To create an archive, take the following steps:
 
 1. Make sure the Ballerina files you are archiving each have the correct package declaration at the top of the file and are in a directory structure that reflects that package path as described at the top of this page. 
-1. Open a command prompt and navigate to the directory **above** the package root directory. Using the StockQuoteService example, if the `myProgram` directory is in the root C:\ directory on Windows, you would navigate to C:\ at the command line.
+1. Open a command prompt and navigate to the directory **above** the package root directory. For example, for the StockQuoteService example described at the top of this page, if the `myProgram` directory is in the root C:\ directory on Windows, you would navigate to C:\ at the command line.
 1. Use one of the following `ballerina build` commands to create the archive. The syntax below assumes the Ballerina `bin` directory is in your path. If it is not, specify its path before the `ballerina` command. For example, if your Ballerina home directory is `C:\Ballerina_Home` on Windows, you would type `C:\Ballerina_Home\bin\ballerina build` followed by the options.
 
 To build a Ballerina **executable** archive containing a `main()` function, use the following command to build the `.bmz` file:
