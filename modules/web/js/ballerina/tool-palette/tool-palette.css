@@ -11,13 +11,13 @@
 
 .tool-group{
     width: 100%;
-    margin-bottom: 5px;
 }
 
 .tool-group-header{
     cursor: pointer;
     padding: 5px 1px;
     background: #eee;
+    margin: 5px 8px 0px 8px;
 }
 
 .tool-group-header-title{
