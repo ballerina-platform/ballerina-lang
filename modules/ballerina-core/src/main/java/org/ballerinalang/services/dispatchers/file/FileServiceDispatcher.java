@@ -85,11 +85,11 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
                 String serviceName = service.getSymbolName().getName();
 
-                ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance()
-                        .createServerConnector(Constants.PROTOCOL_FILE, serviceName);
+                ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
+                        Constants.PROTOCOL_FILE, serviceName, getServerConnectorParamMap(elementsMap));
 
                 try {
-                    fileServerConnector.start(getServerConnectorParamMap(elementsMap));
+                    fileServerConnector.start();
                     servicesMap.put(serviceName, service);
                 } catch (ServerConnectorException e) {
                     throw new BallerinaException("Could not start File Server Connector for service: "
