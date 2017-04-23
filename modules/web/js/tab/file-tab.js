@@ -110,6 +110,16 @@ import alerts from 'alerts';
                 this.app.workspaceManager.updateMenuItems();
             }, this);
 
+            fileEditor.on('design-view-activated', () => {
+                // const breakpoints = DebugManager.getDebugPoints(this._file.getName()) || [];
+                const breakpoints = fileEditor._sourceView.getBreakpoints() || [];
+                fileEditor._showDesignViewBreakpoints(breakpoints);
+            }, this);
+
+            fileEditor.on('source-view-activated', () => {
+                fileEditor._showSourceViewBreakPoints();
+            });
+
             fileEditor.on('add-breakpoint', function(row){
                 DebugManager.addBreakPoint(row, this._file.getName());
             }, this);
@@ -118,29 +128,9 @@ import alerts from 'alerts';
                 DebugManager.removeBreakPoint(row, this._file.getName());
             }, this);
 
-            fileEditor.on('content-modified', function() {
-                // TODO handle line number changes in a better way
-                // remove breakpoints if tree modified
-                if(!_.isEmpty(self.getBreakPoints())) {
-                    alerts.warn('Could not preserve debug points', 60000);
-                    self.removeAllBreakpoints();
-                }
-            });
-
             this.on('tab-removed', function() {
                 this.removeAllBreakpoints();
             });
-
-            var breakPointChangeCallback = function(debugPointChangedFileName) {
-                var fileName = self._file.getName();
-
-                if(debugPointChangedFileName === fileName) {
-                    var newBreakpoints = DebugManager.getDebugPoints(fileName);
-                    fileEditor.trigger('reset-breakpoints', newBreakpoints);
-                }
-            };
-            DebugManager.on('breakpoint-added', breakPointChangeCallback);
-            DebugManager.on('breakpoint-removed', breakPointChangeCallback);
 
             DebugManager.on('debug-hit', function(message){
                 var position = message.location;
@@ -205,7 +195,6 @@ import alerts from 'alerts';
 
         removeAllBreakpoints: function() {
             DebugManager.removeAllBreakpoints(this._file.getName());
-            this._fileEditor.trigger('reset-breakpoints', []);
         },
 
         getBreakPoints: function() {

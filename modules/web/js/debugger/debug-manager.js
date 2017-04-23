@@ -137,8 +137,8 @@ class DebugManager extends EventChannel {
     }
 
     hasBreakPoint(lineNumber, fileName) {
-        return !!this.debugPoints.find( () => {
-            return lineNumber === lineNumber && fileName === fileName;
+        return !!this.debugPoints.find( point => {
+            return point.lineNumber === lineNumber && point.fileName === fileName;
         });
     }
 

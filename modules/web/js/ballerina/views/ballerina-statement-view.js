@@ -23,7 +23,6 @@ import D3Utils from 'd3utils';
 import Point from './point';
 import BBox from './bounding-box';
 import ExpressionEditor from 'expression_editor_utils';
-import DebugManager from 'debugger/debug-manager';
 import $ from 'jquery';
 
 /**
@@ -221,9 +220,7 @@ class BallerinaStatementView extends StatementVisitor {
             .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.jumpClass, true);
 
         // show a remove breakpoint icon if there is a breakpoint already
-        var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
-        var lineNumber = self._model.getLineNumber();
-        var hasActiveBreakPoint = DebugManager.hasBreakPoint(lineNumber, fileName);
+        var hasActiveBreakPoint = self._model.isBreakpoint;
         toggleBreakpointButtonRect.classed(viewOptions.actionButton.breakpointActiveClass, hasActiveBreakPoint);
 
         if (_.size(editableProperties) > 0) {
@@ -252,7 +249,7 @@ class BallerinaStatementView extends StatementVisitor {
             this.expressionEditor = new ExpressionEditor(propertyPaneBody, viewOptions.propertyForm.body.property.wrapper,
                 editableProperties, packageScope , function () {
                     self.trigger('edit-mode-disabled');
-            });
+                });
         }
 
         $(deleteButtonRect.node()).click(function(event){
@@ -271,19 +268,23 @@ class BallerinaStatementView extends StatementVisitor {
             this.getDiagramRenderingContext().ballerinaFileEditor.getSourceView().jumpToLine({expression});
         });
 
-        $(toggleBreakpointButtonRect.node()).click(function(event){
-            // TODO: handle line number  is not defined for new nodes
+        $(toggleBreakpointButtonRect.node()).click( event => {
+            var ballerinaFileEditor = self.getDiagramRenderingContext().ballerinaFileEditor;
             event.stopPropagation();
             // Hiding property button pane.
             self.trigger('edit-mode-disabled');
-            var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
-            var lineNumber = self._model.getLineNumber();
-            if(DebugManager.hasBreakPoint(lineNumber, fileName)) {
-                DebugManager.removeBreakPoint(lineNumber, fileName);
+
+            if(this._model.isBreakpoint) {
+                this._model.isBreakpoint = false;
+                ballerinaFileEditor.removeBreakPoint(this);
+                this.hideDebugIndicator();
+                toggleBreakpointButtonRect.classed(viewOptions.actionButton.breakpointActiveClass, false);
             } else {
-                DebugManager.addBreakPoint(lineNumber, fileName);
+                this._model.isBreakpoint = true;
+                ballerinaFileEditor.addBreakPoint(this);
+                this.showDebugIndicator();
+                toggleBreakpointButtonRect.classed(viewOptions.actionButton.breakpointActiveClass, true);
             }
-            $(this).toggleClass('active');
         });
 
         $(jumpButtonRect.node()).click(function(event){
@@ -363,8 +364,6 @@ class BallerinaStatementView extends StatementVisitor {
      * indicator
     */
     _createDebugIndicator(args) {
-        var self = this;
-        var model = this._model;
         var viewOptions = _.get(args, 'viewOptions', {});
         var statementGroup = _.get(args, 'statementGroup', null);
 
@@ -411,10 +410,11 @@ class BallerinaStatementView extends StatementVisitor {
             viewOptions.breakpointIndicator.width, viewOptions.breakpointIndicator.height, 0, 0, debugIndicatorGroup)
             .classed(viewOptions.breakpointIndicator.class, true).classed(viewOptions.breakpointIndicator.class, true);
 
-        $(removeBreakpointButton.node()).click(function(event){
+        $(removeBreakpointButton.node()).click(event => {
             event.stopPropagation();
-            var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
-            DebugManager.removeBreakPoint(model.getLineNumber(), fileName);
+            const ballerinaFileEditor = this.getDiagramRenderingContext().ballerinaFileEditor;
+            ballerinaFileEditor.removeBreakPoint(this);
+            this.hideDebugIndicator();
         });
 
         this._debugIndicator = removeBreakpointButton;
@@ -428,9 +428,7 @@ class BallerinaStatementView extends StatementVisitor {
         });
 
         // resume state on rerendering
-        var file = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
-        var hasBreakPoint = DebugManager.hasBreakPoint(model.getLineNumber(), file);
-        if(hasBreakPoint) {
+        if(this._model.isBreakPoint) {
             this.showDebugIndicator();
         } else {
             this.hideDebugIndicator();
