@@ -44,6 +44,9 @@ import TypeMapperDefinitionView from './type-mapper-definition-view';
 import alerts from 'alerts';
 import ConstantDefinitionView from './constant-definition-view';
 import 'typeahead.js';
+import FindBreakpointsVisitor from './../visitors/find-breakpoints-visitor';
+import DebugManager from './../../debugger/debug-manager';
+
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
  * @class BallerinaFileEditor
@@ -80,6 +83,7 @@ class BallerinaFileEditor extends BallerinaView {
         this._isvInSwaggerView = false;
         this._constantDefinitionsPane = undefined;
         this.deserializer = BallerinaASTDeserializer;
+        this._currentBreakpoints = [];
         this.init();
     }
 
@@ -455,18 +459,8 @@ class BallerinaFileEditor extends BallerinaView {
         _.set(sourceViewOpts, 'storage', this._file._storage);
         this._sourceView = new SourceView(sourceViewOpts);
 
-        this.on('reset-breakpoints', function(newBreakpoints) {
-            self._sourceView.trigger('reset-breakpoints', newBreakpoints);
-            _.forEach(this._currentBreakpoints, function(breakpoint) {
-                self._hideBreakpoint(breakpoint);
-            });
-            _.forEach(newBreakpoints, function(breakpoint) {
-                self._showBreakpoint(breakpoint);
-            });
-        });
-
-        this._sourceView.on('add-breakpoint', function (row) {
-            self.trigger('add-breakpoint', row);
+        this._sourceView.on('add-breakpoint', function (breakpoint) {
+            self.trigger('add-breakpoint', breakpoint);
         });
 
         this._sourceView.on('modified', function (changeEvent) {
@@ -515,26 +509,27 @@ class BallerinaFileEditor extends BallerinaView {
         this._swaggerView.render();
 
         var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
-        sourceViewBtn.click(function () {
-            lastRenderedTimestamp = self._file.getLastPersisted();
-            self.toolPalette.hide();
+        sourceViewBtn.click(() => {
+            lastRenderedTimestamp = this._file.getLastPersisted();
+            this.toolPalette.hide();
             // If the file has changed we will add the generated source to source view
             // If not we will display the content as it is in the file.
-            if(self._file.isDirty()){
-                var generatedSource = self.generateSource();
-                self._sourceView.setContent(generatedSource);
-                self._sourceView.format(true);
+            const generatedSource = this.generateSource();
+//            var model = ballerinaFileEditor.getModelFromSource(generatedSource);
+            if(this._file.isDirty()){
+                this._sourceView.setContent(generatedSource);
+                this._sourceView.format(true);
             } else {
-                self._sourceView.setContent(self._file.getContent());
+                this._sourceView.setContent(this._file.getContent());
             }
 
             sourceViewContainer.show();
             swaggerViewContainer.hide();
-            self._$designViewContainer.hide();
+            this._$designViewContainer.hide();
             designViewBtn.show();
             swaggerViewBtn.show();
             sourceViewBtn.hide();
-            self.setActiveView('source');
+            this.setActiveView('source');
         });
 
         var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
@@ -1070,26 +1065,68 @@ class BallerinaFileEditor extends BallerinaView {
         this._sourceView.clearExistingDebugHit();
     }
 
-    _showBreakpoint(newBreakpoint) {
-        var modelMap = this.diagramRenderingContext.getViewModelMap();
-        var self = this;
-        this._currentBreakpoints = this._currentBreakpoints || [];
+     /**
+      * highlights breakpoints in designview
+     */
+    _showDesignViewBreakpoints(breakpoints = []) {
+        const findBreakpointsVisitor = new FindBreakpointsVisitor(this._model);
+        findBreakpointsVisitor.setBreakpoints(breakpoints);
 
-        _.each(modelMap, function(aView) {
-            if(!_.isNil(aView.getModel)) {
-                var lineNumber = aView.getModel().getLineNumber();
-                if(newBreakpoint === lineNumber && !_.isNil(aView.showDebugIndicator)) {
-                    aView.showDebugIndicator();
-                    self._currentBreakpoints.push(aView);
-                }
+        var generatedSource = this.getContent();
+        var model = this.getModelFromSource(generatedSource);
+        this.setModel(model);
+        this.reDraw();
+        const modelMap = this.diagramRenderingContext.getViewModelMap();
+        model.accept(findBreakpointsVisitor);
+        const breakpointNodes = findBreakpointsVisitor.getBreakpointNodes();
+        const fileName = this._file.getName();
+
+        // hide old breakpoints first
+        this.hideCurrentBreakpoints();
+
+        breakpointNodes.forEach( breakpointNode => {
+            const nodeView = modelMap[breakpointNode.id];
+            if(!nodeView) {
+                return;
             }
+            nodeView.showDebugIndicator = nodeView.showDebugIndicator || function() {};
+            nodeView.showDebugIndicator();
+            this._currentBreakpoints.push(nodeView);
+            DebugManager.addBreakPoint(breakpointNode.getLineNumber(), fileName);
         });
     }
 
-    _hideBreakpoint() {
+    _showSourceViewBreakPoints() {
+        const viewNodes = this.getCurrentBreakpoints() || [];
+        const fileName = this._file.getName();
+        const breakpoints = viewNodes.map(aView => {
+            const lineNumber = aView.getModel().getLineNumber();
+            DebugManager.addBreakPoint(lineNumber, fileName);
+            return lineNumber;
+        });
+        this._sourceView.setBreakpoints(breakpoints);
+    }
+
+    hideCurrentBreakpoints() {
         this._currentBreakpoints = this._currentBreakpoints || [];
-        _.each(this._currentBreakpoints, function(aView) {
+        this._currentBreakpoints.forEach( aView => {
+            aView.hideDebugIndicator = aView.hideDebugIndicator || function() {};
             aView.hideDebugIndicator();
+        });
+    }
+
+    getCurrentBreakpoints() {
+        return this._currentBreakpoints;
+    }
+
+    addBreakPoint(viewNode) {
+        return this._currentBreakpoints.push(viewNode);
+    }
+
+    removeBreakPoint(viewNodeToDel) {
+        viewNodeToDel._model.isBreakPoint = false;
+        this._currentBreakpoints = this._currentBreakpoints.filter( viewNode => {
+            return  viewNodeToDel.getModel().id !== viewNode.getModel().id;
         });
     }
 
@@ -1118,6 +1155,28 @@ class BallerinaFileEditor extends BallerinaView {
             returnNode = returnNode.getChildren()[index];
         });
         return returnNode;
+    }
+
+    publishBreakPoints() {
+        const fileName = this._file.getName();
+        let breakpoints = [];
+        if(this.isInSourceView) {
+            breakpoints = this._sourceView.getBreakpoints();
+        } else if(this.isInDesignView) {
+            breakpoints = this.getBreakpoints();
+        }
+        DebugManager.removeAllBreakpoints(fileName);
+        breakpoints.forEach( lineNumber => {
+            DebugManager.addBreakPoint(lineNumber, fileName);
+        });
+        return breakpoints;
+    }
+
+    getBreakpoints() {
+        const breakpoints = this._currentBreakpoints.map( viewNode => {
+            return viewNode.getModel().getLineNumber();
+        });
+        return breakpoints;
     }
 }
 
