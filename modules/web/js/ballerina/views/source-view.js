@@ -198,14 +198,10 @@ class SourceView extends EventChannel {
         var breakpoints = e.editor.session.getBreakpoints(row, 0);
         var row = e.getDocumentPosition().row;
         if(_.isUndefined(breakpoints[row])){
-            //this._markers[row] = this._editor.getSession().addMarker(new Range.Range(row, 0, row, 2000), "debug-point", "line", true);
             e.editor.session.setBreakpoint(row);
-            // this.trigger('add-breakpoint', row + 1);
         }
         else{
             this._editor.getSession().removeMarker(this._markers[row]);
-            //delete this._markers[row];
-            // this.trigger('remove-breakpoint', row + 1);
             e.editor.session.clearBreakpoint(row);
         }
         e.stop();

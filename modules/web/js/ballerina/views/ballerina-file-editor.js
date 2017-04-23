@@ -1079,9 +1079,9 @@ class BallerinaFileEditor extends BallerinaView {
         const modelMap = this.diagramRenderingContext.getViewModelMap();
         model.accept(findBreakpointsVisitor);
         const breakpointNodes = findBreakpointsVisitor.getBreakpointNodes();
-        const fileName = this._file.getName();
+        // const fileName = this._file.getName();
 
-        // hide old breakpoints first
+        // hide previous breakpoints first
         this.hideCurrentBreakpoints();
 
         breakpointNodes.forEach( breakpointNode => {
@@ -1091,28 +1091,36 @@ class BallerinaFileEditor extends BallerinaView {
             }
             nodeView.showDebugIndicator = nodeView.showDebugIndicator || function() {};
             nodeView.showDebugIndicator();
-            this._currentBreakpoints.push(nodeView);
-            DebugManager.addBreakPoint(breakpointNode.getLineNumber(), fileName);
+            // DebugManager.addBreakPoint(breakpointNode.getLineNumber(), fileName);
+            const pathVector = [];
+            this.getPathToNode(breakpointNode, pathVector);
+            this._currentBreakpoints.push(JSON.stringify(pathVector));
         });
     }
 
     _showSourceViewBreakPoints() {
-        const viewNodes = this.getCurrentBreakpoints() || [];
-        const fileName = this._file.getName();
-        const breakpoints = viewNodes.map(aView => {
-            const lineNumber = aView.getModel().getLineNumber();
-            DebugManager.addBreakPoint(lineNumber, fileName);
-            return lineNumber;
+        const pathVectors = this.getCurrentBreakpoints() || [];
+        const breakpoints = [];
+        pathVectors.forEach(pathVectorStr => {
+            const pathVector = JSON.parse(pathVectorStr);
+            const node = this.getNodeByVector(this._model, pathVector);
+            const lineNumber = node.getLineNumber();
+            breakpoints.push(lineNumber);
         });
         this._sourceView.setBreakpoints(breakpoints);
     }
 
     hideCurrentBreakpoints() {
         this._currentBreakpoints = this._currentBreakpoints || [];
-        this._currentBreakpoints.forEach( aView => {
+        this._currentBreakpoints.forEach( pathVectorStr => {
+            const pathVector = JSON.parse(pathVectorStr);
+            const node = this.getNodeByVector(this._model, pathVector);
+            const modelMap = this.diagramRenderingContext.getViewModelMap();
+            const aView = modelMap[node.id] || {};
             aView.hideDebugIndicator = aView.hideDebugIndicator || function() {};
             aView.hideDebugIndicator();
         });
+        this._currentBreakpoints = [];
     }
 
     getCurrentBreakpoints() {
@@ -1120,13 +1128,17 @@ class BallerinaFileEditor extends BallerinaView {
     }
 
     addBreakPoint(viewNode) {
-        return this._currentBreakpoints.push(viewNode);
+        const pathVector = [];
+        this.getPathToNode(viewNode.getModel(), pathVector);
+        return this._currentBreakpoints.push(JSON.stringify(pathVector));
     }
 
     removeBreakPoint(viewNodeToDel) {
         viewNodeToDel._model.isBreakPoint = false;
-        this._currentBreakpoints = this._currentBreakpoints.filter( viewNode => {
-            return  viewNodeToDel.getModel().id !== viewNode.getModel().id;
+        this._currentBreakpoints = this._currentBreakpoints.filter( pathVectorStr => {
+            const pathVector = JSON.parse(pathVectorStr);
+            const node = this.getNodeByVector(this._model, pathVector);
+            return  viewNodeToDel.getModel().id !==  node.id;
         });
     }
 
@@ -1173,9 +1185,15 @@ class BallerinaFileEditor extends BallerinaView {
     }
 
     getBreakpoints() {
-        const breakpoints = this._currentBreakpoints.map( viewNode => {
-            return viewNode.getModel().getLineNumber();
+        const breakpoints = [];
+
+        this._currentBreakpoints.forEach( pathVectorStr => {
+            const pathVector = JSON.parse(pathVectorStr);
+            const node = this.getNodeByVector(this._model, pathVector) || {};
+            node.getLineNumber = node.getLineNumber || function() {};
+            breakpoints.push(node.getLineNumber());
         });
+
         return breakpoints;
     }
 }
