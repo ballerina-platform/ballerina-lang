@@ -67,8 +67,8 @@ public class WorkspaceServiceRunner {
         try {
             jcomander.parse(args);
         } catch (ParameterException e) {
-            PrintStream out = System.out;
-            out.println("Invalid argument passed.");
+            PrintStream err = System.err;
+            err.println("Invalid argument passed.");
             printUsage();
             return;
         }
@@ -92,8 +92,14 @@ public class WorkspaceServiceRunner {
         int fileServerPort = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
         //if a custom port is given give priority to that.
         if (null != composer.fileServerPort) {
-            fileServerPort = Integer.parseInt(composer.fileServerPort);
+            //if the file server port is set to 0 we will
+            if (composer.fileServerPort.equals(0)) {
+                fileServerPort = WorkspaceUtils.getAvailablePort(fileServerPort);
+            } else {
+                fileServerPort = composer.fileServerPort.intValue();
+            }
         }
+
         if (!WorkspaceUtils.available(fileServerPort)) {
             PrintStream err = System.err;
             err.println("Error: Looks like you may be running the Ballerina composer already ?");
@@ -105,15 +111,11 @@ public class WorkspaceServiceRunner {
 
         //find free ports for API ports.
         int apiPort = Integer.getInteger(Constants.SYS_WORKSPACE_PORT, Constants.DEFAULT_WORKSPACE_PORT);
-        while (!WorkspaceUtils.available(apiPort)) {
-            apiPort++;
-        }
+        apiPort = WorkspaceUtils.getAvailablePort(apiPort);
 
         //find free port for launch service.
         int launcherPort = apiPort + 1;
-        while (!WorkspaceUtils.available(launcherPort)) {
-            launcherPort++;
-        }
+        launcherPort = WorkspaceUtils.getAvailablePort(launcherPort);
 
         boolean isCloudMode = Boolean.getBoolean(Constants.SYS_WORKSPACE_ENABLE_CLOUD);
 
@@ -163,7 +165,7 @@ public class WorkspaceServiceRunner {
         private boolean helpFlag = false;
 
         @Parameter(names = "--port", description = "Specify a custom port for file server to start.")
-        private String fileServerPort;
+        private Integer fileServerPort;
 
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
