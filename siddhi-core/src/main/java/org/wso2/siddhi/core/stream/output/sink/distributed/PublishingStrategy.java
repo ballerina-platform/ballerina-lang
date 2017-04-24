@@ -1,3 +1,20 @@
+/*
+ * Copyright (c)  2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
@@ -18,10 +35,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public abstract class PublishingStrategy {
 
-    protected StreamDefinition streamDefinition;
-    protected OptionHolder transportOptionHolder;
-    protected OptionHolder distributionOptionHolder;
-    protected List<OptionHolder> destinationOptionHolders;
     protected List<Integer> destinationIds = new CopyOnWriteArrayList<>();
 
     protected static final List<Integer> EMPTY_RETURN_VALUE = new ArrayList<>();
@@ -32,21 +45,8 @@ public abstract class PublishingStrategy {
      * @param transportOptionHolder Sink options of the sink which uses this PublishingStrategy
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
      */
-    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder
-            distributionOptionHolder, List<OptionHolder> destinationOptionHolders){
-        this.streamDefinition = streamDefinition;
-        this.transportOptionHolder = transportOptionHolder;
-        this.destinationOptionHolders = destinationOptionHolders;
-        this.distributionOptionHolder = distributionOptionHolder;
-        initStrategy();
-    }
-
-
-    /**
-     * Initialize actual strategy implementations. Required information for strategy implementation can be fetched
-     * inside this method
-     */
-    protected abstract void initStrategy();
+    public abstract void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder
+            distributionOptionHolder, List<OptionHolder> destinationOptionHolders);
 
     /**
      * This method tells the ID(s) of the destination(s) to which a given messages should be sent. There can be cases

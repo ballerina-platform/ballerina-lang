@@ -1,3 +1,20 @@
+/*
+ * Copyright (c)  2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.siddhi.core.util.transport;
 
 import org.wso2.siddhi.core.event.Event;
@@ -10,6 +27,7 @@ public class Option {
     private String value;
     private final TemplateBuilder templateBuilder;
     private List<String> variableValues = new ArrayList<>();
+    private int dataIndex = -1;
 
     public Option(String key, String value, TemplateBuilder templateBuilder) {
         this.key = key;
@@ -17,7 +35,13 @@ public class Option {
         this.templateBuilder = templateBuilder;
     }
 
-    int addVariableValue(String value){
+    public Option(int dataIndex) {
+        this.key = null;
+        this.templateBuilder = null;
+        this.dataIndex = dataIndex;
+    }
+
+    int addVariableValue(String value) {
         variableValues.add(value);
         return (variableValues.size() - 1);
     }
@@ -31,7 +55,7 @@ public class Option {
     }
 
     public boolean isStatic() {
-        return templateBuilder ==null;
+        return templateBuilder == null;
     }
 
     public String getValue(DynamicOptions dynamicOptions) {
@@ -41,17 +65,20 @@ public class Option {
             return value;
         } else if (templateBuilder != null) {
             return templateBuilder.build(dynamicOptions.getEvent());
+        } else if (dataIndex != -1) {
+            return (String) dynamicOptions.getEvent().getData(dataIndex);
         } else {
             return null;
         }
     }
 
-    //TODO: Add documentation
-     public String getValue(Event event) {
+    public String getValue(Event event) {
         if (value != null) {
             return value;
         } else if (templateBuilder != null) {
             return templateBuilder.build(event);
+        } else if (dataIndex != -1) {
+            return (String) event.getData(dataIndex);
         } else {
             return null;
         }
