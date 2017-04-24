@@ -49,7 +49,7 @@ public class ConnectionGroupTest {
 
     @BeforeClass
     public void  setup() {
-        wsApp = EnvironmentInitializer.setup("samples/websocket/connectionGroupTest.bal");
+        wsApp = EnvironmentInitializer.setup("samples/websocket/connection_group_sample/connectionGroupTest.bal");
     }
 
     @Test
@@ -91,6 +91,7 @@ public class ConnectionGroupTest {
         String sentTextToRemove = "removeEvenGroup";
         Services.invoke(MessageUtils.generateWebSocketTextMessage(sentTextToRemove, session3, wsEndpointPath));
         String sentText = "hello only odd";
+        Services.invoke(MessageUtils.generateWebSocketTextMessage(sentText, session3, wsEndpointPath));
         Assert.assertEquals(session1.getTextReceived(), null);
         Assert.assertEquals(session2.getTextReceived(), null);
         Assert.assertEquals(session3.getTextReceived(), "oddGroup: " + sentText);
