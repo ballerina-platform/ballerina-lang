@@ -79,7 +79,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         Annotation indices = AnnotationHelper.getAnnotation(ANNOTATION_INDEX, tableDefinition.getAnnotations());
 
         String jndiResourceName = storeAnnotation.getElement(RDBMSTableConstants.ANNOTATION_ELEMENT_JNDI_RESOURCE);
-        if (jndiResourceName != null && !jndiResourceName.isEmpty()) {
+        if (RDBMSTableUtils.isEmpty(jndiResourceName)) {
             try {
                 this.lookupDatasource(jndiResourceName);
             } catch (NamingException e) {
@@ -90,7 +90,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             this.initializeDatasource(storeAnnotation);
         }
         String tableName = storeAnnotation.getElement(RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_NAME);
-        if (tableName != null && !tableName.isEmpty()) {
+        if (RDBMSTableUtils.isEmpty(tableName)) {
             this.tableName = tableName;
         } else {
             this.tableName = this.tableDefinition.getId();
@@ -110,6 +110,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected void add(List<Object[]> records) {
         String insertQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordInsertQuery());
         StringBuilder params = new StringBuilder();
+
         int fieldsLeft = this.attributes.size();
         while (fieldsLeft > 0) {
             params.append("?");
@@ -119,12 +120,17 @@ public class RDBMSEventTable extends AbstractRecordTable {
             fieldsLeft = fieldsLeft - 1;
         }
         insertQuery = insertQuery.replace(Q_PLACEHOLDER, params.toString());
+        try {
+            this.batchExecuteQueriesWithRecords(insertQuery, records, false);
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error in adding events to '" + this.tableName + "' store: "
+                    + e.getMessage(), e);
+        }
 
     }
 
     @Override
     protected List<Object[]> find(Map<String, Object> findConditionParameterMap, CompiledCondition compiledCondition) {
-        Connection conn = this.getConnection();
         return null;
     }
 
@@ -205,11 +211,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
     }
 
     private void createTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices) {
-        //TODO finalize
+        //TODO once-over
         RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRDBMSTypeMapping();
         StringBuilder builder = new StringBuilder();
         List<Element> primaryKeyMap = primaryKeys.getElements();
         List<Element> indexMap = indices.getElements();
+        List<String> queries = new ArrayList<>();
         String createQuery = this.resolveTableName(this.queryConfigurationEntry.getTableCreateQuery());
         String indexQuery = this.resolveTableName(this.queryConfigurationEntry.getIndexCreateQuery());
         Map<String, String> fieldLengths = this.processFieldLengths(storeAnnotation.getElement(
@@ -250,22 +257,14 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 builder.append(PRIMARY_KEY_DEF).append("(").append(this.handleAnnotatedElements(primaryKeyMap)).append(")");
             }
         }
-        Connection conn = this.getConnection(false);
-        boolean committed = false;
+        queries.add(createQuery.replace(COLUMNS_PLACEHOLDER, builder.toString()));
+        if (indexMap != null && !indexMap.isEmpty()) {
+            queries.add(indexQuery.replace(INDEX_PLACEHOLDER, this.handleAnnotatedElements(indexMap)));
+        }
         try {
-            conn.prepareStatement(createQuery.replace(COLUMNS_PLACEHOLDER, builder.toString())).execute();
-            if (indexMap != null && !indexMap.isEmpty()) {
-                conn.prepareStatement(indexQuery.replace(INDEX_PLACEHOLDER, this.handleAnnotatedElements(indexMap))).execute();
-            }
-            conn.commit();
-            committed = true;
+            this.executeQueries(queries, false);
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error initializing table '" + this.tableName + "': " + e.getMessage(), e);
-        } finally {
-            if (!committed) {
-                RDBMSTableUtils.rollbackConnection(conn);
-            }
-            RDBMSTableUtils.cleanupConnection(null, null, conn);
+            throw new RDBMSTableException("Unable to initialize table '" + this.tableName + "': " + e.getMessage(), e);
         }
     }
 
@@ -280,17 +279,55 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return sb.toString();
     }
 
-    private void executeQuery(String query) {
-        Connection conn = this.getConnection();
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
+    private void executeQueries(List<String> queries, boolean autocommit) throws SQLException {
+        Connection conn = this.getConnection(autocommit);
+        boolean committed = autocommit;
+        PreparedStatement stmt;
         try {
-            stmt = conn.prepareStatement(query);
-            rs = stmt.executeQuery();
+            for (String query : queries) {
+                stmt = conn.prepareStatement(query);
+                stmt.execute();
+                RDBMSTableUtils.cleanupConnection(null, stmt, null);
+            }
+            if (!autocommit) {
+                conn.commit();
+                committed = true;
+            }
         } catch (SQLException e) {
             RDBMSTableUtils.rollbackConnection(conn);
+            throw e;
         } finally {
-            RDBMSTableUtils.cleanupConnection(rs, stmt, conn);
+            if (!committed) {
+                RDBMSTableUtils.rollbackConnection(conn);
+            }
+            RDBMSTableUtils.cleanupConnection(null, null, conn);
+        }
+    }
+
+    private void batchExecuteQueriesWithRecords(String query, List<Object[]> records, boolean autocommit) throws SQLException {
+        PreparedStatement stmt = null;
+        boolean committed = autocommit;
+        //TODO check if autocommit needs to be false (e.g. for Postgres case)
+        Connection conn = this.getConnection(autocommit);
+        try {
+            stmt = conn.prepareStatement(query);
+            for (Object[] record : records) {
+                this.populateStatement(record, stmt);
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+            if (!autocommit) {
+                conn.commit();
+                committed = true;
+            }
+        } catch (SQLException e) {
+            RDBMSTableUtils.rollbackConnection(conn);
+            throw e;
+        } finally {
+            if (!committed) {
+                RDBMSTableUtils.rollbackConnection(conn);
+            }
+            RDBMSTableUtils.cleanupConnection(null, stmt, conn);
         }
     }
 
@@ -320,7 +357,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     private List<String[]> processKeyValuePairs(String annotationString) {
         List<String[]> keyValuePairs = new ArrayList<>();
-        if (annotationString != null && !annotationString.isEmpty()) {
+        if (RDBMSTableUtils.isEmpty(annotationString)) {
             String[] pairs = annotationString.split(",");
             for (String element : pairs) {
                 if (!element.contains(":")) {
@@ -339,12 +376,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return keyValuePairs;
     }
 
-    private void populateStatement(Object[] records, PreparedStatement stmt) {
+    private void populateStatement(Object[] record, PreparedStatement stmt) {
         Attribute attribute = null;
         try {
             for (int i = 0; i < this.attributes.size(); i++) {
                 attribute = this.attributes.get(i);
-                Object value = records[i];
+                Object value = record[i];
                 if (value != null || attribute.getType() == Attribute.Type.STRING) {
                     switch (attribute.getType()) {
                         case BOOL:
@@ -370,6 +407,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                             break;
                     }
                 } else {
+                    //TODO check behaviour for 1 invalid record (1 null field) for a list of records
                     throw new RDBMSTableException("Cannot Execute Insert/Update: null value detected for " +
                             "attribute '" + attribute.getName() + "'");
                 }

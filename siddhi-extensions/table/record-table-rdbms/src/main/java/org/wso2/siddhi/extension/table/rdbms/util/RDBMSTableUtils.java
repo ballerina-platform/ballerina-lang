@@ -121,7 +121,7 @@ public class RDBMSTableUtils {
         }
     }
 
-    private static boolean isEmpty(String field) {
+    public static boolean isEmpty(String field) {
         return (field == null || field.trim().length() == 0);
     }
 
