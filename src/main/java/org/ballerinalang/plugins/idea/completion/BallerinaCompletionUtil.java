@@ -29,6 +29,7 @@ public class BallerinaCompletionUtil {
     public static final int STRUCT_PRIORITY = 35;
     public static final int VARIABLE_PRIORITY = 35;
     public static final int ACTION_PRIORITY = 40;
+    public static final int FIELD_PRIORITY = 40;
 
     private BallerinaCompletionUtil() {
 
