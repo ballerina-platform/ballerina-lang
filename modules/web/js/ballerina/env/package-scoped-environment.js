@@ -46,6 +46,12 @@ class PackageScopedEnvironment {
         return this._packages;
     }
 
+    getPackageByName(packageName){
+        return _.find(this._packages, function (pckg) {
+            return pckg.getName() === packageName;
+        });
+    }
+
     searchPackage(query, exclude) {
         var search_text = query;
         var exclude_packages = exclude;

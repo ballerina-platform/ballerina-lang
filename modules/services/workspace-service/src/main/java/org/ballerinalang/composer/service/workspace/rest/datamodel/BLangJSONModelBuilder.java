@@ -911,6 +911,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         funcInvcObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .FUNCTION_INVOCATION_EXPRESSION);
         funcInvcObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, funcIExpr.getPackageName());
+        funcInvcObj.addProperty(BLangJSONModelConstants.PACKAGE_PATH, funcIExpr.getPackagePath());
         funcInvcObj.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, funcIExpr.getName());
         this.addPosition(funcInvcObj, funcIExpr.getNodeLocation());
         tempJsonArrayRef.push(new JsonArray());
