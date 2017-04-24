@@ -73,4 +73,5 @@ public class FileServer {
         log.error(" File not found [" + contextRoot + rawUriPath + "], Requesting path [" + rawUriPath + "] ");
         return Response.status(Response.Status.NOT_FOUND).build();
     }
+
 }

@@ -33,7 +33,6 @@ public class LauncherConstants {
     
     public static final String LAUNCHER_WEBSOCKET_PATH = "/launch";
     
-    public static final String LAUNCHER_PORT = "9092";
     public static final String RUN_PROGRAM = "RUN_PROGRAM";
     public static final String RUN_SERVICE = "RUN_SERVICE";
     public static final String DEBUG_PROGRAM = "DEBUG_PROGRAM";

@@ -104,6 +104,15 @@ if (process.env.NODE_ENV === 'production') {
   config.plugins.push(new webpack.optimize.UglifyJsPlugin({
     sourceMap: true
   }));
+
+  config.plugins.push(new webpack.DefinePlugin({
+    PRODUCTION: JSON.stringify(true)
+  }));
+
+}else{
+  config.plugins.push(new webpack.DefinePlugin({
+    PRODUCTION: JSON.stringify(false)
+  }));
 }
 
 if (process.env.NODE_ENV === 'test') {
