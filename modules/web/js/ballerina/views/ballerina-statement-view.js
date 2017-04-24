@@ -285,6 +285,7 @@ class BallerinaStatementView extends StatementVisitor {
                 this.showDebugIndicator();
                 toggleBreakpointButtonRect.classed(viewOptions.actionButton.breakpointActiveClass, true);
             }
+            ballerinaFileEditor.trigger('breakpoints-updated');
         });
 
         $(jumpButtonRect.node()).click(function(event){
@@ -415,6 +416,7 @@ class BallerinaStatementView extends StatementVisitor {
             const ballerinaFileEditor = this.getDiagramRenderingContext().ballerinaFileEditor;
             ballerinaFileEditor.removeBreakPoint(this);
             this.hideDebugIndicator();
+            ballerinaFileEditor.trigger('breakpoints-updated');
         });
 
         this._debugIndicator = removeBreakpointButton;

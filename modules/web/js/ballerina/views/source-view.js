@@ -205,6 +205,7 @@ class SourceView extends EventChannel {
             e.editor.session.clearBreakpoint(row);
         }
         e.stop();
+        this.trigger('breakpoints-updated');
     }
 
     debugHit(position) {
