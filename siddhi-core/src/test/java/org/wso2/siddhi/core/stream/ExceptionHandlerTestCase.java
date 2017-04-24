@@ -16,7 +16,7 @@
  * under the License.
  */
 
-ackage org.wso2.siddhi.core.stream;
+package org.wso2.siddhi.core.stream;
 
 import com.lmax.disruptor.ExceptionHandler;
 import junit.framework.Assert;

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-ackage org.wso2.siddhi.core.query.window;
+package org.wso2.siddhi.core.query.window;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
