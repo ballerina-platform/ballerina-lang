@@ -33,10 +33,40 @@ error
 
 execution_plan
     : (plan_annotation|error)*
-      ( (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* ';'?
+      ( (definition_stream|definition_table|definition_trigger|definition_function|definition_window|definition_aggregation|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|definition_aggregation|error))* ';'?
       || (execution_element|error) (';' (execution_element|error))* ';'?
       || (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* (';' (execution_element|error))* ';'? )
     ;
+
+//TODO: 15-FEB find suitable location
+// Following added for Aggregation construct
+
+//todo: time_period
+definition_aggregation
+    : annotation* DEFINE AGGREGATION aggregation_name FROM query_input groupby_query_selection AGGREGATE (BY attribute_reference)? EVERY aggregation_time
+    ;
+
+aggregation_name
+    : id
+    ;
+
+aggregation_time
+    : aggregation_time_range
+    | aggregation_time_interval
+    ;
+
+aggregation_time_duration
+    : (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS)
+    ;
+
+aggregation_time_range
+    : aggregation_time_duration DRIPLE_DOT aggregation_time_duration
+    ;
+
+aggregation_time_interval
+    :  aggregation_time_duration (COMMA aggregation_time_duration)*
+    ;
+// End Aggregation  construct
 
 execution_element
     :query|partition
@@ -240,8 +270,12 @@ window
     :'#' WINDOW '.' function_operation
     ;
 
+groupby_query_selection
+    : (SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by?
+    ;
+
 query_section
-    :(SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by? having?
+    : groupby_query_selection having?
     ;
 
 group_by
@@ -574,6 +608,7 @@ STRING_VAL
 COL : ':';
 SCOL : ';';
 DOT : '.';
+DRIPLE_DOT : '...';
 OPEN_PAR : '(';
 CLOSE_PAR : ')';
 OPEN_SQARE_BRACKETS : '[';
@@ -663,6 +698,8 @@ FLOAT:    F L O A T;
 DOUBLE:   D O U B L E;
 BOOL:     B O O L;
 OBJECT:   O B J E C T;
+AGGREGATION: A G G R E G A T I O N;
+AGGREGATE: A G G R E G A T E;
 
 ID_QUOTES : '`'[a-zA-Z_] [a-zA-Z_0-9]*'`' {setText(getText().substring(1, getText().length()-1));};
 

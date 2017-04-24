@@ -39,6 +39,7 @@ public class ExecutionPlan {
     private Map<String, TableDefinition> tableDefinitionMap = new HashMap<String, TableDefinition>();
     private Map<String, WindowDefinition> windowDefinitionMap = new HashMap<String, WindowDefinition>();
     private Map<String, TriggerDefinition> triggerDefinitionMap = new HashMap<String, TriggerDefinition>();
+    private Map<String, AggregationDefinition> aggregationDefinitionMap = new HashMap<String, AggregationDefinition>();
     private List<ExecutionElement> executionElementList = new ArrayList<ExecutionElement>();
     private List<String> executionElementNameList = new ArrayList<String>();
     private List<Annotation> annotations = new ArrayList<Annotation>();
@@ -76,6 +77,19 @@ public class ExecutionPlan {
         }
         checkDuplicateDefinition(streamDefinition);
         this.streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
+        return this;
+    }
+
+    public ExecutionPlan defineAggregation(AggregationDefinition aggregationDefinition) {
+        if (aggregationDefinition == null) {
+            throw new ExecutionPlanValidationException("Aggregation Definition should not be null");
+        }
+        if (aggregationDefinition.getId() == null) {
+            throw new ExecutionPlanValidationException("Aggregation Id should not be null for Aggregation Definition");
+        }
+        checkDuplicateDefinition(aggregationDefinition);
+        this.aggregationDefinitionMap.put(aggregationDefinition.getId(), aggregationDefinition);
+
         return this;
     }
 
@@ -140,6 +154,12 @@ public class ExecutionPlan {
         if (existingWindowDefinition != null && (!existingWindowDefinition.equals(definition) || definition instanceof WindowDefinition)) {
             throw new DuplicateDefinitionException("Stream Definition with same Window Id '" +
                     definition.getId() + "' already exist : " + existingWindowDefinition +
+                    ", hence cannot add " + definition);
+        }
+        AggregationDefinition existingAggregationDefinition = aggregationDefinitionMap.get(definition.getId());
+        if (existingAggregationDefinition != null && (!existingAggregationDefinition.equals(definition) || definition instanceof AggregationDefinition)) {
+            throw new DuplicateDefinitionException("Aggregate Definition with same Aggregate Id '" +
+                    definition.getId() + "' already exist : " + existingAggregationDefinition +
                     ", hence cannot add " + definition);
         }
     }
@@ -207,6 +227,10 @@ public class ExecutionPlan {
         return windowDefinitionMap;
     }
 
+    public Map<String, AggregationDefinition> getAggregationDefinitionMap() {
+        return aggregationDefinitionMap;
+    }
+
 
     @Override
     public String toString() {
@@ -214,6 +238,7 @@ public class ExecutionPlan {
                 "streamDefinitionMap=" + streamDefinitionMap +
                 ", tableDefinitionMap=" + tableDefinitionMap +
                 ", windowDefinitionMap=" + windowDefinitionMap +
+                ", aggregationDefinitionMap=" + aggregationDefinitionMap +
                 ", executionElementList=" + executionElementList +
                 ", executionElementNameList=" + executionElementNameList +
                 ", annotations=" + annotations +
@@ -246,6 +271,9 @@ public class ExecutionPlan {
         if (tableDefinitionMap != null ? !tableDefinitionMap.equals(that.tableDefinitionMap) : that.tableDefinitionMap != null) {
             return false;
         }
+        if(aggregationDefinitionMap != null ? !aggregationDefinitionMap.equals(this.aggregationDefinitionMap) :  that.aggregationDefinitionMap != null){
+            return false;
+        }
 
         return true;
     }
@@ -254,6 +282,7 @@ public class ExecutionPlan {
     public int hashCode() {
         int result = streamDefinitionMap != null ? streamDefinitionMap.hashCode() : 0;
         result = 31 * result + (tableDefinitionMap != null ? tableDefinitionMap.hashCode() : 0);
+        result = 31 * result + (aggregationDefinitionMap != null ? aggregationDefinitionMap.hashCode() : 0);
         result = 31 * result + (executionElementList != null ? executionElementList.hashCode() : 0);
         result = 31 * result + (executionElementNameList != null ? executionElementNameList.hashCode() : 0);
         result = 31 * result + (annotations != null ? annotations.hashCode() : 0);

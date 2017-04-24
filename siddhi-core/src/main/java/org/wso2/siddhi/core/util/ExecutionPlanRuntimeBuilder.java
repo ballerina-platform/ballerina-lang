@@ -51,6 +51,7 @@ public class ExecutionPlanRuntimeBuilder {
     private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains table definition
     private ConcurrentMap<String, AbstractDefinition> windowDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains window definition
     private ConcurrentMap<String, TriggerDefinition> triggerDefinitionMap = new ConcurrentHashMap<String, TriggerDefinition>(); //contains trigger definition
+    private ConcurrentMap<String, AbstractDefinition> aggregationDefinitionConcurrentMap = new ConcurrentHashMap<String, AbstractDefinition>();
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
     private ConcurrentMap<String, List<InputTransport>> eventSourceMap = new ConcurrentHashMap<String, List<InputTransport>>(); //contains event sources
@@ -70,7 +71,7 @@ public class ExecutionPlanRuntimeBuilder {
     }
 
     public void defineStream(StreamDefinition streamDefinition) {
-        DefinitionParserHelper.validateDefinition(streamDefinition, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap);
+        DefinitionParserHelper.validateDefinition(streamDefinition, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, aggregationDefinitionConcurrentMap);
         if (!streamDefinitionMap.containsKey(streamDefinition.getId())) {
             streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
         }
@@ -80,7 +81,7 @@ public class ExecutionPlanRuntimeBuilder {
     }
 
     public void defineTable(TableDefinition tableDefinition) {
-        DefinitionParserHelper.validateDefinition(tableDefinition, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap);
+        DefinitionParserHelper.validateDefinition(tableDefinition, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, aggregationDefinitionConcurrentMap);
         if (!tableDefinitionMap.containsKey(tableDefinition.getId())) {
             tableDefinitionMap.putIfAbsent(tableDefinition.getId(), tableDefinition);
         }
@@ -88,7 +89,7 @@ public class ExecutionPlanRuntimeBuilder {
     }
 
     public void defineWindow(WindowDefinition windowDefinition) {
-        DefinitionParserHelper.validateDefinition(windowDefinition, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap);
+        DefinitionParserHelper.validateDefinition(windowDefinition, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, aggregationDefinitionConcurrentMap);
         DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, executionPlanContext);
         if (!windowDefinitionMap.containsKey(windowDefinition.getId())) {
             windowDefinitionMap.putIfAbsent(windowDefinition.getId(), windowDefinition);
@@ -102,6 +103,13 @@ public class ExecutionPlanRuntimeBuilder {
         DefinitionParserHelper.validateDefinition(triggerDefinition);
         triggerDefinitionMap.putIfAbsent(triggerDefinition.getId(), triggerDefinition);
         DefinitionParserHelper.addEventTrigger(triggerDefinition, eventTriggerMap, streamJunctionMap, executionPlanContext);
+    }
+
+    public void defineAggregation(AggregationDefinition aggregationDefinition) {
+        DefinitionParserHelper.validateDefinition(aggregationDefinition, streamDefinitionMap, tableDefinitionMap,
+                windowDefinitionMap, aggregationDefinitionConcurrentMap);
+        aggregationDefinitionConcurrentMap.putIfAbsent(aggregationDefinition.getId(), aggregationDefinition);
+        // TODO: 3/21/17 : review this and are we missing something
     }
 
     public void addPartition(PartitionRuntime partitionRuntime) {
