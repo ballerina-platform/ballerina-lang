@@ -19,32 +19,49 @@
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
+import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Publishing strategy to implement messages in a round robin manner to multiple destinations
- * */
-
+ /**
+ * Publishing strategy to allow publish messages to multiple destination by partitioning
+ */
 @Extension(
-        name = "roundRobin",
+        name = "partitioned",
         namespace = "distributionstrategy",
         description = ""
 )
-public class RoundRobinPublishingStrategy extends PublishingStrategy {
-
-    private int count = 0;
-    private int destinationCount;
-    private List<Integer> returnValue = new ArrayList<>();
-
+public class PartitionedPublishingStrategy extends PublishingStrategy {
+    /**
+     * Keep track of all the destinations regardless of their connectivity status
+     */
+    private int totalDestinationCount = 0;
+    private int partitionKeyFieldPosition = -1;
+    protected List<Integer> returnValue = new ArrayList<>();
     /**
      * Initialize actual strategy implementations. Required information for strategy implementation can be fetched
      * inside this method
      */
     @Override
     protected void initStrategy() {
+        totalDestinationCount = destinationOptionHolders.size();
+        String partitionKey = distributionOptionHolder.validateAndGetStaticValue(SiddhiConstants
+                .PARTITION_KEY_FIELD_KEY);
+
+        if (partitionKey == null || partitionKey.isEmpty()){
+            throw new ExecutionPlanValidationException("PartitionKey is required for partitioned distribution " +
+                    "strategy.");
+        }
+
+        try {
+            partitionKeyFieldPosition = streamDefinition.getAttributePosition(partitionKey);
+        } catch (AttributeNotExistException e){
+            throw new ExecutionPlanValidationException("Could not find partition key attribute", e);
+        }
 
     }
 
@@ -59,23 +76,15 @@ public class RoundRobinPublishingStrategy extends PublishingStrategy {
      */
     @Override
     public List<Integer> getDestinationsToPublish(Object payload, DynamicOptions transportOptions) {
-        if (destinationIds.isEmpty()){
-            return PublishingStrategy.EMPTY_RETURN_VALUE;
-        }
+        String partitionKeyValue = (String)transportOptions.getEvent().getData(partitionKeyFieldPosition);
+        int destinationId = partitionKeyValue.hashCode() % totalDestinationCount;
 
-        int currentDestinationCount = destinationIds.size();
-        if (destinationCount != currentDestinationCount){
-            destinationCount = currentDestinationCount;
+        if (destinationIds.contains(destinationId)){
+            returnValue.clear();
+            returnValue.add(destinationId);
+            return returnValue;
+        } else {
+            return EMPTY_RETURN_VALUE;
         }
-
-        if (!returnValue.isEmpty()){
-            returnValue.remove(0);
-        }
-
-        if (destinationCount > 0) {
-            returnValue.add(destinationIds.get(count++ % destinationCount));
-        }
-
-        return returnValue;
     }
 }

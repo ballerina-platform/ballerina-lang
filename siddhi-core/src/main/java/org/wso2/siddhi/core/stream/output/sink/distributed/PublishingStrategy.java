@@ -5,6 +5,7 @@ import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -19,8 +20,11 @@ public abstract class PublishingStrategy {
 
     protected StreamDefinition streamDefinition;
     protected OptionHolder transportOptionHolder;
+    protected OptionHolder distributionOptionHolder;
     protected List<OptionHolder> destinationOptionHolders;
     protected List<Integer> destinationIds = new CopyOnWriteArrayList<>();
+
+    protected static final List<Integer> EMPTY_RETURN_VALUE = new ArrayList<>();
 
     /**
      * Initialize the Distribution strategy with the information it will require to make decisions.
@@ -28,11 +32,12 @@ public abstract class PublishingStrategy {
      * @param transportOptionHolder Sink options of the sink which uses this PublishingStrategy
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
      */
-    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, List<OptionHolder>
-            destinationOptionHolders){
+    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder
+            distributionOptionHolder, List<OptionHolder> destinationOptionHolders){
         this.streamDefinition = streamDefinition;
         this.transportOptionHolder = transportOptionHolder;
         this.destinationOptionHolders = destinationOptionHolders;
+        this.distributionOptionHolder = distributionOptionHolder;
         initStrategy();
     }
 
@@ -74,9 +79,10 @@ public abstract class PublishingStrategy {
         }
 
         destinationIds.add(destinationId);
-        //Destination IDs are implied by the order they appear in @sink annotation and they are not changed once
-        //assigned. Therefore, sorting the Ids once a new ID is added to keep the IDs in the same order as their
-        //respective @destination annotations are listed
+        //Destination IDs are implied by the order they appear in @sink annotation. i.e, the first @desination appear
+        // is assigned ID 0 and the second is assigned 1 and so on. IDs are not changed once assigned. Therefore,
+        // sorting the Ids once a new ID is added to keep the IDs in the same order as their respective @destination
+        // annotations are listed
         Collections.sort(destinationIds);
     }
 }
