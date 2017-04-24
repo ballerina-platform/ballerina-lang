@@ -24,12 +24,14 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlightingColors;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,12 +74,9 @@ public class BallerinaAnnotator implements Annotator {
                 }
             }
         } else if (element instanceof ConstantDefinitionNode) {
-            PsiElement nameIdentifier = ((ConstantDefinitionNode) element).getNameIdentifier();
-            if (nameIdentifier == null) {
-                return;
-            }
-            Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
-            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
+            annotateConstants(element, holder);
+        } else if (element.getParent() instanceof ConstantDefinitionNode) {
+            annotateConstants(element.getParent(), holder);
         } else if (element instanceof VariableReferenceNode) {
             PsiElement nameIdentifier = ((VariableReferenceNode) element).getNameIdentifier();
             if (nameIdentifier == null) {
@@ -102,5 +101,18 @@ public class BallerinaAnnotator implements Annotator {
             Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
         }
+    }
+
+    private void annotateConstants(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+        ValueTypeNameNode valueTypeNameNode = PsiTreeUtil.findChildOfType(element, ValueTypeNameNode.class);
+        if (valueTypeNameNode == null || valueTypeNameNode.getText().isEmpty()) {
+            return;
+        }
+        PsiElement nameIdentifier = ((ConstantDefinitionNode) element).getNameIdentifier();
+        if (nameIdentifier == null) {
+            return;
+        }
+        Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
+        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
     }
 }
