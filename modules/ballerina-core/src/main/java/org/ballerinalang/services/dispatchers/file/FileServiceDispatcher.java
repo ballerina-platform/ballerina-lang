@@ -85,9 +85,8 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
                 String serviceName = service.getSymbolName().getName();
 
-                ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance()
-                        .createServerConnector(Constants.PROTOCOL_FILE, serviceName,
-                                               getServerConnectorParamMap(elementsMap));
+                ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
+                        Constants.PROTOCOL_FILE, serviceName, getServerConnectorParamMap(elementsMap));
 
                 try {
                     fileServerConnector.start();

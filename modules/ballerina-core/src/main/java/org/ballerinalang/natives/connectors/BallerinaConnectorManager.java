@@ -85,10 +85,10 @@ public class BallerinaConnectorManager {
      * @param id unique id to use when creating the server connector instance.
      * @return returns the newly created instance.
      */
-    public ServerConnector createServerConnector(String protocol, String id, Map<String, String> properties) {
+    public ServerConnector createServerConnector(String protocol, String id, Map<String, String> parameters) {
         ServerConnector serverConnector;
         try {
-            serverConnector = connectorManager.createServerConnector(protocol, id, properties);
+            serverConnector = connectorManager.createServerConnector(protocol, id, parameters);
         } catch (ServerConnectorException e) {
             throw new BallerinaException("Error occurred while creating a server connector for protocol : '" +
                     protocol + "' with the given id : '" + id + "'", e);
