@@ -48,7 +48,8 @@ public class RoundRobinPublishingStrategy extends PublishingStrategy {
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders) {
+    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,
+                     OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders) {
 
     }
 

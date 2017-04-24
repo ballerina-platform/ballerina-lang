@@ -33,7 +33,7 @@ import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InMemoryTransportTestCase {
-    static final Logger log = Logger.getLogger(InMemoryTransportTestCase.class);
+    static final private Logger log = Logger.getLogger(InMemoryTransportTestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
