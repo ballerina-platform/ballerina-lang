@@ -459,10 +459,6 @@ class BallerinaFileEditor extends BallerinaView {
         _.set(sourceViewOpts, 'storage', this._file._storage);
         this._sourceView = new SourceView(sourceViewOpts);
 
-        this._sourceView.on('add-breakpoint', function (breakpoint) {
-            self.trigger('add-breakpoint', breakpoint);
-        });
-
         this._sourceView.on('modified', function (changeEvent) {
             if(self.getUndoManager().hasUndo()){
                 // clear undo stack from design view
@@ -484,8 +480,12 @@ class BallerinaFileEditor extends BallerinaView {
             self.trigger('content-modified');
         });
 
-        this._sourceView.on('remove-breakpoint', function (row) {
-            self.trigger('remove-breakpoint', row);
+        this._sourceView.on('breakpoints-updated', () => {
+            this.publishBreakPoints();
+        });
+
+        this.on('breakpoints-updated', () => {
+            this.publishBreakPoints();
         });
 
         this._sourceView.on('dispatch-command', function (id) {
@@ -515,7 +515,6 @@ class BallerinaFileEditor extends BallerinaView {
             // If the file has changed we will add the generated source to source view
             // If not we will display the content as it is in the file.
             const generatedSource = this.generateSource();
-//            var model = ballerinaFileEditor.getModelFromSource(generatedSource);
             if(this._file.isDirty()){
                 this._sourceView.setContent(generatedSource);
                 this._sourceView.format(true);
@@ -1079,7 +1078,6 @@ class BallerinaFileEditor extends BallerinaView {
         const modelMap = this.diagramRenderingContext.getViewModelMap();
         model.accept(findBreakpointsVisitor);
         const breakpointNodes = findBreakpointsVisitor.getBreakpointNodes();
-        // const fileName = this._file.getName();
 
         // hide previous breakpoints first
         this.hideCurrentBreakpoints();
@@ -1091,7 +1089,6 @@ class BallerinaFileEditor extends BallerinaView {
             }
             nodeView.showDebugIndicator = nodeView.showDebugIndicator || function() {};
             nodeView.showDebugIndicator();
-            // DebugManager.addBreakPoint(breakpointNode.getLineNumber(), fileName);
             const pathVector = [];
             this.getPathToNode(breakpointNode, pathVector);
             this._currentBreakpoints.push(JSON.stringify(pathVector));
@@ -1172,9 +1169,9 @@ class BallerinaFileEditor extends BallerinaView {
     publishBreakPoints() {
         const fileName = this._file.getName();
         let breakpoints = [];
-        if(this.isInSourceView) {
+        if(this.isInSourceView()) {
             breakpoints = this._sourceView.getBreakpoints();
-        } else if(this.isInDesignView) {
+        } else if(this.isInDesignView()) {
             breakpoints = this.getBreakpoints();
         }
         DebugManager.removeAllBreakpoints(fileName);
