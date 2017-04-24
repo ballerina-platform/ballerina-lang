@@ -451,6 +451,26 @@
                 <version>${carbon.deployment.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon.config</groupId>
+                <artifactId>org.wso2.carbon.config</artifactId>
+                <version>${carbon.config.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.secvault</groupId>
+                <artifactId>org.wso2.carbon.secvault</artifactId>
+                <version>${carbon.securevault.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.secvault</groupId>
+                <artifactId>org.wso2.carbon.secvault.ciphertool</artifactId>
+                <version>${carbon.securevault.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.utils</groupId>
+                <artifactId>carbon-utils</artifactId>
+                <version>${carbon.utils.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.orbit.org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
                 <version>${antlr4.runtime.version}</version>
@@ -941,6 +961,9 @@
         <carbon.transport.version>4.4.3</carbon.transport.version>
         <carbon.messaging.version>2.3.3</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
+        <carbon.config.version>2.0.0</carbon.config.version>
+        <carbon.securevault.version>5.0.4</carbon.securevault.version>
+        <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.22</slf4j.version>
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         <commons.lang3.version>3.5</commons.lang3.version>
