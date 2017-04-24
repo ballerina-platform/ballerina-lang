@@ -95,12 +95,12 @@ public class WorkspaceServiceRunner {
             fileServerPort = Integer.parseInt(composer.fileServerPort);
         }
         if (!WorkspaceUtils.available(fileServerPort)) {
-            PrintStream out = System.out;
-            out.println("Looks like you may be running the Ballerina composer already ?");
-            out.println(String.format("In any case, it appears someone is already using port %d, " +
+            PrintStream err = System.err;
+            err.println("Error: Looks like you may be running the Ballerina composer already ?");
+            err.println(String.format("In any case, it appears someone is already using port %d, " +
                     "please kick them out or tell me a different port to use.", fileServerPort));
             printUsage();
-            return;
+            System.exit(1);
         }
 
         //find free ports for API ports.
