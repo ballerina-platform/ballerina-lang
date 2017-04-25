@@ -18,7 +18,7 @@ var config = {
             {
               loader: 'babel-loader',
               query: {
-                  presets: ['es2015']
+                  presets: ['es2015', 'react']
               }
             }
           ]
@@ -36,6 +36,18 @@ var config = {
         {
             test: /\.(png|jpg|svg|cur|gif)$/,
             use: [ 'url-loader' ]
+        },
+        {
+            test: /\.jsx$/,
+            exclude: /(node_modules|modules\/web\/lib)/,
+            use: [
+              {
+                loader: 'babel-loader',
+                query: {
+                    presets: ['es2015', 'react']
+                }
+              }
+            ]
         }
       ]
     },
