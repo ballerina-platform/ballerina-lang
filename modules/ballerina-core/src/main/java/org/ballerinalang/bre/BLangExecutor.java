@@ -1023,6 +1023,10 @@ public class BLangExecutor implements NodeExecutor {
         if (!(accessExpr.getRExpr().getType() == BTypes.typeMap)) {
             BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
 
+            if (arrayVal == null) {
+                throw new BallerinaException("field " + accessExpr.getSymbolName() + " is not initialized");
+            }
+
             Expression[] indexExprs = accessExpr.getIndexExprs();
             if (indexExprs.length > 1) {
                 arrayVal = retrieveArray(arrayVal, indexExprs);
