@@ -35,7 +35,7 @@ service helloWorld {
 Now that you have declared the package name for the program, you can build the archive.
 
 ## Creating the archive
-To create the archive, you will use the `ballerina build` command followed by the archive type (`service` or `main`), specify one or more packages to include in the archive, and optionally specify the output name to give the archive file. When you specify the package name in this command, note that you will use slashes instead of periods to delineate the path, such as `samples/helloWorldService` instead of `samples.helloWorldService`. If you don't specify an output name for the archive file, the last part of the package name is used as the name, e.g., helloWorldService.bsz. In this tutorial, we will name it `hello.bsz`.
+To create the archive, you will use the `ballerina build` command followed by the archive type (`service` or `main`), specify one or more packages to include in the archive, and optionally specify the output name to give the archive file. When you specify the package name in this command, note that you will use slashes instead of periods to delineate the path, such as `samples/helloWorldService` instead of `samples.helloWorldService`. If you don't specify an output name for the archive file, the last part of the package name is used as the name, e.g., `helloWorldService.bsz`. In this tutorial, we will name it `hello.bsz`.
 
 Let's create the archive.
 
@@ -45,4 +45,4 @@ Let's create the archive.
   ballerina build service samples/helloWorldService -o hello.bsz
   ```
 
-You now have a service archive file of your Ballerina program, which you can upload to WSO2 Integration Cloud, run in a Docker container, or easily distribute to others. For more information on packages, archives, and running Ballerina programs, see [Packaging and Running Programs](../lang-ref/packaging.md). 
+You now have a service archive file of your Ballerina program, which you can upload to WSO2 Integration Cloud, run in a Docker container, or easily distribute to other Ballerina users. For more information on packages, archives, and running Ballerina programs, see [Packaging and Running Programs](../lang-ref/packaging.md). 
