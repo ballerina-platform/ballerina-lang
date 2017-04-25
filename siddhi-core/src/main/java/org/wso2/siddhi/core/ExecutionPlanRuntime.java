@@ -43,6 +43,8 @@ import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.AsyncSnapshotPersistor;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,6 +55,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an executionPlan
@@ -126,14 +129,32 @@ public class ExecutionPlanRuntime {
         return executionPlanContext.getName();
     }
 
-    public Map<String, AbstractDefinition> getStreamDefinitionMap() {
-        return streamDefinitionMap;
+    /**
+     * Get the stream definition map.
+     * @return Map of {@link StreamDefinition}s.
+     */
+    public Map<String, StreamDefinition> getStreamDefinitionMap() {
+        return streamDefinitionMap.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> (StreamDefinition) e.getValue()));
     }
 
-    public Map<String, AbstractDefinition> getTableDefinitionMap() {
-        return tableDefinitionMap;
+    /**
+     * Get the table definition map.
+     * @return Map of {@link TableDefinition}s.
+     */
+    public Map<String, TableDefinition> getTableDefinitionMap() {
+        return tableDefinitionMap.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> (TableDefinition) e.getValue()));
     }
 
+    /**
+     * Get the names of the available queries.
+     * @return {@link Set<String>} of query names.
+     */
     public Set<String> getQueryNames() {
         return queryProcessorMap.keySet();
     }
