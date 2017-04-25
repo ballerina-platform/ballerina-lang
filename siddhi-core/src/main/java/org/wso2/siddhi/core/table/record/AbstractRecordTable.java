@@ -114,9 +114,9 @@ public abstract class AbstractRecordTable implements EventTable {
      * @param findConditionParameterMap map of matching StreamVariable Ids and their values corresponding to the compiled
      *                                  condition
      * @param compiledCondition         the compiledCondition against which records should be matched
-     * @return Iterator of matching records
+     * @return RecordIterator of matching records
      */
-    protected abstract Iterator<Object[]> find(Map<String, Object> findConditionParameterMap,
+    protected abstract RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
                                                CompiledCondition compiledCondition);
 
     @Override
