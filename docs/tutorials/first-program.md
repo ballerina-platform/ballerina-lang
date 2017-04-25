@@ -2,7 +2,7 @@
 
 Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little deeper and write your first Ballerina integration program. This tutorial will teach you how to run Ballerina in standalone and server mode, use the editor to build your integration, understand the key concepts, and get familiar with the Ballerina language.
 
-## Running Ballerina
+## Run Ballerina
 
 In the [Quick Tour](../quick-tour.md), you learned how to start Ballerina and run a sample program from the `<ballerina_home>/samples/helloWorld` directory with a single command:
 
@@ -26,7 +26,7 @@ curl -v http://localhost:9090/hello
 
 The service receives the request and executes its logic, printing "Hello, World!" on the command line. Notice that the Ballerina server is still running in the background, waiting for more requests to come in. You can stop the Ballerina server by pressing Ctrl-C. 
 
-## Creating an integration
+## Create an integration
 
 It's time to create your first integration! In this exercise, we are going to create a service that takes an incoming message, extracts the text, and sends a message back to the client with that same text. 
 
