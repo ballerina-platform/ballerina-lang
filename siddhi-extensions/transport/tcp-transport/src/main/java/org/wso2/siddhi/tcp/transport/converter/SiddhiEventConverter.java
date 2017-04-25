@@ -70,6 +70,7 @@ public class SiddhiEventConverter {
         Event[] events = new Event[numberOfEvents];
         for (int i = 0; i < numberOfEvents; i++) {
             int eventSize = byteBuffer.readInt();
+            //System.out.println("Event Size:" + eventSize);
             byte[] bytes = new byte[eventSize];
             byteBuffer.readBytes(bytes);
             ByteBuffer eventByteBuffer = ByteBuffer.wrap(bytes);
@@ -104,6 +105,7 @@ public class SiddhiEventConverter {
                         break;
                     case STRING:
                         int stringSize = byteBuffer.getInt();
+                        //System.out.println("String Size:" + stringSize);
                         if (stringSize == 0) {
                             objects[i] = null;
                         } else {

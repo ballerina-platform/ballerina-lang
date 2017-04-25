@@ -23,11 +23,21 @@ import org.wso2.siddhi.core.event.Event;
 public class DynamicOptions {
     private Event event;
 
+    private int variableOptionIndex = -1;
+
     public DynamicOptions(Event event) {
         this.event = event;
     }
 
     Event getEvent() {
         return event;
+    }
+
+    void setVariableOptionIndex(int index){
+        variableOptionIndex = index;
+    }
+
+    int getVariableOptionIndex(){
+        return variableOptionIndex;
     }
 }

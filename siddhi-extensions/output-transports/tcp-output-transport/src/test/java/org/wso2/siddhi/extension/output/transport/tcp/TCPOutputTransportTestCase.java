@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.extension.output.transport.tcp;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -117,11 +117,13 @@ public class TCPOutputTransportTestCase {
 
         Thread.sleep(300);
 
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
         tcpNettyServer.shutdownGracefully();
+
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
+
 
     }
 
