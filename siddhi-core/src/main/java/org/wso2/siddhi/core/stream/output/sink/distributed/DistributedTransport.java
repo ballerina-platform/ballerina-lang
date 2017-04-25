@@ -18,13 +18,15 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.List;
 
@@ -32,86 +34,87 @@ import java.util.List;
  * This is the base class for Distributed transports. All distributed transport types must inherit from this class
  */
 public abstract class DistributedTransport extends OutputTransport {
-
-    public static final String DISTRIBUTION_STRATEGY_KEY = "strategy";
-    public static final String DISTRIBUTION_CHANNELS_KEY = "channels";
-    public static final String PARTITION_KEY_FIELD_KEY = "partitionKey";
-
-    public static final String DISTRIBUTION_STRATEGY_ROUND_ROBIN = "roundRobin";
-    public static final String DISTRIBUTION_STRATEGY_DUPLICATE = "duplicate";
-    public static final String DISTRIBUTION_STRATEGY_PARTITIONED = "partitioned";
-
-    private String distributionStrategy;
-    private int channelCount = -1;
-    private int partitionFiledIndex = -1;
-    private DistributedPublishingAlgorithm publisher;
+    private static final Logger log = Logger.getLogger(DistributedTransport.class);
     private OptionHolder sinkOptionHolder;
+    protected PublishingStrategy strategy;
+    protected StreamDefinition streamDefinition;
+    protected ExecutionPlanContext executionPlanContext;
+    private String[] supportedDynamicOptions;
 
+    /**
+     * Will be called for initialing the {@link OutputTransport}
+     *
+     * @param outputStreamDefinition The stream definition this Output transport/sink is attached to
+     * @param optionHolder           Option holder containing static and dynamic options related to the {@link OutputTransport}
+     * @param executionPlanContext   Context of the execution plan which this output sink belongs to
+     */
     @Override
-    public void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext
+            executionPlanContext) {
+        this.streamDefinition = outputStreamDefinition;
         this.sinkOptionHolder = optionHolder;
+        this.executionPlanContext = executionPlanContext;
+    }
+
+    /**
+     * This is method contains the additional parameters which require to initialize distributed transport
+     * @param streamDefinition
+     * @param transportOptionHolder
+     * @param executionPlanContext
+     * @param destinationOptionHolders
+     * @param sinkAnnotation
+     * @param strategy
+     */
+    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
+                     OutputMapper outputMapper, String mapType, OptionHolder mapOptionHolder,String payload,
+                     ExecutionPlanContext executionPlanContext, List<OptionHolder> destinationOptionHolders,
+                     Annotation sinkAnnotation, PublishingStrategy strategy, String[] supportedDynamicOptions) {
+        this.strategy = strategy;
+        this.supportedDynamicOptions = supportedDynamicOptions;
+        init(streamDefinition, type, transportOptionHolder, outputMapper, mapType, mapOptionHolder, payload, executionPlanContext);
+        initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, executionPlanContext);
     }
 
     @Override
     public void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException {
-        publisher.publish(payload, transportOptions);
-    }
-
-    public void initDistributedTransportOptions(OptionHolder distributedOptionHolder,
-                                                List<OptionHolder> endpointOptionHolders) {
-        distributionStrategy = distributedOptionHolder.validateAndGetStaticValue(DISTRIBUTION_STRATEGY_KEY);
-
-        if (distributionStrategy == null || distributionStrategy.isEmpty()) {
-            throw new ExecutionPlanValidationException("Distribution strategy is not specified.");
-        }
-
-        if (distributedOptionHolder.isOptionExists(DISTRIBUTION_CHANNELS_KEY)) {
-            channelCount = Integer.parseInt(distributedOptionHolder
-                    .validateAndGetStaticValue(DISTRIBUTION_CHANNELS_KEY));
-            if (channelCount <= 0) {
-                throw new ExecutionPlanValidationException("There must be at least one channel.");
-            }
-        } else {
-            if (endpointOptionHolders.size() <= 0) {
-                throw new ExecutionPlanValidationException("There must be at least one endpoint.");
+        int errorCount = 0;
+        StringBuilder errorMessages = null;
+        List<Integer> destinationsToPublish = strategy.getDestinationsToPublish(payload, transportOptions);
+        for  (Integer destinationId : destinationsToPublish){
+            try {
+                publish(payload, transportOptions, destinationId);
+            } catch (ConnectionUnavailableException e) {
+                errorCount++;
+                if (errorMessages == null){
+                    errorMessages = new StringBuilder();
+                }
+                errorMessages.append("[Destination ").append(destinationId).append("]:").append(e.getMessage());
+                log.warn("Failed to publish destination ID " + destinationId);
             }
         }
 
-        if (distributionStrategy.equals(DISTRIBUTION_STRATEGY_ROUND_ROBIN)) {
-            publisher = getRoundRobinPublisher();
-        } else if (distributionStrategy.equals(DISTRIBUTION_STRATEGY_DUPLICATE)) {
-            publisher = getAllEndpointsPublisher();
-        } else if (distributionStrategy.equals(DISTRIBUTION_STRATEGY_PARTITIONED)) {
-            publisher = getPartitionedPublisher();
-        } else {
-            throw new ExecutionPlanValidationException("Unknown distribution strategy '" + distributionStrategy + "'.");
+        if (errorCount > 0){
+            throw new ConnectionUnavailableException(errorCount + "/" + destinationsToPublish.size()  + " connections"
+                    + " failed while trying to publish with following error messages:" + errorMessages.toString());
         }
-
-        initTransport(sinkOptionHolder, endpointOptionHolders);
     }
 
-    public String getDistributionStrategy() {
-        return distributionStrategy;
+
+    /**
+     * Supported dynamic options by the transport
+     *
+     * @return the list of supported dynamic option keys
+     */
+    @Override
+    public String[] getSupportedDynamicOptions() {
+      return supportedDynamicOptions;
     }
 
-    public int getChannelCount() {
-        if (channelCount == -1) {
-            throw new ExecutionPlanValidationException("Channel count not specified.");
-        }
+    public abstract void publish(Object payload, DynamicOptions transportOptions, int destinationId) throws ConnectionUnavailableException;
 
-        return channelCount;
-    }
 
-    public int getPartitionFiledIndex() {
-        return partitionFiledIndex;
-    }
+    public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders, Annotation
+            sinkAnnotation, ExecutionPlanContext executionPlanContext);
 
-    public abstract DistributedPublishingAlgorithm getRoundRobinPublisher();
-
-    public abstract DistributedPublishingAlgorithm getAllEndpointsPublisher();
-
-    public abstract DistributedPublishingAlgorithm getPartitionedPublisher();
-
-    public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> nodeOptionHolders);
 
 }

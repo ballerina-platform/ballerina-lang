@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.io;
+package org.wso2.siddhi.core.transport;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -32,8 +32,8 @@ import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class InMemoryIOTestCase {
-    static final Logger log = Logger.getLogger(InMemoryIOTestCase.class);
+public class InMemoryTransportTestCase {
+    static final private Logger log = Logger.getLogger(InMemoryTransportTestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
