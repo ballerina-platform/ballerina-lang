@@ -46,6 +46,9 @@ import ConstantDefinitionView from './constant-definition-view';
 import 'typeahead.js';
 import FindBreakpointsVisitor from './../visitors/find-breakpoints-visitor';
 import DebugManager from './../../debugger/debug-manager';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import BallerinaDiagram from './../components/ballerina-diagram.jsx'
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -430,13 +433,14 @@ class BallerinaFileEditor extends BallerinaView {
         }
 
         var importDeclarations = [];
-        if(!this._parseFailed){
-            // Creating the constants view.
-            this._createConstantDefinitionsView(this._$canvasContainer);
-            this._model.accept(this);
-            this.getUndoManager().reset();
-            importDeclarations = this._model.getImportDeclarations();
+        if(!this._parseFailed) {
+            let root = React.createElement(BallerinaDiagram, { model: this._model }, null);
+            ReactDOM.render(
+              root,
+              this._$canvasContainer[0]
+            );
         }
+
 
         // render tool palette
         this.toolPalette.render();
@@ -957,52 +961,52 @@ class BallerinaFileEditor extends BallerinaView {
     }
 
     reDraw() {
-        var self = this;
-        var viewOptions = this._viewOptions;
-        if (!_.has(this._viewOptions, 'design_view.container')) {
-            var errMsg = 'unable to find configuration for container';
-            log.error(errMsg);
-            throw errMsg;
-        }
-        // this._viewOptions.container is the root div for tab content
-        var container = $(this._container).find(_.get(this._viewOptions, 'design_view.container'));
-        //remove the old canves before creating a new one.
-        var canvas = container.find('div.canvas-container');
-        canvas.remove();
-
-        this._$designViewContainer = container;
-        var canvasContainer = $('<div></div>');
-        canvasContainer.addClass(_.get(viewOptions, 'cssClass.canvas_container'));
-        var canvasTopControlsContainer = $('<div></div>')
-            .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_package_define')))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_packages_import')))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_constants_define')));
-        canvasContainer.append(canvasTopControlsContainer);
-        this._$designViewContainer.append(canvasContainer);
-        this._$canvasContainer = canvasContainer;
-        // check whether container element exists in dom
-        if (!container.length > 0) {
-            errMsg = 'unable to find container for file composer with selector: ' + _.get(this._viewOptions, 'design_view.container');
-            log.error(errMsg);
-            throw errMsg;
-        }
-        this._createImportDeclarationPane(this._$canvasContainer);
-        // Creating the constants view.
-        this._createConstantDefinitionsView(this._$canvasContainer);
-
-        // this._createPackageDeclarationPane(this._$canvasContainer);
-
-        this._model.accept(this);
-
-        // adding declared import packages to tool palette
-        _.forEach(this._model.getImportDeclarations(), function (importDeclaration) {
-            var pckg = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-            self.toolPalette.getItemProvider().addImportToolGroup(pckg[0]);
-        });
-
-        this.initDropTarget();
-        this.trigger('redraw');
+        // var self = this;
+        // var viewOptions = this._viewOptions;
+        // if (!_.has(this._viewOptions, 'design_view.container')) {
+        //     var errMsg = 'unable to find configuration for container';
+        //     log.error(errMsg);
+        //     throw errMsg;
+        // }
+        // // this._viewOptions.container is the root div for tab content
+        // var container = $(this._container).find(_.get(this._viewOptions, 'design_view.container'));
+        // //remove the old canves before creating a new one.
+        // var canvas = container.find('div.canvas-container');
+        // canvas.remove();
+        //
+        // this._$designViewContainer = container;
+        // var canvasContainer = $('<div></div>');
+        // canvasContainer.addClass(_.get(viewOptions, 'cssClass.canvas_container'));
+        // var canvasTopControlsContainer = $('<div></div>')
+        //     .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'))
+        //     .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_package_define')))
+        //     .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_packages_import')))
+        //     .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_constants_define')));
+        // canvasContainer.append(canvasTopControlsContainer);
+        // this._$designViewContainer.append(canvasContainer);
+        // this._$canvasContainer = canvasContainer;
+        // // check whether container element exists in dom
+        // if (!container.length > 0) {
+        //     errMsg = 'unable to find container for file composer with selector: ' + _.get(this._viewOptions, 'design_view.container');
+        //     log.error(errMsg);
+        //     throw errMsg;
+        // }
+        // this._createImportDeclarationPane(this._$canvasContainer);
+        // // Creating the constants view.
+        // this._createConstantDefinitionsView(this._$canvasContainer);
+        //
+        // // this._createPackageDeclarationPane(this._$canvasContainer);
+        //
+        // //this._model.accept(this);
+        //
+        // // adding declared import packages to tool palette
+        // _.forEach(this._model.getImportDeclarations(), function (importDeclaration) {
+        //     var pckg = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
+        //     self.toolPalette.getItemProvider().addImportToolGroup(pckg[0]);
+        // });
+        //
+        // this.initDropTarget();
+        // this.trigger('redraw');
     }
 
     getUndoManager() {
@@ -1073,8 +1077,8 @@ class BallerinaFileEditor extends BallerinaView {
 
         var generatedSource = this.getContent();
         var model = this.getModelFromSource(generatedSource);
-        this.setModel(model);
-        this.reDraw();
+        //this.setModel(model);
+        //this.reDraw();
         const modelMap = this.diagramRenderingContext.getViewModelMap();
         model.accept(findBreakpointsVisitor);
         const breakpointNodes = findBreakpointsVisitor.getBreakpointNodes();

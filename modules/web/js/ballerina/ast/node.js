@@ -19,6 +19,7 @@ import log from 'log';
 import EventChannel from 'event_channel';
 import _ from 'lodash';
 import BallerinaAstFactory from './ballerina-ast-factory';
+import BBox from './../views/bounding-box'
 
 /**
  * Constructor for the ASTNode
@@ -48,6 +49,10 @@ class ASTNode extends EventChannel {
 
         this._generateUniqueIdentifiers = undefined;
         this._whitespaceTokens = [];
+
+        this.viewState = {
+            bbox: new BBox()
+        }
     }
 
     getParent() {
@@ -239,7 +244,7 @@ class ASTNode extends EventChannel {
     filterChildren(predicateFunction) {
         return _.filter(this.getChildren(), predicateFunction);
     }
-    
+
     /**
      * Find matching child from the predicate function+
      * @param predicateFunction a function returning a boolean to match find condition from children
