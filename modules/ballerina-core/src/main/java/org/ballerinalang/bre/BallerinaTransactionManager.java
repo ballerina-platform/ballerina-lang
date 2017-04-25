@@ -34,10 +34,12 @@ public class BallerinaTransactionManager {
     private Map<String, BallerinaTransactionContext> transactionContextStore;
     private TransactionManager transactionManager;
     private int transactionLevel;
+    private boolean transactionError;
 
     public BallerinaTransactionManager() {
         this.transactionContextStore = new HashMap<>();
         this.transactionLevel = 0;
+        this.transactionError = false;
     }
 
     public void registerTransactionContext(String id, BallerinaTransactionContext txContext) {
@@ -48,8 +50,24 @@ public class BallerinaTransactionManager {
         return transactionContextStore.get(id);
     }
 
+    public boolean isTransactionError() {
+        return this.transactionError;
+    }
+
+    public void setTransactionError(boolean transactionError) {
+        this.transactionError = transactionError;
+    }
+
     public void beginTransactionBlock() {
         ++transactionLevel;
+    }
+
+    public void commitTransaction(boolean error) {
+        if (transactionLevel == 1 && !error) {
+            commitNonXAConnections();
+            closeAllConnections();
+            commitXATransaction();
+        }
     }
 
     public boolean endTransactionBlock(boolean error) {
@@ -60,15 +78,9 @@ public class BallerinaTransactionManager {
         } else {
             isOuterTransactionBlock = true;
             if (error) {
-                transactionContextStore.forEach((k, v) -> {
-                    v.rollback();
-                });
+                rollbackNonXAConnections();
+                closeAllConnections();
                 rollbackXATransaction();
-            } else {
-                transactionContextStore.forEach((k, v) -> {
-                    v.commit();
-                });
-                commitXATransaction();
             }
             return isOuterTransactionBlock;
         }
@@ -85,7 +97,7 @@ public class BallerinaTransactionManager {
     public Transaction getXATransaction() {
         Transaction tx = null;
         try {
-            tx =  transactionManager.getTransaction();
+            tx = transactionManager.getTransaction();
         } catch (Exception e) {
             throw new BallerinaException("xa transaction not found");
         }
@@ -138,5 +150,27 @@ public class BallerinaTransactionManager {
         } catch (Exception e) {
             throw new BallerinaException("rollback xa transaction failed");
         }
+    }
+
+    private void commitNonXAConnections() {
+        transactionContextStore.forEach((k, v) -> {
+            if (!v.isXAConnection()) {
+                v.commit();
+            }
+        });
+    }
+
+    private void rollbackNonXAConnections() {
+        transactionContextStore.forEach((k, v) -> {
+            if (!v.isXAConnection()) {
+                v.rollback();
+            }
+        });
+    }
+
+    private void closeAllConnections() {
+        transactionContextStore.forEach((k, v) -> {
+            v.close();
+        });
     }
 }

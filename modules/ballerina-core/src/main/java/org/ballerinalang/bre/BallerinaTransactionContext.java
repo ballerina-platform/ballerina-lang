@@ -26,4 +26,6 @@ package org.ballerinalang.bre;
 public interface BallerinaTransactionContext {
     void commit();
     void rollback();
+    void close();
+    boolean isXAConnection();
 }

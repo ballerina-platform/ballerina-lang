@@ -109,4 +109,8 @@ public class Context {
     public BallerinaTransactionManager getBallerinaTransactionManager() {
         return this.ballerinaTransactionManager;
     }
+
+    public boolean isInTransaction() {
+        return this.ballerinaTransactionManager != null;
+    }
 }
