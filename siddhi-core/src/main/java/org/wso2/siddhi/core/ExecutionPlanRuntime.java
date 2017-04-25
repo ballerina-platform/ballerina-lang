@@ -49,6 +49,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
@@ -127,6 +128,14 @@ public class ExecutionPlanRuntime {
 
     public Map<String, AbstractDefinition> getStreamDefinitionMap() {
         return streamDefinitionMap;
+    }
+
+    public Map<String, AbstractDefinition> getTableDefinitionMap() {
+        return tableDefinitionMap;
+    }
+
+    public Set<String> getQueryNames() {
+        return queryProcessorMap.keySet();
     }
 
     public Map<String, Map<String, AbstractDefinition>> getPartitionedInnerStreamDefinitionMap() {
