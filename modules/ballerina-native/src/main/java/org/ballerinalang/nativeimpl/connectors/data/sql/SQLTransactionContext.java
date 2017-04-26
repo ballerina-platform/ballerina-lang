@@ -24,7 +24,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * {@code SQLTransactionContext} transaction context for SQL local transactions.
+ * {@code SQLTransactionContext} transaction context for SQL transactions.
  *
  * @since 0.8.7
  */

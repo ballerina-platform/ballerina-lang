@@ -34,7 +34,7 @@ public class BallerinaTransactionManager {
     private Map<String, BallerinaTransactionContext> transactionContextStore;
     private TransactionManager transactionManager;
     private int transactionLevel;
-    private boolean transactionError;
+    private boolean transactionError; //tracks the status of nested transactions.
 
     public BallerinaTransactionManager() {
         this.transactionContextStore = new HashMap<>();
@@ -63,7 +63,7 @@ public class BallerinaTransactionManager {
     }
 
     public void commitTransaction(boolean error) {
-        if (transactionLevel == 1 && !error) {
+        if (transactionLevel == 1 && !error) { //Commit only if the outer most transaction.
             commitNonXAConnections();
             closeAllConnections();
             commitXATransaction();

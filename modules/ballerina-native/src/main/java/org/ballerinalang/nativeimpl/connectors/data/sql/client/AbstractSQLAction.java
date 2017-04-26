@@ -197,7 +197,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
             setConnectionAutoCommit(conn, true);
-            SQLConnectorUtils.cleanupConnection(null, stmt, conn, false); //TODO
+            SQLConnectorUtils.cleanupConnection(null, stmt, conn, false);
         }
     }
 
@@ -561,6 +561,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             boolean isXAConnection = connector.isXAConnection();
             if (newConnection) {
                 if (isXAConnection) {
+                    /* Atomikos transaction manager initialize only distributed transaction is present.*/
                     if (!ballerinaTxManager.hasXATransactionManager()) {
                         TransactionManager transactionManager = DistributedTxManagerProvider.getInstance()
                                 .getTransactionManager();

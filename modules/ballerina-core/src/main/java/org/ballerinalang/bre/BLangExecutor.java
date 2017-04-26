@@ -525,7 +525,6 @@ public class BLangExecutor implements NodeExecutor {
             bContext.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
         ballerinaTransactionManager.beginTransactionBlock();
-
         StackFrame current = bContext.getControlStack().getCurrentFrame();
         try {
             transactionRollbackStmt.getTransactionBlock().execute(this);

@@ -23,6 +23,8 @@ import org.ballerinalang.model.statements.TransactionRollbackStmt;
 
 /**
  * Represents end of an Transaction-Rollback Statement.
+ *
+ * @since 0.8.7
  */
 public class TransactionRollbackStmtEndNode extends AbstractLinkedNode {
 

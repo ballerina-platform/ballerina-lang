@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * {@code TransactionStmt} represents a Transaction/rollback statement.
  *
- * @since 0.8.6
+ * @since 0.8.7
  */
 public class TransactionRollbackStmt extends AbstractStatement {
     private Statement transactionBlock;
@@ -61,14 +61,12 @@ public class TransactionRollbackStmt extends AbstractStatement {
         executor.visit(this);
     }
 
-
     /**
      * Represents RollbackBlock of a Transaction-Rollback statement.
      */
     public static class RollbackBlock implements SymbolScope {
 
         private final SymbolScope enclosingScope;
-        //private ParameterDef parameterDef;
         private Map<SymbolName, BLangSymbol> symbolMap;
         private BlockStmt rollbackBlock;
 
@@ -76,14 +74,6 @@ public class TransactionRollbackStmt extends AbstractStatement {
             this.enclosingScope = enclosingScope;
             this.symbolMap = new HashMap<>();
         }
-
-        /*public ParameterDef getParameterDef() {
-            return parameterDef;
-        }*/
-
-        /*public void setParameterDef(ParameterDef parameterDef) {
-            this.parameterDef = parameterDef;
-        }*/
 
         @Override
         public ScopeName getScopeName() {

@@ -1330,31 +1330,25 @@ public class BLangModelBuilder {
                 = new TransactionRollbackStmt.TransactionRollbackStmtBuilder();
         transactionRollbackStmtBuilder.setLocation(location);
         transactionRollbackStmtBuilderStack.push(transactionRollbackStmtBuilder);
-
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
-
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
     public void startRollbackClause(NodeLocation location) {
         TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder =
                 transactionRollbackStmtBuilderStack.peek();
-
         // Creating Transaction clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt transactionBlock = blockStmtBuilder.build();
         transactionRollbackStmtBuilder.setTransactionBlock(transactionBlock);
         currentScope = transactionBlock.getEnclosingScope();
-
         // Staring parsing rollback clause.
         TransactionRollbackStmt.RollbackBlock rollbackBlock = new TransactionRollbackStmt.RollbackBlock(currentScope);
         transactionRollbackStmtBuilder.setRollbackBlock(rollbackBlock);
         currentScope = rollbackBlock;
-
         BlockStmt.BlockStmtBuilder rollbackBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(rollbackBlockBuilder);
-
         currentScope = rollbackBlockBuilder.getCurrentScope();
     }
 
