@@ -252,17 +252,15 @@ class SwaggerParser {
     }
 
     _createResponsesAnnotation(resourceDefinition, httpMethodJsonObject) {
-        let responsesAnnotation = resourceDefinition.getFactory().createAnnotation({
-            packageName: 'swagger',
-            identifier: 'Responses'
-        });
-        let responseEntryArray = resourceDefinition.getFactory().createAnnotationEntryArray();
-        responsesAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({rightValue: responseEntryArray}));
+        let responsesAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: 'Responses'});
+
+        // Creating the responses array entry
+        let responsesAnnotationArray = BallerinaASTFactory.createAnnotationEntryArray();
+        let responseAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({rightValue: responsesAnnotationArray});
+        responsesAnnotation.addChild(responseAnnotationEntry);
         _.forEach(httpMethodJsonObject.responses, (codeObj, code) => {
-            let responseAnnotation = resourceDefinition.getFactory().createAnnotation({
-                packageName: 'swagger',
-                identifier: 'Response'
-            });
+            let responseAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: 'Response'});
+
             let codeAnnotationEntry = resourceDefinition.getFactory().createAnnotationEntry({
                 leftValue: 'code',
                 rightValue: JSON.stringify(code)
@@ -276,7 +274,7 @@ class SwaggerParser {
             });
             responseAnnotation.addChild(descriptionAnnotationEntry);
 
-            responseEntryArray.addChild(responseAnnotation);
+            responsesAnnotationArray.addChild(BallerinaASTFactory.createAnnotationEntry({leftValue: '', rightValue: responseAnnotation}));
         });
 
         let resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);

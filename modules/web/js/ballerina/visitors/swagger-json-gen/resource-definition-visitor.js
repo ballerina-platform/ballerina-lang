@@ -60,7 +60,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
         // Creating default annotations
         _.set(httpMethodJson, 'operationId', pathValue.replace(/\//g, '') + '_' + httpMethodValue);
-        _.set(httpMethodJson, 'responses.default.description', 'Default Response');
+        // _.set(httpMethodJson, 'responses.default.description', 'Default Response');
 
         // Creating the annotation
         _.forEach(existingAnnotations, existingAnnotation => {
@@ -165,16 +165,17 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         }
     }
 
-    parseResponsesAnnotation(existingAnnotation, httpMethodJson) {
-        let responses = [];
-        _.forEach(existingAnnotation.getChildren(), annotationEntry => {
-            let tempResponsesObj = [];
-            let responseAnnotation = annotationEntry.getRightValue();
-            let codes = [];
-            _.forEach(responseAnnotation.getChildren(), responseAnnotationEntry => {
-                let tempCodesObj = {};
-                if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'description')) {
-                    _.set(tempCodesObj, 'description', this.removeDoubleQuotes(annotationEntry.getRightValue()));
+    parseResponsesAnnotation(responsesAnnotation, httpMethodJson) {
+        let responsesAnnotationArray = responsesAnnotation.getChildren()[0].getRightValue();
+        let responses = {};
+        _.forEach(responsesAnnotationArray.getChildren(), responseAnnotationArrayEntry => {
+            let tempCodesObj = {};
+            let codesObjects = [];
+            _.forEach(responseAnnotationArrayEntry.getRightValue().getChildren(), responseAnnotationEntry => {
+                if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'code')) {
+                    _.set(tempCodesObj, 'code', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'description')) {
+                    _.set(tempCodesObj, 'description', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'response')) {
                     // TODO : support response annotation
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'headers')) {
@@ -182,17 +183,18 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'examples')) {
                     // TODO : support examples annotation
                 }
-                codes.push(tempCodesObj);
             });
-            _.forEach(codes, code => {
-                _.set(tempResponsesObj, code.code, code);
+
+            codesObjects.push(tempCodesObj);
+
+            _.forEach(codesObjects, codeObj => {
+                let responseCode = codeObj.code;
+                _.unset(codeObj, 'code');
+                _.set(responses, responseCode, codeObj);
             });
-            responses.push(tempResponsesObj);
         });
 
-        if (_.size(responses) > 0) {
-            _.set(httpMethodJson, 'responses', responses);
-        }
+        _.set(httpMethodJson, 'responses', responses);
     }
 }
 

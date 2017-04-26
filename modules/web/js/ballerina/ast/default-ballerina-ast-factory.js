@@ -78,12 +78,22 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
     resourceArg.setIdentifier('m');
     resourceDef.addChild(resourceArg);
 
-    // let responsesAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: 'responses'});
-    // let responses200Annotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: '200'});
-    // let responses200AnnotationDescriptionEntryValue = BallerinaASTFactory.createAnnotationEntry({leftValue: 'description', rightValue: '\"Successful\"'});
-    // responses200Annotation.addChild(responses200AnnotationDescriptionEntryValue);
-    // responsesAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({rightValue: responses200Annotation}));
-    // resourceDef.addChild(responsesAnnotation);
+    let responsesAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: 'Responses'});
+
+    // Creating the responses array entry
+    let responsesAnnotationArray = BallerinaASTFactory.createAnnotationEntryArray();
+    let responseAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({rightValue: responsesAnnotationArray});
+    responsesAnnotation.addChild(responseAnnotationEntry);
+
+    // Creating default response
+    let responseAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: 'Response'});
+    responsesAnnotationArray.addChild(BallerinaASTFactory.createAnnotationEntry({leftValue: '', rightValue: responseAnnotation}));
+    let responsesDefaultAnnotationCodeEntryValue = BallerinaASTFactory.createAnnotationEntry({leftValue: 'code', rightValue: '\"default\"'});
+    responseAnnotation.addChild(responsesDefaultAnnotationCodeEntryValue);
+    let responsesDefaultAnnotationDescriptionEntryValue = BallerinaASTFactory.createAnnotationEntry({leftValue: 'description', rightValue: '\"Default Response\"'});
+    responseAnnotation.addChild(responsesDefaultAnnotationDescriptionEntryValue);
+
+    resourceDef.addChild(responsesAnnotation, 2);
 
     return resourceDef;
 };
