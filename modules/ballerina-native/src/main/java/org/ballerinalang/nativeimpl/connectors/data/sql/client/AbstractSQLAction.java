@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.nativeimpl.connectors.data.sql.client;
 
+import org.ballerinalang.bre.BallerinaTransactionContext;
+import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BArray;
@@ -30,7 +32,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.connectors.data.sql.Constants;
 import org.ballerinalang.nativeimpl.connectors.data.sql.SQLConnector;
 import org.ballerinalang.nativeimpl.connectors.data.sql.SQLDataIterator;
+import org.ballerinalang.nativeimpl.connectors.data.sql.SQLTransactionContext;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.util.DistributedTxManagerProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
@@ -52,6 +56,12 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
+import javax.sql.XAConnection;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAResource;
 
 /**
  * {@code AbstractSQLAction} is the base class for all SQL Connector Action.
@@ -65,8 +75,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        boolean isInTransaction = context.isInTransaction();
         try {
-            conn = connector.getSQLConnection();
+            conn = getDatabaseConnection(context, connector, isInTransaction);
             stmt = getPreparedStatement(conn, connector, query);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
@@ -74,7 +85,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                     getColumnDefinitions(rs));
             context.getControlStack().setReturnValue(0, dataTable);
         } catch (SQLException e) {
-            SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
+            SQLConnectorUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
         }
     }
@@ -83,8 +94,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        boolean isInTransaction = context.isInTransaction();
         try {
-            conn = connector.getSQLConnection();
+            conn = getDatabaseConnection(context, connector, isInTransaction);
             stmt = conn.prepareStatement(query);
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
@@ -93,7 +105,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
-            SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
+            SQLConnectorUtils.cleanupConnection(null, stmt, conn, isInTransaction);
         }
     }
 
@@ -102,8 +114,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        boolean isInTransaction = context.isInTransaction();
         try {
-            conn = connector.getSQLConnection();
+            conn = getDatabaseConnection(context, connector, isInTransaction);
             int keyColumnCount = 0;
             if (keyColumns != null) {
                 keyColumnCount = keyColumns.size();
@@ -122,9 +135,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             BInteger updatedCount = new BInteger(count);
             context.getControlStack().setReturnValue(0, updatedCount);
             rs = stmt.getGeneratedKeys();
-            /*The result set contains the auto generated keys. It can have multiple rows if multiple rows have
-            updated with the execute operation. There can be multiple auto generated columns in a table.
-            TODO: iterate the result set and generate a array of key arrays*/
+            /*The result set contains the auto generated keys. There can be multiple auto generated columns
+            in a table.*/
             if (rs.next()) {
                 BArray<BString> generatedKeys = getGeneratedKeys(rs);
                 context.getControlStack().setReturnValue(1, generatedKeys);
@@ -132,7 +144,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
         } finally {
-            SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
+            SQLConnectorUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
         }
     }
 
@@ -140,8 +152,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         Connection conn = null;
         CallableStatement stmt = null;
         ResultSet rs = null;
+        boolean isInTransaction = context.isInTransaction();
         try {
-            conn = connector.getSQLConnection();
+            conn = getDatabaseConnection(context, connector, isInTransaction);
             stmt = getPreparedCall(conn, connector, query, parameters);
             createProcessedStatement(conn, stmt, parameters);
             rs = executeStoredProc(stmt);
@@ -151,10 +164,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                         getColumnDefinitions(rs));
                 context.getControlStack().setReturnValue(0, datatable);
             } else {
-                SQLConnectorUtils.cleanupConnection(null, stmt, conn);
+                SQLConnectorUtils.cleanupConnection(null, stmt, conn, isInTransaction);
             }
         } catch (SQLException e) {
-            SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
+            SQLConnectorUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute stored procedure failed: " + e.getMessage(), e);
         }
     }
@@ -184,7 +197,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
             setConnectionAutoCommit(conn, true);
-            SQLConnectorUtils.cleanupConnection(null, stmt, conn);
+            SQLConnectorUtils.cleanupConnection(null, stmt, conn, false); //TODO
         }
     }
 
@@ -535,5 +548,66 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             }
         }
         return result;
+    }
+
+    private Connection getDatabaseConnection(Context context, SQLConnector connector, boolean isInTransaction)
+            throws SQLException {
+        Connection conn;
+        if (isInTransaction) {
+            BallerinaTransactionManager ballerinaTxManager = context.getBallerinaTransactionManager();
+            Object[] connInfo = createDatabaseConnection(connector, ballerinaTxManager);
+            conn = (Connection) connInfo[0];
+            boolean newConnection = (Boolean) connInfo[1];
+            boolean isXAConnection = connector.isXAConnection();
+            if (newConnection) {
+                if (isXAConnection) {
+                    if (!ballerinaTxManager.hasXATransactionManager()) {
+                        TransactionManager transactionManager = DistributedTxManagerProvider.getInstance()
+                                .getTransactionManager();
+                        ballerinaTxManager.setXATransactionManager(transactionManager);
+                    }
+                    if (!ballerinaTxManager.isInXATransaction()) {
+                        ballerinaTxManager.beginXATransaction();
+                    }
+                    Transaction tx = ballerinaTxManager.getXATransaction();
+                    try {
+                        if (tx != null) {
+                            XAConnection xaConn = connector.getXADataSource().getXAConnection();
+                            XAResource xaResource = xaConn.getXAResource();
+                            tx.enlistResource(xaResource);
+                            conn = xaConn.getConnection();
+                        }
+                    } catch (SystemException | RollbackException e) {
+                        throw new BallerinaException(
+                                "error in enlisting distributed transaction resources: " + e.getCause().getMessage(),
+                                e);
+                    }
+                } else {
+                    if (conn != null) {
+                        conn.setAutoCommit(false);
+                    }
+                }
+            }
+        } else {
+            conn = connector.getSQLConnection();
+        }
+        return conn;
+    }
+
+    private Object[] createDatabaseConnection(SQLConnector connector, BallerinaTransactionManager ballerinaTxManager)
+            throws SQLException {
+        Connection conn;
+        boolean newConnection = false;
+        String connectorId = connector.getConnectorId();
+        BallerinaTransactionContext txContext = ballerinaTxManager.getTransactionContext(connectorId);
+        if (txContext == null) {
+            conn = connector.getSQLConnection();
+            txContext = new SQLTransactionContext(conn, connector.isXAConnection());
+            ballerinaTxManager.registerTransactionContext(connectorId, txContext);
+            newConnection = true;
+        } else {
+            conn = ((SQLTransactionContext) txContext).getConnection();
+        }
+        return new Object[] { conn, newConnection };
     }
 }

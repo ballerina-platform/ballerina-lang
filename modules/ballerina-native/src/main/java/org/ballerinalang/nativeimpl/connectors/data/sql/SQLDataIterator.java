@@ -58,7 +58,7 @@ public class SQLDataIterator implements DataIterator {
 
     @Override
     public void close() {
-        SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
+        SQLConnectorUtils.cleanupConnection(rs, stmt, conn, false);
         rs = null;
         stmt = null;
         conn = null;

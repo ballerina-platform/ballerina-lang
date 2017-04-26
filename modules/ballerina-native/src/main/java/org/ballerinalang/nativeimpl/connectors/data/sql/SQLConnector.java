@@ -38,6 +38,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
+import javax.sql.XADataSource;
 
 /**
  * Native SQL Connector.
@@ -62,6 +64,8 @@ public class SQLConnector extends AbstractNativeConnector {
 
     private HikariDataSource hikariDataSource;
     private String databaseName;
+    private String connectorId;
+    private boolean xaConn;
 
     public String getDatabaseName() {
         return databaseName;
@@ -75,6 +79,8 @@ public class SQLConnector extends AbstractNativeConnector {
     public boolean init(BValue[] bValueRefs) {
         BMap options = (BMap) bValueRefs[0];
         buildDataSource(options);
+        connectorId = UUID.randomUUID().toString();
+        xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
             databaseName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
@@ -96,6 +102,24 @@ public class SQLConnector extends AbstractNativeConnector {
             throw new BallerinaException(
                     "error in get connection: " + SQLConnector.CONNECTOR_NAME + ": " + e.getMessage(), e);
         }
+    }
+
+    public String getConnectorId() {
+        return this.connectorId;
+    }
+
+    public boolean isXAConnection() {
+        return this.xaConn;
+    }
+
+    public XADataSource getXADataSource() {
+        XADataSource xaDataSource = null;
+        try {
+            xaDataSource = hikariDataSource.unwrap(XADataSource.class);
+        } catch (SQLException e) {
+            throw new BallerinaException("error in get distributed data source");
+        }
+        return xaDataSource;
     }
 
     public void closeConnectionPool() {
@@ -264,6 +288,18 @@ public class SQLConnector extends AbstractNativeConnector {
                     config.addDataSourceProperty(keyValue, Boolean.parseBoolean(value.stringValue()));
                 }
             }
+        }
+    }
+
+    private boolean isXADataSource() {
+        try {
+            if (hikariDataSource.isWrapperFor(XADataSource.class)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in get distributed data source: " + e.getCause().getMessage());
         }
     }
 }
