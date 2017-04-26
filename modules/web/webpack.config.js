@@ -58,6 +58,7 @@ var config = {
     node: { module: "empty", net: "empty", fs: "empty" },
     devtool: 'source-map',
     resolve: {
+        extensions: [".js", ".json", ".jsx"],
         modules: [path.resolve('./lib'), path.resolve('./js'), path.resolve('./node_modules'), path.resolve(__dirname)],
         alias: {
             /////////////////////////
