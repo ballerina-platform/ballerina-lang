@@ -241,11 +241,15 @@ public class BallerinaPsiImplUtil {
             sibling = sibling.getPrevSibling();
         }
 
-        // Get any matching directory in the project root
-        VirtualFile match = getMatchingDirectory(project.getBaseDir(), packages);
-        // If there is a match, add it to the results.
-        if (match != null) {
-            results.add(PsiManager.getInstance(project).findDirectory(match));
+        // We need to get the content roots from the project and find matching directories in each content root.
+        VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
+        for (VirtualFile contentRoot : contentRoots) {
+            // Get any matching directory in the content root.
+            VirtualFile match = getMatchingDirectory(contentRoot, packages);
+            // If there is a match, add it to the results.
+            if (match != null) {
+                results.add(PsiManager.getInstance(project).findDirectory(match));
+            }
         }
 
         // Get all project source roots and find matching directories.
@@ -253,7 +257,7 @@ public class BallerinaPsiImplUtil {
         if (projectSdk != null) {
             VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
             for (VirtualFile root : roots) {
-                match = getMatchingDirectory(root, packages);
+                VirtualFile match = getMatchingDirectory(root, packages);
                 if (match != null) {
                     results.add(PsiManager.getInstance(project).findDirectory(match));
                 }
