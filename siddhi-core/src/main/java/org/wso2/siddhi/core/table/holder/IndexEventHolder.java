@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.table.holder;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -30,9 +31,10 @@ import java.util.*;
 
 public class IndexEventHolder implements IndexedEventHolder {
 
+    private static final Logger log = Logger.getLogger(IndexEventHolder.class);
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter;
-    private int primaryKeyPosition;
+    private int primaryKeyPosition = -1;
     private String primaryKeyAttribute;
     private Map<String, Integer> indexMetaData;
     private Map<String, Integer> allIndexMetaData = new HashMap<>();
@@ -70,6 +72,10 @@ public class IndexEventHolder implements IndexedEventHolder {
 
     }
 
+    public String getPrimaryKeyAttribute() {
+        return primaryKeyAttribute;
+    }
+
     @Override
     public void add(ComplexEventChunk<StreamEvent> addingEventChunk) {
         addingEventChunk.reset();
@@ -82,6 +88,20 @@ public class IndexEventHolder implements IndexedEventHolder {
     }
 
     private void add(StreamEvent streamEvent) {
+
+        StreamEvent existingValue = null;
+        if (primaryKeyData != null) {
+            existingValue = primaryKeyData.putIfAbsent(streamEvent.getOutputData()[primaryKeyPosition], streamEvent);
+            if (existingValue != null) {
+                log.error("Drooping event :" + streamEvent + ", as there is already an event stored with primary key '" +
+                        streamEvent.getOutputData()[primaryKeyPosition] + "'");
+            }
+        }
+
+    }
+
+    @Override
+    public void overwrite(StreamEvent streamEvent) {
         StreamEvent deletedEvent = null;
         if (primaryKeyData != null) {
             deletedEvent = primaryKeyData.put(streamEvent.getOutputData()[primaryKeyPosition], streamEvent);
@@ -108,6 +128,20 @@ public class IndexEventHolder implements IndexedEventHolder {
                 }
             }
         }
+    }
+
+    @Override
+    public Set<Object> getAllPrimaryKeys() {
+        if (primaryKeyData != null) {
+            return primaryKeyData.keySet();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public int getPrimaryKeyAttributePosition() {
+        return primaryKeyPosition;
     }
 
     @Override
@@ -403,7 +437,6 @@ public class IndexEventHolder implements IndexedEventHolder {
         }
         throw new OperationNotSupportedException(operator + " not supported for '" + value + "' by " + getClass().getName());
     }
-
 
     private void deleteFromIndexesAndPrimaryKey(String currentAttribute, Set<StreamEvent> deletedEventSet) {
         for (StreamEvent deletedEvent : deletedEventSet) {

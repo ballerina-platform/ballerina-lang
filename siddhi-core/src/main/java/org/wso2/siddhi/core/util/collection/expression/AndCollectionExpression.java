@@ -20,9 +20,6 @@ package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
-/**
- * Created by suho on 6/25/16.
- */
 public class AndCollectionExpression implements CollectionExpression {
 
     private final Expression expression;
@@ -53,4 +50,5 @@ public class AndCollectionExpression implements CollectionExpression {
     public CollectionScope getCollectionScope() {
         return collectionScope;
     }
+
 }
