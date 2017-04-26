@@ -30,7 +30,7 @@ import CommonUtils from '../utils/common-utils';
  */
 class ServiceDefinition extends ASTNode {
     constructor(args) {
-        super('Service');
+        super('ServiceDefinition');
         this._serviceName = _.get(args, 'serviceName');
         this._annotations = _.get(args, 'annotations', []);
 

@@ -182,18 +182,18 @@ class ASTNode extends EventChannel {
      * @param visitor {ASTVisitor}
      */
     accept(visitor) {
-      if(visitor.canVisit(this)) {
-          visitor.beginVisit(this);
-          visitor.visit(this);
-          _.forEach(this.children, function (child) {
-              if(child){
-                  // forward visitor down the hierarchy to visit children of current child
-                  // if visitor doesn't support visiting children of current child, it will break
-                child.accept(visitor);
-              }
-          });
-          visitor.endVisit(this);
-      }
+        if(visitor.canVisit(this)) {
+            visitor.beginVisit(this);
+            visitor.visit(this);
+            _.forEach(this.children, function (child) {
+                if(child){
+                    // forward visitor down the hierarchy to visit children of current child
+                    // if visitor doesn't support visiting children of current child, it will break
+                    child.accept(visitor);
+                }
+            });
+            visitor.endVisit(this);
+        }
     }
 
     /**
