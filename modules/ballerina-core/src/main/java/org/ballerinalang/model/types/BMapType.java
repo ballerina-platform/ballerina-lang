@@ -59,4 +59,14 @@ public class BMapType extends BType implements BIndexedType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BMap<BString, V>();
     }
+
+    @Override
+    public String getSig() {
+        return TypeEnum.MAP.getSig() + TypeEnum.MAP.getName() + ";";
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.MAP_TAG;
+    }
 }

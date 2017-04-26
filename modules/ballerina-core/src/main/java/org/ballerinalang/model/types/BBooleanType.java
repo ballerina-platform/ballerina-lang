@@ -46,4 +46,14 @@ class BBooleanType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) BBoolean.FALSE;
     }
+
+    @Override
+    public String getSig() {
+        return TypeEnum.BOOLEAN.getSig();
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.BOOLEAN_TAG;
+    }
 }

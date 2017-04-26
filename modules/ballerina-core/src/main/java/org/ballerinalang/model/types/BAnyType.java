@@ -45,4 +45,14 @@ public class BAnyType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return null;
     }
+
+    @Override
+    public String getSig() {
+        return TypeEnum.ANY.getSig();
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.ANY_TAG;
+    }
 }

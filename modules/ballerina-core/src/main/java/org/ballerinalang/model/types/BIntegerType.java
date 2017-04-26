@@ -46,4 +46,14 @@ class BIntegerType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BInteger(0);
     }
+
+    @Override
+    public String getSig() {
+        return TypeEnum.INT.getSig();
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.INT_TAG;
+    }
 }

@@ -46,4 +46,14 @@ public class BMessageType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BMessage();
     }
+
+    @Override
+    public String getSig() {
+        return TypeEnum.MESSAGE.getSig() + TypeEnum.MESSAGE.getName() + ";";
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.MESSAGE_TAG;
+    }
 }

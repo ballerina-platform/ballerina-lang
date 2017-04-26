@@ -46,4 +46,14 @@ public class BNullType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) null;
     }
+
+    @Override
+    public String getSig() {
+        return null;
+    }
+
+    @Override
+    public int getTag() {
+        return 0;
+    }
 }

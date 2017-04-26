@@ -46,4 +46,14 @@ public class BStringType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BString("");
     }
+
+    @Override
+    public String getSig() {
+        return TypeEnum.STRING.getSig();
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.STRING_TAG;
+    }
 }

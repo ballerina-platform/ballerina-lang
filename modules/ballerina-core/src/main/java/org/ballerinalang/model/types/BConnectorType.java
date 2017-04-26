@@ -48,5 +48,15 @@ public class BConnectorType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BConnector();
     }
+
+    @Override
+    public String getSig() {
+        return null;
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.CONNECTOR_TAG;
+    }
 }
 

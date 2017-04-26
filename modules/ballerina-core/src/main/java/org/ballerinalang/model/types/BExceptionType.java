@@ -45,4 +45,14 @@ public class BExceptionType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BException();
     }
+
+    @Override
+    public String getSig() {
+        return TypeEnum.EXCEPTION.getSig() + ";";
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.EXCEPTION_TAG;
+    }
 }

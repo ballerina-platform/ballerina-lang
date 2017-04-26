@@ -60,6 +60,16 @@ public class BArrayType extends BType implements BIndexedType {
         return (V) new BArray<V>(elementType.getValueClass());
     }
 
+    @Override
+    public String getSig() {
+        return TypeEnum.ARRAY.getSig() + elementType.getSig();
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.ARRAY_TAG;
+    }
+
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType) {
             BArrayType other = (BArrayType) obj;

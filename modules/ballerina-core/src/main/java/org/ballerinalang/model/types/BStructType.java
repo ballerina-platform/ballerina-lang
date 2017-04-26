@@ -48,5 +48,15 @@ public class BStructType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BStruct();
     }
+
+    @Override
+    public String getSig() {
+        return null;
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.STRUCT_TAG;
+    }
 }
 

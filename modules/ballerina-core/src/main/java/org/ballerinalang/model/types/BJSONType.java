@@ -46,4 +46,14 @@ public class BJSONType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BJSON("{}");
     }
+
+    @Override
+    public String getSig() {
+        return TypeEnum.JSON.getSig() + TypeEnum.JSON.getName() + ";";
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.JSON_TAG;
+    }
 }

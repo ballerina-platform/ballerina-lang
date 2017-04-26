@@ -72,6 +72,10 @@ public abstract class BType implements BLangSymbol {
      * @return Init value of this type
      */
     public abstract <V extends BValue> V getEmptyValue();
+
+    public abstract String getSig();
+
+    public abstract int getTag();
     
     public String toString() {
         return (pkgPath != null) ? pkgPath + ":" + typeName : typeName;

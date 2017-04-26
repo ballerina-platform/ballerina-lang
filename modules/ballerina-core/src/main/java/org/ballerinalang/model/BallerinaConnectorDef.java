@@ -22,6 +22,8 @@ import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.Collections;
@@ -132,7 +134,17 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     public <V extends BValue> V getEmptyValue() {
         return null;
     }
-    
+
+    @Override
+    public String getSig() {
+        return TypeEnum.CONNECTOR.getSig() + pkgPath + ":" + typeName  + ";";
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.CONNECTOR_TAG;
+    }
+
     @Override
     public String getName() {
         return typeName;
