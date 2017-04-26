@@ -48,8 +48,6 @@ import FindBreakpointsVisitor from './../visitors/find-breakpoints-visitor';
 import DebugManager from './../../debugger/debug-manager';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import BallerinaDiagram from './../components/ballerina-diagram.jsx'
-import BallerinaASTDimensionCalc from './../visitors/dimention-calc/ballerina-ast-dimension-calc-visitor';
 import BallerinaDiagram from './../components/ballerina-diagram'
 
 /**
