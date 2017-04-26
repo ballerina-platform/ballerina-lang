@@ -21,13 +21,16 @@ package org.wso2.siddhi.core.stream.output.sink.distributed;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
+import org.wso2.siddhi.core.util.transport.Option;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
- /**
+/**
  * Publishing strategy to allow publish messages to multiple destination by partitioning
  */
 @Extension(
@@ -40,25 +43,30 @@ public class PartitionedPublishingStrategy extends PublishingStrategy {
      * Keep track of all the destinations regardless of their connectivity status
      */
     private int totalDestinationCount = 0;
-    private int partitionKeyFieldPosition = -1;
-    protected List<Integer> returnValue = new ArrayList<>();
+    private Option partitionOption;
+    private List<Integer> returnValue = new ArrayList<>();
+
     /**
-     * Initialize actual strategy implementations. Required information for strategy implementation can be fetched
-     * inside this method
+     * Initialize the Distribution strategy with the information it will require to make decisions.
+     *
+     * @param streamDefinition         The stream attached to the sink this PublishingStrategy is used in
+     * @param transportOptionHolder    Sink options of the sink which uses this PublishingStrategy
+     * @param destinationOptionHolders The list of options under @destination of the relevant sink.
      */
     @Override
-    protected void initStrategy() {
+    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,
+                     OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders) {
         totalDestinationCount = destinationOptionHolders.size();
         String partitionKey = distributionOptionHolder.validateAndGetStaticValue(SiddhiConstants
                 .PARTITION_KEY_FIELD_KEY);
 
-        if (partitionKey == null || partitionKey.isEmpty()){
+        if (partitionKey == null || partitionKey.isEmpty()) {
             throw new ExecutionPlanValidationException("PartitionKey is required for partitioned distribution " +
                     "strategy.");
         }
-
         try {
-            partitionKeyFieldPosition = streamDefinition.getAttributePosition(partitionKey);
+            int partitionKeyFieldPosition = streamDefinition.getAttributePosition(partitionKey);
+            partitionOption = new Option(partitionKeyFieldPosition);
         } catch (AttributeNotExistException e){
             throw new ExecutionPlanValidationException("Could not find partition key attribute", e);
         }
@@ -76,10 +84,11 @@ public class PartitionedPublishingStrategy extends PublishingStrategy {
      */
     @Override
     public List<Integer> getDestinationsToPublish(Object payload, DynamicOptions transportOptions) {
-        String partitionKeyValue = (String)transportOptions.getEvent().getData(partitionKeyFieldPosition);
+
+        String partitionKeyValue = partitionOption.getValue(transportOptions);
         int destinationId = partitionKeyValue.hashCode() % totalDestinationCount;
 
-        if (destinationIds.contains(destinationId)){
+        if (destinationIds.contains(destinationId)) {
             returnValue.clear();
             returnValue.add(destinationId);
             return returnValue;
