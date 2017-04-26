@@ -50,101 +50,116 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
     @Override
     protected void buildLanguageFoldRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root,
                                             @NotNull Document document, boolean quick) {
-        if (root instanceof BallerinaFile) {
-            // Get all function nodes.
-            Collection<FunctionNode> functionNodes = PsiTreeUtil.findChildrenOfType(root, FunctionNode.class);
-            for (FunctionNode functionNode : functionNodes) {
-                // Get the function body. This is used to calculate the start offset.
-                CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getChildOfType(functionNode,
+        if (!(root instanceof BallerinaFile)) {
+            return;
+        }
+        buildImportFoldingRegion(descriptors, root);
+        buildFunctionFoldRegions(descriptors, root);
+        buildConnectorFoldRegions(descriptors, root);
+        buildServiceFoldingRegions(descriptors, root);
+        buildStructFoldingRegions(descriptors, root);
+    }
+
+    private void buildImportFoldingRegion(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(root,
+                ImportDeclarationNode.class);
+        if (!importDeclarationNodes.isEmpty()) {
+            ImportDeclarationNode[] importDeclarationNodesArray =
+                    importDeclarationNodes.toArray(new ImportDeclarationNode[importDeclarationNodes.size()]);
+            ImportDeclarationNode firstImport = importDeclarationNodesArray[0];
+            ImportDeclarationNode lastImport = importDeclarationNodesArray[importDeclarationNodes.size() - 1];
+
+            PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(firstImport, PackagePathNode.class);
+            if (packagePathNode == null || packagePathNode.getText().isEmpty()) {
+                return;
+            }
+            int startOffset = packagePathNode.getTextRange().getStartOffset();
+            int endOffset = lastImport.getTextRange().getEndOffset();
+            descriptors.add(new NamedFoldingDescriptor(firstImport, startOffset, endOffset, null, "..."));
+        }
+    }
+
+    private void buildFunctionFoldRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        // Get all function nodes.
+        Collection<FunctionNode> functionNodes = PsiTreeUtil.findChildrenOfType(root, FunctionNode.class);
+        for (FunctionNode functionNode : functionNodes) {
+            // Get the function body. This is used to calculate the start offset.
+            CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getChildOfType(functionNode,
+                    CallableUnitBodyNode.class);
+            if (callableUnitBodyNode == null) {
+                continue;
+            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, functionNode, callableUnitBodyNode);
+        }
+    }
+
+    private void buildConnectorFoldRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        // Get all connectors.
+        Collection<ConnectorNode> connectorNodes = PsiTreeUtil.findChildrenOfType(root, ConnectorNode.class);
+        for (ConnectorNode connectorNode : connectorNodes) {
+            // Get the connector body. This is used to calculate the start offset.
+            ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getChildOfType(connectorNode, ConnectorBodyNode.class);
+            if (connectorBodyNode == null) {
+                continue;
+            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, connectorNode, connectorBodyNode);
+            // We need to add folding support to actions as well. So get all actions in the connector.
+            Collection<ActionDefinitionNode> actionDefinitionNodes = PsiTreeUtil.findChildrenOfType(root,
+                    ActionDefinitionNode.class);
+            for (ActionDefinitionNode actionDefinitionNode : actionDefinitionNodes) {
+                // Get the action body. This is used to calculate the start offset.
+                CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getChildOfType(actionDefinitionNode,
                         CallableUnitBodyNode.class);
                 if (callableUnitBodyNode == null) {
                     continue;
                 }
                 // Add folding descriptor.
-                addFoldingDescriptor(descriptors, functionNode, callableUnitBodyNode);
+                addFoldingDescriptor(descriptors, actionDefinitionNode, callableUnitBodyNode);
             }
-            // Get all connectors.
-            Collection<ConnectorNode> connectorNodes = PsiTreeUtil.findChildrenOfType(root, ConnectorNode.class);
-            for (ConnectorNode connectorNode : connectorNodes) {
-                // Get the connector body. This is used to calculate the start offset.
-                ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getChildOfType(connectorNode,
-                        ConnectorBodyNode.class);
-                if (connectorBodyNode == null) {
+        }
+    }
+
+    private void buildServiceFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        // Get all services.
+        Collection<ServiceDefinitionNode> serviceDefinitionNodes = PsiTreeUtil.findChildrenOfType(root,
+                ServiceDefinitionNode.class);
+        for (ServiceDefinitionNode serviceDefinitionNode : serviceDefinitionNodes) {
+            // Get the service body. This is used to calculate the start offset.
+            ServiceBodyNode serviceBodyNode = PsiTreeUtil.getChildOfType(serviceDefinitionNode, ServiceBodyNode.class);
+            if (serviceBodyNode == null) {
+                continue;
+            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, serviceDefinitionNode, serviceBodyNode);
+            // We need to add folding support to resources as well. So get all resources in the service.
+            Collection<ResourceDefinitionNode> resourceDefinitionNodes = PsiTreeUtil.findChildrenOfType(root,
+                    ResourceDefinitionNode.class);
+            for (ResourceDefinitionNode resourceDefinitionNode : resourceDefinitionNodes) {
+                // Get the resource body. This is used to calculate the start offset.
+                CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getChildOfType(resourceDefinitionNode,
+                        CallableUnitBodyNode.class);
+                if (callableUnitBodyNode == null) {
                     continue;
                 }
                 // Add folding descriptor.
-                addFoldingDescriptor(descriptors, connectorNode, connectorBodyNode);
-
-                // We need to add folding support to actions as well. So get all actions in the connector.
-                Collection<ActionDefinitionNode> actionDefinitionNodes = PsiTreeUtil.findChildrenOfType(root,
-                        ActionDefinitionNode.class);
-                for (ActionDefinitionNode actionDefinitionNode : actionDefinitionNodes) {
-                    // Get the action body. This is used to calculate the start offset.
-                    CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getChildOfType(actionDefinitionNode,
-                            CallableUnitBodyNode.class);
-                    if (callableUnitBodyNode == null) {
-                        continue;
-                    }
-                    // Add folding descriptor.
-                    addFoldingDescriptor(descriptors, actionDefinitionNode, callableUnitBodyNode);
-                }
+                addFoldingDescriptor(descriptors, resourceDefinitionNode, callableUnitBodyNode);
             }
-            // Get all services.
-            Collection<ServiceDefinitionNode> serviceDefinitionNodes = PsiTreeUtil.findChildrenOfType(root,
-                    ServiceDefinitionNode.class);
-            for (ServiceDefinitionNode serviceDefinitionNode : serviceDefinitionNodes) {
-                // Get the service body. This is used to calculate the start offset.
-                ServiceBodyNode serviceBodyNode = PsiTreeUtil.getChildOfType(serviceDefinitionNode,
-                        ServiceBodyNode.class);
-                if (serviceBodyNode == null) {
-                    continue;
-                }
-                // Add folding descriptor.
-                addFoldingDescriptor(descriptors, serviceDefinitionNode, serviceBodyNode);
+        }
+    }
 
-                // We need to add folding support to resources as well. So get all resources in the service.
-                Collection<ResourceDefinitionNode> resourceDefinitionNodes = PsiTreeUtil.findChildrenOfType(root,
-                        ResourceDefinitionNode.class);
-                for (ResourceDefinitionNode resourceDefinitionNode : resourceDefinitionNodes) {
-                    // Get the resource body. This is used to calculate the start offset.
-                    CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getChildOfType(resourceDefinitionNode,
-                            CallableUnitBodyNode.class);
-                    if (callableUnitBodyNode == null) {
-                        continue;
-                    }
-                    // Add folding descriptor.
-                    addFoldingDescriptor(descriptors, resourceDefinitionNode, callableUnitBodyNode);
-                }
+    private void buildStructFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        Collection<StructDefinitionNode> structDefinitionNodes = PsiTreeUtil.findChildrenOfType(root,
+                StructDefinitionNode.class);
+        for (StructDefinitionNode structDefinitionNode : structDefinitionNodes) {
+            // Get the strcut body. This is used to calculate the start offset.
+            StructBodyNode structBodyNode = PsiTreeUtil.getChildOfType(structDefinitionNode, StructBodyNode.class);
+            if (structBodyNode == null) {
+                continue;
             }
-            Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(root,
-                    ImportDeclarationNode.class);
-            if (importDeclarationNodes.size() > 0) {
-                ImportDeclarationNode[] importDeclarationNodesArray = importDeclarationNodes.toArray(new
-                        ImportDeclarationNode[importDeclarationNodes.size()]);
-                ImportDeclarationNode firstImport = importDeclarationNodesArray[0];
-                ImportDeclarationNode lastImport = importDeclarationNodesArray[importDeclarationNodes.size() - 1];
-
-                PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(firstImport, PackagePathNode.class);
-                if (packagePathNode == null) {
-                    return;
-                }
-                int startOffset = packagePathNode.getTextRange().getStartOffset();
-                int endOffset = lastImport.getTextRange().getEndOffset();
-                descriptors.add(new NamedFoldingDescriptor(firstImport, startOffset, endOffset, null, "..."));
-            }
-
-            Collection<StructDefinitionNode> structDefinitionNodes = PsiTreeUtil.findChildrenOfType(root,
-                    StructDefinitionNode.class);
-            for (StructDefinitionNode structDefinitionNode : structDefinitionNodes) {
-                // Get the strcut body. This is used to calculate the start offset.
-                StructBodyNode structBodyNode = PsiTreeUtil.getChildOfType(structDefinitionNode,
-                        StructBodyNode.class);
-                if (structBodyNode == null) {
-                    continue;
-                }
-                // Add folding descriptor.
-                addFoldingDescriptor(descriptors, structDefinitionNode, structBodyNode);
-            }
+            // Add folding descriptor.
+            addFoldingDescriptor(descriptors, structDefinitionNode, structBodyNode);
         }
     }
 

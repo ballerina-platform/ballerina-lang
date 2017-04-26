@@ -109,13 +109,16 @@ public class BallerinaParserDefinition implements ParserDefinition {
             QuotedStringLiteral, BacktickStringLiteral);
 
     public static final TokenSet NUMBER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            IntegerLiteral, FloatingPointLiteral, BooleanLiteral, NullLiteral);
+            IntegerLiteral, FloatingPointLiteral);
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ACTION, ALL, ANNOTATION, ANY, AS, ATTACH, BREAK, CATCH, CONNECTOR, CONST, CONTINUE, CREATE, ELSE, FORK,
             FUNCTION, IF, IMPORT, ITERATE, JOIN, NATIVE, NULL, PACKAGE, REPLY, RESOURCE, RETURN, SERVICE, SOME,
             STRUCT, THROW, THROWS, TIMEOUT, TRY, TYPEMAPPER, WHILE, WORKER, BOOLEAN, INT, FLOAT, STRING, MESSAGE,
-            MAP, EXCEPTION, XML, XML_DOCUMENT, JSON, DATATABLE);
+            MAP, EXCEPTION, XML, XML_DOCUMENT, JSON, DATATABLE, BooleanLiteral);
+
+    public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
+            SEMI, COMMA, SENDARROW, RECEIVEARROW, TILDE, COLON);
 
     @NotNull
     @Override

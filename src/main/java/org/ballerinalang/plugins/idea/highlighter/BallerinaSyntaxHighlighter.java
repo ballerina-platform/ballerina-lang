@@ -41,6 +41,7 @@ public class BallerinaSyntaxHighlighter extends SyntaxHighlighterBase {
         fillMap(ATTRIBUTES, BallerinaParserDefinition.KEYWORDS, BallerinaSyntaxHighlightingColors.KEYWORD);
         fillMap(ATTRIBUTES, BallerinaParserDefinition.STRING_LITERALS, BallerinaSyntaxHighlightingColors.STRING);
         fillMap(ATTRIBUTES, BallerinaParserDefinition.NUMBER, BallerinaSyntaxHighlightingColors.NUMBER);
+        fillMap(ATTRIBUTES, BallerinaParserDefinition.BRACES_AND_OPERATORS, BallerinaSyntaxHighlightingColors.KEYWORD);
     }
 
     @NotNull
