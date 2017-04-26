@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -58,7 +59,7 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         // Check whether the previous non whitespace element is '{'. If so, that means the caret is within a block.
         int tempOffset = offset;
         PsiElement tempElement = element;
-        while (tempElement instanceof PsiWhiteSpace && tempOffset > 0) {
+        while ((tempElement instanceof PsiWhiteSpace || tempElement instanceof PsiComment) && tempOffset > 0) {
             tempElement = file.findElementAt(--tempOffset);
         }
         if (tempElement != null && "{".equals(tempElement.getText())) {
@@ -68,7 +69,8 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         // Check whether the next non whitespace element is '}'. If so, that means the caret is within a block.
         tempOffset = offset;
         tempElement = element;
-        while (tempElement instanceof PsiWhiteSpace && tempOffset < file.getTextLength()) {
+        while ((tempElement instanceof PsiWhiteSpace || tempElement instanceof PsiComment) &&
+                tempOffset < file.getTextLength()) {
             tempElement = file.findElementAt(++tempOffset);
         }
         if (tempElement != null && "}".equals(tempElement.getText())) {
