@@ -19,53 +19,47 @@
 package org.wso2.siddhi.extension.input.transport.jms.util;
 
 import org.apache.log4j.Logger;
-import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
-import org.wso2.carbon.messaging.MapCarbonMessage;
-import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 public class JMSMessageProcessor implements CarbonMessageProcessor {
-    private static final Logger log = Logger.getLogger(JMSMessageProcessor.class);
-
     private SourceEventListener sourceEventListener;
+    private ExecutorService executorService;
 
-    public JMSMessageProcessor(SourceEventListener sourceEventListener) {
+    public JMSMessageProcessor(SourceEventListener sourceEventListener, int threadPoolSize) {
         this.sourceEventListener = sourceEventListener;
+        this.executorService = Executors.newFixedThreadPool(threadPoolSize);
     }
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        if (carbonMessage instanceof TextCarbonMessage) {
-            String event = ((TextCarbonMessage) carbonMessage).getText().toString();
-            sourceEventListener.onEvent(event);
-        } else if (carbonMessage instanceof MapCarbonMessage) {
-
-        } else if (carbonMessage instanceof BinaryCarbonMessage) {
-
-        }
-        if (carbonCallback != null) {
-            carbonCallback.done(carbonMessage);
-        }
+        executorService.submit(new JMSWorkerThread(carbonMessage, carbonCallback, sourceEventListener));
         return true;
     }
 
     @Override
     public void setTransportSender(TransportSender transportSender) {
-
     }
 
     @Override
     public void setClientConnector(ClientConnector clientConnector) {
-
     }
 
     @Override
     public String getId() {
-        return null;
+        return "JMS-message-processor";
+    }
+
+    public void disconnect() throws InterruptedException {
+        executorService.shutdown();
+        executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
     }
 }

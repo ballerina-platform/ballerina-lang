@@ -1,0 +1,7 @@
+name(string):John
+age(int):26
+country(string):USA
+*****
+name(string):Mike
+age(age):32
+country(string):Germany

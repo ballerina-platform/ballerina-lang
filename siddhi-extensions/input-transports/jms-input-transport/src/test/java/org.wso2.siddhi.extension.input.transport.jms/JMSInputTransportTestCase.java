@@ -37,6 +37,7 @@ import java.util.List;
 public class JMSInputTransportTestCase {
     private List<String> receivedEventNameList;
     private final String PROVIDER_URL = "vm://localhost?broker.persistent=false";
+
     @Test
     public void TestJMSTopicInputTransport() throws InterruptedException {
         receivedEventNameList = new ArrayList<>(2);
@@ -75,7 +76,7 @@ public class JMSInputTransportTestCase {
         executionPlanRuntime.start();
 
         // publishing events
-        publishEvents();
+        publishEvents("DAS_JMS_TEST", null, "activemq", "text", "src/test/resources/events/events_text.txt");
 
         List<String> expected = new ArrayList<>(2);
         expected.add("\nJohn");
@@ -83,12 +84,8 @@ public class JMSInputTransportTestCase {
         Assert.assertEquals("JMS Input Transport expected input not received", expected, receivedEventNameList);
     }
 
-    private void publishEvents() throws InterruptedException {
-        String topicName = "DAS_JMS_TEST";
-        String queueName = null;
-        String broker = "activemq";
-        String format = "text";
-        String filePath = "src/test/resources/events/events.csv";
+    private void publishEvents(String topicName, String queueName, String broker, String format, String filePath)
+            throws InterruptedException {
         JMSClient jmsClient = new JMSClient();
         jmsClient.sendJMSEvents(filePath, topicName, queueName, format, broker, PROVIDER_URL);
         Thread.sleep(5000);

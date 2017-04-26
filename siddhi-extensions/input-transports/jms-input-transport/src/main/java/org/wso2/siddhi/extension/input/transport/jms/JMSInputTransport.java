@@ -20,6 +20,7 @@ package org.wso2.siddhi.extension.input.transport.jms;
 
 import org.apache.log4j.Logger;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.receiver.JMSServerConnector;
 import org.wso2.carbon.transport.jms.utils.JMSConstants;
 import org.wso2.siddhi.annotation.Extension;
@@ -45,24 +46,26 @@ public class JMSInputTransport extends InputTransport {
 
     private SourceEventListener sourceEventListener;
     private OptionHolder optionHolder;
-    private ExecutionPlanContext executionPlanContext;
     private JMSServerConnector jmsServerConnector;
-
-    private int minThreadPoolSize, maxThreadPoolSize;
+    private JMSMessageProcessor jmsMessageProcessor;
+    private int threadPoolSize;
+    private final int DEFAULT_THREAD_POOL_SIZE = 1;
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      ExecutionPlanContext executionPlanContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
-        this.executionPlanContext = executionPlanContext;
+        // todo: thread pool size should be read from the configuration file, since it's not available at the time of
+        // this impl, it's hardcoded.
+        this.threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
     }
 
     @Override
     public void connect() throws ConnectionUnavailableException {
         Map<String, String> properties = initJMSProperties();
         jmsServerConnector = new JMSServerConnector(properties);
-        JMSMessageProcessor jmsMessageProcessor = new JMSMessageProcessor(sourceEventListener);
+        jmsMessageProcessor = new JMSMessageProcessor(sourceEventListener, threadPoolSize);
         jmsServerConnector.setMessageProcessor(jmsMessageProcessor);
         try {
             jmsServerConnector.start();
@@ -74,12 +77,19 @@ public class JMSInputTransport extends InputTransport {
 
     @Override
     public void disconnect() {
-
+        try {
+            jmsServerConnector.stop();
+            jmsMessageProcessor.disconnect();
+        } catch (JMSConnectorException e) {
+            log.error("Error disconnecting the JMS receiver", e);
+        } catch (InterruptedException e) {
+            log.error("Error shutting down the threads for the JMS Message Processor", e);
+        }
     }
 
     @Override
     public void destroy() {
-
+        disconnect();
     }
 
     @Override
@@ -98,14 +108,12 @@ public class JMSInputTransport extends InputTransport {
                 JMSConstants.PROVIDER_URL_PARAM_NAME, JMSConstants.CONNECTION_FACTORY_TYPE_PARAM_NAME);
         // getting the required values
         Map<String, String> transportProperties = new HashMap<>();
-        requiredOptions.stream().forEach(requiredOption -> {
-            transportProperties.put(requiredOption, optionHolder.validateAndGetStaticValue(requiredOption));
-        });
+        requiredOptions.forEach(requiredOption ->
+                transportProperties.put(requiredOption, optionHolder.validateAndGetStaticValue(requiredOption)));
         // getting optional values
         optionHolder.getStaticOptionsKeys().stream()
-                .filter(option -> !requiredOptions.contains(option) && !option.equals("type")).forEach(option -> {
-            transportProperties.put(option, optionHolder.validateAndGetStaticValue(option));
-        });
+                .filter(option -> !requiredOptions.contains(option) && !option.equals("type")).forEach(option ->
+                transportProperties.put(option, optionHolder.validateAndGetStaticValue(option)));
         return transportProperties;
     }
 
