@@ -49,6 +49,7 @@ import DebugManager from './../../debugger/debug-manager';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import BallerinaDiagram from './../components/ballerina-diagram.jsx'
+import BallerinaASTDimensionCalc from './../visitors/dimention-calc/ballerina-ast-dimension-calc-visitor';
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
