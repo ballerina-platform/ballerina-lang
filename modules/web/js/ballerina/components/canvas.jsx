@@ -1,6 +1,6 @@
 import React from "react";
 
-class CanvasView extends React.Component {
+class Canvas extends React.Component {
 
 	render() {
 		return 	<svg className="svg-container" width="100%" height={ this.props.height }>
@@ -9,4 +9,4 @@ class CanvasView extends React.Component {
     }
 }
 
-export default CanvasView;
+export default Canvas;

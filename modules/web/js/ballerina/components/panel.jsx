@@ -1,6 +1,6 @@
 import React from "react"
 
-class PanelView extends React.Component {
+class Panel extends React.Component {
 
     render() {
 		return <div className="panel panel-default container-outer-div">
@@ -25,4 +25,4 @@ class PanelView extends React.Component {
     }
 }
 
-export default PanelView;
+export default Panel;

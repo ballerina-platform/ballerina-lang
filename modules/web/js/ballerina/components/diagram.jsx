@@ -18,7 +18,7 @@
 
 import React from "react";
 
-class BallerinaDiagram extends React.Component {
+class Diagram extends React.Component {
 
 	constructor(props){
 		super(props);
@@ -43,4 +43,4 @@ class BallerinaDiagram extends React.Component {
 	}
 }
 
-export default BallerinaDiagram;
+export default Diagram;
