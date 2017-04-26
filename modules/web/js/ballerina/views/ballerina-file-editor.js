@@ -48,7 +48,7 @@ import FindBreakpointsVisitor from './../visitors/find-breakpoints-visitor';
 import DebugManager from './../../debugger/debug-manager';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import BallerinaDiagram from './../components/ballerina-diagram.jsx'
+import BallerinaDiagram from './../components/ballerina-diagram'
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
