@@ -48,7 +48,7 @@ import FindBreakpointsVisitor from './../visitors/find-breakpoints-visitor';
 import DebugManager from './../../debugger/debug-manager';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import BallerinaDiagram from './../components/ballerina-diagram'
+import Diagram from './../components/diagram'
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -434,7 +434,7 @@ class BallerinaFileEditor extends BallerinaView {
 
         var importDeclarations = [];
         if(!this._parseFailed) {
-            let root = React.createElement(BallerinaDiagram, { model: this._model }, null);
+            let root = React.createElement(Diagram, { model: this._model }, null);
             ReactDOM.render(
               root,
               this._$canvasContainer[0]

@@ -16,7 +16,9 @@
  * under the License.
  */
 
-import React from "react";
+import React from 'react';
+import Canvas from './canvas';
+import Panel from './panel';
 
 class Diagram extends React.Component {
 
@@ -37,8 +39,9 @@ class Diagram extends React.Component {
     }
 
     render() {
+				let children = <Panel><Canvas></Canvas></Panel>
         return <div className="canvas_container">
-            <p>{this.model.id}</p>
+            {children}
         </div>;
     }
 }
