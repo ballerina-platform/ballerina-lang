@@ -171,8 +171,8 @@ public class SingleClientDistributedTransportTestCases {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, topic1Count.get());
-        Assert.assertEquals("Number of IBM events", 4, topic2Count.get());
+        Assert.assertEquals("Number of topic 1 events", 2, topic1Count.get());
+        Assert.assertEquals("Number of topic 2 events", 4, topic2Count.get());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -242,8 +242,8 @@ public class SingleClientDistributedTransportTestCases {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, topic1Count.get());
-        Assert.assertEquals("Number of IBM events", 4, topic2Count.get());
+        Assert.assertEquals("Number of topic 1 events", 6, topic1Count.get());
+        Assert.assertEquals("Number of topic 2 events", 6, topic2Count.get());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic

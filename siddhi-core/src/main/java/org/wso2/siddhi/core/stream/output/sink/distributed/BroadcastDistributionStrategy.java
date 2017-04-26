@@ -20,6 +20,8 @@ package org.wso2.siddhi.core.stream.output.sink.distributed;
 
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
 
@@ -33,11 +35,15 @@ import java.util.List;
 )
 public class BroadcastDistributionStrategy extends PublishingStrategy{
     /**
-     * Initialize actual strategy implementations. Required information for strategy implementation can be fetched
-     * inside this method
+     * Initialize the Distribution strategy with the information it will require to make decisions.
+     *
+     * @param streamDefinition         The stream attached to the sink this PublishingStrategy is used in
+     * @param transportOptionHolder    Sink options of the sink which uses this PublishingStrategy
+     * @param distributionOptionHolder
+     * @param destinationOptionHolders The list of options under @destination of the relevant sink.
      */
     @Override
-    protected void initStrategy() {
+    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders) {
 
     }
 

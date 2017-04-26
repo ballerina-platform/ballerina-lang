@@ -36,7 +36,6 @@ import java.util.List;
         description = ""
 )
 public class RoundRobinPublishingStrategy extends PublishingStrategy {
-
     private int count = 0;
     private int destinationCount;
     private List<Integer> returnValue = new ArrayList<>();

@@ -84,7 +84,6 @@ public class PartitionedPublishingStrategy extends PublishingStrategy {
      */
     @Override
     public List<Integer> getDestinationsToPublish(Object payload, DynamicOptions transportOptions) {
-
         String partitionKeyValue = partitionOption.getValue(transportOptions);
         int destinationId = partitionKeyValue.hashCode() % totalDestinationCount;
 
