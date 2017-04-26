@@ -75,7 +75,7 @@ public class PassThroughTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(inEvents);
                 Assert.assertTrue("IBM".equals(inEvents[0].getData(0)) || "WSO2".equals(inEvents[0].getData(0)));
                 count += inEvents.length;
@@ -121,7 +121,7 @@ public class PassThroughTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(inEvents);
                 count += inEvents.length;
                 eventArrived = true;
@@ -166,7 +166,7 @@ public class PassThroughTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(inEvents);
                 count += inEvents.length;
                 eventArrived = true;
@@ -215,8 +215,8 @@ public class PassThroughTestCase {
 
         QueryCallback queryCallback = new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Assert.assertTrue("WSO2".equals(inEvents[0].getData(0)));
                 count = count + inEvents.length;
                 eventArrived = true;

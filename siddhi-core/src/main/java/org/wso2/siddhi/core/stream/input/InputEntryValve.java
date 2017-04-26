@@ -54,8 +54,8 @@ public class InputEntryValve implements InputProcessor {
     }
 
     @Override
-    public void send(long timeStamp, Object[] data, int streamIndex) {
+    public void send(long timestamp, Object[] data, int streamIndex) {
         barrier.pass();
-        inputProcessor.send(timeStamp, data, streamIndex);
+        inputProcessor.send(timestamp, data, streamIndex);
     }
 }

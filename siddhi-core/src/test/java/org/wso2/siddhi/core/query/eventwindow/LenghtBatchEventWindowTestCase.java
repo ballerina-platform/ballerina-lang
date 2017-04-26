@@ -67,8 +67,8 @@ public class LenghtBatchEventWindowTestCase {
 
         executionPlanRuntime.addCallback("query2", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Assert.fail("No events should arrive");
                 inEventCount = inEventCount + inEvents.length;
                 eventArrived = true;
@@ -342,8 +342,8 @@ public class LenghtBatchEventWindowTestCase {
 
         executionPlanRuntime.addCallback("query2", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Assert.assertEquals("Events cannot be expired", false, removeEvents != null);
                 for (Event event : inEvents) {
                     inEventCount++;
@@ -406,8 +406,8 @@ public class LenghtBatchEventWindowTestCase {
         try {
             executionPlanRuntime.addCallback("query2", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         inEventCount += (inEvents.length);
                     }
@@ -466,8 +466,8 @@ public class LenghtBatchEventWindowTestCase {
         try {
             executionPlanRuntime.addCallback("query2", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         inEventCount += (inEvents.length);
                     }

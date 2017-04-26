@@ -57,7 +57,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest1') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -113,7 +113,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest2') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -167,7 +167,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest3') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -225,7 +225,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest4') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -284,7 +284,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest5') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -346,7 +346,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest6') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -403,7 +403,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest7') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -460,7 +460,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest8') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -516,7 +516,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest9') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -574,7 +574,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest10') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(2 sec) " +
@@ -628,7 +628,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest11') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -682,7 +682,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest12') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -729,7 +729,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest13') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -782,7 +782,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest14') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(2 sec) " +
@@ -833,7 +833,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest15') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -848,8 +848,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 if (inEvents != null) {
                     value++;
@@ -888,7 +888,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest16') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -904,8 +904,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 if (inEvents != null) {
                     count.incrementAndGet();
@@ -946,7 +946,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest17') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -962,8 +962,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count.incrementAndGet();
                     value += inEvents.length;
@@ -1001,7 +1001,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest18') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -1016,8 +1016,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 if (inEvents != null) {
                     count.incrementAndGet();
@@ -1058,7 +1058,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest19') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -1073,8 +1073,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 if (inEvents != null) {
                     count.incrementAndGet();
@@ -1122,7 +1122,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest20') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -1138,8 +1138,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 if (inEvents != null) {
                     count.incrementAndGet();
@@ -1185,7 +1185,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest21') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -1201,8 +1201,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 if (count.get() == 2) {
@@ -1245,7 +1245,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest22') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1260,8 +1260,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1308,7 +1308,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest23') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1323,8 +1323,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1371,7 +1371,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest23') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1386,8 +1386,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1430,7 +1430,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest23') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1446,8 +1446,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1494,7 +1494,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest23') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1510,8 +1510,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1557,7 +1557,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest27') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1573,8 +1573,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1621,7 +1621,7 @@ public class SnapshotOutputRateLimitTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest28') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1637,8 +1637,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 if (inEvents != null) {

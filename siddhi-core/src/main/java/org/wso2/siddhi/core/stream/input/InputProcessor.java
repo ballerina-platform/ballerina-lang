@@ -30,7 +30,7 @@ public interface InputProcessor {
 
     void send(List<Event> events, int streamIndex);
 
-    void send(long timeStamp, Object[] data, int streamIndex);
+    void send(long timestamp, Object[] data, int streamIndex);
 
 }
 

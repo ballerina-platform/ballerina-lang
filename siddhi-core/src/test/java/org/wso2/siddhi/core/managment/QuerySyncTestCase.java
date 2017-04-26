@@ -66,8 +66,8 @@ public class QuerySyncTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount.addAndGet(inEvents.length);
                 }
@@ -101,7 +101,7 @@ public class QuerySyncTestCase {
         String executionPlan = "" +
                 "@Plan:name('SnapshotOutputRateLimitTest3') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "@synchronized('true') " +
@@ -171,8 +171,8 @@ public class QuerySyncTestCase {
         try {
             executionPlanRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         inEventCount.addAndGet(inEvents.length);
                     }
@@ -222,8 +222,8 @@ public class QuerySyncTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
                         inEventCount.incrementAndGet();

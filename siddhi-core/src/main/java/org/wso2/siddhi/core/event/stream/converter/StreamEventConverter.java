@@ -43,22 +43,22 @@ public interface StreamEventConverter {
     void convertComplexEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent);
 
     /**
-     * Method to construct(change format) timeStamp and data from StreamEvent
+     * Method to construct(change format) timestamp and data from StreamEvent
      *
-     * @param timeStamp     timeStamp of the event
+     * @param timestamp     timestamp of the event
      * @param data          output data of the event
      * @param borrowedEvent Event that will be populated
      */
-    void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent);
+    void convertData(long timestamp, Object[] data, StreamEvent borrowedEvent);
 
     /**
-     * Method to construct(change format) timeStamp and data from StreamEvent
-     *  @param timeStamp     timeStamp of the event
+     * Method to construct(change format) timestamp and data from StreamEvent
+     *  @param timestamp     timestamp of the event
      * @param data          output data of the event
      * @param type          output type of the event
      * @param borrowedEvent Event that will be populated
      */
-    void convertData(long timeStamp, Object[] data, StreamEvent.Type type, StreamEvent borrowedEvent);
+    void convertData(long timestamp, Object[] data, StreamEvent.Type type, StreamEvent borrowedEvent);
 
     /**
      * Element to hold information about event conversion

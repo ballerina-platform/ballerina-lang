@@ -20,6 +20,7 @@ package org.wso2.siddhi.query.api.definition;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Variable;
 
@@ -36,7 +37,11 @@ public class AggregationDefinition extends AbstractDefinition {
         super(id);
     }
 
-    public AggregationDefinition select(Selector selector) {
+    public AggregationDefinition select(BasicSelector selector) {
+//        if(selector.getHavingExpression()!=null){
+//            throw new OperationNotSupportedException ("Having condition cannot be added for Aggregate Definition," +
+//                    " but found in '"+id+"'");
+//        }
         this.selector = selector;
         return this;
     }
@@ -85,5 +90,29 @@ public class AggregationDefinition extends AbstractDefinition {
         return this.annotation;
     }
 
-    // TODO: 2/24/17 : toString and hashcode and equals ....
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        AggregationDefinition that = (AggregationDefinition) o;
+
+        if (!inputStream.equals(that.inputStream)) return false;
+        if (selector != null ? !selector.equals(that.selector) : that.selector != null) return false;
+        if (!aggregateAttribute.equals(that.aggregateAttribute)) return false;
+        if (timePeriod != null ? !timePeriod.equals(that.timePeriod) : that.timePeriod != null) return false;
+        return annotation != null ? annotation.equals(that.annotation) : that.annotation == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + inputStream.hashCode();
+        result = 31 * result + (selector != null ? selector.hashCode() : 0);
+        result = 31 * result + aggregateAttribute.hashCode();
+        result = 31 * result + (timePeriod != null ? timePeriod.hashCode() : 0);
+        result = 31 * result + (annotation != null ? annotation.hashCode() : 0);
+        return result;
+    }
 }

@@ -43,8 +43,8 @@ public class ZeroStreamEventConverter implements StreamEventConverter {
     }
 
     @Override
-    public void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent) {
-        convertData(timeStamp, data, StreamEvent.Type.CURRENT, borrowedEvent);
+    public void convertData(long timestamp, Object[] data, StreamEvent borrowedEvent) {
+        convertData(timestamp, data, StreamEvent.Type.CURRENT, borrowedEvent);
     }
 
 }

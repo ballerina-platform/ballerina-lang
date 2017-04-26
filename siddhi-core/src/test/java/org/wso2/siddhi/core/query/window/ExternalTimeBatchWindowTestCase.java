@@ -61,9 +61,9 @@ public class ExternalTimeBatchWindowTestCase {
         final AtomicBoolean recieved = new AtomicBoolean();
         runtime.addCallback("query", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 recieved.set(true);
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                EventPrinter.print(timestamp, inEvents, removeEvents);
             }
         });
 
@@ -108,7 +108,7 @@ public class ExternalTimeBatchWindowTestCase {
         final AtomicInteger recCount = new AtomicInteger(0);
         runtime.addCallback("query", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 Assert.assertEquals(1, inEvents.length);
                 recCount.incrementAndGet();
                 double avgCpu = (Double) inEvents[0].getData()[0];
@@ -187,7 +187,7 @@ public class ExternalTimeBatchWindowTestCase {
         {
             plan.addCallback("downSample", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inevents, Event[] removevents) {
+                public void receive(long timestamp, Event[] inevents, Event[] removevents) {
                     int currentCount = queryWideCounter.addAndGet(inevents.length);
                     log.info(MessageFormat.format("Round {0} ====", currentCount));
                     log.info(" events count " + inevents.length);
@@ -245,8 +245,8 @@ public class ExternalTimeBatchWindowTestCase {
             int count = 0;
 
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (count == 0) {
                     Assert.assertEquals(1, inEvents[0].getData(0));
                 } else if (count == 1) {
@@ -305,8 +305,8 @@ public class ExternalTimeBatchWindowTestCase {
             int count = 0;
 
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (count == 0) {
                     Assert.assertEquals(0L, inEvents[0].getData(0));
                     Assert.assertEquals(11L, inEvents[inEvents.length - 1].getData(0));
@@ -344,7 +344,7 @@ public class ExternalTimeBatchWindowTestCase {
             int count = 0;
 
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 if (count == 0) {
                     Assert.assertEquals(1, inEvents[0].getData(0));
                 } else if (count == 1) {
@@ -417,8 +417,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -466,8 +466,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -519,8 +519,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -572,8 +572,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -625,8 +625,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -674,8 +674,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -727,8 +727,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -785,8 +785,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
@@ -922,8 +922,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
@@ -991,8 +991,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
@@ -1055,8 +1055,8 @@ public class ExternalTimeBatchWindowTestCase {
         try {
             executionPlanRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         inEventCount+=(inEvents.length);
                     }
@@ -1102,8 +1102,8 @@ public class ExternalTimeBatchWindowTestCase {
         try {
             executionPlanRuntime.addCallback("query1", new QueryCallback() {
                 @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         inEventCount+=(inEvents.length);
                     }
@@ -1148,8 +1148,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -1198,8 +1198,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
@@ -1252,8 +1252,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                     for (Event event : inEvents) {
@@ -1313,8 +1313,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                     for (Event event : inEvents) {

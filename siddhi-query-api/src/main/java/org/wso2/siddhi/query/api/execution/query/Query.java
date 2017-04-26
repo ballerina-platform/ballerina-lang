@@ -22,6 +22,8 @@ import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.stream.*;
+import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
+import org.wso2.siddhi.query.api.execution.query.selection.HavingSelector;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -31,7 +33,7 @@ import java.util.List;
 public class Query implements ExecutionElement {
 
     private InputStream inputStream;
-    private Selector selector = new Selector();
+    private HavingSelector selector = new HavingSelector();
     private OutputStream outputStream = new ReturnStream();
     private OutputRate outputRate;
     private List<Annotation> annotations = new ArrayList<Annotation>();
@@ -49,12 +51,12 @@ public class Query implements ExecutionElement {
         return inputStream;
     }
 
-    public Query select(Selector selector) {
+    public Query select(HavingSelector selector) {
         this.selector = selector;
         return this;
     }
 
-    public Selector getSelector() {
+    public HavingSelector getSelector() {
         return selector;
     }
 

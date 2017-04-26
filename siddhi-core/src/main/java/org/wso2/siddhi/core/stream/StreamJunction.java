@@ -197,10 +197,10 @@ public class StreamJunction {
         }
     }
 
-    private void sendData(long timeStamp, Object[] data) {
+    private void sendData(long timestamp, Object[] data) {
         // Set timestamp to system if Siddhi is in playback mode
         if (executionPlanContext.isPlayback()) {
-            ((EventTimeBasedMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator()).setCurrentTimestamp(timeStamp);
+            ((EventTimeBasedMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator()).setCurrentTimestamp(timestamp);
         }
         if (throughputTracker != null) {
             throughputTracker.eventIn();
@@ -209,7 +209,7 @@ public class StreamJunction {
             long sequenceNo = ringBuffer.next();
             try {
                 Event existingEvent = ringBuffer.get(sequenceNo);
-                existingEvent.setTimestamp(timeStamp);
+                existingEvent.setTimestamp(timestamp);
                 existingEvent.setIsExpired(false);
                 System.arraycopy(data, 0, existingEvent.getData(), 0, data.length);
             } finally {
@@ -217,7 +217,7 @@ public class StreamJunction {
             }
         } else {
             for (Receiver receiver : receivers) {
-                receiver.receive(timeStamp, data);
+                receiver.receive(timestamp, data);
             }
         }
     }
@@ -298,7 +298,7 @@ public class StreamJunction {
 
         void receive(Event event, boolean endOfBatch);
 
-        void receive(long timeStamp, Object[] data);
+        void receive(long timestamp, Object[] data);
 
         void receive(Event[] events);
     }
@@ -345,8 +345,8 @@ public class StreamJunction {
         }
 
         @Override
-        public void send(long timeStamp, Object[] data, int streamIndex) {
-            streamJunction.sendData(timeStamp, data);
+        public void send(long timestamp, Object[] data, int streamIndex) {
+            streamJunction.sendData(timestamp, data);
         }
 
         public String getStreamId() {

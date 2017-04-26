@@ -224,7 +224,7 @@ public class WSO2EventOutputMapperTestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert event mapping
         for (Event aEvent : onMessageList) {
-            aEvent.setTimeStamp(0);
+            aEvent.setTimestamp(0);
         }
         Assert.assertEquals("Mapping is incorrect!", onMessageList, eventList);
         executionPlanRuntime.shutdown();

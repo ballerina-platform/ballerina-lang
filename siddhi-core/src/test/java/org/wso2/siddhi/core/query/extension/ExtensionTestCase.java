@@ -52,8 +52,8 @@ public class ExtensionTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 count = count + inEvents.length;
                 if (count == 3) {
                     Assert.assertEquals("WSO2ABC", inEvents[inEvents.length - 1].getData(1));
@@ -90,8 +90,8 @@ public class ExtensionTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
@@ -138,8 +138,8 @@ public class ExtensionTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 count = count + inEvents.length;
                 if (count == 3) {
                     Assert.assertEquals("WSO2ABC", inEvents[inEvents.length - 1].getData(1));
@@ -177,8 +177,8 @@ public class ExtensionTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {

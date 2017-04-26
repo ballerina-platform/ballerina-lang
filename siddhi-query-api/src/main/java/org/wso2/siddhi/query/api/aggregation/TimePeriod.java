@@ -39,4 +39,22 @@ public class TimePeriod {
         }
         return timePeriod;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TimePeriod that = (TimePeriod) o;
+
+        if (operator != that.operator) return false;
+        return durations != null ? durations.equals(that.durations) : that.durations == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = operator.hashCode();
+        result = 31 * result + (durations != null ? durations.hashCode() : 0);
+        return result;
+    }
 }

@@ -72,8 +72,8 @@ public class EvalScriptTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Object value = inEvents[inEvents.length - 1].getData(1);
                 Assert.assertEquals("IBM 700.0", value);
                 count.incrementAndGet();
@@ -113,8 +113,8 @@ public class EvalScriptTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Object value = inEvents[inEvents.length - 1].getData(1);
                 Assert.assertEquals("WSO2 50", value);
                 count.incrementAndGet();
@@ -251,8 +251,8 @@ public class EvalScriptTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Object value = inEvents[inEvents.length - 1].getData(1);
                 Assert.assertEquals("50", value);
                 count.incrementAndGet();
@@ -261,8 +261,8 @@ public class EvalScriptTestCase {
 
         executionPlanRuntime.addCallback("query2", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Object value = inEvents[inEvents.length - 1].getData(1);
                 Assert.assertEquals(6f, value);
                 count.incrementAndGet();
@@ -271,8 +271,8 @@ public class EvalScriptTestCase {
 
         executionPlanRuntime.addCallback("query3", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Object value  = inEvents[inEvents.length - 1].getData(1);
                 Assert.assertEquals("WSO2 50", value);
                 count.incrementAndGet();
@@ -281,8 +281,8 @@ public class EvalScriptTestCase {
 
         executionPlanRuntime.addCallback("query4", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Object value = inEvents[inEvents.length - 1].getData(1);
                 Assert.assertEquals("WSO2 50.0", value);
                 count.incrementAndGet();
@@ -322,8 +322,8 @@ public class EvalScriptTestCase {
 
         executionPlanRuntime.addCallback("query2", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Object value = inEvents[inEvents.length - 1].getData(0);
                 Assert.assertEquals(25.0f, value);
                 count.incrementAndGet();
@@ -370,8 +370,8 @@ public class EvalScriptTestCase {
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Object value = inEvents[inEvents.length - 1].getData(1);
                 Assert.assertEquals("IBM 700.0", value);
                 count.incrementAndGet();

@@ -103,7 +103,7 @@ public class AggregationParser {
             }
 
             List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(definition.getTimePeriod());
-            Variable groupByVar = getGroupByAttribute(definition.getSelector())
+            Variable groupByVar = getGroupByAttribute(definition.getSelector());
 
             IncrementalExecutor child = build(functionsAttributes, incrementalDurations.get(incrementalDurations.size() - 1), null,
                     metaComplexEvent, 0, eventTableMap, executors, executionPlanContext,

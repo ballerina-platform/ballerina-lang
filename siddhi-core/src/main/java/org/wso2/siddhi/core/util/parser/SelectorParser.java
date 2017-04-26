@@ -35,6 +35,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.wso2.siddhi.query.api.execution.query.selection.HavingSelector;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -58,7 +59,7 @@ public class SelectorParser {
      * @param variableExpressionExecutors variable expression executors
      * @return QuerySelector
      */
-    public static QuerySelector parse(Selector selector, OutputStream outputStream, ExecutionPlanContext executionPlanContext,
+    public static QuerySelector parse(HavingSelector selector, OutputStream outputStream, ExecutionPlanContext executionPlanContext,
                                       MetaComplexEvent metaComplexEvent, Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> variableExpressionExecutors, String queryName) {
         boolean currentOn = false;
         boolean expiredOn = false;

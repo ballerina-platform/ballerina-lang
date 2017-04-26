@@ -49,7 +49,7 @@ public abstract class QueryCallback {
 
         Event[] currentEvents = null;
         Event[] expiredEvents = null;
-        long timeStamp = -1;
+        long timestamp = -1;
         List<Event> currentEventBuffer = new ArrayList<Event>();
         List<Event> expiredEventBuffer = new ArrayList<Event>();
 
@@ -61,7 +61,7 @@ public abstract class QueryCallback {
             } else if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
                 bufferEvent(streamEvent, currentEventBuffer);
             }
-            timeStamp = streamEvent.getTimestamp();
+            timestamp = streamEvent.getTimestamp();
         }
 
         if (!currentEventBuffer.isEmpty()) {
@@ -74,12 +74,12 @@ public abstract class QueryCallback {
             expiredEventBuffer.clear();
         }
 
-        send(timeStamp, currentEvents, expiredEvents);
+        send(timestamp, currentEvents, expiredEvents);
     }
 
-    private void send(long timeStamp, Event[] currentEvents, Event[] expiredEvents) {
+    private void send(long timestamp, Event[] currentEvents, Event[] expiredEvents) {
         try {
-            receive(timeStamp, currentEvents, expiredEvents);
+            receive(timestamp, currentEvents, expiredEvents);
         } catch (RuntimeException e) {
             log.error("Error on sending events" + Arrays.deepToString(currentEvents) + ", " + Arrays.deepToString(expiredEvents), e);
         }
@@ -97,6 +97,6 @@ public abstract class QueryCallback {
 
     }
 
-    public abstract void receive(long timeStamp, Event[] inEvents, Event[] removeEvents);
+    public abstract void receive(long timestamp, Event[] inEvents, Event[] removeEvents);
 
 }

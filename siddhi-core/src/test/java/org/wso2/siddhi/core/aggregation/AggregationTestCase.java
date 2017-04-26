@@ -25,11 +25,11 @@ public class AggregationTestCase {
 
         AggregationDefinition aggregationDefinition = AggregationDefinition.id("StockAggregation").from(
                 InputStream.stream("StockStream")).
-                select(Selector.selector().
+                select(Selector.basicSelector().
                         select("symbol", Expression.variable("symbol").ofStream("StockStream")).
                         select("avgPrice", Expression.function("avg", Expression.variable("price"))).
                         groupBy(Expression.variable("symbol").ofStream("StockStream"))).
-                aggregateBy(Expression.variable("timeStamp")).every(
+                aggregateBy(Expression.variable("timestamp")).every(
                 TimePeriod.interval(TimePeriod.Duration.SECONDS, TimePeriod.Duration.MINUTES));
 
 
@@ -60,8 +60,8 @@ public class AggregationTestCase {
 //        executionPlanRuntime.addCallback("query1", new QueryCallback() {
 //            int count = 0;
 //            @Override
-//            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-//                EventPrinter.print(timeStamp, inEvents, removeEvents);
+//            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+//                EventPrinter.print(timestamp, inEvents, removeEvents);
 //                for (Event inEvent : inEvents) {
 //                    count++;
 //                    if (count == 1) {

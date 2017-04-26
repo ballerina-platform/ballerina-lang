@@ -36,13 +36,13 @@ import org.wso2.siddhi.query.api.expression.Expression;
 public class TriggerTestCase {
     static final Logger log = Logger.getLogger(TriggerTestCase.class);
     private volatile int count;
-    private volatile long lastTimeStamp;
+    private volatile long lastTimestamp;
     private volatile boolean eventArrived;
 
     @Before
     public void init() {
         count = 0;
-        lastTimeStamp = 0;
+        lastTimestamp = 0;
         eventArrived = false;
     }
 
@@ -191,10 +191,10 @@ public class TriggerTestCase {
                     long timestamp  = event.getTimestamp();
                     count++;
                     if(count>1){
-                        float triggerTimeDiff = timestamp/1000 - lastTimeStamp/ 1000;
+                        float triggerTimeDiff = timestamp / 1000 - lastTimestamp / 1000;
                         Assert.assertEquals(1.0f,triggerTimeDiff);
                     }
-                    lastTimeStamp = timestamp;
+                    lastTimestamp = timestamp;
                 }
                 eventArrived = true;
             }
