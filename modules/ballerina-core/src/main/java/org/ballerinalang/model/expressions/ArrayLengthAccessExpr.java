@@ -40,9 +40,9 @@ public class ArrayLengthAccessExpr extends UnaryExpression implements ReferenceE
 
     private ReferenceExpr varRefExpr;
 
-    public ArrayLengthAccessExpr(NodeLocation location, ReferenceExpr structVarRefExpr) {
-        super(location, null, structVarRefExpr);
-        this.varRefExpr = structVarRefExpr;
+    public ArrayLengthAccessExpr(NodeLocation location, ReferenceExpr arraylengthExpr) {
+        super(location, null, arraylengthExpr);
+        this.varRefExpr = arraylengthExpr;
     }
 
     @Override

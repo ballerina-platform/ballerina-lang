@@ -71,6 +71,10 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         return rExpr;
     }
 
+    public void setRExpr(Expression rExpr) {
+        this.rExpr = rExpr;
+    }
+
     public SimpleTypeName getTypeName() {
         return typeName;
     }

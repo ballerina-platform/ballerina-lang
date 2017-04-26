@@ -41,6 +41,10 @@ public class WhileStmt extends AbstractStatement {
         return whileCondition;
     }
 
+    public void setCondition(Expression whileCondition) {
+        this.whileCondition = whileCondition;
+    }
+
     public BlockStmt getBody() {
         return whileBody;
     }

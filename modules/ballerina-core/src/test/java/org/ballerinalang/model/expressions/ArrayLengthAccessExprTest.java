@@ -44,13 +44,117 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression")
     public void testArrayLengthAccessExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayLengthAccessTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayLengthAccessTestAssignmentCase", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
         int actual = ((BInteger) returns[0]).intValue();
-        int expected = 4;
+        int expected = 3;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test array length access expression when present in Function invocation statement.")
+    public void testArrayLengthAccessExprFunctionInvocationCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayLengthAccessTestFunctionInvocationCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = ((BInteger) returns[0]).intValue();
+        int expected = 3;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test array length access expression when present in Variable definition statement.")
+    public void testArrayLengthAccessExprVariableDefinitionCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayLengthAccessTestVariableDefinitionCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = ((BInteger) returns[0]).intValue();
+        int expected = 3;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test array length access expression when present in Array initialization statement.")
+    public void testArrayLengthAccessExprArrayInitializationCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayLengthAccessTestArrayInitializerCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = ((BInteger) returns[0]).intValue();
+        int expected = 3;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test array length access expression when present in Map initialization statement.")
+    public void testArrayLengthAccessExprMapInitializationCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayLengthAccessTestMapInitializerCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = ((BInteger) returns[0]).intValue();
+        int expected = 3;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test array length access expression when present in Return statement.")
+    public void testArrayLengthAccessExprReturnExpressionCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayLengthAccessTestReturnStatementCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = ((BInteger) returns[0]).intValue();
+        int expected = 3;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test array length access expression when present in Type cast expression.")
+    public void testArrayLengthAccessExprTypeCastExpressionCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayLengthAccessTestTypeCastExpressionCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = ((BInteger) returns[0]).intValue();
+        int expected = 3;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test array length access expression when present in If condition.")
+    public void testArrayLengthAccessExprIfConditionExpressionCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayLengthAccessTestIfConditionCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = ((BInteger) returns[0]).intValue();
+        int expected = 3;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test array length access expression when present in Binary expression.")
+    public void testArrayLengthAccessExpBinaryExpressionCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayLengthAccessTestBinaryExpressionCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = ((BInteger) returns[0]).intValue();
+        int expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
