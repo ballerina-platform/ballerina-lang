@@ -822,6 +822,16 @@
                 <artifactId>servlet-api</artifactId>
                 <version>${servlet-api-version}</version>
             </dependency>
+            <dependency>
+                <groupId>javax.transaction</groupId>
+                <artifactId>javax.transaction-api</artifactId>
+                <version>${javax-transaction-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.atomikos.wso2</groupId>
+                <artifactId>atomikos</artifactId>
+                <version>${atomikos-version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -968,6 +978,8 @@
         <rs-api.version>2.0</rs-api.version>
         <msf4j.version>2.1.0</msf4j.version>
         <servlet-api-version>2.5</servlet-api-version>
+        <javax-transaction-version>1.2</javax-transaction-version>
+        <atomikos-version>3.8.0.wso2v1</atomikos-version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
