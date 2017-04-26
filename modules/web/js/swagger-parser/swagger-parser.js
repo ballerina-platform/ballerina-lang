@@ -238,7 +238,7 @@ class SwaggerParser {
         }
 
         this._createResponsesAnnotation(resourceDefinition, httpMethodJsonObject);
-
+        this._createParametersAnnotation(resourceDefinition, httpMethodJsonObject);
     }
 
     _createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject) {
@@ -253,34 +253,124 @@ class SwaggerParser {
     }
 
     _createResponsesAnnotation(resourceDefinition, httpMethodJsonObject) {
-        let responsesAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: 'Responses'});
+        if (!_.isUndefined(httpMethodJsonObject.responses)) {
+            let responsesAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: 'Responses'});
 
-        // Creating the responses array entry
-        let responsesAnnotationArray = BallerinaASTFactory.createAnnotationEntryArray();
-        let responseAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({rightValue: responsesAnnotationArray});
-        responsesAnnotation.addChild(responseAnnotationEntry);
-        _.forEach(httpMethodJsonObject.responses, (codeObj, code) => {
-            let responseAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: 'Response'});
+            // Creating the responses array entry
+            let responsesAnnotationArray = BallerinaASTFactory.createAnnotationEntryArray();
+            let responseAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({rightValue: responsesAnnotationArray});
+            responsesAnnotation.addChild(responseAnnotationEntry);
+            _.forEach(httpMethodJsonObject.responses, (codeObj, code) => {
+                let responseAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: 'Response'});
 
-            let codeAnnotationEntry = resourceDefinition.getFactory().createAnnotationEntry({
-                leftValue: 'code',
-                rightValue: JSON.stringify(code)
+                let codeAnnotationEntry = resourceDefinition.getFactory().createAnnotationEntry({
+                    leftValue: 'code',
+                    rightValue: JSON.stringify(code)
+                });
+                responseAnnotation.addChild(codeAnnotationEntry);
+
+                // description
+                let descriptionAnnotationEntry = resourceDefinition.getFactory().createAnnotationEntry({
+                    leftValue: 'description',
+                    rightValue: JSON.stringify(codeObj.description)
+                });
+                responseAnnotation.addChild(descriptionAnnotationEntry);
+
+                responsesAnnotationArray.addChild(BallerinaASTFactory.createAnnotationEntry({
+                    leftValue: '',
+                    rightValue: responseAnnotation
+                }));
             });
-            responseAnnotation.addChild(codeAnnotationEntry);
 
-            // description
-            let descriptionAnnotationEntry = resourceDefinition.getFactory().createAnnotationEntry({
-                leftValue: 'description',
-                rightValue: JSON.stringify(codeObj.description)
+            let resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
+            let resourceConfigAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'Responses');
+            resourceDefinition.addChild(responsesAnnotation, resourceConfigAnnotationIndex, true);
+        }
+    }
+
+    _createParametersAnnotation(resourceDefinition, httpMethodJsonObject) {
+        if (!_.isUndefined(httpMethodJsonObject.parameters)) {
+            let parametersAnnotation = BallerinaASTFactory.createAnnotation({
+                packageName: 'swagger',
+                identifier: 'ParametersInfo'
             });
-            responseAnnotation.addChild(descriptionAnnotationEntry);
 
-            responsesAnnotationArray.addChild(BallerinaASTFactory.createAnnotationEntry({leftValue: '', rightValue: responseAnnotation}));
-        });
+            // Creating the responses array entry
+            let parametersAnnotationArray = BallerinaASTFactory.createAnnotationEntryArray();
+            let parameterAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({rightValue: parametersAnnotationArray});
+            parametersAnnotation.addChild(parameterAnnotationEntry);
+            _.forEach(httpMethodJsonObject.parameters, parameter => {
+                let responseAnnotation = BallerinaASTFactory.createAnnotation({
+                    packageName: 'swagger',
+                    identifier: 'ParameterInfo'
+                });
 
-        let resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
-        let resourceConfigAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'Responses');
-        resourceDefinition.addChild(responsesAnnotation, resourceConfigAnnotationIndex, true);
+                if (!_.isUndefined(parameter.in)) {
+                    responseAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
+                        leftValue: 'in',
+                        rightValue: JSON.stringify(parameter.in)
+                    }));
+                }
+
+                if (!_.isUndefined(parameter.name)) {
+                    responseAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
+                        leftValue: 'name',
+                        rightValue: JSON.stringify(parameter.name)
+                    }));
+                }
+
+                if (!_.isUndefined(parameter.description)) {
+                    responseAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
+                        leftValue: 'description',
+                        rightValue: JSON.stringify(parameter.description)
+                    }));
+                }
+
+                if (!_.isUndefined(parameter.required)) {
+                    responseAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
+                        leftValue: 'required',
+                        rightValue: parameter.required
+                    }));
+                }
+
+                if (!_.isUndefined(parameter.allowEmptyValue)) {
+                    responseAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
+                        leftValue: 'allowEmptyValue',
+                        rightValue: JSON.stringify(parameter.allowEmptyValue)
+                    }));
+                }
+
+                if (!_.isUndefined(parameter.type)) {
+                    responseAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
+                        leftValue: 'type',
+                        rightValue: JSON.stringify(parameter.type)
+                    }));
+                }
+
+                if (!_.isUndefined(parameter.format)) {
+                    responseAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
+                        leftValue: 'format',
+                        rightValue: JSON.stringify(parameter.format)
+                    }));
+                }
+
+                if (!_.isUndefined(parameter.collectionFormat)) {
+                    responseAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
+                        leftValue: 'collectionFormat',
+                        rightValue: JSON.stringify(parameter.collectionFormat)
+                    }));
+                }
+
+                parametersAnnotationArray.addChild(BallerinaASTFactory.createAnnotationEntry({
+                    leftValue: '',
+                    rightValue: responseAnnotation
+                }));
+            });
+
+            let resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
+            let resourceConfigAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'ParametersInfo');
+            resourceDefinition.addChild(parametersAnnotation, resourceConfigAnnotationIndex, true);
+        }
     }
 
     _createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {

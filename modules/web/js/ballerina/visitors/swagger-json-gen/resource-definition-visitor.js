@@ -69,8 +69,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ResourceInfo')) {
                 this.parseResourceInfoAnnotation(existingAnnotation, httpMethodJson);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ParametersInfo')) {
-                let existingResourceParameters = resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isResourceParameter);
-                this.parseParameterInfoAnnotation(existingResourceParameters, httpMethodJson);
+                this.parseParameterInfoAnnotation(existingAnnotation, httpMethodJson);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'Responses')) {
                 this.parseResponsesAnnotation(existingAnnotation, httpMethodJson);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'http') && _.isEqual(existingAnnotation.getIdentifier(), 'Consumes')) {
@@ -116,10 +115,9 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         });
     }
 
-    parseResourceInfoAnnotation(existingAnnotation, httpMethodJson) {
-        // TODO : This is wrong. Need to fix.
+    parseResourceInfoAnnotation(resourceInfoAnnotation, httpMethodJson) {
         // Setting values.
-        _.forEach(existingAnnotation.getChildren(), annotationEntry => {
+        _.forEach(resourceInfoAnnotation.getChildren(), annotationEntry => {
             if (_.isEqual(annotationEntry.getLeftValue(), 'tags')) {
                 let tagsAnnotationEntryArray = annotationEntry.getRightValue();
                 let tags = [];
@@ -139,30 +137,40 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         });
     }
 
-    parseParameterInfoAnnotation(existingResourceParameters, httpMethodJson) {
-        let resourceParameterMapping = [{'@http:PathParam': 'path'}, {'@http:QueryParam': 'query'},
-            {'@http:HeaderParam': 'header'}, {'@http:FormParam': 'formData'}, {'@http:Body': 'body'}
-        ];
-
-        // TODO : Support arrays
-        let resourceParameterTypeMapping = [{'string': 'string'}, {'int': 'integer'}, {'boolean': 'boolean'}];
+    parseParameterInfoAnnotation(parametersAnnotation, httpMethodJson) {
+        let parametersAnnotationArray = parametersAnnotation.getChildren()[0].getRightValue();
         let parameters = [];
-        _.forEach(existingResourceParameters, resourceParameter => {
-            if (!_.isEqual(resourceParameter.getType(), 'message')) {
-                let tempParameterObj = {};
-                _.set(tempParameterObj, 'in', resourceParameterMapping[resourceParameter.getAnnotationType()]);
-                _.set(tempParameterObj, 'name', resourceParameter.getIdentifier());
-
-                if (!_.isEqual(resourceParameter.getAnnotationType(), '@http:Body')) {
-                    _.set(tempParameterObj, 'type', resourceParameterTypeMapping[resourceParameter.getType()]);
+        _.forEach(parametersAnnotationArray.getChildren(), parametersAnnotationArrayEntry => {
+            let tempParameterObj = {};
+            _.forEach(parametersAnnotationArrayEntry.getRightValue().getChildren(), responseAnnotationEntry => {
+                if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'in')) {
+                    _.set(tempParameterObj, 'in', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'name')) {
+                    _.set(tempParameterObj, 'name', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'description')) {
+                    _.set(tempParameterObj, 'description', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'required')) {
+                    _.set(tempParameterObj, 'required', responseAnnotationEntry.getRightValue());
+                } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'allowEmptyValue')) {
+                    _.set(tempParameterObj, 'allowEmptyValue', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'type')) {
+                    _.set(tempParameterObj, 'type', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'format')) {
+                    _.set(tempParameterObj, 'format', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'schema')) {
+                    _.set(tempParameterObj, 'schema', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'collectionFormat')) {
+                    _.set(tempParameterObj, 'collectionFormat', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'items')) {
+                    // TODO : Implement items annotation.
                 }
-                parameters.push(tempParameterObj);
-            }
+
+            });
+
+            parameters.push(tempParameterObj);
         });
 
-        if (_.size(parameters) > 0) {
-            _.set(httpMethodJson, 'parameters', parameters);
-        }
+        _.set(httpMethodJson, 'parameters', parameters);
     }
 
     parseResponsesAnnotation(responsesAnnotation, httpMethodJson) {
