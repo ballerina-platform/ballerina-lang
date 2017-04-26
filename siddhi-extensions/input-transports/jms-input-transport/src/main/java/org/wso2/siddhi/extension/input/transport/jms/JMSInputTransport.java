@@ -29,7 +29,6 @@ import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.extension.input.transport.jms.util.JMSMessageProcessor;
 
 import java.util.Arrays;
 import java.util.HashMap;
