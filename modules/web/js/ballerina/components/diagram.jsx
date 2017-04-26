@@ -20,27 +20,27 @@ import React from "react";
 
 class Diagram extends React.Component {
 
-	constructor(props){
-		super(props);
-		this.model = props.model;
-		this.model.on('tree-modified', () => {
-				this.forceUpdate();
-		});
-	}
+    constructor(props) {
+        super(props);
+        this.model = props.model;
+        this.model.on('tree-modified', () => {
+            this.forceUpdate();
+        });
+    }
 
-	setModel(model) {
-			this.model = model;
-	}
+    setModel(model) {
+        this.model = model;
+    }
 
-	getModel() {
-			return this.model;
-	}
+    getModel() {
+        return this.model;
+    }
 
-	render() {
-		return <div className="canvas_container" >
-							<p>{this.model.id}</p>
-					</div>;
-	}
+    render() {
+        return <div className="canvas_container">
+            <p>{this.model.id}</p>
+        </div>;
+    }
 }
 
 export default Diagram;
