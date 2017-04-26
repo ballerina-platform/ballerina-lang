@@ -348,7 +348,7 @@ transactionStatement
     ;
 
 rollbackClause
-    :   'onrollback' '{' statement* '}'
+    :   'onRollback' '{' statement* '}'
     ;
 
 actionInvocation

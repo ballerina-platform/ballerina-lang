@@ -535,3 +535,24 @@ function testBatchUpdate() (int[]) {
     sql:ClientConnector.close(testDB);
     return updateCount;
 }
+
+function testTransacton () (int) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                         "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    int returnVal = 0;
+    transaction {
+        sql:Parameter[] parameters = [];
+        int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
+                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 2, 5000.75, 'USA')",
+                                                     parameters);
+
+        insertCount = sql:ClientConnector.update(testDB, "Insert into Customers2
+                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 2, 5000.75, 'USA')",
+                                                 parameters);
+    } onRollback {
+        returnVal = - 1;
+    }
+    sql:ClientConnector.close(testDB);
+    return returnVal;
+}
