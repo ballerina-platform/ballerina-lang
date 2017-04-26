@@ -48,7 +48,9 @@ import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -244,7 +246,7 @@ public class BallerinaPsiImplUtil {
         // We need to get the content roots from the project and find matching directories in each content root.
         VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
         for (VirtualFile contentRoot : contentRoots) {
-            // Get any matching directory in the content root.
+            // Get any matching directory from the content root.
             VirtualFile match = getMatchingDirectory(contentRoot, packages);
             // If there is a match, add it to the results.
             if (match != null) {
@@ -308,12 +310,16 @@ public class BallerinaPsiImplUtil {
             sibling = sibling.getPrevSibling();
         }
 
-        // Get any matching directory in the project root
-        List<VirtualFile> matches = suggestDirectory(project.getBaseDir(), packages);
-        // If there is matches, add it to the results.
-        if (matches != null) {
-            for (VirtualFile file : matches) {
-                results.add(PsiManager.getInstance(project).findDirectory(file));
+        // We need to get the content roots from the project and find matching directories in each content root.
+        VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
+        for (VirtualFile contentRoot : contentRoots) {
+            // Get any matching directory from the content root.
+            List<VirtualFile> matches = suggestDirectory(contentRoot, packages);
+            // If there is matches, add it to the results.
+            if (matches != null) {
+                for (VirtualFile file : matches) {
+                    results.add(PsiManager.getInstance(project).findDirectory(file));
+                }
             }
         }
 
@@ -346,12 +352,16 @@ public class BallerinaPsiImplUtil {
             sibling = sibling.getPrevSibling();
         }
 
-        // Get any matching directory in the project root
-        List<VirtualFile> matches = suggestDirectory(project.getBaseDir(), packages);
-        // If there is matches, add it to the results.
-        if (matches != null) {
-            for (VirtualFile file : matches) {
-                results.add(PsiManager.getInstance(project).findDirectory(file));
+        // We need to get the content roots from the project and find matching directories in each content root.
+        VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
+        for (VirtualFile contentRoot : contentRoots) {
+            // Get any matching directory from the content root.
+            List<VirtualFile> matches = suggestDirectory(contentRoot, packages);
+            // If there is matches, add it to the results.
+            if (matches != null) {
+                for (VirtualFile file : matches) {
+                    results.add(PsiManager.getInstance(project).findDirectory(file));
+                }
             }
         }
 
@@ -360,7 +370,7 @@ public class BallerinaPsiImplUtil {
         if (projectSdk != null) {
             VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
             for (VirtualFile root : roots) {
-                matches = suggestDirectory(root, packages);
+                List<VirtualFile> matches = suggestDirectory(root, packages);
                 if (matches != null) {
                     for (VirtualFile file : matches) {
                         results.add(PsiManager.getInstance(project).findDirectory(file));
@@ -851,7 +861,7 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
-    public static List<PsiElement> getAllVariablesInResolvableScope(PsiElement context) {
+    public static List<PsiElement> getAllVariablesInResolvableScope(PsiElement element, PsiElement context) {
         List<PsiElement> results = new ArrayList<>();
         // Get all variables from the context.
         Collection<? extends PsiElement> variableDefinitions =
@@ -859,7 +869,18 @@ public class BallerinaPsiImplUtil {
         for (PsiElement variableDefinition : variableDefinitions) {
             if (!variableDefinition.getText().contains("IntellijIdeaRulezzz") &&
                     !variableDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
-                results.add(variableDefinition);
+                VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                        VariableDefinitionNode.class);
+                if (variableDefinitionNode == null) {
+                    StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
+                    if (statementNode == null || !"IntellijIdeaRulezzz".equals(statementNode.getText())) {
+                        results.add(variableDefinition);
+                    }
+                } else {
+                    if (variableDefinition.getParent().getTextOffset() < variableDefinitionNode.getTextOffset()) {
+                        results.add(variableDefinition);
+                    }
+                }
             }
         }
         // Get all parameters from the context.
@@ -876,7 +897,8 @@ public class BallerinaPsiImplUtil {
         // the parent context.
         // We need to check the context.getContext() here, otherwise all variables in the file will be suggested.
         if (context != null && !(context.getContext() instanceof BallerinaFile)) {
-            List<PsiElement> allVariablesInResolvableScope = getAllVariablesInResolvableScope(context.getContext());
+            List<PsiElement> allVariablesInResolvableScope = getAllVariablesInResolvableScope(element,
+                    context.getContext());
             for (PsiElement psiElement : allVariablesInResolvableScope) {
                 if (!results.contains(psiElement)) {
                     results.add(psiElement);
