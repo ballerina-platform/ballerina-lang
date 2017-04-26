@@ -35,6 +35,7 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
     private String varName;
     private SymbolName symbolName;
     private VariableDef variableDef;
+    private boolean isLHSExpr;
 
     public VariableRefExpr(NodeLocation location, String varName) {
         super(location);
@@ -54,6 +55,16 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
 
     public SymbolName getSymbolName() {
         return symbolName;
+    }
+
+    @Override
+    public boolean isLHSExpr() {
+        return isLHSExpr;
+    }
+
+    @Override
+    public void setLHSExpr(boolean lhsExpr) {
+        this.isLHSExpr = lhsExpr;
     }
 
     public BType getType() {

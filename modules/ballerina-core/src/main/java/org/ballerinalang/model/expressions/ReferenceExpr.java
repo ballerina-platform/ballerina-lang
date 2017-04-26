@@ -39,4 +39,8 @@ public interface ReferenceExpr extends Expression {
      * @return  Symbolic name
      */
     SymbolName getSymbolName();
+
+    boolean isLHSExpr();
+
+    void setLHSExpr(boolean lhsExpr);
 }

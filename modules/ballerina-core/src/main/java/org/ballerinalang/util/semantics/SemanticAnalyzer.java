@@ -832,6 +832,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType varBType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
         varDef.setType(varBType);
 
+        // Mark the this variable references as LHS expressions
+        ((ReferenceExpr) varDefStmt.getLExpr()).setLHSExpr(true);
+
         // Check whether this variable is already defined, if not define it.
         SymbolName symbolName = new SymbolName(varDef.getName());
         BLangSymbol varSymbol = currentScope.resolve(symbolName);
@@ -1580,7 +1583,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(GreaterThanExpression greaterThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(greaterThanExpr);
-        
+
         if (compareExprType == BTypes.typeInt) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
 
@@ -1595,7 +1598,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessEqualExpression lessEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
-        
+
         if (compareExprType == BTypes.typeInt) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
 
@@ -1610,7 +1613,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessThanExpression lessThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessThanExpr);
-        
+
         if (compareExprType == BTypes.typeInt) {
             lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_INT_FUNC);
 
@@ -2176,12 +2179,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // First mark all left side ArrayMapAccessExpr. This is to skip some processing which is applicable only
             // for right side expressions.
-            if (lExpr instanceof ArrayMapAccessExpr) {
-                ((ArrayMapAccessExpr) lExpr).setLHSExpr(true);
-            } else if (lExpr instanceof StructFieldAccessExpr) {
-                ((StructFieldAccessExpr) lExpr).setLHSExpr(true);
-            }
-
+            ((ReferenceExpr) lExpr).setLHSExpr(true);
             lExpr.accept(this);
 
             // Check whether someone is trying to change the values of a constant
