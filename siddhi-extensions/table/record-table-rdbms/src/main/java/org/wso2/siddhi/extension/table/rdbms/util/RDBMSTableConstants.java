@@ -26,23 +26,26 @@ public class RDBMSTableConstants {
 
     //Annotation field names
     public static String ANNOTATION_ELEMENT_URL = "jdbc.url";
-    public static String ANNOTATION_ELEMENT_DRIVER = "driver";
     public static String ANNOTATION_ELEMENT_USERNAME = "username";
     public static String ANNOTATION_ELEMENT_PASSWORD = "password";
     public static String ANNOTATION_ELEMENT_TABLE_NAME = "table.name";
     public static String ANNOTATION_ELEMENT_FIELD_LENGTHS = "field.length";
-    public static String ANNOTATION_ELEMENT_PRIMARY_KEY = "primary.key";
-    public static String ANNOTATION_ELEMENT_INDEX_FIELDS = "index.fields";
     public static String ANNOTATION_ELEMENT_POOL_PROPERTIES = "pool.properties";
     public static String ANNOTATION_ELEMENT_JNDI_RESOURCE = "jndi.resource";
 
     public static final String TABLE_NAME_PLACEHOLDER = "{{TABLE_NAME}}";
     public static final String COLUMNS_PLACEHOLDER = "{{COLUMNS, PRIMARY_KEYS}}";
     public static final String INDEX_PLACEHOLDER = "{{INDEX_COLUMNS}}";
+    public static final String CONDITION_PLACEHOLDER = "{{CONDITION}}";
 
     public static final String WHITESPACE = " ";
     public static final String COMMA = ",";
+
+    public static final String STREAM_VAR_PREFIX = "[";
+    public static final String STREAM_VAR_SUFFIX = "]";
+
     public static final String PRIMARY_KEY_DEF = "PRIMARY KEY";
+    public static final String SQL_WHERE = "WHERE";
 
     private RDBMSTableConstants() {
 

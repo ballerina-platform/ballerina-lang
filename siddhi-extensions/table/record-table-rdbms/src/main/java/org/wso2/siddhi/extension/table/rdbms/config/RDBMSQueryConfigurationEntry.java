@@ -29,14 +29,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class RDBMSQueryConfigurationEntry {
 
     private String databaseName;
-    private String version = "";
+    private String category;
+    private double minVersion;
+    private double maxVersion;
+    private String queryBatchSize;
     private String tableCheckQuery;
     private String tableCreateQuery;
     private String tableTruncateQuery;
     private String indexCreateQuery;
+    private String recordSelectQuery;
+    private String recordExistsQuery;
     private String recordInsertQuery;
     private String recordUpdateQuery;
     private String recordMergeQuery;
+    private String recordDeleteQuery;
     private String quoteMark = "";
     private boolean keyExplicitNotNull = false;
     private RDBMSTypeMapping RDBMSTypeMapping;
@@ -50,13 +56,36 @@ public class RDBMSQueryConfigurationEntry {
         this.databaseName = databaseName;
     }
 
-    @XmlAttribute(name = "version")
-    public String getVersion() {
-        return version;
+    @XmlAttribute(name = "minVersion", required = false)
+    public double getMinVersion() {
+        return minVersion;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setMaxVersion(double maxVersion) {
+        this.maxVersion = maxVersion;
+    }
+
+    @XmlAttribute(name = "maxVersion", required = false)
+    public double getMaxVersion() {
+        return maxVersion;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    @XmlAttribute(name = "category", required = false)
+    public String getCategory() {
+        return category;
+    }
+
+    public void setQueryBatchSize(String queryBatchSize) {
+        this.queryBatchSize = queryBatchSize;
+    }
+
+    @XmlElement(name = "query-batch-size")
+    public String getQueryBatchSize() {
+        return queryBatchSize;
     }
 
     public String getTableCheckQuery() {
@@ -113,6 +142,30 @@ public class RDBMSQueryConfigurationEntry {
 
     public void setRecordMergeQuery(String recordMergeQuery) {
         this.recordMergeQuery = recordMergeQuery;
+    }
+
+    public void setRecordSelectQuery(String recordSelectQuery) {
+        this.recordSelectQuery = recordSelectQuery;
+    }
+
+    public String getRecordSelectQuery() {
+        return recordSelectQuery;
+    }
+
+    public void setRecordExistsQuery(String recordExistsQuery) {
+        this.recordExistsQuery = recordExistsQuery;
+    }
+
+    public String getRecordExistsQuery() {
+        return recordExistsQuery;
+    }
+
+    public void setRecordDeleteQuery(String recordDeleteQuery) {
+        this.recordDeleteQuery = recordDeleteQuery;
+    }
+
+    public String getRecordDeleteQuery() {
+        return recordDeleteQuery;
     }
 
     public String getQuoteMark() {

@@ -22,6 +22,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
 import org.wso2.siddhi.core.table.record.ConditionBuilder;
+import org.wso2.siddhi.core.table.record.RecordIterator;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSTypeMapping;
@@ -54,7 +55,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private static final String ANNOTATION_INDEX = "IndexBy";
 
     private static final String TABLE_NAME_PLACEHOLDER = "{{TABLE_NAME}}";
-    private static final String COLUMNS_PLACEHOLDER = "{{COLUMNS, PRIMARY_KEYS}}";
     private static final String INDEX_PLACEHOLDER = "{{INDEX_COLUMNS}}";
     private static final String Q_PLACEHOLDER = "{{Q}}";
 
@@ -77,7 +77,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
         Annotation primaryKeys = AnnotationHelper.getAnnotation(ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
         Annotation indices = AnnotationHelper.getAnnotation(ANNOTATION_INDEX, tableDefinition.getAnnotations());
-
         String jndiResourceName = storeAnnotation.getElement(RDBMSTableConstants.ANNOTATION_ELEMENT_JNDI_RESOURCE);
         if (RDBMSTableUtils.isEmpty(jndiResourceName)) {
             try {
@@ -96,7 +95,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
             this.tableName = this.tableDefinition.getId();
         }
         try {
-            this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource);
+            if (this.queryConfigurationEntry == null) {
+                this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource);
+            }
         } catch (CannotLoadConfigurationException e) {
             throw new RDBMSTableException("Failed to initialize DB Configuration entry for table '" + this.tableName
                     + "': " + e.getMessage(), e);
@@ -110,7 +111,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected void add(List<Object[]> records) {
         String insertQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordInsertQuery());
         StringBuilder params = new StringBuilder();
-
         int fieldsLeft = this.attributes.size();
         while (fieldsLeft > 0) {
             params.append("?");
@@ -126,22 +126,61 @@ public class RDBMSEventTable extends AbstractRecordTable {
             throw new RDBMSTableException("Error in adding events to '" + this.tableName + "' store: "
                     + e.getMessage(), e);
         }
-
     }
 
     @Override
-    protected List<Object[]> find(Map<String, Object> findConditionParameterMap, CompiledCondition compiledCondition) {
+    protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
+                                            CompiledCondition compiledCondition) {
         return null;
     }
 
     @Override
     protected boolean contains(Map<String, Object> containsConditionParameterMap, CompiledCondition compiledCondition) {
-        return false;
+        String containsQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordExistsQuery());
+        String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
+        if (RDBMSTableUtils.isEmpty(condition)) {
+            //TODO what? Return false?
+        }
+        ResultSet rs = null;
+        List<String> queries = new ArrayList<>();
+        String resolvedCondition = this.resolveCondition(condition, containsConditionParameterMap,
+                (RDBMSCompiledCondition) compiledCondition);
+        queries.add(containsQuery.replace(RDBMSTableConstants.CONDITION_PLACEHOLDER,
+                RDBMSTableConstants.SQL_WHERE + RDBMSTableConstants.WHITESPACE + resolvedCondition));
+        try {
+            rs = this.executeDMQueries(queries, true).get(0);
+            return !rs.isBeforeFirst();
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error performing a contains check on table '" + this.tableName
+                    + "': " + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(rs, null, null);
+        }
     }
 
     @Override
     protected void delete(List<Map<String, Object>> deleteConditionParameterMaps, CompiledCondition compiledCondition) {
-
+        String deleteQuery = this.queryConfigurationEntry.getRecordDeleteQuery();
+        String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
+        if (RDBMSTableUtils.isEmpty(condition)) {
+            //TODO what? Return false?
+        }
+        ResultSet rs = null;
+        List<String> queries = new ArrayList<>();
+        for (Map<String, Object> deleteConditionParameterMap : deleteConditionParameterMaps) {
+            String resolvedCondition = this.resolveCondition(condition, deleteConditionParameterMap,
+                    (RDBMSCompiledCondition) compiledCondition);
+            queries.add(deleteQuery.replace(RDBMSTableConstants.CONDITION_PLACEHOLDER,
+                    RDBMSTableConstants.SQL_WHERE + RDBMSTableConstants.WHITESPACE + resolvedCondition));
+        }
+        try {
+            rs = this.executeDMQueries(queries, true).get(0);
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error performing a contains check on table '" + this.tableName
+                    + "': " + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(rs, null, null);
+        }
     }
 
     @Override
@@ -162,7 +201,31 @@ public class RDBMSEventTable extends AbstractRecordTable {
         //TODO verify
         RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.queryConfigurationEntry);
         conditionBuilder.build(visitor);
-        return new RDBMSCompiledCondition(visitor.returnCondition());
+        return new RDBMSCompiledCondition(this.tableName, this.resolveTableName(visitor.returnCondition()),
+                visitor.getStreamTypeMap());
+    }
+
+    private String resolveCondition(String conditionString, Map<String, Object> parameterMap,
+                                    RDBMSCompiledCondition compiledCondition) {
+        for (Map.Entry<String, Object> parameter : parameterMap.entrySet()) {
+            String paramId = parameter.getKey();
+            String placeholder = RDBMSTableConstants.STREAM_VAR_PREFIX + paramId;
+
+
+            Attribute.Type fieldType = compiledCondition.getStreamType(paramId);
+            if (fieldType != null && fieldType != Attribute.Type.OBJECT) {
+                if (fieldType == Attribute.Type.STRING) {
+                    //TODO discuss the difficulties in doing PreparedStatements at this stage
+                    conditionString = conditionString.replace(placeholder, "'" + parameter.getValue().toString() + "'");
+                } else {
+                    conditionString = conditionString.replace(placeholder, parameter.getValue().toString());
+                }
+            } else {
+                throw new RDBMSTableException("Error resolving condition: a field '" + "' was found to be of an " +
+                        "invalid type '" + fieldType + "'.");
+            }
+        }
+        return conditionString;
     }
 
     private void lookupDatasource(String resourceName) throws NamingException {
@@ -203,11 +266,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return conn;
     }
 
-    private String resolveTableName(String query) {
-        if (query == null) {
+    private String resolveTableName(String statement) {
+        if (statement == null) {
             return null;
         }
-        return query.replace(TABLE_NAME_PLACEHOLDER, this.tableName);
+        return statement.replace(TABLE_NAME_PLACEHOLDER, this.tableName);
     }
 
     private void createTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices) {
@@ -221,7 +284,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
         String indexQuery = this.resolveTableName(this.queryConfigurationEntry.getIndexCreateQuery());
         Map<String, String> fieldLengths = this.processFieldLengths(storeAnnotation.getElement(
                 RDBMSTableConstants.ANNOTATION_ELEMENT_FIELD_LENGTHS));
-
         for (Attribute attribute : this.attributes) {
             builder.append(attribute.getName()).append(" ");
             switch (attribute.getType()) {
@@ -254,15 +316,16 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 builder.append(SEPARATOR);
             }
             if (primaryKeyMap != null) {
-                builder.append(PRIMARY_KEY_DEF).append("(").append(this.handleAnnotatedElements(primaryKeyMap)).append(")");
+                builder.append(PRIMARY_KEY_DEF).append("(").append(this.handleAnnotatedElements(primaryKeyMap))
+                        .append(")");
             }
         }
-        queries.add(createQuery.replace(COLUMNS_PLACEHOLDER, builder.toString()));
+        queries.add(createQuery.replace(RDBMSTableConstants.COLUMNS_PLACEHOLDER, builder.toString()));
         if (indexMap != null && !indexMap.isEmpty()) {
             queries.add(indexQuery.replace(INDEX_PLACEHOLDER, this.handleAnnotatedElements(indexMap)));
         }
         try {
-            this.executeQueries(queries, false);
+            this.executeDDQueries(queries, false);
         } catch (SQLException e) {
             throw new RDBMSTableException("Unable to initialize table '" + this.tableName + "': " + e.getMessage(), e);
         }
@@ -279,7 +342,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return sb.toString();
     }
 
-    private void executeQueries(List<String> queries, boolean autocommit) throws SQLException {
+    private void executeDDQueries(List<String> queries, boolean autocommit) throws SQLException {
         Connection conn = this.getConnection(autocommit);
         boolean committed = autocommit;
         PreparedStatement stmt;
@@ -304,7 +367,35 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
     }
 
-    private void batchExecuteQueriesWithRecords(String query, List<Object[]> records, boolean autocommit) throws SQLException {
+    private List<ResultSet> executeDMQueries(List<String> queries, boolean autocommit) throws SQLException {
+        Connection conn = this.getConnection(autocommit);
+        List<ResultSet> results = new ArrayList<>();
+        boolean committed = autocommit;
+        PreparedStatement stmt;
+        try {
+            for (String query : queries) {
+                stmt = conn.prepareStatement(query);
+                results.add(stmt.executeQuery());
+                RDBMSTableUtils.cleanupConnection(null, stmt, null);
+            }
+            if (!autocommit) {
+                conn.commit();
+                committed = true;
+            }
+            return results;
+        } catch (SQLException e) {
+            RDBMSTableUtils.rollbackConnection(conn);
+            throw e;
+        } finally {
+            if (!committed) {
+                RDBMSTableUtils.rollbackConnection(conn);
+            }
+            RDBMSTableUtils.cleanupConnection(null, null, conn);
+        }
+    }
+
+    private void batchExecuteQueriesWithRecords(String query, List<Object[]> records, boolean autocommit)
+            throws SQLException {
         PreparedStatement stmt = null;
         boolean committed = autocommit;
         //TODO check if autocommit needs to be false (e.g. for Postgres case)
@@ -417,5 +508,4 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     "cannot be set: " + e.getMessage(), e);
         }
     }
-
 }

@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * This class represents the query configuration required to perform RDBMS calls directly from Siddhi Tables..
  */
-@XmlRootElement(name = "spark-jdbc-configuration")
+@XmlRootElement(name = "rdbms-table-configuration")
 public class RDBMSQueryConfiguration {
 
     private RDBMSQueryConfigurationEntry[] databases;

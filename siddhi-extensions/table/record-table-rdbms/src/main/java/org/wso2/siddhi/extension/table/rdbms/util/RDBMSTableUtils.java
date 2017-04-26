@@ -18,14 +18,14 @@
 package org.wso2.siddhi.extension.table.rdbms.util;
 
 import com.google.common.collect.Maps;
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfiguration;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.exception.RDBMSTableException;
 
-import java.io.File;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -49,6 +49,7 @@ public class RDBMSTableUtils {
 
 
     private static final Log log = LogFactory.getLog(RDBMSTableUtils.class);
+    private static final String RDBMS_QUERY_CONFIG_FILE = "rdbms-table-config.xml";
     private static RDBMSConfigurationMapper mapper;
 
     private RDBMSTableUtils() {
@@ -93,22 +94,7 @@ public class RDBMSTableUtils {
     }
 
     public static RDBMSQueryConfiguration loadQueryConfiguration() throws CannotLoadConfigurationException {
-        try {
-            File confFile = new File(GenericUtils.getAnalyticsConfDirectory() +
-                    File.separator + AnalyticsDataSourceConstants.ANALYTICS_CONF_DIR + File.separator + RDBMS_QUERY_CONFIG_FILE);
-            if (!confFile.exists()) {
-                throw new CannotLoadConfigurationException("Cannot initalize RDBMS analytics data source, "
-                        + "the query configuration file cannot be found at: " + confFile.getPath());
-            }
-            JAXBContext ctx = JAXBContext.newInstance(RDBMSQueryConfiguration.class);
-            Unmarshaller unmarshaller = ctx.createUnmarshaller();
-            RDBMSQueryConfiguration conf = (RDBMSQueryConfiguration) unmarshaller.unmarshal(confFile);
-            validateRDBMSQueryConfiguration(conf);
-            return conf;
-        } catch (JAXBException e) {
-            throw new CannotLoadConfigurationException(
-                    "Error in processing RDBMS query configuration: " + e.getMessage(), e);
-        }
+        return new RDBMSTableConfigLoader().loadConfiguration();
     }
 
     private static void validateRDBMSQueryConfiguration(RDBMSQueryConfiguration conf) throws CannotLoadConfigurationException {
@@ -123,6 +109,10 @@ public class RDBMSTableUtils {
 
     public static boolean isEmpty(String field) {
         return (field == null || field.trim().length() == 0);
+    }
+
+    public static String encodeStreamVariable(String var) {
+        return RDBMSTableConstants.STREAM_VAR_PREFIX + var + RDBMSTableConstants.STREAM_VAR_SUFFIX;
     }
 
     public static void cleanupConnection(ResultSet rs, Statement stmt, Connection conn) {
@@ -171,6 +161,28 @@ public class RDBMSTableUtils {
             }
             throw new RDBMSTableException("Error in executing SQL queries: " + exs);
         }
+    }
+
+    private static class RDBMSTableConfigLoader {
+
+        private RDBMSQueryConfiguration loadConfiguration() throws CannotLoadConfigurationException {
+            try {
+                JAXBContext ctx = JAXBContext.newInstance(RDBMSQueryConfiguration.class);
+                Unmarshaller unmarshaller = ctx.createUnmarshaller();
+                ClassLoader classLoader = getClass().getClassLoader();
+                InputStream inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
+                if (inputStream == null) {
+                    throw new CannotLoadConfigurationException(RDBMS_QUERY_CONFIG_FILE + " is not found in the classpath");
+                }
+                RDBMSQueryConfiguration conf = (RDBMSQueryConfiguration) unmarshaller.unmarshal(inputStream);
+                RDBMSTableUtils.validateRDBMSQueryConfiguration(conf);
+                return conf;
+            } catch (JAXBException e) {
+                throw new CannotLoadConfigurationException(
+                        "Error in processing RDBMS query configuration: " + e.getMessage(), e);
+            }
+        }
+
     }
 
     /**
