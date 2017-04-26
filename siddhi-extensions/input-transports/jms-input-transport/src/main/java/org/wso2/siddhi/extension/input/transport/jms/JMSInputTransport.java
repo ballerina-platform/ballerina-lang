@@ -100,6 +100,12 @@ public class JMSInputTransport extends InputTransport {
         //todo: implement this
     }
 
+    /**
+     * Initializing JMS properties.
+     * The properties in the required options list are mandatory.
+     * Other JMS options can be passed in as key value pairs, key being in the JMS spec or the broker spec.
+     * @return all the options map.
+     */
     private Map<String, String> initJMSProperties() {
         List<String> requiredOptions = Arrays.asList(JMSConstants.DESTINATION_PARAM_NAME,
                 JMSConstants.CONNECTION_FACTORY_JNDI_PARAM_NAME, JMSConstants.NAMING_FACTORY_INITIAL_PARAM_NAME,
