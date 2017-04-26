@@ -88,7 +88,7 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
     visitResourceDefinition(resourceDefinition) {
         const resourceDefinitionVisitor = new ResourceDefinitionVisitor(this);
-        this.getSwaggerJson().paths = {};
+        this.getSwaggerJson().paths = _.get(this.getSwaggerJson(), 'paths', {});
         resourceDefinitionVisitor.setSwaggerJson(this.getSwaggerJson().paths);
         resourceDefinition.accept(resourceDefinitionVisitor);
     }

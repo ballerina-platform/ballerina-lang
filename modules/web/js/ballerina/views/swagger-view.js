@@ -229,16 +229,14 @@ class SwaggerView extends EventChannel {
                                 .replace(/"/g, '');
 
                             let currentHttpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-                            if (_.isEqual(currentResourcePath, oldResourcePath) && _.isEqual(
-                                    httpMethod, currentHttpMethodAnnotation.getIdentifier().toLowerCase())) {
+                            if (_.isEqual(currentResourcePath, oldResourcePath) &&
+                                _.isEqual(httpMethod, currentHttpMethodAnnotation.getIdentifier().toLowerCase())) {
                                 currentResourcePathAnnotation.getChildren()[0].setRightValue(JSON.stringify(newResourcePath), {doSilently: true});
                                 this._resourceMappings.set(editorEvent.start.row,
                                     {
                                         type: 'path',
                                         ast: currentResourcePathAnnotation,
                                     });
-                            } else {
-                                log.info('New resource created');
                             }
                         });
                         break;
@@ -277,8 +275,6 @@ class SwaggerView extends EventChannel {
                                 type: 'method',
                                 ast: currentHttpMethodAnnotation
                             });
-                    } else {
-                        log.info('New resource created');
                     }
                 });
             }

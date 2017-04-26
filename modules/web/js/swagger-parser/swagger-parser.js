@@ -77,19 +77,20 @@ class SwaggerParser {
 
         // Updating/Creating resources using path annotation
         _.forEach(this._swaggerJson.paths, (httpMethodObject, pathString) => {
-            _.forEach(serviceDefinition.getResourceDefinitions(), resourceDefinition => {
-                let httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-                let pathAnnotation = resourceDefinition.getPathAnnotation();
-
-                _.forEach(Object.keys(httpMethodObject), httpMethodAsString => {
-                    if (!_.isUndefined(httpMethodAnnotation) && !_.isUndefined(pathAnnotation) &&
+            _.forEach(Object.keys(httpMethodObject), httpMethodAsString => {
+                let existingResource = _.find(serviceDefinition.getResourceDefinitions(), resourceDefinition => {
+                    let httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
+                    let pathAnnotation = resourceDefinition.getPathAnnotation();
+                    return !_.isUndefined(httpMethodAnnotation) && !_.isUndefined(pathAnnotation) &&
                         _.isEqual(pathString, pathAnnotation.getChildren()[0].getRightValue().toLowerCase().replace(/"/g, '')) &&
-                        _.isEqual(httpMethodAsString, httpMethodAnnotation.getIdentifier().toLowerCase())) {
-                        this._mergeToResource(resourceDefinition, pathString, httpMethodAsString, httpMethodObject[httpMethodAsString]);
-                    } else {
-                        this._createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodObject[httpMethodAsString]);
-                    }
+                        _.isEqual(httpMethodAsString, httpMethodAnnotation.getIdentifier().toLowerCase());
                 });
+
+                if (!_.isUndefined(existingResource)) {
+                    this._mergeToResource(existingResource, pathString, httpMethodAsString, httpMethodObject[httpMethodAsString]);
+                } else {
+                    this._createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodObject[httpMethodAsString]);
+                }
             });
         });
     }
@@ -285,17 +286,8 @@ class SwaggerParser {
     _createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
         let newResourceDefinition = DefaultBallerinaASTFactory.createResourceDefinition();
 
-        // Create path annotation
-        let pathAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'http', identifier: 'Path'});
-        pathAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({rightValue: '\"' + pathString + '\"'}));
-        newResourceDefinition.addChild(pathAnnotation, undefined, true);
-
-        // Creating http method annotation
-        let httpMethodAnnotation = BallerinaASTFactory.createAnnotation({
-            packageName: 'http',
-            identifier: httpMethodAsString.toUpperCase()
-        });
-        newResourceDefinition.addChild(httpMethodAnnotation, undefined, true);
+        newResourceDefinition.getPathAnnotation().getChildren()[0].setRightValue(JSON.stringify(pathString));
+        newResourceDefinition.getHttpMethodAnnotation().setIdentifier(httpMethodAsString.toUpperCase());
 
         this._mergeToResource(newResourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject);
         serviceDefinition.addChild(newResourceDefinition, undefined, true, true);

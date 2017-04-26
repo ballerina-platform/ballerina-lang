@@ -509,10 +509,14 @@ class BallerinaFileEditor extends BallerinaView {
 
         var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
         sourceViewBtn.click(() => {
-            if (self.isInSwaggerView() && self._swaggerView.hasSwaggerErrors()) {
-                alerts.error('Cannot switch to Source view due to syntax errors.');
-                log.error('Cannot switch to Source view due to syntax errors.');
-                return false;
+            if (self.isInSwaggerView()) {
+                if (self._swaggerView.hasSwaggerErrors()) {
+                    alerts.error('Cannot switch to Source view due to syntax errors.');
+                    log.error('Cannot switch to Source view due to syntax errors.');
+                    return false;
+                } else {
+                    self._swaggerView.updateServices();
+                }
             }
 
             lastRenderedTimestamp = this._file.getLastPersisted();
