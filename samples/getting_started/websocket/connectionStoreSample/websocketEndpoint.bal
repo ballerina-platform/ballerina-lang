@@ -1,12 +1,12 @@
 import ballerina.lang.system;
+import ballerina.net.http;
 import ballerina.net.ws;
 
-@http:BasePath {value:"/chat"}
-@ws:WebSocketUpgradePath {value:"/"}
+@http:BasePath {value:"/store"}
+@ws:WebSocketUpgradePath {value:"/ws"}
 service websocketEndpoint {
-    int i = 1;
+    int i = 0;
 
-    // Store each connection under different id
     @ws:OnOpen {}
     resource onOpen(message m) {
         string id = "" + i;

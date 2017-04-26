@@ -3,13 +3,13 @@ import ballerina.lang.messages;
 import ballerina.net.ws;
 import ballerina.net.http;
 
-@http:BasePath {value:"/chat"}
+@http:BasePath {value:"/group"}
 @ws:WebSocketUpgradePath {value:"/ws"}
 service oddEvenWebSocketService {
 
     string evenConnectionGroupName = "evenGroup";
     string oddConnectionGroupName = "oddGroup";
-    int i = 1;
+    int i = 0;
 
     @ws:OnOpen {}
     resource onOpen(message m) {
@@ -24,8 +24,13 @@ service oddEvenWebSocketService {
 
     @ws:OnTextMessage {}
     resource onTextMessage(message m) {
-        ws:pushTextToGroup(oddConnectionGroupName, oddConnectionGroupName + ": " + messages:getStringPayload(m));
-        ws:pushTextToGroup(evenConnectionGroupName, evenConnectionGroupName+ ": " + messages:getStringPayload(m));
+        if (messages:getStringPayload(m) == "removeMe") {
+            ws:removeConnectionFromGroup(oddConnectionGroupName);
+            ws:removeConnectionFromGroup(evenConnectionGroupName);
+        } else {
+            ws:pushTextToGroup(oddConnectionGroupName, oddConnectionGroupName + ": " + messages:getStringPayload(m));
+            ws:pushTextToGroup(evenConnectionGroupName, evenConnectionGroupName+ ": " + messages:getStringPayload(m));
+        }
     }
 
     @ws:OnClose {}

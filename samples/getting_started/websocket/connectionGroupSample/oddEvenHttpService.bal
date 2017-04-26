@@ -2,7 +2,7 @@ import ballerina.lang.messages;
 import ballerina.net.ws;
 import ballerina.net.http;
 
-@http:BasePath {value:"/data"}
+@http:BasePath {value:"/groupInfo"}
 service oddEvenHttpService {
 
     string evenWebSocketConnectionGroupName = "evenGroup";
@@ -13,6 +13,7 @@ service oddEvenHttpService {
     resource evenSend (message m) {
         ws:pushTextToGroup(evenWebSocketConnectionGroupName, messages:getStringPayload(m));
         message res = {};
+        messages:setStringPayload(res, "done");
         reply res;
     }
 
@@ -21,6 +22,7 @@ service oddEvenHttpService {
     resource oddSend (message m) {
         ws:pushTextToGroup(oddWebSocketConnectionGroupName, messages:getStringPayload(m));
         message res = {};
+        messages:setStringPayload(res, "done");
         reply res;
     }
 
@@ -29,6 +31,7 @@ service oddEvenHttpService {
     resource deleteEven (message m) {
         ws:removeConnectionGroup(evenWebSocketConnectionGroupName);
         message res = {};
+        messages:setStringPayload(res, "done");
         reply res;
     }
 
@@ -37,6 +40,7 @@ service oddEvenHttpService {
     resource deleteOdd (message m) {
         ws:removeConnectionGroup(oddWebSocketConnectionGroupName);
         message res = {};
+        messages:setStringPayload(res, "done");
         reply res;
     }
     

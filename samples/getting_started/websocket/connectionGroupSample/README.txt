@@ -29,7 +29,7 @@ ex: WebSocket Browser client
 
 How to run the sample
 =====================
-bin$ ./ballerina run service ../samples/other_samples/websocket/connection_group_sample/oddEvenWebSocketService.bal ../samples/other_samples/websocket/connection_group_sample/oddEvenHttpService.bal
+bin$ ./ballerina run service ../samples/websocket/connectionGroupSample/oddEvenWebSocketService.bal ../samples/other_samples/websocket/connection_group_sample/oddEvenHttpService.bal
 
 In order to work both those services should run parallel.
 
