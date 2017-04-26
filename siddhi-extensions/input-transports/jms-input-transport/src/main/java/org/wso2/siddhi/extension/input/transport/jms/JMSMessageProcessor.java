@@ -27,7 +27,6 @@ import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class JMSMessageProcessor implements CarbonMessageProcessor {
     private SourceEventListener sourceEventListener;
