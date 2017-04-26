@@ -23,19 +23,27 @@ public class BallerinaFoldingTest extends LightCodeInsightFixtureTestCase {
         return "src/test/resources/testData/folding";
     }
 
-    public void testConnectorFolding() {
-        myFixture.testFolding(getTestDataPath() + "/Connector.bal");
+    public void testConnector() {
+        doTest();
     }
 
-    public void testFunctionFolding() {
-        myFixture.testFolding(getTestDataPath() + "/Function.bal");
+    public void testFunction() {
+        doTest();
     }
 
-    public void testServiceFolding() {
-        myFixture.testFolding(getTestDataPath() + "/Service.bal");
+    public void testService() {
+        doTest();
     }
 
-    public void testStructFolding() {
-        myFixture.testFolding(getTestDataPath() + "/Struct.bal");
+    public void testStruct() {
+        doTest();
+    }
+
+    public void testImport() {
+        doTest();
+    }
+
+    private void doTest() {
+        myFixture.testFolding(getTestDataPath() + "/" + getTestName(false) + ".bal");
     }
 }
