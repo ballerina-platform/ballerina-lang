@@ -117,11 +117,11 @@ public class JMSInputTransport extends InputTransport {
 
     @Override
     public Map<String, Object> currentState() {
-        return new HashMap<>();
+        return null;
     }
 
     @Override
     public void restoreState(Map<String, Object> state) {
-        //todo: implement this
+        // no state to restore
     }
 }
