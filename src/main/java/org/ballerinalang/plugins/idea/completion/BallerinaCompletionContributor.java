@@ -37,14 +37,16 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.ResolveResult;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
@@ -63,7 +65,6 @@ import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
-import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
@@ -229,9 +230,27 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         } else if (parent instanceof FunctionInvocationStatementNode) {
             handleFunctionInvocationStatementNode(resultSet, originalFile, prevSibling);
         } else if (parent instanceof PsiErrorElement) {
-            handlePsiErrorElement(resultSet, originalFile, element, parent, parentPrevSibling);
+            handlePsiErrorElement(parameters, resultSet, originalFile, element, parent, parentPrevSibling);
         } else if (parent instanceof ConstantDefinitionNode) {
             handleConstantDefinitionNode(resultSet, prevSibling);
+        } else if (parent instanceof VariableDefinitionNode) {
+            // This will be called when invoking a element from a package. Ex- system:println(package:|)
+            // Previous sibling will contain the "package:".
+            if (prevSibling == null) {
+                return;
+            }
+            // Check whether previous element text matches the pattern.
+            if (!prevSibling.getText().matches(".+:")) {
+                return;
+            }
+            // Identifier node will contain the package name.
+            IdentifierPSINode packageName = PsiTreeUtil.findElementOfClassAtOffset(prevSibling.getContainingFile(),
+                    prevSibling.getTextOffset() + prevSibling.getTextLength() - 2, IdentifierPSINode.class, false);
+            //                PsiTreeUtil.findChildOfType(prevSibling, IdentifierPSINode.class);
+            if (packageName == null) {
+                return;
+            }
+            suggestElementsFromAPackage(resultSet, originalFile, packageName, null);
         } else {
             // If we are currently at an identifier node or a comment node, no need to suggest.
             if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
@@ -276,13 +295,13 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void handleVariableReferenceNode(CompletionParameters parameters, CompletionResultSet resultSet,
                                              PsiFile originalFile, PsiElement element) {
 
-        // If we are in the {} of a struct variable reference node, we need to show fields.
-        VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(element,
-                VariableDefinitionNode.class);
-        if (variableDefinitionNode != null) {
-            // Todo - add struct fields
-            return;
-        }
+        //        // If we are in the {} of a struct variable reference node, we need to show fields.
+        //        VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(element,
+        //                VariableDefinitionNode.class);
+        //        if (variableDefinitionNode != null) {
+        //            // Todo - add struct fields
+        //            return;
+        //        }
 
         // Todo - Get all variables in the scope
         // Todo - Get all constant variables
@@ -373,106 +392,154 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void handleStatementNode(CompletionParameters parameters, CompletionResultSet resultSet,
                                      PsiFile originalFile) {
         int count = 1;
-        PsiFile file = parameters.getOriginalFile();
-        PsiElement prevElement = file.findElementAt(parameters.getOffset() - count);
-        //        PsiTreeUtil.skipSiblingsBackward(,   PsiWhiteSpace.class);
-
+        PsiElement prevElement = originalFile.findElementAt(parameters.getOffset() - count++);
         while (prevElement instanceof PsiWhiteSpace) {
-            prevElement = file.findElementAt(parameters.getOffset() - ++count);
+            prevElement = originalFile.findElementAt(parameters.getOffset() - count++);
         }
-
-        if (prevElement == null || !(prevElement.getParent() instanceof StatementNode ||
-                prevElement instanceof CallableUnitBodyNode)) {
-            return;
-        }
-        // Todo - Add struct field suggestions
-        if (":".equals(prevElement.getText())) {
-            // Nothing typed after "package:". So we suggest all elements in the package.
-            prevElement = file.findElementAt(parameters.getOffset() - 2);
-            if (prevElement == null) {
-                return;
+        if (prevElement instanceof IdentifierPSINode) {
+            count = 1;
+            PsiElement token = originalFile.findElementAt(prevElement.getTextOffset() - count++);
+            while (token instanceof PsiWhiteSpace) {
+                token = originalFile.findElementAt(prevElement.getTextOffset() - count++);
             }
-            suggestElementsFromAPackage(resultSet, originalFile, prevElement, null);
-        } else if (".".equals(prevElement.getText())) {
-            addStructFields(parameters, resultSet, file);
-        } else if ("=".equals(prevElement.getText()) && prevElement instanceof IdentifierPSINode) {
+            if (token != null && token instanceof LeafPsiElement) {
+                //                IElementType elementType = ((LeafPsiElement) token).getElementType();
+                if (":".equals(token.getText())) {
+                    PsiElement partialIdentifier = prevElement;
+                    PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                    suggestElementsFromAPackage(resultSet, originalFile, packageNode, partialIdentifier);
+                } else {
+                    addFunctions(resultSet, prevElement, originalFile);
+                    addPackages(resultSet, originalFile);
+                    addVariables(resultSet, prevElement);
+                    addConstants(resultSet, originalFile);
+                }
+
+                if ("{".equals(token.getText()) || ";".equals(token.getText())) {
+                    addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
+                    addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
+                }
+            } else {
+                PsiElement partialIdentifier = prevElement;
+                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                suggestElementsFromAPackage(resultSet, originalFile, packageNode, partialIdentifier);
+            }
+        } else if (prevElement instanceof LeafPsiElement) {
+
+            IElementType elementType = ((LeafPsiElement) prevElement).getElementType();
+
+            // Cannot use a switch statement since the types are not constants and declaring them final does not fix
+            // the issue as well.
+            if (elementType == BallerinaTypes.COLON) {
+                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                suggestElementsFromAPackage(resultSet, originalFile, packageNode, null);
+            } else if (elementType == BallerinaTypes.ADD || elementType == BallerinaTypes.SUB ||
+                    elementType == BallerinaTypes.MUL || elementType == BallerinaTypes.DIV ||
+                    elementType == BallerinaTypes.ASSIGN || elementType == BallerinaTypes.GT ||
+                    elementType == BallerinaTypes.LT || elementType == BallerinaTypes.EQUAL ||
+                    elementType == BallerinaTypes.LE || elementType == BallerinaTypes.GE ||
+                    elementType == BallerinaTypes.NOTEQUAL || elementType == BallerinaTypes.AND ||
+                    elementType == BallerinaTypes.OR || elementType == BallerinaTypes.MOD) {
+                addFunctions(resultSet, prevElement, originalFile);
+                addPackages(resultSet, originalFile);
+                addVariables(resultSet, prevElement);
+                addConstants(resultSet, originalFile);
+            } else {
+                addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
+                addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
+                addOtherCommonKeywords(resultSet);
+
+                addFunctionSpecificKeywords(parameters, resultSet, originalFile);
+
+                addFunctions(resultSet, prevElement, originalFile);
+                addPackages(resultSet, originalFile);
+                addVariables(resultSet, prevElement);
+                addConstants(resultSet, originalFile);
+            }
+
+
+        } else {
+            addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
+            addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
+            addKeyword(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
+            addOtherCommonKeywords(resultSet);
+
+            addFunctionSpecificKeywords(parameters, resultSet, originalFile);
 
             addFunctions(resultSet, prevElement, originalFile);
             addPackages(resultSet, originalFile);
             addVariables(resultSet, prevElement);
             addConstants(resultSet, originalFile);
-
-        } else {
-            // Something typed after "package:". In that case we need to suggest elements which starts with what is
-            // typed after "package:".
-            PsiElement elementAt2 = file.findElementAt(parameters.getOffset() - 2);
-            if (elementAt2 == null) {
-                return;
-            }
-            PsiElement prevSibling = elementAt2.getPrevSibling();
-            if (prevSibling != null) {
-                suggestElementsFromAPackage(resultSet, originalFile, prevSibling, prevElement);
-            } else {
-                PsiElement elementAt2Parent = elementAt2.getParent();
-                if (elementAt2Parent == null) {
-                    return;
-                }
-                PsiElement prevSibling1 = elementAt2Parent.getPrevSibling();
-                if (prevSibling1 == null) {
-                    return;
-                }
-                PsiElement prevSibling2 = prevSibling1.getPrevSibling();
-                if (prevSibling2 == null) {
-                    return;
-                }
-                PsiElement[] prevSibling2Children = prevSibling2.getChildren();
-                if (prevSibling2Children.length == 0) {
-                    return;
-                }
-                PsiElement packageNode = prevSibling2Children[0];
-                suggestElementsFromAPackage(resultSet, originalFile, packageNode, prevElement);
-            }
         }
 
 
-        //        if (prevElement instanceof IdentifierPSINode) {
+        //        int count = 1;
+        //        PsiFile file = parameters.getOriginalFile();
+        //        PsiElement prevElement = file.findElementAt(parameters.getOffset() - count);
+        //        //        PsiTreeUtil.skipSiblingsBackward(,   PsiWhiteSpace.class);
         //
-        //            PsiElement prevSibling = prevElement.getPrevSibling();
-        //            if (prevSibling != null) {
-        //                PsiElement packageNode = prevSibling.getPrevSibling();
-        //                if (packageNode != null) {
-        //                    suggestElementsFromAPackage(resultSet, originalFile, packageNode, prevElement);
-        //                }
-        //            }
-        //        } else if (":".equals(prevElement.getText())) {
+        //        while (prevElement instanceof PsiWhiteSpace) {
+        //            prevElement = file.findElementAt(parameters.getOffset() - ++count);
+        //        }
         //
+        //        if (prevElement == null /*|| !(prevElement.getParent() instanceof StatementNode ||
+        //                prevElement instanceof CallableUnitBodyNode)*/) {
+        //            return;
+        //        }
+        //        // Todo - Add struct field suggestions
+        //        if (":".equals(prevElement.getText())) {
+        //            // Nothing typed after "package:". So we suggest all elements in the package.
         //            prevElement = file.findElementAt(parameters.getOffset() - 2);
         //            if (prevElement == null) {
         //                return;
         //            }
         //            suggestElementsFromAPackage(resultSet, originalFile, prevElement, null);
-        //
-        //        } else if (Objects.equals(".", prevElement.getText())) {
-        //
-        //        } else if ("else".equals(prevElement.getText())) {
-        //            resultSet.addElement(PrioritizedLookupElement.withPriority(IF, CONTEXT_KEYWORD_PRIORITY));
+        //        } else if (".".equals(prevElement.getText())) {
+        //            addStructFields(parameters, resultSet, file);
+        //        } else if (("=".equals(prevElement.getText()) && prevElement instanceof IdentifierPSINode)
+        //                || "+".equals(prevElement.getText())) {
+        //            addFunctions(resultSet, prevElement, originalFile);
+        //            addPackages(resultSet, originalFile);
+        //            addVariables(resultSet, prevElement);
+        //            addConstants(resultSet, originalFile);
         //        } else {
-        //            // Todo - Add struct, map field suggestions
-        //            resultSet.addElement(PrioritizedLookupElement.withPriority(IF, CONTEXT_KEYWORD_PRIORITY));
+        //            // Something typed after "package:". In that case we need to suggest elements which starts with
+        // what is
+        //            // typed after "package:".
+        //
+        //            count = 2;
+        //            PsiElement element = file.findElementAt(parameters.getOffset() - count);
+        //            while (element != null && !":".equals(element.getText())) {
+        //
+        //                int offset = parameters.getOffset() - ++count;
+        //                if (offset >= prevElement.getTextOffset()) {
+        //                    element = file.findElementAt(offset);
+        //                } else {
+        //                    break;
+        //                }
+        //            }
+        //            if (element == null) {
+        //                return;
+        //            }
+        //            PsiElement packageNode = file.findElementAt(parameters.getOffset() - (count + 1));
+        //            if (packageNode == null) {
+        //                return;
+        //            }
+        //            PsiElement identifierNode = file.findElementAt(parameters.getOffset() - (count - 1));
+        //            if (identifierNode == null) {
+        //                return;
+        //            }
+        //            suggestElementsFromAPackage(resultSet, originalFile, packageNode, identifierNode);
         //        }
-        //        // Todo - change logic
-        //        //            PsiElement temp = parentPrevSibling;
-        //        //            // Get not empty sibling
-        //        //            while (temp != null && temp.getText().isEmpty()) {
-        //        //                temp = temp.getPrevSibling();
-        //        //            }
-        //        //
-        //        //            // If there is a not empty sibling, that means it is a package. Ex:- system:
-        //        //            if (temp != null) {
-        //        //
-        //        //            } else {
-        //        //                addVariables(element, resultSet);
-        //        //            }
+    }
+
+    private void addFunctionSpecificKeywords(CompletionParameters parameters, CompletionResultSet resultSet, PsiFile
+            originalFile) {
+        PsiElement element = originalFile.findElementAt(parameters.getOffset());
+        FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
+        if (functionNode != null) {
+            addKeyword(resultSet, RETURN, CONTEXT_KEYWORD_PRIORITY);
+        }
     }
 
     private void addStructFields(CompletionParameters parameters, CompletionResultSet resultSet, PsiFile file) {
@@ -653,9 +720,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             addConstants(resultSet, originalFile);
             addAnnotations(resultSet, element);
 
-            addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
-            addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
             addKeyword(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
+
+            addOtherCommonKeywords(resultSet);
 
             // Todo - Move to utils
             PsiElement temp = parent.getParent().getParent().getParent().getParent();
@@ -720,6 +787,12 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
     }
 
+    private void addOtherCommonKeywords(CompletionResultSet resultSet) {
+        addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
+        addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
+
+    }
+
     private void handleActionInvocationNode(CompletionResultSet resultSet, PsiElement parent) {
         // Get the NameReferenceNode.
         NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(parent, NameReferenceNode.class);
@@ -760,8 +833,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
     }
 
-    private void handlePsiErrorElement(CompletionResultSet resultSet, PsiFile originalFile, PsiElement element,
-                                       PsiElement parent, PsiElement parentPrevSibling) {
+    private void handlePsiErrorElement(CompletionParameters parameters, CompletionResultSet resultSet,
+                                       PsiFile originalFile, PsiElement element, PsiElement parent,
+                                       PsiElement parentPrevSibling) {
         // If the current position has a PsiErrorElement, this will be called.
         PsiElement superParent = parent.getParent();
         // Todo - Add throws keyword
@@ -777,36 +851,50 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
 
         if (superParent instanceof StatementNode) {
-            // If the superParent is StatementNode, add following lookup elements.
-            addValueTypes(resultSet, VALUE_TYPE_PRIORITY);
-            addReferenceTypes(resultSet, REFERENCE_TYPE_PRIORITY);
 
-            addConnectors(resultSet, element, originalFile);
-            addFunctions(resultSet, element, originalFile);
-            addStructs(resultSet, originalFile);
-            addPackages(resultSet, originalFile);
-            addVariables(resultSet, element);
-            addConstants(resultSet, originalFile);
+            handleStatementNode(parameters, resultSet, originalFile);
+            //            String text = superParent.getPrevSibling().getText();
+            //            if(text.isEmpty() && superParent.getText().equals("IntellijIdeaRulezzz")){
+            //                addConnectors(resultSet, element, originalFile);
+            //                addFunctions(resultSet, element, originalFile);
+            //                addStructs(resultSet, originalFile);
+            //                addPackages(resultSet, originalFile);
+            //                addVariables(resultSet, element);
+            //                addConstants(resultSet, originalFile);
+            //            }else{
+            //
+            //                // If the superParent is StatementNode, add following lookup elements.
+            //                addValueTypes(resultSet, VALUE_TYPE_PRIORITY);
+            //                addReferenceTypes(resultSet, REFERENCE_TYPE_PRIORITY);
+            //
+            //                addConnectors(resultSet, element, originalFile);
+            //                addFunctions(resultSet, element, originalFile);
+            //                addStructs(resultSet, originalFile);
+            //                addPackages(resultSet, originalFile);
+            //                addVariables(resultSet, element);
+            //                addConstants(resultSet, originalFile);
+            //
+            //                addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
+            //                addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
+            //
+            //                ResourceDefinitionNode resourceDefinitionNode =
+            //                        PsiTreeUtil.getParentOfType(element, ResourceDefinitionNode.class);
+            //                if (resourceDefinitionNode != null) {
+            //                    addKeyword(resultSet, REPLY, CONTEXT_KEYWORD_PRIORITY);
+            //                }
+            //
+            //                FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
+            //                if (functionNode != null) {
+            //                    addKeyword(resultSet, RETURN, CONTEXT_KEYWORD_PRIORITY);
+            //                }
+            //
+            //                TypeMapperNode typeMapperNode =
+            //                        PsiTreeUtil.getParentOfType(element, TypeMapperNode.class);
+            //                if (typeMapperNode != null) {
+            //                    addKeyword(resultSet, RETURN, CONTEXT_KEYWORD_PRIORITY);
+            //                }
+            //            }
 
-            addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
-            addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
-
-            ResourceDefinitionNode resourceDefinitionNode =
-                    PsiTreeUtil.getParentOfType(element, ResourceDefinitionNode.class);
-            if (resourceDefinitionNode != null) {
-                addKeyword(resultSet, REPLY, CONTEXT_KEYWORD_PRIORITY);
-            }
-
-            FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
-            if (functionNode != null) {
-                addKeyword(resultSet, RETURN, CONTEXT_KEYWORD_PRIORITY);
-            }
-
-            TypeMapperNode typeMapperNode =
-                    PsiTreeUtil.getParentOfType(element, TypeMapperNode.class);
-            if (typeMapperNode != null) {
-                addKeyword(resultSet, RETURN, CONTEXT_KEYWORD_PRIORITY);
-            }
 
         } else if (superParent instanceof CompilationUnitNode) {
             // This can be called depending on the caret location.
@@ -889,9 +977,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 // the end.
                 insertHandler = StatementCompletionInsertHandler.INSTANCE;
             }
-            // Add directories as lookup elements. We need to call the createWithIcon method. Otherwise the
-            // icons will not display for directories.
-            resultSet.addElement(LookupElementBuilder.createWithIcon(directory).withInsertHandler(insertHandler));
+            // Add directories as lookup elements.
+            addPackage(resultSet, directory, insertHandler);
         }
     }
 
@@ -919,8 +1006,15 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     insertHandler = StatementCompletionInsertHandler.INSTANCE;
                 }
             }
-            resultSet.addElement(LookupElementBuilder.createWithIcon(directory).withInsertHandler(insertHandler));
+            addPackage(resultSet, directory, insertHandler);
         }
+    }
+
+    private void addPackage(CompletionResultSet resultSet, PsiDirectory directory,
+                            InsertHandler<LookupElement> insertHandler) {
+        LookupElementBuilder builder = LookupElementBuilder.create(directory.getName())
+                .withInsertHandler(insertHandler).withTypeText("Package").withIcon(AllIcons.Nodes.Package);
+        resultSet.addElement(builder);
     }
 
     private void addKeyword(CompletionResultSet resultSet, LookupElement lookupElement, int priority) {
@@ -938,7 +1032,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         if (context == null) {
             context = element.getParent().getContext();
         }
-        List<PsiElement> variables = BallerinaPsiImplUtil.getAllVariablesInResolvableScope(context);
+        List<PsiElement> variables = BallerinaPsiImplUtil.getAllVariablesInResolvableScope(element, context);
         for (PsiElement variable : variables) {
             LookupElementBuilder builder = LookupElementBuilder.create(variable.getText())
                     .withTypeText("Variable").withIcon(AllIcons.Nodes.Variable);
@@ -1008,8 +1102,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     }
 
     private void addFunctions(CompletionResultSet resultSet, PsiFile originalFile) {
-        List<PsiElement> connectors = BallerinaPsiImplUtil.getAllFunctionsInCurrentPackage(originalFile);
-        addFunctions(resultSet, connectors);
+        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsInCurrentPackage(originalFile);
+        addFunctions(resultSet, functions);
     }
 
     /**
