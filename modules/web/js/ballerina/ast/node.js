@@ -83,10 +83,11 @@ class ASTNode extends EventChannel {
      * @param child
      * @param index
      * @param ignoreTreeModifiedEvent {boolean}
+     * @param ignoreChildAddedEvent {boolean}
      * @fires  ASTNode#child-added
      * @fires  ASTNode#tree-modified
      */
-    addChild(child, index, ignoreTreeModifiedEvent) {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent = false) {
         if (_.isUndefined(index)) {
             this.children.push(child);
         } else {
@@ -99,10 +100,12 @@ class ASTNode extends EventChannel {
         });
         child.generateUniqueIdentifiers();
 
-        /**
-         * @event ASTNode#child-added
-         */
-        this.trigger('child-added', child, index);
+        if (!ignoreChildAddedEvent) {
+            /**
+             * @event ASTNode#child-added
+             */
+            this.trigger('child-added', child, index);
+        }
 
         if (!ignoreTreeModifiedEvent) {
             /**

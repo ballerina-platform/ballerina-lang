@@ -509,6 +509,12 @@ class BallerinaFileEditor extends BallerinaView {
 
         var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
         sourceViewBtn.click(() => {
+            if (self.isInSwaggerView() && self._swaggerView.hasSwaggerErrors()) {
+                alerts.error('Cannot switch to Source view due to syntax errors.');
+                log.error('Cannot switch to Source view due to syntax errors.');
+                return false;
+            }
+
             lastRenderedTimestamp = this._file.getLastPersisted();
             this.toolPalette.hide();
             // If the file has changed we will add the generated source to source view
@@ -599,6 +605,12 @@ class BallerinaFileEditor extends BallerinaView {
 
         var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
         designViewBtn.click(function () {
+            if (self.isInSwaggerView() && self._swaggerView.hasSwaggerErrors()) {
+                alerts.error('Cannot switch to Design view due to syntax errors.');
+                log.error('Cannot switch to Design view due to syntax errors.');
+                return false;
+            }
+
             // re-parse if there are modifications to source
             var isSourceChanged = !self._sourceView.isClean(),
                 savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
@@ -632,7 +644,13 @@ class BallerinaFileEditor extends BallerinaView {
                 self._sourceView.markClean();
                 self._createConstantDefinitionsView(self._$canvasContainer);
             } else if (isSwaggerChanged) {
-                // Nothing to do, all changed are merge to the AST on-edit of the swagger view.
+                if (self._swaggerView.hasSwaggerErrors()) {
+                    alerts.error('Cannot switch to Design view due to syntax errors.');
+                    log.error('Cannot switch to Design view due to syntax errors.');
+                    return false;
+                } else {
+                    self._swaggerView.updateServices();
+                }
             }
             //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
             self.toolPalette.show();
@@ -653,19 +671,18 @@ class BallerinaFileEditor extends BallerinaView {
 
         this.initDropTarget();
 
-        if(this._parseFailed){
+        if (this._parseFailed) {
             this._swaggerView.hide();
             this._$designViewContainer.hide();
             this._sourceView.show();
             self._sourceView.setContent(self._file.getContent());
             self.setActiveView('source');
-        }else{
+        } else {
             designViewBtn.hide();
             sourceViewContainer.hide();
             swaggerViewContainer.hide();
             self.setActiveView('design');
         }
-
     }
 
     /**
@@ -756,7 +773,11 @@ class BallerinaFileEditor extends BallerinaView {
         for (let i = 0; i < _.size(this.getModel().getServiceDefinitions()); i++) {
             let swaggerJsonVisitor = new SwaggerJsonVisitor();
             this.getModel().getServiceDefinitions()[i].accept(swaggerJsonVisitor);
-            swaggerSources.push({serviceDefinitionAST: this.getModel().getServiceDefinitions()[i], swagger: swaggerJsonVisitor.getSwaggerJson()});
+            swaggerSources.push({
+                serviceDefinitionAST: this.getModel().getServiceDefinitions()[i],
+                swagger: swaggerJsonVisitor.getSwaggerJson(),
+                hasModified: false
+            });
         }
 
         return swaggerSources;

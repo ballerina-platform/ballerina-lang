@@ -65,13 +65,13 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
         // Setting required 'info' annotation
         if (_.isUndefined(this.getSwaggerJson().info)) {
-            this.getSwaggerJson().info = {version: '1.0.0', title: serviceDefinition.getServiceName()};
+            this.getSwaggerJson().info = {version: '1.0.0', title: 'Sample Service'};
         } else {
             if (_.isUndefined(this.getSwaggerJson().info.version)) {
                 this.getSwaggerJson().info.version = '1.0.0';
             }
             if (_.isUndefined(this.getSwaggerJson().info.title)) {
-                this.getSwaggerJson().info.title = serviceDefinition.getServiceName();
+                this.getSwaggerJson().info.title = 'Sample Service';
             }
         }
 

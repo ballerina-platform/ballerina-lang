@@ -19,7 +19,6 @@ import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
-const supportedHttpMethodAnnotations = ['POST', 'GET', 'PUT', 'HEAD', 'DELETE', 'PATCH', 'OPTION'];
 
 /**
  * Constructor for ResourceDefinition
@@ -356,7 +355,7 @@ class ResourceDefinition extends ASTNode {
     getHttpMethodAnnotation() {
         let httpMethodAnnotation = undefined;
         _.forEach(this.getChildrenOfType(this.getFactory().isAnnotation), annotationAST => {
-            if (_.includes(_.map(supportedHttpMethodAnnotations, (e) => {return e.toLowerCase();}), annotationAST.getIdentifier().toLowerCase())) {
+            if (_.isEqual(annotationAST.getUniqueIdentifier(), 'httpMethod')) {
                 httpMethodAnnotation = annotationAST;
             }
         });

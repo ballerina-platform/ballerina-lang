@@ -64,7 +64,7 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
     let resourceDef = BallerinaASTFactory.createResourceDefinition(args);
 
     // Creating GET http method annotation.
-    let getHttpMethodAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'http', identifier: 'GET'});
+    let getHttpMethodAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'http', identifier: 'GET', uniqueIdentifier: 'httpMethod'});
     resourceDef.addChild(getHttpMethodAnnotation, 0);
 
     // Creating path annotation.

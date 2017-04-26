@@ -47,6 +47,8 @@ class SwaggerView extends EventChannel {
         this._container = _.get(args, 'container');
         this._currentEditingServiceDefinition = undefined;
         this._manualUpdate = false;
+        this._swaggerData = undefined;
+        this._resourceMappings = new Map();
     }
 
     /**
@@ -55,6 +57,7 @@ class SwaggerView extends EventChannel {
      *
      */
     render(swaggerInfos) {
+        this._swaggerData = swaggerInfos;
         let self = this;
         // Creating the swagger editor
         let swaggerEditorElement = $(this._container).find('div.swaggerEditor');
@@ -87,18 +90,18 @@ class SwaggerView extends EventChannel {
 
         let servicesDropDown = $($('<select/>').appendTo(swaggerServiceSelectorDropdownWrapper));
         servicesDropDown = servicesDropDown.select2({
-            data: this.getServicesForDropdown(swaggerInfos)
+            data: this.getServicesForDropdown(this._swaggerData)
         });
 
         // Hiding top bar if there is only one service.
-        if (_.isEqual(_.size(swaggerInfos), 1)) {
+        if (_.isEqual(_.size(this._swaggerData), 1)) {
             swaggerServiceSelectorWrapper.hide();
         }
 
         // Event when an item is selected from the dropdown.
         servicesDropDown.on('select2:select', (e) => {
             let serviceDefinitionID = e.params.data.id;
-            _.forEach(swaggerInfos, swaggerInfo => {
+            _.forEach(this._swaggerData, swaggerInfo => {
                 if (_.isEqual(swaggerInfo.serviceDefinitionAST.getID(), serviceDefinitionID)) {
                     this._manualUpdate = true;
                     this._swaggerEditor.specActions.updateUrl('');
@@ -115,10 +118,10 @@ class SwaggerView extends EventChannel {
         // Setting the default selected swagger
         this._swaggerEditor.specActions.updateUrl('');
         this._swaggerEditor.specActions.updateLoadingStatus('success');
-        this._swaggerEditor.specActions.updateSpec(JSON.stringify(swaggerInfos[0].swagger));
+        this._swaggerEditor.specActions.updateSpec(JSON.stringify(this._swaggerData[0].swagger));
         this._swaggerEditor.specActions.formatIntoYaml();
 
-        this._currentEditingServiceDefinition = swaggerInfos[0].serviceDefinitionAST;
+        this._currentEditingServiceDefinition = this._swaggerData[0].serviceDefinitionAST;
 
         this._swaggerAceEditor.getSession().on('change', (e) => {
             try {
@@ -129,16 +132,28 @@ class SwaggerView extends EventChannel {
                         this._updateResourceMappings(serviceDefinition, e);
                     }
 
-                    let swaggerParser = new SwaggerParser(YAML.safeLoad(self._swaggerAceEditor.getValue()), false);
-                    swaggerParser.mergeToService(serviceDefinition);
-                    _.forEach(swaggerInfos, swaggerInfo => {
-                        if (_.isEqual(swaggerInfo.serviceDefinitionAST.getID(), serviceDefinition.getID())) {
-                            swaggerInfo.swagger = YAML.safeLoad(self._swaggerAceEditor.getValue());
+                    // We keep updating the yaml for a service instead of merging to the service AST
+                    _.forEach(this._swaggerData, swaggerDataEntry => {
+                        if (_.isEqual(swaggerDataEntry.serviceDefinitionAST.getID(), serviceDefinition.getID())) {
+                            swaggerDataEntry.swagger = YAML.safeLoad(self._swaggerAceEditor.getValue());
+                            swaggerDataEntry.hasModified = true;
                         }
                     });
                 }
             } catch (error) {
                 log.warn(error);
+            }
+        });
+    }
+
+    /**
+     * Merge the updated YAMLs to the service definitions.
+     */
+    updateServices() {
+        _.forEach(this._swaggerData, swaggerDataEntry => {
+            if (swaggerDataEntry.hasModified) {
+                let swaggerParser = new SwaggerParser(swaggerDataEntry.swagger, false);
+                swaggerParser.mergeToService(swaggerDataEntry.serviceDefinitionAST);
             }
         });
     }
@@ -209,14 +224,21 @@ class SwaggerView extends EventChannel {
                         // Updating resource.
                         let resourceDefinitions = serviceDefinition.getResourceDefinitions();
                         _.forEach(resourceDefinitions, resourceDefinition => {
-                            let currentResourcePathAnnotation = _.find(resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation), annotationAST => {
-                                return _.isEqual(annotationAST.getPackageName(), 'http') &&
-                                    _.isEqual(annotationAST.getIdentifier(), 'Path');
-                            });
-                            let currentResourcePath = currentResourcePathAnnotation.getChildren()[0].getRightValue();
+                            let currentResourcePathAnnotation = resourceDefinition.getPathAnnotation();
+                            let currentResourcePath = currentResourcePathAnnotation.getChildren()[0].getRightValue()
+                                .replace(/"/g, '');
+
+                            let currentHttpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
                             if (_.isEqual(currentResourcePath, oldResourcePath) && _.isEqual(
-                                    httpMethod, resourceDefinition.getHttpMethodValue())) {
-                                currentResourcePathAnnotation.getChildren()[0].setRightValue(newResourcePath, {doSilently: true});
+                                    httpMethod, currentHttpMethodAnnotation.getIdentifier().toLowerCase())) {
+                                currentResourcePathAnnotation.getChildren()[0].setRightValue(JSON.stringify(newResourcePath), {doSilently: true});
+                                this._resourceMappings.set(editorEvent.start.row,
+                                    {
+                                        type: 'path',
+                                        ast: currentResourcePathAnnotation,
+                                    });
+                            } else {
+                                log.info('New resource created');
                             }
                         });
                         break;
@@ -242,24 +264,38 @@ class SwaggerView extends EventChannel {
                 // Updating resource.
                 let resourceDefinitions = serviceDefinition.getResourceDefinitions();
                 _.forEach(resourceDefinitions, resourceDefinition => {
-                    let resourceAnnotations = resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation);
-                    let currentResourcePathAnnotation = _.find(resourceAnnotations, annotationAST => {
-                        return _.isEqual(annotationAST.getPackageName(), 'http') &&
-                            _.isEqual(annotationAST.getIdentifier(), 'Path');
-                    });
-                    let currentHttpMethodAnnotation = _.find(resourceAnnotations, annotationAST => {
-                        return _.isEqual(annotationAST.getPackageName(), 'http') &&
-                            _.isEqual(annotationAST.getIdentifier().toLowerCase(), oldHttpMethod);
-                    });
+                    let currentResourcePathAnnotation = resourceDefinition.getPathAnnotation();
+                    let currentHttpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
+
                     if (!_.isUndefined(currentResourcePathAnnotation) &&
                         !_.isUndefined(currentHttpMethodAnnotation) &&
                         _.isEqual(currentResourcePathAnnotation.getChildren()[0].getRightValue().toLowerCase().replace(/"/g, ''), resourcePath.toLowerCase()) &&
                         _.isEqual(currentHttpMethodAnnotation.getIdentifier().toLowerCase().replace(/"/g, ''), oldHttpMethod.toLowerCase())) {
                         currentHttpMethodAnnotation.setIdentifier(newHttpMethod.toUpperCase(), {doSilently: true});
+                        this._resourceMappings.set(editorEvent.start.row,
+                            {
+                                type: 'method',
+                                ast: currentHttpMethodAnnotation
+                            });
+                    } else {
+                        log.info('New resource created');
                     }
                 });
             }
+        } else {
+            if (_.isNull(astPath) && this._resourceMappings.has(editorEvent.start.row)) {
+                let mapping = this._resourceMappings.get(editorEvent.start.row);
+                if (_.isEqual(mapping.type, 'path')) {
+                    mapping.ast.getChildren()[0].setRightValue('\"\"', {doSilently: true});
+                } else if (_.isEqual(mapping.type, 'method')) {
+                    mapping.ast.setIdentifier('', {doSilently: true});
+                }
+            }
         }
+    }
+
+    hasSwaggerErrors() {
+        return _.size(this._swaggerAceEditor.getSession().getAnnotations());
     }
 }
 

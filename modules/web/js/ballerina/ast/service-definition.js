@@ -181,8 +181,10 @@ class ServiceDefinition extends ASTNode {
      * Override the super call to addChild
      * @param {ASTNode} child
      * @param {number} index
+     * @param ignoreTreeModifiedEvent {boolean}
+     * @param ignoreChildAddedEvent {boolean}
      */
-    addChild(child, index, ignoreTreeModifiedEvent) {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent) {
         var self = this;
         var newIndex = index;
         // Always the connector declarations should be the first children
@@ -199,9 +201,11 @@ class ServiceDefinition extends ASTNode {
             newIndex = newIndex + 1;
         }
         if (newIndex === -1) {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0, ignoreTreeModifiedEvent);
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0, ignoreTreeModifiedEvent,
+                ignoreChildAddedEvent);
         } else {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, newIndex, ignoreTreeModifiedEvent);
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, newIndex,
+                ignoreTreeModifiedEvent, ignoreChildAddedEvent);
         }
     }
 

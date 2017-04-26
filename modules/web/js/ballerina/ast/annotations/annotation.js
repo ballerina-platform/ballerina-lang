@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import ASTNode from '../node';
+const supportedHttpMethodAnnotations = ['POST', 'GET', 'PUT', 'HEAD', 'DELETE', 'PATCH', 'OPTION'];
 
 /**
  * Has children of type annotationEntry.
@@ -46,6 +47,11 @@ class Annotation extends ASTNode {
          * @type {boolean}
          */
         this._supported = _.get(args, 'supported', true);
+
+        /**
+         * A special string for identification.
+         */
+        this._uniqueIdentifier = _.get(args, 'uniqueIdentifier');
     }
 
     setPackageName(packageName, options) {
@@ -70,6 +76,14 @@ class Annotation extends ASTNode {
 
     isSupported() {
         return this._supported;
+    }
+
+    setUniqueIdentifier(uniqueIdentifier) {
+        this._uniqueIdentifier = uniqueIdentifier;
+    }
+
+    getUniqueIdentifier() {
+        return this._uniqueIdentifier;
     }
 
     toString() {
@@ -97,6 +111,13 @@ class Annotation extends ASTNode {
     initFromJson(jsonNode) {
         this.setPackageName(jsonNode.annotation_package_name, {doSilently: true});
         this.setIdentifier(jsonNode.annotation_name, {doSilently: true});
+
+        if (_.includes(_.map(supportedHttpMethodAnnotations, (e) => {
+                    return e.toLowerCase();
+                }), this.getIdentifier().toLowerCase())) {
+            this.setUniqueIdentifier('httpMethod');
+        }
+
         _.each(jsonNode.children, childNode => {
             let child = this.getFactory().createFromJson(childNode);
             this.addChild(child);
