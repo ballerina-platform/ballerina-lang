@@ -59,6 +59,5 @@ public class JMSMessageProcessor implements CarbonMessageProcessor {
 
     public void disconnect() throws InterruptedException {
         executorService.shutdown();
-        executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
     }
 }
