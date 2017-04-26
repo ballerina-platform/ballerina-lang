@@ -88,7 +88,6 @@ public class JMSInputTransport extends InputTransport {
 
     @Override
     public void destroy() {
-        disconnect();
     }
 
     @Override
