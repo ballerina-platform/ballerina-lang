@@ -23,6 +23,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
+import org.wso2.siddhi.extension.input.transport.jms.exception.JMSInputAdaptorRuntimeException;
 
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class JMSWorkerThread implements Runnable {
             }
             sourceEventListener.onEvent(event);
         } else {
-            throw new RuntimeException("The message type of the JMS message is not supported!");
+            throw new JMSInputAdaptorRuntimeException("The message type of the JMS message is not supported!");
         }
         if (carbonCallback != null) {
             carbonCallback.done(carbonMessage);
