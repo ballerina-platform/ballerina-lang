@@ -273,8 +273,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void handleFunctionInvocationStatementNode(CompletionParameters parameters, CompletionResultSet resultSet,
                                                        PsiElement prevSibling) {
 
-        PsiFile originalFile = parameters.getOriginalFile();
-
         // This will be called when invoking a element from a package. Ex- system:println(package:|)
         // Previous sibling will contain the "package:".
         if (prevSibling == null) {
@@ -698,6 +696,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     } else {
                         //                        addFunctions(resultSet, prevElement, originalFile);
                         addPackages(resultSet, originalFile);
+                        addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
+                        addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
                         //                        addVariables(resultSet, prevElement);
                         //                        addConstants(resultSet, originalFile);
                     }
@@ -721,7 +721,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 if (elementType == BallerinaTypes.COLON) {
                     PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
                     suggestElementsFromAPackage(parameters, resultSet, packageNode, null, false, true, true, false);
-                } else if (elementType == BallerinaTypes.LPAREN) {
+                } else if (elementType == BallerinaTypes.LPAREN || elementType == BallerinaTypes.COMMA) {
 
                     addPackages(resultSet, originalFile);
                     addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
@@ -754,6 +754,12 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addConstants(resultSet, originalFile);
             }
 
+            return;
+        }
+
+        ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(parent, ServiceBodyNode.class);
+        if (serviceBodyNode != null) {
+            addKeyword(resultSet, RESOURCE, CONTEXT_KEYWORD_PRIORITY);
             return;
         }
 
@@ -890,6 +896,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 temp = temp.getParent();
             }
         }
+
+
+
     }
 
     private void addOtherCommonKeywords(CompletionResultSet resultSet) {
