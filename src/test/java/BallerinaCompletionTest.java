@@ -113,6 +113,38 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doCheckResult("org/test/test.bal", "package org.t<caret>", "package org.test;", null);
     }
 
+    public void testImport1() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
+        doTest("import <caret>", "org");
+    }
+
+    public void testImport2() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
+        doCheckResult("test.bal", "import o<caret>", "import org.", null);
+    }
+
+    public void testImport3() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
+        doTest("import org.<caret>", "test");
+    }
+
+    public void testImport4() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
+        doCheckResult("test.bal", "import org.t<caret>", "import org.test;", null);
+    }
+
+    public void testConst1() {
+        doTest("const <caret>", "boolean", "int", "float", "string");
+    }
+
+    public void testConst2() {
+        doTest("const boolean <caret>");
+    }
+
+    public void testConst3() {
+        doTest("const string NAME = <caret>");
+    }
+
     public void testFunctionsInDifferentFiles1() {
         myFixture.addFileToProject("file1.bal", "function test(){}");
         myFixture.configureByText("file2.bal", "function main(string[] args){ tes<caret> }");
@@ -291,7 +323,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     private void doCheckResult(@NotNull String relativePath, @NotNull String before, @NotNull String after,
                                @Nullable Character c) {
-        PsiFile testFile = myFixture.addFileToProject("org/test/file1.bal", before);
+        PsiFile testFile = myFixture.addFileToProject(relativePath, before);
         myFixture.configureFromExistingVirtualFile(testFile.getVirtualFile());
         myFixture.completeBasic();
         if (c != null) {

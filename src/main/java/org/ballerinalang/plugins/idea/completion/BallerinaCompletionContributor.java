@@ -838,11 +838,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                        PsiElement parentPrevSibling) {
         // If the current position has a PsiErrorElement, this will be called.
         PsiElement superParent = parent.getParent();
-        // Todo - Add throws keyword
-        // Todo - Add return keyword
-        // Todo - Add variables
         if (superParent instanceof ExpressionNode || superParent instanceof AnnotationAttributeValueNode
-                || superParent instanceof AnnotationAttachmentNode || superParent instanceof SimpleLiteralNode) {
+                || superParent instanceof AnnotationAttachmentNode || superParent instanceof SimpleLiteralNode ||
+                superParent instanceof ConstantDefinitionNode) {
             return;
         }
 
