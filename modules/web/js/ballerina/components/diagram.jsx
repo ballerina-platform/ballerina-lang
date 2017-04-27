@@ -45,7 +45,7 @@ class Diagram extends React.Component {
             {model : { viewState: { bBox: { x: 10, y: 10, w: 50, h: 50}},
              expression: "this is the expression"}}, null);
 				let children = <CanvasDecorator title="StatementContainer">
-                          <PanelDecorator>
+                          <PanelDecorator bBox={{x: 150, w:250, y:25, h:105}}>
                               <StatementContainer>
                                       {functionInvocation}
                               </StatementContainer>
