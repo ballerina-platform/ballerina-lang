@@ -19,7 +19,6 @@
 import _ from 'lodash';
 import $ from 'jquery';
 import jsPlumbLib from 'jsplumb';
-import dagre from 'dagre';
 import alerts from 'alerts';
 import './type-mapper.css';
 /**
@@ -874,7 +873,7 @@ class TypeMapperRenderer {
     }
 
     /**
-     * Position Nodes with dagre
+     * Reposition function nodes and redraw connections accordingly
      * @param {string} viewId type mapper view identifier
      * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
      */
