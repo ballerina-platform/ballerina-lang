@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 class CanvasDecorator extends React.Component {
 
@@ -8,5 +9,11 @@ class CanvasDecorator extends React.Component {
               </svg>;
     }
 }
+
+CanvasDecorator.propTypes = {
+	height: PropTypes.number,
+    children: PropTypes.node.isRequired
+}
+
 
 export default CanvasDecorator;
