@@ -20,6 +20,8 @@ import React from 'react';
 import CanvasDecorator from './canvas-decorator';
 import PanelDecorator from './panel-decorator';
 import StatementContainer from './statement-container';
+import StatementView from './statement-decorator';
+import ResourceDefinition from './resource-definition'
 import components from './components';
 
 class Diagram extends React.Component {
@@ -44,13 +46,15 @@ class Diagram extends React.Component {
         const functionInvocation = React.createElement(components['FunctionInvocationStatement'],
             {model : { viewState: { bBox: { x: 10, y: 10, w: 50, h: 50}},
              expression: "this is the expression"}}, null);
-				let children = <CanvasDecorator title="StatementContainer">
-                          <PanelDecorator>
-                              <StatementContainer>
-                                      {functionInvocation}
-                              </StatementContainer>
-                          </PanelDecorator>
-                      </CanvasDecorator>
+        let children =(<CanvasDecorator title="StatementContainer" bBox={{h:1000}}>
+                        <ResourceDefinition name="echo" bBox={{x: 50, w:850, y:25, h:805}}>
+                            <StatementContainer>
+                              <StatementView bBox={{x:100, y:375, w:181.7, h:30}}>
+                                <text x="190" y="390" className="statement-text">http:convertToResponse(m)</text>
+                              </StatementView>
+                            </StatementContainer>
+                        </ResourceDefinition>
+                      </CanvasDecorator>)
         return <div className="canvas_container">
                   {children}
               </div>;
