@@ -32,7 +32,7 @@ import CommonUtils from '../utils/common-utils';
 class ResourceDefinition extends ASTNode {
     constructor(args) {
         // TODO: All the types should be referred from the global constants
-        super('Resource', 'resource {', '}');
+        super('ResourceDefinition');
         this._resourceName = _.get(args, 'resourceName');
         this._annotations = _.get(args, 'annotations', []);
 

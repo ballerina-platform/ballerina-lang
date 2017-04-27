@@ -16,26 +16,24 @@
  * under the License.
  */
 
-import log from 'log';
+export const resourceDimensions = {
+    containerWidth: 400,
+    containerHeight: 200,
+    headingWidth: 400,
+    headingHeight: 25,
+    paddingLeft: 100,
+    paddingTop: 100,
+    paddingBottom: 100,
+    paddingRight: 100
+};
 
-class ServiceDefinitionDimensionCalcVisitor {
-
-    canVisitServiceDefinitionDimensionCalc(node) {
-        log.debug('can visit ServiceDefinitionDimensionCalc');
-        return true;
-    }
-
-    beginVisitServiceDefinitionDimensionCalc(node) {
-        log.debug('begin visit ServiceDefinitionDimensionCalc');
-    }
-
-    visitServiceDefinitionDimensionCalc(node) {
-        log.debug('visit ServiceDefinitionDimensionCalc');
-    }
-
-    endVisitServiceDefinitionDimensionCalc(node) {
-        log.debug('end visit ServiceDefinitionDimensionCalc');
-    }
-}
-
-export default ServiceDefinitionDimensionCalcVisitor;
+export const serviceDimensions = {
+    containerWidth: 400,
+    containerHeight: 200,
+    headingWidth: 400,
+    headingHeight: 25,
+    paddingLeft: 100,
+    paddingTop: 100,
+    paddingBottom: 100,
+    paddingRight: 100
+};

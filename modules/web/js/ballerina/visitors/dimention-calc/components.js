@@ -16,26 +16,16 @@
  * under the License.
  */
 
-import log from 'log';
-
-class ServiceDefinitionDimensionCalcVisitor {
-
-    canVisitServiceDefinitionDimensionCalc(node) {
-        log.debug('can visit ServiceDefinitionDimensionCalc');
-        return true;
-    }
-
-    beginVisitServiceDefinitionDimensionCalc(node) {
-        log.debug('begin visit ServiceDefinitionDimensionCalc');
-    }
-
-    visitServiceDefinitionDimensionCalc(node) {
-        log.debug('visit ServiceDefinitionDimensionCalc');
-    }
-
-    endVisitServiceDefinitionDimensionCalc(node) {
-        log.debug('end visit ServiceDefinitionDimensionCalc');
-    }
+// require all dimension calculator visitors
+function requireAll(requireContext) {
+    let components = {};
+    requireContext.keys().map((item, index) => {
+        var module = requireContext(item);
+        if (module.default) {
+            components[module.default.name] = module.default;
+        }
+    });
+    return components;
 }
 
-export default ServiceDefinitionDimensionCalcVisitor;
+export default requireAll(require.context('./', true, /\.js$/));

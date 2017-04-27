@@ -17,25 +17,26 @@
  */
 
 import log from 'log';
+import * as DesignerDefaults from './../../configs/desginer-defaults';
 
-class ServiceDefinitionDimensionCalcVisitor {
+class ResourceDefinitionDimensionCalcVisitor {
 
-    canVisitServiceDefinitionDimensionCalc(node) {
-        log.debug('can visit ServiceDefinitionDimensionCalc');
+    canVisitResourceDefinitionDimensionCalc(node) {
+        log.debug('can visit ResourceDefinitionDimensionCalc');
         return true;
     }
 
-    beginVisitServiceDefinitionDimensionCalc(node) {
-        log.debug('begin visit ServiceDefinitionDimensionCalc');
+    beginVisitResourceDefinitionDimensionCalc(node) {
+        log.debug('begin visit ResourceDefinitionDimensionCalc');
     }
 
-    visitServiceDefinitionDimensionCalc(node) {
-        log.debug('visit ServiceDefinitionDimensionCalc');
+    visitResourceDefinitionDimensionCalc(node) {
+        log.debug('visit ResourceDefinitionDimensionCalc');
     }
 
-    endVisitServiceDefinitionDimensionCalc(node) {
-        log.debug('end visit ServiceDefinitionDimensionCalc');
+    endVisitResourceDefinitionDimensionCalc(node) {
+        log.debug('end visit ResourceDefinitionDimensionCalc');
     }
 }
 
-export default ServiceDefinitionDimensionCalcVisitor;
+export default ResourceDefinitionDimensionCalcVisitor;
