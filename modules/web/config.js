@@ -388,7 +388,7 @@ if(PRODUCTION != undefined && PRODUCTION){
     configUrl = "/config";
 }else{
     //following is to support development mode where we will have static config for services.
-    configUrl = "http://localhost:9091/config"
+    configUrl = "http://127.0.0.1:9091/config"
 }
 
 // lets overide configs sent from the server
