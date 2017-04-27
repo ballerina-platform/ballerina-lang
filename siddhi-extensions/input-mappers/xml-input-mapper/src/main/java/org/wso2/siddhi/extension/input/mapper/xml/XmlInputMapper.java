@@ -159,7 +159,7 @@ public class XmlInputMapper extends InputMapper {
                 inputHandler.send(result);
             }
         } catch (Throwable t) {
-            log.error("Exception occurred when converting XML message to Siddhi Event");
+            log.error("Exception occurred when converting XML message to Siddhi Event", t);
         }
 
     }
