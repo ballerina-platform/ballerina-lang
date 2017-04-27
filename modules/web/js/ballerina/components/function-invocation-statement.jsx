@@ -7,7 +7,7 @@ class FunctionInvocationStatement extends React.Component {
 		let model = this.props.model,
 				bBox = model.viewState.bBox;
 		return 	<StatementDecorator bBox={bBox}>
-							<text x={bBox.x} y={bBox.y} className="statement-text">{model.expression}</text>
+							<text x={bBox.x + 70} y={bBox.y + 10} className="statement-text">{model.expression}</text>
 						</StatementDecorator> ;
     }
 }
