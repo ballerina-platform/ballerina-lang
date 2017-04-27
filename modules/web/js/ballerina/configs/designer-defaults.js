@@ -37,3 +37,14 @@ export const serviceDimensions = {
     paddingBottom: 100,
     paddingRight: 100
 };
+
+export const functionDefinitionDimensions = {
+    containerWidth: 400,
+    containerHeight: 200,
+    headingWidth: 400,
+    headingHeight: 25,
+    paddingLeft: 100,
+    paddingTop: 100,
+    paddingBottom: 100,
+    paddingRight: 100
+};

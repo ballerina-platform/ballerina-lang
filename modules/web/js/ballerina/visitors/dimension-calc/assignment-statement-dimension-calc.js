@@ -16,16 +16,26 @@
  * under the License.
  */
 
-// require all dimension calculator visitors
-function requireAll(requireContext) {
-    let components = {};
-    requireContext.keys().map((item, index) => {
-        var module = requireContext(item);
-        if (module.default) {
-            components[module.default.name] = module.default;
-        }
-    });
-    return components;
+import ASTVisitor from './../ast-visitor';
+import log from 'log';
+
+class AssignmentStatementDimensionCalcVisitor extends ASTVisitor {
+
+    canVisit(node) {
+        log.info('can visit AssignmentStatementDimensionCalc');
+    }
+
+    beginVisit(node) {
+        log.info('begin visit AssignmentStatementDimensionCalc');
+    }
+
+    visit(node) {
+        log.info('visit AssignmentStatementDimensionCalc');
+    }
+
+    endVisit(node) {
+        log.info('end visit AssignmentStatementDimensionCalc');
+    }
 }
 
-export default requireAll(require.context('./', true, /\.js$/));
+export default AssignmentStatementDimensionCalcVisitor;

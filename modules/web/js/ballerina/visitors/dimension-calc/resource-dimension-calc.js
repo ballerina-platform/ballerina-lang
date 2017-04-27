@@ -16,26 +16,27 @@
  * under the License.
  */
 
-import ASTVisitor from './../ast-visitor'
 import log from 'log';
+import * as DimensionConstants from './../../configs/designer-defaults';
 
-class StatementDimensionCalcVisitor extends ASTVisitor {
+class ResourceDefinitionDimensionCalcVisitor {
 
-    canVisit(node) {
-        log.debug('can visit StatementDimensionCalc');
+    canVisitResourceDefinitionDimensionCalc(node) {
+        log.debug('can visit ResourceDefinitionDimensionCalc');
+        return true;
     }
 
-    beginVisit(node) {
-        log.debug('begin visit StatementDimensionCalc');
+    beginVisitResourceDefinitionDimensionCalc(node) {
+        log.debug('begin visit ResourceDefinitionDimensionCalc');
     }
 
-    visit(node) {
-        log.debug('visit StatementDimensionCalc');
+    visitResourceDefinitionDimensionCalc(node) {
+        log.debug('visit ResourceDefinitionDimensionCalc');
     }
 
-    endVisit(node) {
-        log.debug('end visit StatementDimensionCalc');
+    endVisitResourceDefinitionDimensionCalc(node) {
+        log.debug('end visit ResourceDefinitionDimensionCalc');
     }
 }
 
-export default StatementDimensionCalcVisitor;
+export default ResourceDefinitionDimensionCalcVisitor;
