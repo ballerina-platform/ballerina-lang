@@ -32,7 +32,6 @@ public class RDBMSQueryConfigurationEntry {
     private String category;
     private double minVersion;
     private double maxVersion;
-    private String queryBatchSize;
     private String tableCheckQuery;
     private String tableCreateQuery;
     private String indexCreateQuery;
@@ -56,12 +55,12 @@ public class RDBMSQueryConfigurationEntry {
         this.databaseName = databaseName;
     }
 
-    @XmlAttribute(name = "minVersion", required = false)
+    @XmlAttribute(name = "minVersion")
     public double getMinVersion() {
         return minVersion;
     }
 
-    @XmlAttribute(name = "maxVersion", required = false)
+    @XmlAttribute(name = "maxVersion")
     public double getMaxVersion() {
         return maxVersion;
     }
@@ -74,7 +73,7 @@ public class RDBMSQueryConfigurationEntry {
         this.maxVersion = maxVersion;
     }
 
-    @XmlAttribute(name = "category", required = false)
+    @XmlAttribute(name = "category")
     public String getCategory() {
         return category;
     }
@@ -83,15 +82,7 @@ public class RDBMSQueryConfigurationEntry {
         this.category = category;
     }
 
-    @XmlElement(name = "query-batch-size")
-    public String getQueryBatchSize() {
-        return queryBatchSize;
-    }
-
-    public void setQueryBatchSize(String queryBatchSize) {
-        this.queryBatchSize = queryBatchSize;
-    }
-
+    @XmlAttribute(required = true)
     public String getTableCheckQuery() {
         return tableCheckQuery;
     }
@@ -100,6 +91,7 @@ public class RDBMSQueryConfigurationEntry {
         this.tableCheckQuery = tableCheckQuery;
     }
 
+    @XmlAttribute(required = true)
     public String getTableCreateQuery() {
         return tableCreateQuery;
     }
@@ -108,6 +100,7 @@ public class RDBMSQueryConfigurationEntry {
         this.tableCreateQuery = tableCreateQuery;
     }
 
+    @XmlAttribute(required = true)
     public String getIndexCreateQuery() {
         return indexCreateQuery;
     }
@@ -116,6 +109,7 @@ public class RDBMSQueryConfigurationEntry {
         this.indexCreateQuery = indexCreateQuery;
     }
 
+    @XmlAttribute(required = true)
     public String getRecordInsertQuery() {
         return recordInsertQuery;
     }
@@ -124,6 +118,7 @@ public class RDBMSQueryConfigurationEntry {
         this.recordInsertQuery = recordInsertQuery;
     }
 
+    @XmlAttribute(required = true)
     public String getRecordUpdateQuery() {
         return recordUpdateQuery;
     }
@@ -140,6 +135,7 @@ public class RDBMSQueryConfigurationEntry {
         this.recordMergeQuery = recordMergeQuery;
     }
 
+    @XmlAttribute(required = true)
     public String getRecordSelectQuery() {
         return recordSelectQuery;
     }
@@ -148,6 +144,7 @@ public class RDBMSQueryConfigurationEntry {
         this.recordSelectQuery = recordSelectQuery;
     }
 
+    @XmlAttribute(required = true)
     public String getRecordExistsQuery() {
         return recordExistsQuery;
     }
@@ -156,6 +153,7 @@ public class RDBMSQueryConfigurationEntry {
         this.recordExistsQuery = recordExistsQuery;
     }
 
+    @XmlAttribute(required = true)
     public String getRecordDeleteQuery() {
         return recordDeleteQuery;
     }
@@ -188,7 +186,7 @@ public class RDBMSQueryConfigurationEntry {
         this.stringSize = stringSize;
     }
 
-    @XmlElement(name = "typeMapping")
+    @XmlElement(name = "typeMapping", required = true)
     public RDBMSTypeMapping getRDBMSTypeMapping() {
         return RDBMSTypeMapping;
     }
