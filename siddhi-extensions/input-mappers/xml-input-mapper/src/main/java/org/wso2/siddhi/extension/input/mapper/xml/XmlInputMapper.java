@@ -21,6 +21,7 @@ import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axiom.om.xpath.AXIOMXPath;
+import org.apache.log4j.Logger;
 import org.jaxen.JaxenException;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -37,6 +38,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,18 +57,26 @@ import java.util.Map;
 )
 public class XmlInputMapper extends InputMapper {
 
-    private static final String PARENT_SELECTOR_XPATH = "parentSelector";
+    private static final Logger log = Logger.getLogger(XmlInputMapper.class);
+    private static final String PARENT_SELECTOR_XPATH = "enclosing.element";
     private static final String NAMESPACES = "namespaces";
     private static final String EVENTS_PARENT_ELEMENT = "events";
+    private static final String EVENT_ELEMENT = "event";
+    private static final String FAIL_ON_UNKNOWN_ATTRIBUTE = "fail.on.unknown.attribute";
 
     /**
      * Indicates whether custom mapping is enabled or not.
      */
     private boolean isCustomMappingEnabled = false;
     private StreamDefinition streamDefinition;
-    private String parentSelectorXPath;
+    private AXIOMXPath enclosingElementSelectorPath = null;
     private Map<String, String> namespaceMap;
     private Map<String, AXIOMXPath> xPathMap = new HashMap<>();
+    private boolean failOnUnknownAttribute;
+    private AttributeConverter attributeConverter = new AttributeConverter();
+    private List<Attribute> attributeList;
+    private Map<String, Attribute.Type> attributeTypeMap = new HashMap<>();
+    private Map<String, Integer> attributePositionMap = new HashMap<>();
 
     /**
      * Initialize the mapper and the mapping configurations.
@@ -78,10 +88,29 @@ public class XmlInputMapper extends InputMapper {
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
             attributeMappingList) {
+        String enclosingElementSelectorXPath;
         this.streamDefinition = streamDefinition;
+        attributeList = streamDefinition.getAttributeList();
+        attributeTypeMap = new HashMap<>(attributeList.size());
+        attributePositionMap = new HashMap<>(attributeList.size());
+        for (Attribute attribute : attributeList) {
+            attributeTypeMap.put(attribute.getName(), attribute.getType());
+            attributePositionMap.put(attribute.getName(), streamDefinition.getAttributePosition(attribute.getName()));
+        }
+        failOnUnknownAttribute = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(FAIL_ON_UNKNOWN_ATTRIBUTE,
+                "true"));
+        enclosingElementSelectorXPath = optionHolder.validateAndGetStaticValue(PARENT_SELECTOR_XPATH, null);
+        if (enclosingElementSelectorXPath != null) {
+            try {
+                enclosingElementSelectorPath = new AXIOMXPath(enclosingElementSelectorXPath);
+            } catch (JaxenException e) {
+                throw new ExecutionPlanRuntimeException("Could not get XPath from expression: " +
+                        enclosingElementSelectorXPath, e);
+            }
+        }
         if (attributeMappingList != null && attributeMappingList.size() > 0) {
             isCustomMappingEnabled = true;
-            if (streamDefinition.getAttributeList().size() != attributeMappingList.size()) {
+            if (streamDefinition.getAttributeList().size() < attributeMappingList.size()) {
                 throw new ExecutionPlanValidationException("Stream: '" + streamDefinition.getId() + "' has "
                         + streamDefinition.getAttributeList().size() + " attributes, but " + attributeMappingList.size()
                         + " attribute mappings found. Each attribute should have one and only one mapping.");
@@ -110,7 +139,6 @@ public class XmlInputMapper extends InputMapper {
                 }
                 xPathMap.put(attributeMapping.getRename(), axiomxPath);
             }
-            parentSelectorXPath = optionHolder.validateAndGetStaticValue(PARENT_SELECTOR_XPATH, null);
         }
     }
 
@@ -123,12 +151,9 @@ public class XmlInputMapper extends InputMapper {
      */
     @Override
     protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
-        if (eventObject != null) {
-            synchronized (this) {
-                for (Event event : convertToEvents(eventObject)) {
-                    inputHandler.send(event);
-                }
-            }
+        Event[] result = convertToEvents(eventObject);
+        if (result.length > 0) {
+            inputHandler.send(convertToEvents(eventObject));
         }
     }
 
@@ -138,109 +163,95 @@ public class XmlInputMapper extends InputMapper {
      * @param eventObject The input event, given as an XML string
      * @return the constructed {@link Event} object
      */
-    private List<Event> convertToEvents(Object eventObject) {
-        // Validate the event
-        if (eventObject == null) {
-            throw new ExecutionPlanRuntimeException("Could not map the input event as the given event is null");
+    private Event[] convertToEvents(Object eventObject) {
+        OMElement rootOMElement;
+        if (eventObject instanceof String) {
+            try {
+                rootOMElement = AXIOMUtil.stringToOM((String) eventObject);
+            } catch (XMLStreamException e) {
+                throw new ExecutionPlanRuntimeException("Error parsing incoming XML event : " + eventObject
+                        + ". Reason: " + e.getMessage(), e);
+            }
+        } else if (eventObject instanceof OMElement) {
+            rootOMElement = (OMElement) eventObject;
+        } else {
+            throw new ExecutionPlanRuntimeException("Event object is invalid. Expected String/OMElement, but found " +
+                    eventObject.getClass().getCanonicalName());
         }
-
-        if (!(eventObject instanceof String)) {
-            throw new ExecutionPlanRuntimeException("Event object is of invalid type. Expected String, but found " +
-                    eventObject.getClass()
-                            .getCanonicalName());
-        }
-
-        OMElement parentOMElement;
-        String inputEventStr = (String) eventObject;
-        try {
-            parentOMElement = AXIOMUtil.stringToOM(inputEventStr);
-        } catch (XMLStreamException e) {
-            throw new ExecutionPlanRuntimeException("Error parsing incoming XML event : " + inputEventStr
-                    + ". Reason: " + e.getMessage(), e);
-        }
-
         List<Event> eventList = new ArrayList<>();
-
         if (isCustomMappingEnabled) {   //custom mapping case
-            if (parentSelectorXPath != null) {  //has multiple events
-                AXIOMXPath parentSelectorPath;
+            if (enclosingElementSelectorPath != null) {  //has multiple events
+                List enclosingNodeList;
                 try {
-                    parentSelectorPath = new AXIOMXPath(parentSelectorXPath);
-                } catch (JaxenException e) {
-                    throw new ExecutionPlanRuntimeException("Could not get XPath from expression: " +
-                            parentSelectorXPath, e);
-                }
-                List eventsNodes;
-                try {
-                    eventsNodes = parentSelectorPath.selectNodes(parentOMElement);
+                    enclosingNodeList = enclosingElementSelectorPath.selectNodes(rootOMElement);
                 } catch (JaxenException e) {
                     throw new ExecutionPlanRuntimeException("Error occurred when selecting nodes from XPath: "
-                            + parentSelectorXPath, e);
+                            + enclosingElementSelectorPath.toString(), e);
                 }
-                if (eventsNodes.size() != 1) {
-                    throw new ExecutionPlanRuntimeException("Input XML event can have only one \"" + parentSelectorXPath
-                            + "\" element. Found " + eventsNodes.size() + ". Input event: " + inputEventStr);
-                } else {
-                    OMElement eventsElement = (OMElement) eventsNodes.get(0);
-                    Iterator iterator = eventsElement.getChildElements();
+                for (Object enclosingNode : enclosingNodeList) {
+                    Iterator iterator = ((OMElement) enclosingNode).getChildElements();
                     while (iterator.hasNext()) {
                         OMElement eventOMElement = (OMElement) iterator.next();
                         Event event = buildEvent(eventOMElement);
-                        eventList.add(event);
-                    }
-                }
-            } else {    //input XML string has only one event in it.
-                Event event = buildEvent(parentOMElement);
-                eventList.add(event);
-            }
-        } else {    //default mapping case
-            AXIOMXPath parentSelectorPath;
-            try {
-                parentSelectorPath = new AXIOMXPath("//" + EVENTS_PARENT_ELEMENT);
-            } catch (JaxenException e) {
-                throw new ExecutionPlanRuntimeException("Could not get XPath from expression: //" + EVENTS_PARENT_ELEMENT, e);
-            }
-            List eventsNodes;
-            try {
-                eventsNodes = parentSelectorPath.selectNodes(parentOMElement);
-            } catch (JaxenException e) {
-                throw new ExecutionPlanRuntimeException("Error occurred when selecting nodes from XPath: //"
-                        + EVENTS_PARENT_ELEMENT, e);
-            }
-            if (eventsNodes.size() != 1) {
-                throw new ExecutionPlanRuntimeException("Input XML event can have only one \"" + EVENTS_PARENT_ELEMENT
-                        + "\" element. " + "Found " + eventsNodes.size() + ". Input event: " + inputEventStr);
-            } else {
-                OMElement eventsElement = (OMElement) eventsNodes.get(0);
-                Iterator iterator = eventsElement.getChildElements();
-                while (iterator.hasNext()) {
-                    OMElement eventOMElement = (OMElement) iterator.next();
-
-                    Event event = new Event(this.streamDefinition.getAttributeList().size());
-                    Object[] data = event.getData();
-
-                    List<Attribute> attributeList = streamDefinition.getAttributeList();
-                    for (int i = 0; i < attributeList.size(); i++) {
-                        Attribute attribute = attributeList.get(i);
-                        String attributeName = attribute.getName();
-                        Iterator attributeItr = eventOMElement.getChildrenWithLocalName(attributeName);
-                        if (attributeItr.hasNext()) {
-                            OMElement attrOMElement = (OMElement) attributeItr.next();
-                            data[i] = AttributeConverter.getPropertyValue(attrOMElement.getText(), attribute.getType());
-                            if (attributeItr.hasNext()) {
-                                throw new ExecutionPlanRuntimeException("Input event has more than one attributes " +
-                                        "with the same name: " + attributeName + ". Input event: " + inputEventStr);
-                            }
-                        } else {
-                            throw new ExecutionPlanRuntimeException("No attribute with name: " + attribute +
-                                    " found in input event: " + inputEventStr);
+                        if (event != null) {
+                            eventList.add(event);
                         }
                     }
+                }
+
+            } else {    //input XML string has only one event in it.
+                Event event = buildEvent(rootOMElement);
+                if (event != null) {
                     eventList.add(event);
                 }
             }
+        } else {    //default mapping case
+            if (EVENTS_PARENT_ELEMENT.equals(rootOMElement.getLocalName())) {
+                Iterator iterator = rootOMElement.getChildrenWithName(QName.valueOf(EVENT_ELEMENT));
+                while (iterator.hasNext()) {
+                    boolean isMalformedEvent = false;
+                    OMElement eventOMElement = (OMElement) iterator.next();
+                    Event event = new Event(attributeList.size());
+                    Object[] data = event.getData();
+                    Iterator eventIterator = eventOMElement.getChildElements();
+                    while (eventIterator.hasNext()) {
+                        OMElement attrOMElement = (OMElement) eventIterator.next();
+                        String attributeName = attrOMElement.getLocalName();
+                        Attribute.Type type;
+                        if ((type = attributeTypeMap.get(attributeName)) != null) {
+                            try {
+                                data[attributePositionMap.get(attributeName)] = attributeConverter.getPropertyValue(
+                                        attrOMElement.getText(), type);
+                            } catch (ExecutionPlanRuntimeException | NumberFormatException e) {
+                                log.warn("Error occurred when extracting attribute value. Cause: " + e.getMessage() +
+                                        ". Hence dropping the event: " + eventOMElement.toString());
+                                isMalformedEvent = true;
+                                break;
+                            }
+                        } else {
+                            log.warn("Attribute : " + attributeName + "was not found in given stream definition. " +
+                                    "Hence ignoring this attribute");
+                        }
+                    }
+                    for (int i = 0; i < data.length; i++) {
+                        if (data[i] == null && failOnUnknownAttribute) {
+                            log.warn("No attribute with name: " + streamDefinition.getAttributeNameArray()[i] +
+                                    " found in input event: " + eventOMElement.toString() + ". Hence dropping the" +
+                                    " event.");
+                            isMalformedEvent = true;
+                        }
+                    }
+                    if (!isMalformedEvent) {
+                        eventList.add(event);
+                    }
+                }
+            } else {
+                throw new ExecutionPlanRuntimeException("Incoming XML message should adhere to pre-defined format" +
+                        "when using default mapping. Root element name should be " + EVENTS_PARENT_ELEMENT + ". But " +
+                        "found " + rootOMElement.getLocalName() + ". Hence dropping XML message : " + rootOMElement.toString());
+            }
         }
-        return eventList;
+        return eventList.toArray(new Event[0]);
     }
 
     private void buildNamespaceMap(String namespace) {
@@ -249,46 +260,68 @@ public class XmlInputMapper extends InputMapper {
         for (String ns : namespaces) {
             String[] splits = ns.split("=");
             if (splits.length != 2) {
-                throw new ExecutionPlanValidationException("Malformed namespace mapping found: " + ns
-                        + ". Each namespace has to have format: <prefix>=<uri>");
+                log.warn("Malformed namespace mapping found: " + ns + ". Each namespace has to have format: <prefix>=<uri>");
             }
             namespaceMap.put(splits[0].trim(), splits[1].trim());
         }
     }
 
     private Event buildEvent(OMElement eventOMElement) {
-        Event event = new Event(this.streamDefinition.getAttributeList().size());
+        Event event = new Event(streamDefinition.getAttributeList().size());
         Object[] data = event.getData();
-
-        List<Attribute> attributeList = streamDefinition.getAttributeList();
         for (int i = 0; i < attributeList.size(); i++) {
             Attribute attribute = attributeList.get(i);
             String attributeName = attribute.getName();
-
             AXIOMXPath axiomXPath = xPathMap.get(attributeName);
             try {
-                List<Object> selectedNodes = axiomXPath.selectNodes(eventOMElement);
-                if (selectedNodes.size() != 1) {
-                    throw new ExecutionPlanRuntimeException("XPath: '" + xPathMap.get(attributeName).toString()
-                            + "' yields " + selectedNodes.size() + " elements from input event, for attribute: "
-                            + attributeName + ". The XPath should yield exactly one element.");
+                List selectedNodes = axiomXPath.selectNodes(eventOMElement);
+                if (selectedNodes.size() == 0) {
+                    if (failOnUnknownAttribute) {
+                        log.warn("Xpath: '" + axiomXPath.toString() + " did not yield any results. Hence dropping the " +
+                                "event : " + eventOMElement.toString());
+                        return null;
+                    } else {
+                        data[i] = null;
+                        continue;
+                    }
                 }
+                //We will by default consider the first node. We are not logging this to get rid of an if condition.
                 Object elementObj = selectedNodes.get(0);
                 if (elementObj instanceof OMElement) {
                     OMElement element = (OMElement) elementObj;
                     if (element.getFirstElement() != null) {
-                        data[i] = element.toString();
+                        if (attribute.getType().equals(Attribute.Type.STRING)) {
+                            data[i] = element.toString();
+                        } else {
+                            log.warn("XPath: " + axiomXPath.toString() + " did not return a leaf element and stream " +
+                                    "definition is not expecting a String attribute. Hence dropping the event: " +
+                                    eventOMElement.toString());
+                            return null;
+                        }
                     } else {
                         String attributeValue = element.getText();
-                        data[i] = AttributeConverter.getPropertyValue(attributeValue, attribute.getType());
+                        try {
+                            data[i] = attributeConverter.getPropertyValue(attributeValue, attribute.getType());
+                        } catch (ExecutionPlanRuntimeException | NumberFormatException e) {
+                            log.warn("Error occurred when extracting attribute value. Cause: " + e.getMessage() +
+                                    ". Hence dropping the event: " + eventOMElement.toString());
+                            return null;
+                        }
                     }
                 } else if (elementObj instanceof OMAttribute) {
                     OMAttribute omAttribute = (OMAttribute) elementObj;
-                    data[i] = AttributeConverter.getPropertyValue(omAttribute.getAttributeValue(), attribute.getType());
+                    try {
+                        data[i] = attributeConverter.getPropertyValue(omAttribute.getAttributeValue(), attribute.getType());
+                    } catch (ExecutionPlanRuntimeException | NumberFormatException e) {
+                        log.warn("Error occurred when extracting attribute value. Cause: " + e.getMessage() +
+                                ". Hence dropping the event: " + eventOMElement.toString());
+                        return null;
+                    }
                 }
             } catch (JaxenException e) {
-                throw new ExecutionPlanRuntimeException("Error occurred when selecting attribute: " + attributeName
+                log.warn("Error occurred when selecting attribute: " + attributeName
                         + " in the input event, using the given XPath: " + xPathMap.get(attributeName).toString());
+                return null;
             }
         }
         return event;

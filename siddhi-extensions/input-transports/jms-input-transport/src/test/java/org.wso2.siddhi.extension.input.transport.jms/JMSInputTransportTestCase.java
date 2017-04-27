@@ -30,35 +30,32 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.extension.input.transport.jms.client.JMSClient;
 
 import javax.jms.ConnectionFactory;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JMSInputTransportTestCase {
     private List<String> receivedEventNameList;
+    private final String PROVIDER_URL = "vm://localhost?broker.persistent=false";
 
-    // todo: test why this locally pases and fails in jenkins
-    /*@Test
+    @Test
     public void TestJMSTopicInputTransport() throws InterruptedException {
         receivedEventNameList = new ArrayList<>(2);
-        String topicName = "Test Topic";
-        String queueName = "Test Queue";
-        String broker = "activemq";
-        String format = "text";
-        String filePath = "src/test/resources/events/events.csv";
 
-        // publishing events
-        publishEvents(topicName, queueName, broker, format, filePath);
+        // starting the ActiveMQ broker
+        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(PROVIDER_URL);
 
+        // deploying the execution plan
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@source(type='jms', @map(type='text'), "
-                + "java.naming.factory.initial='org.apache.activemq.jndi.ActiveMQInitialContextFactory', "
-                + "java.naming.provider.url='vm://localhost', "
+                + "factoryInitial='org.apache.activemq.jndi.ActiveMQInitialContextFactory', "
+                + "providerUrl='vm://localhost',"
+                + "destination='DAS_JMS_TEST', "
+                + "connectionFactoryType='topic',"
+                + "connectionFactoryJNDIName='QueueConnectionFactory',"
                 + "transport.jms.SubscriptionDurable='true', "
-                + "transport.jms.Destination='Test Topic', "
-                + "transport.jms.DestinationType='topic', "
-                + "transport.jms.DurableSubscriberClientID='wso2dasclient1', "
-                + "transport.jms.ConnectionFactoryJNDIName='TopicConnectionFactory'"
+                + "transport.jms.DurableSubscriberClientID='wso2dasclient1'"
                 +")" +
                 "define stream inputStream (name string, age int, country string);";
         String query = ("@info(name = 'query1') " +
@@ -77,16 +74,20 @@ public class JMSInputTransportTestCase {
             }
         });
         executionPlanRuntime.start();
-        Thread.sleep(10000);
+
+        // publishing events
+        publishEvents("DAS_JMS_TEST", null, "activemq", "text", "src/test/resources/events/events_text.txt");
+
         List<String> expected = new ArrayList<>(2);
         expected.add("\nJohn");
         expected.add("\nMike");
         Assert.assertEquals("JMS Input Transport expected input not received", expected, receivedEventNameList);
-    }*/
+    }
 
-    private void publishEvents(String topicName, String queueName, String broker, String format, String filePath) throws InterruptedException {
+    private void publishEvents(String topicName, String queueName, String broker, String format, String filePath)
+            throws InterruptedException {
         JMSClient jmsClient = new JMSClient();
-        jmsClient.sendJMSEvents(filePath, topicName, queueName, format, broker);
-        Thread.sleep(2000);
+        jmsClient.sendJMSEvents(filePath, topicName, queueName, format, broker, PROVIDER_URL);
+        Thread.sleep(5000);
     }
 }
