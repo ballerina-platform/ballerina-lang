@@ -20,16 +20,18 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
-import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
-import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCPEntry;
+import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 
+/**
+ * @since 0.87
+ */
 public class BLangVM {
 
     public static final int DEFAULT_CONTROL_STACK_SIZE = 2000;
@@ -57,23 +59,12 @@ public class BLangVM {
         StackFrame stackFrame = new StackFrame(mainFuncInfo, ip, new int[0]);
         stackFrames[++fp] = stackFrame;
 
-        traceCode();
+//        traceCode();
 
         ip = mainFuncInfo.getCodeAttributeInfo().getCodeAddrs();
 
 
         exec();
-
-        // TODO Remove Regs
-        System.out.println("Register values");
-        for (int i = 0; i < stackFrame.longRegs.length; i++) {
-            System.out.println(i + ": " + stackFrame.longRegs[i]);
-        }
-
-        System.out.println("Local variables");
-        for (int i = 0; i < stackFrame.longLocalVars.length; i++) {
-            System.out.println(i + ": " + stackFrame.longLocalVars[i]);
-        }
     }
 
     /**
@@ -86,11 +77,13 @@ public class BLangVM {
         int lvIndex;
         int cpIndex;
 
+//        BIntegerArray bIntArray;
+
         // TODO use HALT Instruction in the while condition
         while (ip < code.length && fp >= 0) {
 
             Instruction instruction = code[ip];
-            byte opcode = (byte) instruction.getOpcode();
+            int opcode = instruction.getOpcode();
             int[] operands = instruction.getOperands();
             ip++;
             StackFrame sf = stackFrames[fp];
@@ -172,16 +165,52 @@ public class BLangVM {
                     i = operands[1];
                     sf.longRegs[i] = sf.longLocalVars[lvIndex];
                     break;
+                case InstructionCodes.sload:
+                    lvIndex = operands[0];
+                    i = operands[1];
+                    sf.stringRegs[i] = sf.stringLocalVars[lvIndex];
+                    break;
+                case InstructionCodes.iaload:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+//                    bIntArray = (BIntegerArray) sf.bValueLocalVars[i];
+//                    sf.longRegs[k] = bIntArray.get(j);
+                    break;
                 case InstructionCodes.istore:
                     i = operands[0];
                     lvIndex = operands[1];
                     sf.longLocalVars[lvIndex] = sf.longRegs[i];
+                    break;
+                case InstructionCodes.sstore:
+                    i = operands[0];
+                    lvIndex = operands[1];
+                    sf.stringLocalVars[lvIndex] = sf.stringRegs[i];
+                    break;
+                case InstructionCodes.iastore:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+//                    bIntArray = (BIntegerArray) sf.bValueLocalVars[i];
+//                    bIntArray.add(j, sf.longRegs[k]);
                     break;
                 case InstructionCodes.iadd:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     sf.longRegs[k] = sf.longRegs[i] + sf.longRegs[j];
+                    break;
+                case InstructionCodes.fadd:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.doubleRegs[k] = sf.doubleRegs[i] + sf.doubleRegs[j];
+                    break;
+                case InstructionCodes.sadd:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.stringRegs[k] = sf.stringRegs[i] + sf.stringRegs[j];
                     break;
                 case InstructionCodes.imul:
                     i = operands[0];
@@ -194,21 +223,6 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
                     sf.longRegs[k] = sf.longRegs[i] - sf.longRegs[j];
-                    break;
-                case InstructionCodes.imove:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.longRegs[j] = sf.longRegs[i];
-                    break;
-                case InstructionCodes.iret:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.longRegs[j] = sf.longRegs[i];
-                    break;
-                case InstructionCodes.ret:
-                    cpIndex = operands[0];
-                    FunctionReturnCPEntry funcRetCPEntry = (FunctionReturnCPEntry) constPool[cpIndex];
-                    handleReturn(funcRetCPEntry.getRegIndexes());
                     break;
                 case InstructionCodes.icmp:
                     i = operands[0];
@@ -279,6 +293,15 @@ public class BLangVM {
 
                     invokeFunc(functionInfo, funcCallCPEntry);
                     break;
+                case InstructionCodes.ret:
+                    cpIndex = operands[0];
+                    FunctionReturnCPEntry funcRetCPEntry = (FunctionReturnCPEntry) constPool[cpIndex];
+                    handleReturn(funcRetCPEntry.getRegIndexes());
+                    break;
+                case InstructionCodes.inewarray:
+                    i = operands[0];
+//                    sf.bValueRegs[i] = new BIntegerArray();
+                    break;
                 default:
                     throw new UnsupportedOperationException("Opcode " + opcode + " not supported yet");
 
@@ -311,8 +334,10 @@ public class BLangVM {
                     calleeSF.longLocalVars[++longRegIndex] = callerSF.longRegs[argReg];
                     break;
                 case "F":
+                    calleeSF.doubleLocalVars[++longRegIndex] = callerSF.doubleRegs[argReg];
                     break;
                 case "S":
+                    calleeSF.stringLocalVars[++longRegIndex] = callerSF.stringRegs[argReg];
                     break;
             }
         }
@@ -334,8 +359,10 @@ public class BLangVM {
                         callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[regIndex];
                         break;
                     case "F":
+                        callersSF.doubleRegs[callersRetRegIndex] = currentSF.doubleRegs[regIndex];
                         break;
                     case "S":
+                        callersSF.stringRegs[callersRetRegIndex] = currentSF.stringRegs[regIndex];
                         break;
                 }
             }
@@ -344,13 +371,6 @@ public class BLangVM {
         ip = currentSF.retAddrs;
         stackFrames[fp] = null;
         fp--;
-    }
-
-    private void traceCode() {
-        for (int i = 0; i < code.length; i++) {
-            System.out.println(i + ": " + Mnemonics.getMnem(code[i].getOpcode()) + " " +
-                    getOperandsLine(code[i].getOperands()));
-        }
     }
 
     private String getOperandsLine(int[] operands) {

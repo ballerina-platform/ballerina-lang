@@ -21,6 +21,9 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 
+/**
+ * @since 0.87
+ */
 public class StackFrame {
     // These are used for array indexes and boolean values;
     int[] intLocalVars;
@@ -47,14 +50,15 @@ public class StackFrame {
         this.functionInfo = functionInfo;
         CodeAttributeInfo codeAttribInfo = functionInfo.getCodeAttributeInfo();
 
-        this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
         this.doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
+        this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         this.bValueLocalVars = new BRefType[codeAttribInfo.getMaxBValueLocalVars()];
 
-        this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
+        this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.bValueRegs = new BRefType[codeAttribInfo.getMaxBValueRegs()];
 
