@@ -16,34 +16,30 @@
  * under the License.
  */
 import React from "react";
+import StatementDecorator from "./statement-decorator";
 import PropTypes from 'prop-types';
 
-const text_offset = 50;
+class ReplyStatement extends React.Component {
 
-class StatementView extends React.Component {
-
-	render() {
-		const { bBox, expression } = this.props;
-		const text_x = bBox.x + (bBox.w / 2);
-		const text_y = bBox.y + (bBox.h / 2);
-		return (<g>
-			<rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="statement-rect" />
-			<g className="statement-body">
-				<text x={text_x} y={text_y} className="statement-text">{expression}</text>
-			</g>
-		</g>);
-	}
+    render() {
+        let model = this.props.model,
+            expression = model.expression,
+            bBox = model.viewState.bBox;
+        return (<StatementDecorator bBox={bBox} expression={expression} />);
+    }
 }
 
-StatementView.propTypes = {
-	bBox: PropTypes.shape({
-		x: React.PropTypes.number.isRequired,
-		y: React.PropTypes.number.isRequired,
-		w: React.PropTypes.number.isRequired,
-		h: React.PropTypes.number.isRequired,
-	}),
-	expression: PropTypes.string.isRequired
+ReplyStatement.propTypes = {
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired,
+    }),
+    expression: PropTypes.shape({
+        expression: PropTypes.string
+    })
 }
 
 
-export default StatementView;
+export default ReplyStatement;
