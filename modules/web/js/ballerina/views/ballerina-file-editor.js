@@ -131,10 +131,6 @@ class BallerinaFileEditor extends BallerinaView {
         if ((!_.isUndefined(model) && !_.isNil(model) && model instanceof BallerinaASTRoot)) {
             this._model = model;
             var self = this;
-            //Registering event listeners
-            this._model.on('child-added', function(child){
-                this.visit(child);
-            }, this);
             // make undo-manager capture all tree modifications after initial rendering
             this._model.on('tree-modified', function(event){
                 if(this.getUndoManager().hasUndo()){
