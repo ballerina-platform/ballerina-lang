@@ -1,5 +1,6 @@
 import React from "react";
-import StatementDecorator from "./statement-decorator"
+import StatementDecorator from "./statement-decorator";
+import PropTypes from 'prop-types';
 
 class FunctionInvocationStatement extends React.Component {
 
@@ -13,5 +14,18 @@ class FunctionInvocationStatement extends React.Component {
 						</StatementDecorator>) ;
     }
 }
+
+FunctionInvocationStatement.propTypes = {
+	bBox: PropTypes.shape({
+		x: PropTypes.number.isRequired,
+		y: PropTypes.number.isRequired,
+		w: PropTypes.number.isRequired,
+		h: PropTypes.number.isRequired,
+	}),
+	model: PropTypes.shape({
+		expression:  PropTypes.string
+	})
+}
+
 
 export default FunctionInvocationStatement;

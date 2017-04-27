@@ -1,6 +1,5 @@
 import React from 'react';
 import { storiesOf, action, linkTo } from '@kadira/storybook';
-import StatementView from '../js/ballerina/components/statement-view';
 import CanvasDecorator from '../js/ballerina/components/canvas-decorator';
 import StatementContainer from '../js/ballerina/components/statement-container';
 import components from '../js/ballerina/components/components';
