@@ -43,6 +43,8 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     private int retuningBranchID;
     private boolean hasReturningBranch;
 
+    private int[] offsets;
+
     public WorkerInvocationStmt(String workerName, NodeLocation nodeLocation) {
         super(nodeLocation);
         this.workerName = workerName;
@@ -96,6 +98,14 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     @Override
     public void setTypes(BType[] types) {
         this.types = types;
+    }
+
+    public int[] getOffsets() {
+        return offsets;
+    }
+
+    public void setOffsets(int[] offsets) {
+        this.offsets = offsets;
     }
 
     @Override

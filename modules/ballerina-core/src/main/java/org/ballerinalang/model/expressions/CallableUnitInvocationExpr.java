@@ -73,6 +73,10 @@ public interface CallableUnitInvocationExpr<T extends CallableUnit> extends Exec
      */
     void setTypes(BType[] types);
 
+    int[] getOffsets();
+
+    void setOffsets(int[] offsets);
+
     int getGotoBranchID();
 
     void setGotoBranchID(int retuningBranchID);

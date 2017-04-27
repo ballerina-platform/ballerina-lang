@@ -47,6 +47,8 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     private int retuningBranchID;
     private boolean hasReturningBranch;
 
+    private int[] offsets;
+
     public TypeCastExpression(NodeLocation location, Expression rExpr, BType targetType) {
         super(location);
         this.rExpr = rExpr;
@@ -175,6 +177,14 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     @Override
     public void setTypes(BType[] types) {
 
+    }
+
+    public int[] getOffsets() {
+        return offsets;
+    }
+
+    public void setOffsets(int[] offsets) {
+        this.offsets = offsets;
     }
 
     /**
