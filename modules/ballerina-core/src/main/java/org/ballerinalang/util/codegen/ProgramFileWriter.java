@@ -56,9 +56,9 @@ public class ProgramFileWriter {
             outputStream.flush();
             outputStream.close();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            return;
         } catch (IOException e) {
-            e.printStackTrace();
+            return;
         }
     }
 
@@ -100,13 +100,13 @@ public class ProgramFileWriter {
 //                case CP_ENTRY_FUNCTION_REF:
 //                    outputStream.writeByte(EntryType.CP_ENTRY_FUNCTION_REF.getValue());
 //                default:
-//                    System.out.println("Default");
 
             }
         }
     }
 
-    private void writeFunctions(DataOutputStream outputStream, List<FunctionInfo> functionInfoList) throws IOException {
+    private void writeFunctions(DataOutputStream outputStream,
+                                List<FunctionInfo> functionInfoList) throws IOException {
         outputStream.writeShort(functionInfoList.size());
         for (FunctionInfo functionInfo : functionInfoList) {
             outputStream.writeInt(functionInfo.getPackageNameIndex());
@@ -124,12 +124,14 @@ public class ProgramFileWriter {
         }
     }
 
-    private void writeAttributes(DataOutputStream outputStream, List<AttributeInfo> attributeInfoList) throws IOException {
+    private void writeAttributes(DataOutputStream outputStream,
+                                 List<AttributeInfo> attributeInfoList) throws IOException {
         outputStream.writeShort(attributeInfoList.size());
 
     }
 
-    private void writeInstructions(DataOutputStream outputStream, List<Instruction> instructionList) throws IOException {
+    private void writeInstructions(DataOutputStream outputStream,
+                                   List<Instruction> instructionList) throws IOException {
         ByteArrayOutputStream byteAOS = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(byteAOS);
         for (Instruction instruction : instructionList) {
