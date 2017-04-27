@@ -18,8 +18,10 @@
 
 package org.wso2.siddhi.core.stream.output.sink;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -27,10 +29,15 @@ import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class OutputMapper {
+public abstract class OutputMapper implements Snapshotable {
     private String type;
+    private AtomicLong lastEventId = new AtomicLong(0);
+    private String elementId;
     private OptionHolder optionHolder;
     private TemplateBuilder payloadTemplateBuilder = null;
     private ArrayList<Option> transportOptions;
@@ -40,13 +47,36 @@ public abstract class OutputMapper {
                            String type,
                            OptionHolder mapOptionHolder,
                            String unmappedPayload,
-                           OptionHolder transportOptionHolder) {
+                           OptionHolder transportOptionHolder,
+                           ExecutionPlanContext executionPlanContext) {
         this.optionHolder = mapOptionHolder;
         this.type = type;
         if (unmappedPayload != null && !unmappedPayload.isEmpty()) {
             payloadTemplateBuilder = new TemplateBuilder(streamDefinition, unmappedPayload);
         }
+        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
         init(streamDefinition, mapOptionHolder, payloadTemplateBuilder);
+        executionPlanContext.getSnapshotService().addSnapshotable("outputmappers", this);
+    }
+
+    /**
+     * Updates the {@link Event#id}
+     *
+     * @param event event to be updated
+     */
+    public void updateEventId(Event event) {
+        event.setId(lastEventId.incrementAndGet());
+    }
+
+    /**
+     * Update the {@link Event#id}s
+     *
+     * @param events events to be updated
+     */
+    public void updateEventIds(Event[] events) {
+        for (Event event : events) {
+            event.setId(lastEventId.incrementAndGet());
+        }
     }
 
     /**
@@ -144,6 +174,25 @@ public abstract class OutputMapper {
 
     public final void setGroupDeterminer(OutputGroupDeterminer groupDeterminer) {
         this.groupDeterminer = groupDeterminer;
+    }
+
+    @Override
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        synchronized (lastEventId) {
+            state.put("LastEventId", lastEventId);
+        }
+        return state;
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        lastEventId = (AtomicLong) state.get("LastEventId");
+    }
+
+    @Override
+    public String getElementId() {
+        return elementId;
     }
 
 }

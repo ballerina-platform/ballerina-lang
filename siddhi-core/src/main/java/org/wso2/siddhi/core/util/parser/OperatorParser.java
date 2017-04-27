@@ -27,15 +27,20 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import org.wso2.siddhi.core.util.collection.executor.CollectionExecutor;
+import org.wso2.siddhi.core.util.collection.expression.AttributeCollectionExpression;
 import org.wso2.siddhi.core.util.collection.expression.CollectionExpression;
+import org.wso2.siddhi.core.util.collection.expression.CompareCollectionExpression;
 import org.wso2.siddhi.core.util.collection.operator.*;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.INDEXED_RESULT_SET;
 
 public class OperatorParser {
 
@@ -49,7 +54,18 @@ public class OperatorParser {
                     matchingMetaInfoHolder, (IndexedEventHolder) storeEvents);
             CollectionExecutor collectionExecutor = CollectionExpressionParser.buildCollectionExecutor(collectionExpression,
                     matchingMetaInfoHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, true, queryName);
-            return new IndexOperator(collectionExecutor);
+            if (collectionExpression instanceof CompareCollectionExpression &&
+                    ((CompareCollectionExpression) collectionExpression).getOperator() == Compare.Operator.EQUAL &&
+                    collectionExpression.getCollectionScope() == INDEXED_RESULT_SET &&
+                    ((IndexedEventHolder) storeEvents).getPrimaryKeyAttribute() != null &&
+                    ((IndexedEventHolder) storeEvents).getPrimaryKeyAttribute().equals(
+                            ((AttributeCollectionExpression) ((CompareCollectionExpression) collectionExpression)
+                                    .getAttributeCollectionExpression()).getAttribute())) {
+                return new OverwriteTableIndexOperator(collectionExecutor, queryName);
+            } else {
+                return new IndexOperator(collectionExecutor, queryName);
+
+            }
         } else if (storeEvents instanceof ComplexEventChunk) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                     matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);

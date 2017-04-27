@@ -34,10 +34,7 @@ import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractRecordTable implements EventTable {
 
@@ -98,10 +95,11 @@ public abstract class AbstractRecordTable implements EventTable {
             findConditionParameterMap.put(entry.getKey(), entry.getValue().execute(matchingEvent));
         }
 
-        List<Object[]> records = find(findConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
+        Iterator<Object[]> records = find(findConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
         ComplexEventChunk<StreamEvent> streamEventComplexEventChunk = new ComplexEventChunk<>(true);
-        if (records != null) {
-            for (Object[] record : records) {
+        if (records != null && records.hasNext()) {
+            while (records.hasNext()) {
+                Object[] record = records.next();
                 StreamEvent streamEvent = storeEventPool.borrowEvent();
                 System.arraycopy(record, 0, streamEvent.getOutputData(), 0, record.length);
                 streamEventComplexEventChunk.add(streamEvent);
@@ -116,10 +114,10 @@ public abstract class AbstractRecordTable implements EventTable {
      * @param findConditionParameterMap map of matching StreamVariable Ids and their values corresponding to the compiled
      *                                  condition
      * @param compiledCondition         the compiledCondition against which records should be matched
-     * @return List of matching records
+     * @return RecordIterator of matching records
      */
-    protected abstract List<Object[]> find(Map<String, Object> findConditionParameterMap,
-                                           CompiledCondition compiledCondition);
+    protected abstract RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
+                                               CompiledCondition compiledCondition);
 
     @Override
     public boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition) {
@@ -251,7 +249,7 @@ public abstract class AbstractRecordTable implements EventTable {
      *                                     compiled condition based on which the records will be updated
      * @param compiledCondition            the compiledCondition against which records should be matched for update
      * @param updateValues                 the attributes and values that should be updated if the condition matches
-     * @param addingRecords           the values for adding new records if the update condition did not match
+     * @param addingRecords                the values for adding new records if the update condition did not match
      */
     protected abstract void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
                                         CompiledCondition compiledCondition,

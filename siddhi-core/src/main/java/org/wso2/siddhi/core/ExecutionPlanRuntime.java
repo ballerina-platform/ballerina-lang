@@ -40,16 +40,22 @@ import org.wso2.siddhi.core.stream.output.sink.SinkCallback;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
+import org.wso2.siddhi.core.util.snapshot.AsyncSnapshotPersistor;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an executionPlan
@@ -57,15 +63,20 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ExecutionPlanRuntime {
     private static final Logger log = Logger.getLogger(ExecutionPlanRuntime.class);
-    private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); // Contains stream definition.
-    private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); // Contains table definition.
+    private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String,
+            AbstractDefinition>(); // Contains stream definition.
+    private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String,
+            AbstractDefinition>(); // Contains table definition.
     private InputManager inputManager;
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
-    private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); // Contains stream junctions.
-    private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); // Contains event tables.
+    private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>()
+            ; // Contains stream junctions.
+    private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //
+    // Contains event tables.
     private final ConcurrentMap<String, List<InputTransport>> eventSourceMap;
     private final ConcurrentMap<String, List<OutputTransport>> eventSinkMap;
-    private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); // Contains partitions.
+    private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>();
+    // Contains partitions.
     private ExecutionPlanContext executionPlanContext;
     private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap;
     private MemoryUsageTracker memoryUsageTracker;
@@ -118,8 +129,34 @@ public class ExecutionPlanRuntime {
         return executionPlanContext.getName();
     }
 
-    public Map<String, AbstractDefinition> getStreamDefinitionMap() {
-        return streamDefinitionMap;
+    /**
+     * Get the stream definition map.
+     * @return Map of {@link StreamDefinition}s.
+     */
+    public Map<String, StreamDefinition> getStreamDefinitionMap() {
+        return streamDefinitionMap.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> (StreamDefinition) e.getValue()));
+    }
+
+    /**
+     * Get the table definition map.
+     * @return Map of {@link TableDefinition}s.
+     */
+    public Map<String, TableDefinition> getTableDefinitionMap() {
+        return tableDefinitionMap.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> (TableDefinition) e.getValue()));
+    }
+
+    /**
+     * Get the names of the available queries.
+     * @return {@link Set<String>} of query names.
+     */
+    public Set<String> getQueryNames() {
+        return queryProcessorMap.keySet();
     }
 
     public Map<String, Map<String, AbstractDefinition>> getPartitionedInnerStreamDefinitionMap() {
@@ -257,24 +294,55 @@ public class ExecutionPlanRuntime {
         return siddhiDebugger;
     }
 
-    public String persist() {
-        return executionPlanContext.getPersistenceService().persist();
-    }
-
-    public void restoreRevision(String revision) {
-        executionPlanContext.getPersistenceService().restoreRevision(revision);
-    }
-
-    public void restoreLastRevision() {
-        executionPlanContext.getPersistenceService().restoreLastRevision();
+    public Future persist() {
+        try {
+            // first, pause all the event sources
+            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::pause));
+            // take snapshots of execution units
+            byte[] snapshots = executionPlanContext.getSnapshotService().snapshot();
+            // start the snapshot persisting task asynchronously
+            return executionPlanContext.getExecutorService().submit(new AsyncSnapshotPersistor(snapshots,
+                    executionPlanContext.getSiddhiContext().getPersistenceStore(), executionPlanContext.getName()));
+        } finally {
+            // at the end, resume the event sources
+            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::resume));
+        }
     }
 
     public byte[] snapshot() {
-        return executionPlanContext.getSnapshotService().snapshot();
+        try {
+            // first, pause all the event sources
+            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::pause));
+            // take snapshots of execution units
+            return executionPlanContext.getSnapshotService().snapshot();
+        } finally {
+            // at the end, resume the event sources
+            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::resume));
+        }
     }
 
-    public void restore(byte[] snapshot) {
-        executionPlanContext.getSnapshotService().restore(snapshot);
+    public void restoreRevision(String revision) {
+        try {
+            // first, pause all the event sources
+            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::pause));
+            // start the restoring process
+            executionPlanContext.getPersistenceService().restoreRevision(revision);
+        } finally {
+            // at the end, resume the event sources
+            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::resume));
+        }
+    }
+
+    public void restoreLastRevision() {
+        try {
+            // first, pause all the event sources
+            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::pause));
+            // start the restoring process
+            executionPlanContext.getPersistenceService().restoreLastRevision();
+        } finally {
+            // at the end, resume the event sources
+            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::resume));
+        }
     }
 
     private void monitorQueryMemoryUsage() {
@@ -288,7 +356,8 @@ public class ExecutionPlanRuntime {
                             entry.getKey());
         }
         for (Map.Entry entry : partitionMap.entrySet()) {
-            ConcurrentMap<String, QueryRuntime> queryRuntime = ((PartitionRuntime) entry.getValue()).getMetaQueryRuntimeMap();
+            ConcurrentMap<String, QueryRuntime> queryRuntime = ((PartitionRuntime) entry.getValue())
+                    .getMetaQueryRuntimeMap();
             for (Map.Entry query : queryRuntime.entrySet()) {
                 memoryUsageTracker.registerObject(entry.getValue(),
                         executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +

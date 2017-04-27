@@ -32,6 +32,9 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 public class PersistenceTestCase {
     static final Logger log = Logger.getLogger(PersistenceTestCase.class);
     private int count;
@@ -210,7 +213,7 @@ public class PersistenceTestCase {
     }
 
     @Test(expected = NoPersistenceStoreException.class)
-    public void persistenceTest3() throws InterruptedException {
+    public void persistenceTest3() throws Exception {
         log.info("persistence test 3 - no store defined");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -259,7 +262,12 @@ public class PersistenceTestCase {
 
         //persisting
         Thread.sleep(500);
-        executionPlanRuntime.persist();
+        Future future = executionPlanRuntime.persist();
+        try {
+            future.get();
+        } catch (ExecutionException e) {
+            throw e.getCause() instanceof NoPersistenceStoreException ? new NoPersistenceStoreException() : e;
+        }
 
         //restarting execution plan
         Thread.sleep(500);

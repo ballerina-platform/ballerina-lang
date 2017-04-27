@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 import java.util.Collection;
+import java.util.Set;
 
 public interface IndexedEventHolder extends EventHolder {
 
@@ -40,4 +41,13 @@ public interface IndexedEventHolder extends EventHolder {
     void delete(String attribute, Compare.Operator operator, Object value);
 
     boolean containsEventSet(String attribute, Compare.Operator operator, Object value);
+
+    void overwrite(StreamEvent streamEvent);
+
+    Set<Object> getAllPrimaryKeys();
+
+    int getPrimaryKeyAttributePosition();
+
+    String getPrimaryKeyAttribute();
+
 }

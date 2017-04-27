@@ -22,17 +22,14 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class OptionHolder {
 
-    private final Map<String, Option> options = new HashMap<>();
-    private final Extension extension;
-    private final Set<String> dynamicOptionsKeys;
-    private final Set<String> staticOptionsKeys;
-
+    private Map<String, Option> options = new HashMap<>();
+    private Extension extension;
+    private Set<String> dynamicOptionsKeys = new HashSet<>();
+    private Set<String> staticOptionsKeys = new HashSet<>();
 
     public OptionHolder(StreamDefinition streamDefinition, Map<String, String> staticOptions,
                         Map<String, String> dynamicOptions, Extension extension) {
@@ -44,11 +41,12 @@ public class OptionHolder {
             options.put(entry.getKey(), new Option(entry.getKey(), null,
                     new TemplateBuilder(streamDefinition, entry.getValue())));
         }
-        staticOptionsKeys = staticOptions.keySet();
-        dynamicOptionsKeys = dynamicOptions.keySet();
+
+        staticOptions.keySet().forEach(key -> staticOptionsKeys.add(key));
+        dynamicOptions.keySet().forEach(key ->  dynamicOptionsKeys.add(key));
     }
 
-    public Option validateAndGetOption(String optionKey) {
+   public Option validateAndGetOption(String optionKey) {
         Option option = options.get(optionKey);
         if (option == null) {
             throw new ExecutionPlanValidationException("Option '" + optionKey + "' does not exist in the configuration" +
@@ -61,6 +59,16 @@ public class OptionHolder {
         Option option = options.get(optionKey);
         if (option == null) {
             option = new Option(optionKey, defaultValue, null);
+        }
+        return option;
+    }
+
+    Option getOrAddStaticOption(String optionKey, String value) {
+        Option option = options.get(optionKey);
+        if (option == null) {
+            option = new Option(optionKey, value, null);
+            options.put(optionKey, option);
+
         }
         return option;
     }
@@ -91,6 +99,22 @@ public class OptionHolder {
             throw new ExecutionPlanValidationException("'" + optionKey + "' 'static' option is not " +
                     "defined in the configuration of " + extension.namespace() + ":" + extension.name() + ".");
         }
+    }
+
+    OptionHolder merge(OptionHolder optionHolderToMerge){
+        optionHolderToMerge.getDynamicOptionsKeys().forEach(key -> {
+            Option optionToMerge = optionHolderToMerge.validateAndGetOption(key);
+            options.put(key, optionToMerge);
+            dynamicOptionsKeys.add(key);
+        });
+
+        optionHolderToMerge.getStaticOptionsKeys().forEach(key ->{
+            Option optionToMerge = optionHolderToMerge.validateAndGetOption(key);
+            options.put(key, optionToMerge);
+            staticOptionsKeys.add(key);
+        });
+
+        return this;
     }
 
     public boolean isOptionExists(String optionKey) {

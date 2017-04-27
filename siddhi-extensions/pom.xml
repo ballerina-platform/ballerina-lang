@@ -48,6 +48,7 @@
         <module>input-mappers/xml-input-mapper</module>
         <module>input-transports/kafka-input-transport</module>
         <module>input-transports/tcp-input-transport</module>
+        <module>input-transports/jms-input-transport</module>
         <module>output-transports/tcp-output-transport</module>
         <module>transport/tcp-transport</module>
     </modules>

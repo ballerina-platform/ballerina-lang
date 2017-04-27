@@ -25,10 +25,14 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
+import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
+import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
+import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,8 +53,6 @@ public class PrimaryKeyTableTestCase {
         eventArrived = false;
         inEventsList = new ArrayList<Object[]>();
     }
-
-    //Join Test
 
     @Test
     public void primaryKeyTableTest1() throws InterruptedException {
@@ -100,6 +102,7 @@ public class PrimaryKeyTableTestCase {
             executionPlanRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
             stockStream.send(new Object[]{"IBM", 55.6f, 100l});
+            stockStream.send(new Object[]{"IBM", 56.6f, 200l});
             checkStockStream.send(new Object[]{"IBM", 100l});
             checkStockStream.send(new Object[]{"WSO2", 100l});
 
@@ -525,7 +528,8 @@ public class PrimaryKeyTableTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "update or insert into StockTable " +
+                "   on volume == StockTable.volume ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from CheckStockStream join StockTable " +
@@ -717,7 +721,7 @@ public class PrimaryKeyTableTestCase {
             List<Object[]> expected = Arrays.asList(
                     new Object[]{"WSO2", 100L},
                     new Object[]{"IBM", 100L},
-                    new Object[]{"IBM", 200L}
+                    new Object[]{"IBM", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -793,13 +797,15 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{55.6f, 200L},
                     new Object[]{55.6f, 100L}
             );
-            List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{77.6f, 200L});
+            List<Object[]> expected2 = Arrays.asList(
+                    new Object[]{55.6f, 200L},
+                    new Object[]{55.6f, 100L}
+            );
 
-            SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
+            SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
             Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 3), expected2));
-            Assert.assertEquals("Number of success events", 3, inEventCount.get());
+            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 4), expected2));
+            Assert.assertEquals("Number of success events", 4, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
@@ -870,13 +876,15 @@ public class PrimaryKeyTableTestCase {
                     new Object[]{55.6f, 200L},
                     new Object[]{55.6f, 100L}
             );
-            List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{77.6f, 200L});
+            List<Object[]> expected2 = Arrays.asList(
+                    new Object[]{55.6f, 200L},
+                    new Object[]{55.6f, 100L}
+            );
 
-            SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
+            SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
             Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 3), expected2));
-            Assert.assertEquals("Number of success events", 3, inEventCount.get());
+            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 4), expected2));
+            Assert.assertEquals("Number of success events", 4, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
@@ -1948,4 +1956,373 @@ public class PrimaryKeyTableTestCase {
             executionPlanRuntime.shutdown();
         }
     }
+
+    @Test(expected = AttributeNotExistException.class)
+    public void primaryKeyTableTest28() throws InterruptedException {
+        log.info("primaryKeyTableTest28");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@PrimaryKey('symbol1') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = null;
+        try {
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        } finally {
+            if (executionPlanRuntime != null) {
+                executionPlanRuntime.shutdown();
+            }
+        }
+    }
+
+    @Test(expected = SiddhiParserException.class)
+    public void primaryKeyTableTest29() throws InterruptedException {
+        log.info("primaryKeyTableTest29");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@PrimaryKey() " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = null;
+        try {
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        } finally {
+            if (executionPlanRuntime != null) {
+                executionPlanRuntime.shutdown();
+            }
+        }
+    }
+
+    @Test(expected = OperationNotSupportedException.class)
+    public void primaryKeyTableTest30() throws InterruptedException {
+        log.info("primaryKeyTableTest30");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@PrimaryKey('symbol', 'price') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = null;
+        try {
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        } finally {
+            if (executionPlanRuntime != null) {
+                executionPlanRuntime.shutdown();
+            }
+        }
+    }
+
+    @Test(expected = DuplicateAnnotationException.class)
+    public void primaryKeyTableTest31() throws InterruptedException {
+        log.info("primaryKeyTableTest31");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@PrimaryKey('symbol') " +
+                "@PrimaryKey('price') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "";
+        ExecutionPlanRuntime executionPlanRuntime = null;
+        try {
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        } finally {
+            if (executionPlanRuntime != null) {
+                executionPlanRuntime.shutdown();
+            }
+        }
+    }
+
+    @Test(expected = SiddhiParserException.class)
+    public void primaryKeyTableTest32() throws InterruptedException {
+        log.info("primaryKeyTableTest32");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@PrimaryKey'symbol' " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = null;
+        try {
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        } finally {
+            if (executionPlanRuntime != null) {
+                executionPlanRuntime.shutdown();
+            }
+        }
+    }
+
+    @Test(expected = AttributeNotExistException.class)
+    public void primaryKeyTableTest33() throws InterruptedException {
+        log.info("primaryKeyTableTest33");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@PrimaryKey ('Symbol') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = null;
+        try {
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        } finally {
+            if (executionPlanRuntime != null) {
+                executionPlanRuntime.shutdown();
+            }
+        }
+    }
+
+    @Test
+    public void primaryKeyTableTest34() throws InterruptedException {
+        log.info("primaryKeyTableTest34");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "define stream CheckStockStream (symbol string, volume long); " +
+                "define stream UpdateStockStream (symbol string, price float, volume long);" +
+                "@PrimaryKey('symbol') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from CheckStockStream join StockTable " +
+                " on CheckStockStream.symbol==StockTable.symbol " +
+                "select CheckStockStream.symbol, StockTable.volume " +
+                "insert into OutStream;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        for (Event event : inEvents) {
+                            inEventsList.add(event.getData());
+                            inEventCount.incrementAndGet();
+                        }
+                        eventArrived = true;
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount = removeEventCount + removeEvents.length;
+                    }
+                    eventArrived = true;
+                }
+            });
+
+            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+
+            executionPlanRuntime.start();
+            stockStream.send(new Object[]{1, 55.6f, 100l});
+            checkStockStream.send(new Object[]{1, 100l});
+
+            List<Object[]> expected = new ArrayList<>();
+            expected.add(new Object[]{1, 100l});
+
+            SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            Assert.assertEquals("Number of success events", 1, inEventCount.get());
+            Assert.assertEquals("Number of remove events", 0, removeEventCount);
+            Assert.assertEquals("Event arrived", true, eventArrived);
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
+    }
+
+    @Test
+    public void primaryKeyTableTest35() throws InterruptedException {
+        log.info("primaryKeyTableTest35");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "define stream CheckStockStream (symbol string, volume long); " +
+                "define stream UpdateStockStream (symbol string, price float, volume long);" +
+                "define table StockTable (symbol string, price float, volume long); " +
+
+                "define stream StockStream1 (symbol string, price float, volume long); " +
+                "define stream CheckStockStream1 (symbol string, volume long); " +
+                "define stream UpdateStockStream1 (symbol string, price float, volume long);" +
+                "@PrimaryKey('symbol') " +
+                "define table StockTable1 (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from CheckStockStream join StockTable " +
+                " on CheckStockStream.symbol==StockTable.symbol " +
+                "select CheckStockStream.symbol, StockTable.volume " +
+                "insert into OutStream;" +
+                "" +
+                "@info(name = 'query11') " +
+                "from StockStream1 " +
+                "insert into StockTable1 ;" +
+                "" +
+                "@info(name = 'query21') " +
+                "from CheckStockStream1 join StockTable1 " +
+                " on CheckStockStream1.symbol==StockTable1.symbol " +
+                "select CheckStockStream1.symbol, StockTable1.volume " +
+                "insert into OutStream;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    eventArrived = true;
+                }
+            });
+
+            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+
+            InputHandler stockStream1 = executionPlanRuntime.getInputHandler("StockStream1");
+            InputHandler checkStockStream1 = executionPlanRuntime.getInputHandler("CheckStockStream1");
+
+            executionPlanRuntime.start();
+
+            long startTime = System.currentTimeMillis();
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
+            for (int i = 0; i < 100; i++) {
+                checkStockStream.send(new Object[]{"IBM", 100l});
+                checkStockStream.send(new Object[]{"WSO2", 100l});
+            }
+            long timeDiff = System.currentTimeMillis() - startTime;
+
+            long startTime1 = System.currentTimeMillis();
+            stockStream1.send(new Object[]{"WSO2", 55.6f, 100l});
+            stockStream1.send(new Object[]{"IBM", 55.6f, 100l});
+            for (int i = 0; i < 100; i++) {
+                checkStockStream1.send(new Object[]{"IBM", 100l});
+                checkStockStream1.send(new Object[]{"WSO2", 100l});
+            }
+            long timeDiff1 = System.currentTimeMillis() - startTime1;
+
+
+            Assert.assertEquals("Indexing is faster", true, timeDiff1 < timeDiff);
+            Assert.assertEquals("Event arrived", true, eventArrived);
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
+    }
+//
+//    @Test
+//    public void primaryKeyTableTest33() throws InterruptedException {
+//        log.info("primaryKeyTableTest33");
+//
+//        SiddhiManager siddhiManager = new SiddhiManager();
+//        String streams = "" +
+//                "define stream StockStream (symbol string, price float, volume long); " +
+//                "define stream CheckStockStream (symbol string, volume long); " +
+//                "define stream UpdateStockStream (symbol string, price float, volume long);" +
+//                "@PrimaryKey('symbol') " +
+//                "define table StockTable (symbol string, price float, volume long); ";
+//        String query = "" +
+//                "@info(name = 'query1') " +
+//                "from StockStream " +
+//                "select symbol, price, volume " +
+////                "insert into StockTable " +
+//                "update or insert into StockTable " +
+//                "   on symbol == StockTable.symbol ;" +
+//                "";
+//
+//        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+//        try {
+////            executionPlanRuntime.addCallback("query2", new QueryCallback() {
+////                @Override
+////                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+////                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+////                    if (inEvents != null) {
+////                        for (Event event : inEvents) {
+////                            inEventsList.add(event.getData());
+////                            inEventCount.incrementAndGet();
+////                        }
+////                        eventArrived = true;
+////                    }
+////                    if (removeEvents != null) {
+////                        removeEventCount = removeEventCount + removeEvents.length;
+////                    }
+////                    eventArrived = true;
+////                }
+////            });
+//
+//            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+//            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+//
+//            executionPlanRuntime.start();
+//            long i = 0;
+//            while (i < 100000) {
+//                stockStream.send(new Object[]{"FOO", 50.6f, 200L});
+//                stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+//                stockStream.send(new Object[]{"GOOG", 50.6f, 50L});
+//                stockStream.send(new Object[]{"ABC", 5.6f, 70L});
+//                i++;
+//            }
+//            int k = 0;
+//            while (k < 100) {
+//                k++;
+//                long startTime = System.currentTimeMillis();
+//                i = 0;
+//                while (i < 10000000) {
+//                    stockStream.send(new Object[]{"FOO", 50.6f, 200L});
+//                    stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+//                    stockStream.send(new Object[]{"GOOG", 50.6f, 50L});
+//                    stockStream.send(new Object[]{"ABC", 5.6f, 70L});
+//                    i++;
+//                }
+//                System.out.println(System.currentTimeMillis() - startTime);
+//            }
+//        } finally {
+//            executionPlanRuntime.shutdown();
+//        }
+//    }
+
 }

@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.util.collection.operator;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -27,21 +28,28 @@ import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.executor.CollectionExecutor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Operator which is related to non-indexed In-memory table operations.
  */
 public class IndexOperator implements Operator {
 
-    private CollectionExecutor collectionExecutor;
+    private static final Logger log = Logger.getLogger(IndexOperator.class);
 
-    public IndexOperator(CollectionExecutor collectionExecutor) {
+    private CollectionExecutor collectionExecutor;
+    protected String queryName;
+
+    public IndexOperator(CollectionExecutor collectionExecutor, String queryName) {
         this.collectionExecutor = collectionExecutor;
+        this.queryName = queryName;
     }
 
     @Override
     public CompiledCondition cloneCompiledCondition(String key) {
         //todo check if there are any issues when not cloning
-        return new IndexOperator(collectionExecutor);
+        return new IndexOperator(collectionExecutor, queryName);
     }
 
     @Override
@@ -86,9 +94,7 @@ public class IndexOperator implements Operator {
                                                     Object storeEvents,
                                                     UpdateAttributeMapper[] updateAttributeMappers,
                                                     AddingStreamEventExtractor addingStreamEventExtractor) {
-        updatingOrAddingEventChunk.reset();
         ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(updatingOrAddingEventChunk.isBatch());
-
         updatingOrAddingEventChunk.reset();
         while (updatingOrAddingEventChunk.hasNext()) {
             StateEvent overwritingOrAddingEvent = updatingOrAddingEventChunk.next();
@@ -111,45 +117,64 @@ public class IndexOperator implements Operator {
         //for cases when indexed attribute is also updated but that not changed
         //to reduce number of passes needed to update the events
         boolean doDeleteUpdate = false;
+        boolean fail = false;
         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-            if (doDeleteUpdate) {
+            if (doDeleteUpdate || fail) {
                 break;
             }
             if (storeEvents.isAttributeIndexed(updateAttributeMapper.getStoreEventAttributePosition())) {
                 //Todo how much check we need to do before falling back to Delete and then Update
+                foundEventChunk.reset();
+                Set<Object> keys = null;
+                if (updateAttributeMapper.getStoreEventAttributePosition() == storeEvents.getPrimaryKeyAttributePosition()) {
+                    keys = new HashSet<Object>(storeEvents.getAllPrimaryKeys());
+                }
                 while (foundEventChunk.hasNext()) {
                     StreamEvent streamEvent = foundEventChunk.next();
                     Object updatingDate = updateAttributeMapper.getUpdateEventOutputData(overwritingOrAddingEvent);
                     Object storeEventData = streamEvent.getOutputData()[updateAttributeMapper.getStoreEventAttributePosition()];
                     if (updatingDate != null && storeEventData != null && !updatingDate.equals(storeEventData)) {
                         doDeleteUpdate = true;
-                        break;
+                        if (keys != null) {
+                            keys.remove(storeEventData);
+                            if (!keys.add(updatingDate)) {
+                                log.error("Update failed for event :" + overwritingOrAddingEvent + ", as there is " +
+                                        "already an event stored with primary key '" +
+                                        updatingDate + "' at '" + queryName + "'");
+                                fail = true;
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
                     }
                 }
             }
         }
         foundEventChunk.reset();
-        //other cases not yet supported by Siddhi
+        if (!fail) {
+            //other cases not yet supported by Siddhi
 
-        if (doDeleteUpdate) {
-            collectionExecutor.delete(overwritingOrAddingEvent, storeEvents);
-            ComplexEventChunk<StreamEvent> toUpdateEventChunk = new ComplexEventChunk<StreamEvent>(false);
-            while (foundEventChunk.hasNext()) {
-                StreamEvent streamEvent = foundEventChunk.next();
-                foundEventChunk.remove();
-                streamEvent.setNext(null);// to make the chained state back to normal
-                for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                    updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
+            if (doDeleteUpdate) {
+                collectionExecutor.delete(overwritingOrAddingEvent, storeEvents);
+                ComplexEventChunk<StreamEvent> toUpdateEventChunk = new ComplexEventChunk<StreamEvent>(false);
+                while (foundEventChunk.hasNext()) {
+                    StreamEvent streamEvent = foundEventChunk.next();
+                    foundEventChunk.remove();
+                    streamEvent.setNext(null);// to make the chained state back to normal
+                    for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
+                        updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
+                    }
+                    toUpdateEventChunk.add(streamEvent);
                 }
-                toUpdateEventChunk.add(streamEvent);
-            }
-            storeEvents.add(toUpdateEventChunk);
-        } else {
-            while (foundEventChunk.hasNext()) {
-                StreamEvent streamEvent = foundEventChunk.next();
-                streamEvent.setNext(null);// to make the chained state back to normal
-                for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                    updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
+                storeEvents.add(toUpdateEventChunk);
+            } else {
+                while (foundEventChunk.hasNext()) {
+                    StreamEvent streamEvent = foundEventChunk.next();
+                    streamEvent.setNext(null);// to make the chained state back to normal
+                    for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
+                        updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
+                    }
                 }
             }
         }

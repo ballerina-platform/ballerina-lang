@@ -51,15 +51,12 @@ public class StreamEventPopulaterFactory {
             } else {
                 index = metaStreamEvent.getOnAfterWindowData().indexOf(attribute);
                 if (index > -1) {
-                    streamMappingElement = new StreamMappingElement();
                     streamMappingElement.setToPosition(new int[]{streamEventChainIndex, 0, ON_AFTER_WINDOW_DATA_INDEX, index});
                 } else {
                     index = metaStreamEvent.getBeforeWindowData().indexOf(attribute);
                     if (index > -1) {
-                        streamMappingElement = new StreamMappingElement();
                         streamMappingElement.setToPosition(new int[]{streamEventChainIndex, 0, BEFORE_WINDOW_DATA_INDEX, index});
                     } else {
-                        streamMappingElement = new StreamMappingElement();
                         streamMappingElement.setToPosition(null);
                     }
                 }

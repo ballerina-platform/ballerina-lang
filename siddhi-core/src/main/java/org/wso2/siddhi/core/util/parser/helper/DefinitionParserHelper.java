@@ -30,6 +30,9 @@ import org.wso2.siddhi.core.stream.input.source.InputMapper;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.stream.output.sink.*;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
+import org.wso2.siddhi.core.util.transport.MultiClientDistributedTransport;
+import org.wso2.siddhi.core.stream.output.sink.distributed.PublishingStrategy;
+import org.wso2.siddhi.core.util.transport.SingleClientDistributedTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
 import org.wso2.siddhi.core.trigger.CronEventTrigger;
@@ -241,7 +244,7 @@ public class DefinitionParserHelper {
 
                     List<InputTransport> eventSources = eventSourceMap.get(streamDefinition.getId());
                     if (eventSources == null) {
-                        eventSources = new ArrayList<InputTransport>();
+                        eventSources = new ArrayList<>();
                         eventSources.add(inputTransport);
                         eventSourceMap.put(streamDefinition.getId(), eventSources);
                     } else {
@@ -256,93 +259,99 @@ public class DefinitionParserHelper {
 
     public static void addEventSink(StreamDefinition streamDefinition,
                                     ConcurrentMap<String, List<OutputTransport>> eventSinkMap,
-                                    ExecutionPlanContext executionPlanContext) {
+                                    ExecutionPlanContext execPlanContext) {
         for (Annotation sinkAnnotation : streamDefinition.getAnnotations()) {
             if (SiddhiConstants.ANNOTATION_SINK.equalsIgnoreCase(sinkAnnotation.getName())) {
                 Annotation mapAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_MAP,
                         sinkAnnotation.getAnnotations());
                 if (mapAnnotation == null) {
-                    mapAnnotation = Annotation.annotation(SiddhiConstants.ANNOTATION_MAP).element(SiddhiConstants.ANNOTATION_ELEMENT_TYPE, "passThrough");
+                    mapAnnotation = Annotation.annotation(SiddhiConstants.ANNOTATION_MAP).element(SiddhiConstants
+                            .ANNOTATION_ELEMENT_TYPE, "passThrough");
                 }
                 Annotation distributionAnnotation =
                         AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_DISTRIBUTION,
                                 sinkAnnotation.getAnnotations());
 
-                boolean isDistributedTransport = (distributionAnnotation != null);
-                String sinkType;
-
-                if (isDistributedTransport) {
-                    // All distributed transports falls under two generalized extensions. Here we instantiate the generalised extension and
-                    // the actual underlying transport is instantiated inside the generalized extensions depending on the 'type' parameter
-                    // in Sink options.
-                    sinkType = (distributionAnnotation.getElement("channels") == null) ?
-                            SiddhiConstants.EXTENSION_MULTI_ENDPOINT_TRANSPORT :
-                            SiddhiConstants.EXTENSION_PARTITIONED_TRANSPORT;
-                } else {
-                    sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-                }
-
-                final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-                if (sinkType != null && mapType != null) {
-                    // load output transport extension
-                    Extension sink = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,
-                            sinkType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_TRANSPORT);
-                    OutputTransport outputTransport = (OutputTransport) SiddhiClassLoader.loadExtensionImplementation(
-                            sink, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
-
-                    // load output mapper extension
-                    Extension mapper = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
-                            mapType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_MAPPER);
-                    OutputMapper outputMapper = (OutputMapper) SiddhiClassLoader.loadExtensionImplementation(
-                            mapper, OutputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
-
-                    OptionHolder transportOptionHolder = constructOptionProcessor(streamDefinition, sinkAnnotation,
-                            outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class),
-                            outputTransport.getSupportedDynamicOptions());
-                    OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
-                            outputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class),
-                            outputMapper.getSupportedDynamicOptions());
-                    String payload = getPayload(mapAnnotation);
-
-                    outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
-                            mapOptionHolder, payload, executionPlanContext);
-
-                    // Initializing output transport with distributed configurations
-                    OptionHolder distributionOptionHolder = null;
-                    List<OptionHolder> endpointOptionHolders = new ArrayList<>();
-                    if (isDistributedTransport) {
-                        distributionOptionHolder = constructOptionProcessor(streamDefinition,
-                                distributionAnnotation,
-                                outputTransport.getClass().
-                                        getAnnotation(org.wso2.siddhi.annotation.Extension.class), outputTransport.getSupportedDynamicOptions());
-
-                        distributionAnnotation.getAnnotations().stream()
-                                .filter(annotation ->
-                                        SiddhiConstants.ANNOTATION_ENDPOINT.equalsIgnoreCase(annotation.getName()))
-                                .forEach(annotation ->
-                                        endpointOptionHolders
-                                                .add(constructOptionProcessor(streamDefinition, annotation,
-                                                        outputTransport
-                                                                .getClass()
-                                                                .getAnnotation(org.wso2.siddhi.annotation.Extension.class), outputTransport.getSupportedDynamicOptions())));
-
-                        ((DistributedTransport) outputTransport).
-                                initDistributedTransportOptions(distributionOptionHolder, endpointOptionHolders);
+                if (mapAnnotation != null) {
+                    String[] supportedDynamicOptions = null;
+                    List<OptionHolder> destinationOptHolders = new ArrayList<>();
+                    String sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);;
+                    final boolean isDistributedTransport = (distributionAnnotation != null);
+                    boolean isMultiClient = false;
+                    if (isDistributedTransport){
+                        OutputTransport clientTransport = createOutputTransport(sinkType, sinkAnnotation,
+                                streamDefinition, execPlanContext);
+                        isMultiClient = isMultiClientDistributedTransport(clientTransport, streamDefinition, distributionAnnotation);
+                        supportedDynamicOptions = clientTransport.getSupportedDynamicOptions();
+                        destinationOptHolders = createDestinationOptionHolders(distributionAnnotation,
+                                streamDefinition, clientTransport);
                     }
 
-                    OutputGroupDeterminer groupDeterminer = constructOutputGroupDeterminer(transportOptionHolder,
-                            distributionOptionHolder, streamDefinition, endpointOptionHolders.size());
-                    if (groupDeterminer != null) {
-                        outputTransport.getMapper().setGroupDeterminer(groupDeterminer);
-                    }
+                    final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                    if (sinkType != null && mapType != null) {
+                        OutputTransport outputTransport;
+                        if (isDistributedTransport){
+                            outputTransport = (isMultiClient) ? new MultiClientDistributedTransport() :
+                                    new SingleClientDistributedTransport();
+                        } else {
+                            outputTransport = createOutputTransport(sinkType, sinkAnnotation, streamDefinition,
+                                    execPlanContext);
+                        }
+                        if (supportedDynamicOptions == null){
+                            supportedDynamicOptions = outputTransport.getSupportedDynamicOptions();
+                        }
 
-                    List<OutputTransport> eventSinks = eventSinkMap.get(streamDefinition.getId());
-                    if (eventSinks == null) {
-                        eventSinks = new ArrayList<OutputTransport>();
-                        eventSinks.add(outputTransport);
-                        eventSinkMap.put(streamDefinition.getId(), eventSinks);
-                    } else {
-                        eventSinks.add(outputTransport);
+                        //load output mapper extension
+                        Extension mapper = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
+                                mapType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_MAPPER);
+                        OutputMapper outputMapper = (OutputMapper) SiddhiClassLoader.loadExtensionImplementation(
+                                mapper, OutputMapperExecutorExtensionHolder.getInstance(execPlanContext));
+
+                        org.wso2.siddhi.annotation.Extension outputTransportExt
+                                = outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class);
+
+                        // Initialing output transport
+                        OptionHolder transportOptionHolder = constructOptionProcessor(streamDefinition,
+                                sinkAnnotation, outputTransportExt, supportedDynamicOptions);
+                        OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
+                                outputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class),
+                                outputMapper.getSupportedDynamicOptions());
+                        String payload = getPayload(mapAnnotation);
+
+                        // Initializing the transports
+                        OptionHolder distributionOptHolder = null;
+                        if (isDistributedTransport) {
+                            distributionOptHolder = constructOptionProcessor(streamDefinition,
+                                    distributionAnnotation, outputTransportExt, supportedDynamicOptions);
+                            PublishingStrategy publishingStrategy = constructPublishingStrategy(distributionOptHolder,
+                                    streamDefinition, sinkAnnotation, execPlanContext);
+                            publishingStrategy.init(streamDefinition, transportOptionHolder, distributionOptHolder,
+                                    destinationOptHolders);
+
+                           ((DistributedTransport)outputTransport).init(streamDefinition, sinkType,
+                                   transportOptionHolder, outputMapper, mapType, mapOptionHolder, payload,
+                                   execPlanContext, destinationOptHolders, sinkAnnotation, publishingStrategy,
+                                   supportedDynamicOptions);
+                        } else {
+                            outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
+                                    mapOptionHolder, payload, execPlanContext);
+                        }
+
+                        // Setting the output group determiner
+                        OutputGroupDeterminer groupDeterminer = constructOutputGroupDeterminer(transportOptionHolder,
+                                distributionOptHolder, streamDefinition, destinationOptHolders.size());
+                        if (groupDeterminer != null) {
+                            outputTransport.getMapper().setGroupDeterminer(groupDeterminer);
+                        }
+
+                        List<OutputTransport> eventSinks = eventSinkMap.get(streamDefinition.getId());
+                        if (eventSinks == null) {
+                            eventSinks = new ArrayList<>();
+                            eventSinks.add(outputTransport);
+                            eventSinkMap.put(streamDefinition.getId(), eventSinks);
+                        } else {
+                            eventSinks.add(outputTransport);
+                        }  
                     }
                 } else {
                     throw new ExecutionPlanCreationException("Both @sink(type=) and @map(type=) are required.");
@@ -351,34 +360,23 @@ public class DefinitionParserHelper {
         }
     }
 
-    private static OutputGroupDeterminer constructOutputGroupDeterminer(OptionHolder transportOptionHolder, OptionHolder distributedOptHolder,
-                                                                        StreamDefinition streamDefinition, int endpointCount) {
+    private static OutputGroupDeterminer constructOutputGroupDeterminer(OptionHolder transportOptHolder, OptionHolder distributedOptHolder,
+                                                                        StreamDefinition streamDef, int destinationCount) {
 
         OutputGroupDeterminer groupDeterminer = null;
         if (distributedOptHolder != null) {
-            int partitionCount = endpointCount;
-            String strategy = distributedOptHolder
-                    .validateAndGetStaticValue(DistributedTransport.DISTRIBUTION_STRATEGY_KEY);
-
-            if (strategy.equalsIgnoreCase(DistributedTransport.DISTRIBUTION_STRATEGY_PARTITIONED)) {
-                String partitionKeyField = distributedOptHolder
-                        .validateAndGetStaticValue(DistributedTransport.PARTITION_KEY_FIELD_KEY);
-                int partitioningFieldIndex = streamDefinition.getAttributePosition(partitionKeyField);
-
-                if (distributedOptHolder.isOptionExists(DistributedTransport.DISTRIBUTION_CHANNELS_KEY)) {
-                    partitionCount = Integer.parseInt(distributedOptHolder
-                            .validateAndGetStaticValue(DistributedTransport.DISTRIBUTION_CHANNELS_KEY));
-                }
-                groupDeterminer = new PartitionedGroupDeterminer(partitioningFieldIndex, partitionCount);
+            String strategy = distributedOptHolder.validateAndGetStaticValue(SiddhiConstants.DISTRIBUTION_STRATEGY_KEY);
+            if (strategy.equalsIgnoreCase(SiddhiConstants.DISTRIBUTION_STRATEGY_PARTITIONED)) {
+                String partitionKeyField = distributedOptHolder.validateAndGetStaticValue(SiddhiConstants.PARTITION_KEY_FIELD_KEY);
+                int partitioningFieldIndex = streamDef.getAttributePosition(partitionKeyField);
+                groupDeterminer = new PartitionedGroupDeterminer(partitioningFieldIndex, destinationCount);
             }
         }
 
         if (groupDeterminer == null) {
-            List<Option> dynamicTransportOptions = new ArrayList<Option>(transportOptionHolder
-                    .getDynamicOptionsKeys().size());
-
-            transportOptionHolder.getDynamicOptionsKeys().
-                    forEach(option -> dynamicTransportOptions.add(transportOptionHolder.validateAndGetOption(option)));
+            List<Option> dynamicTransportOptions = new ArrayList<Option>(transportOptHolder.getDynamicOptionsKeys().size());
+            transportOptHolder.getDynamicOptionsKeys().
+                    forEach(option -> dynamicTransportOptions.add(transportOptHolder.validateAndGetOption(option)));
 
             if (dynamicTransportOptions.size() > 0) {
                 groupDeterminer = new DynamicOptionGroupDeterminer(dynamicTransportOptions);
@@ -388,7 +386,7 @@ public class DefinitionParserHelper {
         return groupDeterminer;
     }
 
-    private static Extension constructExtension(StreamDefinition streamDefinition, String typeName, String typeValue,
+    public static Extension constructExtension(StreamDefinition streamDefinition, String typeName, String typeValue,
                                                 Annotation annotation, String defaultNamespace) {
         String[] namespaceAndName = typeValue.split(SiddhiConstants.EXTENSION_SEPARATOR);
         String namespace;
@@ -452,8 +450,6 @@ public class DefinitionParserHelper {
     private static OptionHolder constructOptionProcessor(StreamDefinition streamDefinition, Annotation annotation,
                                                          org.wso2.siddhi.annotation.Extension extension,
                                                          String[] supportedDynamicOptions) {
-
-
         List<String> supportedDynamicOptionList = new ArrayList<>();
         if (supportedDynamicOptions != null) {
             supportedDynamicOptionList = Arrays.asList(supportedDynamicOptions);
@@ -475,5 +471,70 @@ public class DefinitionParserHelper {
             }
         }
         return new OptionHolder(streamDefinition, options, dynamicOptions, extension);
+    }
+
+    private static boolean isMultiClientDistributedTransport(OutputTransport clientTransport, StreamDefinition
+                                                      streamDefinition, Annotation distributionAnnotation){
+
+        // fetch the @distribution annotations from the @sink annotation
+        List<OptionHolder> destinationOptHolders = createDestinationOptionHolders(distributionAnnotation,
+                streamDefinition, clientTransport);
+
+        List<String> dynamicOptions = Arrays.asList(clientTransport.getSupportedDynamicOptions());
+        // If at least one of the @destination contains a static option then multi client transport should be used
+        for (OptionHolder optionHolder: destinationOptHolders){
+            for (String key: optionHolder.getDynamicOptionsKeys()){
+                if (!dynamicOptions.contains(key)){
+                    return true;
+                }
+            }
+
+            for (String key: optionHolder.getStaticOptionsKeys()){
+                if (!dynamicOptions.contains(key)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static OutputTransport createOutputTransport(String type, Annotation sinkAnnotation, StreamDefinition
+            streamDefinition, ExecutionPlanContext executionPlanContext){
+
+        // Create a temp instance of the underlying transport to get supported dynamic options
+        Extension sink = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,
+                type, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_TRANSPORT);
+        OutputTransport outputTransport = (OutputTransport) SiddhiClassLoader.loadExtensionImplementation(
+                sink, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
+
+        return outputTransport;
+    }
+
+    private static List<OptionHolder> createDestinationOptionHolders(Annotation distributionAnnotation, StreamDefinition
+            streamDefinition, OutputTransport clientTransport){
+
+        org.wso2.siddhi.annotation.Extension outputTransportExt
+                = clientTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class);
+
+        List<OptionHolder> destinationOptHolders = new ArrayList<>();
+        distributionAnnotation.getAnnotations().stream()
+                .filter(annotation -> annotation.getName().equalsIgnoreCase(SiddhiConstants.ANNOTATION_DESTINATION))
+                .forEach(destinationAnnotation -> destinationOptHolders.add(constructOptionProcessor(streamDefinition,
+                        destinationAnnotation, outputTransportExt, clientTransport.getSupportedDynamicOptions())));
+
+        return destinationOptHolders;
+    }
+
+    private static PublishingStrategy constructPublishingStrategy(OptionHolder distributionOptHolder, StreamDefinition
+            streamDefinition, Annotation sinkAnnotation, ExecutionPlanContext execPlanContext){
+        String strategyType = distributionOptHolder.validateAndGetStaticValue(SiddhiConstants
+                .DISTRIBUTION_STRATEGY_KEY);
+        Extension strategy = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,
+                strategyType, sinkAnnotation, SiddhiConstants.NAMESPACE_DISTRIBUTED_PUBLISHING_STRATEGY);
+        PublishingStrategy publishingStrategy = (PublishingStrategy) SiddhiClassLoader.loadExtensionImplementation(
+                strategy, PublishingStrategyExtensionHolder.getInstance(execPlanContext));
+
+        return publishingStrategy;
     }
 }
