@@ -16,34 +16,29 @@
  * under the License.
  */
 import log from 'log';
-import ASTVisitor from '../ast-visitor';
-import ServiceDefinitionDimensionCalc from './service-dimension-calc';
 
-class BallerinaASTRootDimensionCalcVisitor extends ASTVisitor {
-    constructor() {
-        super();
-    }
+class BallerinaASTRootPositionCalcVisitor {
 
-    canVisitBallerinaASTRootDimensionCalc(serviceDefinition) {
+    canVisitBallerinaASTRootPositionCalc(serviceDefinition) {
         return true;
     }
 
-    beginVisitBallerinaASTRootDimensionCalc(serviceDefinition) {
+    beginVisitBallerinaASTRootPositionCalc(serviceDefinition) {
         log.debug('Begin Visit BallerinaASTRoot');
     }
 
-    visitBallerinaASTRootDimensionCalc(serviceDefinition) {
+    visitBallerinaASTRootPositionCalc(serviceDefinition) {
         log.debug('Visit BallerinaASTRoot');
     }
 
-    endVisitBallerinaASTRootDimensionCalc(serviceDefinition) {
+    endVisitBallerinaASTRootPositionCalc(serviceDefinition) {
         log.debug('End Visit BallerinaASTRoot');
     }
 
-    canVisitServiceDefinisionDimensionCalc(serviceDefinition) {
+    canVisitServiceDefinisionPositionCalc(serviceDefinition) {
         return true;
     }
 }
 
-export default BallerinaASTRootDimensionCalcVisitor;
+export default BallerinaASTRootPositionCalcVisitor;
 

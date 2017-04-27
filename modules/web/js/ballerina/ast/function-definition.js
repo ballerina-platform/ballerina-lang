@@ -20,6 +20,7 @@ import log from 'log';
 import ASTNode from './node';
 import CallableDefinition from './callable-definition';
 import CommonUtils from '../utils/common-utils';
+import SimpleBBox from './simple-bounding-box';
 
 /**
  * Constructor for FunctionDefinition
@@ -31,12 +32,19 @@ import CommonUtils from '../utils/common-utils';
  */
 class FunctionDefinition extends CallableDefinition {
     constructor(args) {
-        super('Function');
+        super('FunctionDefinition');
         this.id = autoGenerateId();
         this._functionName = _.get(args, 'functionName');
         this._isPublic = _.get(args, "isPublic") || false;
         this._annotations = _.get(args, 'annotations', []);
         this.BallerinaASTFactory = this.getFactory();
+        
+        var components = {};
+        components['header'] = new SimpleBBox();
+        components['parameters'] = new SimpleBBox();
+        components['annotation'] = new SimpleBBox();
+        this.viewState.components = components;
+
     }
 
     setFunctionName(name, options) {

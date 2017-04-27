@@ -17,26 +17,24 @@
  */
 
 import log from 'log';
-import * as DesignerDefaults from './../../configs/desginer-defaults';
 
-class ResourceDefinitionDimensionCalcVisitor {
+class StatementPositionCalcVisitor {
 
-    canVisitResourceDefinitionDimensionCalc(node) {
-        log.debug('can visit ResourceDefinitionDimensionCalc');
-        return true;
+    canVisit(node) {
+        log.debug('can visit StatementPositionCalc');
     }
 
-    beginVisitResourceDefinitionDimensionCalc(node) {
-        log.debug('begin visit ResourceDefinitionDimensionCalc');
+    beginVisit(node) {
+        log.debug('begin visit StatementPositionCalc');
     }
 
-    visitResourceDefinitionDimensionCalc(node) {
-        log.debug('visit ResourceDefinitionDimensionCalc');
+    visit(node) {
+        log.debug('visit StatementPositionCalc');
     }
 
-    endVisitResourceDefinitionDimensionCalc(node) {
-        log.debug('end visit ResourceDefinitionDimensionCalc');
+    endVisit(node) {
+        log.debug('end visit StatementPositionCalc');
     }
 }
 
-export default ResourceDefinitionDimensionCalcVisitor;
+export default StatementPositionCalcVisitor;

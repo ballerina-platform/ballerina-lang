@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import ASTVisitor from './ast-visitor';
+
 import Visitors from './dimention-calc/components';
 
 class DimensionCalculatorVisitor {
@@ -23,7 +23,7 @@ class DimensionCalculatorVisitor {
     canVisit(node) {
         if(Visitors[node.getType() + 'DimensionCalcVisitor']) {
             var nodeVisitor = new Visitors[node.getType() + 'DimensionCalcVisitor']();
-            return nodeVisitor['canVisit' + node.getType() + 'DimensionCalc']();
+            return nodeVisitor['canVisit' + node.getType() + 'DimensionCalc'](node);
         }
 
         return undefined;
@@ -32,7 +32,7 @@ class DimensionCalculatorVisitor {
     visit(node) {
         if (Visitors[node.getType() + 'DimensionCalcVisitor']) {
             var nodeVisitor = new Visitors[node.getType() + 'DimensionCalcVisitor']();
-            return nodeVisitor['visit' + node.getType() + 'DimensionCalc']();
+            return nodeVisitor['visit' + node.getType() + 'DimensionCalc'](node);
         }
         return undefined;
     }
@@ -40,7 +40,7 @@ class DimensionCalculatorVisitor {
     beginVisit(node) {
         if (Visitors[node.getType() + 'DimensionCalcVisitor']) {
             var nodeVisitor = new Visitors[node.getType() + 'DimensionCalcVisitor']();
-            return nodeVisitor['beginVisit' + node.getType() + 'DimensionCalc']();
+            return nodeVisitor['beginVisit' + node.getType() + 'DimensionCalc'](node);
         }
         return undefined;
     }
@@ -48,7 +48,7 @@ class DimensionCalculatorVisitor {
     endVisit(node) {
         if(Visitors[node.getType() + 'DimensionCalcVisitor']) {
             var nodeVisitor = new Visitors[node.getType() + 'DimensionCalcVisitor']();
-            return nodeVisitor['endVisit' + node.getType() + 'DimensionCalc']();
+            return nodeVisitor['endVisit' + node.getType() + 'DimensionCalc'](node);
         }
         return undefined;
     }

@@ -16,24 +16,26 @@
  * under the License.
  */
 
-export const resourceDimensions = {
-    containerWidth: 400,
-    containerHeight: 200,
-    headingWidth: 400,
-    headingHeight: 25,
-    paddingLeft: 100,
-    paddingTop: 100,
-    paddingBottom: 100,
-    paddingRight: 100
-};
+import ASTVisitor from './../ast-visitor';
+import log from 'log';
 
-export const serviceDimensions = {
-    containerWidth: 400,
-    containerHeight: 200,
-    headingWidth: 400,
-    headingHeight: 25,
-    paddingLeft: 100,
-    paddingTop: 100,
-    paddingBottom: 100,
-    paddingRight: 100
-};
+class AssignmentStatementDimensionCalcVisitor extends ASTVisitor {
+
+    canVisit(node) {
+        log.info('can visit AssignmentStatementDimensionCalc');
+    }
+
+    beginVisit(node) {
+        log.info('begin visit AssignmentStatementDimensionCalc');
+    }
+
+    visit(node) {
+        log.info('visit AssignmentStatementDimensionCalc');
+    }
+
+    endVisit(node) {
+        log.info('end visit AssignmentStatementDimensionCalc');
+    }
+}
+
+export default AssignmentStatementDimensionCalcVisitor;

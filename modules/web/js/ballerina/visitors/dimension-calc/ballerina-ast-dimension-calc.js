@@ -15,27 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import ASTVisitor from './../ast-visitor'
 import log from 'log';
 
-class StatementDimensionCalcVisitor extends ASTVisitor {
+class BallerinaASTRootDimensionCalcVisitor {
 
-    canVisit(node) {
-        log.debug('can visit StatementDimensionCalc');
+    canVisitBallerinaASTRootDimensionCalc(node) {
+        return true;
     }
 
-    beginVisit(node) {
-        log.debug('begin visit StatementDimensionCalc');
+    beginVisitBallerinaASTRootDimensionCalc(node) {
+        log.info('Begin Visit BallerinaASTRoot');
     }
 
-    visit(node) {
-        log.debug('visit StatementDimensionCalc');
+    visitBallerinaASTRootDimensionCalc(node) {
+        log.info('Visit BallerinaASTRoot');
     }
 
-    endVisit(node) {
-        log.debug('end visit StatementDimensionCalc');
+    endVisitBallerinaASTRootDimensionCalc(node) {
+        log.info('End Visit BallerinaASTRoot');
     }
 }
 
-export default StatementDimensionCalcVisitor;
+export default BallerinaASTRootDimensionCalcVisitor;
+

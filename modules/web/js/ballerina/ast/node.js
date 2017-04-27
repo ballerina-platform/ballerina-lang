@@ -19,7 +19,7 @@ import log from 'log';
 import EventChannel from 'event_channel';
 import _ from 'lodash';
 import BallerinaAstFactory from './ballerina-ast-factory';
-import BBox from './../views/bounding-box'
+import SimpleBBox from './simple-bounding-box';
 
 /**
  * Constructor for the ASTNode
@@ -51,8 +51,17 @@ class ASTNode extends EventChannel {
         this._whitespaceTokens = [];
 
         this.viewState = {
-            bBox: new BBox()
+            bBox: new SimpleBBox(),
+            components: {}
         }
+    }
+
+    /**
+     * Get the node's view state
+     * @return {{bBox: BBox}} node's view state
+     */
+    getViewState(){
+        return this.viewState;
     }
 
     getParent() {
@@ -466,14 +475,6 @@ class ASTNode extends EventChannel {
      */
     setWhitespaceTokens(tokens, options) {
         this.setAttribute('_whitespaceTokens', tokens, options);
-    }
-
-    /**
-     * Get the node's view state
-     * @return {{bbox: BBox}} node's view state
-     */
-    getViewState() {
-        return this.viewState;
     }
 }
 
