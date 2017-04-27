@@ -17,91 +17,86 @@
 */
 package org.ballerinalang.util.codegen;
 
-
-import static org.ballerinalang.util.codegen.InstructionCodes.*;
-
 /**
  * @since 0.87
  */
 public class Mnemonics {
-    private final static String[] mnemonics = new String[InstructionCodeCount];
+    private static final String[] mnemonics = new String[InstructionCodes.InstructionCodeCount];
 
     static {
-        mnemonics[iconst] = "iconst";
-        mnemonics[fconst] = "fconst";
-        mnemonics[sconst] = "sconst";
+        mnemonics[InstructionCodes.iconst] = "iconst";
+        mnemonics[InstructionCodes.fconst] = "fconst";
+        mnemonics[InstructionCodes.sconst] = "sconst";
+        mnemonics[InstructionCodes.iconst_0] = "iconst_0";
+        mnemonics[InstructionCodes.iconst_1] = "iconst_1";
+        mnemonics[InstructionCodes.iconst_2] = "iconst_2";
+        mnemonics[InstructionCodes.iconst_3] = "iconst_3";
+        mnemonics[InstructionCodes.iconst_4] = "iconst_4";
+        mnemonics[InstructionCodes.iconst_5] = "iconst_5";
+        mnemonics[InstructionCodes.fconst_0] = "fconst_0";
+        mnemonics[InstructionCodes.fconst_1] = "fconst_1";
+        mnemonics[InstructionCodes.fconst_2] = "fconst_2";
+        mnemonics[InstructionCodes.fconst_3] = "fconst_3";
+        mnemonics[InstructionCodes.fconst_4] = "fconst_4";
+        mnemonics[InstructionCodes.fconst_5] = "fconst_5";
+        mnemonics[InstructionCodes.bconst_0] = "bconst_0";
+        mnemonics[InstructionCodes.bconst_1] = "bconst_1";
 
-        mnemonics[iconst_0] = "iconst_0";
-        mnemonics[iconst_1] = "iconst_1";
-        mnemonics[iconst_2] = "iconst_2";
-        mnemonics[iconst_3] = "iconst_3";
-        mnemonics[iconst_4] = "iconst_4";
-        mnemonics[iconst_5] = "iconst_5";
+        mnemonics[InstructionCodes.iload] = "iload";
+        mnemonics[InstructionCodes.fload] = "fload";
+        mnemonics[InstructionCodes.sload] = "sload";
+        mnemonics[InstructionCodes.bload] = "bload";
+        mnemonics[InstructionCodes.rload] = "rload";
+        mnemonics[InstructionCodes.iaload] = "iaload";
+        mnemonics[InstructionCodes.faload] = "faload";
+        mnemonics[InstructionCodes.saload] = "saload";
+        mnemonics[InstructionCodes.baload] = "baload";
+        mnemonics[InstructionCodes.raload] = "raload";
 
-        mnemonics[fconst_0] = "fconst_0";
-        mnemonics[fconst_1] = "fconst_1";
-        mnemonics[fconst_2] = "fconst_2";
-        mnemonics[fconst_3] = "fconst_3";
-        mnemonics[fconst_4] = "fconst_4";
-        mnemonics[fconst_5] = "fconst_5";
+        mnemonics[InstructionCodes.istore] = "istore";
+        mnemonics[InstructionCodes.fstore] = "fstore";
+        mnemonics[InstructionCodes.sstore] = "sstore";
+        mnemonics[InstructionCodes.bstore] = "bstore";
+        mnemonics[InstructionCodes.rstore] = "rstore";
+        mnemonics[InstructionCodes.iastore] = "iastore";
+        mnemonics[InstructionCodes.fastore] = "fastore";
+        mnemonics[InstructionCodes.sastore] = "sastore";
+        mnemonics[InstructionCodes.bastore] = "bastore";
+        mnemonics[InstructionCodes.rastore] = "rastore";
 
-        mnemonics[bconst_0] = "bconst_0";
-        mnemonics[bconst_1] = "bconst_1";
+        mnemonics[InstructionCodes.iadd] = "iadd";
+        mnemonics[InstructionCodes.fadd] = "fadd";
+        mnemonics[InstructionCodes.sadd] = "sadd";
+        mnemonics[InstructionCodes.isub] = "isub";
+        mnemonics[InstructionCodes.fsub] = "fsub";
+        mnemonics[InstructionCodes.sadd] = "sadd";
+        mnemonics[InstructionCodes.imul] = "imul";
+        mnemonics[InstructionCodes.fmul] = "fmul";
+        mnemonics[InstructionCodes.idiv] = "idiv";
+        mnemonics[InstructionCodes.fdiv] = "fdiv";
+        mnemonics[InstructionCodes.imod] = "imod";
+        mnemonics[InstructionCodes.fmod] = "fmod";
+        
+        mnemonics[InstructionCodes.icmp] = "icmp";
+        mnemonics[InstructionCodes.fcmp] = "fcmp";
+        mnemonics[InstructionCodes.scmp] = "scmp";
+        mnemonics[InstructionCodes.bcmp] = "bcmp";
+        mnemonics[InstructionCodes.ifeq] = "ifeq";
+        mnemonics[InstructionCodes.ifne] = "ifne";
+        mnemonics[InstructionCodes.iflt] = "iflt";
+        mnemonics[InstructionCodes.ifge] = "ifge";
+        mnemonics[InstructionCodes.ifgt] = "ifgt";
+        mnemonics[InstructionCodes.ifle] = "ifle";
 
-        mnemonics[iload] = "iload";
-        mnemonics[fload] = "fload";
-        mnemonics[sload] = "fload";
-        mnemonics[bload] = "bload";
+        mnemonics[InstructionCodes.goto_] = "goto";
+        mnemonics[InstructionCodes.call] = "call";
+        mnemonics[InstructionCodes.ret] = "ret";
 
-        mnemonics[istore] = "istore";
-        mnemonics[fstore] = "fstore";
-        mnemonics[sstore] = "sstore";
-        mnemonics[bstore] = "bstore";
-
-        mnemonics[iadd] = "iadd";
-        mnemonics[fadd] = "fadd";
-        mnemonics[sadd] = "sadd";
-
-        mnemonics[isub] = "isub";
-        mnemonics[fsub] = "fsub";
-        mnemonics[sadd] = "sadd";
-
-        mnemonics[imul] = "imul";
-        mnemonics[fmul] = "fmul";
-
-        mnemonics[idiv] = "idiv";
-        mnemonics[fdiv] = "fdiv";
-
-        mnemonics[imod] = "imod";
-        mnemonics[fmod] = "fmod";
-
-        mnemonics[imove] = "imove";
-        mnemonics[fmove] = "fmove";
-        mnemonics[smove] = "smove";
-        mnemonics[bmove] = "bmove";
-        mnemonics[rmove] = "rmove";
-
-        mnemonics[iret] = "iret";
-        mnemonics[fret] = "fret";
-        mnemonics[sret] = "sret";
-        mnemonics[bret] = "bret";
-        mnemonics[rret] = "rret";
-        mnemonics[ret] = "ret";
-
-        mnemonics[icmp] = "icmp";
-        mnemonics[fcmp] = "fcmp";
-        mnemonics[scmp] = "scmp";
-        mnemonics[bcmp] = "bcmp";
-
-        mnemonics[ifeq] = "ifeq";
-        mnemonics[ifne] = "ifne";
-        mnemonics[iflt] = "iflt";
-        mnemonics[ifge] = "ifge";
-        mnemonics[ifgt] = "ifgt";
-        mnemonics[ifle] = "ifle";
-        mnemonics[goto_] = "goto";
-
-        mnemonics[call] = "call";
+        mnemonics[InstructionCodes.inewarray] = "inewarray";
+        mnemonics[InstructionCodes.fnewarray] = "fnewarray";
+        mnemonics[InstructionCodes.snewarray] = "snewarray";
+        mnemonics[InstructionCodes.bnewarray] = "bnewarray";
+        mnemonics[InstructionCodes.rnewarray] = "rnewarray";
     }
 
     public static String getMnem(int opcode) {
