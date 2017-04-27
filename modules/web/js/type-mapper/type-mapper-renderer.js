@@ -45,7 +45,7 @@ class TypeMapperRenderer {
         this.onConnection = onConnectionCallback;
         this.typeConverterView = typeConverterView;
         this.midpoint = 0.1;
-        this.midpointVariance = 0.02;
+        this.midpointVariance = 0.05;
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
         this.connectionPool = [];
@@ -407,7 +407,7 @@ class TypeMapperRenderer {
     addSourceType(struct, reference) {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
-        this.makeType(struct, 50, 50, reference, "source");
+        this.makeType(struct, 50, 0, reference, "source");
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addSource)
@@ -496,7 +496,7 @@ class TypeMapperRenderer {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
-        var posY = placeHolderWidth - (placeHolderWidth / 3);
+        var posY = placeHolderWidth - 400;
         this.makeType(struct, 50, posY, reference, "target");
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
@@ -516,9 +516,9 @@ class TypeMapperRenderer {
         var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct fw-inverse');
         var structName = $('<div>');
 
-        structName.append(structIcon);
-        structName.append($('<span>').text(struct.name));
-        newStruct.append(structName);
+//        structName.append(structIcon);
+//        structName.append($('<span>').text(struct.name));
+//        newStruct.append(structName);
         newStruct.css({
             'top': posX,
             'left': posY
@@ -885,37 +885,37 @@ class TypeMapperRenderer {
         var nodes = []
         var sourceIndex;
         var targetIndex;
-        var structs = $("#" + self.placeHolderName + "> .struct");
+       // var structs = [];
         var funcs = $("#" + self.placeHolderName + "> .func");
         if (self.jsPlumbInstance.getAllConnections() == 0) {
-            alignment = 'TD';
+            alignment = 'LR';
         }
 
-        graph.setGraph({ranksep: '100', rankdir: alignment, edgesep: '100', marginx: '0'});
+        graph.setGraph({ranksep: '200', rankdir: alignment, edgesep: '100', marginx: '400'});
         graph.setDefaultEdgeLabel(() => ({}));
 
-        if (structs.length > 1) {
-            if ($(structs[0]).attr("type") == "source") {
-                sourceIndex = 0;
-                targetIndex = 1;
-            } else {
-                sourceIndex = 1;
-                targetIndex = 0;
-            }
+      //  if (structs.length > 1) {
+//            if ($(structs[0]).attr("type") == "source") {
+//                sourceIndex = 0;
+//                targetIndex = 1;
+//            } else {
+//                sourceIndex = 1;
+//                targetIndex = 0;
+//            }
 
-            nodes.push(structs[sourceIndex]);
+        //    nodes.push(structs[sourceIndex]);
             _.forEach(funcs, func => {
                 nodes.push(func);
             });
-            nodes.push(structs[targetIndex]);
-        } else {
-            if (structs != null) {
-                nodes = structs;
-            }
-            _.forEach(funcs, func => {
-                nodes.push(func);
-            });
-        }
+          //  nodes.push(structs[targetIndex]);
+//        } else {
+////            if (structs != null) {
+////                nodes = structs;
+////            }
+//            _.forEach(funcs, func => {
+//                nodes.push(func);
+//            });
+//        }
 
         if (nodes.length > 0) {
             var maxTypeHeight = 0;
@@ -935,31 +935,31 @@ class TypeMapperRenderer {
 
                 graph.setNode(n.id, {width: nodeContent.width(), height: height});
             });
-            var edges = self.jsPlumbInstance.getAllConnections();
-
-            _.forEach(edges, edge => {
-                var source = edge.source.id.split(self.idNameSeperator)[0];
-                var target = edge.target.id.split(self.idNameSeperator)[0];
-                var sourceId;
-                var targetId;
-
-                //checks whether target and source is a generic type or a function
-                if (source.includes(self.jsTreePrefix)) {
-                    sourceId = source.split(self.viewIdSeperator)[1] + self.viewIdSeperator
-                        + source.split(self.viewIdSeperator)[2];
-                } else {
-                    sourceId = source;
-                }
-
-                if (target.includes(self.jsTreePrefix)) {
-                    targetId = target.split(self.viewIdSeperator)[1]
-                        + self.viewIdSeperator + target.split(self.viewIdSeperator)[2];
-                } else {
-                    targetId = target;
-                }
-
-                graph.setEdge(sourceId, targetId);
-            });
+//            var edges = self.jsPlumbInstance.getAllConnections();
+//
+//            _.forEach(edges, edge => {
+//                var source = edge.source.id.split(self.idNameSeperator)[0];
+//                var target = edge.target.id.split(self.idNameSeperator)[0];
+//                var sourceId;
+//                var targetId;
+//
+//                //checks whether target and source is a generic type or a function
+//                if (source.includes(self.jsTreePrefix)) {
+//                    sourceId = source.split(self.viewIdSeperator)[1] + self.viewIdSeperator
+//                        + source.split(self.viewIdSeperator)[2];
+//                } else {
+//                    sourceId = source;
+//                }
+//
+//                if (target.includes(self.jsTreePrefix)) {
+//                    targetId = target.split(self.viewIdSeperator)[1]
+//                        + self.viewIdSeperator + target.split(self.viewIdSeperator)[2];
+//                } else {
+//                    targetId = target;
+//                }
+//
+//                graph.setEdge(sourceId, targetId);
+//            });
             // calculate the layout (i.e. node positions)
             dagre.layout(graph);
 
@@ -977,7 +977,11 @@ class TypeMapperRenderer {
                 }
             });
 
-            $("#" + self.placeHolderName).height(maxTypeHeight + maxYPosition + 55);
+            var panelHeight = maxTypeHeight + maxYPosition + 55;
+            if (panelHeight > 600) {
+                $("#" + self.placeHolderName).height(panelHeight);
+            }
+
             self.jsPlumbInstance.repaintEverything();
             $(self.viewId).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
         }

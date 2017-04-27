@@ -146,28 +146,32 @@ class TypeMapperDefinitionView extends SVGCanvas {
         var dataMapperContainerId = "data-mapper-container___" + this._model.id;
         var sourceId = 'sourceStructs' + this.getModel().id;
         var targetId = 'targetStructs' + this.getModel().id;
-        var selectorContainer = $('<div class="selector">' +
+        var sourceContent = $('<div class="leftType">' +
             '<div class="source-view">' +
-            '<span>Source :</span>' +
             '<select id="' + sourceId + '" class="type-mapper-combo">' +
             '<option value="-1">--Select--</option>' +
             '</select>' +
-            '</div>' +
+            '</div></div>');
+
+        var targetContent = $('<div class="rightType">' +
             '<div class="target-view">' +
-            '<span>Target :</span>' +
             '<select id="' + targetId + '" class="type-mapper-combo">' +
             '<option value="-1">--Select--</option>' +
             '</select>' +
-            '</div>' +
-            '</div>');
+            '</div></div>');
 
         var dataMapperContainer = $('<div id="' + dataMapperContainerId + '" class="data-mapper-container">'
-                                  +'<div id ="typeMapperContextMenu" class ="typeMapperContextMenu"></div></div> ');
+                                            +'<div id ="typeMapperContextMenu" class ="typeMapperContextMenu"></div>');
 
-        currentContainer.find('svg').parent().append(selectorContainer).append(dataMapperContainer);
+        dataMapperContainer.append(sourceContent);
+        dataMapperContainer.append(targetContent);
+        currentContainer.find('svg').parent().append(dataMapperContainer);
         currentContainer.find('svg').remove();
 
-        this.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
+
+        $(document).ready(function() {
+
+            self.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
 
         $(".type-mapper-combo").select2();
         $("#" + targetId).on("select2:open", function () {
@@ -264,12 +268,18 @@ class TypeMapperDefinitionView extends SVGCanvas {
             }
         });
 
+
+        });
+
         this.getModel().accept(this);
         this.getModel().on('child-added', function (child) {
             self.visit(child);
         });
 
         var dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
+
+        $("#" + dataMapperContainerId).height(600);
+
 
         this._container.mouseover(function (event) {
             if (self.toolPalette.dragDropManager.isOnDrag()) {
