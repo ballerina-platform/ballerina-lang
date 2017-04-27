@@ -29,6 +29,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This runnable processes each JMS message and sends it to siddhi.
+ */
 public class JMSWorkerThread implements Runnable {
     private CarbonMessage carbonMessage;
     private CarbonCallback carbonCallback;

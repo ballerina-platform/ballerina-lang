@@ -38,7 +38,7 @@ import java.util.Map;
 @Extension(
         name = "jms",
         namespace = "inputtransport",
-        description = ""
+        description = "JMS Input Transport"
 )
 public class JMSInputTransport extends InputTransport {
     private static final Logger log = Logger.getLogger(JMSInputTransport.class);
@@ -69,7 +69,7 @@ public class JMSInputTransport extends InputTransport {
         try {
             jmsServerConnector.start();
         } catch (ServerConnectorException e) {
-            log.error("Exception in starting the JMS receiver for stream : "
+            log.error("Exception in starting the JMS receiver for stream: "
                     + sourceEventListener.getStreamDefinition().getId(), e);
         }
     }
