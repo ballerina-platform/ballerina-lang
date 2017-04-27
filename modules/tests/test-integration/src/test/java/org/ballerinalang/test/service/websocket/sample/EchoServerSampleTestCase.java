@@ -1,6 +1,5 @@
 package org.ballerinalang.test.service.websocket.sample;
 
-import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.util.websocket.WebSocketClient;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -12,7 +11,7 @@ import javax.net.ssl.SSLException;
  * Test echo server sample located in ballerina_home/samples/websocket/echoServer/server/websocketEchoServer.bal
  * This sample echo the same message received to the client.
  */
-public class EchoServerSampleTestCase extends IntegrationTestCase {
+public class EchoServerSampleTestCase extends WebSocketIntegrationTest {
 
     private final int threadSleepTime = 100;
     private final int clientCount = 10;
@@ -26,7 +25,7 @@ public class EchoServerSampleTestCase extends IntegrationTestCase {
 
     @Test
     public void textPushText() throws InterruptedException, SSLException, URISyntaxException {
-        handshakeAllClients();
+        handshakeAllClients(wsClients);
         String sentText = "test";
         wsClients[0].sendText(sentText);
         Thread.sleep(threadSleepTime);
@@ -34,18 +33,6 @@ public class EchoServerSampleTestCase extends IntegrationTestCase {
         for (int i = 1; i < clientCount; i++) {
             Assert.assertEquals(null, wsClients[i].getTextReceived());
         }
-        shutDownAllClients();
-    }
-
-    private void handshakeAllClients() throws InterruptedException, SSLException, URISyntaxException {
-        for (WebSocketClient client: wsClients) {
-            client.handhshake();
-        }
-    }
-
-    private void shutDownAllClients() throws InterruptedException {
-        for (WebSocketClient client: wsClients) {
-            client.shutDown();
-        }
+        shutDownAllClients(wsClients);
     }
 }
