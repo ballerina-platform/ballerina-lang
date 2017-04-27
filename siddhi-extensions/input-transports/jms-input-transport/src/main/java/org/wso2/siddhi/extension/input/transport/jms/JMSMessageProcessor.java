@@ -24,22 +24,34 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
+import org.wso2.siddhi.extension.input.transport.jms.executor.PausableThreadPoolExecutor;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * This processes the JMS messages using a pausable thread pool.
+ */
 public class JMSMessageProcessor implements CarbonMessageProcessor {
     private SourceEventListener sourceEventListener;
-    private ExecutorService executorService;
+    private PausableThreadPoolExecutor executor;
+    private LinkedBlockingQueue<Runnable> queue;
+    // this is the maximum time that excess idle threads will wait for new tasks before terminating.
+    // since the threads will exit after each execution, this is set to a minimal value
+    private final long KEEP_ALIVE_TIME = 10;
+    private final int MAX_THREAD_POOL_SIZE_MULTIPLIER = 2;
 
-    public JMSMessageProcessor(SourceEventListener sourceEventListener, int threadPoolSize) {
+    public JMSMessageProcessor(SourceEventListener sourceEventListener, int coreThreadPoolSize) {
         this.sourceEventListener = sourceEventListener;
-        this.executorService = Executors.newFixedThreadPool(threadPoolSize);
+        this.queue = new LinkedBlockingQueue<>();
+        int maxThreadPoolSize = MAX_THREAD_POOL_SIZE_MULTIPLIER * coreThreadPoolSize;
+        this.executor = new PausableThreadPoolExecutor(coreThreadPoolSize, maxThreadPoolSize, KEEP_ALIVE_TIME,
+                TimeUnit.SECONDS, queue);
     }
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        executorService.submit(new JMSWorkerThread(carbonMessage, carbonCallback, sourceEventListener));
+        executor.execute(new JMSWorkerThread(carbonMessage, carbonCallback, sourceEventListener));
         return true;
     }
 
@@ -56,7 +68,23 @@ public class JMSMessageProcessor implements CarbonMessageProcessor {
         return "JMS-message-processor";
     }
 
-    public void disconnect() throws InterruptedException {
-        executorService.shutdown();
+    void pause() {
+        executor.pause();
+    }
+
+    void resume() {
+        executor.resume();
+    }
+
+    public void clear() {
+        queue.clear();
+    }
+
+    public boolean isEmpty() {
+        return queue.isEmpty();
+    }
+
+    void disconnect() {
+        executor.shutdown();
     }
 }

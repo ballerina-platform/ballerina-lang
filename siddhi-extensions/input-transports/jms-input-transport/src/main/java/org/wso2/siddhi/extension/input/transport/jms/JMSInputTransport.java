@@ -81,23 +81,22 @@ public class JMSInputTransport extends InputTransport {
             jmsMessageProcessor.disconnect();
         } catch (JMSConnectorException e) {
             log.error("Error disconnecting the JMS receiver", e);
-        } catch (InterruptedException e) {
-            log.error("Error shutting down the threads for the JMS Message Processor", e);
         }
     }
 
     @Override
     public void destroy() {
+        // disconnect() gets called before destroy() which does the cleanup destroy() needs
     }
 
     @Override
     public void pause() {
-        //todo: implement this
+        jmsMessageProcessor.pause();
     }
 
     @Override
     public void resume() {
-        //todo: implement this
+        jmsMessageProcessor.resume();
     }
 
     /**
