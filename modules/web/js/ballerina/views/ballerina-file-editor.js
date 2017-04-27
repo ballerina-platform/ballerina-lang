@@ -36,6 +36,7 @@ import ToolPaletteItemProvider from './../item-provider/tool-palette-item-provid
 import alerts from 'alerts';
 import 'typeahead.js';
 import FindBreakpointsVisitor from './../visitors/find-breakpoints-visitor';
+import DimensionCalculatorVisitor from './../visitors/dimension-calculator-visitor';
 import DebugManager from './../../debugger/debug-manager';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -243,6 +244,8 @@ class BallerinaFileEditor extends BallerinaView {
 
         var importDeclarations = [];
         if(!this._parseFailed) {
+            var dimensionCalculatorVisitor = new DimensionCalculatorVisitor();
+            this._model.accept(dimensionCalculatorVisitor);
             let root = React.createElement(BallerinaDiagram, { model: this._model }, null);
             ReactDOM.render(
               root,
