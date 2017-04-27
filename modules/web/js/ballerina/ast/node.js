@@ -60,10 +60,6 @@ class ASTNode extends EventChannel {
         return this.viewState;
     }
 
-    setViewComponents(components){
-        this.viewState.components = components;
-    }
-
     getParent() {
         return this.parent;
     }
