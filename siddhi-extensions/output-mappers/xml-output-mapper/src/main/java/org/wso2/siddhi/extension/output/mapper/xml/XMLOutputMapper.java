@@ -105,7 +105,6 @@ public class XMLOutputMapper extends OutputMapper {
                            OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
         StringBuilder sb = new StringBuilder();
-        String endingElement = "";
         if (payloadTemplateBuilder != null) {   //custom mapping
             if (enclosingElement != null) {
                 sb.append(enclosingElement);

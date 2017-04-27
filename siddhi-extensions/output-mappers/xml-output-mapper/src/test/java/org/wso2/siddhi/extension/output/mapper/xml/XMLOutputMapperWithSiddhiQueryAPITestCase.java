@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.stream.output.sink.InMemoryOutputTransport;
+import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -296,8 +296,7 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
                         .element("topic", "{{symbol}}")
                         .annotation(Annotation.annotation("map")
                                 .element("type", "xml")
-                                .element("prefixXml", "<portfolio>")
-                                .element("suffixXml", "</portfolio>")
+                                .element("enclosing.element", "<portfolio>")
                                 .annotation(Annotation.annotation("payload")
                                         .element("<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}" +
                                                 "</Price></StockData>"))));
@@ -393,8 +392,7 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
                         .element("topic", "{{symbol}}")
                         .annotation(Annotation.annotation("map")
                                 .element("type", "xml")
-                                .element("prefixXml", "<portfolio>")
-                                .element("suffixXml", "</portfolio>")
+                                .element("enclosing.element", "<portfolio>")
                                 .element("validateXml", "true")
                                 .annotation(Annotation.annotation("payload")
                                         .element("<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}" +
@@ -492,8 +490,7 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
                         .element("topic", "{{symbol}}")
                         .annotation(Annotation.annotation("map")
                                 .element("type", "xml")
-                                .element("prefixXml", "<portfolioo>")
-                                .element("suffixXml", "</portfolio>")
+                                .element("enclosing.element", "<portfolio")
                                 .element("validateXml", "true")
                                 .annotation(Annotation.annotation("payload")
                                         .element("<StockData><Symbol>{{symbol}}</Symbol><Price>" +

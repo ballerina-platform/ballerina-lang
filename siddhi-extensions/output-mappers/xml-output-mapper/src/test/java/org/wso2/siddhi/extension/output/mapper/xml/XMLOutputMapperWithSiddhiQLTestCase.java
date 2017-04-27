@@ -240,7 +240,7 @@ public class XMLOutputMapperWithSiddhiQLTestCase {
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', @payload(" +
                 "\"<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}</Price></StockData>\"))) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
-
+        System.out.println(streams);
         String query = "" +
                 "from FooStream " +
                 "select * " +
