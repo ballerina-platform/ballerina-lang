@@ -166,7 +166,6 @@ public class XmlInputMapperTestCase {
                 "                                           , volume = \"volume\"))) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
-        System.out.println(streams);
 
         String query = "" +
                 "from FooStream " +

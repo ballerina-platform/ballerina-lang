@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.extension.input.mapper.xml;
 
+import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
@@ -151,10 +152,16 @@ public class XmlInputMapper extends InputMapper {
      */
     @Override
     protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
-        Event[] result = convertToEvents(eventObject);
-        if (result.length > 0) {
-            inputHandler.send(convertToEvents(eventObject));
+        Event[] result;
+        try {
+            result = convertToEvents(eventObject);
+            if (result.length > 0) {
+                inputHandler.send(result);
+            }
+        } catch (Throwable t) {
+            log.error("Exception occurred when converting XML message to Siddhi Event");
         }
+
     }
 
     /**
@@ -164,21 +171,23 @@ public class XmlInputMapper extends InputMapper {
      * @return the constructed {@link Event} object
      */
     private Event[] convertToEvents(Object eventObject) {
+        List<Event> eventList = new ArrayList<>();
         OMElement rootOMElement;
         if (eventObject instanceof String) {
             try {
                 rootOMElement = AXIOMUtil.stringToOM((String) eventObject);
-            } catch (XMLStreamException e) {
-                throw new ExecutionPlanRuntimeException("Error parsing incoming XML event : " + eventObject
-                        + ". Reason: " + e.getMessage(), e);
+            } catch (XMLStreamException | DeferredParsingException e) {
+                log.warn("Error parsing incoming XML event : " + eventObject
+                        + ". Reason: " + e.getMessage() + ". Hence dropping message chunk");
+                return new Event[0];
             }
         } else if (eventObject instanceof OMElement) {
             rootOMElement = (OMElement) eventObject;
         } else {
-            throw new ExecutionPlanRuntimeException("Event object is invalid. Expected String/OMElement, but found " +
+            log.warn("Event object is invalid. Expected String/OMElement, but found " +
                     eventObject.getClass().getCanonicalName());
+            return new Event[0];
         }
-        List<Event> eventList = new ArrayList<>();
         if (isCustomMappingEnabled) {   //custom mapping case
             if (enclosingElementSelectorPath != null) {  //has multiple events
                 List enclosingNodeList;
@@ -246,7 +255,7 @@ public class XmlInputMapper extends InputMapper {
                     }
                 }
             } else {
-                throw new ExecutionPlanRuntimeException("Incoming XML message should adhere to pre-defined format" +
+                log.warn("Incoming XML message should adhere to pre-defined format" +
                         "when using default mapping. Root element name should be " + EVENTS_PARENT_ELEMENT + ". But " +
                         "found " + rootOMElement.getLocalName() + ". Hence dropping XML message : " + rootOMElement.toString());
             }
