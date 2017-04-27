@@ -88,6 +88,10 @@ public class UnaryExpression extends AbstractExpression {
         return rExpr;
     }
 
+    public void setRExpr(Expression rExpr) {
+        this.rExpr = rExpr;
+    }
+
     public Operator getOperator() {
         return op;
     }

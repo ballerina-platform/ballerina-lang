@@ -898,7 +898,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
 
-        varDefStmt.setRExpr(visitSingleValueExpr(rExpr));
+        varDefStmt.setRExpr(visitBValueExpr(rExpr, true));
         rExpr = varDefStmt.getRExpr();
         if (varBType == BTypes.typeAny) {
             return;
@@ -954,7 +954,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
 
-        assignStmt.setRExpr(visitSingleValueExpr(rExpr));
+        assignStmt.setRExpr(visitBValueExpr(rExpr, true));
         rExpr = assignStmt.getRExpr();
         if (lExprType == BTypes.typeAny) {
             return;
@@ -1005,7 +1005,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(IfElseStmt ifElseStmt) {
         Expression expr = ifElseStmt.getCondition();
-        visitSingleValueExpr(expr);
+        visitBValueExpr(expr, true);
 
         if (expr.getType() != BTypes.typeBoolean) {
             BLangExceptionHelper
@@ -1017,7 +1017,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         for (IfElseStmt.ElseIfBlock elseIfBlock : ifElseStmt.getElseIfBlocks()) {
             Expression elseIfCondition = elseIfBlock.getElseIfCondition();
-            visitSingleValueExpr(elseIfCondition);
+            visitBValueExpr(elseIfCondition, true);
 
             if (elseIfCondition.getType() != BTypes.typeBoolean) {
                 BLangExceptionHelper.throwSemanticError(ifElseStmt, SemanticErrors.INCOMPATIBLE_TYPES_BOOLEAN_EXPECTED,
@@ -1038,7 +1038,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(WhileStmt whileStmt) {
         whileStmtCount++;
         Expression expr = whileStmt.getCondition();
-        whileStmt.setCondition(visitSingleValueExpr(expr));
+        whileStmt.setCondition(visitBValueExpr(expr, true));
 
         if (expr.getType() != BTypes.typeBoolean) {
             BLangExceptionHelper
@@ -1211,7 +1211,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         Expression replyExpr = replyStmt.getReplyExpr();
-        visitSingleValueExpr(replyExpr);
+        visitBValueExpr(replyExpr, true);
         
         // reply statement supports only message type
         if (replyExpr.getType() != BTypes.typeMessage) {
@@ -1259,7 +1259,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType[] typesOfReturnExprs = new BType[returnArgExprs.length];
         for (int i = 0; i < returnArgExprs.length; i++) {
             Expression returnArgExpr = returnArgExprs[i];
-            returnArgExprs[i] = visitMultiValueExpr(returnArgExpr);
+            returnArgExprs[i] = visitBValueExpr(returnArgExpr, false);
             returnArgExpr = returnArgExprs[i];
             typesOfReturnExprs[i] = returnArgExpr.getType();
         }
@@ -1331,7 +1331,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(InstanceCreationExpr instanceCreationExpr) {
-        visitSingleValueExpr(instanceCreationExpr);
+        visitBValueExpr(instanceCreationExpr, true);
 
         if (BTypes.isValueType(instanceCreationExpr.getType())) {
             BLangExceptionHelper.throwSemanticError(instanceCreationExpr,
@@ -1348,7 +1348,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression[] exprs = funcIExpr.getArgExprs();
         int index = 0;
         for (Expression expr : exprs) {
-            exprs[index] = visitSingleValueExpr(expr);
+            exprs[index] = visitBValueExpr(expr, true);
             index++;
         }
 
@@ -1365,7 +1365,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression[] exprs = actionIExpr.getArgExprs();
         int index = 0;
         for (Expression expr : exprs) {
-            exprs[index] = visitSingleValueExpr(expr);
+            exprs[index] = visitBValueExpr(expr, true);
             index++;
         }
 
@@ -1426,7 +1426,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(UnaryExpression unaryExpr) {
-        visitSingleValueExpr(unaryExpr.getRExpr());
+        unaryExpr.setRExpr(visitBValueExpr(unaryExpr.getRExpr(), true));
         unaryExpr.setType(unaryExpr.getRExpr().getType());
 
         if (Operator.SUB.equals(unaryExpr.getOperator())) {
@@ -1704,7 +1704,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         int index = 0;
         for (Expression argExpr : connectorInitExpr.getArgExprs()) {
-            connectorInitExpr.getArgExprs()[index] = visitSingleValueExpr(argExpr);
+            connectorInitExpr.getArgExprs()[index] = visitBValueExpr(argExpr, true);
             index++;
         }
 
@@ -1753,7 +1753,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType expectedElementType = ((BArrayType) inheritedType).getElementType();
 
         for (int i = 0; i < argExprs.length; i++) {
-            argExprs[i] = visitSingleValueExpr(argExprs[i]);
+            argExprs[i] = visitBValueExpr(argExprs[i], true);
 
             // Types are defined only once, hence the following object equal should work.
             if (argExprs[i].getType() != expectedElementType) {
@@ -1806,7 +1806,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             
             varRefExpr.setVariableDef(varDef);
             Expression valueExpr = keyValueExpr.getValueExpr();
-            keyValueExpr.setValueExpr(visitSingleValueExpr(valueExpr));
+            keyValueExpr.setValueExpr(visitBValueExpr(valueExpr, true));
 
             if (!valueExpr.getType().equals(varDef.getType()) && (varDef.getType() != BTypes.typeAny)) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
@@ -1826,14 +1826,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (Expression argExpr : argExprs) {
             MapStructInitKeyValueExpr keyValueExpr = (MapStructInitKeyValueExpr) argExpr;
             Expression keyExpr = keyValueExpr.getKeyExpr();
-            keyValueExpr.setKeyExpr(visitSingleValueExpr(keyExpr));
+            keyValueExpr.setKeyExpr(visitBValueExpr(keyExpr, true));
 
             if (keyExpr.getType() != BTypes.typeString) {
                 BLangExceptionHelper.throwSemanticError(mapInitExpr,
                         SemanticErrors.INVALID_TYPE_IN_MAP_INDEX_EXPECTED_STRING, keyExpr.getType());
             }
 
-            keyValueExpr.setValueExpr(visitSingleValueExpr(keyValueExpr.getValueExpr()));
+            keyValueExpr.setValueExpr(visitBValueExpr(keyValueExpr.getValueExpr(), true));
         }
     }
 
@@ -1941,7 +1941,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
         // Evaluate the expression and set the type
-        typeCastExpression.setRExpr(visitSingleValueExpr(typeCastExpression.getRExpr()));
+        typeCastExpression.setRExpr(visitBValueExpr(typeCastExpression.getRExpr(), true));
         BType sourceType = typeCastExpression.getRExpr().getType();
         BType targetType = typeCastExpression.getTargetType();
         if (targetType == null) {
@@ -2014,7 +2014,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Check the type of the index expression
             int index = 0;
             for (Expression indexExpr : arrayMapAccessExpr.getIndexExprs()) {
-                arrayMapAccessExpr.getIndexExprs()[index] = visitSingleValueExpr(indexExpr);
+                arrayMapAccessExpr.getIndexExprs()[index] = visitBValueExpr(indexExpr, true);
                 if (indexExpr.getType() != BTypes.typeInt) {
                     BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
                             indexExpr.getType());
@@ -2033,7 +2033,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Check the type of the index expression
             Expression indexExpr = arrayMapAccessExpr.getIndexExprs()[0];
-            arrayMapAccessExpr.getIndexExprs()[0] = visitSingleValueExpr(indexExpr);
+            arrayMapAccessExpr.getIndexExprs()[0] = visitBValueExpr(indexExpr, true);
             if (indexExpr.getType() != BTypes.typeString) {
                 BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_STRING_MAP_INDEX,
                         indexExpr.getType());
@@ -2050,11 +2050,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void visitBinaryExpr(BinaryExpression expr) {
-        expr.setLExpr(visitSingleValueExpr(expr.getLExpr()));
-        expr.setRExpr(visitSingleValueExpr(expr.getRExpr()));
+        expr.setLExpr(visitBValueExpr(expr.getLExpr(), true));
+        expr.setRExpr(visitBValueExpr(expr.getRExpr(), true));
     }
 
-    private Expression visitSingleValueExpr(Expression expr) {
+    private Expression visitBValueExpr(Expression expr, boolean isSingleValCheckRequired) {
         if (expr instanceof StructFieldAccessExpr) {
             ReferenceExpr variableRefExpr = ((StructFieldAccessExpr) expr).getVarRef();
             variableRefExpr.accept(this);
@@ -2063,39 +2063,22 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (fieldRef != null &&
                         fieldRef.getVarRef() instanceof ReferenceExpr) {
                     if (fieldRef.getVarRef().getVarName().equals("length")) {
-                        return visitSingleValueExpr(new ArrayLengthAccessExpr(expr.getNodeLocation(),
-                                variableRefExpr));
+                        return visitBValueExpr(new ArrayLengthAccessExpr(expr.getNodeLocation(),
+                                variableRefExpr), true);
                     }
                 }
             }
         }
         expr.accept(this);
-        if (expr.isMultiReturnExpr()) {
-            FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) expr;
-            String nameWithPkgName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName()
-                    + ":" + funcIExpr.getName() : funcIExpr.getName();
-            BLangExceptionHelper.throwSemanticError(expr, SemanticErrors.MULTIPLE_VALUE_IN_SINGLE_VALUE_CONTEXT,
-                    nameWithPkgName);
-        }
-        return expr;
-    }
-
-    private Expression visitMultiValueExpr(Expression expr) {
-        if (expr instanceof StructFieldAccessExpr) {
-            ReferenceExpr variableRefExpr = ((StructFieldAccessExpr) expr).getVarRef();
-            variableRefExpr.accept(this);
-            if ((variableRefExpr.getType() instanceof BArrayType)) {
-                StructFieldAccessExpr fieldRef = ((StructFieldAccessExpr) expr).getFieldExpr();
-                if (fieldRef != null &&
-                        fieldRef.getVarRef() instanceof ReferenceExpr) {
-                    if (fieldRef.getVarRef().getVarName().equals("length")) {
-                        return visitSingleValueExpr(new ArrayLengthAccessExpr(expr.getNodeLocation(),
-                                variableRefExpr));
-                    }
-                }
+        if (isSingleValCheckRequired) {
+            if (expr.isMultiReturnExpr()) {
+                FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) expr;
+                String nameWithPkgName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName()
+                        + ":" + funcIExpr.getName() : funcIExpr.getName();
+                BLangExceptionHelper.throwSemanticError(expr, SemanticErrors.MULTIPLE_VALUE_IN_SINGLE_VALUE_CONTEXT,
+                        nameWithPkgName);
             }
         }
-        expr.accept(this);
         return expr;
     }
 

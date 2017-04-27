@@ -44,7 +44,6 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
-import org.ballerinalang.model.expressions.ArrayLengthAccessExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -1432,15 +1431,6 @@ public class BLangModelBuilder {
         ReferenceExpr parent = (ReferenceExpr) exprStack.pop();
         StructFieldAccessExpr parentExpr = new StructFieldAccessExpr(location, parent, fieldExpr);
 
-        exprStack.push(parentExpr);
-    }
-
-    public void createArrayLengthAccessExpr(NodeLocation location) {
-        if (exprStack.size() < 1) {
-            return;
-        }
-        ReferenceExpr arrayRef = (ReferenceExpr) exprStack.pop();
-        ArrayLengthAccessExpr parentExpr = new ArrayLengthAccessExpr(location, arrayRef);
         exprStack.push(parentExpr);
     }
 
