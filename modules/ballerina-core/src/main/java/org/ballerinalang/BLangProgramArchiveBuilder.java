@@ -44,6 +44,8 @@ import java.util.Map;
  */
 public class BLangProgramArchiveBuilder {
 
+    private static final String BAL_STDLIB_ROOT = "ballerina";
+
     public void build(BLangProgram bLangProgram) {
         String outFileName;
         String extension = bLangProgram.getProgramCategory().getExtension();
@@ -112,7 +114,10 @@ public class BLangProgramArchiveBuilder {
             Path packagePath = BLangPackages.getPathFromPackagePath(bLangPackage.getPackagePath());
             PackageRepository.PackageSource packageSource =
                     bLangPackage.getPackageRepository().loadPackage(packagePath);
-            addPackageSourceToArchive(packageSource, packagePath, zipFS);
+
+            if (!packagePath.startsWith(BAL_STDLIB_ROOT)) {
+                addPackageSourceToArchive(packageSource, packagePath, zipFS);
+            }
         }
     }
 
