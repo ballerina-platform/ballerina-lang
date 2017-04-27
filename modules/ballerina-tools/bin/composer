@@ -134,15 +134,6 @@ do
           CMD="--debug"
     elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
           PORT=$c
-    elif [ "$CMD" = "help" ] && [ -z "$PORT" ]; then
-        echo "  "
-        echo "Usage : Start Ballerina Composer using './composer'"
-        exit 0
-    else
-        echo "Not supported command : $c"
-        echo "  "
-        echo "Usage : Start Ballerina Composer using './composer'"
-        exit 1
     fi
 done
 
@@ -202,5 +193,5 @@ status=$START_EXIT_STATUS
     -DenableCloud=false \
     -Dworkspace.port=8289 \
     -Dtransports.netty.conf=./resources/composer/services/netty-transports.yml \
-    org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner
+    org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner $@
 

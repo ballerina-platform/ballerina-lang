@@ -124,7 +124,7 @@ rem ---------- Handle the SSL Issue with proper JDK version --------------------
 rem find the version of the jdk
 :findJdk
 
-set CMD=RUN %*
+set CMD=%*
 
 :checkJdk16
 "%JAVA_HOME%\bin\java" -version 2>&1 | findstr /r "1.[8]" >NUL
