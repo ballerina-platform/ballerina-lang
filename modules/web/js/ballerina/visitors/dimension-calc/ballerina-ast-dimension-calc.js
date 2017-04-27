@@ -15,28 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import log from 'log';
-import * as DesignerDefaults from './../../configs/desginer-defaults';
 
-class ResourceDefinitionDimensionCalcVisitor {
+class BallerinaASTRootDimensionCalcVisitor {
 
-    canVisitResourceDefinitionDimensionCalc(node) {
-        log.debug('can visit ResourceDefinitionDimensionCalc');
+    canVisitBallerinaASTRootDimensionCalc(node) {
         return true;
     }
 
-    beginVisitResourceDefinitionDimensionCalc(node) {
-        log.debug('begin visit ResourceDefinitionDimensionCalc');
+    beginVisitBallerinaASTRootDimensionCalc(node) {
+        log.info('Begin Visit BallerinaASTRoot');
     }
 
-    visitResourceDefinitionDimensionCalc(node) {
-        log.debug('visit ResourceDefinitionDimensionCalc');
+    visitBallerinaASTRootDimensionCalc(node) {
+        log.info('Visit BallerinaASTRoot');
     }
 
-    endVisitResourceDefinitionDimensionCalc(node) {
-        log.debug('end visit ResourceDefinitionDimensionCalc');
+    endVisitBallerinaASTRootDimensionCalc(node) {
+        log.info('End Visit BallerinaASTRoot');
     }
 }
 
-export default ResourceDefinitionDimensionCalcVisitor;
+export default BallerinaASTRootDimensionCalcVisitor;
+
