@@ -1960,4 +1960,71 @@ public class IndexTableTestCase {
             executionPlanRuntime.shutdown();
         }
     }
+
+    @Test
+    public void indexTableTest28() throws InterruptedException {
+        log.info("indexTableTest28");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "define stream CheckStockStream (symbol string, volume long); " +
+                "define stream UpdateStockStream (symbol string, price float, volume long);" +
+                "@PrimaryKey('symbol') " +
+                "@Index('price','volume') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from CheckStockStream join StockTable " +
+                " on CheckStockStream.symbol==StockTable.symbol " +
+                "select CheckStockStream.symbol, StockTable.volume " +
+                "insert into OutStream;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        for (Event event : inEvents) {
+                            inEventsList.add(event.getData());
+                            inEventCount.incrementAndGet();
+                        }
+                        eventArrived = true;
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount = removeEventCount + removeEvents.length;
+                    }
+                    eventArrived = true;
+                }
+            });
+
+            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+
+            executionPlanRuntime.start();
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
+            checkStockStream.send(new Object[]{"IBM", 100l});
+            checkStockStream.send(new Object[]{"WSO2", 100l});
+
+            List<Object[]> expected = Arrays.asList(
+                    new Object[]{"IBM", 100l},
+                    new Object[]{"WSO2", 100l}
+            );
+            SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            Assert.assertEquals("Number of success events", 2, inEventCount.get());
+            Assert.assertEquals("Number of remove events", 0, removeEventCount);
+            Assert.assertEquals("Event arrived", true, eventArrived);
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
+    }
+
 }

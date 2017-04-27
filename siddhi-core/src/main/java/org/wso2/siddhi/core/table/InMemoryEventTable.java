@@ -116,7 +116,9 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
             readWriteLock.writeLock().lock();
             ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate(updateOrAddingEventChunk,
                     eventHolder, updateAttributeMappers, addingStreamEventExtractor);
-            eventHolder.add(failedEvents);
+            if (failedEvents != null) {
+                eventHolder.add(failedEvents);
+            }
         } finally {
             readWriteLock.writeLock().unlock();
         }
