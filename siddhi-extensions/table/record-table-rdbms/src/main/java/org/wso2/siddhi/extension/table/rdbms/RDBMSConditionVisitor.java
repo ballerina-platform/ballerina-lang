@@ -20,6 +20,7 @@ package org.wso2.siddhi.extension.table.rdbms;
 import org.wso2.siddhi.core.table.record.BaseConditionVisitor;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.exception.RDBMSTableException;
+import org.wso2.siddhi.extension.table.rdbms.util.Constant;
 import org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants;
 import org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableUtils;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -54,40 +55,46 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
     private static final String SQL_MATH_SUBTRACT = "-";
     private static final String SQL_MATH_MOD = "%";
 
-    private StringBuilder query;
+    private StringBuilder condition;
     private String finalCompiledCondition;
     private RDBMSQueryConfigurationEntry queryConfig;
 
-    private Map<String, Attribute.Type> streamTypeMap;
-    private SortedMap<Integer, Attribute> streamVariablePositions;
+    private Map<String, Object> placeholders;
+    private SortedMap<Integer, Object> parameters;
+
+    private int streamVarCount;
+    private int constantCount;
 
     private RDBMSConditionVisitor() throws IOException {
         //preventing initialization
     }
 
     public RDBMSConditionVisitor(RDBMSQueryConfigurationEntry entry) {
-        this.query = new StringBuilder();
+        this.condition = new StringBuilder();
         this.queryConfig = entry;
-        this.streamTypeMap = new HashMap<>();
-        this.streamVariablePositions = new TreeMap<>();
+        this.streamVarCount = 0;
+        this.constantCount = 0;
+        this.placeholders = new HashMap<>();
+        this.parameters = new TreeMap<>();
     }
 
     public String returnCondition() {
-        //return this.query.toString().trim();
+        this.parametrizeCondition();
+        return this.finalCompiledCondition.trim();
     }
 
-    public Map<String, Attribute.Type> getStreamTypeMap() {
-        return streamTypeMap;
+    public SortedMap<Integer, Object> getParameters() {
+        return this.parameters;
     }
 
     @Override
     public void beginVisitAnd() {
-        query.append(OPEN_PARENTHESIS);
+        condition.append(OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitAnd() {
-        query.append(CLOSE_PARENTHESIS);
+        condition.append(CLOSE_PARENTHESIS);
     }
 
     @Override
@@ -102,7 +109,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitAndRightOperand() {
-        query.append(SQL_AND).append(WHITESPACE);
+        condition.append(SQL_AND).append(WHITESPACE);
     }
 
     @Override
@@ -112,12 +119,12 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitOr() {
-        query.append(OPEN_PARENTHESIS);
+        condition.append(OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitOr() {
-        query.append(CLOSE_PARENTHESIS);
+        condition.append(CLOSE_PARENTHESIS);
     }
 
     @Override
@@ -132,7 +139,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitOrRightOperand() {
-        query.append(SQL_OR).append(WHITESPACE);
+        condition.append(SQL_OR).append(WHITESPACE);
     }
 
     @Override
@@ -142,7 +149,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitNot() {
-        query.append(SQL_NOT).append(WHITESPACE);
+        condition.append(SQL_NOT).append(WHITESPACE);
     }
 
     @Override
@@ -152,12 +159,12 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitCompare(Compare.Operator operator) {
-        query.append(OPEN_PARENTHESIS);
+        condition.append(OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitCompare(Compare.Operator operator) {
-        query.append(CLOSE_PARENTHESIS);
+        condition.append(CLOSE_PARENTHESIS);
     }
 
     @Override
@@ -174,25 +181,25 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
     public void beginVisitCompareRightOperand(Compare.Operator operator) {
         switch (operator) {
             case EQUAL:
-                query.append(SQL_COMPARE_EQUAL);
+                condition.append(SQL_COMPARE_EQUAL);
                 break;
             case GREATER_THAN:
-                query.append(SQL_COMPARE_GREATER_THAN);
+                condition.append(SQL_COMPARE_GREATER_THAN);
                 break;
             case GREATER_THAN_EQUAL:
-                query.append(SQL_COMPARE_GREATER_THAN_EQUAL);
+                condition.append(SQL_COMPARE_GREATER_THAN_EQUAL);
                 break;
             case LESS_THAN:
-                query.append(SQL_COMPARE_LESS_THAN);
+                condition.append(SQL_COMPARE_LESS_THAN);
                 break;
             case LESS_THAN_EQUAL:
-                query.append(SQL_COMPARE_LESS_THAN_EQUAL);
+                condition.append(SQL_COMPARE_LESS_THAN_EQUAL);
                 break;
             case NOT_EQUAL:
-                query.append(SQL_COMPARE_NOT_EQUAL);
+                condition.append(SQL_COMPARE_NOT_EQUAL);
                 break;
         }
-        query.append(WHITESPACE);
+        condition.append(WHITESPACE);
     }
 
     @Override
@@ -202,7 +209,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitIsNull(String streamId) {
-        query.append(SQL_IS_NULL).append(WHITESPACE);
+        condition.append(SQL_IS_NULL).append(WHITESPACE);
     }
 
     @Override
@@ -212,7 +219,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitIn(String storeId) {
-        query.append(SQL_IN).append(WHITESPACE);
+        condition.append(SQL_IN).append(WHITESPACE);
     }
 
     @Override
@@ -222,17 +229,9 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitConstant(Object value, Attribute.Type type) {
-        // TODO rewrite with map for later processing
-        if (value != null && type != Attribute.Type.OBJECT) {
-            if (type == Attribute.Type.STRING) {
-                query.append("'").append(value.toString()).append("'").append(WHITESPACE);
-            }
-            query.append(value.toString()).append(WHITESPACE);
-        } else if (value == null) {
-            throw new RDBMSTableException("A defined constant has a null value. Please check your query and try again.");
-        } else {
-            throw new RDBMSTableException("The RDBMS Event table does not support constants of type Object.");
-        }
+        String name = this.generateConstantName();
+        this.placeholders.put(name, new Constant(value, type));
+        condition.append("[").append(name).append("]").append(WHITESPACE);
     }
 
     @Override
@@ -242,12 +241,12 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitMath(MathOperator mathOperator) {
-        query.append(OPEN_PARENTHESIS);
+        condition.append(OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitMath(MathOperator mathOperator) {
-        query.append(CLOSE_PARENTHESIS);
+        condition.append(CLOSE_PARENTHESIS);
     }
 
     @Override
@@ -264,22 +263,22 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
     public void beginVisitMathRightOperand(MathOperator mathOperator) {
         switch (mathOperator) {
             case ADD:
-                query.append(SQL_MATH_ADD);
+                condition.append(SQL_MATH_ADD);
                 break;
             case DIVIDE:
-                query.append(SQL_MATH_DIVIDE);
+                condition.append(SQL_MATH_DIVIDE);
                 break;
             case MOD:
-                query.append(SQL_MATH_MOD);
+                condition.append(SQL_MATH_MOD);
                 break;
             case MULTIPLY:
-                query.append(SQL_MATH_MULTIPLY);
+                condition.append(SQL_MATH_MULTIPLY);
                 break;
             case SUBTRACT:
-                query.append(SQL_MATH_SUBTRACT);
+                condition.append(SQL_MATH_SUBTRACT);
                 break;
         }
-        query.append(WHITESPACE);
+        condition.append(WHITESPACE);
     }
 
     @Override
@@ -290,7 +289,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
     @Override
     public void beginVisitAttributeFunction(String namespace, String functionName) {
         if (RDBMSTableUtils.isEmpty(namespace)) {
-            query.append(functionName).append(WHITESPACE);
+            condition.append(functionName).append(WHITESPACE);
         } else {
             throw new RDBMSTableException("The RDBMS Event table does not support function namespaces, but namespace '"
                     + namespace + "' was specified. Please use functions supported by the defined RDBMS data store.");
@@ -314,8 +313,9 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitStreamVariable(String id, String streamId, String attributeName, Attribute.Type type) {
-        query.append(RDBMSTableUtils.encodeStreamVariable(id)).append(WHITESPACE);
-        this.streamTypeMap.put(id, type);
+        String name = this.generateStreamVarName();
+        this.placeholders.put(name, new Attribute(id, type));
+        condition.append("[").append(name).append("]").append(WHITESPACE);
     }
 
     @Override
@@ -325,7 +325,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitStoreVariable(String storeId, String attributeName, Attribute.Type type) {
-        query.append(RDBMSTableConstants.TABLE_NAME_PLACEHOLDER).append(".").append(attributeName).append(WHITESPACE);
+        condition.append(RDBMSTableConstants.TABLE_NAME_PLACEHOLDER).append(".").append(attributeName).append(WHITESPACE);
     }
 
     @Override
@@ -333,21 +333,35 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
         //Not applicable
     }
 
-    private void parameterizeCondition() {
-        String unParametrizedCondition = this.query.toString();
-        String output = this.query.toString();
-//        for (Map.Entry<String, Attribute.Type> fields : this.streamTypeMap.entrySet()) {
-//            String boxedField = RDBMSTableUtils.encodeStreamVariable(fields.getKey());
-//            this.streamVariablePositions.put(unParametrizedCondition.indexOf(boxedField),
-//                    new Attribute(fields.getKey(), fields.getValue()));
-//            output = output.replace(boxedField, "?");
-//        }
-//        this.finalCompiledCondition = output;
-
-        for(){
-
+    private void parametrizeCondition() {
+        String query = this.condition.toString();
+        String[] tokens = query.split("\\[");
+        int ordinal = 0;
+        for (String token : tokens) {
+            if (token.contains("]")) {
+                String candidate = token.substring(0, token.indexOf("]"));
+                if (this.placeholders.containsKey(candidate)) {
+                    this.parameters.put(ordinal, this.placeholders.get(candidate));
+                    ordinal++;
+                }
+            }
         }
+        for (String placeholder : this.placeholders.keySet()) {
+            query = query.replace(placeholder, "?");
+        }
+        this.finalCompiledCondition = query;
+    }
 
+    private String generateStreamVarName() {
+        String name = "strVar" + this.streamVarCount;
+        this.streamVarCount++;
+        return name;
+    }
+
+    private String generateConstantName() {
+        String name = "const" + this.constantCount;
+        this.constantCount++;
+        return name;
     }
 
 }

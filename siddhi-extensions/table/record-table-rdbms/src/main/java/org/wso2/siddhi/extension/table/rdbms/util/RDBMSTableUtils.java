@@ -111,10 +111,6 @@ public class RDBMSTableUtils {
         return (field == null || field.trim().length() == 0);
     }
 
-    public static String encodeStreamVariable(String var) {
-        return RDBMSTableConstants.STREAM_VAR_PREFIX + var + RDBMSTableConstants.STREAM_VAR_SUFFIX;
-    }
-
     public static void cleanupConnection(ResultSet rs, Statement stmt, Connection conn) {
         if (rs != null) {
             try {

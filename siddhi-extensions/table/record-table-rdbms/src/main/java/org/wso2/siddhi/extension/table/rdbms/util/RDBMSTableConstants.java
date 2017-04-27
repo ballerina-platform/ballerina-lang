@@ -35,14 +35,10 @@ public class RDBMSTableConstants {
 
     public static final String TABLE_NAME_PLACEHOLDER = "{{TABLE_NAME}}";
     public static final String COLUMNS_PLACEHOLDER = "{{COLUMNS, PRIMARY_KEYS}}";
-    public static final String INDEX_PLACEHOLDER = "{{INDEX_COLUMNS}}";
     public static final String CONDITION_PLACEHOLDER = "{{CONDITION}}";
 
     public static final String WHITESPACE = " ";
     public static final String COMMA = ",";
-
-    public static final String STREAM_VAR_PREFIX = "[";
-    public static final String STREAM_VAR_SUFFIX = "]";
 
     public static final String PRIMARY_KEY_DEF = "PRIMARY KEY";
     public static final String SQL_WHERE = "WHERE";
