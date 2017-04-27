@@ -278,8 +278,6 @@ class TypeMapperDefinitionView extends SVGCanvas {
 
         var dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
 
-        $("#" + dataMapperContainerId).height(600);
-
 
         this._container.mouseover(function (event) {
             if (self.toolPalette.dragDropManager.isOnDrag()) {

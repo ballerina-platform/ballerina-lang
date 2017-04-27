@@ -117,7 +117,7 @@ class TypeMapperRenderer {
 
 
         this.jsPlumbInstance.bind('connection', (info, ev) => {
-            self.dagrePosition(self);
+            self.reposition(self);
             //TODO: for multiple type mappers
             // self.processTypeMapperDropdown(info);
         });
@@ -135,7 +135,7 @@ class TypeMapperRenderer {
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
         this.jsPlumbInstance.detach(connection);
-        this.dagrePosition(this);
+        this.reposition(this);
         this.disconnectCallback(propertyConnection);
         // this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
         // this.enableParentsJsTree(connection.targetId, this, this.jsPlumbInstance.getAllConnections(), false);
@@ -331,7 +331,7 @@ class TypeMapperRenderer {
                 }
             });
             $("#" + typeId).remove();
-            this.dagrePosition(this);
+            this.reposition(this);
         }
     }
 
@@ -387,7 +387,7 @@ class TypeMapperRenderer {
                 target: targetId,
                 parameters: {id: connection.id}
             });
-            this.dagrePosition(this);
+            this.reposition(this);
 
         } else {
             this.connectionPool.push({
@@ -429,7 +429,7 @@ class TypeMapperRenderer {
             });
             $("#" + jsTreeId).jstree('open_all');
             self.existingJsTrees.push(structId);
-            self.dagrePosition(self);
+            self.reposition(self);
             _.forEach(self.connectionPool, conPoolObj => {
                 if (!conPoolObj.connected && structId ==
                     conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId) {
@@ -444,7 +444,7 @@ class TypeMapperRenderer {
                 }
             });
         }).on('after_open.jstree', (event, data) => {
-            self.dagrePosition(self);
+            self.reposition(self);
             var parentId = data.node.id;
             var sourceElements = $("#" + parentId).find('.jstree-anchor');
             _.forEach(sourceElements, element => {
@@ -452,7 +452,7 @@ class TypeMapperRenderer {
             });
             self.jsPlumbInstance.repaintEverything();
         }).on('after_close.jstree', (event, data) => {
-            self.dagrePosition(self);
+            self.reposition(self);
             self.jsPlumbInstance.repaintEverything();
         }).on('select_node.jstree', (event, data) => {
             data.instance.deselect_node(data.node);
@@ -606,7 +606,7 @@ class TypeMapperRenderer {
                 self.addSource(property, self, true);
             });
 
-            self.dagrePosition(this);
+            self.reposition(this);
         }
     }
 
@@ -722,7 +722,7 @@ class TypeMapperRenderer {
                 return isValidTypes;
             },
             onDrop: function () {
-                self.dagrePosition(self);
+                self.reposition(self);
             }
         })
         ;
@@ -878,113 +878,51 @@ class TypeMapperRenderer {
      * @param {string} viewId type mapper view identifier
      * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
      */
-    dagrePosition(self) {
-        // construct dagre graph from this.jsPlumbInstance graph
-        var graph = new dagre.graphlib.Graph();
-        var alignment = 'LR';
-        var nodes = []
-        var sourceIndex;
-        var targetIndex;
-       // var structs = [];
+    reposition(self) {
         var funcs = $("#" + self.placeHolderName + "> .func");
-        if (self.jsPlumbInstance.getAllConnections() == 0) {
-            alignment = 'LR';
-        }
+        var structs = $("#" + self.placeHolderName + "> .struct");
+        var xPointer = 600;
+        var yPointer = 20;
+        var bottomGap = 50;
+        var functionGap = 20;
+        var svgLines = $("#" + self.placeHolderName + "> svg");
+        var typeMapperHeight = 0;
 
-        graph.setGraph({ranksep: '200', rankdir: alignment, edgesep: '100', marginx: '400'});
-        graph.setDefaultEdgeLabel(() => ({}));
+        //Traverse through all the connection svg lines
+         _.forEach(svgLines, svgLine => {
+             //Get bottom and right values relative to the type mapper parent div
+            var bottom = svgLine.getBoundingClientRect().bottom - $("#" + self.placeHolderName).offset().top + 10;
+            var right = svgLine.getBoundingClientRect().right - $("#" + self.placeHolderName).offset().left + 10;
 
-      //  if (structs.length > 1) {
-//            if ($(structs[0]).attr("type") == "source") {
-//                sourceIndex = 0;
-//                targetIndex = 1;
-//            } else {
-//                sourceIndex = 1;
-//                targetIndex = 0;
-//            }
-
-        //    nodes.push(structs[sourceIndex]);
-            _.forEach(funcs, func => {
-                nodes.push(func);
-            });
-          //  nodes.push(structs[targetIndex]);
-//        } else {
-////            if (structs != null) {
-////                nodes = structs;
-////            }
-//            _.forEach(funcs, func => {
-//                nodes.push(func);
-//            });
-//        }
-
-        if (nodes.length > 0) {
-            var maxTypeHeight = 0;
-            var maxYPosition = 0;
-
-            _.forEach(nodes, n => {
-                var nodeContent = $("#" + n.id);
-                var height = nodeContent.height();
-
-                if ($("#" + n.id).attr('class').includes("struct")) {
-                    height = height + height / 2;
-                }
-
-                if (maxTypeHeight < height) {
-                    maxTypeHeight = height;
-                }
-
-                graph.setNode(n.id, {width: nodeContent.width(), height: height});
-            });
-//            var edges = self.jsPlumbInstance.getAllConnections();
-//
-//            _.forEach(edges, edge => {
-//                var source = edge.source.id.split(self.idNameSeperator)[0];
-//                var target = edge.target.id.split(self.idNameSeperator)[0];
-//                var sourceId;
-//                var targetId;
-//
-//                //checks whether target and source is a generic type or a function
-//                if (source.includes(self.jsTreePrefix)) {
-//                    sourceId = source.split(self.viewIdSeperator)[1] + self.viewIdSeperator
-//                        + source.split(self.viewIdSeperator)[2];
-//                } else {
-//                    sourceId = source;
-//                }
-//
-//                if (target.includes(self.jsTreePrefix)) {
-//                    targetId = target.split(self.viewIdSeperator)[1]
-//                        + self.viewIdSeperator + target.split(self.viewIdSeperator)[2];
-//                } else {
-//                    targetId = target;
-//                }
-//
-//                graph.setEdge(sourceId, targetId);
-//            });
-            // calculate the layout (i.e. node positions)
-            dagre.layout(graph);
-
-            // Applying the calculated layout
-            _.forEach(graph.nodes(), dagreNode => {
-                if (funcs.length > 0) {
-                    var node = $("#" + dagreNode);
-                    node.css("left", graph.node(dagreNode).x + "px");
-                    node.css("top", graph.node(dagreNode).y + "px");
-
-                    if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
-                        maxYPosition = graph.node(dagreNode).y;
-                    }
-
-                }
-            });
-
-            var panelHeight = maxTypeHeight + maxYPosition + 55;
-            if (panelHeight > 600) {
-                $("#" + self.placeHolderName).height(panelHeight);
+            //Calculate the yPointer value  based on the bottom value of the direct connections
+            if (bottom > yPointer && svgLine.getBoundingClientRect().width > 600) {
+                yPointer = bottom;
             }
+        });
 
-            self.jsPlumbInstance.repaintEverything();
-            $(self.viewId).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
+        //Traverse through all the function divs
+        _.forEach(funcs, func => {
+            //Position functions and increase yPointer with gaps
+            $("#"+ func.id).css("left", xPointer+ "px");
+            $("#"+ func.id).css("top", yPointer + "px");
+            yPointer +=  $("#"+ func.id).height() + functionGap;
+
+        });
+
+        _.forEach(structs, struct => {
+            if (typeMapperHeight < $("#"+ struct.id).height() + bottomGap) {
+                typeMapperHeight = $("#"+ struct.id).height() + bottomGap;
+            }
+        });
+
+        if (typeMapperHeight < yPointer +  bottomGap) {
+            typeMapperHeight = yPointer +  bottomGap;
         }
+
+        $("#" + self.placeHolderName).height(typeMapperHeight);
+
+        self.jsPlumbInstance.repaintEverything();
+        $(self.viewId).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
     }
 
     /**
