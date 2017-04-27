@@ -137,10 +137,13 @@ public class TestExecutionListener implements IExecutionListener {
         String[] sampleFiles = {
                 sampleDir + File.separator + "echoService" + File.separator + "echoService.bal",
                 sampleDir + File.separator + "helloWorldService" + File.separator + "helloWorldService.bal",
+                sampleDir + File.separator + "helloWorldService" + File.separator + "helloWorldService.bal",
                 sampleDir + File.separator + "passthroughService" + File.separator + "passthroughService.bsz",
                 sampleDir + File.separator + "restfulService" + File.separator + "ecommerceService.bsz",
                 sampleDir + File.separator + "routingServices" + File.separator + "routingServices.bsz",
-                sampleDir + File.separator + "serviceChaining" + File.separator + "ATMLocatorService.bsz"
+                sampleDir + File.separator + "serviceChaining" + File.separator + "ATMLocatorService.bsz",
+                sampleDir + File.separator + "websocket" + File.separator + "echoServer" + File.separator + "server" +
+                        File.separator + "websocketEchoServer.bal"
         };
         return sampleFiles;
     }
