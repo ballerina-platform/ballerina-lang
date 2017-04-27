@@ -25,7 +25,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
     <artifactId>org.wso2.carbon.transport.parent</artifactId>
-    <version>4.2.7-SNAPSHOT</version>
+    <version>4.3.1-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
@@ -198,6 +198,11 @@
                 <version>${activemq.broker.vesion}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>${org.apache.commons.pool2.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -301,10 +306,11 @@
         <javax.websocket.version.range>[1.1, 1.2)</javax.websocket.version.range>
         <commons-vfs2.wso2.version>2.0-wso2v15</commons-vfs2.wso2.version>
         <commons-vfs2.wso2.version.range>[2.0.0, 3.0.0)</commons-vfs2.wso2.version.range>
+        <org.apache.commons.pool2.version>2.4.2</org.apache.commons.pool2.version>
 
 
 
-        <carbon.messaging.version>2.2.4</carbon.messaging.version>
+        <carbon.messaging.version>2.3.3</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->

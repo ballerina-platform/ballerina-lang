@@ -73,12 +73,12 @@ public class HTTPServerConnector extends ServerConnector {
 
     @Override
     public void init() throws ServerConnectorException {
-        log.info("Initializing HTTP Transport Listener");
+        log.info("Initializing  HTTP Transport Listener");
     }
 
     @Override
     protected void destroy() throws ServerConnectorException {
-        log.info("Destroying HTTP Transport Listener");
+        log.info("Destroying  HTTP Transport Listener");
     }
 
     public ChannelFuture getChannelFuture() {
