@@ -85,7 +85,7 @@ public interface ConditionVisitor {
     void endVisitStreamVariable(String id, String streamId, String attributeName, Attribute.Type type);
 
     /*Variable*/
-    void beginVisitStoreVariable(String StoreId, String attributeName, Attribute.Type type);
-    void endVisitStoreVariable(String StoreId, String attributeName, Attribute.Type type);
+    void beginVisitStoreVariable(String storeId, String attributeName, Attribute.Type type);
+    void endVisitStoreVariable(String storeId, String attributeName, Attribute.Type type);
 
 }

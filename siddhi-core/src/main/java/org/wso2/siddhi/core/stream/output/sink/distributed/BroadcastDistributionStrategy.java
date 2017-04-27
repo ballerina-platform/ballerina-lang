@@ -23,32 +23,27 @@ import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Publishing strategy to implement messages in a round robin manner to multiple destinations
+ * Publishing strategy to broad case message to all destinations
  * */
-
 @Extension(
-        name = "roundRobin",
+        name = "boradcast",
         namespace = "distributionstrategy",
         description = ""
 )
-public class RoundRobinPublishingStrategy extends PublishingStrategy {
-    private int count = 0;
-    private int destinationCount;
-    private List<Integer> returnValue = new ArrayList<>();
-
+public class BroadcastDistributionStrategy extends PublishingStrategy{
     /**
      * Initialize the Distribution strategy with the information it will require to make decisions.
-     * @param streamDefinition The stream attached to the sink this PublishingStrategy is used in
-     * @param transportOptionHolder Sink options of the sink which uses this PublishingStrategy
+     *
+     * @param streamDefinition         The stream attached to the sink this PublishingStrategy is used in
+     * @param transportOptionHolder    Sink options of the sink which uses this PublishingStrategy
+     * @param distributionOptionHolder
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,
-                     OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders) {
+    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders) {
 
     }
 
@@ -63,23 +58,6 @@ public class RoundRobinPublishingStrategy extends PublishingStrategy {
      */
     @Override
     public List<Integer> getDestinationsToPublish(Object payload, DynamicOptions transportOptions) {
-        if (destinationIds.isEmpty()){
-            return PublishingStrategy.EMPTY_RETURN_VALUE;
-        }
-
-        int currentDestinationCount = destinationIds.size();
-        if (destinationCount != currentDestinationCount){
-            destinationCount = currentDestinationCount;
-        }
-
-        if (!returnValue.isEmpty()){
-            returnValue.remove(0);
-        }
-
-        if (destinationCount > 0) {
-            returnValue.add(destinationIds.get(count++ % destinationCount));
-        }
-
-        return returnValue;
+        return destinationIds;
     }
 }

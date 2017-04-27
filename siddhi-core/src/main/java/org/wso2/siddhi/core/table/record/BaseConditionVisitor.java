@@ -216,12 +216,12 @@ public class BaseConditionVisitor implements ConditionVisitor {
     }
 
     @Override
-    public void beginVisitStoreVariable(String StoreId, String attributeName, Attribute.Type type) {
+    public void beginVisitStoreVariable(String storeId, String attributeName, Attribute.Type type) {
 
     }
 
     @Override
-    public void endVisitStoreVariable(String StoreId, String attributeName, Attribute.Type type) {
+    public void endVisitStoreVariable(String storeId, String attributeName, Attribute.Type type) {
 
     }
 }
