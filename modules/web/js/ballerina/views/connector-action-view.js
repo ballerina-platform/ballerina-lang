@@ -631,14 +631,22 @@ class ConnectorActionView extends BallerinaView {
 
         let annotationViewArgs = {
             astNode: this.getModel(),
-            diagramRenderingContext: this.getDiagramRenderingContext()
+            diagramRenderingContext: this.getDiagramRenderingContext(),
+            viewPrependElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+            positioningElement: this.getChildContainer()
         };
-        // this._annotationView = new AnnotationView(annotationViewArgs);
-        // this._annotationView.render();
-        // $(headingAnnotationIcon.node()).click(function() {
-        //     self._annotationView.setEditorValue();
-        //     self._annotationView.showEditor();
-        // });
+        this._annotationView = new AnnotationView(annotationViewArgs);
+        this._annotationView.render();
+        $(headingAnnotationIcon.node()).click(function() {
+            let isClicked = $(this).data('isClicked');
+            if (isClicked) {
+                self._annotationView.hideEditor();
+                $(this).data('isClicked', false);
+            } else {
+                self._annotationView.showEditor();
+                $(this).data('isClicked', true);
+            }
+        });
 
         var argumentsProperties = {
             model: this._model,
