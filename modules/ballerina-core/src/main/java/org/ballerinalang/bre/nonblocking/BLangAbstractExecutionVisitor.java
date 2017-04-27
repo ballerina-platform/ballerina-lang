@@ -65,6 +65,7 @@ import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.VariableRefTypeAccessExpr;
 import org.ballerinalang.model.nodes.EndNode;
 import org.ballerinalang.model.nodes.ExitNode;
 import org.ballerinalang.model.nodes.GotoNode;
@@ -88,6 +89,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprEndNode
 import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.UnaryExpressionEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.VariableRefTypeAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.AssignStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
@@ -1833,4 +1835,26 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
         return arrayVal;
     }
+
+    @Override
+    public void visit(VariableRefTypeAccessExpr variableRefTypeAccessExpr) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ArrayLengthAccessExpr {}",
+                    getNodeLocation(variableRefTypeAccessExpr.getNodeLocation()));
+        }
+        next = variableRefTypeAccessExpr.next;
+    }
+
+    @Override
+    public void visit(VariableRefTypeAccessExprEndNode variableRefTypeAccessExprEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ArrayLengthAccess - EndNode");
+        }
+        next = variableRefTypeAccessExprEndNode.next;
+        VariableRefTypeAccessExpr variableRefTypeAccessExpr = variableRefTypeAccessExprEndNode.getExpression();
+        Expression varRef = variableRefTypeAccessExpr.getVarRef();
+        BValue value = getTempValue(varRef);
+        setTempValue(variableRefTypeAccessExpr.getTempOffset(), new BInteger(((BArray) value).size()));
+    }
+
 }

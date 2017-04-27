@@ -54,6 +54,7 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.VariableRefTypeAccessExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -192,6 +193,8 @@ public interface NodeVisitor {
     void visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
     void visit(StructFieldAccessExpr structAttributeAccessExpr);
+
+    void visit(VariableRefTypeAccessExpr variableRefTypeAccessExpr);
 
     void visit(BacktickExpr backtickExpr);
 

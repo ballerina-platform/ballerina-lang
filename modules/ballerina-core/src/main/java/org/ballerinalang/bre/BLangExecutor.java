@@ -54,6 +54,7 @@ import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.VariableRefTypeAccessExpr;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -1100,6 +1101,13 @@ public class BLangExecutor implements NodeExecutor {
         Expression varRef = structFieldAccessExpr.getVarRef();
         BValue value = varRef.execute(this);
         return getFieldExprValue(structFieldAccessExpr, value);
+    }
+
+    @Override
+    public BValue visit(VariableRefTypeAccessExpr variableRefTypeAccessExpr) {
+        Expression varRef = variableRefTypeAccessExpr.getVarRef();
+        BValue value = varRef.execute(this);
+        return new BInteger(((BArray) value).size());
     }
 
     @Override
