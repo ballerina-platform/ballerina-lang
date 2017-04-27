@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const padding = {
         top: 50,
@@ -24,10 +25,15 @@ class StatementContainer extends React.Component {
     }
 
     render() {
-        return <g className="statement_container">
+        return (<g className="statement_container">
                   {this.props.children}
-              </g>;
+              </g>);
     }
 }
+
+StatementContainer.propTypes = {
+  children: PropTypes.node.isRequired
+}
+
 
 export default StatementContainer;

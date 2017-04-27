@@ -68,6 +68,7 @@
     "mousetrap": "^1.6.0",
     "npm": "^4.2.0",
     "prop-types": "^15.5.8",
+    "raw-loader": "^0.5.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "select2": "^4.0.3",
