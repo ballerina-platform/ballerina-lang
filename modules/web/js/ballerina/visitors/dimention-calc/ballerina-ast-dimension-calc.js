@@ -16,10 +16,10 @@
  * under the License.
  */
 import log from 'log';
-import DimensionCalculatorVisitor from './dimension-calculator-visitor';
+import ASTVisitor from '../ast-visitor';
 import ServiceDefinitionDimensionCalc from './service-dimension-calc';
 
-class ASTRootDimensionCalcVisitor extends DimensionCalculatorVisitor {
+class BallerinaASTRootDimensionCalcVisitor extends ASTVisitor {
     constructor() {
         super();
     }
@@ -40,11 +40,10 @@ class ASTRootDimensionCalcVisitor extends DimensionCalculatorVisitor {
         log.debug('End Visit BallerinaASTRoot');
     }
 
-    visitServiceDefinitionDimensionCalc(serviceDefinition) {
-        var serviceDefinitionDimensionCalc = new ServiceDefinitionDimensionCalc(this);
-        serviceDefinition.accept(serviceDefinitionDimensionCalc);
+    canVisitServiceDefinisionDimensionCalc(serviceDefinition) {
+        return true;
     }
 }
 
-export default ASTRootDimensionCalcVisitor;
+export default BallerinaASTRootDimensionCalcVisitor;
 

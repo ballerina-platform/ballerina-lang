@@ -48,7 +48,8 @@ import FindBreakpointsVisitor from './../visitors/find-breakpoints-visitor';
 import DebugManager from './../../debugger/debug-manager';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Diagram from './../components/diagram'
+import BallerinaDiagram from './../components/diagram';
+import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor'
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -434,7 +435,7 @@ class BallerinaFileEditor extends BallerinaView {
 
         var importDeclarations = [];
         if(!this._parseFailed) {
-            let root = React.createElement(Diagram, { model: this._model }, null);
+            let root = React.createElement(BallerinaDiagram, { model: this._model }, null);
             ReactDOM.render(
               root,
               this._$canvasContainer[0]
@@ -754,9 +755,9 @@ class BallerinaFileEditor extends BallerinaView {
      */
     generateSource() {
         // Visit the ast model and generate the source
-        var sourceGenVisitor = new SourceGenVisitor();
+        var sourceGenVisitor = new DimensionCalcVisitor();
         this._model.accept(sourceGenVisitor);
-        return sourceGenVisitor.getGeneratedSource();
+        return "FFFFFFFF";
     }
 
     /**
