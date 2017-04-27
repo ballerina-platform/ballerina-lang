@@ -26,7 +26,7 @@ import ASTVisitor from '../ast-visitor';
 class AbstractSwaggerJsonGenVisitor extends ASTVisitor {
     constructor(parent) {
         super();
-        this._swaggerJson = {'swagger': '\'2.0\''};
+        this._swaggerJson = {'swagger': '2.0'};
         this.parent = parent;
     }
 

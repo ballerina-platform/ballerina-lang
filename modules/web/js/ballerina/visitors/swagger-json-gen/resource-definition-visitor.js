@@ -43,7 +43,8 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
         // Creating http method element that maps to the http:<Method> annotation.
         let httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-        let httpMethodValue = httpMethodAnnotation.getIdentifier().toLowerCase() || 'get';
+        let httpMethodValue = !_.isUndefined(httpMethodAnnotation) ?
+                                httpMethodAnnotation.getIdentifier().toLowerCase() : 'get';
         _.set(_.get(this.getSwaggerJson(), pathValue), httpMethodValue, {});
 
         let httpMethodJson = _.get(this.getSwaggerJson(), pathValue + '.' + httpMethodValue);
@@ -60,7 +61,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
         // Creating default annotations
         _.set(httpMethodJson, 'operationId', pathValue.replace(/\//g, '') + '_' + httpMethodValue);
-        // _.set(httpMethodJson, 'responses.default.description', 'Default Response');
+        _.set(httpMethodJson, 'responses.default.description', 'Default Response');
 
         // Creating the annotation
         _.forEach(existingAnnotations, existingAnnotation => {
@@ -174,6 +175,10 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
     }
 
     parseResponsesAnnotation(responsesAnnotation, httpMethodJson) {
+        // Removing default responses
+        _.unset(httpMethodJson, 'responses');
+
+        // Creating the responses according the responses annotation.
         let responsesAnnotationArray = responsesAnnotation.getChildren()[0].getRightValue();
         let responses = {};
         _.forEach(responsesAnnotationArray.getChildren(), responseAnnotationArrayEntry => {

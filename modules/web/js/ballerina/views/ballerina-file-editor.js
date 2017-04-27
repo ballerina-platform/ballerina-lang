@@ -588,6 +588,9 @@ class BallerinaFileEditor extends BallerinaView {
                 if (_.isUndefined(serviceDef)) {
                     alerts.warn('Provide at least one service to generate Swagger definition');
                     return;
+                } else if (_.isEqual(_.size(serviceDef.getResourceDefinitions()), 0)) {
+                    alerts.warn('Provide at least one service with one resource to generate Swagger definition');
+                    return;
                 }
 
                 // Get the generated swagger and append it to the swagger view container's content
@@ -780,7 +783,7 @@ class BallerinaFileEditor extends BallerinaView {
             swaggerSources.push({
                 serviceDefinitionAST: this.getModel().getServiceDefinitions()[i],
                 swagger: swaggerJsonVisitor.getSwaggerJson(),
-                hasModified: false
+                hasModified: true
             });
         }
 

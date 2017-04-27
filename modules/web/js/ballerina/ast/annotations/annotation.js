@@ -112,7 +112,8 @@ class Annotation extends ASTNode {
         this.setPackageName(jsonNode.annotation_package_name, {doSilently: true});
         this.setIdentifier(jsonNode.annotation_name, {doSilently: true});
 
-        if (_.includes(_.map(supportedHttpMethodAnnotations, (e) => {
+        if (_.includes(
+                _.map(supportedHttpMethodAnnotations, (e) => {
                     return e.toLowerCase();
                 }), this.getIdentifier().toLowerCase())) {
             this.setUniqueIdentifier('httpMethod');
