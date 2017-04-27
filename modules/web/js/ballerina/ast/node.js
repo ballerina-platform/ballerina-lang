@@ -56,6 +56,10 @@ class ASTNode extends EventChannel {
         }
     }
 
+    /**
+     * Get the node's view state
+     * @return {{bBox: BBox}} node's view state
+     */
     getViewState(){
         return this.viewState;
     }
@@ -471,14 +475,6 @@ class ASTNode extends EventChannel {
      */
     setWhitespaceTokens(tokens, options) {
         this.setAttribute('_whitespaceTokens', tokens, options);
-    }
-
-    /**
-     * Get the node's view state
-     * @return {{bbox: BBox}} node's view state
-     */
-    getViewState() {
-        return this.viewState;
     }
 }
 
