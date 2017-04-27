@@ -26,6 +26,9 @@ public interface ConstantPoolEntry {
 
     EntryType getEntryType();
 
+    /**
+     * @since 0.87
+     */
     enum EntryType {
         CP_ENTRY_UTF8((byte) 1),
         CP_ENTRY_INTEGER((byte) 2),
