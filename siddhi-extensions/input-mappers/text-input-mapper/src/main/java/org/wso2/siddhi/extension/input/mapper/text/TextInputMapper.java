@@ -71,6 +71,7 @@ public class TextInputMapper extends InputMapper {
      * Array of information about event mapping.
      */
     private MappingPositionData[] mappingPositions;
+    private AttributeConverter attributeConverter;
 
 
     /**
@@ -82,6 +83,7 @@ public class TextInputMapper extends InputMapper {
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping> attributeMappingList) {
+        attributeConverter = new AttributeConverter();
         this.streamDefinition = streamDefinition;
         this.streamAttributes = this.streamDefinition.getAttributeList();
 
@@ -168,7 +170,7 @@ public class TextInputMapper extends InputMapper {
         for (MappingPositionData mappingPositionData : this.mappingPositions) {
             int position = mappingPositionData.getPosition();
             Attribute attribute = streamAttributes.get(position);
-            data[position] = AttributeConverter.getPropertyValue(mappingPositionData.match((String) eventObject),
+            data[position] = attributeConverter.getPropertyValue(mappingPositionData.match((String) eventObject),
                     attribute.getType());
         }
 
