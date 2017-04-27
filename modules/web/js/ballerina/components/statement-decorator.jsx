@@ -21,7 +21,7 @@ StatementView.propTypes = {
 		w: React.PropTypes.number.isRequired,
 		h: React.PropTypes.number.isRequired,
 	}),
-  children: PropTypes.string
+  children: PropTypes.node.isRequired
 }
 
 
