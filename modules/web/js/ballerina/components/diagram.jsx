@@ -44,13 +44,13 @@ class Diagram extends React.Component {
         const functionInvocation = React.createElement(components['FunctionInvocationStatement'],
             {model : { viewState: { bBox: { x: 10, y: 10, w: 50, h: 50}},
              expression: "this is the expression"}}, null);
-				let children = <PanelDecorator title="StatementContainer">
-                          <CanvasDecorator>
+				let children = <CanvasDecorator title="StatementContainer">
+                          <PanelDecorator>
                               <StatementContainer>
                                       {functionInvocation}
                               </StatementContainer>
-                          </CanvasDecorator>
-                      </PanelDecorator>
+                          </PanelDecorator>
+                      </CanvasDecorator>
         return <div className="canvas_container">
                   {children}
               </div>;
