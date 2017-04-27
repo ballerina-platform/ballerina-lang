@@ -61,17 +61,13 @@ public class RDBMSQueryConfigurationEntry {
         return minVersion;
     }
 
-    public void setMaxVersion(double maxVersion) {
-        this.maxVersion = maxVersion;
-    }
-
     @XmlAttribute(name = "maxVersion", required = false)
     public double getMaxVersion() {
         return maxVersion;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setMaxVersion(double maxVersion) {
+        this.maxVersion = maxVersion;
     }
 
     @XmlAttribute(name = "category", required = false)
@@ -79,13 +75,17 @@ public class RDBMSQueryConfigurationEntry {
         return category;
     }
 
-    public void setQueryBatchSize(String queryBatchSize) {
-        this.queryBatchSize = queryBatchSize;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     @XmlElement(name = "query-batch-size")
     public String getQueryBatchSize() {
         return queryBatchSize;
+    }
+
+    public void setQueryBatchSize(String queryBatchSize) {
+        this.queryBatchSize = queryBatchSize;
     }
 
     public String getTableCheckQuery() {
@@ -144,28 +144,28 @@ public class RDBMSQueryConfigurationEntry {
         this.recordMergeQuery = recordMergeQuery;
     }
 
-    public void setRecordSelectQuery(String recordSelectQuery) {
-        this.recordSelectQuery = recordSelectQuery;
-    }
-
     public String getRecordSelectQuery() {
         return recordSelectQuery;
     }
 
-    public void setRecordExistsQuery(String recordExistsQuery) {
-        this.recordExistsQuery = recordExistsQuery;
+    public void setRecordSelectQuery(String recordSelectQuery) {
+        this.recordSelectQuery = recordSelectQuery;
     }
 
     public String getRecordExistsQuery() {
         return recordExistsQuery;
     }
 
-    public void setRecordDeleteQuery(String recordDeleteQuery) {
-        this.recordDeleteQuery = recordDeleteQuery;
+    public void setRecordExistsQuery(String recordExistsQuery) {
+        this.recordExistsQuery = recordExistsQuery;
     }
 
     public String getRecordDeleteQuery() {
         return recordDeleteQuery;
+    }
+
+    public void setRecordDeleteQuery(String recordDeleteQuery) {
+        this.recordDeleteQuery = recordDeleteQuery;
     }
 
     public String getQuoteMark() {

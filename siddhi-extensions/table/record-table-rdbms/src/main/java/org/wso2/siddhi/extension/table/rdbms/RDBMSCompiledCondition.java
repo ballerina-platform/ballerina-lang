@@ -18,21 +18,20 @@
 package org.wso2.siddhi.extension.table.rdbms;
 
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.Map;
+import java.util.SortedMap;
 
 public class RDBMSCompiledCondition implements CompiledCondition {
 
     private String compiledQuery;
     private String tableName;
-    private Map<String, Attribute.Type> streamTypeMap;
+    private SortedMap<Integer, Object> parameters;
 
 
-    public RDBMSCompiledCondition(String tableName, String compiledQuery, Map<String, Attribute.Type> streamTypeMap) {
+    public RDBMSCompiledCondition(String tableName, String compiledQuery, SortedMap<Integer, Object> parameters) {
         this.tableName = tableName;
         this.compiledQuery = compiledQuery;
-        this.streamTypeMap = streamTypeMap;
+        this.parameters = parameters;
     }
 
     @Override
@@ -48,8 +47,7 @@ public class RDBMSCompiledCondition implements CompiledCondition {
         return getCompiledQuery();
     }
 
-    public Attribute.Type getStreamType(String id) {
-        return this.streamTypeMap.get(id);
+    public SortedMap<Integer, Object> getParameters() {
+        return parameters;
     }
-
 }

@@ -35,8 +35,6 @@ import java.util.TreeMap;
 public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     private static final String WHITESPACE = " ";
-    private static final String OPEN_PARENTHESIS = "(";
-    private static final String CLOSE_PARENTHESIS = ")";
 
     private static final String SQL_AND = "AND";
     private static final String SQL_OR = "OR";
@@ -89,12 +87,12 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitAnd() {
-        condition.append(OPEN_PARENTHESIS);
+        condition.append(RDBMSTableConstants.OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitAnd() {
-        condition.append(CLOSE_PARENTHESIS);
+        condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS);
     }
 
     @Override
@@ -119,12 +117,12 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitOr() {
-        condition.append(OPEN_PARENTHESIS);
+        condition.append(RDBMSTableConstants.OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitOr() {
-        condition.append(CLOSE_PARENTHESIS);
+        condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS);
     }
 
     @Override
@@ -159,12 +157,12 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitCompare(Compare.Operator operator) {
-        condition.append(OPEN_PARENTHESIS);
+        condition.append(RDBMSTableConstants.OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitCompare(Compare.Operator operator) {
-        condition.append(CLOSE_PARENTHESIS);
+        condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS);
     }
 
     @Override
@@ -241,12 +239,12 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitMath(MathOperator mathOperator) {
-        condition.append(OPEN_PARENTHESIS);
+        condition.append(RDBMSTableConstants.OPEN_PARENTHESIS);
     }
 
     @Override
     public void endVisitMath(MathOperator mathOperator) {
-        condition.append(CLOSE_PARENTHESIS);
+        condition.append(RDBMSTableConstants.CLOSE_PARENTHESIS);
     }
 
     @Override

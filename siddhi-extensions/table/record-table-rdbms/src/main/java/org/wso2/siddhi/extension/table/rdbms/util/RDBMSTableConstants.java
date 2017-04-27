@@ -23,7 +23,15 @@ public class RDBMSTableConstants {
     public static final String DATABASE_PRODUCT_NAME = "Database Product Name";
 
     public static final String RDBMS_QUERY_CONFIG_FILE = "rdbms-config.xml";
-
+    public static final String TABLE_NAME_PLACEHOLDER = "{{TABLE_NAME}}";
+    public static final String COLUMNS_PLACEHOLDER = "{{COLUMNS, PRIMARY_KEYS}}";
+    public static final String CONDITION_PLACEHOLDER = "{{CONDITION}}";
+    public static final String WHITESPACE = " ";
+    public static final String COMMA = ",";
+    public static final String OPEN_PARENTHESIS = "(";
+    public static final String CLOSE_PARENTHESIS = ")";
+    public static final String PRIMARY_KEY_DEF = "PRIMARY KEY";
+    public static final String SQL_WHERE = "WHERE";
     //Annotation field names
     public static String ANNOTATION_ELEMENT_URL = "jdbc.url";
     public static String ANNOTATION_ELEMENT_USERNAME = "username";
@@ -32,16 +40,6 @@ public class RDBMSTableConstants {
     public static String ANNOTATION_ELEMENT_FIELD_LENGTHS = "field.length";
     public static String ANNOTATION_ELEMENT_POOL_PROPERTIES = "pool.properties";
     public static String ANNOTATION_ELEMENT_JNDI_RESOURCE = "jndi.resource";
-
-    public static final String TABLE_NAME_PLACEHOLDER = "{{TABLE_NAME}}";
-    public static final String COLUMNS_PLACEHOLDER = "{{COLUMNS, PRIMARY_KEYS}}";
-    public static final String CONDITION_PLACEHOLDER = "{{CONDITION}}";
-
-    public static final String WHITESPACE = " ";
-    public static final String COMMA = ",";
-
-    public static final String PRIMARY_KEY_DEF = "PRIMARY KEY";
-    public static final String SQL_WHERE = "WHERE";
 
     private RDBMSTableConstants() {
 
