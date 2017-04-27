@@ -147,7 +147,12 @@ public class TestExecutionListener implements IExecutionListener {
                 sampleDir + File.separator + "websocket" + File.separator + "connectionGroupSample" + File.separator +
                         "oddEvenHttpService.bal",
                 sampleDir + File.separator + "websocket" + File.separator + "connectionGroupSample" + File.separator +
-                        "oddEvenWebSocketService.bal"
+                        "oddEvenWebSocketService.bal",
+                sampleDir + File.separator + "websocket" + File.separator + "connectionStoreSample" + File.separator +
+                                        "websocketEndpoint.bal",
+                sampleDir + File.separator + "websocket" + File.separator + "connectionStoreSample" + File.separator +
+                                        "httpService.bal"
+
 
         };
         return sampleFiles;

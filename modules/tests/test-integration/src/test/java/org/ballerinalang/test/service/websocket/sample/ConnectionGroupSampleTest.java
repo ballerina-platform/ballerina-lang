@@ -46,8 +46,8 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
         String evenString = "hi even";
         String oddString = "hi odd";
         Map<String, String> headers = new HashMap<>();
-        HttpClientRequest.doPost(getServiceURLHttp("info/even"), evenString, headers);
-        HttpClientRequest.doPost(getServiceURLHttp("info/odd"), oddString, headers);
+        HttpClientRequest.doPost(getServiceURLHttp("groupInfo/even"), evenString, headers);
+        HttpClientRequest.doPost(getServiceURLHttp("groupInfo/odd"), oddString, headers);
         Thread.sleep(threadSleepTime);
         for (int i = 0; i < clientCount; i++) {
             if (i % 2 == 0) {
@@ -64,7 +64,7 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
         clients[0].sendText("removeMe");
         Map<String, String> headers = new HashMap<>();
         String oddString = "hi even 0 removed";
-        HttpClientRequest.doPost(getServiceURLHttp("info/odd"), oddString, headers);
+        HttpClientRequest.doPost(getServiceURLHttp("groupInfo/odd"), oddString, headers);
         Thread.sleep(threadSleepTime);
         Assert.assertEquals(clients[0].getTextReceived(), null);
         for (int i = 1; i < clientCount; i++) {
@@ -78,7 +78,7 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
 
     @Test(priority = 3)
     public void testRemoveGroup() throws InterruptedException, IOException {
-        HttpClientRequest.doGet(getServiceURLHttp("info/rm-odd"));
+        HttpClientRequest.doGet(getServiceURLHttp("groupInfo/rm-odd"));
         Thread.sleep(threadSleepTime);
         String sentText = "test only received by even";
         clients[2].sendText(sentText);
