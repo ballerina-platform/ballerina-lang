@@ -35,31 +35,103 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else");
     private static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
 
-    public static final String UTILS_PACKAGE_NAME = "org/test/utils.bal";
-    public static final String SAMPLE_UTIL_FUNCTIONS = "package org.test; function getA(){} function getB(){}";
+    private static final String UTILS_PACKAGE_NAME = "org/test/utils.bal";
+    private static final String SAMPLE_UTIL_FUNCTIONS = "package org.test; function getA(){} function getB(){}";
 
     @Override
     protected String getTestDataPath() {
         return "src/test/resources/testData/completion";
     }
 
-    public void testEmptyFile1() {
+    /**
+     * Test file level lookups.
+     */
+    public void testEmptyFile() {
         doTest("<caret>", FILE_LEVEL_KEYWORDS.toArray(new String[FILE_LEVEL_KEYWORDS.size()]));
     }
 
-    public void testEmptyFile2() {
-        doTest("<caret>\n", FILE_LEVEL_KEYWORDS.toArray(new String[FILE_LEVEL_KEYWORDS.size()]));
-    }
-
-    public void testEmptyFile3() {
-        doTest("\n<caret>\n", FILE_LEVEL_KEYWORDS.toArray(new String[FILE_LEVEL_KEYWORDS.size()]));
-    }
-
-    public void testEmptyFile4() {
+    public void testEmptyFileWithSpaceBeforeCaret() {
         doTest("\n<caret>", FILE_LEVEL_KEYWORDS.toArray(new String[FILE_LEVEL_KEYWORDS.size()]));
     }
 
-    public void testFunction1() {
+    public void testEmptyFileWithSpaceAfterCaret() {
+        doTest("<caret>\n", FILE_LEVEL_KEYWORDS.toArray(new String[FILE_LEVEL_KEYWORDS.size()]));
+    }
+
+    public void testEmptyFileWithSpaces() {
+        doTest("\n<caret>\n", FILE_LEVEL_KEYWORDS.toArray(new String[FILE_LEVEL_KEYWORDS.size()]));
+    }
+
+    /**
+     * Test package declaration level lookups.
+     */
+    public void testFirstLevelPackageLookups() {
+        PsiFile testFile = myFixture.addFileToProject("org/test/file1.bal", "package <caret>");
+        myFixture.configureFromExistingVirtualFile(testFile.getVirtualFile());
+        doTest(null, "org");
+    }
+
+    public void testFirstLevelPackageAutoCompletion() {
+        doCheckResult("org/test/test.bal", "package o<caret>", "package org.", null);
+    }
+
+    public void testFirstLevelPackageInsertHandler() {
+        PsiFile testFile = myFixture.addFileToProject("org/test/file1.bal", "package org.<caret>");
+        myFixture.configureFromExistingVirtualFile(testFile.getVirtualFile());
+        doTest(null, "test");
+    }
+
+    public void testLastLevelPackageInsertHandler() {
+        doCheckResult("org/test/test.bal", "package org.t<caret>", "package org.test;", null);
+    }
+
+    /**
+     * Test import declaration level lookups.
+     */
+    public void testFirstLevelImportLookups() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
+        doTest("import <caret>", "org");
+    }
+
+    public void testLastLevelImportLookups() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
+        doTest("import org.<caret>", "test");
+    }
+
+    public void testFirstLevelImportAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
+        doCheckResult("test.bal", "import o<caret>", "import org.", null);
+    }
+
+    public void testLastLevelImportAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
+        doCheckResult("test.bal", "import org.t<caret>", "import org.test;", null);
+    }
+
+    /**
+     * Test constant declaration level lookups.
+     */
+
+    public void testConstTypes() {
+        doTest("const <caret>", DATA_TYPES.toArray(new String[DATA_TYPES.size()]));
+    }
+
+    public void testConstIdentifier() {
+        doTest("const boolean <caret>");
+    }
+
+    public void testConstValues() {
+        doTest("const string NAME = <caret>");
+    }
+
+    /**
+     * Test function level lookups.
+     */
+    public void testFunctionIdentifier() {
+        doTest("function <caret>");
+    }
+
+    public void testFunctionBodyWithoutParamsAndImports() {
         List<String> FUNCTION_LEVEL_SUGGESTIONS = Collections.singletonList("test");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
@@ -70,7 +142,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("function test () { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testFunction2() {
+    public void testFunctionBodyWithParams() {
         List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
@@ -81,7 +153,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("function test (int arg) { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testFunction3() {
+    public void testFunctionBodyWithConst() {
         List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg", "GREETING");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
@@ -93,70 +165,191 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testPackage1() {
-        PsiFile testFile = myFixture.addFileToProject("org/test/file1.bal", "package <caret>");
-        myFixture.configureFromExistingVirtualFile(testFile.getVirtualFile());
-        doTest(null, "org");
+    public void testFunctionBodyWithImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("pack");
+        expectedLookups.add("test");
+        doTest("import org.pack; function test () { <caret> }",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testPackage2() {
-        doCheckResult("org/test/test.bal", "package o<caret>", "package org.", null);
+    /**
+     * Test function parameter level lookups.
+     */
+    public void testFunctionParamIdentifier() {
+        doTest("function test(string <caret>)");
     }
 
-    public void testPackage3() {
-        PsiFile testFile = myFixture.addFileToProject("org/test/file1.bal", "package org.<caret>");
-        myFixture.configureFromExistingVirtualFile(testFile.getVirtualFile());
-        doTest(null, "test");
+    public void testFunctionParamWithoutImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("function test(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testPackage4() {
-        doCheckResult("org/test/test.bal", "package org.t<caret>", "package org.test;", null);
+    public void testFunctionParamWithImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("test");
+        doTest("import org.test; function B(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testImport1() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
-        doTest("import <caret>", "org");
+    public void testFunctionParamWithoutImportsAutoCompletion() {
+        doCheckResult("test.bal", "function test(st<caret>)", "function test(string )", null);
     }
 
-    public void testImport2() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
-        doCheckResult("test.bal", "import o<caret>", "import org.", null);
+    public void testFunctionParamWithImportsAutoCompletion() {
+        doCheckResult("test.bal", "import org.test; function B(te<caret>)",
+                "import org.test; function B(test:)", null);
     }
 
-    public void testImport3() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
-        doTest("import org.<caret>", "test");
+    public void testCaretAfterFunctionParamWithoutImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("function test(string s,<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testImport4() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
-        doCheckResult("test.bal", "import org.t<caret>", "import org.test;", null);
+    public void testCaretBeforeFunctionParamWithoutImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("function test(<caret>string s)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testConst1() {
-        doTest("const <caret>", "boolean", "int", "float", "string");
+    public void testCaretAfterFunctionParamWithImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("test");
+        doTest("import org.test; function test(string s,<caret>)",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testConst2() {
-        doTest("const boolean <caret>");
+    public void testCaretBeforeFunctionParamWithImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("test");
+        doTest("import org.test; function test(<caret>string s)",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testConst3() {
-        doTest("const string NAME = <caret>");
+    /**
+     * Test service level lookups.
+     */
+    public void testServiceIdentifier() {
+        doTest("service <caret>");
     }
 
-    public void testFunctionsInDifferentFiles1() {
+    public void testServiceBody() {
+        doTest("service S{<caret>}", "resource");
+    }
+
+    /**
+     * Test resource level lookups.
+     */
+    public void testResourceIdentifier() {
+        doTest("service S { resource <caret> ");
+    }
+
+    //todo - resource annotations
+
+    /**
+     * Test resource parameter level lookups.
+     */
+    public void testResourceParamIdentifier() {
+        doTest("service S { resource R(string <caret>)");
+    }
+
+    public void testResourceParamWithoutImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("service S { resource R(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testResourceParamWithImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("test");
+        doTest("import org.test; service S { resource R(<caret>)",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testResourceParamWithoutImportsAutoCompletion() {
+        doCheckResult("test.bal", "service S { resource R(st<caret>)", "service S { resource R(string )", null);
+    }
+
+    public void testResourceParamWithImportsAutoCompletion() {
+        doCheckResult("test.bal", "import org.test; service S { resource R(te<caret>)",
+                "import org.test; service S { resource R(test:)", null);
+    }
+
+    public void testCaretAfterResourceParamWithoutImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("service S { resource R(string s,<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testCaretBeforeResourceParamWithoutImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("service S { resource R(<caret>string s)", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testCaretAfterResourceParamWithImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("test");
+        doTest("import org.test; service S { resource R(string s,<caret>)",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testCaretBeforeResourceParamWithImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("test");
+        doTest("import org.test; service S { resource R(<caret>string s)",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    //todo - query param annotations
+
+    /**
+     * Test connector level lookups.
+     */
+    public void testConnectorIdentifier() {
+        doTest("connector <caret>");
+    }
+
+    public void testInvokingFunctionInDifferentFile1() {
         myFixture.addFileToProject("file1.bal", "function test(){}");
         myFixture.configureByText("file2.bal", "function main(string[] args){ tes<caret> }");
-        doCheckResult("function main(string[] args){ te<caret> }", "function main(string[] args){ test() }", null);
+        doCheckResult("test.bal", "function main(string[] args){ te<caret> }",
+                "function main(string[] args){ test() }", null);
     }
 
-    public void testFunctionsInDifferentFiles2() {
+    public void testInvokingFunctionInDifferentFile2() {
         myFixture.addFileToProject("file1.bal", "function test1(){} function test2(){}");
         doTest("function main(string[] args){ tes<caret> }", "test1", "test2");
     }
 
-    public void testVariable() {
+    public void testVariable1() {
+        doTest("function main(string[] args){ int <caret> }");
+    }
+
+    public void testVariable2() {
         doTest("function main(string[] args){ int a = <caret> }", "args", "main");
     }
 
@@ -310,15 +503,6 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> lookupElementStrings = myFixture.getLookupElementStrings();
         assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, expectedLookups);
-    }
-
-    private void doCheckResult(@NotNull String before, @NotNull String after, @Nullable Character c) {
-        myFixture.configureByText("test.bal", before);
-        myFixture.completeBasic();
-        if (c != null) {
-            myFixture.type(c);
-        }
-        myFixture.checkResult(after);
     }
 
     private void doCheckResult(@NotNull String relativePath, @NotNull String before, @NotNull String after,
