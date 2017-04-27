@@ -98,6 +98,21 @@ public class IndexEventHolder implements IndexedEventHolder {
             }
         }
 
+        if (indexData != null) {
+            for (Map.Entry<String, Integer> indexEntry : indexMetaData.entrySet()) {
+                TreeMap<Object, Set<StreamEvent>> indexMap = indexData.get(indexEntry.getKey());
+                Object key = streamEvent.getOutputData()[indexEntry.getValue()];
+                Set<StreamEvent> values = indexMap.get(key);
+                if (values == null) {
+                    values = new HashSet<StreamEvent>();
+                    values.add(streamEvent);
+                    indexMap.put(streamEvent.getOutputData()[indexEntry.getValue()], values);
+                } else {
+                    values.add(streamEvent);
+                }
+            }
+        }
+
     }
 
     @Override

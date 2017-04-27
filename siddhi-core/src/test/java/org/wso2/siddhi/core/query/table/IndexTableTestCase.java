@@ -25,10 +25,13 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
+import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
+import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,8 +52,6 @@ public class IndexTableTestCase {
         eventArrived = false;
         inEventsList = new ArrayList<Object[]>();
     }
-
-    //Join Test
 
     @Test
     public void indexTableTest1() throws InterruptedException {
@@ -725,8 +726,8 @@ public class IndexTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(0,2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2,4), expected2));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(0, 2), expected1));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 4), expected2));
             Assert.assertEquals("Number of success events", 4, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -2024,6 +2025,177 @@ public class IndexTableTestCase {
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
             executionPlanRuntime.shutdown();
+        }
+    }
+
+
+    @Test
+    public void indexTableTest29() throws InterruptedException {
+        log.info("indexTableTest29");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "define stream CheckStockStream (symbol string, volume long); " +
+                "define stream UpdateStockStream (symbol string, price float, volume long);" +
+                "@Index('symbol', 'volume') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from CheckStockStream join StockTable " +
+                " on CheckStockStream.symbol==StockTable.symbol " +
+                "select CheckStockStream.symbol, StockTable.volume " +
+                "insert into OutStream;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        for (Event event : inEvents) {
+                            inEventsList.add(event.getData());
+                            inEventCount.incrementAndGet();
+                        }
+                        eventArrived = true;
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount = removeEventCount + removeEvents.length;
+                    }
+                    eventArrived = true;
+                }
+            });
+
+            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+
+            executionPlanRuntime.start();
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
+            checkStockStream.send(new Object[]{"IBM", 100l});
+            checkStockStream.send(new Object[]{"WSO2", 100l});
+
+            List<Object[]> expected = Arrays.asList(
+                    new Object[]{"IBM", 100l},
+                    new Object[]{"WSO2", 100l}
+            );
+            SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            Assert.assertEquals("Number of success events", 2, inEventCount.get());
+            Assert.assertEquals("Number of remove events", 0, removeEventCount);
+            Assert.assertEquals("Event arrived", true, eventArrived);
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
+    }
+
+    @Test(expected = AttributeNotExistException.class)
+    public void indexTableTest30() throws InterruptedException {
+        log.info("indexTableTest30");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Index('') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = null;
+        try {
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        } finally {
+            if (executionPlanRuntime != null) {
+                executionPlanRuntime.shutdown();
+            }
+        }
+    }
+
+    @Test(expected = ExecutionPlanCreationException.class)
+    public void indexTableTest31() throws InterruptedException {
+        log.info("indexTableTest31");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Index('symbol', 'symbol') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = null;
+        try {
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        } finally {
+            if (executionPlanRuntime != null) {
+                executionPlanRuntime.shutdown();
+            }
+        }
+    }
+
+    @Test(expected = DuplicateAnnotationException.class)
+    public void indexTableTest32() throws InterruptedException {
+        log.info("indexTableTest32");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Index('symbol') " +
+                "@Index('volume') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = null;
+        try {
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        } finally {
+            if (executionPlanRuntime != null) {
+                executionPlanRuntime.shutdown();
+            }
+        }
+    }
+
+    @Test(expected = AttributeNotExistException.class)
+    public void indexTableTest33() throws InterruptedException {
+        log.info("indexTableTest33");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "@Index('foo') " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = null;
+        try {
+            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        } finally {
+            if (executionPlanRuntime != null) {
+                executionPlanRuntime.shutdown();
+            }
         }
     }
 
