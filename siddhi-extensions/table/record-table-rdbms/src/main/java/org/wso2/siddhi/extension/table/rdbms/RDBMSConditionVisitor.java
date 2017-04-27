@@ -323,7 +323,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitStoreVariable(String storeId, String attributeName, Attribute.Type type) {
-        condition.append(RDBMSTableConstants.TABLE_NAME_PLACEHOLDER).append(".").append(attributeName).append(WHITESPACE);
+        condition.append(RDBMSTableConstants.PLACEHOLDER_TABLE_NAME).append(".").append(attributeName).append(WHITESPACE);
     }
 
     @Override

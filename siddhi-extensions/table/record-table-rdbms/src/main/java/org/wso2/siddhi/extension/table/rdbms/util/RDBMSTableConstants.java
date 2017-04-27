@@ -23,12 +23,15 @@ public class RDBMSTableConstants {
     public static final String DATABASE_PRODUCT_NAME = "Database Product Name";
 
     public static final String RDBMS_QUERY_CONFIG_FILE = "rdbms-config.xml";
-    public static final String TABLE_NAME_PLACEHOLDER = "{{TABLE_NAME}}";
-    public static final String COLUMNS_PLACEHOLDER = "{{COLUMNS, PRIMARY_KEYS}}";
-    public static final String CONDITION_PLACEHOLDER = "{{CONDITION}}";
+    public static final String PLACEHOLDER_TABLE_NAME = "{{TABLE_NAME}}";
+    public static final String PLACEHOLDER_COLUMNS = "{{COLUMNS, PRIMARY_KEYS}}";
+    public static final String PLACEHOLDER_CONDITION = "{{CONDITION}}";
+    public static final String PLACEHOLDER_COLUMNS_VALUES = "{{COLUMNS_AND_VALUES}}";
+
     public static final String WHITESPACE = " ";
-    public static final String COMMA = ",";
+    public static final String SEPARATOR = ", ";
     public static final String EQUALS = "=";
+    public static final String QUESTION_MARK = "?";
     public static final String OPEN_PARENTHESIS = "(";
     public static final String CLOSE_PARENTHESIS = ")";
     public static final String PRIMARY_KEY_DEF = "PRIMARY KEY";

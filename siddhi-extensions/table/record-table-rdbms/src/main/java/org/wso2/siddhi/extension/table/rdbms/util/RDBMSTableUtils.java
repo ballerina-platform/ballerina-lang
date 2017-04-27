@@ -21,9 +21,11 @@ import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
+import org.wso2.siddhi.extension.table.rdbms.RDBMSCompiledCondition;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfiguration;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.exception.RDBMSTableException;
+import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.io.InputStream;
@@ -37,14 +39,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.DATABASE_PRODUCT_NAME;
-import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.VERSION;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
 
 public class RDBMSTableUtils {
 
@@ -160,8 +162,25 @@ public class RDBMSTableUtils {
         }
     }
 
+    public static void resolveCondition(PreparedStatement stmt, RDBMSCompiledCondition compiledCondition,
+                                        Map<String, Object> parameterMap, int seed) throws SQLException {
+        SortedMap<Integer, Object> parameters = compiledCondition.getParameters();
+        for (Map.Entry<Integer, Object> entry : parameters.entrySet()) {
+            Object parameter = entry.getValue();
+            if (parameter instanceof Constant) {
+                Constant constant = (Constant) parameter;
+                RDBMSTableUtils.populateStatementWithSingleElement(stmt, seed + entry.getKey(), constant.getType(),
+                        constant.getValue());
+            } else {
+                Attribute variable = (Attribute) parameter;
+                RDBMSTableUtils.populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
+                        parameterMap.get(variable.getName()));
+            }
+        }
+    }
+
     public static void populateStatementWithSingleElement(PreparedStatement stmt, int position, Attribute.Type type,
-                                                    Object value) throws SQLException {
+                                                          Object value) throws SQLException {
         switch (type) {
             case BOOL:
                 stmt.setBoolean(position, (Boolean) value);
@@ -185,6 +204,49 @@ public class RDBMSTableUtils {
                 stmt.setString(position, (String) value);
                 break;
         }
+    }
+
+    public static String flattenAnnotatedElements(List<Element> elements) {
+        StringBuilder sb = new StringBuilder();
+        for (Element elem : elements) {
+            sb.append(elem.getKey());
+            if (elements.indexOf(elem) != elements.size() - 1) {
+                sb.append(RDBMSTableConstants.SEPARATOR);
+            }
+        }
+        return sb.toString();
+    }
+
+    public static Map<String, String> processFieldLengths(String fieldInfo) {
+        Map<String, String> fieldLengths = new HashMap<>();
+        List<String[]> processedLengths = RDBMSTableUtils.processKeyValuePairs(fieldInfo);
+        processedLengths.forEach(field -> fieldLengths.put(field[0].toLowerCase(), field[1]));
+        return fieldLengths;
+    }
+
+    public static List<String[]> processKeyValuePairs(String annotationString) {
+        List<String[]> keyValuePairs = new ArrayList<>();
+        if (RDBMSTableUtils.isEmpty(annotationString)) {
+            String[] pairs = annotationString.split(",");
+            for (String element : pairs) {
+                if (!element.contains(":")) {
+                    throw new RDBMSTableException("Property '" + element + "' does not adhere to the expected " +
+                            "format: a property must be a key-value pair separated by a colon (:)");
+                }
+                String[] pair = element.split(":");
+                if (pair.length != 2) {
+                    throw new RDBMSTableException("Property '" + pair[0] + "' does not adhere to the expected " +
+                            "format: a property must be a key-value pair separated by a colon (:)");
+                } else {
+                    keyValuePairs.add(pair);
+                }
+            }
+        }
+        return keyValuePairs;
+    }
+
+    public static String formatQueryWithCondition(String query, String condition) {
+        return query.replace(PLACEHOLDER_CONDITION, SQL_WHERE + WHITESPACE + condition);
     }
 
     private static class RDBMSTableConfigLoader {

@@ -60,13 +60,13 @@ public class RDBMSQueryConfigurationEntry {
         return minVersion;
     }
 
+    public void setMinVersion(double minVersion) {
+        this.minVersion = minVersion;
+    }
+
     @XmlAttribute(name = "maxVersion")
     public double getMaxVersion() {
         return maxVersion;
-    }
-
-    public void setMinVersion(double minVersion) {
-        this.minVersion = minVersion;
     }
 
     public void setMaxVersion(double maxVersion) {

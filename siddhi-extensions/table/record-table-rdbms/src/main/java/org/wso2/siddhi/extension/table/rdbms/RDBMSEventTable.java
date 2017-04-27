@@ -27,8 +27,6 @@ import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSTypeMapping;
 import org.wso2.siddhi.extension.table.rdbms.exception.RDBMSTableException;
-import org.wso2.siddhi.extension.table.rdbms.util.Constant;
-import org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants;
 import org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableUtils;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
@@ -41,14 +39,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.SortedMap;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
 
 public class RDBMSEventTable extends AbstractRecordTable {
 
@@ -60,10 +59,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private static final String INDEX_PLACEHOLDER = "{{INDEX_COLUMNS}}";
     private static final String Q_PLACEHOLDER = "{{Q}}";
 
-    private static final String SEPARATOR = ", ";
-
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
-    private TableDefinition tableDefinition;
     private DataSource dataSource;
     private String tableName;
 
@@ -71,14 +67,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     protected void init(TableDefinition tableDefinition) {
-        this.tableDefinition = tableDefinition;
-        this.attributes = this.tableDefinition.getAttributeList();
-        Annotation storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE,
-                tableDefinition.getAnnotations());
+        this.attributes = tableDefinition.getAttributeList();
+        Annotation storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
         Annotation primaryKeys = AnnotationHelper.getAnnotation(ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
         Annotation indices = AnnotationHelper.getAnnotation(ANNOTATION_INDEX, tableDefinition.getAnnotations());
-        String jndiResourceName = storeAnnotation.getElement(RDBMSTableConstants.ANNOTATION_ELEMENT_JNDI_RESOURCE);
+        String jndiResourceName = storeAnnotation.getElement(ANNOTATION_ELEMENT_JNDI_RESOURCE);
         if (RDBMSTableUtils.isEmpty(jndiResourceName)) {
             try {
                 this.lookupDatasource(jndiResourceName);
@@ -89,11 +83,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
         } else {
             this.initializeDatasource(storeAnnotation);
         }
-        String tableName = storeAnnotation.getElement(RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_NAME);
+        String tableName = storeAnnotation.getElement(ANNOTATION_ELEMENT_TABLE_NAME);
         if (RDBMSTableUtils.isEmpty(tableName)) {
             this.tableName = tableName;
         } else {
-            this.tableName = this.tableDefinition.getId();
+            this.tableName = tableDefinition.getId();
         }
         try {
             if (this.queryConfigurationEntry == null) {
@@ -114,7 +108,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         StringBuilder params = new StringBuilder();
         int fieldsLeft = this.attributes.size();
         while (fieldsLeft > 0) {
-            params.append("?");
+            params.append(QUESTION_MARK);
             if (fieldsLeft > 1) {
                 params.append(SEPARATOR);
             }
@@ -139,11 +133,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
         ResultSet rs = null;
         try {
             if (RDBMSTableUtils.isEmpty(condition)) {
-                stmt = conn.prepareStatement(readQuery.replace(RDBMSTableConstants.CONDITION_PLACEHOLDER, ""));
+                stmt = conn.prepareStatement(readQuery.replace(PLACEHOLDER_CONDITION, ""));
             } else {
-                stmt = conn.prepareStatement(this.formatQueryWithCondition(readQuery, condition));
+                stmt = conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(readQuery, condition));
             }
-            this.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, findConditionParameterMap);
+            RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, findConditionParameterMap, 0);
             rs = stmt.executeQuery();
             //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
             return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
@@ -164,11 +158,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
         ResultSet rs = null;
         try {
             if (RDBMSTableUtils.isEmpty(condition)) {
-                stmt = conn.prepareStatement(containsQuery.replace(RDBMSTableConstants.CONDITION_PLACEHOLDER, ""));
+                stmt = conn.prepareStatement(containsQuery.replace(PLACEHOLDER_CONDITION, ""));
             } else {
-                stmt = conn.prepareStatement(this.formatQueryWithCondition(containsQuery, condition));
+                stmt = conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(containsQuery, condition));
             }
-            this.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, containsConditionParameterMap);
+            RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, containsConditionParameterMap, 0);
             rs = stmt.executeQuery();
             return !rs.isBeforeFirst();
         } catch (SQLException e) {
@@ -187,12 +181,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
         PreparedStatement stmt = null;
         try {
             if (RDBMSTableUtils.isEmpty(condition)) {
-                stmt = conn.prepareStatement(deleteQuery.replace(RDBMSTableConstants.CONDITION_PLACEHOLDER, ""));
+                stmt = conn.prepareStatement(deleteQuery.replace(PLACEHOLDER_CONDITION, ""));
             } else {
-                stmt = conn.prepareStatement(this.formatQueryWithCondition(deleteQuery, condition));
+                stmt = conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(deleteQuery, condition));
             }
             for (Map<String, Object> deleteConditionParameterMap : deleteConditionParameterMaps) {
-                this.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, deleteConditionParameterMap);
+                RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, deleteConditionParameterMap, 0);
                 stmt.addBatch();
             }
             stmt.executeBatch();
@@ -207,6 +201,47 @@ public class RDBMSEventTable extends AbstractRecordTable {
     @Override
     protected void update(List<Map<String, Object>> updateConditionParameterMaps, CompiledCondition compiledCondition,
                           List<Map<String, Object>> updateValues) {
+        final int seed = this.attributes.size();
+        String sql = this.queryConfigurationEntry.getRecordUpdateQuery();
+        String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
+        StringBuilder columnsValues = new StringBuilder();
+        for (Attribute attribute : this.attributes) {
+            columnsValues.append(attribute.getName()).append(EQUALS).append(QUESTION_MARK);
+            if (this.attributes.indexOf(attribute) != this.attributes.size() - 1) {
+                columnsValues.append(SEPARATOR);
+            }
+        }
+        sql = sql.replace(PLACEHOLDER_COLUMNS_VALUES, columnsValues.toString());
+        if (RDBMSTableUtils.isEmpty(condition)) {
+            sql = sql.replace(PLACEHOLDER_CONDITION, "");
+        } else {
+            sql = RDBMSTableUtils.formatQueryWithCondition(sql, condition);
+        }
+        Connection conn = this.getConnection();
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(sql);
+            Iterator<Map<String, Object>> conditionParamIterator = updateConditionParameterMaps.iterator();
+            Iterator<Map<String, Object>> valueIterator = updateValues.iterator();
+            while (conditionParamIterator.hasNext() && valueIterator.hasNext()) {
+                Map<String, Object> conditionParameters = conditionParamIterator.next();
+                Map<String, Object> values = valueIterator.next();
+                //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
+                RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, conditionParameters,
+                        seed);
+                for (Attribute attribute : this.attributes) {
+                    RDBMSTableUtils.populateStatementWithSingleElement(stmt, this.attributes.indexOf(attribute) + 1,
+                            attribute.getType(), values.get(attribute.getName()));
+                }
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error performing update operation on table '" + this.tableName
+                    + "': " + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, stmt, conn);
+        }
     }
 
     @Override
@@ -225,28 +260,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 visitor.getParameters());
     }
 
-    private String formatQueryWithCondition(String query, String condition) {
-        return query.replace(RDBMSTableConstants.CONDITION_PLACEHOLDER,
-                RDBMSTableConstants.SQL_WHERE + RDBMSTableConstants.WHITESPACE + condition);
-    }
-
-    private void resolveCondition(PreparedStatement stmt, RDBMSCompiledCondition compiledCondition,
-                                  Map<String, Object> parameterMap) throws SQLException {
-        SortedMap<Integer, Object> parameters = compiledCondition.getParameters();
-        for (Map.Entry<Integer, Object> entry : parameters.entrySet()) {
-            Object parameter = entry.getValue();
-            if (parameter instanceof Constant) {
-                Constant constant = (Constant) parameter;
-                RDBMSTableUtils.populateStatementWithSingleElement(stmt, entry.getKey(), constant.getType(),
-                        constant.getValue());
-            } else {
-                Attribute variable = (Attribute) parameter;
-                RDBMSTableUtils.populateStatementWithSingleElement(stmt, entry.getKey(), variable.getType(),
-                        parameterMap.get(variable.getName()));
-            }
-        }
-    }
-
     private void lookupDatasource(String resourceName) throws NamingException {
         this.dataSource = InitialContext.doLookup(resourceName);
     }
@@ -254,15 +267,15 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private void initializeDatasource(Annotation storeAnnotation) {
         Properties connectionProperties = new Properties();
         String poolPropertyString = storeAnnotation.getElement(
-                RDBMSTableConstants.ANNOTATION_ELEMENT_POOL_PROPERTIES);
+                ANNOTATION_ELEMENT_POOL_PROPERTIES);
         connectionProperties.setProperty("jdbcUrl", storeAnnotation.getElement(
-                RDBMSTableConstants.ANNOTATION_ELEMENT_URL));
+                ANNOTATION_ELEMENT_URL));
         connectionProperties.setProperty("dataSource.user", storeAnnotation.getElement(
-                RDBMSTableConstants.ANNOTATION_ELEMENT_USERNAME));
+                ANNOTATION_ELEMENT_USERNAME));
         connectionProperties.setProperty("dataSource.password", storeAnnotation.getElement(
-                RDBMSTableConstants.ANNOTATION_ELEMENT_PASSWORD));
+                ANNOTATION_ELEMENT_PASSWORD));
         if (poolPropertyString != null) {
-            List<String[]> poolProps = this.processKeyValuePairs(poolPropertyString);
+            List<String[]> poolProps = RDBMSTableUtils.processKeyValuePairs(poolPropertyString);
             poolProps.forEach(pair -> connectionProperties.setProperty(pair[0], pair[1]));
         }
 
@@ -301,10 +314,10 @@ public class RDBMSEventTable extends AbstractRecordTable {
         List<String> queries = new ArrayList<>();
         String createQuery = this.resolveTableName(this.queryConfigurationEntry.getTableCreateQuery());
         String indexQuery = this.resolveTableName(this.queryConfigurationEntry.getIndexCreateQuery());
-        Map<String, String> fieldLengths = this.processFieldLengths(storeAnnotation.getElement(
-                RDBMSTableConstants.ANNOTATION_ELEMENT_FIELD_LENGTHS));
+        Map<String, String> fieldLengths = RDBMSTableUtils.processFieldLengths(storeAnnotation.getElement(
+                ANNOTATION_ELEMENT_FIELD_LENGTHS));
         for (Attribute attribute : this.attributes) {
-            builder.append(attribute.getName()).append(RDBMSTableConstants.WHITESPACE);
+            builder.append(attribute.getName()).append(WHITESPACE);
             switch (attribute.getType()) {
                 case BOOL:
                     builder.append(typeMapping.getBooleanType());
@@ -327,13 +340,13 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 case STRING:
                     builder.append(typeMapping.getStringType());
                     if (this.queryConfigurationEntry.getStringSize() != null) {
-                        builder.append(RDBMSTableConstants.OPEN_PARENTHESIS);
+                        builder.append(OPEN_PARENTHESIS);
                         if (fieldLengths.containsKey(attribute.getName().toLowerCase())) {
                             builder.append(fieldLengths.get(attribute.getName()));
                         } else {
                             builder.append(this.queryConfigurationEntry.getStringSize());
                         }
-                        builder.append(RDBMSTableConstants.CLOSE_PARENTHESIS);
+                        builder.append(CLOSE_PARENTHESIS);
                     }
                     break;
             }
@@ -341,32 +354,21 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 builder.append(SEPARATOR);
             }
             if (primaryKeyMap != null) {
-                builder.append(RDBMSTableConstants.PRIMARY_KEY_DEF)
-                        .append(RDBMSTableConstants.OPEN_PARENTHESIS)
-                        .append(this.flattenAnnotatedElements(primaryKeyMap))
-                        .append(RDBMSTableConstants.CLOSE_PARENTHESIS);
+                builder.append(PRIMARY_KEY_DEF)
+                        .append(OPEN_PARENTHESIS)
+                        .append(RDBMSTableUtils.flattenAnnotatedElements(primaryKeyMap))
+                        .append(CLOSE_PARENTHESIS);
             }
         }
-        queries.add(createQuery.replace(RDBMSTableConstants.COLUMNS_PLACEHOLDER, builder.toString()));
+        queries.add(createQuery.replace(PLACEHOLDER_COLUMNS, builder.toString()));
         if (indexMap != null && !indexMap.isEmpty()) {
-            queries.add(indexQuery.replace(INDEX_PLACEHOLDER, this.flattenAnnotatedElements(indexMap)));
+            queries.add(indexQuery.replace(INDEX_PLACEHOLDER, RDBMSTableUtils.flattenAnnotatedElements(indexMap)));
         }
         try {
             this.executeDDQueries(queries, false);
         } catch (SQLException e) {
             throw new RDBMSTableException("Unable to initialize table '" + this.tableName + "': " + e.getMessage(), e);
         }
-    }
-
-    private String flattenAnnotatedElements(List<Element> elements) {
-        StringBuilder sb = new StringBuilder();
-        for (Element elem : elements) {
-            sb.append(elem.getKey());
-            if (elements.indexOf(elem) != elements.size() - 1) {
-                sb.append(SEPARATOR);
-            }
-        }
-        return sb.toString();
     }
 
     private void executeDDQueries(List<String> queries, boolean autocommit) throws SQLException {
@@ -439,34 +441,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
         } finally {
             RDBMSTableUtils.cleanupConnection(rs, stmt, conn);
         }
-    }
-
-    private Map<String, String> processFieldLengths(String fieldInfo) {
-        Map<String, String> fieldLengths = new HashMap<>();
-        List<String[]> processedLengths = this.processKeyValuePairs(fieldInfo);
-        processedLengths.forEach(field -> fieldLengths.put(field[0].toLowerCase(), field[1]));
-        return fieldLengths;
-    }
-
-    private List<String[]> processKeyValuePairs(String annotationString) {
-        List<String[]> keyValuePairs = new ArrayList<>();
-        if (RDBMSTableUtils.isEmpty(annotationString)) {
-            String[] pairs = annotationString.split(",");
-            for (String element : pairs) {
-                if (!element.contains(":")) {
-                    throw new RDBMSTableException("Property '" + element + "' does not adhere to the expected " +
-                            "format: a property must be a key-value pair separated by a colon (:)");
-                }
-                String[] pair = element.split(":");
-                if (pair.length != 2) {
-                    throw new RDBMSTableException("Property '" + pair[0] + "' does not adhere to the expected " +
-                            "format: a property must be a key-value pair separated by a colon (:)");
-                } else {
-                    keyValuePairs.add(pair);
-                }
-            }
-        }
-        return keyValuePairs;
     }
 
     private void populateStatement(Object[] record, PreparedStatement stmt) {
