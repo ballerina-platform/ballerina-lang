@@ -83,6 +83,8 @@ public class XmlInputMapperTestCase {
                             org.junit.Assert.assertEquals(75.0f, event.getData(1));
                             org.junit.Assert.assertEquals("IBM@#$%^*", event.getData(0));
                             break;
+                        case 3:
+                            org.junit.Assert.assertEquals(" ", event.getData(0));
                         default:
                             org.junit.Assert.fail();
                     }
@@ -98,9 +100,17 @@ public class XmlInputMapperTestCase {
                 "<volume></volume></event></events>");
         InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price></price>" +
                 "<volume>10</volume></event></events>");
+        InMemoryBroker.publish("stock", "<events><event><symbol> </symbol><price>56</price>" +
+                "<volume>10</volume></event></events>");
+        InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price>56</price>" +
+                "<volume>aa</volume></event></events>");
+        InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price>bb</price>" +
+                "<volume>10</volume></event></events>");
+        InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price>bb</price>" +
+                "<volume>10.6</volume></event></events>");
 
         //assert event count
-        Assert.assertEquals("Number of events", 2, count.get());
+        Assert.assertEquals("Number of events", 3, count.get());
         executionPlanRuntime.shutdown();
         siddhiManager.shutdown();
     }
@@ -145,10 +155,60 @@ public class XmlInputMapperTestCase {
         executionPlanRuntime.start();
         InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price>55.6</price>" +
                 "<volume>100</volume></event><event><symbol>IBM</symbol><price>75.6</price>" +
-                "<volume>10</volume></event></events>");
+                "<volume>10</volume></event><event111><symbol>IBM</symbol><price>75.6</price>" +
+                "<volume>10</volume></event111></events>");
 
         //assert event count
         Assert.assertEquals("Number of events", 2, count.get());
+        executionPlanRuntime.shutdown();
+        siddhiManager.shutdown();
+    }
+
+    @Test
+    public void testXmlInputMappingDefaultNegative() throws InterruptedException {
+        log.info("Test case for xml input mapping with default mapping for multiple events");
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "@source(type='inMemory', topic='stock', @map(type='xml')) " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        default:
+                            org.junit.Assert.fail();
+                    }
+                }
+            }
+        });
+        executionPlanRuntime.start();
+        InMemoryBroker.publish("stock", "<test><event><symbol>WSO2</symbol><price>55.6</price>" +
+                "<volume>100</volume></event><event><symbol>IBM</symbol><price>75.6</price>" +
+                "<volume>10</volume></event></test>");
+        InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price>55.6</price>" +
+                "<volume>100</volume><event><symbol>IBM</symbol><price>75.6</price>" +
+                "<volume>10</volume></event></events>");
+        InMemoryBroker.publish("stock", "<test><event><symbol>WSO2</symbol><price>55.6</price>" +
+                "<volume>100</volume></event><event><symbol>IBM</symbol><price><v1>33</v1></price>" +
+                "<volume>10</volume></event></test>");
+
+
+        //assert event count
+        Assert.assertEquals("Number of events", 0, count.get());
         executionPlanRuntime.shutdown();
         siddhiManager.shutdown();
     }
