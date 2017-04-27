@@ -19,6 +19,7 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -42,6 +43,7 @@ import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
+import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
@@ -97,14 +99,13 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
-import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCPEntry;
+import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.PackageCPEntry;
@@ -120,30 +121,25 @@ import java.util.List;
  * @since 0.87
  */
 public class CodeGenerator implements NodeVisitor {
-    // Local variable indexes
-    private int intLVIndex = -1;
-    private int longLVIndex = -1;
-    private int doubleLVIndex = -1;
-    private int stringLVIndex = -1;
-    private int bValueLVIndex = -1;
+    private static final int INT_OFFSET = 0;
+    private static final int FLOAT_OFFSET = 1;
+    private static final int STRING_OFFSET = 2;
+    private static final int BOOL_OFFSET = 3;
+    private static final int REF_OFFSET = 4;
 
-    // Register indexes
-    private int intRegIndex = -1;
-    private int longRegIndex = -1;
-    private int doubleRegIndex = -1;
-    private int stringRegIndex = -1;
-    private int bValueRegIndex = -1;
+    // This int array hold then current local variable index of following types
+    // index 0 - int, 1 - float, 2 - string, 3 - boolean, 4 - reference(BValue)
+    private int[] lvIndexes = {-1, -1, -1, -1, -1};
 
-    // Return indexes
-    private int intRetIndex = -1;
-    private int longRetIndex = -1;
-    private int doubleRetIndex = -1;
-    private int stringRetIndex = -1;
-    private int bValueRetIndex = -1;
+    // This int array hold then current register index of following types
+    // index 0 - int, 1 - float, 2 - string, 3 - boolean, 4 - reference(BValue)
+    private int[] regIndexes = {-1, -1, -1, -1, -1};
 
     private ProgramFile programFile = new ProgramFile();
     private FunctionInfo funcInfo;
     private int pkgCPEntryIndex = -1;
+
+    private SymbolScope currentScope;
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -168,8 +164,6 @@ public class CodeGenerator implements NodeVisitor {
                 libraryPkg.accept(this);
             }
         }
-
-        System.out.println("#####done");
     }
 
     @Override
@@ -259,6 +253,8 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFunction function) {
+        openScope(function);
+
         UTF8CPEntry nameUTF8CPEntry = new UTF8CPEntry(function.getName());
         int nameIndex = programFile.getCPEntryIndex(nameUTF8CPEntry);
 
@@ -275,10 +271,9 @@ public class CodeGenerator implements NodeVisitor {
         funcInfo.codeAttributeInfo.setCodeAddrs(nextIP());
 
         // Add local variable indexes to the parameters and return parameters
-
         for (ParameterDef parameterDef : function.getParameterDefs()) {
-            // TODO Consider types of parameters
-            parameterDef.setMemoryLocation(new StackVarLocation(++longLVIndex));
+            int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
+            parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
             parameterDef.accept(this);
         }
 
@@ -286,33 +281,30 @@ public class CodeGenerator implements NodeVisitor {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (parameterDef.getName() != null) {
-                // TODO Consider other types of return parameters
-                parameterDef.setMemoryLocation(new StackVarLocation(++longLVIndex));
+                int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
+                parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
             }
 
             parameterDef.accept(this);
-
-            // TODO Consider other types of return parameters
-            longRegIndex++;
-
         }
 
         function.getCallableUnitBody().accept(this);
 
-        funcInfo.codeAttributeInfo.setMaxIntLocalVars(intLVIndex + 1);
-        funcInfo.codeAttributeInfo.setMaxLongLocalVars(longLVIndex + 1);
-        funcInfo.codeAttributeInfo.setMaxDoubleLocalVars(doubleLVIndex + 1);
-        funcInfo.codeAttributeInfo.setMaxStringLocalVars(stringLVIndex + 1);
-        funcInfo.codeAttributeInfo.setMaxBValueLocalVars(bValueLVIndex + 1);
+        funcInfo.codeAttributeInfo.setMaxLongLocalVars(lvIndexes[INT_OFFSET] + 1);
+        funcInfo.codeAttributeInfo.setMaxDoubleLocalVars(lvIndexes[FLOAT_OFFSET] + 1);
+        funcInfo.codeAttributeInfo.setMaxStringLocalVars(lvIndexes[STRING_OFFSET] + 1);
+        funcInfo.codeAttributeInfo.setMaxIntLocalVars(lvIndexes[BOOL_OFFSET] + 1);
+        funcInfo.codeAttributeInfo.setMaxBValueLocalVars(lvIndexes[REF_OFFSET] + 1);
 
-        funcInfo.codeAttributeInfo.setMaxIntRegs(intRegIndex + 1);
-        funcInfo.codeAttributeInfo.setMaxLongRegs(longRegIndex + 1);
-        funcInfo.codeAttributeInfo.setMaxDoubleRegs(doubleLVIndex + 1);
-        funcInfo.codeAttributeInfo.setMaxStringRegs(stringRegIndex + 1);
-        funcInfo.codeAttributeInfo.setMaxBValueRegs(bValueRegIndex + 1);
+        funcInfo.codeAttributeInfo.setMaxLongRegs(regIndexes[INT_OFFSET] + 1);
+        funcInfo.codeAttributeInfo.setMaxDoubleRegs(regIndexes[FLOAT_OFFSET] + 1);
+        funcInfo.codeAttributeInfo.setMaxStringRegs(regIndexes[STRING_OFFSET] + 1);
+        funcInfo.codeAttributeInfo.setMaxIntRegs(regIndexes[BOOL_OFFSET] + 1);
+        funcInfo.codeAttributeInfo.setMaxBValueRegs(regIndexes[REF_OFFSET] + 1);
         funcInfo = null;
 
         endCallableUnit();
+        closeScope();
     }
 
     @Override
@@ -364,54 +356,78 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(VariableDefStmt varDefStmt) {
         varDefStmt.getLExpr().accept(this);
 
-        // TODO Figure out the correct memory location for given variable
-        StackVarLocation stackVarLocation;
-        if (varDefStmt.getVariableDef().getType() == BTypes.typeInt) {
-            stackVarLocation = new StackVarLocation(++longLVIndex);
-            // TODO Fix the following else condition
+        int opcode = -1;
+        int lvIndex = -1;
+        MemoryLocation stackVarLocation;
+        VariableDef variableDef = varDefStmt.getVariableDef();
+
+        if (currentScope.getScopeName() == SymbolScope.ScopeName.LOCAL) {
+            OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableDef.getType().getTag(),
+                    InstructionCodes.istore, lvIndexes);
+            opcode = opcodeAndIndex.opcode;
+            lvIndex = opcodeAndIndex.index;
+            stackVarLocation = new StackVarLocation(lvIndex);
+
+        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
+            // TODO
+            stackVarLocation = null;
         } else {
-            stackVarLocation = new StackVarLocation(++intLVIndex);
+            // TODO
+            stackVarLocation = null;
         }
 
-        varDefStmt.getVariableDef().setMemoryLocation(stackVarLocation);
-
+        variableDef.setMemoryLocation(stackVarLocation);
         Expression rhsExpr = varDefStmt.getRExpr();
         if (rhsExpr == null) {
             return;
         }
 
         rhsExpr.accept(this);
-        emit(new Instruction(InstructionCodes.istore, rhsExpr.getTempOffset(),
-                stackVarLocation.getStackFrameOffset()));
+        emit(opcode, rhsExpr.getTempOffset(), lvIndex);
     }
 
     @Override
     public void visit(AssignStmt assignStmt) {
         assignStmt.getRExpr().accept(this);
+
+        int[] rhsExprIndexes;
         if (assignStmt.getRExpr() instanceof CallableUnitInvocationExpr) {
-            // Handle multiple return values
-            Expression[] lhsExprs = assignStmt.getLExprs();
-            int[] offsets = ((FunctionInvocationExpr) assignStmt.getRExpr()).getOffsets();
-
-            for (int i = 0; i < lhsExprs.length; i++) {
-                VariableRefExpr varRefExpr = (VariableRefExpr) lhsExprs[i];
-                varRefExpr.accept(this);
-
-                // TODO Assumption  need to consider other memory locations
-                StackVarLocation stackVarLocation = (StackVarLocation) varRefExpr.getVariableDef().getMemoryLocation();
-                emit(new Instruction(InstructionCodes.istore, offsets[i],
-                        stackVarLocation.getStackFrameOffset()));
-            }
-            return;
+            rhsExprIndexes = ((CallableUnitInvocationExpr) assignStmt.getRExpr()).getOffsets();
+        } else {
+            rhsExprIndexes = new int[]{assignStmt.getRExpr().getTempOffset()};
         }
 
-        assignStmt.getLExprs()[0].accept(this);
-        VariableRefExpr varRefExpr = (VariableRefExpr) assignStmt.getLExprs()[0];
+        Expression[] lhsExprs = assignStmt.getLExprs();
+        for (int i = 0; i < lhsExprs.length; i++) {
+            Expression lExpr = lhsExprs[i];
+            lExpr.accept(this);
 
-        // TODO Assumption  need to consider other memory locations
-        StackVarLocation stackVarLocation = (StackVarLocation) varRefExpr.getVariableDef().getMemoryLocation();
-        emit(new Instruction(InstructionCodes.istore, assignStmt.getRExpr().getTempOffset(),
-                stackVarLocation.getStackFrameOffset()));
+            if (lExpr instanceof VariableRefExpr) {
+                emitStoreVariableRef((VariableRefExpr) lExpr, rhsExprIndexes[i]);
+            }
+
+            // TODO Implement array and struct assignments
+        }
+    }
+
+    private void emitStoreVariableRef(VariableRefExpr variableRefExpr, int rhsExprRegIndex) {
+        int opcode = -1;
+        int lvIndex = -1;
+        MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
+        if (currentScope.getScopeName() == SymbolScope.ScopeName.LOCAL) {
+            opcode = getOpcode(variableRefExpr.getType().getTag(),
+                    InstructionCodes.istore);
+            lvIndex = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+
+        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
+            // TODO
+//            stackVarLocation = null;
+        } else {
+            // TODO
+//            stackVarLocation = null;
+        }
+
+        emit(opcode, rhsExprRegIndex, lvIndex);
     }
 
     @Override
@@ -437,7 +453,7 @@ public class CodeGenerator implements NodeVisitor {
         int opcode = getIfOpcode(ifCondExpr);
 
         // TODO operand2 should be the jump address  else-if or else or to the next instruction after then block
-        Instruction ifInstruction = new Instruction(opcode, intRegIndex, 0);
+        Instruction ifInstruction = new Instruction(opcode, regIndexes[BOOL_OFFSET], 0);
         emit(ifInstruction);
 
         ifElseStmt.getThenBody().accept(this);
@@ -454,7 +470,7 @@ public class CodeGenerator implements NodeVisitor {
             Expression elseIfCondition = elseIfBlock.getElseIfCondition();
             elseIfCondition.accept(this);
             opcode = getIfOpcode(elseIfCondition);
-            ifInstruction = new Instruction(opcode, intRegIndex, 0);
+            ifInstruction = new Instruction(opcode, regIndexes[BOOL_OFFSET], 0);
             emit(ifInstruction);
 
             elseIfBlock.getElseIfBody().accept(this);
@@ -492,7 +508,7 @@ public class CodeGenerator implements NodeVisitor {
 
         FunctionReturnCPEntry funcRetCPEntry = new FunctionReturnCPEntry(regIndexes);
         int funcRetCPEntryIndex = programFile.addCPEntry(funcRetCPEntry);
-        emit(new Instruction(InstructionCodes.ret, funcRetCPEntryIndex));
+        emit(InstructionCodes.ret, funcRetCPEntryIndex);
     }
 
     @Override
@@ -502,7 +518,7 @@ public class CodeGenerator implements NodeVisitor {
 
         conditionExpr.accept(this);
         int opcode = getIfOpcode(conditionExpr);
-        Instruction ifInstruction = new Instruction(opcode, intRegIndex, 0);
+        Instruction ifInstruction = new Instruction(opcode, regIndexes[BOOL_OFFSET], 0);
         emit(ifInstruction);
 
         whileStmt.getBody().accept(this);
@@ -561,36 +577,34 @@ public class CodeGenerator implements NodeVisitor {
 
         switch (typeTag) {
             case TypeTags.INT_TAG:
-                basicLiteral.setTempOffset(++longRegIndex);
+                basicLiteral.setTempOffset(++regIndexes[INT_OFFSET]);
                 long intVal = basicLiteral.getBValue().intValue();
                 if (intVal >= 0 && intVal <= 5) {
                     opcode = InstructionCodes.iconst_0 + (int) intVal;
-                    emit(InstructionFactory.get(opcode, basicLiteral.getTempOffset()));
+                    emit(opcode, basicLiteral.getTempOffset());
                 } else {
                     IntegerCPEntry intCPEntry = new IntegerCPEntry(basicLiteral.getBValue().intValue());
                     int intCPEntryIndex = programFile.addCPEntry(intCPEntry);
-                    emit(InstructionFactory.get(InstructionCodes.iconst, intCPEntryIndex,
-                            basicLiteral.getTempOffset()));
+                    emit(InstructionCodes.iconst, intCPEntryIndex, basicLiteral.getTempOffset());
                 }
                 break;
 
             case TypeTags.FLOAT_TAG:
-                basicLiteral.setTempOffset(++doubleRegIndex);
+                basicLiteral.setTempOffset(++regIndexes[FLOAT_OFFSET]);
                 double floatVal = basicLiteral.getBValue().floatValue();
                 if (floatVal == 0 || floatVal == 1 || floatVal == 2 ||
                         floatVal == 3 || floatVal == 4 || floatVal == 5) {
                     opcode = InstructionCodes.fconst_0 + (int) floatVal;
-                    emit(InstructionFactory.get(opcode, basicLiteral.getTempOffset()));
+                    emit(opcode, basicLiteral.getTempOffset());
                 } else {
                     FloatCPEntry floatCPEntry = new FloatCPEntry(basicLiteral.getBValue().floatValue());
                     int floatCPEntryIndex = programFile.addCPEntry(floatCPEntry);
-                    emit(InstructionFactory.get(InstructionCodes.fconst, floatCPEntryIndex,
-                            basicLiteral.getTempOffset()));
+                    emit(InstructionCodes.fconst, floatCPEntryIndex, basicLiteral.getTempOffset());
                 }
                 break;
 
             case TypeTags.STRING_TAG:
-                basicLiteral.setTempOffset(++stringRegIndex);
+                basicLiteral.setTempOffset(++regIndexes[STRING_OFFSET]);
                 String strValue = basicLiteral.getBValue().stringValue();
                 UTF8CPEntry utf8CPEntry = new UTF8CPEntry(strValue);
                 int stringValCPIndex = programFile.addCPEntry(utf8CPEntry);
@@ -598,18 +612,18 @@ public class CodeGenerator implements NodeVisitor {
                 StringCPEntry stringCPEntry = new StringCPEntry(stringValCPIndex, strValue);
                 int strCPEntryIndex = programFile.addCPEntry(stringCPEntry);
 
-                emit(InstructionFactory.get(InstructionCodes.sconst, strCPEntryIndex, basicLiteral.getTempOffset()));
+                emit(InstructionCodes.sconst, strCPEntryIndex, basicLiteral.getTempOffset());
                 break;
 
             case TypeTags.BOOLEAN_TAG:
-                basicLiteral.setTempOffset(++intRegIndex);
+                basicLiteral.setTempOffset(++regIndexes[BOOL_OFFSET]);
                 boolean booleanVal = basicLiteral.getBValue().booleanValue();
                 if (!booleanVal) {
                     opcode = InstructionCodes.bconst_0;
                 } else {
                     opcode = InstructionCodes.bconst_1;
                 }
-                emit(InstructionFactory.get(opcode, basicLiteral.getTempOffset()));
+                emit(opcode, basicLiteral.getTempOffset());
                 break;
         }
     }
@@ -729,30 +743,15 @@ public class CodeGenerator implements NodeVisitor {
         int[] retRegs = new int[retTypes.length];
         for (int i = 0; i < retTypes.length; i++) {
             BType retType = retTypes[i];
-            switch (retType.getSig()) {
-                case TypeConstants.INT_TSIG:
-                    retRegs[i] = ++longRegIndex;
-                    break;
-                case TypeConstants.FLOAT_TSIG:
-                    retRegs[i] = ++doubleRegIndex;
-                    break;
-                case TypeConstants.STRING_TSIG:
-                    retRegs[i] = ++stringRegIndex;
-                    break;
-                case TypeConstants.BOOLEAN_TSIG:
-                    retRegs[i] = ++intRegIndex;
-                    break;
-                default:
-                    retRegs[i] = ++bValueRegIndex;
-                    break;
-            }
+            retRegs[i] = getNextIndex(retType.getTag(), regIndexes);
         }
 
         FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(argRegs, retRegs);
         int funcCallIndex = programFile.addCPEntry(funcCallCPEntry);
 
-        emit(new Instruction(InstructionCodes.call, funcRefCPIndex, funcCallIndex));
         funcIExpr.setOffsets(retRegs);
+        funcIExpr.setTempOffset(retRegs[0]);
+        emit(InstructionCodes.call, funcRefCPIndex, funcCallIndex);
     }
 
     @Override
@@ -782,7 +781,24 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
+        BType bType = ((BArrayType) arrayInitExpr.getType()).getElementType();
 
+        switch (bType.getTag()) {
+            case TypeTags.INT_TAG:
+                emit(InstructionCodes.inewarray, ++regIndexes[REF_OFFSET]);
+                break;
+            case TypeTags.FLOAT_TAG:
+                break;
+            case TypeTags.STRING_TAG:
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                break;
+            case TypeTags.ARRAY_TAG:
+                break;
+            default:
+                // TODO All the other reference types
+                break;
+        }
     }
 
     @Override
@@ -812,7 +828,9 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
-
+//        if (arrayMapAccessExpr.isLHSExpr()) {
+//            return;
+//        }
     }
 
     @Override
@@ -826,17 +844,25 @@ public class CodeGenerator implements NodeVisitor {
             return;
         }
 
+        int opcode = -1;
+        int varIndex = -1;
+        int exprIndex = -1;
+
         VariableDef variableDef = variableRefExpr.getVariableDef();
-
-        // TODO Assumption  need to consider other memory locations
-        StackVarLocation stackVarLocation = (StackVarLocation) variableDef.getMemoryLocation();
-
-        if (variableRefExpr.getType() == BTypes.typeInt) {
-            variableRefExpr.setTempOffset(++longRegIndex);
+        MemoryLocation memoryLocation = variableDef.getMemoryLocation();
+        if (memoryLocation instanceof StackVarLocation) {
+            OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableRefExpr.getType().getTag(),
+                    InstructionCodes.iload, regIndexes);
+            opcode = opcodeAndIndex.opcode;
+            exprIndex = opcodeAndIndex.index;
+            varIndex = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+        } else if (memoryLocation instanceof ConnectorVarLocation) {
+            // TODO Assumption  need to consider other memory locations
+            opcode = -10;
         }
 
-        emit(new Instruction(InstructionCodes.iload, stackVarLocation.getStackFrameOffset(),
-                variableRefExpr.getTempOffset()));
+        variableRefExpr.setTempOffset(exprIndex);
+        emit(opcode, varIndex, exprIndex);
     }
 
     @Override
@@ -882,24 +908,79 @@ public class CodeGenerator implements NodeVisitor {
 
     // Private methods
 
+    private void openScope(SymbolScope symbolScope) {
+        currentScope = symbolScope;
+    }
+
+    private void closeScope() {
+        currentScope = currentScope.getEnclosingScope();
+    }
+
     private void endCallableUnit() {
-        intLVIndex = -1;
-        longLVIndex = -1;
-        doubleLVIndex = -1;
-        stringLVIndex = -1;
-        bValueLVIndex = -1;
+        resetIndexes(lvIndexes);
+        resetIndexes(regIndexes);
+    }
 
-        intRegIndex = -1;
-        longRegIndex = -1;
-        doubleRegIndex = -1;
-        stringRegIndex = -1;
-        bValueRegIndex = -1;
+    private void resetIndexes(int[] indexes) {
+        for (int i = 0; i < indexes.length; i++) {
+            indexes[i] = -1;
+        }
+    }
 
-        intRetIndex = -1;
-        longRetIndex = -1;
-        doubleRetIndex = -1;
-        stringRetIndex = -1;
-        bValueRetIndex = -1;
+    private OpcodeAndIndex getOpcodeAndIndex(int typeTag, int baseOpcode, int[] indexes) {
+        int index;
+        int opcode;
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                opcode = baseOpcode;
+                index = ++indexes[INT_OFFSET];
+                break;
+            case TypeTags.FLOAT_TAG:
+                opcode = baseOpcode + FLOAT_OFFSET;
+                index = ++indexes[FLOAT_OFFSET];
+                break;
+            case TypeTags.STRING_TAG:
+                opcode = baseOpcode + STRING_OFFSET;
+                index = ++indexes[STRING_OFFSET];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                opcode = baseOpcode + BOOL_OFFSET;
+                index = ++indexes[BOOL_OFFSET];
+                break;
+            default:
+                opcode = baseOpcode + REF_OFFSET;
+                index = ++indexes[REF_OFFSET];
+                break;
+        }
+
+        return new OpcodeAndIndex(opcode, index);
+    }
+
+    private int getNextIndex(int typeTag, int[] indexes) {
+        return getOpcodeAndIndex(typeTag, -1, indexes).index;
+    }
+
+    private int getOpcode(int typeTag, int baseOpcode) {
+        int opcode;
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                opcode = baseOpcode;
+                break;
+            case TypeTags.FLOAT_TAG:
+                opcode = baseOpcode + FLOAT_OFFSET;
+                break;
+            case TypeTags.STRING_TAG:
+                opcode = baseOpcode + STRING_OFFSET;
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                opcode = baseOpcode + BOOL_OFFSET;
+                break;
+            default:
+                opcode = baseOpcode + REF_OFFSET;
+                break;
+        }
+
+        return opcode;
     }
 
     private String getFunctionDescriptor(Function function) {
@@ -965,27 +1046,12 @@ public class CodeGenerator implements NodeVisitor {
         expr.getLExpr().accept(this);
         expr.getRExpr().accept(this);
 
-        int opcode = -1;
-        int exprOffset = -1;
-        int typeTag = expr.getType().getTag();
-        switch (typeTag) {
-            case TypeTags.INT_TAG:
-                opcode = baseOpcode;
-                exprOffset = ++longRegIndex;
-                break;
-            case TypeTags.FLOAT_TAG:
-                opcode = baseOpcode + 1;
-                exprOffset = ++doubleRegIndex;
-                break;
-            case TypeTags.STRING_TAG:
-                opcode = baseOpcode + 2;
-                exprOffset = ++stringRegIndex;
-                break;
-        }
+        OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(expr.getType().getTag(), baseOpcode, regIndexes);
+        int opcode = opcodeAndIndex.opcode;
+        int exprIndex = opcodeAndIndex.index;
 
-        expr.setTempOffset(exprOffset);
-        emit(InstructionFactory.get(opcode, expr.getLExpr().getTempOffset(),
-                expr.getRExpr().getTempOffset(), exprOffset));
+        expr.setTempOffset(exprIndex);
+        emit(opcode, expr.getLExpr().getTempOffset(), expr.getRExpr().getTempOffset(), exprIndex);
     }
 
     private void emitBinaryCompareAndEqualityExpr(BinaryExpression expr, int baseOpcode) {
@@ -1000,29 +1066,45 @@ public class CodeGenerator implements NodeVisitor {
         switch (typeTag) {
             case TypeTags.INT_TAG:
                 opcode = baseOpcode;
-                exprOffset = ++intRegIndex;
+                exprOffset = ++regIndexes[BOOL_OFFSET];
                 break;
             case TypeTags.FLOAT_TAG:
-                opcode = baseOpcode + 1;
-                exprOffset = ++intRegIndex;
+                opcode = baseOpcode + FLOAT_OFFSET;
+                exprOffset = ++regIndexes[BOOL_OFFSET];
                 break;
             case TypeTags.STRING_TAG:
-                opcode = baseOpcode + 2;
-                exprOffset = ++intRegIndex;
+                opcode = baseOpcode + STRING_OFFSET;
+                exprOffset = ++regIndexes[BOOL_OFFSET];
                 break;
             case TypeTags.BOOLEAN_TAG:
-                opcode = baseOpcode + 3;
-                exprOffset = ++intRegIndex;
+                opcode = baseOpcode + BOOL_OFFSET;
+                exprOffset = ++regIndexes[BOOL_OFFSET];
                 break;
             // TODO Handle NULL type
         }
 
         expr.setTempOffset(exprOffset);
-        emit(InstructionFactory.get(opcode, expr.getLExpr().getTempOffset(),
-                expr.getRExpr().getTempOffset(), exprOffset));
+        emit(opcode, expr.getLExpr().getTempOffset(), expr.getRExpr().getTempOffset(), exprOffset);
+    }
+
+    private int emit(int opcode, int... operands) {
+        return programFile.addInstruction(InstructionFactory.get(opcode, operands));
     }
 
     private int emit(Instruction instruction) {
         return programFile.addInstruction(instruction);
+    }
+
+    /**
+     * @since 0.87
+     */
+    public static class OpcodeAndIndex {
+        int opcode;
+        int index;
+
+        public OpcodeAndIndex(int opcode, int index) {
+            this.opcode = opcode;
+            this.index = index;
+        }
     }
 }
