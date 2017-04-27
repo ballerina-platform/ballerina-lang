@@ -2231,7 +2231,7 @@ public class PrimaryKeyTableTestCase {
             long startTime = System.currentTimeMillis();
             stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
             stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 1000000; i++) {
                 checkStockStream.send(new Object[]{"IBM", 100l});
                 checkStockStream.send(new Object[]{"WSO2", 100l});
             }
@@ -2240,7 +2240,7 @@ public class PrimaryKeyTableTestCase {
             long startTime1 = System.currentTimeMillis();
             stockStream1.send(new Object[]{"WSO2", 55.6f, 100l});
             stockStream1.send(new Object[]{"IBM", 55.6f, 100l});
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 1000000; i++) {
                 checkStockStream1.send(new Object[]{"IBM", 100l});
                 checkStockStream1.send(new Object[]{"WSO2", 100l});
             }
