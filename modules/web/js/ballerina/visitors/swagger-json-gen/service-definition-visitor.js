@@ -21,8 +21,8 @@ import AbstractSwaggerJsonGenVisitor from './abstract-swagger-json-gen-visitor';
 import ResourceDefinitionVisitor from './resource-definition-visitor';
 
 /**
- * @param parent
- * @constructor
+ * The {@link ServiceDefinition} visitor for generating its JSON swagger.
+ * @extends AbstractSwaggerJsonGenVisitor
  */
 class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
     constructor(parent) {
@@ -93,6 +93,11 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         resourceDefinition.accept(resourceDefinitionVisitor);
     }
 
+    /**
+     * Creates the swagger JSON using the @ServiceInfo annotation..
+     * @param {Annotation} existingAnnotation The @ServiceInfo annotation of the service definition.
+     * @param {object} swaggerJson The swagger json to be updated.
+     */
     parseServiceInfoAnnotation(existingAnnotation, swaggerJson) {
         // Setting default values
         _.set(swaggerJson, 'info.title', 'Sample Service');
@@ -112,20 +117,20 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 let contactAnnotation = annotationEntry.getRightValue();
                 _.forEach(contactAnnotation.getChildren(), contactAnnotationEntry => {
                     if (_.isEqual(contactAnnotationEntry.getLeftValue(), 'name')) {
-                        _.set(swaggerJson, 'info.contact.name', this.removeDoubleQuotes(annotationEntry.getRightValue()));
+                        _.set(swaggerJson, 'info.contact.name', this.removeDoubleQuotes(contactAnnotationEntry.getRightValue()));
                     } else if (_.isEqual(contactAnnotationEntry.getLeftValue(), 'email')) {
-                        _.set(swaggerJson, 'info.contact.email', this.removeDoubleQuotes(annotationEntry.getRightValue()));
+                        _.set(swaggerJson, 'info.contact.email', this.removeDoubleQuotes(contactAnnotationEntry.getRightValue()));
                     } else if (_.isEqual(contactAnnotationEntry.getLeftValue(), 'url')) {
-                        _.set(swaggerJson, 'info.contact.url', this.removeDoubleQuotes(annotationEntry.getRightValue()));
+                        _.set(swaggerJson, 'info.contact.url', this.removeDoubleQuotes(contactAnnotationEntry.getRightValue()));
                     }
                 });
             } else if (_.isEqual(annotationEntry.getLeftValue(), 'license')) {
                 let licenseAnnotation = annotationEntry.getRightValue();
                 _.forEach(licenseAnnotation.getChildren(), licenseAnnotationEntry => {
                     if (_.isEqual(licenseAnnotationEntry.getLeftValue(), 'name')) {
-                        _.set(swaggerJson, 'info.license.name', this.removeDoubleQuotes(annotationEntry.getRightValue()));
+                        _.set(swaggerJson, 'info.license.name', this.removeDoubleQuotes(licenseAnnotationEntry.getRightValue()));
                     } else if (_.isEqual(licenseAnnotationEntry.getLeftValue(), 'url')) {
-                        _.set(swaggerJson, 'info.license.url', this.removeDoubleQuotes(annotationEntry.getRightValue()));
+                        _.set(swaggerJson, 'info.license.url', this.removeDoubleQuotes(licenseAnnotationEntry.getRightValue()));
                     }
                 });
             } else if (_.isEqual(annotationEntry.getLeftValue(), 'externalDoc')) {
@@ -140,6 +145,11 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         });
     }
 
+    /**
+     * Creates the swagger JSON using the @ServiceConfig annotation..
+     * @param {Annotation} existingAnnotation The @ServiceConfig annotation of the service definition.
+     * @param {object} swaggerJson The swagger json to be updated.
+     */
     parseServiceConfigAnnotation(existingAnnotation, swaggerJson) {
         // Setting values.
         _.forEach(existingAnnotation.getChildren(), annotationEntry => {

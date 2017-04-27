@@ -20,8 +20,7 @@ import ASTVisitor from '../ast-visitor';
 
 /**
  * Constructor for the Abstract JSON Generation Visitor
- * @param parent
- * @constructor
+ * @extends ASTVisitor
  */
 class AbstractSwaggerJsonGenVisitor extends ASTVisitor {
     constructor(parent) {
@@ -65,6 +64,10 @@ class AbstractSwaggerJsonGenVisitor extends ASTVisitor {
         }
     }
 
+    /**
+     * Removes the double quotes of a string value.
+     * @param {string} val A string value.
+     */
     removeDoubleQuotes(val) {
         return val.replace(/"/g, '');
     }

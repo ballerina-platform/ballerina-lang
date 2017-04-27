@@ -20,15 +20,27 @@ import ASTNode from '../node';
 const supportedHttpMethodAnnotations = ['POST', 'GET', 'PUT', 'HEAD', 'DELETE', 'PATCH', 'OPTION'];
 
 /**
- * Has children of type annotationEntry.
+ * Has children of type {@link AnnotationEntry} only.
+ * @extends ASTNode
  */
 class Annotation extends ASTNode {
     /**
-    * Creates new instance of an annotation.
-    * @param {string} identifier The text of the identifier. Example: http:GET
-    */
+     * Creates new instance of an annotation.
+     * @param {object} args The annotation creation args object.
+     * @param {string} args.fullPackageName The full package name of the annotation. Example: ballerina.net.http.
+     * @param {string} args.packageName The full package name of the annotation. Example: http.
+     * @param {string} args.identifier The right hand side test of the annotation. Example: GET
+     * @param {boolean} args.supported These annotation will be ignored when generating the source code.
+     * @param {string} args.uniqueIdentifier A unique identifier for an annotation. Can be used for filtering later on.
+     */
     constructor(args) {
         super('Annotation');
+
+        /**
+         * The full package name. Example: ballerina.net.http.
+         * @type {string}
+         */
+        this._fullPackageName = _.get(args, 'fullPackageName');
 
         /**
          * The package of the annotation. Example: http.
@@ -52,6 +64,14 @@ class Annotation extends ASTNode {
          * A special string for identification.
          */
         this._uniqueIdentifier = _.get(args, 'uniqueIdentifier');
+    }
+
+    setFullPackageName(fullPackageName, options) {
+        this.setAttribute('_fullPackageName', fullPackageName, options);
+    }
+
+    getFullPackageName() {
+        return this._fullPackageName;
     }
 
     setPackageName(packageName, options) {
@@ -86,6 +106,10 @@ class Annotation extends ASTNode {
         return this._uniqueIdentifier;
     }
 
+    /**
+     * The ballerina source code for the current annotation including its nested children.
+     * @return {string}
+     */
     toString() {
         let annotationString;
         if (_.isUndefined(this._packageName) || _.isEmpty(this._packageName)) {
@@ -105,13 +129,16 @@ class Annotation extends ASTNode {
     }
 
     /**
-     * setting parameters from json
-     * @param {Object} jsonNode to initialize from
+     * Setting parameters from json
+     * @param {object} jsonNode to initialize from
+     * @param {string} jsonNode.annotation_package_path The full path of the annotation.
+     * @param {string} jsonNode.annotation_package_name The package name.
+     * @param {string} jsonNode.annotation_name The identifier of the annotation.
      */
     initFromJson(jsonNode) {
+        this.setFullPackageName(jsonNode.annotation_package_path, {doSilently: true});
         this.setPackageName(jsonNode.annotation_package_name, {doSilently: true});
         this.setIdentifier(jsonNode.annotation_name, {doSilently: true});
-
         if (_.includes(
                 _.map(supportedHttpMethodAnnotations, (e) => {
                     return e.toLowerCase();

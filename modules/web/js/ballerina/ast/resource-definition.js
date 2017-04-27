@@ -341,6 +341,10 @@ class ResourceDefinition extends ASTNode {
         return !_.isEmpty(connectorReferences) ? connectorReferences : this.getParent().getConnectorsInImmediateScope();
     }
 
+    /**
+     * Gets the @http:Path{value: '/abc'} annotation AST.
+     * @return {Annotation|undefined}
+     */
     getPathAnnotation() {
         let pathAnnotation = undefined;
         _.forEach(this.getChildrenOfType(this.getFactory().isAnnotation), annotationAST => {
@@ -352,6 +356,10 @@ class ResourceDefinition extends ASTNode {
         return pathAnnotation;
     }
 
+    /**
+     * Gets the @http:GET{} annotation AST
+     * @return {Annotation|undefined}
+     */
     getHttpMethodAnnotation() {
         let httpMethodAnnotation = undefined;
         _.forEach(this.getChildrenOfType(this.getFactory().isAnnotation), annotationAST => {

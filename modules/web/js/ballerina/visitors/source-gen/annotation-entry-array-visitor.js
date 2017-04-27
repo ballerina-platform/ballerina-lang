@@ -18,6 +18,10 @@
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import log from 'log';
 
+/**
+ * The {@link AnnotationEntryArray} visitor when generating ballerina code.
+ * @extends AbstractSourceGenVisitor
+ */
 class AnnotationEntryArrayVisitor extends AbstractSourceGenVisitor {
     constructor (parent) {
         super(parent);
@@ -37,7 +41,7 @@ class AnnotationEntryArrayVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitAnnotationEntryArray (annotationEntryArray) {
-        this.appendSource("\n");
+        this.appendSource('\n');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit AnnotationEntryArray');
     }

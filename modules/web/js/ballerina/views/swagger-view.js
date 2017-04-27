@@ -34,17 +34,20 @@ class SwaggerView extends EventChannel {
     /**
      * Constructor for SwaggerView
      * @param {Object} args - Rendering args for the view
-     * @param {String} args.container - selector for div element to render ace editor
-     * @param {String} [args.content] - initial content for the editor
+     * @param {String} args.container - Selector for div element to render ace editor
+     * @param {String} args.swaggerEditorTheme - The theme of the swagger editor.
+     * @param {String} args.swaggerEditorFontSize - The font size of the swagger editor.
      * @constructor
      */
     constructor(args) {
         super();
         this._options = args;
         if (!_.has(args, 'container')) {
-            log.error('container is not specified for rendering swagger view.');
+            log.error('Container is not specified for rendering swagger view.');
         }
         this._container = _.get(args, 'container');
+        this._swaggerEditorTheme = _.get(args, 'swaggerEditorTheme');
+        this._swaggerEditorFontSize = _.get(args, 'swaggerEditorFontSize');
         this._currentEditingServiceDefinition = undefined;
         this._manualUpdate = false;
         this._swaggerData = undefined;
@@ -53,8 +56,11 @@ class SwaggerView extends EventChannel {
 
     /**
      * Set the content of swagger editor.
-     * @param {Object[]} swaggerInfos - content for the editor.
-     *
+     * @param {Object[]} swaggerInfos - An object array which contains service definition ASTs and their swagger
+     * definitions.
+     * @param {ServiceDefinition} swaggerInfos[].serviceDefinitionAST The Service definition.
+     * @param {Object} swaggerInfos[].swagger The JSON swagger definition.
+     * @param {Object} swaggerInfos[].swagger The JSON swagger definition.
      */
     render(swaggerInfos) {
         this._swaggerData = swaggerInfos;
@@ -70,6 +76,11 @@ class SwaggerView extends EventChannel {
         let swaggerAceEditorElement = swaggerEditorElement.find('#ace-editor');
         swaggerAceEditorElement.attr('id', 'z-ace-editor-' + this._options.swaggerEditorId);
         this._swaggerAceEditor = ace.edit('z-ace-editor-' + this._options.swaggerEditorId);
+
+        this._swaggerAceEditor.$blockScrolling = Infinity;
+        let editorTheme = ace.acequire(this._swaggerEditorTheme);
+        this._swaggerAceEditor.setTheme(editorTheme);
+        this._swaggerAceEditor.setFontSize(this._swaggerEditorFontSize);
 
         // Remove dropdown wrapper if already exists.
         $(this._container).find('div.swagger-service-selector-wrapper').remove();
@@ -243,6 +254,7 @@ class SwaggerView extends EventChannel {
                     }
                 }
             } else if (_.isEqual(_.size(astPath), 2)) {
+                // When http method is updated
                 let oldHttpMethod;
                 if (_.isEqual(editorEvent.action, 'insert')) {
                     let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
@@ -290,6 +302,9 @@ class SwaggerView extends EventChannel {
         }
     }
 
+    /**
+     * Returns the number of errors in the editor.
+     */
     hasSwaggerErrors() {
         return _.size(this._swaggerAceEditor.getSession().getAnnotations());
     }

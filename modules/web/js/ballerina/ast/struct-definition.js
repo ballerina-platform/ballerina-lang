@@ -111,7 +111,7 @@ class StructDefinition extends ASTNode {
      * Initialize StructDefinition from json object
      * @param {Object} jsonNode - JSON object for initialization.
      * @param {string} jsonNode.struct_name - Name of the struct definition.
-     * @param {VariableDefinitioon[]} jsonNode.children - Variables of the struct definition.get
+     * @param {VariableDefinitioon[]} jsonNode.children - Variables of the struct definition.
      */
     initFromJson(jsonNode) {
         var self = this;

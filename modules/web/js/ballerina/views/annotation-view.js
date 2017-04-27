@@ -20,16 +20,27 @@ import $ from 'jquery';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 const ace = global.ace;
 
+/**
+ * The annotation editor shown in the design view
+ */
 class AnnotationView {
+    /**
+     * Initializes the annotation view.
+     * @param {object} args The arguments object to create the annotation view.
+     * @param {DiagramRenderContext} args.diagramRenderingContext The diagram rending context.
+     * @param {Element} args.viewPrependElement The element to which the annotation view should be appended to.
+     * @param {Element} args.positionElement The element to which the annotation view should be positions to.
+     */
     constructor (args) {
         this._astNode = _.get(args, 'astNode');
         this._diagramRenderingContext = _.get(args, 'diagramRenderingContext');
         this._viewPrependElement = _.get(args, 'viewPrependElement');
         this._postitioningElement = _.get(args, 'positioningElement');
-        this._newBallerinaASTRoot = undefined;
-        this._isUserEdit = undefined;
     }
 
+    /**
+     * Renders the annotation view. By default the view is hidden.
+     */
     render() {
         let ballerinaFileEditor = this._diagramRenderingContext.ballerinaFileEditor;
         let annotationEditorDiv;
@@ -61,6 +72,9 @@ class AnnotationView {
         this.hideEditor();
     }
 
+    /**
+     * Sets the annotation values to the editor.
+     */
     setEditorValue() {
         let sourcePrefix = '';
         let annotationSource = '';
@@ -170,6 +184,10 @@ class AnnotationView {
         });
     }
 
+    /**
+     * Update the height of the editor depending on the content inside.
+     * @private
+     */
     _updateEditorHeight() {
         if (_.isUndefined(this._postitioningElement)) {
             // Updating height.
@@ -193,6 +211,9 @@ class AnnotationView {
 
     }
 
+    /**
+     * Positions the editor with x, y and width.
+     */
     positionEditor() {
         if (!_.isUndefined(this._postitioningElement)) {
             // Positioning the editor
@@ -204,12 +225,18 @@ class AnnotationView {
         }
     }
 
+    /**
+     * Shows the editor.
+     */
     showEditor() {
         this.positionEditor();
         $(this._editor.container).show();
         this.setEditorValue();
     }
 
+    /**
+     * Hides the editor.
+     */
     hideEditor() {
         $(this._editor.container).hide();
     }

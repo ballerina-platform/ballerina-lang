@@ -792,7 +792,7 @@ class ResourceDefinitionView extends BallerinaView {
             this._contentRect.attr('width', parseFloat(this._contentRect.attr('width')) + dw);
             this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
             //repositioning annotation editor view
-            //this._annotationView.move({dx: dw});
+            this._annotationView.positionEditor();
             //repositioning argument editor view
             this._resourceParamatersPaneView.move({dx: dw});
             // If the bounding box of the resource go over the svg's current width

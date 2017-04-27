@@ -20,12 +20,17 @@ import ASTNode from '../node';
 
 /**
  * Contains children of annotation-entry type.
+ * @extends ASTNode
  */
 class AnnotationEntryArray extends ASTNode {
     constructor() {
         super('Annotation-Entry-Array');
     }
 
+    /**
+     * An annotation array stringified along with its children.
+     * @return {string}
+     */
     toString() {
         let stringVal = '[';
         let annotationEntries = [];
@@ -38,7 +43,7 @@ class AnnotationEntryArray extends ASTNode {
     }
 
     /**
-     * setting parameters from json
+     * Setting parameters from json
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {

@@ -20,7 +20,9 @@ import log from 'log';
 import ASTNode from '../node';
 
 /**
- *
+ * This represents a map entry for an {@link Annotation} and a single entry for a {@link AnnotationEntryArray}. This ast
+ * node should NOT have children.
+ * @extends ASTNode
  */
 class AnnotationEntry extends ASTNode {
     /**
@@ -60,6 +62,10 @@ class AnnotationEntry extends ASTNode {
         return this._rightValue;
     }
 
+    /**
+     * Generates ballerina code for the entry.
+     * @return {string}
+     */
     toString() {
         let annotationEntryAsString;
         if (_.isString(this._rightValue)) {
@@ -76,8 +82,8 @@ class AnnotationEntry extends ASTNode {
     }
 
     /**
-     * setting parameters from json
-     * @param {Object} jsonNode to initialize from
+     * Setting parameters from json
+     * @param {object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
         this.setLeftValue(jsonNode.annotation_entry_key, {doSilently: true});

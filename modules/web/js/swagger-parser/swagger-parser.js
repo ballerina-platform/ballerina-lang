@@ -21,11 +21,15 @@ import BallerinaASTFactory from '../ballerina/ast/ballerina-ast-factory';
 import DefaultBallerinaASTFactory from '../ballerina/ast/default-ballerina-ast-factory';
 import _ from 'lodash';
 
+/**
+ * This parser class provides means of merging a swagger JSON to a {@link ServiceDefinition} or a
+ * {@link ResourceDefinition}.
+ */
 class SwaggerParser {
 
     /**
      * @constructs
-     * @param {string} swaggerDefintiion - The swagger defintion as a string. This can be YAML or JSON.
+     * @param {string|object} swaggerDefintiion - The swagger definition as a string. This can be YAML or JSON.
      * @param {boolean} isYaml is the swagger definition a YAML content or not.
      */
     constructor(swaggerDefintiion, isYaml) {
@@ -37,7 +41,8 @@ class SwaggerParser {
     }
 
     /**
-     *
+     * Merge the {@link _swaggerJson} to service definition.
+     * @param {ServiceDefinition} serviceDefinition The service definition.
      */
     mergeToService(serviceDefinition) {
         let serviceDefinitionAnnotations = serviceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
@@ -59,9 +64,9 @@ class SwaggerParser {
 
         // Creating consumes annotation
         if (!_.isUndefined(this._swaggerJson.consumes)) {
-            let consumesAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'http', 'Consumes');
+            let consumesAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'Consumes');
             let consumesAnnotation = this._createSimpleAnnotation({
-                annotation: {packageName: 'http', identifier: 'Consumes', supported: true},
+                annotation: {packageName: 'swagger', identifier: 'Consumes', supported: true},
                 swaggerJsonNode: this._swaggerJson.consumes,
             });
             serviceDefinition.addChild(consumesAnnotation, consumesAnnotationIndex, true);
@@ -69,9 +74,9 @@ class SwaggerParser {
 
         // Creating consumes annotation
         if (!_.isUndefined(this._swaggerJson.produces)) {
-            let producesAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'http', 'Produces');
+            let producesAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'Produces');
             let producesAnnotation = this._createSimpleAnnotation({
-                annotation: {packageName: 'http', identifier: 'Produces', supported: true},
+                annotation: {packageName: 'swagger', identifier: 'Produces', supported: true},
                 swaggerJsonNode: this._swaggerJson.produces,
             });
             serviceDefinition.addChild(producesAnnotation, producesAnnotationIndex, true);
@@ -97,6 +102,11 @@ class SwaggerParser {
         });
     }
 
+    /**
+     * Creates the @ServiceInfo annotation for a given {@link ServiceDefinition} using the {@link _swaggerJson}.
+     * @param {ServiceDefinition} serviceDefinition The service definition
+     * @private
+     */
     _createServiceInfoAnnotation(serviceDefinition) {
         let serviceInfoAnnotation = BallerinaASTFactory.createAnnotation({
             packageName: 'swagger',
@@ -166,6 +176,11 @@ class SwaggerParser {
         serviceDefinition.addChild(serviceInfoAnnotation, serviceInfoAnnotationIndex, true);
     }
 
+    /**
+     * Creates the @Swagger annotation for a given {@link ServiceDefinition} using the {@link _swaggerJson}.
+     * @param {ServiceDefinition} serviceDefinition The service definition
+     * @private
+     */
     _createSwaggerAnnotation(serviceDefinition) {
         let swaggerAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: 'Swagger'});
         swaggerAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
@@ -177,6 +192,11 @@ class SwaggerParser {
         serviceDefinition.addChild(swaggerAnnotation, swaggerAnnotationIndex, true);
     }
 
+    /**
+     * Creates the @ServiceConfig annotation for a given {@link ServiceDefinition} using the {@link _swaggerJson}.
+     * @param {ServiceDefinition} serviceDefinition The service definition
+     * @private
+     */
     _createServiceConfigAnnotation(serviceDefinition) {
         let serviceConfigAnnotation = BallerinaASTFactory.createAnnotation({
             packageName: 'swagger',
@@ -196,7 +216,6 @@ class SwaggerParser {
         let swaggerAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'ServiceConfig');
         serviceDefinition.addChild(serviceConfigAnnotation, swaggerAnnotationIndex, true);
     }
-
     _createSimpleAnnotation(args) {
         let newAnnotationAst;
         if (!_.isUndefined(args.swaggerJsonNode)) {
@@ -207,6 +226,14 @@ class SwaggerParser {
         return newAnnotationAst;
     }
 
+    /**
+     * Merge a swagger json object of the http method to a {@link ResourceDefinition}.
+     * @param {ResourceDefinition} resourceDefinition The resource definition to be merged with.
+     * @param {string} pathString The @http:Path{} value
+     * @param {string} httpMethodAsString The http method of the resource. Example: @http:GET{}
+     * @param {object} httpMethodJsonObject The http method object of the swagger json.
+     * @private
+     */
     _mergeToResource(resourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
         // Create path annotation
         // This is not needed to be done as the path value is kept mapped from the swagger editor to the composer AST.
@@ -221,9 +248,9 @@ class SwaggerParser {
 
         // Creating consumes annotation
         if (!_.isUndefined(httpMethodJsonObject.consumes)) {
-            let consumesAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'http', 'Consumes');
+            let consumesAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'Consumes');
             let consumesAnnotation = this._createSimpleAnnotation({
-                annotation: {packageName: 'http', identifier: 'Consumes', supported: true},
+                annotation: {packageName: 'swagger', identifier: 'Consumes', supported: true},
                 swaggerJsonNode: httpMethodJsonObject.consumes,
             });
             resourceDefinition.addChild(consumesAnnotation, consumesAnnotationIndex, true);
@@ -231,9 +258,9 @@ class SwaggerParser {
 
         // Creating consumes annotation
         if (!_.isUndefined(httpMethodJsonObject.produces)) {
-            let producesAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'http', 'Produces');
+            let producesAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'Produces');
             let producesAnnotation = this._createSimpleAnnotation({
-                annotation: {packageName: 'http', identifier: 'Produces', supported: true},
+                annotation: {packageName: 'swagger', identifier: 'Produces', supported: true},
                 swaggerJsonNode: httpMethodJsonObject.produces,
             });
             resourceDefinition.addChild(producesAnnotation, producesAnnotationIndex, true);
@@ -243,6 +270,12 @@ class SwaggerParser {
         this._createParametersAnnotation(resourceDefinition, httpMethodJsonObject);
     }
 
+    /**
+     * Creates the @ResourceConfig annotation for a given {@link ResourceDefinition} using the http method object of the
+     * swagger JSON.
+     * @param {ServiceDefinition} resourceDefinition The resource definition to be updated.
+     * @private
+     */
     _createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject) {
         let resourceConfigAnnotation = resourceDefinition.getFactory().createAnnotation({
             packageName: 'swagger',
@@ -254,6 +287,12 @@ class SwaggerParser {
         resourceDefinition.addChild(resourceConfigAnnotation, resourceConfigAnnotationIndex, true);
     }
 
+    /**
+     * Creates the @Responses annotation for a given {@link ResourceDefinition} using the http method object of the
+     * swagger JSON.
+     * @param {ServiceDefinition} resourceDefinition The resource definition to be updated.
+     * @private
+     */
     _createResponsesAnnotation(resourceDefinition, httpMethodJsonObject) {
         if (!_.isUndefined(httpMethodJsonObject.responses)) {
             let responsesAnnotation = BallerinaASTFactory.createAnnotation({packageName: 'swagger', identifier: 'Responses'});
@@ -290,6 +329,12 @@ class SwaggerParser {
         }
     }
 
+    /**
+     * Creates the @ParametersInfo annotation for a given {@link ResourceDefinition} using the http method object of the
+     * swagger JSON.
+     * @param {ServiceDefinition} resourceDefinition The resource definition to be updated.
+     * @private
+     */
     _createParametersAnnotation(resourceDefinition, httpMethodJsonObject) {
         if (!_.isUndefined(httpMethodJsonObject.parameters)) {
             let parametersAnnotation = BallerinaASTFactory.createAnnotation({
@@ -375,6 +420,15 @@ class SwaggerParser {
         }
     }
 
+    /**
+     * Creates a new {@link ResourceDefinition} with a given @http:Path value and an http method annotation.
+     * @param {ServiceDefinition} serviceDefinition The service definition to which the resource definition should be
+     * added to.
+     * @param {string} pathString The @http:Path value.
+     * @param {string} httpMethodAsString The http method value.
+     * @param {object} httpMethodJsonObject http method object of the swagger JSON.
+     * @private
+     */
     _createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
         let newResourceDefinition = DefaultBallerinaASTFactory.createResourceDefinition();
 
@@ -426,6 +480,14 @@ class SwaggerParser {
         }
     }
 
+    /**
+     * Removed an existing annotation from a given list of annotations.
+     * @param {Annotation[]} existingAnnotations The list of annotation to be checked through.
+     * @param {string} annotationPackage The package of the annotation to be removed.
+     * @param {string} annotationIdentifier The identifier of the annotation to be removed.
+     * @return {number} The removed annotation index.
+     * @private
+     */
     _removeExistingAnnotation(existingAnnotations, annotationPackage, annotationIdentifier) {
         let removedChildIndex = _.size(existingAnnotations);
         _.forEach(existingAnnotations, existingAnnotation => {

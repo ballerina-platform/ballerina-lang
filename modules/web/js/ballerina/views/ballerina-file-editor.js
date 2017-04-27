@@ -505,6 +505,10 @@ class BallerinaFileEditor extends BallerinaView {
         _.set(swaggerViewOpts, 'content', '');
         _.set(swaggerViewOpts, 'backend', new Backend({url : _.get(this._backendEndpointsOptions, 'swagger.endpoint')}));
         _.set(swaggerViewOpts, 'swaggerEditorId', this.getModel().getID() + '-swagger-editor');
+        _.set(swaggerViewOpts, 'swaggerEditorTheme', this._file._storage.get('pref:sourceViewTheme') ||
+            _.get(this.getViewOptions().source_view, 'theme'));
+        _.set(swaggerViewOpts, 'swaggerEditorFontSize', this._file._storage.get('pref:sourceViewFontSize') ||
+            _.get(this.getViewOptions().source_view, 'font_size'));
         this._swaggerView = new SwaggerView(swaggerViewOpts);
 
         var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
@@ -1125,7 +1129,7 @@ class BallerinaFileEditor extends BallerinaView {
             nodeView.showDebugIndicator = nodeView.showDebugIndicator || function() {};
             nodeView.showDebugIndicator();
             const pathVector = [];
-            this.getPathToNode(breakpointNode, pathVector);
+            breakpointNode.getPathToNode(breakpointNode, pathVector);
             this._currentBreakpoints.push(JSON.stringify(pathVector));
         });
     }
@@ -1161,7 +1165,7 @@ class BallerinaFileEditor extends BallerinaView {
 
     addBreakPoint(viewNode) {
         const pathVector = [];
-        this.getPathToNode(viewNode.getModel(), pathVector);
+        viewNode.getModel().getPathToNode(viewNode.getModel(), pathVector);
         return this._currentBreakpoints.push(JSON.stringify(pathVector));
     }
 

@@ -20,8 +20,8 @@ import _ from 'lodash';
 import AbstractSwaggerJsonGenVisitor from './abstract-swagger-json-gen-visitor';
 
 /**
- * @param parent
- * @constructor
+ * The {@link ResourceDefinition} visitor for generating its JSON swagger.
+ * @extends AbstractSwaggerJsonGenVisitor
  */
 class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
     constructor(parent) {
@@ -100,6 +100,11 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         log.debug('End Visit ResourceDefinition');
     }
 
+    /**
+     * Creates the swagger JSON using the @ResourceConfig annotation..
+     * @param {Annotation} existingAnnotation The @ResourceConfig annotation of the resource definition.
+     * @param {object} httpMethodJson The swagger json to be updated.
+     */
     parseResourceConfigAnnotation(existingAnnotation, httpMethodJson) {
         // Setting values.
         _.forEach(existingAnnotation.getChildren(), annotationEntry => {
@@ -116,6 +121,11 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         });
     }
 
+    /**
+     * Creates the swagger JSON using the @ResourceInfo annotation..
+     * @param {Annotation} resourceInfoAnnotation The @ResourceInfo annotation of the resource definition.
+     * @param {object} httpMethodJson The swagger json to be updated.
+     */
     parseResourceInfoAnnotation(resourceInfoAnnotation, httpMethodJson) {
         // Setting values.
         _.forEach(resourceInfoAnnotation.getChildren(), annotationEntry => {
@@ -138,6 +148,11 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         });
     }
 
+    /**
+     * Creates the swagger JSON using the @ParametersInfo annotation..
+     * @param {Annotation} parametersAnnotation The @ParametersInfo annotation of the resource definition.
+     * @param {object} httpMethodJson The swagger json to be updated.
+     */
     parseParameterInfoAnnotation(parametersAnnotation, httpMethodJson) {
         let parametersAnnotationArray = parametersAnnotation.getChildren()[0].getRightValue();
         let parameters = [];
@@ -151,7 +166,11 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'description')) {
                     _.set(tempParameterObj, 'description', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'required')) {
-                    _.set(tempParameterObj, 'required', responseAnnotationEntry.getRightValue());
+                    if(_.isString(responseAnnotationEntry.getRightValue())) {
+                        _.set(tempParameterObj, 'required', responseAnnotationEntry.getRightValue() === 'true');
+                    } else {
+                        _.set(tempParameterObj, 'required', responseAnnotationEntry.getRightValue());
+                    }
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'allowEmptyValue')) {
                     _.set(tempParameterObj, 'allowEmptyValue', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'type')) {
@@ -174,6 +193,11 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         _.set(httpMethodJson, 'parameters', parameters);
     }
 
+    /**
+     * Creates the swagger JSON using the @Responses annotation..
+     * @param {Annotation} responsesAnnotation The @Responses annotation of the resource definition.
+     * @param {object} httpMethodJson The swagger json to be updated.
+     */
     parseResponsesAnnotation(responsesAnnotation, httpMethodJson) {
         // Removing default responses
         _.unset(httpMethodJson, 'responses');

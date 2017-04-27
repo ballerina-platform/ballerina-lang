@@ -692,7 +692,7 @@ class ConnectorActionView extends BallerinaView {
             this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
 
             // repositioning annotation editor view
-            this._annotationView.move({dx: dw});
+            this._annotationView.positionEditor();
             // repositioning argument editor view
             this._argumentsView.move({dx: dw});
             // repositioning return type pane view

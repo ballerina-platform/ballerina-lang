@@ -21,7 +21,7 @@ let config = {
     },
     // you can overide service urls by uncommenting the following.
     // if the following are not set they will be taken automatically from the composer file server.
-    services: {
+    /*services: {
         workspace:  {
             endpoint: "http://localhost:8289/service/workspace"
         },
@@ -40,7 +40,7 @@ let config = {
         launcher: {
             endpoint: "ws://localhost:9097/launch"
         }
-    },
+    },*/
     alerts: {
         container: "#alerts-container",
         cssClass: {

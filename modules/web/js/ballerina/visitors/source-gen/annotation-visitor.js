@@ -19,6 +19,10 @@ import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import log from 'log';
 import _ from 'lodash';
 
+/**
+ * The {@link Annotation} visitor for generating ballerina code.
+ * @extends AbstractSourceGenVisitor
+ */
 class AnnotationVisitor extends AbstractSourceGenVisitor {
     constructor (parent) {
         super(parent);

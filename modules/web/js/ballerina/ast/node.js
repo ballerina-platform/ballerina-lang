@@ -485,6 +485,12 @@ class ASTNode extends EventChannel {
         });
     }
 
+    /**
+     * Fills in the pathVector array with location/position of node by traversing through it's children. Important: The
+     * return array is inverted.
+     * @param {ASTNode} node The node of which the path to be found.
+     * @param {number[]} pathVector An array
+     */
     getPathToNode(node, pathVector) {
         let nodeParent = node.getParent();
         if (!_.isNil(nodeParent)) {
@@ -494,6 +500,12 @@ class ASTNode extends EventChannel {
         }
     }
 
+    /**
+     * Gets the node by vector which travers through node's children.
+     * @param {ASTNode} root The node to be traversed.
+     * @param {number[]} pathVector A reversed array of the position of the node to be found.
+     * @return {ASTNode|undefined}
+     */
     getNodeByVector(root, pathVector) {
         let returnNode = root;
         let reverseVector = _.reverse(pathVector);
