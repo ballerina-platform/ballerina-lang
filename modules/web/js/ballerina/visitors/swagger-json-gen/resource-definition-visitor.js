@@ -74,17 +74,17 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'Responses')) {
                 this.parseResponsesAnnotation(existingAnnotation, httpMethodJson);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'http') && _.isEqual(existingAnnotation.getIdentifier(), 'Consumes')) {
-                let consumesAnnotationEntryArray = existingAnnotation.getRightValue();
+                let consumesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
                 let consumes = [];
-                _.forEach(consumesAnnotationEntryArray.getChildren(), schemesAnnotationEntry => {
-                    consumes.push(schemesAnnotationEntry.getRightValue());
+                _.forEach(consumesAnnotationEntryArray.getChildren(), consumesAnnotationEntry => {
+                    consumes.push(this.removeDoubleQuotes(consumesAnnotationEntry.getRightValue()));
                 });
                 _.set(httpMethodJson, 'consumes', consumes);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'http') && _.isEqual(existingAnnotation.getIdentifier(), 'Produces')) {
-                let producesAnnotationEntryArray = existingAnnotation.getRightValue();
+                let producesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
                 let produces = [];
-                _.forEach(producesAnnotationEntryArray.getChildren(), schemesAnnotationEntry => {
-                    produces.push(schemesAnnotationEntry.getRightValue());
+                _.forEach(producesAnnotationEntryArray.getChildren(), producesAnnotationEntry => {
+                    produces.push(this.removeDoubleQuotes(producesAnnotationEntry.getRightValue()));
                 });
                 _.set(httpMethodJson, 'produces', produces);
             }

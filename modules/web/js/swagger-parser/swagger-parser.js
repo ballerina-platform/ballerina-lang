@@ -48,18 +48,20 @@ class SwaggerParser {
         this._createServiceConfigAnnotation(serviceDefinition);
 
         // Creating basePath annotation
-        let basePathAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'http', 'BasePath');
-        let basePathAnnotation = this._createSimpleAnnotation({
-            annotation: {packageName: 'http', identifier: 'BasePath', supported: true},
-            swaggerJsonNode: this._swaggerJson.basePath,
-        });
-        serviceDefinition.addChild(basePathAnnotation, basePathAnnotationIndex, true);
+        if (!_.isUndefined(this._swaggerJson.basePath)) {
+            let basePathAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'http', 'BasePath');
+            let basePathAnnotation = this._createSimpleAnnotation({
+                annotation: {packageName: 'http', identifier: 'BasePath', supported: true},
+                swaggerJsonNode: this._swaggerJson.basePath,
+            });
+            serviceDefinition.addChild(basePathAnnotation, basePathAnnotationIndex, true);
+        }
 
         // Creating consumes annotation
         if (!_.isUndefined(this._swaggerJson.consumes)) {
             let consumesAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'http', 'Consumes');
             let consumesAnnotation = this._createSimpleAnnotation({
-                annotation: {packageName: 'http', identifier: 'consumes', supported: true},
+                annotation: {packageName: 'http', identifier: 'Consumes', supported: true},
                 swaggerJsonNode: this._swaggerJson.consumes,
             });
             serviceDefinition.addChild(consumesAnnotation, consumesAnnotationIndex, true);
@@ -67,9 +69,9 @@ class SwaggerParser {
 
         // Creating consumes annotation
         if (!_.isUndefined(this._swaggerJson.produces)) {
-            let producesAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'http', 'produces');
+            let producesAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'http', 'Produces');
             let producesAnnotation = this._createSimpleAnnotation({
-                annotation: {packageName: 'http', identifier: 'produces', supported: true},
+                annotation: {packageName: 'http', identifier: 'Produces', supported: true},
                 swaggerJsonNode: this._swaggerJson.produces,
             });
             serviceDefinition.addChild(producesAnnotation, producesAnnotationIndex, true);
@@ -221,7 +223,7 @@ class SwaggerParser {
         if (!_.isUndefined(httpMethodJsonObject.consumes)) {
             let consumesAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'http', 'Consumes');
             let consumesAnnotation = this._createSimpleAnnotation({
-                annotation: {packageName: 'http', identifier: 'consumes', supported: true},
+                annotation: {packageName: 'http', identifier: 'Consumes', supported: true},
                 swaggerJsonNode: httpMethodJsonObject.consumes,
             });
             resourceDefinition.addChild(consumesAnnotation, consumesAnnotationIndex, true);
@@ -229,9 +231,9 @@ class SwaggerParser {
 
         // Creating consumes annotation
         if (!_.isUndefined(httpMethodJsonObject.produces)) {
-            let producesAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'http', 'produces');
+            let producesAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'http', 'Produces');
             let producesAnnotation = this._createSimpleAnnotation({
-                annotation: {packageName: 'http', identifier: 'produces', supported: true},
+                annotation: {packageName: 'http', identifier: 'Produces', supported: true},
                 swaggerJsonNode: httpMethodJsonObject.produces,
             });
             resourceDefinition.addChild(producesAnnotation, producesAnnotationIndex, true);
