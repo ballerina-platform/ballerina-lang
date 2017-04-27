@@ -49,7 +49,6 @@ import DebugManager from './../../debugger/debug-manager';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import BallerinaDiagram from './../components/diagram';
-import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor'
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -755,9 +754,9 @@ class BallerinaFileEditor extends BallerinaView {
      */
     generateSource() {
         // Visit the ast model and generate the source
-        var sourceGenVisitor = new DimensionCalcVisitor();
+        var sourceGenVisitor = new SourceGenVisitor();
         this._model.accept(sourceGenVisitor);
-        return "FFFFFFFF";
+        return sourceGenVisitor.getGeneratedSource();
     }
 
     /**
