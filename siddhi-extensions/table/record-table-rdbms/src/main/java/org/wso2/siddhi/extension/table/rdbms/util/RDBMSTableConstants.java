@@ -28,6 +28,7 @@ public class RDBMSTableConstants {
     public static final String CONDITION_PLACEHOLDER = "{{CONDITION}}";
     public static final String WHITESPACE = " ";
     public static final String COMMA = ",";
+    public static final String EQUALS = "=";
     public static final String OPEN_PARENTHESIS = "(";
     public static final String CLOSE_PARENTHESIS = ")";
     public static final String PRIMARY_KEY_DEF = "PRIMARY KEY";

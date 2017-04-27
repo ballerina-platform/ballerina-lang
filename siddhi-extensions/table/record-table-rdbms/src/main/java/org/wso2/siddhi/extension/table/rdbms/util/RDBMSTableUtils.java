@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfiguration;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.exception.RDBMSTableException;
+import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.io.InputStream;
 import java.sql.Connection;
@@ -156,6 +157,33 @@ public class RDBMSTableUtils {
                 log.debug("executeAllUpdateQueries exceptions: [" + exs + "]");
             }
             throw new RDBMSTableException("Error in executing SQL queries: " + exs);
+        }
+    }
+
+    public static void populateStatementWithSingleElement(PreparedStatement stmt, int position, Attribute.Type type,
+                                                    Object value) throws SQLException {
+        switch (type) {
+            case BOOL:
+                stmt.setBoolean(position, (Boolean) value);
+                break;
+            case DOUBLE:
+                stmt.setDouble(position, (Double) value);
+                break;
+            case FLOAT:
+                stmt.setFloat(position, (Float) value);
+                break;
+            case INT:
+                stmt.setInt(position, (Integer) value);
+                break;
+            case LONG:
+                stmt.setLong(position, (Long) value);
+                break;
+            case OBJECT:
+                stmt.setObject(position, value);
+                break;
+            case STRING:
+                stmt.setString(position, (String) value);
+                break;
         }
     }
 

@@ -35,7 +35,6 @@ public class RDBMSQueryConfigurationEntry {
     private String queryBatchSize;
     private String tableCheckQuery;
     private String tableCreateQuery;
-    private String tableTruncateQuery;
     private String indexCreateQuery;
     private String recordSelectQuery;
     private String recordExistsQuery;
@@ -45,6 +44,7 @@ public class RDBMSQueryConfigurationEntry {
     private String recordDeleteQuery;
     private String quoteMark = "";
     private boolean keyExplicitNotNull = false;
+    private String stringSize;
     private RDBMSTypeMapping RDBMSTypeMapping;
 
     @XmlAttribute(name = "name", required = true)
@@ -64,6 +64,10 @@ public class RDBMSQueryConfigurationEntry {
     @XmlAttribute(name = "maxVersion", required = false)
     public double getMaxVersion() {
         return maxVersion;
+    }
+
+    public void setMinVersion(double minVersion) {
+        this.minVersion = minVersion;
     }
 
     public void setMaxVersion(double maxVersion) {
@@ -102,14 +106,6 @@ public class RDBMSQueryConfigurationEntry {
 
     public void setTableCreateQuery(String tableCreateQuery) {
         this.tableCreateQuery = tableCreateQuery;
-    }
-
-    public String getTableTruncateQuery() {
-        return tableTruncateQuery;
-    }
-
-    public void setTableTruncateQuery(String tableTruncateQuery) {
-        this.tableTruncateQuery = tableTruncateQuery;
     }
 
     public String getIndexCreateQuery() {
@@ -182,6 +178,14 @@ public class RDBMSQueryConfigurationEntry {
 
     public void setKeyExplicitNotNull(boolean keyExplicitNotNull) {
         this.keyExplicitNotNull = keyExplicitNotNull;
+    }
+
+    public String getStringSize() {
+        return stringSize;
+    }
+
+    public void setStringSize(String stringSize) {
+        this.stringSize = stringSize;
     }
 
     @XmlElement(name = "typeMapping")

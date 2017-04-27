@@ -132,21 +132,42 @@ public class RDBMSEventTable extends AbstractRecordTable {
     @Override
     protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
                                             CompiledCondition compiledCondition) {
-        return null;
+        String readQuery = this.queryConfigurationEntry.getRecordSelectQuery();
+        String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
+        Connection conn = this.getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            if (RDBMSTableUtils.isEmpty(condition)) {
+                stmt = conn.prepareStatement(readQuery.replace(RDBMSTableConstants.CONDITION_PLACEHOLDER, ""));
+            } else {
+                stmt = conn.prepareStatement(this.formatQueryWithCondition(readQuery, condition));
+            }
+            this.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, findConditionParameterMap);
+            rs = stmt.executeQuery();
+            //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
+            return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error retrieving records from table '" + this.tableName + "': "
+                    + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(rs, stmt, conn);
+        }
     }
 
     @Override
     protected boolean contains(Map<String, Object> containsConditionParameterMap, CompiledCondition compiledCondition) {
         String containsQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordExistsQuery());
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
-        if (RDBMSTableUtils.isEmpty(condition)) {
-            //TODO what? Return false?
-        }
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            stmt = conn.prepareStatement(this.formatQueryWithCondition(containsQuery, condition));
+            if (RDBMSTableUtils.isEmpty(condition)) {
+                stmt = conn.prepareStatement(containsQuery.replace(RDBMSTableConstants.CONDITION_PLACEHOLDER, ""));
+            } else {
+                stmt = conn.prepareStatement(this.formatQueryWithCondition(containsQuery, condition));
+            }
             this.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, containsConditionParameterMap);
             rs = stmt.executeQuery();
             return !rs.isBeforeFirst();
@@ -162,13 +183,14 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected void delete(List<Map<String, Object>> deleteConditionParameterMaps, CompiledCondition compiledCondition) {
         String deleteQuery = this.queryConfigurationEntry.getRecordDeleteQuery();
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
-        if (RDBMSTableUtils.isEmpty(condition)) {
-            //TODO what? Return false?
-        }
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         try {
-            stmt = conn.prepareStatement(this.formatQueryWithCondition(deleteQuery, condition));
+            if (RDBMSTableUtils.isEmpty(condition)) {
+                stmt = conn.prepareStatement(deleteQuery.replace(RDBMSTableConstants.CONDITION_PLACEHOLDER, ""));
+            } else {
+                stmt = conn.prepareStatement(this.formatQueryWithCondition(deleteQuery, condition));
+            }
             for (Map<String, Object> deleteConditionParameterMap : deleteConditionParameterMaps) {
                 this.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, deleteConditionParameterMap);
                 stmt.addBatch();
@@ -185,7 +207,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
     @Override
     protected void update(List<Map<String, Object>> updateConditionParameterMaps, CompiledCondition compiledCondition,
                           List<Map<String, Object>> updateValues) {
-
     }
 
     @Override
@@ -216,39 +237,13 @@ public class RDBMSEventTable extends AbstractRecordTable {
             Object parameter = entry.getValue();
             if (parameter instanceof Constant) {
                 Constant constant = (Constant) parameter;
-                this.populateStatementWithSingleElement(stmt, entry.getKey(), constant.getType(), constant.getValue());
+                RDBMSTableUtils.populateStatementWithSingleElement(stmt, entry.getKey(), constant.getType(),
+                        constant.getValue());
             } else {
                 Attribute variable = (Attribute) parameter;
-                this.populateStatementWithSingleElement(stmt, entry.getKey(), variable.getType(),
+                RDBMSTableUtils.populateStatementWithSingleElement(stmt, entry.getKey(), variable.getType(),
                         parameterMap.get(variable.getName()));
             }
-        }
-    }
-
-    private void populateStatementWithSingleElement(PreparedStatement stmt, int position, Attribute.Type type,
-                                                    Object value) throws SQLException {
-        switch (type) {
-            case BOOL:
-                stmt.setBoolean(position, (Boolean) value);
-                break;
-            case DOUBLE:
-                stmt.setDouble(position, (Double) value);
-                break;
-            case FLOAT:
-                stmt.setFloat(position, (Float) value);
-                break;
-            case INT:
-                stmt.setInt(position, (Integer) value);
-                break;
-            case LONG:
-                stmt.setLong(position, (Long) value);
-                break;
-            case OBJECT:
-                stmt.setObject(position, value);
-                break;
-            case STRING:
-                stmt.setString(position, (String) value);
-                break;
         }
     }
 
@@ -331,10 +326,14 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     break;
                 case STRING:
                     builder.append(typeMapping.getStringType());
-                    if (fieldLengths.containsKey(attribute.getName().toLowerCase())) {
-                        builder.append(RDBMSTableConstants.OPEN_PARENTHESIS)
-                                .append(fieldLengths.get(attribute.getName()))
-                                .append(RDBMSTableConstants.CLOSE_PARENTHESIS);
+                    if (this.queryConfigurationEntry.getStringSize() != null) {
+                        builder.append(RDBMSTableConstants.OPEN_PARENTHESIS);
+                        if (fieldLengths.containsKey(attribute.getName().toLowerCase())) {
+                            builder.append(fieldLengths.get(attribute.getName()));
+                        } else {
+                            builder.append(this.queryConfigurationEntry.getStringSize());
+                        }
+                        builder.append(RDBMSTableConstants.CLOSE_PARENTHESIS);
                     }
                     break;
             }
@@ -477,7 +476,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 attribute = this.attributes.get(i);
                 Object value = record[i];
                 if (value != null || attribute.getType() == Attribute.Type.STRING) {
-                    this.populateStatementWithSingleElement(stmt, i + 1, attribute.getType(), value);
+                    RDBMSTableUtils.populateStatementWithSingleElement(stmt, i + 1, attribute.getType(), value);
                 } else {
                     //TODO check behaviour for 1 invalid record (1 null field) for a list of records
                     throw new RDBMSTableException("Cannot Execute Insert/Update: null value detected for " +
