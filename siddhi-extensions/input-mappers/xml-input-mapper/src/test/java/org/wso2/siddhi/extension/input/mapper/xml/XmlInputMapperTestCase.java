@@ -57,6 +57,61 @@ public class XmlInputMapperTestCase {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml')) " +
+                "define stream FooStream (symbol string, price float, volume int); " +
+                "define stream BarStream (symbol string, price float, volume int); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1:
+                            org.junit.Assert.assertEquals(55.689f, event.getData(1));
+                            org.junit.Assert.assertEquals("", event.getData(0));
+                            break;
+                        case 2:
+                            org.junit.Assert.assertEquals(75.0f, event.getData(1));
+                            org.junit.Assert.assertEquals("IBM@#$%^*", event.getData(0));
+                            break;
+                        default:
+                            org.junit.Assert.fail();
+                    }
+                }
+            }
+        });
+        executionPlanRuntime.start();
+        InMemoryBroker.publish("stock", "<events><event><symbol></symbol><price>55.689</price>" +
+                "<volume>100</volume></event></events>");
+        InMemoryBroker.publish("stock", "<events><event><symbol>IBM@#$%^*</symbol><price>75</price>" +
+                "<volume>10</volume></event></events>");
+        InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price>75</price>" +
+                "<volume></volume></event></events>");
+        InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price></price>" +
+                "<volume>10</volume></event></events>");
+
+        //assert event count
+        Assert.assertEquals("Number of events", 2, count.get());
+        executionPlanRuntime.shutdown();
+        siddhiManager.shutdown();
+    }
+
+    @Test
+    public void testXmlInputMappingDefaultMultipleEvents() throws InterruptedException {
+        log.info("Test case for xml input mapping with default mapping for multiple events");
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "@source(type='inMemory', topic='stock', @map(type='xml')) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
@@ -89,8 +144,7 @@ public class XmlInputMapperTestCase {
         });
         executionPlanRuntime.start();
         InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price>55.6</price>" +
-                "<volume>100</volume></event></events>");
-        InMemoryBroker.publish("stock", "<events><event><symbol>IBM</symbol><price>75.6</price>" +
+                "<volume>100</volume></event><event><symbol>IBM</symbol><price>75.6</price>" +
                 "<volume>10</volume></event></events>");
 
         //assert event count
@@ -112,6 +166,7 @@ public class XmlInputMapperTestCase {
                 "                                           , volume = \"volume\"))) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
+        System.out.println(streams);
 
         String query = "" +
                 "from FooStream " +
