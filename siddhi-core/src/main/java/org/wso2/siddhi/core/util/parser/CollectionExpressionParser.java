@@ -110,7 +110,8 @@ public class CollectionExpressionParser {
                 if (indexedEventHolder.isAttributeIndexed(((AttributeCollectionExpression) leftCollectionExpression).getAttribute())) {
                     //comparing indexed table attribute with stream attributes
                     return new CompareCollectionExpression((Compare) expression,
-                            CollectionExpression.CollectionScope.INDEXED_RESULT_SET, leftCollectionExpression, ((Compare) expression).getOperator(), rightCollectionExpression);
+                            CollectionExpression.CollectionScope.INDEXED_RESULT_SET, leftCollectionExpression,
+                            ((Compare) expression).getOperator(), rightCollectionExpression);
                 } else {
                     //comparing non indexed table attribute with stream attributes
                     return new BasicCollectionExpression(expression, CollectionExpression.CollectionScope.EXHAUSTIVE);
@@ -140,7 +141,8 @@ public class CollectionExpressionParser {
                 if (indexedEventHolder.isAttributeIndexed(((AttributeCollectionExpression) rightCollectionExpression).getAttribute())) {
                     //comparing indexed table attribute with stream attributes
                     return new CompareCollectionExpression((Compare) expression,
-                            CollectionExpression.CollectionScope.INDEXED_RESULT_SET, rightCollectionExpression, operator, leftCollectionExpression);
+                            CollectionExpression.CollectionScope.INDEXED_RESULT_SET, rightCollectionExpression,
+                            operator, leftCollectionExpression);
                 } else {
                     //comparing non indexed table attribute with stream attributes
                     return new BasicCollectionExpression(expression, CollectionExpression.CollectionScope.EXHAUSTIVE);

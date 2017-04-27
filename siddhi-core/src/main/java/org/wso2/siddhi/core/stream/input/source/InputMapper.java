@@ -19,8 +19,8 @@
 package org.wso2.siddhi.core.stream.input.source;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -55,7 +55,9 @@ public abstract class InputMapper implements SourceEventListener {
 
     public void onEvent(Object eventObject) {
         try {
-            mapAndProcess(eventObject, inputHandler);
+            if (eventObject != null) {
+                mapAndProcess(eventObject, inputHandler);
+            }
         } catch (InterruptedException e) {
             log.error("Error while processing '" + eventObject + "', for the input Mapping '" + mapType +
                     "' for the stream '" + streamDefinition.getId() + "'");

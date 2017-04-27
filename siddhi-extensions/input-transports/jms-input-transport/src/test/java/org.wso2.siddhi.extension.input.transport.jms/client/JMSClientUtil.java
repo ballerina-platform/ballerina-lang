@@ -48,7 +48,6 @@ public class JMSClientUtil {
         final String asterixLine = "*****";
         List<String> messagesList = new ArrayList<String>();
         try {
-
             String line;
             bufferedReader = new BufferedReader(new FileReader(filePath));
             while ((line = bufferedReader.readLine()) != null) {
