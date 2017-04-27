@@ -52,7 +52,6 @@ public class RDBMSTableUtils {
 
 
     private static final Log log = LogFactory.getLog(RDBMSTableUtils.class);
-    private static final String RDBMS_QUERY_CONFIG_FILE = "rdbms-table-config.xml";
     private static RDBMSConfigurationMapper mapper;
 
     private RDBMSTableUtils() {

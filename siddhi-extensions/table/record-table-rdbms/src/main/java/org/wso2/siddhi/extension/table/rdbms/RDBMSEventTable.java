@@ -51,14 +51,6 @@ import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
 
 public class RDBMSEventTable extends AbstractRecordTable {
 
-    private static final String ANNOTATION_STORE = "store";
-    private static final String ANNOTATION_PRIMARY_KEY = "PrimaryKey";
-    private static final String ANNOTATION_INDEX = "IndexBy";
-
-    private static final String TABLE_NAME_PLACEHOLDER = "{{TABLE_NAME}}";
-    private static final String INDEX_PLACEHOLDER = "{{INDEX_COLUMNS}}";
-    private static final String Q_PLACEHOLDER = "{{Q}}";
-
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
     private DataSource dataSource;
     private String tableName;
