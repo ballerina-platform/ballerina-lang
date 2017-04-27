@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.siddhi.core.transport;
 
 import org.apache.log4j.Logger;
@@ -25,12 +26,10 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
-
-public class SingleClientDistributedTransportTestCases {
-    static final Logger log = Logger.getLogger(SingleClientDistributedTransportTestCases.class);
+public class MultiClientDistributedTransportTestCase {
+    static final Logger log = Logger.getLogger(MultiClientDistributedTransportTestCase.class);
     private AtomicInteger topic1Count = new AtomicInteger(0);
     private AtomicInteger topic2Count = new AtomicInteger(0);
 
@@ -41,7 +40,7 @@ public class SingleClientDistributedTransportTestCases {
     }
 
     @Test
-    public void singleClientRoundRobin() throws InterruptedException {
+    public void multiClientRoundRobin() throws InterruptedException {
         log.info("Test inMemorySink And EventMapping With SiddhiQL Dynamic Params");
 
         InMemoryBroker.Subscriber subscriptionWSO2 = new InMemoryBroker.Subscriber() {
@@ -75,7 +74,7 @@ public class SingleClientDistributedTransportTestCases {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
-                "@sink(type='inMemory', @map(type='passThrough'), " +
+                "@sink(type='testInMemory', @map(type='passThrough'), " +
                 "   @distribution(strategy='roundRobin', " +
                 "       @destination(topic = 'topic1'), " +
                 "       @destination(topic = 'topic2'))) " +
@@ -145,7 +144,7 @@ public class SingleClientDistributedTransportTestCases {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
-                "@sink(type='inMemory', @map(type='passThrough'), " +
+                "@sink(type='testInMemory', @map(type='passThrough'), " +
                 "   @distribution(strategy='partitioned', partitionKey='symbol'," +
                 "       @destination(topic = 'topic1'), " +
                 "       @destination(topic = 'topic2'))) " +
@@ -216,7 +215,7 @@ public class SingleClientDistributedTransportTestCases {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
-                "@sink(type='inMemory', @map(type='passThrough'), " +
+                "@sink(type='testInMemory', @map(type='passThrough'), " +
                 "   @distribution(strategy='boradcast'," +
                 "       @destination(topic = 'topic1'), " +
                 "       @destination(topic = 'topic2'))) " +
