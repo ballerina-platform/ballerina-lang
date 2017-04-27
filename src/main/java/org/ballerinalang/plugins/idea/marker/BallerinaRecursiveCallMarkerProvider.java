@@ -19,7 +19,6 @@ package org.ballerinalang.plugins.idea.marker;
 import com.intellij.codeHighlighting.Pass;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.psi.PsiDocumentManager;
@@ -28,6 +27,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.FunctionUtil;
 import com.intellij.util.containers.ContainerUtil;
+import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -107,7 +107,7 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
 
     private static class RecursiveMethodCallMarkerInfo extends LineMarkerInfo<PsiElement> {
         private RecursiveMethodCallMarkerInfo(@NotNull PsiElement methodCall) {
-            super(methodCall, methodCall.getTextRange(), AllIcons.Gutter.RecursiveMethod, Pass.LINE_MARKERS,
+            super(methodCall, methodCall.getTextRange(), BallerinaIcons.RECURSIVE, Pass.LINE_MARKERS,
                     FunctionUtil.constant("Recursive call"), null, GutterIconRenderer.Alignment.RIGHT);
         }
     }

@@ -18,9 +18,9 @@ package org.ballerinalang.plugins.idea.run.configuration;
 
 import com.intellij.execution.lineMarker.ExecutorAction;
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
-import com.intellij.icons.AllIcons;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.Function;
+import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
@@ -44,13 +44,13 @@ public class BallerinaRunLineMarkerProvider extends RunLineMarkerContributor {
                 boolean isMain = BallerinaRunUtil.isMainFunction((FunctionNode) parent);
                 if (isMain) {
                     // If it is a function node, add a run line marker.
-                    return new Info(AllIcons.RunConfigurations.TestState.Run, APPLICATION_TOOLTIP_PROVIDER,
+                    return new Info(BallerinaIcons.RUN, APPLICATION_TOOLTIP_PROVIDER,
                             ExecutorAction.getActions(0));
                 }
             } else if (parent instanceof ServiceDefinitionNode) {
                 // We don't need to check anything specific in services. If there is a ServiceDefinitionNode, that
                 // means there is a service. We just return a new Info object.
-                return new Info(AllIcons.RunConfigurations.TestState.Run, SERVICE_TOOLTIP_PROVIDER,
+                return new Info(BallerinaIcons.RUN, SERVICE_TOOLTIP_PROVIDER,
                         ExecutorAction.getActions(0));
             }
         }

@@ -16,7 +16,6 @@
 
 package org.ballerinalang.plugins.idea.structureview;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
@@ -44,19 +43,19 @@ public class BallerinaItemPresentation implements ItemPresentation {
     @Override
     public Icon getIcon(boolean unused) {
         if (element.getParent() instanceof FunctionNode) {
-            return AllIcons.Nodes.Field;
+            return BallerinaIcons.FUNCTION;
         } else if (element.getParent() instanceof ConnectorNode || element instanceof ConnectorNode) {
-            return AllIcons.Nodes.Class;
+            return BallerinaIcons.CONNECTOR;
         } else if (element.getParent() instanceof ServiceDefinitionNode || element instanceof ServiceDefinitionNode) {
-            return AllIcons.Nodes.Static;
+            return BallerinaIcons.SERVICE;
         } else if (element.getParent() instanceof AnnotationDefinitionNode) {
-            return AllIcons.Nodes.Annotationtype;
+            return BallerinaIcons.ANNOTATION;
         } else if (element.getParent() instanceof ActionDefinitionNode) {
-            return AllIcons.Nodes.Advice;
+            return BallerinaIcons.ACTION;
         } else if (element.getParent() instanceof StructDefinitionNode) {
-            return AllIcons.Json.Object;
+            return BallerinaIcons.STRUCT;
         } else if (element.getParent() instanceof ResourceDefinitionNode) {
-            return AllIcons.Nodes.Advice;
+            return BallerinaIcons.RESOURCE;
         }
         return BallerinaIcons.ICON;
     }

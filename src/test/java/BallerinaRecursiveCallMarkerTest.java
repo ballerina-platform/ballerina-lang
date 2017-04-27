@@ -15,8 +15,8 @@
  */
 
 import com.intellij.codeInsight.daemon.GutterMark;
-import com.intellij.icons.AllIcons;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import org.ballerinalang.plugins.idea.BallerinaIcons;
 
 import java.util.List;
 
@@ -63,7 +63,7 @@ public class BallerinaRecursiveCallMarkerTest extends LightPlatformCodeInsightFi
             }
             GutterMark gutter = myFixture.findGuttersAtCaret().get(0);
             String text = gutter.getTooltipText();
-            if (!"Recursive call".equals(text) || !AllIcons.Gutter.RecursiveMethod.equals(gutter.getIcon())) {
+            if (!"Recursive call".equals(text) || !BallerinaIcons.RECURSIVE.equals(gutter.getIcon())) {
                 fail("Incorrect Gutter found: " + text);
             }
         }

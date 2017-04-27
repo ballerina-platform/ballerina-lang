@@ -26,7 +26,6 @@ import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiComment;
@@ -41,6 +40,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
+import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
@@ -594,7 +594,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 continue;
             }
             LookupElementBuilder builder = LookupElementBuilder.create(fieldNameIdentifier.getText())
-                    .withTypeText(typeName.getText()).withIcon(AllIcons.Nodes.Advice)
+                    .withTypeText(typeName.getText()).withIcon(BallerinaIcons.FIELD)
                     .withTailText(" -> " + resolvedDefElement.getText(), true);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FIELD_PRIORITY));
         }
@@ -1008,12 +1008,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
     }
 
-    private void addPackage(CompletionResultSet resultSet, PsiDirectory directory,
-                            InsertHandler<LookupElement> insertHandler) {
-        LookupElementBuilder builder = LookupElementBuilder.create(directory.getName())
-                .withInsertHandler(insertHandler).withTypeText("Package").withIcon(AllIcons.Nodes.Package);
-        resultSet.addElement(builder);
-    }
 
     private void addKeyword(CompletionResultSet resultSet, LookupElement lookupElement, int priority) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, priority));
@@ -1033,7 +1027,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         List<PsiElement> variables = BallerinaPsiImplUtil.getAllVariablesInResolvableScope(element, context);
         for (PsiElement variable : variables) {
             LookupElementBuilder builder = LookupElementBuilder.create(variable.getText())
-                    .withTypeText("Variable").withIcon(AllIcons.Nodes.Variable);
+                    .withTypeText("Variable").withIcon(BallerinaIcons.VARIABLE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
         }
     }
@@ -1047,7 +1041,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void addConstants(CompletionResultSet resultSet, List<PsiElement> constants) {
         for (PsiElement constant : constants) {
             LookupElementBuilder builder = LookupElementBuilder.create(constant.getText())
-                    .withTypeText("Constant").withIcon(AllIcons.Nodes.Variable);
+                    .withTypeText("Constant").withIcon(BallerinaIcons.VARIABLE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
         }
     }
@@ -1075,7 +1069,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void addFunctions(CompletionResultSet resultSet, List<PsiElement> functions) {
         for (PsiElement function : functions) {
             LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
-                    .withTypeText("Function").withTailText("()", true).withIcon(AllIcons.Nodes.Field)
+                    .withTypeText("Function").withTailText("()", true).withIcon(BallerinaIcons.FUNCTION)
                     .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY));
         }
@@ -1114,10 +1108,24 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
         for (PsiElement pack : packages) {
             LookupElementBuilder builder = LookupElementBuilder.create(pack.getText())
-                    .withTypeText("Package").withIcon(AllIcons.Nodes.Package)
+                    .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
                     .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
         }
+    }
+
+    /**
+     * Helper method to add packages as lookup elements.
+     *
+     * @param resultSet     result set which needs to add the lookup elements
+     * @param directory     directory which needs to be added as a lookup element
+     * @param insertHandler insert handler of the lookup element
+     */
+    private void addPackage(CompletionResultSet resultSet, PsiDirectory directory,
+                            InsertHandler<LookupElement> insertHandler) {
+        LookupElementBuilder builder = LookupElementBuilder.create(directory.getName())
+                .withInsertHandler(insertHandler).withTypeText("Package").withIcon(BallerinaIcons.PACKAGE);
+        resultSet.addElement(builder);
     }
 
     /**
@@ -1141,7 +1149,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void addStructs(CompletionResultSet resultSet, List<PsiElement> structs) {
         for (PsiElement struct : structs) {
             LookupElementBuilder builder = LookupElementBuilder.create(struct.getText())
-                    .withTypeText("Struct").withIcon(AllIcons.Nodes.Static);
+                    .withTypeText("Struct").withIcon(BallerinaIcons.STRUCT);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY));
         }
     }
@@ -1180,7 +1188,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void addConnectors(CompletionResultSet resultSet, List<PsiElement> connectors) {
         for (PsiElement connector : connectors) {
             LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
-                    .withTypeText("Connector").withIcon(AllIcons.Nodes.Class);
+                    .withTypeText("Connector").withIcon(BallerinaIcons.CONNECTOR);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY));
         }
     }
@@ -1239,7 +1247,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void addAnnotations(CompletionResultSet resultSet, List<PsiElement> annotations) {
         for (PsiElement annotation : annotations) {
             LookupElementBuilder builder = LookupElementBuilder.create(annotation.getText())
-                    .withTypeText("Annotation").withIcon(AllIcons.Nodes.Annotationtype)
+                    .withTypeText("Annotation").withIcon(BallerinaIcons.ANNOTATION)
                     .withInsertHandler(BracesInsertHandler.INSTANCE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ANNOTATION_PRIORITY));
         }
@@ -1254,15 +1262,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void addActions(CompletionResultSet resultSet, List<PsiElement> actions) {
         for (PsiElement action : actions) {
             LookupElementBuilder builder = LookupElementBuilder.create(action.getText())
-                    .withTypeText("Action").withIcon(AllIcons.Nodes.AnonymousClass)
+                    .withTypeText("Action").withIcon(BallerinaIcons.ACTION)
                     .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY));
         }
     }
-
-    //    private  void addField(CompletionResultSet resultSet){
-    //sa
-    //    }
 
     /**
      * Helper method to add value types as lookup elements.
