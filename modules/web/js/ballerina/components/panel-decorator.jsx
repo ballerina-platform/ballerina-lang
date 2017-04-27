@@ -4,11 +4,12 @@ class PanelDecorator extends React.Component {
 
     render() {
         const bBox = this.props.bBox;
-        const titleHeight = 35;
+        const titleHeight = 25;
         const iconSize = 14;
         return ( <g>
                      <g>
                          <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleHeight } rx="0" ry="0" className="headingRect" data-original-title="" title=""></rect>
+                         <text x={ bBox.x + titleHeight } y={ bBox.y + titleHeight / 2 + 5 }>{this.props.title}</text>
                          <g>
                              <rect x={ bBox.x + bBox.w - 25} y={ bBox.y + 1} width={ titleHeight - 1 } height={ titleHeight - 1 } rx="0" ry="0" className="heading-icon-wrapper hoverable heading-icon-collpase-wrapper" data-original-title="" title=""></rect>
                              <rect x={ bBox.x + bBox.w - 19.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize } rx="0" ry="0" title="" className="headingExpandIcon" style={{opacity: 0.4}} data-original-title="Collapse Pane"></rect>
@@ -26,10 +27,10 @@ class PanelDecorator extends React.Component {
                          <rect x={ bBox.x + 1 } y={ bBox.y + 1} width={ titleHeight } height={ titleHeight } rx="0" ry="0" className="resourceHeadingIconHolder" data-original-title="" title=""></rect>
                          <rect x={ bBox.x } y={ bBox.y } width={ titleHeight } height={ titleHeight } rx="0" ry="0" className="headingRectIcon" data-original-title="" title=""></rect>
                      </g>
-                        {this.props.children}
                      <g>
                          <rect x={ bBox.x } y={ bBox.y + titleHeight} width={ bBox.w } height={ bBox.h - titleHeight } rx="0" ry="0" className="resource-content" fill="#fff"></rect>
                      </g>
+                     {this.props.children}
                  </g>);
     }
 }
