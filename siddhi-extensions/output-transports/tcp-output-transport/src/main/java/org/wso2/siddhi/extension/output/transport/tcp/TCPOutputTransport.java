@@ -75,7 +75,11 @@ public class TCPOutputTransport extends OutputTransport {
             TCPNettyClient.connect(host, port);
         }
         String streamId = streamIdOption.getValue(dynamicOptions);
-        TCPNettyClient.send(streamId, (Event[]) payload);
+        if (payload instanceof Event) {
+            TCPNettyClient.send(streamId, new Event[]{(Event) payload});
+        } else {
+            TCPNettyClient.send(streamId, (Event[]) payload);
+        }
     }
 
     @Override
