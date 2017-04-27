@@ -50,8 +50,8 @@ public class GreaterLessThanExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 1;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 1;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BInteger(50)};
@@ -77,8 +77,8 @@ public class GreaterLessThanExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 1;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 1;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BFloat(75.4f)};

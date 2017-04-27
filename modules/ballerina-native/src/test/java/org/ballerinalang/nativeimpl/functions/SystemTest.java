@@ -19,10 +19,8 @@ package org.ballerinalang.nativeimpl.functions;
 
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
@@ -84,24 +82,6 @@ public class SystemTest {
     }
 
     @Test
-    public void testLongPrintAndPrintln() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
-            System.setOut(new PrintStream(outContent));
-            final long v1 = 1000;
-            final long v2 = 1;
-            final String expected = v1 + "\n" + v2;
-
-            BValueType[] args = {new BLong(v1), new BLong(v2)};
-            BLangFunctions.invoke(bLangProgram, printFuncName + "Long", args);
-            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
-        } finally {
-            outContent.close();
-            System.setOut(original);
-        }
-    }
-
-    @Test
     public void testIntPrintAndPrintln() throws IOException {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
@@ -130,24 +110,6 @@ public class SystemTest {
 
             BValueType[] args = {new BFloat(v1), new BFloat(v2)};
             BLangFunctions.invoke(bLangProgram, printFuncName + "Float", args);
-            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
-        } finally {
-            outContent.close();
-            System.setOut(original);
-        }
-    }
-
-    @Test
-    public void testDoublePrintAndPrintln() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
-            System.setOut(new PrintStream(outContent));
-            final double v1 = 1000.122;
-            final double v2 = 1.12;
-            final String expected = v1 + "\n" + v2;
-
-            BValueType[] args = {new BDouble(v1), new BDouble(v2)};
-            BLangFunctions.invoke(bLangProgram, printFuncName + "Double", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();

@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.lang.datatables;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BDataTable;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,33 +28,40 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.Locale;
+
 /**
- * Native function to get double value of a given column name.
- * ballerina.model.datatables:getDouble(datatable, string)
+ * Native function to get some special type to ballerina supported types. Eg:- Blob, Clob, NClob, Date, Timestamp
+ * ballerina.model.datatables:getInt(datatable, string, string)
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.datatables",
-        functionName = "getDouble",
+        functionName = "getInt",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
-                @Argument(name = "name", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.DOUBLE)},
+                @Argument(name = "column", type = TypeEnum.STRING),
+                @Argument(name = "type", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Retrieves the double value of the designated column in the current row") })
+        value = "Retrieves the long value of the designated column in "
+                + "the current row for the given column type: date, time, or timestamp") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
         value = "The datatable object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "name",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
         value = "The column name of the output result.") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "double",
-        value = "The column value as a double") })
-public class GetDoubleByName extends AbstractNativeFunction {
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "type",
+        value = "Database table column type. Supported values are date, time, timestamp") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
+        value = "The column value as a int") })
+public class GetByNameIntReturn extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         String columnName = (getArgument(ctx, 1)).stringValue();
-        return getBValues(new BDouble(dataTable.getDouble(columnName)));
+        String type = (getArgument(ctx, 2)).stringValue();
+        return getBValues(dataTable.get(columnName, type.toLowerCase(Locale.ENGLISH)));
     }
 }

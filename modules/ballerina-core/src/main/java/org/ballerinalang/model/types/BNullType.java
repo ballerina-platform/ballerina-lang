@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,28 +18,32 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BDoubleType} represents a integer which is a 64-bit floating-point number according to the
- * standard IEEE 754 specifications.
+ * {@code BNullType} represents the type of a {@code NullLiteral}.
  *
- * @since 0.8.0
+ * @since 0.86
  */
-class BDoubleType extends BType {
+public class BNullType extends BType {
 
     /**
-     * Create a {@code BDoubleType} which represents the boolean type.
+     * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
      *
      * @param typeName string name of the type
+     * @param pkgPath package path
+     * @param symbolScope symbol scope of the type
      */
-    BDoubleType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BDouble.class);
+    BNullType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, null);
     }
 
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
-        return (V) new BDouble(0);
+    public <V extends BValue> V getZeroValue() {
+        return (V) null;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
+        return (V) null;
     }
 }

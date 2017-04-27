@@ -20,10 +20,8 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.Operator;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -46,15 +44,6 @@ public class DivideExpr extends BinaryArithmeticExpression {
                 return new BInteger(lVal.intValue() / rVal.intValue());
             };
 
-    public static final BiFunction<BValueType, BValueType, BValueType> DIV_LONG_FUNC =
-            (lVal, rVal) -> {
-
-                if (rVal.longValue() == 0) {
-                    throw new BallerinaException(" / by zero");
-                }
-                return new BLong(lVal.longValue() / rVal.longValue());
-            };
-
     public static final BiFunction<BValueType, BValueType, BValueType> DIV_FLOAT_FUNC =
             (lVal, rVal) -> {
 
@@ -63,15 +52,6 @@ public class DivideExpr extends BinaryArithmeticExpression {
                 }
 
                 return new BFloat(lVal.floatValue() / rVal.floatValue());
-            };
-
-    public static final BiFunction<BValueType, BValueType, BValueType> DIV_DOUBLE_FUNC =
-            (lVal, rVal) -> {
-
-                if (rVal.doubleValue() == 0) {
-                    throw new BallerinaException(" / by zero");
-                }
-                return new BDouble(lVal.doubleValue() / rVal.doubleValue());
             };
 
     public DivideExpr(NodeLocation location, Expression lExpr, Expression rExpr) {

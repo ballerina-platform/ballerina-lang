@@ -49,7 +49,7 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
+        int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 3;
         Assert.assertEquals(actual, expected);
     }
@@ -62,7 +62,7 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
+        int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 3;
         Assert.assertEquals(actual, expected);
     }
@@ -75,7 +75,7 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
+        int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 3;
         Assert.assertEquals(actual, expected);
     }
@@ -88,7 +88,7 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
+        int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 3;
         Assert.assertEquals(actual, expected);
     }
@@ -101,7 +101,7 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
+        int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 3;
         Assert.assertEquals(actual, expected);
     }
@@ -114,7 +114,7 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
+        int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 3;
         Assert.assertEquals(actual, expected);
     }
@@ -127,7 +127,7 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
+        int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 3;
         Assert.assertEquals(actual, expected);
     }
@@ -140,7 +140,7 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
+        int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 3;
         Assert.assertEquals(actual, expected);
     }
@@ -153,7 +153,7 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
+        int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 3;
         Assert.assertEquals(actual, expected);
     }

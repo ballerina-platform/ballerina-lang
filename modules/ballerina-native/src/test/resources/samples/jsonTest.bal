@@ -15,10 +15,6 @@ function getFloat(json msg, string jsonPath) (float){
     return jsons:getFloat(msg, jsonPath);
 }
 
-function getDouble(json msg, string jsonPath) (double){
-    return jsons:getDouble(msg, jsonPath);
-}
-
 function getBoolean(json msg, string jsonPath) (boolean){
     return jsons:getBoolean(msg, jsonPath);
 }
@@ -32,11 +28,6 @@ function setString(json msg, string jsonPath, string value) (string) {
 function setInt(json msg, string jsonPath, int value) (int) {
     jsons:set(msg, jsonPath, value);
     return jsons:getInt(msg, jsonPath);
-}
-
-function setDouble(json msg, string jsonPath, double value) (double) {
-    jsons:set(msg, jsonPath, value);
-    return jsons:getDouble(msg, jsonPath);
 }
 
 function setFloat(json msg, string jsonPath, float value) (float) {
@@ -65,11 +56,6 @@ function addIntToObject(json msg, string jsonPath, string key, int value) (json)
     return msg;
 }
 
-function addDoubleToObject(json msg, string jsonPath, string key, double value) (json) {
-    jsons:add(msg, jsonPath, key, value);
-    return msg;
-}
-
 function addFloatToObject(json msg, string jsonPath, string key, float value) (json) {
     jsons:add(msg, jsonPath, key, value);
     return msg;
@@ -92,11 +78,6 @@ function addStringToArray(json msg, string jsonPath, string value) (json){
 }
 
 function addIntToArray(json msg, string jsonPath, int value) (json){
-    jsons:add(msg, jsonPath, value);
-    return msg;
-}
-
-function addDoubleToArray(json msg, string jsonPath, double value) (json){
     jsons:add(msg, jsonPath, value);
     return msg;
 }

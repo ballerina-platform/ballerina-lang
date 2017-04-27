@@ -38,7 +38,7 @@ The following set of parameters are optional and can be provided to the JMS prov
 Key | Description | Required | Expected Values | Default Value
 ------------ | ------------- | ---------- | ----------- | ----------
 connectionFactoryType | The type of the connection factory | no | queue, topic | queue
-connectionFactoryJNDIName | The JNDI name of the connection factory | Yes | A valid JNDI name of the connection factory. | -
+connectionFactoryJNDIName | The JNDI name of the connection factory | no | A valid JNDI name of the connection factory. | -
 destination | The JNDI name of the destination | no | A valid JNDI name of the destination | service name
 sessionAcknowledgement | The JMS session acknowledgment mode | no | AUTO_ACKNOWLEDGE, CLIENT_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE, SESSION_TRANSACTED | AUTO_ACKNOWLEDGE
 connectionUsername | The JMS connection username | no | - | -
@@ -49,6 +49,8 @@ durableSubscriberName | The name of the durable subscriber | Required if subscri
 retryInterval | The retry interval (in milliseconds) if the JMS connection cannot be established at the beginning or is lost in the middle | no | A valid long value | 10000
 maxRetryCount | Maximum retry count if the JMS connection cannot be established at the beginning or is lost in the middle | no | A valid integer value | 5
 useReceiver | Use synchronous message receiver to receive message instead of asynchronous message listener | no | true/false | false
+concurrentConsumers | Number of concurrent consumers to be spawned when the server connector is starting. | no | Integer | 1
+connectionFactoryNature | The type of connection factory to use when creating consumers | no | default,cached,pooled | default
 
 Example: 
 
@@ -60,6 +62,8 @@ import ballerina.net.jms;
 @jms:ConnectionProperty{key:"useReceiver", value:"true"}
 @jms:ConnectionProperty{key:"connectionFactoryJNDIName", value:"QueueConnectionFactory"}
 @jms:ConnectionProperty{key:"sessionAcknowledgement", value:"AUTO_ACKNOWLEDGE"}
+@jms:ConnectionProperty{key:"concurrentConsumers", value:"5"}
+@jms:ConnectionProperty{key:"connectionFactoryNature", value:"pooled"}
 ```
 
 ### Step 3: Add the resource

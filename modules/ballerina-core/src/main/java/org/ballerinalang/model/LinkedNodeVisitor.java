@@ -22,6 +22,7 @@ import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
+import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
@@ -44,6 +45,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.ArrayInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayLengthAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayMapAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
@@ -55,6 +57,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.MapInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.RefTypeInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructFieldAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.UnaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.AssignStmtEndNode;
@@ -127,6 +130,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(BasicLiteral basicLiteral);
 
     void visit(BinaryExpression expression);
+    
+    void visit(BinaryEqualityExpression expression);
 
     void visit(ConnectorInitExpr connectorInitExpr);
 
@@ -189,6 +194,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(BacktickExprEndNode backtickExprEndNode);
 
     void visit(BinaryExpressionEndNode binaryExpressionEndNode);
+    
+    void visit(BinaryEqualityExpressionEndNode binaryExpressionEndNode);
 
     void visit(CallableUnitEndNode callableUnitEndNode);
 
@@ -209,6 +216,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(StructFieldAccessExprEndNode structFieldAccessExprEndNode);
 
     void visit(StructInitExprEndNode structInitExprEndNode);
+    
+    void visit(StructInitExprStartNode structInitExprStartNode);
 
     void visit(TypeCastExpressionEndNode typeCastExpressionEndNode);
 

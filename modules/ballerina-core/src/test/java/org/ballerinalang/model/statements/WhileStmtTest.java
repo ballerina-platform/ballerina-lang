@@ -49,8 +49,8 @@ public class WhileStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 100;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 100;
         Assert.assertEquals(actual, expected);
     }
 
@@ -62,8 +62,8 @@ public class WhileStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 0;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 0;
         Assert.assertEquals(actual, expected);
     }
 
@@ -93,7 +93,7 @@ public class WhileStmtTest {
         BInteger actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 2, "mismatched output value");
         BFloat sum = (BFloat) returns[1];
-        Assert.assertEquals(sum.doubleValue(), 30.0, "mismatched output value");
+        Assert.assertEquals(sum.floatValue(), 30.0, "mismatched output value");
     }
 
     @Test(description = "Test while statement with incompatible types",

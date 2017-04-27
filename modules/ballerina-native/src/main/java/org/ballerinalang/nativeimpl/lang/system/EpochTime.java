@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.lang.system;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BLong;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -36,18 +36,18 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "epochTime",
-        returnType = {@ReturnType(type = TypeEnum.LONG)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the current system time in epoch format") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "long",
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
         value = "System time in epoch time") })
 public class EpochTime extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         long epoch = System.currentTimeMillis() / 1000;
-        return getBValues(new BLong(epoch));
+        return getBValues(new BInteger(epoch));
     }
 }

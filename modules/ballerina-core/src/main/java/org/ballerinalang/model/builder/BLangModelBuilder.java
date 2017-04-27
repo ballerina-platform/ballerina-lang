@@ -61,6 +61,7 @@ import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
+import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
@@ -168,7 +169,7 @@ public class BLangModelBuilder {
     // This is useful when analyzing import functions, actions and types.
     protected Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
-    protected Stack<AnnotationAttributeValue> annotationAttributeValues;
+    protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
     
     protected List<String> errorMsgs = new ArrayList<>();
 
@@ -277,20 +278,20 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        Expression expr = null;
+        Expression defaultValExpr = null;
         if (defaultValueAvailable) {
-            // Expression ignored = exprStack.pop();
-            expr = exprStack.pop();
+            defaultValExpr = exprStack.pop();
         }
         
         if (currentScope instanceof StructDef) {
-            // TODO Implement default value support for struct fields
-            VariableDef variableDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
-            currentScope.define(symbolName, variableDef);
-            currentStructBuilder.addField(variableDef);
+            VariableDef fieldDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
+            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, fieldName);
+            fieldRefExpr.setVariableDef(fieldDef);
+            VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
+            currentStructBuilder.addField(fieldDefStmt);
         } else if (currentScope instanceof AnnotationDef) {
             AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, fieldName, typeName, 
-                (BasicLiteral) expr, symbolName, currentScope, currentPackagePath);
+                (BasicLiteral) defaultValExpr, symbolName, currentScope, currentPackagePath);
             currentScope.define(symbolName, annotationField);
             annotationDefBuilder.addAttributeDef(annotationField);
         }
@@ -322,7 +323,6 @@ public class BLangModelBuilder {
         AnnotationAttachment.AnnotationBuilder annotationBuilder = new AnnotationAttachment.AnnotationBuilder();
         annotationBuilder.setNodeLocation(location);
         annonAttachmentBuilderStack.push(annotationBuilder);
-        annotationAttributeValues = new Stack<AnnotationAttributeValue>();
     }
 
     public void createAnnotationKeyValue(String key) {
@@ -1325,12 +1325,12 @@ public class BLangModelBuilder {
     // Literal Values
 
     public void createIntegerLiteral(NodeLocation location, String value) {
-        BValueType bValue = new BInteger(Integer.parseInt(value));
+        BValueType bValue = new BInteger(Long.parseLong(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.INT_TNAME), bValue);
     }
 
     public void createFloatLiteral(NodeLocation location, String value) {
-        BValueType bValue = new BFloat(Float.parseFloat(value));
+        BValueType bValue = new BFloat(Double.parseDouble(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.FLOAT_TNAME), bValue);
     }
 
@@ -1345,8 +1345,8 @@ public class BLangModelBuilder {
     }
 
     public void createNullLiteral(NodeLocation location, String value) {
-        throw new RuntimeException("null values are not yet supported in Ballerina in " + location.getFileName()
-                + ":" + location.getLineNumber());
+        NullLiteral nullLiteral = new NullLiteral(location);
+        exprStack.push(nullLiteral);
     }
 
     public void validateAndSetPackagePath(NodeLocation location, NameReference nameReference) {

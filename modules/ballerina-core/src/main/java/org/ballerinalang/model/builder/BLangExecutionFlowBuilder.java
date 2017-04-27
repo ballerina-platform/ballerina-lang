@@ -55,6 +55,7 @@ import org.ballerinalang.model.expressions.ArrayLengthAccessExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
+import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
@@ -71,6 +72,7 @@ import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
+import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
@@ -82,6 +84,7 @@ import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
+import org.ballerinalang.model.nodes.AbstractLinkedNode;
 import org.ballerinalang.model.nodes.EndNode;
 import org.ballerinalang.model.nodes.ExitNode;
 import org.ballerinalang.model.nodes.GotoNode;
@@ -92,6 +95,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.ArrayInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayLengthAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayMapAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
@@ -103,6 +107,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.MapInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.RefTypeInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructFieldAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.UnaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.AssignStmtEndNode;
@@ -679,7 +684,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(EqualExpression equalExpression) {
-        handelBinaryExpression(equalExpression);
+        handelBinaryEqualityExpression(equalExpression);
     }
 
     @Override
@@ -927,7 +932,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(NotEqualExpression notEqualExpression) {
-        handelBinaryExpression(notEqualExpression);
+        handelBinaryEqualityExpression(notEqualExpression);
     }
 
     @Override
@@ -1314,12 +1319,46 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     @Override
     public void visit(StructInitExpr structInitExpr) {
         calculateTempOffSet(structInitExpr);
+        StructInitExprStartNode startNode = new StructInitExprStartNode(structInitExpr);
         StructInitExprEndNode endNode = new StructInitExprEndNode(structInitExpr);
         Expression[] argExprs = structInitExpr.getArgExprs();
-        endNode.setParent(structInitExpr);
+        
+        // Create flow for populating default values
+        StructDef structDef = (StructDef) structInitExpr.getType();
+        BlockStmt blockStmt = structDef.getInitFunction().getCallableUnitBody();
+        structInitExpr.setNext(startNode);
+        startNode.setParent(structInitExpr);
+        
+        startNode.setNext(blockStmt);
+        CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(structInitExpr);
+        blockStmt.setNextSibling(callableUnitEndNode);
+        GotoNode gotoNode;
+        // Setup MultiLink Statement for this block Statement.
+        if (blockStmt.getGotoNode() != null) {
+            gotoNode = blockStmt.getGotoNode();
+        } else {
+            gotoNode = new GotoNode();
+            blockStmt.setGotoNode(gotoNode);
+            blockStmt.setNextSibling(gotoNode);
+        }
+        // Get Branching ID for above multi link.
+        int branchID = gotoNode.addNext(callableUnitEndNode);
+        startNode.setHasGotoBranchID(true);
+        startNode.setGotoBranchID(branchID);
+        if (!structDef.getInitFunction().isFlowBuilderVisited()) {
+            returningBlockStmtStack.push(blockStmt);
+            offSetCounterStack.push(new OffSetCounter());
+            structDef.getInitFunction().setFlowBuilderVisited(true);
+            blockStmt.accept(this);
+            structDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getCount());
+            returningBlockStmtStack.pop();
+        }
+        
+        //  Create flow for arguments in struct initializer expression
         if (argExprs != null && argExprs.length > 0) {
             LinkedNode previous = null;
-            structInitExpr.setNext(argExprs[0]);
+            callableUnitEndNode.setNext(argExprs[0]);
+            
             for (Expression arg : argExprs) {
                 if (previous != null) {
                     previous.setNextSibling(arg);
@@ -1331,9 +1370,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             }
             Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
         } else {
-            if (structInitExpr.next == null) {
-                structInitExpr.setNext(endNode);
-            }
+            callableUnitEndNode.setNext(endNode);
         }
         endNode.setNext(findNext(endNode));
     }
@@ -1401,6 +1438,12 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(NullLiteral nullLiteral) {
+        calculateTempOffSet(nullLiteral);
+        nullLiteral.setNext(findNext(nullLiteral));
+    }
+
+    @Override
     public void visit(StackVarLocation stackVarLocation) {
 
     }
@@ -1448,6 +1491,18 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         // Flow: BinaryExpr -> RHSExpr -> LHSExpr -> BinaryExpressionEndNode -> BinaryExpression.nextSibling -> ...
         calculateTempOffSet(binaryExpression);
         BinaryExpressionEndNode endNode = new BinaryExpressionEndNode(binaryExpression);
+        linkBinaryExpr(binaryExpression, endNode);
+    }
+    
+    private void handelBinaryEqualityExpression(BinaryEqualityExpression binaryEqualityExpression) {
+        // Flow: BinaryExpr -> RHSExpr -> LHSExpr -> 
+        //              BinaryEqualityExpressionEndNode -> BinaryEqualityExpression.nextSibling -> ...
+        calculateTempOffSet(binaryEqualityExpression);
+        BinaryEqualityExpressionEndNode endNode = new BinaryEqualityExpressionEndNode(binaryEqualityExpression);
+        linkBinaryExpr(binaryEqualityExpression, endNode);
+    }
+
+    private void linkBinaryExpr(BinaryExpression binaryExpression, AbstractLinkedNode endNode) {
         Expression rExp = binaryExpression.getRExpr();
         Expression lExp = binaryExpression.getLExpr();
         binaryExpression.setNext(rExp);
@@ -1460,7 +1515,8 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         lExp.accept(this);
         endNode.setNext(findNext(endNode));
     }
-
+    
+    
     /**
      * Clear Branching Stacks before going though root block statement.
      */
@@ -1553,4 +1609,5 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             return count + 1;
         }
     }
+
 }
