@@ -1,6 +1,6 @@
 import React from 'react'
 
-class Panel extends React.Component {
+class PanelDecorator extends React.Component {
 
     render() {
         return <div className="panel panel-default container-outer-div">
@@ -25,4 +25,4 @@ class Panel extends React.Component {
     }
 }
 
-export default Panel;
+export default PanelDecorator;

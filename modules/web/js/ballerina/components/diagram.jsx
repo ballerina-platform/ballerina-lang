@@ -17,8 +17,10 @@
  */
 
 import React from 'react';
-import Canvas from './canvas';
-import Panel from './panel';
+import CanvasDecorator from './canvas-decorator';
+import PanelDecorator from './panel-decorator';
+import StatementContainer from './statement-container';
+import components from './components';
 
 class Diagram extends React.Component {
 
@@ -39,10 +41,19 @@ class Diagram extends React.Component {
     }
 
     render() {
-				let children = <Panel><Canvas></Canvas></Panel>
+        const functionInvocation = React.createElement(components['FunctionInvocationStatement'],
+            {model : { viewState: { bBox: { x: 10, y: 10, w: 50, h: 50}},
+             expression: "this is the expression"}}, null);
+				let children = <PanelDecorator title="StatementContainer">
+                          <CanvasDecorator>
+                              <StatementContainer>
+                                      {functionInvocation}
+                              </StatementContainer>
+                          </CanvasDecorator>
+                      </PanelDecorator>
         return <div className="canvas_container">
-            {children}
-        </div>;
+                  {children}
+              </div>;
     }
 }
 
