@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import ASTVisitor from './ast-visitor';
+
 import Visitors from './dimention-calc/components';
 
 class DimensionCalculatorVisitor {

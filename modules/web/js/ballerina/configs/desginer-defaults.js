@@ -17,23 +17,87 @@
  */
 
 export const resourceDimensions = {
-    containerWidth: 400,
-    containerHeight: 200,
-    headingWidth: 400,
-    headingHeight: 25,
-    paddingLeft: 100,
-    paddingTop: 100,
-    paddingBottom: 100,
-    paddingRight: 100
+    width: 400,
+    panelBody: {
+        height: 200
+    },
+    panelHeading: {
+        height: 25
+    }
 };
 
-export const serviceDimensions = {
-    containerWidth: 400,
-    containerHeight: 200,
-    headingWidth: 400,
-    headingHeight: 25,
-    paddingLeft: 100,
-    paddingTop: 100,
-    paddingBottom: 100,
-    paddingRight: 100
+export const panel = {
+    wrapper: {
+        gutter: {
+            v: 50,
+            h: 50
+        }
+    },
+    heading: {
+        padding: {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0
+        }
+    },
+    body: {
+        padding: {
+            top: 50,
+            right: 50,
+            bottom: 50,
+            left: 50
+        }
+    }
+};
+
+export const innerPanel = {
+    wrapper: {
+        gutter: {
+            v: 0,
+            h: 0
+        }
+    },
+    heading: {
+        padding: {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0
+        }
+    },
+    body: {
+        padding: {
+            top: 50,
+            right: 50,
+            bottom: 50,
+            left: 50
+        }
+    }
+};
+
+export const lifeLine = {
+    width: 120,
+    head: {
+        height: 30
+    },
+    footer: {
+        height: 30
+    },
+    line: {
+        height: 320
+    },
+    gutter: {
+        v: 0,
+        h: 50
+    }
+};
+
+export const statement = {
+    minWidth: 120,
+    minHeight: 30,
+    gutter: {
+        v: 30,
+        h: 0
+    }
 };

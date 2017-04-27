@@ -51,7 +51,8 @@ class ASTNode extends EventChannel {
         this._whitespaceTokens = [];
 
         this.viewState = {
-            bBox: new BBox()
+            bBox: new BBox(),
+            components: {}
         }
     }
 
