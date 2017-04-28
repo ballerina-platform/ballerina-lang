@@ -23,6 +23,7 @@ import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.ControlStack;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.ServiceVarLocation;
@@ -611,6 +612,16 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing ServiceVarLocation");
         }
         int offset = serviceVarLocation.getStaticMemAddrOffset();
+        RuntimeEnvironment.StaticMemory staticMemory = runtimeEnv.getStaticMemory();
+        return staticMemory.getValue(offset);
+    }
+
+    @Override
+    public BValue access(GlobalVarLocation globalVarLocation) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ServiceVarLocation");
+        }
+        int offset = globalVarLocation.getStaticMemAddrOffset();
         RuntimeEnvironment.StaticMemory staticMemory = runtimeEnv.getStaticMemory();
         return staticMemory.getValue(offset);
     }
