@@ -35,6 +35,9 @@ class BallerinaASTRootDimensionCalculatorVisitor {
     endVisit(node) {
         // get the visit state to set ast root dimentions.
         let viewState = node.getViewState();
+        // set the state to 0 since we do a recalc
+        viewState.bBox.h = 0;
+        viewState.bBox.w = 0;
 
         // get the children of ast root
         let children = node.getChildren();
@@ -58,8 +61,8 @@ class BallerinaASTRootDimensionCalculatorVisitor {
 
         // as a tmp thing I will add panel wraper gutter 
         // add bottom gutter to bBox
-        viewState.bBox.h = viewState.bBox.h + panel.wrapper.gutter.h;    
-        viewState.bBox.w = viewState.bBox.w + panel.wrapper.gutter.w * 2; 
+        //viewState.bBox.h = viewState.bBox.h + panel.wrapper.gutter.h;
+        viewState.bBox.w = viewState.bBox.w + panel.wrapper.gutter.w * 2;
     }
 }
 
