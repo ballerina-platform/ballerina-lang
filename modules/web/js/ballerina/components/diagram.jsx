@@ -50,7 +50,7 @@ class Diagram extends React.Component {
         this.model.accept(this.dimentionCalc);
         // 2. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
-        this.model.accept(this.dimentionCalc);
+        this.model.accept(this.positionCalc);
         // 3. Now we need to create component for each child of root node.
         let [pkgDef, imports, constants, others] = [undefined, [], [], []];
         let otherNodes = [];
