@@ -40,29 +40,48 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         var viewState = node.getViewState();
         var components = {};
 
+        //header component
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
 
+        //all statements
         components['statement'] = new SimpleBBox();
-        var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementWidth = 0;
-        var statementHeight = 0;
+        var statementMaxWidth = DesignerDefaults.statement.width;
+        var statementTotalHeight = DesignerDefaults.statement.height + DesignerDefaults.statement.gutter.v;
 
-        _.forEach(statementChildren, function(child) { 
-            statementHeight += child.viewState.bBox.h + DesignerDefaults.statement.gutter.v;
-            if(child.viewState.bBox.w > statementWidth){
-                statementWidth = child.viewState.bBox.w;
+        _.forEach(node.filterChildren(BallerinaASTFactory.isStatement), function(child) {
+            statementTotalHeight += child.viewState.bBox.h;
+            if(child.viewState.bBox.w > statementMaxWidth){
+                statementMaxWidth = child.viewState.bBox.w;
             }
         });
         
-        components['statement'].h = statementHeight;
-        components['statement'].w = statementWidth;
+        components['statement'].h = statementTotalHeight;
+        components['statement'].w = statementMaxWidth;
+
+        components['life-line'] = new SimpleBBox();
+        components['life-line'].h = components['statement'].h + DesignerDefaults.statement.gutter.v;
+        components['life-line'].w = 0;
+
+        //default worker
+        components['default-worker'] = new SimpleBBox();
+        components['default-worker'].h = (2 * DesignerDefaults.statement.height) + components['life-line'].h;
+        components['default-worker'].w = components['statement'].w;
+
+        var workersTotalWidth = components['default-worker'].w;
+        var workersMaxHeight = components['default-worker'].h;
+
+        _.forEach(node.filterChildren(BallerinaASTFactory.isWorkerDeclaration), function(child) {
+            workersTotalWidth += child.viewState.bBox.w;
+            if(child.viewState.bBox.h > workersMaxHeight){
+                workersMaxHeight = child.viewState.bBox.w;
+            }
+        });
 
         components['body'] = new SimpleBBox();
-
-        components['body'].h = ((DesignerDefaults.panel.body.height < components['statement'].h)? components['statement'].h:DesignerDefaults.panel.body.height) 
-                               + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
-        components['body'].w = components['statement'].w + DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
+        components['body'].h = ((DesignerDefaults.panel.body.height < components['life-line'].h)? components['life-line'].h:DesignerDefaults.panel.body.height)
+                               + components['default-worker'].h + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+        components['body'].w = components['default-worker'].w + workersTotalWidth + DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;
