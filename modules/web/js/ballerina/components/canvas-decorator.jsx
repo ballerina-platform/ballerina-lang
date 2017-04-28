@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 class CanvasDecorator extends React.Component {
 
     render() {
-        return <svg className="svg-container" width="100%">
+        return <svg className="svg-container" width={ this.props.bBox.w } height={ this.props.bBox.h }>
                   {this.props.children}
               </svg>;
     }

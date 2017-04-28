@@ -69,8 +69,9 @@ class Diagram extends React.Component {
         others = getComponentForNodeArray(otherNodes);
         // 4. Ok we are all set, now lets render the diagram with React. We will create
         //    s CsnvasDecorator and pass child components for that.
+        let viewState = this.model.getViewState();
         return <div className="canvas_container">
-                    <CanvasDecorator title="StatementContainer" bBox={{w: "100%", h: "100%"}}>
+                    <CanvasDecorator title="StatementContainer" bBox={viewState.bBox}>
                           {others}
                     </CanvasDecorator>
                 </div>

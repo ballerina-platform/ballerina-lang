@@ -109,3 +109,14 @@ export const blockStatement = {
         height: 200
     }
 };
+
+export const canvas = {
+    body: {
+        padding: {
+            top: 50,
+            right: 50,
+            bottom: 50,
+            left: 50
+        },
+    }    
+}
