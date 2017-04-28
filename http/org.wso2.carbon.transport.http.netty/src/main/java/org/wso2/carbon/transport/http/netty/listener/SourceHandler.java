@@ -176,11 +176,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             int maxThreads = PoolConfiguration.getInstance().getEventGroupExecutorThreads();
             EventExecutorGroup executorGroup = new DefaultEventExecutorGroup(maxThreads);
             pipeline.addLast(executorGroup, "ws_handler",
-                             new WebSocketSourceHandler(generateWebSocketChannelID(),
-                                                        this.connectionManager,
-                                                        this.listenerConfiguration,
-                                                        httpRequest.getUri(),
-                                                        isSecuredConnection,
+                             new WebSocketSourceHandler(generateWebSocketChannelID(), this.connectionManager,
+                                                        this.listenerConfiguration, httpRequest, isSecuredConnection,
                                                         ctx));
 
             pipeline.remove(this);

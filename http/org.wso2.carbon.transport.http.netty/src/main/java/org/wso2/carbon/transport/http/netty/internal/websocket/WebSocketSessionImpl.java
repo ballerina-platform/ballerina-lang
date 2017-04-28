@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.websocket.CloseReason;
 import javax.websocket.RemoteEndpoint;
 
@@ -43,6 +45,7 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
     private final URI requestedUri;
     private final String sessionId;
     private boolean isOpen;
+    private Map<String, Object> userProperties = new HashMap<>();
 
     public WebSocketSessionImpl(ChannelHandlerContext ctx, boolean isSecure,
                                 String requestedUri, String sessionId) throws URISyntaxException {
@@ -90,7 +93,27 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
         return isOpen;
     }
 
+    @Override
+    public Map<String, Object> getUserProperties() {
+        return userProperties;
+    }
+
+    /**
+     * Identify whether connection is still open.
+     * @param isOpen true if the connection is still open.
+     */
     public void setIsOpen(boolean isOpen) {
         this.isOpen = isOpen;
     }
+
+    /**
+     * Add user property.
+     * @param key key of the property.
+     * @param value value of the property.
+     */
+    public void addUserProperty(String key, Object value) {
+        userProperties.put(key, value);
+    }
+
+
 }
