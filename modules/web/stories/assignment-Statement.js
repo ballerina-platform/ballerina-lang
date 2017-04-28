@@ -32,7 +32,7 @@ storiesOf('Assignment-Statement', module)
                 }
             }, null);
         return (
-            <CanvasDecorator title="StatementContainer" bBox={{w: "100%", h: "100%"}}>
+            <CanvasDecorator bBox={{w: "100%", h: "100%"}}>
                 <StatementContainer >
                     {assignmentStatement}
                 </StatementContainer>
