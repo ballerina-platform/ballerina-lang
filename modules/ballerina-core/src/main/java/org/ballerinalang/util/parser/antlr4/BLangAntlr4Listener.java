@@ -103,6 +103,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
     }
 
+    public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
+        this.modelBuilder = modelBuilder;
+    }
+
     @Override
     public void enterCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
     }
