@@ -42,12 +42,15 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -57,12 +60,14 @@ import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
+import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
@@ -687,7 +692,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         List<PsiElement> attachmentsForType =
                                 BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(psiDirectories[0], type);
                         addAnnotations(resultSet, attachmentsForType);
-
                     } else {
                         // This situation cannot/should not happen since all the imported packages are unique.
                         // This should be highlighted using an annotator.
@@ -803,7 +807,38 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addKeyword(resultSet, RESOURCE, CONTEXT_KEYWORD_PRIORITY);
                 return;
             }
+        }
 
+        PsiElement superParent = parent.getParent();
+        if (superParent instanceof AnnotationAttachmentNode) {
+
+            PsiElement nextSibling = PsiTreeUtil.skipSiblingsForward(superParent, PsiWhiteSpace.class, PsiComment.class,
+                    AnnotationAttachmentNode.class);
+
+            String type = null;
+            if (nextSibling == null) {
+                AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(element,
+                        AnnotationAttachmentNode.class);
+                if (annotationAttachmentNode != null) {
+                    PsiElement definitionNode = annotationAttachmentNode.getParent();
+                    type = getAnnotationAttachmentType(definitionNode);
+                }
+            } else if (nextSibling instanceof DefinitionNode) {
+                PsiElement[] children = nextSibling.getChildren();
+                if (children.length != 0) {
+                    PsiElement definitionNode = children[0];
+                    type = getAnnotationAttachmentType(definitionNode);
+                }
+
+            } else if (nextSibling.getParent() instanceof ResourceDefinitionNode) {
+                type = "resource";
+            } else if (nextSibling.getParent() instanceof ActionDefinitionNode) {
+                type = "action";
+            }
+
+            if (type == null) {
+                return;
+            }
 
             int count = 1;
             PsiElement prevElement = originalFile.findElementAt(parameters.getOffset() - count++);
@@ -822,16 +857,15 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     if (":".equals(token.getText())) {
 
                         PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                        suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, "resource");
+                        suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, type);
 
                     } else {
                         addPackages(resultSet, originalFile);
-                        //todo- get annotations from current package
-                        suggestAnnotationsFromAPackage(parameters, resultSet, null, "resource");
+                        suggestAnnotationsFromAPackage(parameters, resultSet, null, type);
                     }
                 } else {
                     PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                    suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, "resource");
+                    suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, type);
                 }
 
             } else if (prevElement instanceof LeafPsiElement) {
@@ -842,13 +876,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 // the issue as well.
                 if (elementType == BallerinaTypes.COLON) {
                     PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                    suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, "resource");
+                    suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, type);
                 } else if (elementType == BallerinaTypes.AT) {
                     //                    addFunctions(resultSet, prevElement, originalFile);
                     addPackages(resultSet, originalFile);
-
-                    //todo- get annotations from current package
-                    suggestAnnotationsFromAPackage(parameters, resultSet, null, "resource");
+                    suggestAnnotationsFromAPackage(parameters, resultSet, null, type);
                 }
             }
             return;
@@ -908,7 +940,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
 
 
-        PsiElement sibling = parent.getParent().getPrevSibling();
+        PsiElement sibling = superParent.getPrevSibling();
 
         if (sibling == null) {
             addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
@@ -927,7 +959,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             addOtherCommonKeywords(resultSet);
 
             // Todo - Move to utils
-            PsiElement temp = parent.getParent().getParent().getParent().getParent();
+            PsiElement temp = superParent.getParent().getParent().getParent();
             while (temp != null && !(temp instanceof PsiFile)) {
                 if (temp instanceof StatementNode) {
                     addVariables(resultSet, element);
@@ -951,7 +983,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addAnnotations(resultSet, element);
 
                 // Todo - Move to utils
-                PsiElement temp = parent.getParent().getParent().getParent().getParent();
+                PsiElement temp = superParent.getParent().getParent().getParent();
                 while (temp != null && !(temp instanceof PsiFile)) {
                     if (temp instanceof StatementNode) {
                         addVariables(resultSet, element);
@@ -976,7 +1008,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
             // Todo - Move to utils
             // Check parent type
-            PsiElement temp = parent.getParent().getParent().getParent().getParent();
+            PsiElement temp = superParent.getParent().getParent().getParent();
             while (temp != null && !(temp instanceof PsiFile)) {
                 // If parent type is StatementNode, add variable lookup elements
                 if (temp instanceof StatementNode) {
@@ -990,6 +1022,31 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
 
     }
+
+    private String getAnnotationAttachmentType(PsiElement definitionNode) {
+        String type = null;
+        if (definitionNode instanceof ServiceDefinitionNode) {
+            type = "service";
+        } else if (definitionNode instanceof FunctionNode) {
+            type = "function";
+        } else if (definitionNode instanceof ConnectorNode) {
+            type = "connector";
+        } else if (definitionNode instanceof StructDefinitionNode) {
+            type = "struct";
+        } else if (definitionNode instanceof TypeMapperNode) {
+            type = "typemapper";
+        } else if (definitionNode instanceof ConstantDefinitionNode) {
+            type = "constant";
+        } else if (definitionNode instanceof AnnotationDefinitionNode) {
+            type = "annotation";
+        } else if (definitionNode instanceof ResourceDefinitionNode) {
+            type = "resource";
+        } else if (definitionNode instanceof ActionDefinitionNode) {
+            type = "action";
+        }
+        return type;
+    }
+
 
     private void addOtherCommonKeywords(CompletionResultSet resultSet) {
         addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);

@@ -124,6 +124,13 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("const string NAME = <caret>");
     }
 
+    // todo - add annotation tests
+
+    /**
+     * Test annotation level lookups.
+     */
+    // todo - add tests
+
     /**
      * Test function level lookups.
      */
@@ -175,6 +182,65 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("test");
         doTest("import org.pack; function test () { <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testFunctionAnnotation() {
+        doCheckResult("test.bal", "@<caret> function A(){}", null, '@');
+    }
+
+    public void testFunctionAnnotationWithImports() {
+        doCheckResult("test.bal", "import org.test; <caret>function A(){}", null, '@', "test");
+    }
+
+    public void testFunctionAnnotationWithImportsNoAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
+        doCheckResult("test.bal", "import org.test; @test<caret> function A(){}", null, ':');
+    }
+
+    public void testFunctionAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
+        doCheckResult("test.bal", "import org.test; @test:<caret> function A(){}", null, null);
+    }
+
+    public void testFunctionAnnotationWithImportsWithMatchingAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach function {} " +
+                "annotation TEST2 attach resource {}");
+        doCheckResult("test.bal", "import org.test; @test:<caret> function A(){}", null, null, "TEST");
+    }
+
+    public void testFunctionAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach function {}");
+        doCheckResult("test.bal", "import org.test; @test:T<caret> function A(){}",
+                "import org.test; @test:TEST {} function A(){}", null);
+    }
+
+    public void testFunctionAnnotationInCurrentPackageSameFile() {
+        doCheckResult("test.bal", "annotation TEST attach function {} <caret> function A(){}", null, '@', "TEST");
+    }
+
+    public void testFunctionAnnotationInCurrentPackageSameFileAutoComplete() {
+        doCheckResult("test.bal", "annotation TEST attach function {} @T<caret> function A(){}",
+                "annotation TEST attach function {} @TEST {} function A(){}", null);
+    }
+
+    public void testFunctionAnnotationInCurrentPackageDifferentFile() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach function {}");
+        doCheckResult("test.bal", "<caret> function A(){}", null, '@', "TEST");
+    }
+
+    public void testFunctionAnnotationInCurrentPackageDifferentFileAutoComplete() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach function {}");
+        doCheckResult("test.bal", "@T<caret> function A(){}", "@TEST {} function A(){}", null);
+    }
+
+    public void testFunctionAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach function {}");
+        doCheckResult("test.bal", "<caret> function A(){} service R{}", null, '@', "TEST");
+    }
+
+    public void testFunctionAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
+        doCheckResult("test.bal", "annotation TEST attach function {} <caret> function A(){} service R{}", null, '@',
+                "TEST");
     }
 
     /**
@@ -251,52 +317,63 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("service S{<caret>}", "resource");
     }
 
-    public void testServiceBodyAnnotation() {
-        doCheckResult("test.bal", "service S{<caret>}", null, '@');
+    public void testServiceAnnotation() {
+        doCheckResult("test.bal", "@<caret> service S{}", null, '@');
     }
 
-    public void testServiceBodyAnnotationWithImports() {
-        doCheckResult("test.bal", "import org.test; service S{<caret>}", null, '@', "test");
+    public void testServiceAnnotationWithImports() {
+        doCheckResult("test.bal", "import org.test; <caret>service S{}", null, '@', "test");
     }
 
-    public void testServiceBodyAnnotationWithImportsNoAnnotationDefinitions() {
+    public void testServiceAnnotationWithImportsNoAnnotationDefinitions() {
         myFixture.addFileToProject("org/test/file.bal", "function test(){}");
-        doCheckResult("test.bal", "import org.test; service S{@test}", null, ':');
+        doCheckResult("test.bal", "import org.test; @test<caret> service S{}", null, ':');
     }
 
-    public void testServiceBodyAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
+    public void testServiceAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
         myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
-        doCheckResult("test.bal", "import org.test; service S{@test:<caret>}", null, null);
+        doCheckResult("test.bal", "import org.test; @test:<caret> service S{}", null, null);
     }
 
-    public void testServiceBodyAnnotationWithImportsWithMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach resource {}");
-        doCheckResult("test.bal", "import org.test; service S{@test:<caret>}", null, null, "TEST");
+    public void testServiceAnnotationWithImportsWithMatchingAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach service {} " +
+                "annotation TEST2 attach resource {}");
+        doCheckResult("test.bal", "import org.test; @test:<caret> service S{}", null, null, "TEST");
     }
 
-    public void testServiceBodyAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach resource {}");
-        doCheckResult("test.bal", "import org.test; service S{@test:T<caret>}",
-                "import org.test; service S{@test:TEST {}}", null);
+    public void testServiceAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach service {}");
+        doCheckResult("test.bal", "import org.test; @test:T<caret> service S{}",
+                "import org.test; @test:TEST {} service S{}", null);
     }
 
-    public void testServiceBodyAnnotationInCurrentPackageSameFile() {
-        doCheckResult("test.bal", "annotation TEST attach resource {} service S{<caret>}", null, '@', "TEST");
+    public void testServiceAnnotationInCurrentPackageSameFile() {
+        doCheckResult("test.bal", "annotation TEST attach service {} <caret> service S{}", null, '@', "TEST");
     }
 
-    public void testServiceBodyAnnotationInCurrentPackageSameFileAutoComplete() {
-        doCheckResult("test.bal", "annotation TEST attach resource {} service S{@T<caret>}",
-                "annotation TEST attach resource {} service S{@TEST {}}", null);
+    public void testServiceAnnotationInCurrentPackageSameFileAutoComplete() {
+        doCheckResult("test.bal", "annotation TEST attach service {} @T<caret> service S{}",
+                "annotation TEST attach service {} @TEST {} service S{}", null);
     }
 
-    public void testServiceBodyAnnotationInCurrentPackageDifferentFile() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
-        doCheckResult("test.bal", "service S{<caret>}", null, '@', "TEST");
+    public void testServiceAnnotationInCurrentPackageDifferentFile() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach service {}");
+        doCheckResult("test.bal", "<caret> service S{}", null, '@', "TEST");
     }
 
-    public void testServiceBodyAnnotationInCurrentPackageDifferentFileAutoComplete() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
-        doCheckResult("test.bal", "service S{@T<caret>}", "service S{@TEST {}}", null);
+    public void testServiceAnnotationInCurrentPackageDifferentFileAutoComplete() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach service {}");
+        doCheckResult("test.bal", "@T<caret> service S{}", "@TEST {} service S{}", null);
+    }
+
+    public void testServiceAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach service {}");
+        doCheckResult("test.bal", "<caret> service S{} service R{}", null, '@', "TEST");
+    }
+
+    public void testServiceAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
+        doCheckResult("test.bal", "annotation TEST attach service {} <caret> service S{} service R{}", null, '@',
+                "TEST");
     }
 
     /**
@@ -306,7 +383,64 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("service S { resource <caret> ");
     }
 
-    //todo - resource annotations
+    public void testResourceAnnotation() {
+        doCheckResult("test.bal", "service S{<caret>}", null, '@');
+    }
+
+    public void testResourceAnnotationWithImports() {
+        doCheckResult("test.bal", "import org.test; service S{<caret>}", null, '@', "test");
+    }
+
+    public void testResourceAnnotationWithImportsNoAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
+        doCheckResult("test.bal", "import org.test; service S{@test<caret>}", null, ':');
+    }
+
+    public void testResourceAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
+        doCheckResult("test.bal", "import org.test; service S{@test:<caret>}", null, null);
+    }
+
+    public void testResourceAnnotationWithImportsWithMatchingAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach resource {} " +
+                "annotation TEST2 attach service {}");
+        doCheckResult("test.bal", "import org.test; service S{@test:<caret>}", null, null, "TEST");
+    }
+
+    public void testResourceAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach resource {}");
+        doCheckResult("test.bal", "import org.test; service S{@test:T<caret>}",
+                "import org.test; service S{@test:TEST {}}", null);
+    }
+
+    public void testResourceAnnotationInCurrentPackageSameFile() {
+        doCheckResult("test.bal", "annotation TEST attach resource {} service S{<caret>}", null, '@', "TEST");
+    }
+
+    public void testResourceAnnotationInCurrentPackageSameFileAutoComplete() {
+        doCheckResult("test.bal", "annotation TEST attach resource {} service S{@T<caret>}",
+                "annotation TEST attach resource {} service S{@TEST {}}", null);
+    }
+
+    public void testResourceAnnotationInCurrentPackageDifferentFile() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
+        doCheckResult("test.bal", "service S{<caret>}", null, '@', "TEST");
+    }
+
+    public void testResourceAnnotationInCurrentPackageDifferentFileAutoComplete() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
+        doCheckResult("test.bal", "service S{@T<caret>}", "service S{@TEST {}}", null);
+    }
+
+    public void testResourceAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
+        doCheckResult("test.bal", "service S{<caret>} service R{}", null, '@', "TEST");
+    }
+
+    public void testResourceAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
+        doCheckResult("test.bal", "annotation TEST attach resource {} service S{<caret>} service R{}", null, '@',
+                "TEST");
+    }
 
     /**
      * Test resource parameter level lookups.
@@ -381,6 +515,83 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("connector <caret>");
     }
 
+    public void testConnectorAnnotation() {
+        doCheckResult("test.bal", "@<caret> connector A{}", null, '@');
+    }
+
+    public void testConnectorAnnotationWithImports() {
+        doCheckResult("test.bal", "import org.test; <caret>connector A{}", null, '@', "test");
+    }
+
+    public void testConnectorAnnotationWithImportsNoAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
+        doCheckResult("test.bal", "import org.test; @test<caret> connector A{}", null, ':');
+    }
+
+    public void testConnectorAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
+        doCheckResult("test.bal", "import org.test; @test:<caret> connector A{}", null, null);
+    }
+
+    public void testConnectorAnnotationWithImportsWithMatchingAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach connector {} " +
+                "annotation TEST2 attach resource {}");
+        doCheckResult("test.bal", "import org.test; @test:<caret> connector A{}", null, null, "TEST");
+    }
+
+    public void testConnectorAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach connector {}");
+        doCheckResult("test.bal", "import org.test; @test:T<caret> connector A{}",
+                "import org.test; @test:TEST {} connector A{}", null);
+    }
+
+    public void testConnectorAnnotationInCurrentPackageSameFile() {
+        doCheckResult("test.bal", "annotation TEST attach connector {} <caret> connector A{}", null, '@', "TEST");
+    }
+
+    public void testConnectorAnnotationInCurrentPackageSameFileAutoComplete() {
+        doCheckResult("test.bal", "annotation TEST attach connector {} @T<caret> connector A{}",
+                "annotation TEST attach connector {} @TEST {} connector A{}", null);
+    }
+
+    public void testConnectorAnnotationInCurrentPackageDifferentFile() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach connector {}");
+        doCheckResult("test.bal", "<caret> connector A{}", null, '@', "TEST");
+    }
+
+    public void testConnectorAnnotationInCurrentPackageDifferentFileAutoComplete() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach connector {}");
+        doCheckResult("test.bal", "@T<caret> connector A{}", "@TEST {} connector A{}", null);
+    }
+
+    public void testConnectorAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach connector {}");
+        doCheckResult("test.bal", "<caret> connector A{} service R{}", null, '@', "TEST");
+    }
+
+    public void testConnectorAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
+        doCheckResult("test.bal", "annotation TEST attach connector {} <caret> connector A{} service R{}", null,
+                '@', "TEST");
+    }
+
+    /**
+     * Test action level lookups.
+     */
+    // todo - add tests
+
+    /**
+     * Test struct level lookups.
+     */
+    // todo - add tests
+
+    /**
+     * Test typemapper level lookups.
+     */
+    // todo - add tests
+
+    /**
+     *
+     */
     public void testInvokingFunctionInDifferentFile1() {
         myFixture.addFileToProject("file1.bal", "function test(){}");
         myFixture.configureByText("file2.bal", "function main(string[] args){ tes<caret> }");
