@@ -40,7 +40,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         var viewState = node.getViewState();
         var width = DesignerDefaults.functionDefinitionDimensions.width;
         var components = {};
-        
+
         //--- components deciding height of the function definition bbox
         components['heading'] = new SimpleBBox();
         components['heading'].w = width;
@@ -51,7 +51,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         components['body'].h = DesignerDefaults.functionDefinitionDimensions.panelBody.height;
 
         var height = 0;
-        _.forEach(components, function(component) { 
+        _.forEach(components, function(component) {
             height = height + component.h;
         });
 
@@ -64,7 +64,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         var statementBlockWidth = 0;
         var statementBlockHeight = 0;
 
-        _.forEach(statementChildren, function(child) { 
+        _.forEach(statementChildren, function(child) {
             statementBlockHeight = statementBlockHeight + child.viewState.h;
             if(child.viewState.w > statementBlockWidth){
                 statementBlockWidth = child.viewState.w;

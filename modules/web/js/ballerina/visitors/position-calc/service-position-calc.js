@@ -19,7 +19,7 @@
 import log from 'log';
 import _ from 'lodash';
 import AST from './../../ast/module';
-import * as DesignerDefaults from './../../configs/desginer-defaults';
+import * as DesignerDefaults from './../../configs/designer-defaults';
 
 class ServiceDefinitionPositionCalcVisitor {
 
