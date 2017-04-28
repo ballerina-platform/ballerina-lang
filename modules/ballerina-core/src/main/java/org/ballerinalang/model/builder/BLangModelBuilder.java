@@ -77,6 +77,7 @@ import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
+import org.ballerinalang.model.statements.GlobalVariableDefStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
@@ -98,6 +99,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.ParserErrors;
 import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
 
@@ -491,16 +493,23 @@ public class BLangModelBuilder {
      * </ol>
      *
      * @param location Location of the variable reference expression in the source file
-     * @param varName  name of the variable
+     * @param nameReference  nameReference of the variable
      */
-    public void createVarRefExpr(NodeLocation location, String varName) {
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
+    public void createVarRefExpr(NodeLocation location, NameReference nameReference) {
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, nameReference.name,
+                nameReference.pkgName, nameReference.pkgPath);
         exprStack.push(variableRefExpr);
     }
 
-    public void createMapArrayVarRefExpr(NodeLocation location, String varName, int dimensions) {
-        SymbolName symName = new SymbolName(varName);
-        VariableRefExpr arrayVarRefExpr = new VariableRefExpr(location, varName);
+    /**
+     * <p>Create map array variable reference expression.</p>
+     *
+     * @param location location of the variable reference expression in the source file.
+     * @param nameReference nameReference of the variable.
+     * @param dimensions dimensions of map array.
+     */
+    public void createMapArrayVarRefExpr(NodeLocation location, NameReference nameReference, int dimensions) {
+        VariableRefExpr arrayVarRefExpr = new VariableRefExpr(location, nameReference.name);
 
         Expression[] indexExprs = new Expression[dimensions];
         int i = 0;
@@ -510,7 +519,9 @@ public class BLangModelBuilder {
         checkArgExprValidity(location, Arrays.asList(indexExprs));
 
         ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
-        builder.setVarName(symName);
+        builder.setVarName(nameReference.name);
+        builder.setPkgName(nameReference.pkgName);
+        builder.setPkgPath(nameReference.pkgPath);
         builder.setIndexExprs(indexExprs);
         builder.setArrayMapVarRefExpr(arrayVarRefExpr);
         builder.setNodeLocation(location);
@@ -973,6 +984,31 @@ public class BLangModelBuilder {
         }
     }
 
+    /**
+     * <p>Method to add global variable definitions.</p>
+     *
+     * @param location of the global variable in file.
+     * @param typeName  of the global variable.
+     * @param varName name of the global variable.
+     * @param exprAvailable rhs has expression or not.
+     */
+    public void addGlobalVariableDefinition(NodeLocation location, SimpleTypeName typeName,
+                                            String varName, boolean exprAvailable) {
+
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
+        SymbolName symbolName = new SymbolName(varName);
+
+        VariableDef variableDef = new VariableDef(location, varName, typeName, symbolName, currentScope);
+        variableRefExpr.setVariableDef(variableDef);
+
+        Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
+        GlobalVariableDefStmt variableDefStmt = new GlobalVariableDefStmt(location, variableDef,
+                variableRefExpr, rhsExpr);
+
+        // Add global variable definition to current file;
+        bFileBuilder.addGlobalVar(variableDefStmt);
+    }
+
     public void addCommentStmt(NodeLocation location, String comment) {
         CommentStmt commentStmt = new CommentStmt(location, comment);
         addToBlockStmt(commentStmt);
@@ -1423,10 +1459,15 @@ public class BLangModelBuilder {
         }
         ReferenceExpr field = (ReferenceExpr) exprStack.pop();
         StructFieldAccessExpr fieldExpr;
+        if (field.getPkgPath() != null) {
+            throw BLangExceptionHelper.getParserException(location,
+                    ParserErrors.STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER, field.getPkgName() + ":" + field.getVarName());
+        }
         if (field instanceof StructFieldAccessExpr) {
             fieldExpr = (StructFieldAccessExpr) field;
         } else {
-            fieldExpr = new StructFieldAccessExpr(location, field.getSymbolName(), field);
+            fieldExpr = new StructFieldAccessExpr(location, field.getSymbolName(), field.getPkgName(),
+                    field.getPkgPath(), field);
         }
 
         ReferenceExpr parent = (ReferenceExpr) exprStack.pop();

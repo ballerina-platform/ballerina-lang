@@ -19,6 +19,7 @@ package org.ballerinalang.util.semantics;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -100,6 +101,7 @@ import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
+import org.ballerinalang.model.statements.GlobalVariableDefStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
@@ -217,6 +219,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         defineConstants(bLangPackage.getConsts());
+        defineGlobalVariables(bLangPackage);
         defineStructs(bLangPackage.getStructDefs());
         defineConnectors(bLangPackage.getConnectors());
         resolveStructFieldTypes(bLangPackage.getStructDefs());
@@ -262,6 +265,70 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO This should be done properly in the RuntimeEnvironment
         BasicLiteral basicLiteral = (BasicLiteral) constDef.getRhsExpr();
         constDef.setValue(basicLiteral.getBValue());
+    }
+
+    @Override
+    public void visit(GlobalVariableDefStmt globalVar) {
+        // Resolves the type of the variable
+        VariableDef varDef = globalVar.getVariableDef();
+        BType varBType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
+        varDef.setType(varBType);
+
+        // Set memory location
+        setMemoryLocation(varDef);
+
+        Expression rExpr = globalVar.getRExpr();
+        if (rExpr == null) {
+            return;
+        }
+
+        // Null can be assigned to only reference types
+        if (rExpr instanceof NullLiteral) {
+            if (BTypes.isValueType(varBType)) {
+                BLangExceptionHelper.throwSemanticError(rExpr, SemanticErrors.INCOMPATIBLE_ASSIGNMENT, rExpr.getType(),
+                                                        varBType);
+            }
+            rExpr.setType(varBType);
+            return;
+        }
+
+        //todo any type support for RefTypeInitExpr
+        if (rExpr instanceof RefTypeInitExpr) {
+            RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
+
+            if (varBType instanceof BMapType) {
+                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                globalVar.setRExpr(refTypeInitExpr);
+            } else if (varBType instanceof StructDef) {
+                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                globalVar.setRExpr(refTypeInitExpr);
+            }
+
+            refTypeInitExpr.setInheritedType(varBType);
+            refTypeInitExpr.accept(this);
+            return;
+        }
+
+        visitSingleValueExpr(rExpr);
+        if (varBType == BTypes.typeAny) {
+            return;
+        }
+        BType rType = rExpr.getType();
+        if (rExpr instanceof TypeCastExpression && rType == null) {
+            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
+        }
+
+        if (!varBType.equals(rType)) {
+
+            TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
+            if (newExpr != null) {
+                newExpr.accept(this);
+                globalVar.setRExpr(newExpr);
+            } else {
+                BLangExceptionHelper.throwSemanticError(globalVar, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
+                                                        rExpr.getType(), varBType);
+            }
+        }
     }
 
     @Override
@@ -1849,10 +1916,10 @@ public class SemanticAnalyzer implements NodeVisitor {
                 visit(arrayMapVarRefExpr);
 
                 builder.setArrayMapVarRefExpr(arrayMapVarRefExpr);
-                builder.setVarName(mapOrArrName);
+                builder.setSymbolName(mapOrArrName);
                 Expression[] exprs = {indexExpr};
                 builder.setIndexExprs(exprs);
-                ArrayMapAccessExpr arrayMapAccessExpr = builder.build();
+                ArrayMapAccessExpr arrayMapAccessExpr = builder.buildWithSymbol();
                 visit(arrayMapAccessExpr);
                 argExprList.add(arrayMapAccessExpr);
             } else {
@@ -1938,6 +2005,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ServiceVarLocation serviceVarLocation) {
+
+    }
+
+    @Override
+    public void visit(GlobalVarLocation globalVarLocation) {
 
     }
 
@@ -2671,6 +2743,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             variableDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
         } else if (currentScope.getScopeName() == SymbolScope.ScopeName.STRUCT) {
             variableDef.setMemoryLocation(new StructVarLocation(++structMemAddrOffset));
+        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.PACKAGE) {
+            variableDef.setMemoryLocation(new GlobalVarLocation(++staticMemAddrOffset));
         }
     }
 
@@ -2684,6 +2758,35 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Define the variableRef symbol in the current scope
             currentScope.define(symbolName, constDef);
         }
+    }
+
+    private void defineGlobalVariables(BLangPackage bLangPackage) {
+        // Create the '<init>' function and inject it to the connector;
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(
+                bLangPackage.getNodeLocation(), bLangPackage);
+        for (GlobalVariableDefStmt globalVarDef : bLangPackage.getGlobalVariables()) {
+            blockStmtBuilder.addStmt(globalVarDef);
+            VariableDef varDef = globalVarDef.getVariableDef();
+            BType varBType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
+            varDef.setType(varBType);
+
+            // Check whether this variable is already defined, if not define it.
+            SymbolName symbolName = new SymbolName(varDef.getName());
+            BLangSymbol varSymbol = currentScope.resolve(symbolName);
+            if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
+                BLangExceptionHelper.throwSemanticError(varDef, SemanticErrors.REDECLARED_SYMBOL, varDef.getName());
+            }
+            currentScope.define(symbolName, varDef);
+        }
+
+        BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
+                new BallerinaFunction.BallerinaFunctionBuilder(bLangPackage);
+        functionBuilder.setNodeLocation(bLangPackage.getNodeLocation());
+        functionBuilder.setName(bLangPackage.getName() + ".<init>");
+        functionBuilder.setPkgPath(bLangPackage.getPackagePath());
+        functionBuilder.setBody(blockStmtBuilder.build());
+        bLangPackage.setInitFunction(functionBuilder.buildFunction());
+
     }
 
     private void defineFunctions(Function[] functions) {
