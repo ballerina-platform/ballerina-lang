@@ -86,9 +86,11 @@ public class WorkspaceServiceRunner {
             return;
         }
 
-
         String apiPath = null;
         String launcherPath = null;
+        // reading configurations from workspace-service-config.yaml. Users are expected to drop the
+        // workspace-service-config.yaml file inside the $ballerina-tools-distribution/resources/composer/services
+        // directory. Default configurations will be set if user hasn't provided workspace-service-config.yaml
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         File configFile = new File("./resources/composer/services/workspace-service-config.yaml");
         if (configFile.exists()) {
