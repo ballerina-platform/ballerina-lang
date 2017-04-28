@@ -77,7 +77,6 @@ class WorkerDeclarationPositionCalcVisitor {
 
     endVisitWorkerDeclarationPositionCalc(node) {
         log.debug('end visit WorkerDeclarationPositionCalc');
-        window.console.log(node.getViewState());
     }
 }
 
