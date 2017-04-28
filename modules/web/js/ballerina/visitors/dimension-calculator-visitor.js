@@ -26,7 +26,7 @@ class DimensionCalculatorVisitor {
             return nodeVisitor['canVisit'](node);
         }
 
-        return undefined;
+        return false;
     }
 
     visit(node) {
