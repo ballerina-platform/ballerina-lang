@@ -251,6 +251,54 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("service S{<caret>}", "resource");
     }
 
+    public void testServiceBodyAnnotation() {
+        doCheckResult("test.bal", "service S{<caret>}", null, '@');
+    }
+
+    public void testServiceBodyAnnotationWithImports() {
+        doCheckResult("test.bal", "import org.test; service S{<caret>}", null, '@', "test");
+    }
+
+    public void testServiceBodyAnnotationWithImportsNoAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
+        doCheckResult("test.bal", "import org.test; service S{@test}", null, ':');
+    }
+
+    public void testServiceBodyAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
+        doCheckResult("test.bal", "import org.test; service S{@test:<caret>}", null, null);
+    }
+
+    public void testServiceBodyAnnotationWithImportsWithMatchingAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach resource {}");
+        doCheckResult("test.bal", "import org.test; service S{@test:<caret>}", null, null, "TEST");
+    }
+
+    public void testServiceBodyAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach resource {}");
+        doCheckResult("test.bal", "import org.test; service S{@test:T<caret>}",
+                "import org.test; service S{@test:TEST {}}", null);
+    }
+
+    public void testServiceBodyAnnotationInCurrentPackageSameFile() {
+        doCheckResult("test.bal", "annotation TEST attach resource {} service S{<caret>}", null, '@', "TEST");
+    }
+
+    public void testServiceBodyAnnotationInCurrentPackageSameFileAutoComplete() {
+        doCheckResult("test.bal", "annotation TEST attach resource {} service S{@T<caret>}",
+                "annotation TEST attach resource {} service S{@TEST {}}", null);
+    }
+
+    public void testServiceBodyAnnotationInCurrentPackageDifferentFile() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
+        doCheckResult("test.bal", "service S{<caret>}", null, '@', "TEST");
+    }
+
+    public void testServiceBodyAnnotationInCurrentPackageDifferentFileAutoComplete() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
+        doCheckResult("test.bal", "service S{@T<caret>}", "service S{@TEST {}}", null);
+    }
+
     /**
      * Test resource level lookups.
      */
@@ -505,14 +553,18 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         assertSameElements(lookupElementStrings, expectedLookups);
     }
 
-    private void doCheckResult(@NotNull String relativePath, @NotNull String before, @NotNull String after,
-                               @Nullable Character c) {
+    private void doCheckResult(@NotNull String relativePath, @NotNull String before, String after,
+                               @Nullable Character c, String... expectedLookups) {
         PsiFile testFile = myFixture.addFileToProject(relativePath, before);
         myFixture.configureFromExistingVirtualFile(testFile.getVirtualFile());
         myFixture.completeBasic();
         if (c != null) {
             myFixture.type(c);
         }
-        myFixture.checkResult(after);
+        if (after != null) {
+            myFixture.checkResult(after);
+        } else {
+            doTest(null, expectedLookups);
+        }
     }
 }

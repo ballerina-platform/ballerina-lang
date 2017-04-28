@@ -41,6 +41,8 @@ import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
@@ -55,6 +57,7 @@ import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -63,6 +66,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class BallerinaPsiImplUtil {
+
+    private BallerinaPsiImplUtil() {
+
+    }
 
     public static PsiElement findPackageNameReference(PsiNamedElement element) {
         Collection<? extends PsiElement> declarations =
@@ -955,5 +962,36 @@ public class BallerinaPsiImplUtil {
         }
         // Return the resolved element.
         return resolved;
+    }
+
+    public static List<PsiElement> getAllAnnotationAttachmentsForType(PsiDirectory packageElement,
+                                                                      @NotNull String type) {
+        List<PsiElement> results = new ArrayList<>();
+        List<PsiElement> annotationDefinitions = getAllMatchingElementsFromPackage(packageElement,
+                "//annotationDefinition/Identifier");
+        if (annotationDefinitions == null) {
+            return results;
+        }
+        for (PsiElement annotationDefinition : annotationDefinitions) {
+            if (annotationDefinition.getParent() instanceof AnnotationDefinitionNode) {
+                AnnotationDefinitionNode annotationDefinitionNode =
+                        (AnnotationDefinitionNode) annotationDefinition.getParent();
+
+                Collection<AttachmentPointNode> attachmentPointNodes =
+                        PsiTreeUtil.findChildrenOfType(annotationDefinitionNode, AttachmentPointNode.class);
+
+                if (attachmentPointNodes.isEmpty()) {
+                    results.add(annotationDefinition);
+                    continue;
+                }
+                for (AttachmentPointNode attachmentPointNode : attachmentPointNodes) {
+                    if (type.equals(attachmentPointNode.getText())) {
+                        results.add(annotationDefinition);
+                        break;
+                    }
+                }
+            }
+        }
+        return results;
     }
 }

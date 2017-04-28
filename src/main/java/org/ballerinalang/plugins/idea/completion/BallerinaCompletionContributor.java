@@ -667,6 +667,44 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
     }
 
+    private void suggestAnnotationsFromAPackage(CompletionParameters parameters, CompletionResultSet resultSet,
+                                                PsiElement packageElement, String type) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        if (packageElement != null) {
+            // Get all imported packages in current file
+            List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
+            for (PsiElement pack : packages) {
+                // Compare text to identify the correct package
+                if (packageElement.getText().equals(pack.getText())) {
+                    // Resolve the package and get all matching directories. But all imported packages should be
+                    // unique. So the maximum size of this should be 1. If this is 0, that means the package is
+                    // not imported. If this is more than 1, it means there are duplicate package imports or
+                    // there are multiple packages with the same name.
+                    PsiDirectory[] psiDirectories =
+                            BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack).getNameIdentifier());
+                    if (psiDirectories.length == 1) {
+                        // Get all annotations in the package.
+                        List<PsiElement> attachmentsForType =
+                                BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(psiDirectories[0], type);
+                        addAnnotations(resultSet, attachmentsForType);
+
+                    } else {
+                        // This situation cannot/should not happen since all the imported packages are unique.
+                        // This should be highlighted using an annotator.
+                    }
+                }
+            }
+        } else {
+            // If the packageElement is null, that means we want to get all annotations in the current package.
+            PsiDirectory containingDirectory = originalFile.getContainingDirectory();
+            if (containingDirectory != null) {
+                List<PsiElement> attachments =
+                        BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(containingDirectory, type);
+                addAnnotations(resultSet, attachments);
+            }
+        }
+    }
+
     private void handleNameReferenceNode(CompletionParameters parameters, CompletionResultSet resultSet,
                                          PsiElement element, PsiElement parent) {
 
@@ -759,7 +797,60 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
         ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(parent, ServiceBodyNode.class);
         if (serviceBodyNode != null) {
-            addKeyword(resultSet, RESOURCE, CONTEXT_KEYWORD_PRIORITY);
+            AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(parent,
+                    AnnotationAttachmentNode.class);
+            if (annotationAttachmentNode == null) {
+                addKeyword(resultSet, RESOURCE, CONTEXT_KEYWORD_PRIORITY);
+                return;
+            }
+
+
+            int count = 1;
+            PsiElement prevElement = originalFile.findElementAt(parameters.getOffset() - count++);
+            while (prevElement instanceof PsiWhiteSpace) {
+                prevElement = originalFile.findElementAt(parameters.getOffset() - count++);
+            }
+            if (prevElement instanceof IdentifierPSINode) {
+
+                count = 1;
+                PsiElement token = originalFile.findElementAt(prevElement.getTextOffset() - count++);
+                while (token instanceof PsiWhiteSpace) {
+                    token = originalFile.findElementAt(prevElement.getTextOffset() - count++);
+                }
+                if (token != null && token instanceof LeafPsiElement) {
+                    //                IElementType elementType = ((LeafPsiElement) token).getElementType();
+                    if (":".equals(token.getText())) {
+
+                        PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                        suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, "resource");
+
+                    } else {
+                        addPackages(resultSet, originalFile);
+                        //todo- get annotations from current package
+                        suggestAnnotationsFromAPackage(parameters, resultSet, null, "resource");
+                    }
+                } else {
+                    PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                    suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, "resource");
+                }
+
+            } else if (prevElement instanceof LeafPsiElement) {
+
+                IElementType elementType = ((LeafPsiElement) prevElement).getElementType();
+
+                // Cannot use a switch statement since the types are not constants and declaring them final does not fix
+                // the issue as well.
+                if (elementType == BallerinaTypes.COLON) {
+                    PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                    suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, "resource");
+                } else if (elementType == BallerinaTypes.AT) {
+                    //                    addFunctions(resultSet, prevElement, originalFile);
+                    addPackages(resultSet, originalFile);
+
+                    //todo- get annotations from current package
+                    suggestAnnotationsFromAPackage(parameters, resultSet, null, "resource");
+                }
+            }
             return;
         }
 
@@ -896,7 +987,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 temp = temp.getParent();
             }
         }
-
 
 
     }

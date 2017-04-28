@@ -44,6 +44,7 @@ import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -260,6 +261,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new StructBodyNode(node);
             case BallerinaParser.RULE_returnParameters:
                 return new ReturnParametersNode(node);
+            case BallerinaParser.RULE_attachmentPoint:
+                return new AttachmentPointNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
