@@ -15,26 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import log from 'log';
 
-class AssignmentStatementDimensionCalcVisitor {
+class BallerinaASTRootDimensionCalculatorVisitor {
 
-    canVisitAssignmentStatementDimensionCalc(node) {
-        log.info('can visit AssignmentStatementDimensionCalc');
+    canVisit(node) {
+        return true;
     }
 
-    beginVisitAssignmentStatementDimensionCalc(node) {
-        log.info('begin visit AssignmentStatementDimensionCalc');
+    beginVisit(node) {
+        log.info('Begin Visit BallerinaASTRoot');
     }
 
-    visitAssignmentStatementDimensionCalc(node) {
-        log.info('visit AssignmentStatementDimensionCalc');
+    visit(node) {
+        log.info('Visit BallerinaASTRoot');
     }
 
-    endVisitAssignmentStatementDimensionCalc(node) {
-        log.info('end visit AssignmentStatementDimensionCalc');
+    endVisit(node) {
+        log.info('End Visit BallerinaASTRoot');
     }
 }
 
-export default AssignmentStatementDimensionCalcVisitor;
+export default BallerinaASTRootDimensionCalculatorVisitor;
+
