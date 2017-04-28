@@ -19,21 +19,21 @@
 import log from 'log';
 import _ from 'lodash';
 import AST from './../../ast/module';
-import * as DesignerDefaults from './../../configs/desginer-defaults';
+import * as DesignerDefaults from './../../configs/designer-defaults';
 
-class ServiceDefinitionPositionCalcVisitor {
+class FunctionDefinitionPositionCalcVisitor {
 
-    canVisitServiceDefinitionPositionCalc(node) {
-        log.debug('can visit ServiceDefinitionPositionCalc');
+    canVisitFunctionDefinitionPositionCalc(node) {
+        log.debug('can visit FunctionDefinitionPositionCalc');
         return true;
     }
 
-    beginVisitServiceDefinitionPositionCalc(node) {
+    beginVisitFunctionDefinitionPositionCalc(node) {
         let viewSate = node.getViewState();
         let bBox = viewSate.bBox;
         let parent = node.getParent();
         let services = _.filter(parent.getChildren(), function (child) {
-            return child instanceof AST.ServiceDefinition;
+            return child instanceof AST.FunctionDefinition;
         });
         let headerBBox = viewSate.components.header;
         let bodyBBox = viewSate.components.body;
@@ -44,11 +44,10 @@ class ServiceDefinitionPositionCalcVisitor {
             headerY = DesignerDefaults.panel.wrapper.gutter.v;
         } else if (currentServiceIndex > 0) {
             let previousServiceBBox = services[currentServiceIndex - 1].getViewState().bBox;
-
             headerX = DesignerDefaults.panel.wrapper.gutter.h;
             headerY = previousServiceBBox.y() + previousServiceBBox.h() + DesignerDefaults.panel.wrapper.gutter.v;
         } else {
-            throw 'Invalid Index for Service Definition';
+            throw 'Invalid Index for Function Definition';
         }
 
         x = headerX;
@@ -60,16 +59,16 @@ class ServiceDefinitionPositionCalcVisitor {
         headerBBox.x(headerX).y(headerY);
         bodyBBox.x(bodyX).y(bodyY);
 
-        log.debug('begin visit ServiceDefinitionPositionCalc');
+        log.debug('begin visit FunctionDefinitionPositionCalc');
     }
 
-    visitServiceDefinitionPositionCalc(node) {
-        log.debug('visit ServiceDefinitionPositionCalc');
+    visitFunctionDefinitionPositionCalc(node) {
+        log.debug('visit FunctionDefinitionPositionCalc');
     }
 
-    endVisitServiceDefinitionPositionCalc(node) {
-        log.debug('end visit ServiceDefinitionPositionCalc');
+    endVisitFunctionDefinitionPositionCalc(node) {
+        log.debug('end visit FunctionDefinitionPositionCalc');
     }
 }
 
-export default ServiceDefinitionPositionCalcVisitor;
+export default FunctionDefinitionPositionCalcVisitor;
