@@ -40,13 +40,31 @@ class WorkerDeclarationPositionCalcVisitor {
         let x, y, middleLineStartX, middleLineStartY, middleLineEndX, middleLineEndY, topRectX, topRectY, bottomRectX, bottomRectY;
 
         if (workerIndex === 0) {
-            topRectX = parentViewState.components.body.x() + DesignerDefaults.innerPanel.body.padding.left;
-            topRectY = parentViewState.components.body.y() + DesignerDefaults.innerPanel.body.padding.top;
+            /**
+             * This is the default worker
+             */
+            if(!node.isDefaultWorker()) {
+                throw 'Invalid Default worker found';
+            } else if (parentViewState.components.statementContainer.w()) {
+                throw 'Statement container width should greater than or equal to life line width';
+            }
+            topRectX = parentViewState.components.statementContainer.x() +
+                (parentViewState.components.statementContainer.w() - bBox.w())/2;
+            topRectY = parentViewState.components.statementContainer.y() - DesignerDefaults.lifeLine.head.height;
         } else if (workerIndex > 0) {
             let previousWorker = workers[workerIndex - 1];
-            let previousWorkerViewState = previousWorker.getViewState();
-            topRectX = previousWorkerViewState.components.body.x() + DesignerDefaults.innerPanel.body.padding.left;
-            topRectY = parentViewState.components.body.y() + DesignerDefaults.innerPanel.body.padding.top;
+            let previousStatementContainer;
+            /**
+             * This is either the statement container of the previous worker, if it is not the default worker and
+             * otherwise it is the statement container of the parent (Resource, connector action, etc)
+             */
+            if (previousWorker.isDefaultWorker()) {
+                previousStatementContainer = node.getParent().getViewState().components.statementContainer;
+            } else {
+                previousStatementContainer = workers[workerIndex - 1].getViewState().components.statementContainer;
+            }
+            topRectX = previousStatementContainer.x() + DesignerDefaults.innerPanel.body.padding.left;
+            topRectY = viewState.components.statementContainer.y() - DesignerDefaults.lifeLine.head.height;
         } else {
             throw "Invalid index found for Worker Declaration";
         }
@@ -80,4 +98,4 @@ class WorkerDeclarationPositionCalcVisitor {
     }
 }
 
-export default ServiceDefinitionPositionCalcVisitor;
+export default WorkerDeclarationPositionCalcVisitor;

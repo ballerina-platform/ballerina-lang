@@ -1,3 +1,6 @@
+import React from 'react';
+import log from 'log';
+
 // require all react components
 function requireAll(requireContext) {
     let components = {};
@@ -10,4 +13,19 @@ function requireAll(requireContext) {
     return components;
 }
 
-export default requireAll(require.context('./', true, /\.jsx$/));
+const components =  requireAll(require.context('./', true, /\.jsx$/));
+
+function getComponentForNodeArray(nodeArray) {
+    return nodeArray.map((child) => {
+        let compName = child.constructor.name;
+        if (components[compName]) {
+            return React.createElement(components[compName], {
+                model: child
+            }, null);
+        } else {
+            log.error('Unknown element type :' + child.constructor.name)
+        }
+    });
+}
+
+export default getComponentForNodeArray;

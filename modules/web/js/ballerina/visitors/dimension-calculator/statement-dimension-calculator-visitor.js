@@ -39,7 +39,6 @@ class StatementDimensionCalculatorVisitor {
         var viewState = node.getViewState();
         viewState.bBox.w = DesignerDefaults.statement.width;
         viewState.bBox.h = DesignerDefaults.statement.height;
-        
         log.info('end visit StatementDimensionCalc');
     }
 }

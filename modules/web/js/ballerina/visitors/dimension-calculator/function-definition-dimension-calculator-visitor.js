@@ -39,12 +39,9 @@ class FunctionDefinitionDimensionCalculatorVisitor {
     endVisit(node) {
         var viewState = node.getViewState();
         var components = {};
-        
+
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
-
-        components['body'] = new SimpleBBox();
-        components['body'].h = DesignerDefaults.panel.body.height;
 
         components['statement'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
@@ -61,15 +58,17 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         components['statement'].h = statementHeight;
         components['statement'].w = statementWidth;
 
-        components['body'].h = (components['body'].h < components['statement'].h)? components['statement'].h:components['body'].h;
-        components['body'].h += DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+        components['body'] = new SimpleBBox();
 
+        components['body'].h = ((DesignerDefaults.panel.body.height < components['statement'].h)? components['statement'].h:DesignerDefaults.panel.body.height) 
+                               + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         components['body'].w = components['statement'].w + DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;
 
         viewState.components = components;
+        
         log.info('end visit FunctionDefinitionDimensionCalc');
     }
 }

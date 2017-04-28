@@ -18,7 +18,10 @@
 
 import React from 'react';
 import CanvasDecorator from './canvas-decorator';
-import ServiceDefinition from './service-definition';
+import FunctionDefinition from './function-definition';
+import PositionCalcVisitor from '../visitors/position-calculator-visitor';
+import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor';
+import getComponentForNodeArray from './components';
 
 class Diagram extends React.Component {
 
@@ -28,6 +31,8 @@ class Diagram extends React.Component {
         this.model.on('tree-modified', () => {
             this.forceUpdate();
         });
+        this.dimentionCalc = new DimensionCalcVisitor();
+        this.positionCalc = new PositionCalcVisitor();
     }
 
     setModel(model) {
@@ -39,13 +44,36 @@ class Diagram extends React.Component {
     }
 
     render() {
-        let children =(<CanvasDecorator title="StatementContainer" bBox={{w: "100%", h: "100%"}}>
-                        <ServiceDefinition name="echo-service" bBox={{x: 25, w:1000, y:25, h:1000}}>
-                        </ServiceDefinition>
-                      </CanvasDecorator>)
+        // Following is how we render the diagram.
+        // 1. We will visit the model tree and calculate width and height of all
+        //    the elements. We will use DimensionCalcVisitor.
+        this.model.accept(this.dimentionCalc);
+        // 2. Now we will visit the model again and calculate position of each node
+        //    in the tree. We will use PositionCalcVisitor for this.
+        this.model.accept(this.dimentionCalc);
+        // 3. Now we need to create component for each child of root node.
+        let [pkgDef, imports, constants, others] = [undefined, [], [], []];
+        let otherNodes = [];
+        this.props.model.children.forEach((child) => {
+            switch (child.constructor.name) {
+                case 'PackageDefinition':
+                    break;
+                case 'ImportDeclaration':
+                    break;
+                case 'ConstantDefinition':
+                    break;
+                default:
+                    otherNodes.push(child);
+            }
+        });
+        others = getComponentForNodeArray(otherNodes);
+        // 4. Ok we are all set, now lets render the diagram with React. We will create
+        //    s CsnvasDecorator and pass child components for that.
         return <div className="canvas_container">
-                  {children}
-              </div>;
+                    <CanvasDecorator title="StatementContainer" bBox={{w: "100%", h: "100%"}}>
+                          {others}
+                    </CanvasDecorator>
+                </div>
     }
 }
 
