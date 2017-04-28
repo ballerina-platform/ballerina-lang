@@ -16,24 +16,23 @@
  * under the License.
  */
 
-import ASTVisitor from './../ast-visitor';
 import log from 'log';
 
-class AssignmentStatementDimensionCalcVisitor extends ASTVisitor {
+class AssignmentStatementDimensionCalcVisitor {
 
-    canVisit(node) {
+    canVisitAssignmentStatementDimensionCalc(node) {
         log.info('can visit AssignmentStatementDimensionCalc');
     }
 
-    beginVisit(node) {
+    beginVisitAssignmentStatementDimensionCalc(node) {
         log.info('begin visit AssignmentStatementDimensionCalc');
     }
 
-    visit(node) {
+    visitAssignmentStatementDimensionCalc(node) {
         log.info('visit AssignmentStatementDimensionCalc');
     }
 
-    endVisit(node) {
+    endVisitAssignmentStatementDimensionCalc(node) {
         log.info('end visit AssignmentStatementDimensionCalc');
     }
 }

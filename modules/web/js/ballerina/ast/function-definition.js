@@ -38,13 +38,6 @@ class FunctionDefinition extends CallableDefinition {
         this._isPublic = _.get(args, "isPublic") || false;
         this._annotations = _.get(args, 'annotations', []);
         this.BallerinaASTFactory = this.getFactory();
-        
-        var components = {};
-        components['header'] = new SimpleBBox();
-        components['parameters'] = new SimpleBBox();
-        components['annotation'] = new SimpleBBox();
-        this.viewState.components = components;
-
     }
 
     setFunctionName(name, options) {

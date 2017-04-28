@@ -16,7 +16,17 @@
  * under the License.
  */
 
-export const resourceDimensions = {
+export const resourceDefinitionDimensions = {
+    width: 400,
+    panelBody: {
+        height: 200
+    },
+    panelHeading: {
+        height: 25
+    }
+};
+
+export const functionDefinitionDimensions = {
     width: 400,
     panelBody: {
         height: 200
