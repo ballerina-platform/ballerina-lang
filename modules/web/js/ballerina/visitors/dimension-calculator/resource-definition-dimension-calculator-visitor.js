@@ -19,24 +19,24 @@
 import log from 'log';
 import * as DimensionConstants from './../../configs/designer-defaults';
 
-class ResourceDefinitionDimensionCalcVisitor {
+class ResourceDefinitionDimensionCalculatorVisitor {
 
-    canVisitResourceDefinitionDimensionCalc(node) {
+    canVisit(node) {
         log.debug('can visit ResourceDefinitionDimensionCalc');
         return true;
     }
 
-    beginVisitResourceDefinitionDimensionCalc(node) {
+    beginVisit(node) {
         log.debug('begin visit ResourceDefinitionDimensionCalc');
     }
 
-    visitResourceDefinitionDimensionCalc(node) {
+    visit(node) {
         log.debug('visit ResourceDefinitionDimensionCalc');
     }
 
-    endVisitResourceDefinitionDimensionCalc(node) {
+    endVisit(node) {
         log.debug('end visit ResourceDefinitionDimensionCalc');
     }
 }
 
-export default ResourceDefinitionDimensionCalcVisitor;
+export default ResourceDefinitionDimensionCalculatorVisitor;

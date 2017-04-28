@@ -11,3 +11,18 @@
     stroke: #000000;
     stroke-width: 1;
 }
+
+.statement-title-rect {
+    fill: #FFFFFF;
+    stroke: #000000;
+}
+
+.statement-title-polyline {
+    fill: none;
+    stroke: #000000;
+}
+
+.statement-container {
+    fill:#FFF;
+    stroke: #000000;
+}

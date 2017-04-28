@@ -11,7 +11,7 @@ storiesOf('CanvasDecorator', module)
         {model : { viewState: { bBox: { x: 0, y: 0, w: 200, h: 50}},
          expression: "this is the expression"}}, null);
     return (
-      <CanvasDecorator title="StatementContainer" bBox={{w: "100%", h: "100%"}}>
+      <CanvasDecorator bBox={canvusbBox}>
           <StatementContainer>
                   {functionInvocation}
           </StatementContainer>

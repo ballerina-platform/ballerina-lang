@@ -19,26 +19,29 @@ import log from 'log';
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
+import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
-class FunctionDefinitionDimensionCalcVisitor {
+class FunctionDefinitionDimensionCalculatorVisitor {
 
-    canVisitFunctionDefinitionDimensionCalc(node) {
+    canVisit(node) {
         log.info('can visit FunctionDefinitionDimensionCalc');
         return true;
     }
 
-    beginVisitFunctionDefinitionDimensionCalc(node) {
+    beginVisit(node) {
         log.info('begin visit FunctionDefinitionDimensionCalc');
     }
 
-    visitFunctionDefinitionDimensionCalc(node) {
+    visit(node) {
         log.info('visit FunctionDefinitionDimensionCalc');
     }
 
-    endVisitFunctionDefinitionDimensionCalc(node) {
+    endVisit(node) {
         var viewState = node.getViewState();
         var width = DesignerDefaults.functionDefinitionDimensions.width;
         var components = {};
+        
+        //--- components deciding height of the function definition bbox
         components['heading'] = new SimpleBBox();
         components['heading'].w = width;
         components['heading'].h = DesignerDefaults.functionDefinitionDimensions.panelHeading.height;
@@ -47,17 +50,32 @@ class FunctionDefinitionDimensionCalcVisitor {
         components['body'].w = width;
         components['body'].h = DesignerDefaults.functionDefinitionDimensions.panelBody.height;
 
-        viewState.components = components;
-
         var height = 0;
-        height = _.forEach(viewState.components, function(component) { 
-            return height + component.h;
+        _.forEach(components, function(component) { 
+            height = height + component.h;
         });
+
         viewState.bBox.w = DesignerDefaults.functionDefinitionDimensions.width;
         viewState.bBox.h = height;
 
+        //--- other components with no impact to function definition bbox
+        components['statementBlock'] = new SimpleBBox();
+        var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        var statementBlockWidth = 0;
+        var statementBlockHeight = 0;
+
+        _.forEach(statementChildren, function(child) { 
+            statementBlockHeight = statementBlockHeight + child.viewState.h;
+            if(child.viewState.w > statementBlockWidth){
+                statementBlockWidth = child.viewState.w;
+            }
+        });
+        components['statementBlock'].h = statementBlockHeight;
+        components['statementBlock'].w = statementBlockWidth;
+
+        viewState.components = components;
         log.info('end visit FunctionDefinitionDimensionCalc');
     }
 }
 
-export default FunctionDefinitionDimensionCalcVisitor;
+export default FunctionDefinitionDimensionCalculatorVisitor;

@@ -17,27 +17,30 @@
  */
 
 import log from 'log';
-import DimensionConstants from './../../configs/designer-defaults';
+import * as DesignerDefaults from './../../configs/designer-defaults';
+import SimpleBBox from './../../ast/simple-bounding-box';
 
-class ServiceDefinitionDimensionCalcVisitor {
+class StatementDimensionCalculatorVisitor {
 
-    canVisitServiceDefinitionDimensionCalc(node) {
-        log.debug('can visit ServiceDefinitionDimensionCalc');
-        return true;
+    canVisit(node) {
+        log.info('can visit StatementDimensionCalc');
     }
 
-    beginVisitServiceDefinitionDimensionCalc(node) {
-
-        log.debug('begin visit ServiceDefinitionDimensionCalc');
+    beginVisit(node) {
+        log.info('begin visit StatementDimensionCalc');
     }
 
-    visitServiceDefinitionDimensionCalc(node) {
-        log.debug('visit ServiceDefinitionDimensionCalc');
+    visit(node) {
+        log.info('visit StatementDimensionCalc');
     }
 
-    endVisitServiceDefinitionDimensionCalc(node) {
-        log.debug('end visit ServiceDefinitionDimensionCalc');
+    endVisit(node) {
+        var viewState = node.getViewState();
+        viewState.bBox.w = DesignerDefaults.statement.width;
+        viewState.bBox.y = DesignerDefaults.statement.height;
+        
+        log.info('end visit StatementDimensionCalc');
     }
 }
 
-export default ServiceDefinitionDimensionCalcVisitor;
+export default StatementDimensionCalculatorVisitor;

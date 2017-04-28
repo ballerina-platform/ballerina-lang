@@ -111,3 +111,10 @@ export const statement = {
         h: 0
     }
 };
+
+export const blockStatement = {
+    title : {
+        width: 50,
+        height: statement.minHeight
+    }
+};

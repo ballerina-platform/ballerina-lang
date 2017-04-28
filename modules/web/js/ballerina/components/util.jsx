@@ -1,4 +1,3 @@
-import path from 'path';
 import $ from 'jquery';
 
 let instance = null;
@@ -9,10 +8,14 @@ function requireAll(requireContext) {
     requireContext.keys().map((item) => {
         var module = requireContext(item);
         if (module) {
-            components[path.basename(item, '.svg')] = module;
+            components[_getBasename(item, '.svg')] = module;
         }
     });
     return components;
+}
+
+function _getBasename(filename, ext) {
+    return filename.substring(2, filename.indexOf(ext));
 }
 
 const images = requireAll(require.context('images', true, /\.svg$/));
