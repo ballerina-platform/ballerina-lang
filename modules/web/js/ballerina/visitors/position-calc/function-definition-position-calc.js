@@ -18,7 +18,7 @@
 
 import log from 'log';
 import _ from 'lodash';
-import AST from './../../ast/module';
+import ASTFactory from './../../ast/ballerina-ast-factory';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 
 class FunctionDefinitionPositionCalcVisitor {
@@ -32,20 +32,21 @@ class FunctionDefinitionPositionCalcVisitor {
         let viewSate = node.getViewState();
         let bBox = viewSate.bBox;
         let parent = node.getParent();
-        let services = _.filter(parent.getChildren(), function (child) {
-            return child instanceof AST.FunctionDefinition;
+        let panelChildren = parent.filterChildren(function (child) {
+            return ASTFactory.isFunctionDefinition(child) ||
+                ASTFactory.isServiceDefinition(child) || ASTFactory.isConnectorDefinition(child);
         });
-        let headerBBox = viewSate.components.header;
-        let bodyBBox = viewSate.components.body;
-        let currentServiceIndex = _.findIndex(services, node);
+        let heading = viewSate.components.heading;
+        let body = viewSate.components.body;
+        let currentFunctionIndex = _.findIndex(panelChildren, node);
         let x, y, headerX, headerY, bodyX, bodyY;
-        if (currentServiceIndex === 0) {
+        if (currentFunctionIndex === 0) {
             headerX = DesignerDefaults.panel.wrapper.gutter.h;
             headerY = DesignerDefaults.panel.wrapper.gutter.v;
-        } else if (currentServiceIndex > 0) {
-            let previousServiceBBox = services[currentServiceIndex - 1].getViewState().bBox;
+        } else if (currentFunctionIndex > 0) {
+            let previousPanelBBox = panelChildren[currentFunctionIndex - 1].getViewState().bBox;
             headerX = DesignerDefaults.panel.wrapper.gutter.h;
-            headerY = previousServiceBBox.y() + previousServiceBBox.h() + DesignerDefaults.panel.wrapper.gutter.v;
+            headerY = previousPanelBBox.y + previousPanelBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
         } else {
             throw 'Invalid Index for Function Definition';
         }
@@ -53,11 +54,14 @@ class FunctionDefinitionPositionCalcVisitor {
         x = headerX;
         y = headerY;
         bodyX = headerX;
-        bodyY = headerY + headerBBox.h();
+        bodyY = headerY + heading.h;
 
-        bBox.x(x).y(y);
-        headerBBox.x(headerX).y(headerY);
-        bodyBBox.x(bodyX).y(bodyY);
+        bBox.x = x;
+        bBox.y = y;
+        heading.x = headerX;
+        heading.y = headerY;
+        body.x = bodyX;
+        body.y = bodyY;
 
         log.debug('begin visit FunctionDefinitionPositionCalc');
     }
