@@ -85,6 +85,16 @@ public class WebSocketSourceHandler extends SourceHandler {
     }
 
     @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        session.setIsOpen(false);
+        int statusCode = 1001; // Client is going away.
+        String reasonText = "Client is going away";
+        cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, statusCode, reasonText);
+        setupCarbonMessage(ctx);
+        publishToMessageProcessor(cMsg);
+    }
+
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws UnknownWebSocketFrameTypeException {
         cMsg = null;
         if (!(msg instanceof WebSocketFrame)) {
