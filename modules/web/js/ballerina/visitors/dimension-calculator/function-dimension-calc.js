@@ -16,7 +16,9 @@
  * under the License.
  */
 import log from 'log';
-import * as DimensionConstants from './../../configs/designer-defaults';
+import _ from 'lodash';
+import * as DesignerDefaults from './../../configs/designer-defaults';
+import SimpleBBox from './../../ast/simple-bounding-box';
 
 class FunctionDefinitionDimensionCalcVisitor {
 
@@ -35,8 +37,25 @@ class FunctionDefinitionDimensionCalcVisitor {
 
     endVisitFunctionDefinitionDimensionCalc(node) {
         var viewState = node.getViewState();
-        viewState.bBox.w = DimensionConstants.functionDefinitionDimensions.containerWidth;
-        viewState.bBox.w = DimensionConstants.functionDefinitionDimensions.containerHeight;
+        var width = DesignerDefaults.functionDefinitionDimensions.width;
+        var components = {};
+        components['heading'] = new SimpleBBox();
+        components['heading'].w = width;
+        components['heading'].h = DesignerDefaults.functionDefinitionDimensions.panelHeading.height;
+
+        components['body'] = new SimpleBBox();
+        components['body'].w = width;
+        components['body'].h = DesignerDefaults.functionDefinitionDimensions.panelBody.height;
+
+        viewState.components = components;
+
+        var height = 0;
+        height = _.forEach(viewState.components, function(component) { 
+            return height + component.h;
+        });
+        viewState.bBox.w = DesignerDefaults.functionDefinitionDimensions.width;
+        viewState.bBox.h = height;
+
         log.info('end visit FunctionDefinitionDimensionCalc');
     }
 }

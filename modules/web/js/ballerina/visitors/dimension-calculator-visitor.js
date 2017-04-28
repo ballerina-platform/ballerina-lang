@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import Visitors from './dimention-calc/components';
+import Visitors from './dimension-calculator/components';
 
 class DimensionCalculatorVisitor {
 
