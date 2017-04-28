@@ -15,30 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import log from 'log';
 import * as DimensionConstants from './../../configs/designer-defaults';
 
-class FunctionDefinitionDimensionCalcVisitor {
+class ResourceDefinitionDimensionCalculatorVisitor {
 
-    canVisitFunctionDefinitionDimensionCalc(node) {
-        log.info('can visit FunctionDefinitionDimensionCalc');
+    canVisit(node) {
+        log.debug('can visit ResourceDefinitionDimensionCalc');
         return true;
     }
 
-    beginVisitFunctionDefinitionDimensionCalc(node) {
-        log.info('begin visit FunctionDefinitionDimensionCalc');
+    beginVisit(node) {
+        log.debug('begin visit ResourceDefinitionDimensionCalc');
     }
 
-    visitFunctionDefinitionDimensionCalc(node) {
-        log.info('visit FunctionDefinitionDimensionCalc');
+    visit(node) {
+        log.debug('visit ResourceDefinitionDimensionCalc');
     }
 
-    endVisitFunctionDefinitionDimensionCalc(node) {
-        var viewState = node.getViewState();
-        viewState.bBox.w = DimensionConstants.functionDefinitionDimensions.containerWidth;
-        viewState.bBox.w = DimensionConstants.functionDefinitionDimensions.containerHeight;
-        log.info('end visit FunctionDefinitionDimensionCalc');
+    endVisit(node) {
+        log.debug('end visit ResourceDefinitionDimensionCalc');
     }
 }
 
-export default FunctionDefinitionDimensionCalcVisitor;
+export default ResourceDefinitionDimensionCalculatorVisitor;

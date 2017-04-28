@@ -98,4 +98,4 @@ class WorkerDeclarationPositionCalcVisitor {
     }
 }
 
-export default ServiceDefinitionPositionCalcVisitor;
+export default WorkerDeclarationPositionCalcVisitor;

@@ -16,39 +16,43 @@
  * under the License.
  */
 
-import Visitors from './dimention-calc/components';
+import Visitors from './dimension-calculator/components';
 
 class DimensionCalculatorVisitor {
 
     canVisit(node) {
-        if(Visitors[node.getType() + 'DimensionCalcVisitor']) {
-            var nodeVisitor = new Visitors[node.getType() + 'DimensionCalcVisitor']();
-            return nodeVisitor['canVisit' + node.getType() + 'DimensionCalc'](node);
+        if(Visitors[node.getType() + 'DimensionCalculatorVisitor']) {
+            var nodeVisitor = new Visitors[node.getType() + 'DimensionCalculatorVisitor']();
+            return nodeVisitor['canVisit'](node);
+        } else {
+            console.error("Unable to find Dimention Calculator for : " + node.getType());
         }
 
         return undefined;
     }
 
     visit(node) {
-        if (Visitors[node.getType() + 'DimensionCalcVisitor']) {
-            var nodeVisitor = new Visitors[node.getType() + 'DimensionCalcVisitor']();
-            return nodeVisitor['visit' + node.getType() + 'DimensionCalc'](node);
+        if (Visitors[node.getType() + 'DimensionCalculatorVisitor']) {
+            var nodeVisitor = new Visitors[node.getType() + 'DimensionCalculatorVisitor']();
+            return nodeVisitor['visit'](node);
         }
         return undefined;
     }
 
     beginVisit(node) {
-        if (Visitors[node.getType() + 'DimensionCalcVisitor']) {
-            var nodeVisitor = new Visitors[node.getType() + 'DimensionCalcVisitor']();
-            return nodeVisitor['beginVisit' + node.getType() + 'DimensionCalc'](node);
+        if (Visitors[node.getType() + 'DimensionCalculatorVisitor']) {
+            var nodeVisitor = new Visitors[node.getType() + 'DimensionCalculatorVisitor']();
+            return nodeVisitor['beginVisit'](node);
         }
         return undefined;
     }
 
     endVisit(node) {
-        if(Visitors[node.getType() + 'DimensionCalcVisitor']) {
-            var nodeVisitor = new Visitors[node.getType() + 'DimensionCalcVisitor']();
-            return nodeVisitor['endVisit' + node.getType() + 'DimensionCalc'](node);
+        if(Visitors[node.getType() + 'DimensionCalculatorVisitor']) {
+            var nodeVisitor = new Visitors[node.getType() + 'DimensionCalculatorVisitor']();
+            return nodeVisitor['endVisit'](node);
+        } else {
+            console.error("Unable to find Dimention Calculator for : " + node.getType());
         }
         return undefined;
     }

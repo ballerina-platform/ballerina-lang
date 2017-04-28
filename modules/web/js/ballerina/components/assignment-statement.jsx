@@ -17,29 +17,33 @@
  */
 import React from "react";
 import StatementDecorator from "./statement-decorator";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types"
 
-class FunctionInvocationStatement extends React.Component {
-
-	render() {
-		let model = this.props.model,
-			expression = model.expression,
-				bBox = model.viewState.bBox;
-		return (<StatementDecorator bBox={bBox} expression={expression} />);
+/**
+ * Assignment statement decorator.
+ * */
+class AssignmentStatement extends React.Component {
+    /**
+     * Render Function for the assignment statement.
+     * */
+    render() {
+        let model = this.props.model,
+            bBox = model.viewState.bBox,
+            expression = model.expression;
+        return (<StatementDecorator bBox={bBox} expression={expression}/>);
     }
 }
 
-FunctionInvocationStatement.propTypes = {
-	bBox: PropTypes.shape({
-		x: PropTypes.number.isRequired,
-		y: PropTypes.number.isRequired,
-		w: PropTypes.number.isRequired,
-		h: PropTypes.number.isRequired,
-	}),
-	expression: PropTypes.shape({
-		expression:  PropTypes.string
-	})
-}
+AssignmentStatement.propTypes = {
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired
+    }),
+    expression: PropTypes.shape({
+        expression: PropTypes.string
+    })
+};
 
-
-export default FunctionInvocationStatement;
+export default AssignmentStatement;

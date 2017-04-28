@@ -17,26 +17,30 @@
  */
 
 import log from 'log';
-import * as DimensionConstants from './../../configs/designer-defaults';
+import * as DesignerDefaults from './../../configs/designer-defaults';
+import SimpleBBox from './../../ast/simple-bounding-box';
 
-class ResourceDefinitionDimensionCalcVisitor {
+class StatementDimensionCalculatorVisitor {
 
-    canVisitResourceDefinitionDimensionCalc(node) {
-        log.debug('can visit ResourceDefinitionDimensionCalc');
-        return true;
+    canVisit(node) {
+        log.info('can visit StatementDimensionCalc');
     }
 
-    beginVisitResourceDefinitionDimensionCalc(node) {
-        log.debug('begin visit ResourceDefinitionDimensionCalc');
+    beginVisit(node) {
+        log.info('begin visit StatementDimensionCalc');
     }
 
-    visitResourceDefinitionDimensionCalc(node) {
-        log.debug('visit ResourceDefinitionDimensionCalc');
+    visit(node) {
+        log.info('visit StatementDimensionCalc');
     }
 
-    endVisitResourceDefinitionDimensionCalc(node) {
-        log.debug('end visit ResourceDefinitionDimensionCalc');
+    endVisit(node) {
+        var viewState = node.getViewState();
+        viewState.bBox.w = DesignerDefaults.statement.width;
+        viewState.bBox.y = DesignerDefaults.statement.height;
+
+        log.info('end visit StatementDimensionCalc');
     }
 }
 
-export default ResourceDefinitionDimensionCalcVisitor;
+export default StatementDimensionCalculatorVisitor;
