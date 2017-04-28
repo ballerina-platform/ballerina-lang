@@ -43,6 +43,9 @@ public class ConfigServiceImpl {
 
     private int launcherPort;
 
+    private String apiPath;
+    private String launcherPath;
+
     @GET
     @Produces("application/json")
     public Response handleGet(@Context Request request) {
@@ -81,8 +84,12 @@ public class ConfigServiceImpl {
      * @return
      */
     public JsonObject getComposerConfig(Request request) {
-        String apiPath = "http://" + request.getProperties().get("LOCAL_NAME") + ":" + apiPort;
-        String launcherPath = "ws://" + request.getProperties().get("LOCAL_NAME") + ":" + launcherPort;
+        if (apiPath == null || "".equals(apiPath)) {
+            apiPath = "http://" + request.getProperties().get("LOCAL_NAME") + ":" + apiPort;
+        }
+        if (launcherPath == null || "".equals(launcherPath)) {
+            launcherPath = "ws://" + request.getProperties().get("LOCAL_NAME") + ":" + launcherPort;
+        }
 
         JsonObject workspace = new JsonObject();
         workspace.addProperty("endpoint", apiPath + "/service/workspace");
@@ -130,5 +137,21 @@ public class ConfigServiceImpl {
 
     public void setLauncherPort(int launcherPort) {
         this.launcherPort = launcherPort;
+    }
+
+    public String getApiPath() {
+        return apiPath;
+    }
+
+    public void setApiPath(String apiPath) {
+        this.apiPath = apiPath;
+    }
+
+    public String getLauncherPath() {
+        return launcherPath;
+    }
+
+    public void setLauncherPath(String launcherPath) {
+        this.launcherPath = launcherPath;
     }
 }
