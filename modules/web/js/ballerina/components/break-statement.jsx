@@ -19,27 +19,31 @@ import React from "react";
 import StatementDecorator from "./statement-decorator";
 import PropTypes from 'prop-types';
 
-class FunctionInvocationStatement extends React.Component {
-
-	render() {
-		let model = this.props.model,
-			expression = model.expression,
-				bBox = model.viewState.bBox;
-		return (<StatementDecorator bBox={bBox} expression={expression} />);
+/**
+ * Break statement decorator.
+ * */
+class BreakStatement extends React.Component {
+    /**
+     * Render function for the break statement.
+     * */
+    render() {
+        let model = this.props.model,
+            bBox = model.viewState.bBox,
+            expression = model.expression;
+        return (<StatementDecorator bBox={bBox} expression={expression}/>);
     }
 }
 
-FunctionInvocationStatement.propTypes = {
-	bBox: PropTypes.shape({
-		x: PropTypes.number.isRequired,
-		y: PropTypes.number.isRequired,
-		w: PropTypes.number.isRequired,
-		h: PropTypes.number.isRequired,
-	}),
-	expression: PropTypes.shape({
-		expression:  PropTypes.string
-	})
-}
+BreakStatement.propTypes = {
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired
+    }),
+    expression: PropTypes.shape({
+        expression: PropTypes.string
+    })
+};
 
-
-export default FunctionInvocationStatement;
+export default BreakStatement;
