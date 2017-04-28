@@ -6,6 +6,7 @@
 // When you add this file, we won't add the default configurations which is similar
 // to "React Create App". This only has babel loader to load JavaScript.
 const path = require('path');
+const composerConfig = require('../webpack.config');
 
 // Export a function. Accept the base config as the only param.
 module.exports = function(storybookBaseConfig, configType) {
@@ -25,7 +26,10 @@ module.exports = function(storybookBaseConfig, configType) {
       }
   ]);
 
-  storybookBaseConfig.resolve.fallback.push(path.resolve(__dirname, '../'))
+  storybookBaseConfig.resolve.fallback.push(path.resolve(__dirname, '../'));
+  storybookBaseConfig.resolve.fallback.push(path.resolve(__dirname, '../js/'));
+
+  storybookBaseConfig.resolve.alias = composerConfig.resolve.alias;
 
   // Return the altered config
   return storybookBaseConfig;
