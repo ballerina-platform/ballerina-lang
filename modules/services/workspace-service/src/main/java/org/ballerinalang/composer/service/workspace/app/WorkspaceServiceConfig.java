@@ -16,7 +16,7 @@
 package org.ballerinalang.composer.service.workspace.app;
 
 /**
- * This class will be used to store user provided configs
+ * Model class for workspace-service-config.yaml
  */
 public class WorkspaceServiceConfig {
 
