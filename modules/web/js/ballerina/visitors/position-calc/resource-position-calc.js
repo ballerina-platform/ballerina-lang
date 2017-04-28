@@ -17,9 +17,10 @@
  */
 
 import log from 'log';
+import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import AST from './../../ast/module';
-import _ from 'lodash';
+import ASTFactory from './../../ast/ballerina-ast-factory';
 
 class ResourceDefinitionPositionCalcVisitor {
 
@@ -34,6 +35,7 @@ class ResourceDefinitionPositionCalcVisitor {
         let parentViewState = parent.getViewState();
         var parentBBox = parentViewState.bbox;
         let bBox = viewSate.bBox;
+        let statementContainerBBox = viewSate.components.statementContainer;
         let headerBBox = viewSate.components.header;
         let bodyBBox = viewSate.components.body;
         let resources = _.filter(parent.getChildren(), function (child) {
@@ -57,6 +59,10 @@ class ResourceDefinitionPositionCalcVisitor {
         y = headerY;
         bodyX = headerX;
         bodyY = headerY + headerBBox.h();
+
+        statementContainerBBox.x(bodyX + DesignerDefaults.innerPanel.body.padding.left);
+        statementContainerBBox.y(bodyY + DesignerDefaults.innerPanel.body.padding.top +
+            DesignerDefaults.lifeLine.head.height);
 
         bBox.x(x).y(y);
         headerBBox.x(headerX).y(headerY);
