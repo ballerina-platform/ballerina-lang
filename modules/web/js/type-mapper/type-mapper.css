@@ -36,18 +36,34 @@
     padding: 10px;
 }
 
-.struct {
+.leftType{
     border: 1px solid gray;
     width: 400px;
+    height: 600px;
+    background: #ffffff;
+    color: #3d3d3d;
+    position: absolute;
+}
+
+.rightType{
+    border: 1px solid gray;
+    width: 400px;
+    height: 600px;
+    right:0px;
+    top  :0px;
+    background: #ffffff;
+    color: #3d3d3d;
+    position: absolute;
+}
+.struct {
+    width: 400px;
     height: auto;
-    background: #3d3d3d;
-    color: #ffffff;
+    color: #3d3d3d;
     position: absolute;
 }
 .property {
     padding: 5;
     font-size: 16px;
-    background-color: #ffffff;
     color: black;
 }
 
@@ -55,16 +71,8 @@ svg.plumbConnect path {
     stroke:#3d3d3d;
 }
 
-.jstree-default .jstree-last {
-    background: #ffffff;
-}
-
 .typeMapperList {
     display: none;
-}
-
-.tree-container{
-    background: #ffffff;
 }
 
 .jstree-default .jstree-hovered {
@@ -72,7 +80,6 @@ svg.plumbConnect path {
 }
 
 .jstree-default .jstree-clicked {
-    background : #ffffff;
     color: #000000;
 }
 
@@ -133,4 +140,11 @@ svg.plumbConnect path {
     color: #446191;
     position:absolute; right:0
 
+}
+
+.type-mapper-combo, .source-view > .select2-container, .target-view > .select2-container {
+    top:0px;
+    left:0px;
+    width:395px;
+    position:absolute;
 }
