@@ -17,26 +17,27 @@
  */
 
 import log from 'log';
-import * as DesignerDefaults from './../../configs/designer-defaults';
+import DimensionConstants from './../../configs/designer-defaults';
 
-class PackageDefinitionDimensionCalcVisitor {
+class ServiceDefinitionDimensionCalculatorVisitor {
 
-    canVisitPackageDefinitionDimensionCalc(node) {
-        log.info('can visit PackageDefinitionDimensionCalcVisitor');
+    canVisit(node) {
+        log.debug('can visit ServiceDefinitionDimensionCalc');
         return true;
     }
 
-    beginVisitPackageDefinitionDimensionCalc(node) {
-        log.info('begin visit PackageDefinitionDimensionCalcVisitor');
+    beginVisit(node) {
+
+        log.debug('begin visit ServiceDefinitionDimensionCalc');
     }
 
-    visitPackageDefinitionDimensionCalc(node) {
-        log.info('visit PackageDefinitionDimensionCalcVisitor');
+    visit(node) {
+        log.debug('visit ServiceDefinitionDimensionCalc');
     }
 
-    endVisitPackageDefinitionDimensionCalc(node) {
-        log.info('end visit PackageDefinitionDimensionCalcVisitor');
+    endVisit(node) {
+        log.debug('end visit ServiceDefinitionDimensionCalc');
     }
 }
 
-export default PackageDefinitionDimensionCalcVisitor;
+export default ServiceDefinitionDimensionCalculatorVisitor;

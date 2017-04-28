@@ -15,26 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import log from 'log';
+import * as DesignerDefaults from './../../configs/designer-defaults';
 
-class BallerinaASTRootDimensionCalcVisitor {
+class PackageDefinitionDimensionCalculatorVisitor {
 
-    canVisitBallerinaASTRootDimensionCalc(node) {
+    canVisit(node) {
+        log.info('can visit PackageDefinitionDimensionCalcVisitor');
         return true;
     }
 
-    beginVisitBallerinaASTRootDimensionCalc(node) {
-        log.info('Begin Visit BallerinaASTRoot');
+    beginVisit(node) {
+        log.info('begin visit PackageDefinitionDimensionCalcVisitor');
     }
 
-    visitBallerinaASTRootDimensionCalc(node) {
-        log.info('Visit BallerinaASTRoot');
+    visit(node) {
+        log.info('visit PackageDefinitionDimensionCalcVisitor');
     }
 
-    endVisitBallerinaASTRootDimensionCalc(node) {
-        log.info('End Visit BallerinaASTRoot');
+    endVisit(node) {
+        log.info('end visit PackageDefinitionDimensionCalcVisitor');
     }
 }
 
-export default BallerinaASTRootDimensionCalcVisitor;
-
+export default PackageDefinitionDimensionCalculatorVisitor;
