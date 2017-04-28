@@ -28,7 +28,7 @@ storiesOf('Break-Statement', module)
             {model : { viewState: { bBox: { x: 0, y: 0, w: 200, h: 50}},
                 expression: "break"}}, null);
         return (
-            <CanvasDecorator>
+            <CanvasDecorator title="StatementContainer" bBox={{w: "100%", h: "100%"}}>
                 <StatementContainer>
                     {breakStatement}
                 </StatementContainer>

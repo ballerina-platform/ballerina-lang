@@ -13,7 +13,7 @@ class CanvasDecorator extends React.Component {
 CanvasDecorator.propTypes = {
     height: PropTypes.number,
     children: PropTypes.node.isRequired
-}
+};
 
 
 export default CanvasDecorator;

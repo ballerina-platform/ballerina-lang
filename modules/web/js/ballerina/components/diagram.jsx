@@ -39,13 +39,13 @@ class Diagram extends React.Component {
     }
 
     render() {
-        let children =(<CanvasDecorator title="StatementContainer" bBox={{w: "100%", h: "100%"}}>
-                        <ServiceDefinition name="echo-service" bBox={{x: 25, w:1000, y:25, h:1000}}>
-                        </ServiceDefinition>
-                      </CanvasDecorator>)
+        let children = (<CanvasDecorator title="StatementContainer" bBox={{w: "100%", h: "100%"}}>
+            <ServiceDefinition name="echo-service" bBox={{x: 25, w: 1000, y: 25, h: 1000}}>
+            </ServiceDefinition>
+        </CanvasDecorator>);
         return <div className="canvas_container">
-                  {children}
-              </div>;
+            {children}
+        </div>;
     }
 }
 

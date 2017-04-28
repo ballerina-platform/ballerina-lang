@@ -32,7 +32,7 @@ storiesOf('Variable-Definition-Statement', module)
                 }
             }, null);
         return (
-            <CanvasDecorator>
+            <CanvasDecorator title="StatementContainer" bBox={{w: "100%", h: "100%"}}>
                 <StatementContainer>
                     {variableDefinitionStatement}
                 </StatementContainer>
