@@ -24,6 +24,7 @@ class StatementDimensionCalculatorVisitor {
 
     canVisit(node) {
         log.info('can visit StatementDimensionCalc');
+        return true;
     }
 
     beginVisit(node) {
@@ -37,8 +38,7 @@ class StatementDimensionCalculatorVisitor {
     endVisit(node) {
         var viewState = node.getViewState();
         viewState.bBox.w = DesignerDefaults.statement.width;
-        viewState.bBox.y = DesignerDefaults.statement.height;
-
+        viewState.bBox.h = DesignerDefaults.statement.height;
         log.info('end visit StatementDimensionCalc');
     }
 }

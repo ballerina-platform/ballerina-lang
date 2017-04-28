@@ -38,42 +38,37 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
     endVisit(node) {
         var viewState = node.getViewState();
-        var width = DesignerDefaults.functionDefinitionDimensions.width;
         var components = {};
 
-        //--- components deciding height of the function definition bbox
         components['heading'] = new SimpleBBox();
-        components['heading'].w = width;
-        components['heading'].h = DesignerDefaults.functionDefinitionDimensions.panelHeading.height;
+        components['heading'].h = DesignerDefaults.panel.heading.height;
 
-        components['body'] = new SimpleBBox();
-        components['body'].w = width;
-        components['body'].h = DesignerDefaults.functionDefinitionDimensions.panelBody.height;
-
-        var height = 0;
-        _.forEach(components, function(component) {
-            height = height + component.h;
-        });
-
-        viewState.bBox.w = DesignerDefaults.functionDefinitionDimensions.width;
-        viewState.bBox.h = height;
-
-        //--- other components with no impact to function definition bbox
-        components['statementBlock'] = new SimpleBBox();
+        components['statement'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementBlockWidth = 0;
-        var statementBlockHeight = 0;
+        var statementWidth = 0;
+        var statementHeight = 0;
 
-        _.forEach(statementChildren, function(child) {
-            statementBlockHeight = statementBlockHeight + child.viewState.h;
-            if(child.viewState.w > statementBlockWidth){
-                statementBlockWidth = child.viewState.w;
+        _.forEach(statementChildren, function(child) { 
+            statementHeight += child.viewState.bBox.h + DesignerDefaults.statement.gutter.v;
+            if(child.viewState.bBox.w > statementWidth){
+                statementWidth = child.viewState.bBox.w;
             }
         });
-        components['statementBlock'].h = statementBlockHeight;
-        components['statementBlock'].w = statementBlockWidth;
+        
+        components['statement'].h = statementHeight;
+        components['statement'].w = statementWidth;
+
+        components['body'] = new SimpleBBox();
+
+        components['body'].h = ((DesignerDefaults.panel.body.height < components['statement'].h)? components['statement'].h:DesignerDefaults.panel.body.height) 
+                               + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+        components['body'].w = components['statement'].w + DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
+
+        viewState.bBox.h = components['heading'].h + components['body'].h;
+        viewState.bBox.w = components['heading'].w + components['body'].w;
 
         viewState.components = components;
+        
         log.info('end visit FunctionDefinitionDimensionCalc');
     }
 }

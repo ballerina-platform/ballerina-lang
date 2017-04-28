@@ -17,6 +17,7 @@
  */
 
 import Visitors from './dimension-calculator/components';
+import log from 'log';
 
 class DimensionCalculatorVisitor {
 
@@ -25,10 +26,10 @@ class DimensionCalculatorVisitor {
             var nodeVisitor = new Visitors[node.getType() + 'DimensionCalculatorVisitor']();
             return nodeVisitor['canVisit'](node);
         } else {
-            console.error("Unable to find Dimention Calculator for : " + node.getType());
+            log.warn('Unable to find Dimension Calculator for : ' + node.getType());
         }
 
-        return undefined;
+        return false;
     }
 
     visit(node) {
@@ -52,7 +53,7 @@ class DimensionCalculatorVisitor {
             var nodeVisitor = new Visitors[node.getType() + 'DimensionCalculatorVisitor']();
             return nodeVisitor['endVisit'](node);
         } else {
-            console.error("Unable to find Dimention Calculator for : " + node.getType());
+            log.warn('Unable to find Dimension Calculator for : ' + node.getType());
         }
         return undefined;
     }
