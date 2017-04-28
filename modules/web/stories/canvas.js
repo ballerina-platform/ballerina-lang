@@ -10,11 +10,12 @@ storiesOf('CanvasDecorator', module)
     const functionInvocation = React.createElement(components['FunctionInvocationStatement'],
         {model : { viewState: { bBox: { x: 0, y: 0, w: 200, h: 50}},
          expression: "this is the expression"}}, null);
+    const canvusbBox = {h:800};
     return (
-      <CanvasDecorator>
+      <CanvasDecorator bBox={canvusbBox}>
           <StatementContainer>
                   {functionInvocation}
           </StatementContainer>
       </CanvasDecorator>
     );
-  });
+});
