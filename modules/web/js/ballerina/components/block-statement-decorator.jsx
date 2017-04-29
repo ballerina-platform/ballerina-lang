@@ -24,9 +24,8 @@ class BlockStatementDecorator extends React.Component {
 
 	render() {
 		const { bBox, title } = this.props;
-        console.log(blockStatement);
-        let title_h = blockStatement.title.height;
-        let title_w = blockStatement.title.width;
+        let title_h = blockStatement.heading.height;
+        let title_w = blockStatement.heading.width;
 
         let p1_x = bBox.x;
         let p1_y = bBox.y + title_h;
