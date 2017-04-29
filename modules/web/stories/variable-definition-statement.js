@@ -19,8 +19,13 @@ import React from 'react';
 import {storiesOf, action, linkTo} from '@kadira/storybook';
 import CanvasDecorator from '../js/ballerina/components/canvas-decorator';
 import StatementContainer from '../js/ballerina/components/statement-container';
-import components from '../js/ballerina/components/components';
+import { components } from '../js/ballerina/components/components';
 import '../css/diagram/diagram.css';
+
+const canvasBbox = {
+  w: 500,
+  h: 500
+};
 
 storiesOf('Variable-Definition-Statement', module)
     .add('default view', () => {
@@ -32,7 +37,7 @@ storiesOf('Variable-Definition-Statement', module)
                 }
             }, null);
         return (
-            <CanvasDecorator>
+            <CanvasDecorator bBox={canvasBbox}>
                 <StatementContainer>
                     {variableDefinitionStatement}
                 </StatementContainer>

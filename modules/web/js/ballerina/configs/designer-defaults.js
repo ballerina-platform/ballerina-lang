@@ -118,5 +118,5 @@ export const canvas = {
             bottom: 50,
             left: 50
         },
-    }    
-}
+    }
+};
