@@ -45,12 +45,12 @@ class WorkerDeclarationPositionCalcVisitor {
              */
             if(!node.isDefaultWorker()) {
                 throw 'Invalid Default worker found';
-            } else if (parentViewState.components.statementContainer.w()) {
+            } else if (parentViewState.components.statementContainer.w) {
                 throw 'Statement container width should greater than or equal to life line width';
             }
-            topRectX = parentViewState.components.statementContainer.x() +
-                (parentViewState.components.statementContainer.w() - bBox.w())/2;
-            topRectY = parentViewState.components.statementContainer.y() - DesignerDefaults.lifeLine.head.height;
+            topRectX = parentViewState.components.statementContainer.x +
+                (parentViewState.components.statementContainer.w - bBox.w)/2;
+            topRectY = parentViewState.components.statementContainer.y - DesignerDefaults.lifeLine.head.height;
         } else if (workerIndex > 0) {
             let previousWorker = workers[workerIndex - 1];
             let previousStatementContainer;
@@ -63,8 +63,8 @@ class WorkerDeclarationPositionCalcVisitor {
             } else {
                 previousStatementContainer = workers[workerIndex - 1].getViewState().components.statementContainer;
             }
-            topRectX = previousStatementContainer.x() + DesignerDefaults.innerPanel.body.padding.left;
-            topRectY = viewState.components.statementContainer.y() - DesignerDefaults.lifeLine.head.height;
+            topRectX = previousStatementContainer.x + DesignerDefaults.innerPanel.body.padding.left;
+            topRectY = viewState.components.statementContainer.y - DesignerDefaults.lifeLine.head.height;
         } else {
             throw "Invalid index found for Worker Declaration";
         }
@@ -73,14 +73,17 @@ class WorkerDeclarationPositionCalcVisitor {
         y = topRectY;
         bottomRectX = topRectX;
         bottomRectY = topRectY + DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.line.height;
-        middleLineStartX = topRectX + viewState.components.topRect.w()/2;
-        middleLineStartY = topRectY + viewState.components.topRect.h();
+        middleLineStartX = topRectX + viewState.components.topRect.w/2;
+        middleLineStartY = topRectY + viewState.components.topRect.h;
         middleLineEndX = middleLineStartX;
         middleLineEndY = middleLineStartY + DesignerDefaults.lifeLine.line.height;
 
-        bBox.x(x).y(y);
-        (viewState.components.topRect).x(topRectX).y(topRectY);
-        (viewState.components.bottomRect).x(bottomRectX).y(bottomRectY);
+        bBox.x = x;
+        bBox.y = y;
+        (viewState.components.topRect).x = topRectX;
+        (viewState.components.topRect).y = topRectY;
+        (viewState.components.bottomRect).x = bottomRectX;
+        (viewState.components.bottomRect).y = bottomRectY;
         viewState.components.line.topX = middleLineStartX;
         viewState.components.line.topY = middleLineStartY;
         viewState.components.line.bottomX = middleLineEndX;
