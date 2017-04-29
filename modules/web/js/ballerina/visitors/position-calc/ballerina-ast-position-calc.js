@@ -16,6 +16,7 @@
  * under the License.
  */
 import log from 'log';
+import {panel} from './../../configs/designer-defaults';
 
 class BallerinaASTRootPositionCalcVisitor {
 
@@ -23,19 +24,27 @@ class BallerinaASTRootPositionCalcVisitor {
         return true;
     }
 
-    beginVisitBallerinaASTRootPositionCalc(serviceDefinition) {
-        log.debug('Begin Visit BallerinaASTRoot');
+    beginVisitBallerinaASTRootPositionCalc(node) {
+        // here we need to re adjest pannel width to match the screen.
+        let children = node.getChildren();
+        let minWidth = node.getViewState().container.width - ( panel.wrapper.gutter.h * 2 );
+        children.forEach(function(element) {
+            let viewState = element.getViewState();
+            if(viewState.bBox.w < minWidth){
+                viewState.bBox.w = minWidth;
+            }
+        }, this);
     }
 
-    visitBallerinaASTRootPositionCalc(serviceDefinition) {
+    visitBallerinaASTRootPositionCalc(node) {
         log.debug('Visit BallerinaASTRoot');
     }
 
-    endVisitBallerinaASTRootPositionCalc(serviceDefinition) {
+    endVisitBallerinaASTRootPositionCalc(node) {
         log.debug('End Visit BallerinaASTRoot');
     }
 
-    canVisitServiceDefinisionPositionCalc(serviceDefinition) {
+    canVisitServiceDefinisionPositionCalc(node) {
         return true;
     }
 }
