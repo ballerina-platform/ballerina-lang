@@ -245,11 +245,16 @@ class BallerinaFileEditor extends BallerinaView {
 
         var importDeclarations = [];
         if(!this._parseFailed) {
-            var dimensionCalculatorVisitor = new DimensionCalculatorVisitor();
-            var positionCalculatorVisitor = new PositionCalculatorVisitor();
-            this._model.accept(dimensionCalculatorVisitor);
-            this._model.accept(positionCalculatorVisitor);
-            let root = React.createElement(BallerinaDiagram, { model: this._model }, null);
+            //pass the container width and height to root view state.
+            let viewState = this._model.getViewState();
+            viewState.container = {
+                width : this._$canvasContainer.width(),
+                height : this._$canvasContainer.height()
+            };
+            //create Rect component for diagram
+            let root = React.createElement(BallerinaDiagram, { 
+                model: this._model
+            }, null);
             ReactDOM.render(
               root,
               this._$canvasContainer[0]

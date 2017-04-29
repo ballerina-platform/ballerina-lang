@@ -20,7 +20,10 @@ function getComponentForNodeArray(nodeArray) {
         let compName = child.constructor.name;
         if (components[compName]) {
             return React.createElement(components[compName], {
-                model: child
+                model: child,
+                // set the key to prevent warning 
+                //see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
+                key: child.getID()
             }, null);
         } else {
             log.error('Unknown element type :' + child.constructor.name)

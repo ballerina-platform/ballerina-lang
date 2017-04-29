@@ -24,6 +24,8 @@ class PositionCalculatorVisitor {
         if(Visitors[node.getType() + 'PositionCalcVisitor']) {
             var nodeVisitor = new Visitors[node.getType() + 'PositionCalcVisitor']();
             return nodeVisitor['canVisit' + node.getType() + 'PositionCalc'](node);
+        }else{
+            console.log("Unable to find position visitor for : " + node.getType());
         }
 
         return undefined;
