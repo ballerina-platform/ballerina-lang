@@ -55,6 +55,8 @@ class FunctionInvocationStatementPositionCalcVisitor {
         } else if (currentIndex > 0) {
             y = parentStatements[currentIndex - 1].getViewState().bBox.getBottom() +
                 DesignerDefaults.statement.gutter.v;
+        } else {
+            throw 'Invalid Index found for function invocation statement';
         }
 
         bBox.x = x;

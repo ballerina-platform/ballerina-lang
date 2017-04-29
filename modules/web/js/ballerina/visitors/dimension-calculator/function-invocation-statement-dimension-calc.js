@@ -21,16 +21,16 @@ import * as DesignerDefaults from './../../configs/designer-defaults';
 class FunctionInvocationStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.info('can visit FunctionDefinitionDimensionCalc');
+        log.info('can visit FunctionInvocationStatementDimensionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.info('begin visit FunctionDefinitionDimensionCalc');
+        log.info('begin visit FunctionInvocationStatementDimensionCalc');
     }
 
     visit(node) {
-        log.info('visit FunctionDefinitionDimensionCalc');
+        log.info('visit FunctionInvocationStatementDimensionCalc');
     }
 
     endVisit(node) {
@@ -40,7 +40,7 @@ class FunctionInvocationStatementDimensionCalculatorVisitor {
         viewState.bBox.w = DesignerDefaults.statement.width;
         viewState.bBox.h = DesignerDefaults.statement.height;
 
-        log.info('end visit FunctionDefinitionDimensionCalc');
+        log.info('end visit FunctionInvocationStatementDimensionCalc');
     }
 }
 
