@@ -20,19 +20,19 @@ import log from 'log';
 
 class StatementPositionCalcVisitor {
 
-    canVisit(node) {
+    canVisitStatementPositionCalc(node) {
         log.debug('can visit StatementPositionCalc');
     }
 
-    beginVisit(node) {
+    beginVisitStatementPositionCalc(node) {
         log.debug('begin visit StatementPositionCalc');
     }
 
-    visit(node) {
+    visitStatementPositionCalc(node) {
         log.debug('visit StatementPositionCalc');
     }
 
-    endVisit(node) {
+    endVisitStatementPositionCalc(node) {
         log.debug('end visit StatementPositionCalc');
     }
 }
