@@ -48,6 +48,7 @@ import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
@@ -115,8 +116,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ACTION, ALL, ANNOTATION, ANY, AS, ATTACH, BREAK, CATCH, CONNECTOR, CONST, CONTINUE, CREATE, ELSE, FORK,
-            FUNCTION, IF, IMPORT, ITERATE, JOIN, NATIVE, NULL, PACKAGE, REPLY, RESOURCE, RETURN, SERVICE, SOME,
-            STRUCT, THROW, THROWS, TIMEOUT, TRY, TYPEMAPPER, WHILE, WORKER, BOOLEAN, INT, FLOAT, STRING, MESSAGE,
+            FUNCTION, IF, IMPORT, ITERATE, JOIN, NATIVE, NULL, PACKAGE, PARAMETER, REPLY, RESOURCE, RETURN, SERVICE,
+            SOME, STRUCT, THROW, THROWS, TIMEOUT, TRY, TYPEMAPPER, WHILE, WORKER, BOOLEAN, INT, FLOAT, STRING, MESSAGE,
             MAP, EXCEPTION, XML, XML_DOCUMENT, JSON, DATATABLE, BooleanLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
@@ -266,6 +267,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new AttachmentPointNode(node);
             case BallerinaParser.RULE_definition:
                 return new DefinitionNode(node);
+            case BallerinaParser.RULE_ifElseStatement:
+                return new IfElseStatementNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
