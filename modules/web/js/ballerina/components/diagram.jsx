@@ -21,7 +21,20 @@ import CanvasDecorator from './canvas-decorator';
 import FunctionDefinition from './function-definition';
 import PositionCalcVisitor from '../visitors/position-calculator-visitor';
 import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor';
-import getComponentForNodeArray from './components';
+import {getComponentForNodeArray} from './components';
+
+// require possible themes
+function requireAll(requireContext) {
+	let components = {};
+	requireContext.keys().map((item, index) => {
+		var module = requireContext(item);
+		if(module.default){
+			components[module.default.name] = module.default; 	
+		}
+	});
+	return components;
+}
+var components = requireAll(require.context('./', true, /\.jsx$/));
 
 class Diagram extends React.Component {
 
@@ -33,6 +46,7 @@ class Diagram extends React.Component {
         });
         this.dimentionCalc = new DimensionCalcVisitor();
         this.positionCalc = new PositionCalcVisitor();
+        this.components = components;
     }
 
     setModel(model) {
@@ -63,10 +77,10 @@ class Diagram extends React.Component {
                 case 'ConstantDefinition':
                     break;
                 default:
-                    otherNodes.push(child);
+					otherNodes.push(child);
             }
         });
-        others = getComponentForNodeArray(otherNodes);
+        others = getComponentForNodeArray(otherNodes, this.components);
         // 4. Ok we are all set, now lets render the diagram with React. We will create
         //    s CsnvasDecorator and pass child components for that.
         let viewState = this.model.getViewState();

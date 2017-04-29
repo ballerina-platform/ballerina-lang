@@ -21,18 +21,47 @@ import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import StatementView from './statement-decorator';
 import PanelDecorator from './panel-decorator';
+import {getComponentForNodeArray} from './components';
+import {panel} from './../configs/designer-defaults';
+import {statement} from './../configs/designer-defaults';
+
+// require possible themes
+function requireAll(requireContext) {
+	let components = {};
+	requireContext.keys().map((item, index) => {
+		var module = requireContext(item);
+		if(module.default){
+			components[module.default.name] = module.default; 	
+		}
+	});
+	return components;
+}
+var components = requireAll(require.context('./', true, /\.jsx$/));
 
 class FunctionDefinition extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.components = components;
+    }    
 
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getFunctionName();
+
+        //lets calculate function worker lifeline bounding box.
+        let func_worker_bBox = {};
+        func_worker_bBox.x = bBox.x + panel.body.padding.left;
+        func_worker_bBox.y = bBox.y + panel.heading.height + panel.body.padding.top;
+        //@todo set the correct width
+        func_worker_bBox.w = statement.width;
+        func_worker_bBox.h = bBox.h - panel.heading.height - panel.body.padding.top - panel.body.padding.bottom;
+
+        var children = getComponentForNodeArray(this.props.model.getChildren(),this.components);
+        console.log(children);
         return (<PanelDecorator title={name} bBox={bBox}>
-                    <LifeLine title="FunctionWorker" bBox={{x: bBox.x + 50, w: 200 , h: bBox.h - 100, y: bBox.y + 50}}/>
-                    <StatementContainer>
-                      <StatementView bBox={{x:bBox.x + 60, y:bBox.y + 90, w:181.7, h:30}} expression="http:convertToResponse(m)">
-                      </StatementView>
-                    </StatementContainer>
+                    <LifeLine title="FunctionWorker" bBox={func_worker_bBox}/>
+                    {children}
                 </PanelDecorator>);
     }
 }
