@@ -33,7 +33,6 @@ import org.testng.annotations.Test;
  * Global variable function test.
  */
 public class GlobalVarFunctionTest {
-//    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {

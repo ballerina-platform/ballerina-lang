@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Service/Resource dispatchers test class.
+ * Global variables in service test cases.
  */
 public class GlobalVarServiceTest {
 
@@ -99,96 +99,9 @@ public class GlobalVarServiceTest {
         Assert.assertEquals(bJson.value().get("glbVarFloatChange").asText(), "77.87");
     }
 
-//    @Test(description = "Test for protocol availability check", expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = ".* protocol not defined .*")
-//    public void testProtocolAvailabilityCheck() {
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
-//        cMsg.removeProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
-//        Services.invoke(cMsg);
-//    }
-//
-//    @Test(description = "Test for service dispatcher availability check",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = ".* no service dispatcher available .*")
-//    public void testServiceDispatcherAvailabilityCheck() {
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
-//        cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, "FOO");   // setting incorrect protocol
-//        Services.invoke(cMsg);
-//    }
-//
-//    @Test(description = "Test for service availability check",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = ".* no service found .*")
-//    public void testServiceAvailabilityCheck() {
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
-//        Services.invoke(cMsg);
-//    }
-//
-//    @Test(description = "Test for resource dispatcher availability check",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = ".* no resource dispatcher available .*")
-//    public void testResourceDispatcherAvailabilityCheck() {
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
-//        DispatcherRegistry.getInstance().unregisterResourceDispatcher("http"); // Remove http resource dispatcher
-//        try {
-//            Services.invoke(cMsg);
-//        } finally {
-//            DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher()); // Add back
-//        }
-//    }
-//
-//    @Test(description = "Test for resource availability check",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = ".* no resource found .*")
-//    public void testResourceAvailabilityCheck() {
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
-//        Services.invoke(cMsg);
-//    }
-//
-//    @Test
-//    public void testSetString() {
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
-//        cMsg.addMessageBody(ByteBuffer.wrap("hello".getBytes()));
-//        cMsg.setEndOfMsgAdded(true);
-//        CarbonMessage response = Services.invoke(cMsg);
-//
-//        Assert.assertNotNull(response);
-//    }
-//
-//    @Test
-//    public void testGetString() {
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
-//        CarbonMessage response = Services.invoke(cMsg);
-//        Assert.assertNotNull(response);
-//
-//        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-//        Assert.assertNotNull(stringDataSource);
-//        Assert.assertEquals(stringDataSource.getValue(), "");
-//    }
-//
-//    @Test
-//    public void testGetStringAfterSetString() {
-//        CarbonMessage setStringCMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
-//        String stringPayload = "hello";
-//        setStringCMsg.addMessageBody(ByteBuffer.wrap(stringPayload.getBytes()));
-//        setStringCMsg.setEndOfMsgAdded(true);
-//        Services.invoke(setStringCMsg);
-//
-//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
-//        CarbonMessage response = Services.invoke(cMsg);
-//        Assert.assertNotNull(response);
-//
-//        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
-//        Assert.assertNotNull(stringDataSource);
-//        Assert.assertEquals(stringDataSource.getValue(), stringPayload);
-//    }
-
-
     @AfterClass
     public void tearDown() {
         EnvironmentInitializer.cleanup(bLangProgram);
     }
-
-    //TODO: add more test cases
 
 }

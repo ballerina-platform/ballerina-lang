@@ -24,7 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Global variable function with package test.
+ * Global variable error scenarios.
  */
 public class GlobalVarErrorTest {
 

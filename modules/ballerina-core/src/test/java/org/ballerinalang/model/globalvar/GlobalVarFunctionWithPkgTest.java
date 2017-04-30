@@ -33,7 +33,6 @@ import org.testng.annotations.Test;
  * Global variable function with package test.
  */
 public class GlobalVarFunctionWithPkgTest {
-//    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
