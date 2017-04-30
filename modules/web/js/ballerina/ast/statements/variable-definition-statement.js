@@ -51,6 +51,10 @@ class VariableDefinitionStatement extends Statement {
         return this._rightExpression;
     }
 
+    getExpression(){
+        return this.getLeftExpression() + " = " + this.getRightExpression();
+    }
+
     /**
      * Get the variable definition statement string
      * @return {string} - Variable definition expression string

@@ -15,28 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import StatementDecorator from "./statement-decorator";
-import PropTypes from 'prop-types';
+import log from 'log';
+import * as DesignerDefaults from './../../configs/designer-defaults';
 
-class ReplyStatement extends React.Component {
+class VariableDefinitionStatementDimensionCalculatorVisitor {
 
-    render() {
-        let model = this.props.model,
-            bBox = model.viewState.bBox;
-        let expression = model.getReplyExpression();
-        return (<StatementDecorator bBox={bBox} expression={expression} />);
+    canVisit(node) {
+        return true;
+    }
+
+    beginVisit(node) {
+    }
+
+    visit(node) {
+    }
+
+    endVisit(node) {
+        var viewState = node.getViewState();
+
+        // TODO: decide the width and the height based on the statement text width
+        viewState.bBox.w = DesignerDefaults.statement.width;
+        viewState.bBox.h = DesignerDefaults.statement.height;
+
     }
 }
 
-ReplyStatement.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    })
-}
-
-
-export default ReplyStatement;
+export default VariableDefinitionStatementDimensionCalculatorVisitor;
