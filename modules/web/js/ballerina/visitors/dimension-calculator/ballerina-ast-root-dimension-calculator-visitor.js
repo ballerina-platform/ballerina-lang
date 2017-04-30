@@ -35,7 +35,7 @@ class BallerinaASTRootDimensionCalculatorVisitor {
     endVisit(node) {
         // get the visit state to set ast root dimentions.
         let viewState = node.getViewState();
-        // set the state to 0 since we do a recalc
+        // set the state to 0 since we re-calculate
         viewState.bBox.h = 0;
         viewState.bBox.w = 0;
 
