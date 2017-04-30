@@ -46,8 +46,8 @@ export const panel = {
 export const innerPanel = {
     wrapper: {
         gutter: {
-            v: 0,
-            h: 0
+            v: 50,
+            h: 50
         }
     },
     heading: {

@@ -33,10 +33,10 @@ class ResourceDefinitionPositionCalcVisitor {
         let parent = node.getParent();
         let viewSate = node.getViewState();
         let parentViewState = parent.getViewState();
-        var parentBBox = parentViewState.bbox;
+        var parentBBox = parentViewState.bBox;
         let bBox = viewSate.bBox;
         let statementContainerBBox = viewSate.components.statementContainer;
-        let headerBBox = viewSate.components.header;
+        let headerBBox = viewSate.components.heading;
         let bodyBBox = viewSate.components.body;
         let resources = _.filter(parent.getChildren(), function (child) {
             return child instanceof AST.ResourceDefinition;
@@ -45,12 +45,12 @@ class ResourceDefinitionPositionCalcVisitor {
         var currentResourceIndex = _.findIndex(resources, node);
 
         if (currentResourceIndex === 0) {
-            headerX = parentBBox.x() + DesignerDefaults.panel.body.padding.left;
-            headerY = parentViewState.components.body.y() + DesignerDefaults.panel.body.padding.top;
+            headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
+            headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
         } else if (currentResourceIndex > 0) {
             let previousResourceBBox = resources[currentResourceIndex - 1].getViewState().bBox;
             headerX = DesignerDefaults.panel.wrapper.gutter.h;
-            headerY = previousResourceBBox.y() + previousResourceBBox.h() + DesignerDefaults.panel.wrapper.gutter.v;
+            headerY = previousResourceBBox.y + previousResourceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
         } else {
             throw 'Invalid Index for Resource Definition';
         }
@@ -58,25 +58,24 @@ class ResourceDefinitionPositionCalcVisitor {
         x = headerX;
         y = headerY;
         bodyX = headerX;
-        bodyY = headerY + headerBBox.h();
+        bodyY = headerY + headerBBox.h;
 
-        statementContainerBBox.x(bodyX + DesignerDefaults.innerPanel.body.padding.left);
-        statementContainerBBox.y(bodyY + DesignerDefaults.innerPanel.body.padding.top +
-            DesignerDefaults.lifeLine.head.height);
+        statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
+        statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
+            DesignerDefaults.lifeLine.head.height;
 
-        bBox.x(x).y(y);
-        headerBBox.x(headerX).y(headerY);
-        bodyBBox.x(bodyX).y(bodyY);
-
-        log.debug('begin visit ResourceDefinitionPositionCalc');
+        bBox.x = x;
+        bBox.y = y;
+        headerBBox.x = headerX;
+        headerBBox.y = headerY;
+        bodyBBox.x = bodyX;
+        bodyBBox.y = bodyY;
     }
 
     visitResourceDefinitionPositionCalc(node) {
-        log.debug('visit ResourceDefinitionPositionCalc');
     }
 
     endVisitResourceDefinitionPositionCalc(node) {
-        log.debug('end visit ResourceDefinitionPositionCalc');
     }
 }
 

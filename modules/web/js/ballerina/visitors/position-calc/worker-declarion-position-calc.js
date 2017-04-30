@@ -46,7 +46,7 @@ class WorkerDeclarationPositionCalcVisitor {
             if(!node.isDefaultWorker()) {
                 throw 'Invalid Default worker found';
             } else if (parentViewState.components.statementContainer.w) {
-                throw 'Statement container width should greater than or equal to life line width';
+                //throw 'Statement container width should greater than or equal to life line width';
             }
             topRectX = parentViewState.components.statementContainer.x +
                 (parentViewState.components.statementContainer.w - bBox.w)/2;
@@ -66,10 +66,10 @@ class WorkerDeclarationPositionCalcVisitor {
             topRectX = previousStatementContainer.x + DesignerDefaults.innerPanel.body.padding.left;
             topRectY = viewState.components.statementContainer.y - DesignerDefaults.lifeLine.head.height;
         } else {
-            throw "Invalid index found for Worker Declaration";
+            //throw "Invalid index found for Worker Declaration";
         }
 
-        x = topRectX;
+        /*x = topRectX;
         y = topRectY;
         bottomRectX = topRectX;
         bottomRectY = topRectY + DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.line.height;
@@ -77,8 +77,8 @@ class WorkerDeclarationPositionCalcVisitor {
         middleLineStartY = topRectY + viewState.components.topRect.h;
         middleLineEndX = middleLineStartX;
         middleLineEndY = middleLineStartY + DesignerDefaults.lifeLine.line.height;
-
-        bBox.x = x;
+        */
+        /*bBox.x = x;
         bBox.y = y;
         (viewState.components.topRect).x = topRectX;
         (viewState.components.topRect).y = topRectY;
@@ -87,7 +87,7 @@ class WorkerDeclarationPositionCalcVisitor {
         viewState.components.line.topX = middleLineStartX;
         viewState.components.line.topY = middleLineStartY;
         viewState.components.line.bottomX = middleLineEndX;
-        viewState.components.line.bottomY = middleLineEndY;
+        viewState.components.line.bottomY = middleLineEndY;*/
 
         log.debug('begin visit WorkerDeclarationPositionCalc');
     }
