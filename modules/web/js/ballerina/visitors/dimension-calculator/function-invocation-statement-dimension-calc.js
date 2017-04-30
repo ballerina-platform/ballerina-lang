@@ -17,7 +17,8 @@
  */
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-
+import {util} from './../sizing-utils';
+ 
 class FunctionInvocationStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
@@ -39,6 +40,12 @@ class FunctionInvocationStatementDimensionCalculatorVisitor {
         // TODO: decide the width and the height based on the statement text width
         viewState.bBox.w = DesignerDefaults.statement.width;
         viewState.bBox.h = DesignerDefaults.statement.height;
+
+        var textWidth = util.getTextWidth(node.children[0].getFunctionalExpression()) +
+            DesignerDefaults.statement.innerPadding * 2;
+        if(textWidth > viewState.bBox.w){
+            viewState.bBox.w = textWidth;
+        }
 
         log.info('end visit FunctionInvocationStatementDimensionCalc');
     }

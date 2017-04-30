@@ -91,7 +91,8 @@ export const statement = {
     gutter: {
         v: 30,
         h: 0
-    }
+    },
+    innerPadding: 10
 };
 
 export const blockStatement = {
