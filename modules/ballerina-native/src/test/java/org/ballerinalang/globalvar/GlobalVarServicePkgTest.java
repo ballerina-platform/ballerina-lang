@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Testing global variables in services.
+ * Testing global variables in services with package.
  */
 public class GlobalVarServicePkgTest {
 

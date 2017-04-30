@@ -28,10 +28,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Global variable function test.
+ * Constant access test cases
  */
 public class ConstantAccessTest {
-//    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
