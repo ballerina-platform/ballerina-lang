@@ -82,7 +82,7 @@ public class JMSOutputTransport extends OutputTransport {
 
     @Override
     public String[] getSupportedDynamicOptions() {
-        return new String[0];
+        return new String[]{JMSConstants.DESTINATION_PARAM_NAME};
     }
 
     @Override
