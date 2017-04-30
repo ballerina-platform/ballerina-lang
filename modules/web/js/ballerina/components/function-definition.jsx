@@ -15,35 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 import React from 'react';
 import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import StatementView from './statement-decorator';
 import PanelDecorator from './panel-decorator';
-import {getComponentForNodeArray} from './components';
+import {getComponentForNodeArray} from './utils';
 import {panel} from './../configs/designer-defaults';
 import {statement} from './../configs/designer-defaults';
-
-// require possible themes
-function requireAll(requireContext) {
-	let components = {};
-	requireContext.keys().map((item, index) => {
-		var module = requireContext(item);
-		if(module.default){
-			components[module.default.name] = module.default; 	
-		}
-	});
-	return components;
-}
-var components = requireAll(require.context('./', true, /\.jsx$/));
 
 class FunctionDefinition extends React.Component {
 
     constructor(props) {
         super(props);
-        this.components = components;
-    }    
+    }
 
     render() {
         const bBox = this.props.model.viewState.bBox;
@@ -57,7 +43,7 @@ class FunctionDefinition extends React.Component {
         func_worker_bBox.w = statement.width;
         func_worker_bBox.h = bBox.h - panel.heading.height - panel.body.padding.top - panel.body.padding.bottom;
 
-        var children = getComponentForNodeArray(this.props.model.getChildren(),this.components);
+        var children = getComponentForNodeArray(this.props.model.getChildren());
         console.log(children);
         return (<PanelDecorator title={name} bBox={bBox}>
                     <LifeLine title="FunctionWorker" bBox={func_worker_bBox}/>
