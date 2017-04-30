@@ -45,7 +45,7 @@ class FunctionDefinition extends React.Component {
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
         console.log(children);
-        return (<PanelDecorator title={name} bBox={bBox}>
+        return (<PanelDecorator icon="tool-icons/function" title={name} bBox={bBox}>
                     <LifeLine title="FunctionWorker" bBox={func_worker_bBox}/>
                     {children}
                 </PanelDecorator>);

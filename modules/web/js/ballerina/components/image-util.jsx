@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 // require all react images
 function requireAll(requireContext) {
     let components = {};
@@ -35,7 +35,7 @@ function _getBasename(filename, ext) {
 const images = requireAll(require.context('images', true, /\.svg$/));
 
 class ImageUtils {
-    static getSVGIcon (iconName) {
+    static getSVGIconString (iconName) {
         return images[iconName];
     }
 }
