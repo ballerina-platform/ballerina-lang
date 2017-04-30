@@ -1561,6 +1561,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         } else if (memoryLocation instanceof StructVarLocation) {
             int structMemOffset = ((StructVarLocation) memoryLocation).getStructMemAddrOffset();
             controlStack.setValue(structMemOffset, rValue);
+        } else if (memoryLocation instanceof GlobalVarLocation) {
+            int globalMemOffset = ((GlobalVarLocation) memoryLocation).getStaticMemAddrOffset();
+            runtimeEnv.getStaticMemory().setValue(globalMemOffset, rValue);
         }
     }
 

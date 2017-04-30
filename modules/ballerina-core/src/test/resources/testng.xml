@@ -131,4 +131,40 @@ under the License.
             <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>
         </classes>
     </test>
+
+    <test name="ballerina-global-var-test-suite">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.TestConfigurationUtil" />
+            <class name="org.ballerinalang.model.globalvar.GlobalVarFunctionTest" />
+            <class name="org.ballerinalang.model.globalvar.GlobalVarFunctionWithPkgTest" />
+            <class name="org.ballerinalang.model.globalvar.GlobalVarErrorTest" />
+        </classes>
+    </test>
+    <!-- Non Blocking Test Cases -->
+    <test name="ballerina-global-var-test-suite-non-blocking">
+        <parameter name="enableNonBlocking" value="true" />
+        <classes>
+            <class name="org.ballerinalang.TestConfigurationUtil" />
+            <class name="org.ballerinalang.model.globalvar.GlobalVarFunctionTest" />
+            <class name="org.ballerinalang.model.globalvar.GlobalVarFunctionWithPkgTest" />
+            <class name="org.ballerinalang.model.globalvar.GlobalVarErrorTest" />
+        </classes>
+    </test>
+
+    <test name="ballerina-constant-access-test-suite">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.TestConfigurationUtil" />
+            <class name="org.ballerinalang.model.constant.ConstantAccessTest" />
+        </classes>
+    </test>
+    <!-- Non Blocking Test Cases -->
+    <test name="ballerina-constant-access-test-suite-non-blocking">
+        <parameter name="enableNonBlocking" value="true" />
+        <classes>
+            <class name="org.ballerinalang.TestConfigurationUtil" />
+            <class name="org.ballerinalang.model.constant.ConstantAccessTest" />
+        </classes>
+    </test>
 </suite>
