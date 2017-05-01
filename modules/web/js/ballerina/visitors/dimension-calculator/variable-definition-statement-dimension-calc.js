@@ -17,6 +17,8 @@
  */
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
+import {util} from './../sizing-utils';
+
 
 class VariableDefinitionStatementDimensionCalculatorVisitor {
 
@@ -33,10 +35,10 @@ class VariableDefinitionStatementDimensionCalculatorVisitor {
     endVisit(node) {
         var viewState = node.getViewState();
 
-        // TODO: decide the width and the height based on the statement text width
-        viewState.bBox.w = DesignerDefaults.statement.width;
+        var textViewState = util.getTextWidth(node.getExpression());
+        viewState.bBox.w = textViewState.w;
         viewState.bBox.h = DesignerDefaults.statement.height;
-
+        viewState.expression = textViewState.text;
     }
 }
 

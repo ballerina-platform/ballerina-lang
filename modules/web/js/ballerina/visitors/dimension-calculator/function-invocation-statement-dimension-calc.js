@@ -22,32 +22,22 @@ import {util} from './../sizing-utils';
 class FunctionInvocationStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.info('can visit FunctionInvocationStatementDimensionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.info('begin visit FunctionInvocationStatementDimensionCalc');
     }
 
     visit(node) {
-        log.info('visit FunctionInvocationStatementDimensionCalc');
     }
 
     endVisit(node) {
         var viewState = node.getViewState();
 
-        // TODO: decide the width and the height based on the statement text width
-        viewState.bBox.w = DesignerDefaults.statement.width;
+        var textViewState = util.getTextWidth(node.children[0].getFunctionalExpression());
+        viewState.bBox.w = textViewState.w;
         viewState.bBox.h = DesignerDefaults.statement.height;
-
-        var textWidth = util.getTextWidth(node.children[0].getFunctionalExpression()) +
-            DesignerDefaults.statement.innerPadding * 2;
-        if(textWidth > viewState.bBox.w){
-            viewState.bBox.w = textWidth;
-        }
-
-        log.info('end visit FunctionInvocationStatementDimensionCalc');
+        viewState.expression = textViewState.text;
     }
 }
 

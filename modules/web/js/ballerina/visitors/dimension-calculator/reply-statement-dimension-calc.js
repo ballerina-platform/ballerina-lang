@@ -17,30 +17,27 @@
  */
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
+import {util} from './../sizing-utils';
 
 class ReplyStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.info('can visit ReplyStatementDimensionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.info('begin visit ReplyStatementDimensionCalc');
     }
 
     visit(node) {
-        log.info('visit ReplyStatementDimensionCalc');
     }
 
     endVisit(node) {
         var viewState = node.getViewState();
 
-        // TODO: decide the width and the height based on the statement text width
-        viewState.bBox.w = DesignerDefaults.statement.width;
+        var textViewState = util.getTextWidth(node.getReplyExpression());
+        viewState.bBox.w = textViewState.w;
         viewState.bBox.h = DesignerDefaults.statement.height;
-
-        log.info('end visit ReplyStatementDimensionCalc');
+        viewState.expression = textViewState.text;
     }
 }
 

@@ -89,10 +89,16 @@ export const statement = {
     width: 120,
     height: 30,
     gutter: {
-        v: 30,
+        v: 20,
         h: 0
     },
-    innerPadding: 10
+    padding: {
+        top: 5,
+        right: 5,
+        bottom: 5,
+        left: 5
+    },
+    maxWidth: 300
 };
 
 export const blockStatement = {

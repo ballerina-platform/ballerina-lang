@@ -16,6 +16,8 @@
  * under the License.
  */
 
+import {statement} from './../configs/designer-defaults';
+
 class SizingUtil {
     constructor(){
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -23,13 +25,42 @@ class SizingUtil {
         svg.setAttribute('width', '600');
         svg.setAttribute('height', '250');
         svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
-        document.body.appendChild(svg);  
-        this.svg = svg;      
+        this.textElement = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+        svg.appendChild(this.textElement);
+        document.body.appendChild(svg); 
     }
 
     getTextWidth(text){
-        this.svg.innerHTML = `<text id="svgTextCalc">${text}</text>`;
-        return this.svg.getElementById("svgTextCalc").getComputedTextLength();
+        this.textElement.innerHTML = text;
+        let width = statement.padding.left + this.textElement.getComputedTextLength() + statement.padding.right;
+        // if the width is more then max width crop the text
+        if(width <= statement.width){
+            //set the width to minimam width
+            width = statement.width;        
+        }else if(width > statement.width && width <= statement.maxWidth){
+            // do nothing
+        }else {
+            // We need to truncate displayText and show an ellipses at the end.
+            var ellipses = '...';
+            var possibleCharactersCount = 0;
+            for (var i = (text.length - 1); 1 < i; i--) {
+                if ((statement.padding.left + this.textElement.getSubStringLength(0, i) + statement.padding.right ) < statement.maxWidth) {
+                    possibleCharactersCount = i;
+                    break;
+                }
+            }
+            // We need room for the ellipses as well, hence removing 'ellipses.length' no. of characters.
+            text = text.substring(0, (possibleCharactersCount - ellipses.length)) + ellipses; // Appending ellipses.
+
+            width = statement.maxWidth;
+            debugger;
+        }
+        return {
+            w: width,
+            text :text
+        }        
     }
 }
+
+
 export let util = new SizingUtil();
