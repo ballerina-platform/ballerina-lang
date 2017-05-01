@@ -207,12 +207,12 @@ public class RDBMSTableUtils {
 
     public static String flattenAnnotatedElements(List<Element> elements) {
         StringBuilder sb = new StringBuilder();
-        for (Element elem : elements) {
+        elements.forEach(elem -> {
             sb.append(elem.getKey());
             if (elements.indexOf(elem) != elements.size() - 1) {
                 sb.append(RDBMSTableConstants.SEPARATOR);
             }
-        }
+        });
         return sb.toString();
     }
 
@@ -297,11 +297,11 @@ public class RDBMSTableUtils {
 
         private List<RDBMSQueryConfigurationEntry> extractMatchingConfigEntries(String dbName) {
             List<RDBMSQueryConfigurationEntry> result = new ArrayList<>();
-            for (Map.Entry<Pattern, RDBMSQueryConfigurationEntry> entry : this.entries) {
+            this.entries.forEach(entry -> {
                 if (entry.getKey().matcher(dbName).find()) {
                     result.add(entry.getValue());
                 }
-            }
+            });
             return result;
         }
 

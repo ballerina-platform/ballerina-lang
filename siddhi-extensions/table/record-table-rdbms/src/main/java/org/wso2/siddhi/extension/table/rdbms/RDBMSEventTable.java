@@ -96,6 +96,16 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     protected void add(List<Object[]> records) {
+        String sql = this.composeInsertQuery();
+        try {
+            this.batchExecuteQueriesWithRecords(sql, records, false);
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error in adding events to '" + this.tableName + "' store: "
+                    + e.getMessage(), e);
+        }
+    }
+
+    private String composeInsertQuery() {
         String insertQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordInsertQuery());
         StringBuilder params = new StringBuilder();
         int fieldsLeft = this.attributes.size();
@@ -106,13 +116,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             }
             fieldsLeft = fieldsLeft - 1;
         }
-        insertQuery = insertQuery.replace(Q_PLACEHOLDER, params.toString());
-        try {
-            this.batchExecuteQueriesWithRecords(insertQuery, records, false);
-        } catch (SQLException e) {
-            throw new RDBMSTableException("Error in adding events to '" + this.tableName + "' store: "
-                    + e.getMessage(), e);
-        }
+        return insertQuery.replace(Q_PLACEHOLDER, params.toString());
     }
 
     @Override
@@ -193,22 +197,40 @@ public class RDBMSEventTable extends AbstractRecordTable {
     @Override
     protected void update(List<Map<String, Object>> updateConditionParameterMaps, CompiledCondition compiledCondition,
                           List<Map<String, Object>> updateValues) {
-        final int seed = this.attributes.size();
+
+        String sql = this.composeUpdateQuery(compiledCondition);
+        try {
+            this.batchProcessUpdateOrMerge(sql, updateConditionParameterMaps, compiledCondition, updateValues);
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error performing update operation on table '" + this.tableName
+                    + "': " + e.getMessage(), e);
+        }
+    }
+
+    private String composeUpdateQuery(CompiledCondition compiledCondition) {
         String sql = this.queryConfigurationEntry.getRecordUpdateQuery();
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         StringBuilder columnsValues = new StringBuilder();
-        for (Attribute attribute : this.attributes) {
+        this.attributes.forEach(attribute -> {
             columnsValues.append(attribute.getName()).append(EQUALS).append(QUESTION_MARK);
             if (this.attributes.indexOf(attribute) != this.attributes.size() - 1) {
                 columnsValues.append(SEPARATOR);
             }
-        }
+        });
         sql = sql.replace(PLACEHOLDER_COLUMNS_VALUES, columnsValues.toString());
         if (RDBMSTableUtils.isEmpty(condition)) {
             sql = sql.replace(PLACEHOLDER_CONDITION, "");
         } else {
             sql = RDBMSTableUtils.formatQueryWithCondition(sql, condition);
         }
+
+        return sql;
+    }
+
+    private void batchProcessUpdateOrMerge(String sql, List<Map<String, Object>> updateConditionParameterMaps,
+                                           CompiledCondition compiledCondition,
+                                           List<Map<String, Object>> updateValues) throws SQLException {
+        final int seed = this.attributes.size();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         try {
@@ -228,9 +250,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 stmt.addBatch();
             }
             stmt.executeBatch();
-        } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing update operation on table '" + this.tableName
-                    + "': " + e.getMessage(), e);
         } finally {
             RDBMSTableUtils.cleanupConnection(null, stmt, conn);
         }
@@ -240,7 +259,93 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
                                CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
                                List<Object[]> addingRecords) {
+        String mergeSQL = this.queryConfigurationEntry.getRecordMergeQuery();
+        if (mergeSQL != null) {
+            try {
+                this.mergeRecords(mergeSQL, updateConditionParameterMaps, compiledCondition, updateValues);
+            } catch (SQLException e) {
+                //Merge operations have failed, maybe because one (or more) constraint violations.
+                //Now, let us try to sequentially update/insert records.
+                this.UpdateOrInsertRecords(updateConditionParameterMaps, compiledCondition, updateValues, addingRecords);
+            }
+        } else {
+            this.UpdateOrInsertRecords(updateConditionParameterMaps, compiledCondition, updateValues, addingRecords);
+        }
+    }
 
+    /**
+     * Attempts to use SQL MERGE queries to try and insert/update records.
+     * Can fail due to one or more constraint violations in the supplied list of records.
+     *
+     * @param updateConditionParameterMaps
+     * @param compiledCondition
+     * @param updateValues
+     * @throws SQLException if one or more batch MERGE operations fail.
+     */
+    private void mergeRecords(String sql, List<Map<String, Object>> updateConditionParameterMaps,
+                              CompiledCondition compiledCondition, List<Map<String, Object>> updateValues)
+            throws SQLException {
+        String mergeSQL = this.composeMergeQuery(sql, compiledCondition);
+        this.batchProcessUpdateOrMerge(mergeSQL, updateConditionParameterMaps, compiledCondition, updateValues);
+    }
+
+    private void UpdateOrInsertRecords(List<Map<String, Object>> updateConditionParameterMaps,
+                                       CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
+                                       List<Object[]> addingRecords) {
+        int counter = 0;
+        final int seed = this.attributes.size();
+        Connection conn = this.getConnection(false);
+        PreparedStatement updateStmt = null;
+        PreparedStatement insertStmt = null;
+        try {
+            //TODO discuss order. Try insert -> update or vice versa?
+            updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition));
+            insertStmt = conn.prepareStatement(this.composeInsertQuery());
+            while (counter < updateValues.size()) {
+                Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
+                Map<String, Object> values = updateValues.get(counter);
+                //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
+                RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
+                        conditionParameters, seed);
+                for (Attribute attribute : this.attributes) {
+                    RDBMSTableUtils.populateStatementWithSingleElement(updateStmt,
+                            this.attributes.indexOf(attribute) + 1, attribute.getType(),
+                            values.get(attribute.getName()));
+                }
+                // Using a sub try-block to ensure that only exceptions in performing UPDATE DB operations are caught.
+                // Other exceptions point to a larger problem and must be handled separately outside.
+                try {
+                    updateStmt.executeUpdate();
+                    conn.commit();
+                    counter++;
+                } catch (SQLException e) {
+                    RDBMSTableUtils.rollbackConnection(conn);
+                    Object[] record = addingRecords.get(counter);
+                    try {
+                        this.populateStatement(record, insertStmt);
+                        insertStmt.executeUpdate();
+                        conn.commit();
+                        counter++;
+                    } catch (SQLException e2) {
+                        //TODO log warn?
+                        RDBMSTableUtils.rollbackConnection(conn);
+                        throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
+                                + this.tableName + "': " + e.getMessage(), e);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error performing update/insert operation (update) on table '" + this.tableName
+                    + "': " + e.getMessage(), e);
+        } finally {
+            RDBMSTableUtils.cleanupConnection(null, updateStmt, null);
+            RDBMSTableUtils.cleanupConnection(null, insertStmt, conn);
+        }
+    }
+
+    private String composeMergeQuery(String sql, CompiledCondition compiledCondition) {
+        //TODO
+        return null;
     }
 
     @Override
@@ -308,7 +413,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         String indexQuery = this.resolveTableName(this.queryConfigurationEntry.getIndexCreateQuery());
         Map<String, String> fieldLengths = RDBMSTableUtils.processFieldLengths(storeAnnotation.getElement(
                 ANNOTATION_ELEMENT_FIELD_LENGTHS));
-        for (Attribute attribute : this.attributes) {
+        this.attributes.forEach(attribute -> {
             builder.append(attribute.getName()).append(WHITESPACE);
             switch (attribute.getType()) {
                 case BOOL:
@@ -351,7 +456,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                         .append(RDBMSTableUtils.flattenAnnotatedElements(primaryKeyMap))
                         .append(CLOSE_PARENTHESIS);
             }
-        }
+        });
         queries.add(createQuery.replace(PLACEHOLDER_COLUMNS, builder.toString()));
         if (indexMap != null && !indexMap.isEmpty()) {
             queries.add(indexQuery.replace(INDEX_PLACEHOLDER, RDBMSTableUtils.flattenAnnotatedElements(indexMap)));
