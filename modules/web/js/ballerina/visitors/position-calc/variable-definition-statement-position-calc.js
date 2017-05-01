@@ -19,25 +19,25 @@
 import log from 'log';
 import * as PositioningUtils from './utils';
 
-class AssignmentStatementPositionCalcVisitor {
+class VariableDefinitionStatementPositionCalcVisitor {
 
-    canVisitAssignmentStatementPositionCalc(node) {
-        log.debug('can visit AssignmentStatementPositionCalc');
+    canVisitVariableDefinitionStatementPositionCalc(node) {
+        log.debug('can visit VariableDefinitionStatementPositionCalc');
         return true;
     }
 
-    beginVisitAssignmentStatementPositionCalc(node) {
-        log.debug('visit AssignmentStatementPositionCalc');
+    beginVisitVariableDefinitionStatementPositionCalc(node) {
+        log.debug('visit VariableDefinitionStatementPositionCalc');
         PositioningUtils.getSimpleStatementPosition(node);
     }
 
-    visitAssignmentStatementPositionCalc(node) {
-        log.debug('visit AssignmentStatementPositionCalc');
+    visitVariableDefinitionStatementPositionCalc(node) {
+        log.debug('visit VariableDefinitionStatementPositionCalc');
     }
 
-    endVisitAssignmentStatementPositionCalc(node) {
-        log.debug('end visit AssignmentStatementPositionCalc');
+    endVisitVariableDefinitionStatementPositionCalc(node) {
+        log.debug('end visit VariableDefinitionStatementPositionCalc');
     }
 }
 
-export default AssignmentStatementPositionCalcVisitor;
+export default VariableDefinitionStatementPositionCalcVisitor;

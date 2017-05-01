@@ -15,8 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
-import * as DesignerDefaults from './../../configs/designer-defaults';
 import {util} from './../sizing-utils';
  
 class FunctionInvocationStatementDimensionCalculatorVisitor {
