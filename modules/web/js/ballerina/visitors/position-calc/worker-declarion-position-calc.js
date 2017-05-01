@@ -61,8 +61,8 @@ class WorkerDeclarationPositionCalcVisitor {
 
         bBox.x = x;
         bBox.y = y;
-        //viewState.components.statementContainer.x = x;
-        //viewState.components.statementContainer.y = y + DesignerDefaults.lifeLine.head.height;
+        viewState.components.statementContainer.x = x;
+        viewState.components.statementContainer.y = y + DesignerDefaults.lifeLine.head.height;
     }
 
     visit(node) {

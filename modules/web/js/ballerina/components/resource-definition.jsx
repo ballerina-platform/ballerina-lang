@@ -17,32 +17,30 @@
  */
 
 import React from 'react';
-import LifeLine from './lifeline.jsx';
+import LifeLineDecorator from './lifeline.jsx';
 import StatementContainer from './statement-container';
-import StatementView from './statement-decorator';
 import PanelDecorator from './panel-decorator';
 import {getComponentForNodeArray} from './utils';
-import {panel} from './../configs/designer-defaults';
-import {statement} from './../configs/designer-defaults';
+import {lifeLine} from './../configs/designer-defaults';
 
 class ResourceDefinition extends React.Component {
 
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getResourceName();
+        const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
 
         //lets calculate function worker lifeline bounding box.
         let resource_worker_bBox = {};
-        resource_worker_bBox.x = bBox.x + panel.body.padding.left;
-        resource_worker_bBox.y = bBox.y + panel.heading.height + panel.body.padding.top;
-        //@todo set the correct width
-        resource_worker_bBox.w = statement.width;
-        resource_worker_bBox.h = bBox.h - panel.heading.height - panel.body.padding.top - panel.body.padding.bottom;
+        resource_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width)/2;
+        resource_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height ;
+        resource_worker_bBox.w = lifeLine.width;
+        resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
         return (<PanelDecorator icon="resource" title={name} bBox={bBox}>
-                  <StatementContainer bBox={bBox}>
-                    <LifeLine title="ResourceWorker" bBox={resource_worker_bBox}/>
+                  <StatementContainer bBox={statementContainerBBox}>
+                    <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox}/>
                     {children}
                   </StatementContainer>
                 </PanelDecorator>);
