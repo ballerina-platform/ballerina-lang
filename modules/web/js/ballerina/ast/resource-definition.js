@@ -56,10 +56,6 @@ class ResourceDefinition extends ASTNode {
         }
 
         this.BallerinaASTFactory = this.getFactory();
-
-        // Adding the default worker declaration.
-        var defaultWorker = this.BallerinaASTFactory.createWorkerDeclaration({isDefaultWorker: true});
-        this.addChild(defaultWorker);
     }
 
     setResourceName(resourceName, options) {
