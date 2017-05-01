@@ -19,11 +19,8 @@
 import React from 'react';
 import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
-import StatementView from './statement-decorator';
 import PanelDecorator from './panel-decorator';
 import {getComponentForNodeArray} from './utils';
-import {panel} from './../configs/designer-defaults';
-import {statement} from './../configs/designer-defaults';
 
 class FunctionDefinition extends React.Component {
 
@@ -34,18 +31,11 @@ class FunctionDefinition extends React.Component {
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getFunctionName();
-
-        //lets calculate function worker lifeline bounding box.
-        let func_worker_bBox = {};
-        func_worker_bBox.x = bBox.x + panel.body.padding.left;
-        func_worker_bBox.y = bBox.y + panel.heading.height + panel.body.padding.top;
-        //@todo set the correct width
-        func_worker_bBox.w = statement.width;
-        func_worker_bBox.h = bBox.h - panel.heading.height - panel.body.padding.top - panel.body.padding.bottom;
-
+        const statementContainer = this.props.model.viewState.components.statementContainer;
+        let func_worker_bBox = this.props.model.viewState.components.defaultWorker;
         var children = getComponentForNodeArray(this.props.model.getChildren());
-        console.log(children);
         return (<PanelDecorator icon="tool-icons/function" title={name} bBox={bBox}>
+                    <StatementContainer title="StatementContainer" bBox={statementContainer}/>
                     <LifeLine title="FunctionWorker" bBox={func_worker_bBox}/>
                     {children}
                 </PanelDecorator>);

@@ -80,7 +80,7 @@ export const lifeLine = {
         height: 320
     },
     gutter: {
-        v: 0,
+        v: 50,
         h: 50
     }
 };
@@ -126,4 +126,9 @@ export const canvas = {
             left: 50
         },
     }
+};
+
+export const statementContainer = {
+    width: 120,
+    height: 400
 };
