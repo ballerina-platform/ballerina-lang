@@ -18,6 +18,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import {statement} from './../configs/designer-defaults';
+import {lifeLine} from './../configs/designer-defaults';
 
 const text_offset = 50;
 
@@ -30,9 +31,9 @@ class StatementView extends React.Component {
 		let statement_y = bBox.y + statement.gutter.v;
 		const text_x = bBox.x + (bBox.w / 2);
 		const text_y = statement_y + (statement_h / 2);
-		let drop_zone_x = text_x - (statement.width/2);
+		let drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
 		return (<g>
-			<rect x={bBox.x} y={bBox.y} width={statement.width} height={statement.gutter.v} className="inner-drop-zone" />
+			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v} className="inner-drop-zone" />
 			<rect x={bBox.x} y={statement_y} width={bBox.w} height={statement_h} className="statement-rect" />
 			<g className="statement-body">
 				<text x={text_x} y={text_y} className="statement-text">{expression}</text>
@@ -49,7 +50,7 @@ StatementView.propTypes = {
 		h: React.PropTypes.number.isRequired,
 	}),
 	expression: PropTypes.string.isRequired
-}
+};
 
 
 export default StatementView;
