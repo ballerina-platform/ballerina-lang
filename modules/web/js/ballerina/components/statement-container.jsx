@@ -28,7 +28,8 @@ class StatementContainer extends React.Component {
     render() {
         const bBox = this.props.bBox;
         return (<g className="statement-container">
-            <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h } rx="0" ry="0" className="main-drop-zone"></rect>
+            <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h } className="main-drop-zone"></rect>
+            {this.props.children}
         </g>);
     }
 }

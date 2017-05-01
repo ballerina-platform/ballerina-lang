@@ -61,18 +61,14 @@ class WorkerDeclarationPositionCalcVisitor {
 
         bBox.x = x;
         bBox.y = y;
-        viewState.components.statementContainer.x = x;
-        viewState.components.statementContainer.y = y + DesignerDefaults.lifeLine.head.height;
-
-        log.debug('begin visit WorkerDeclarationPositionCalc');
+        //viewState.components.statementContainer.x = x;
+        //viewState.components.statementContainer.y = y + DesignerDefaults.lifeLine.head.height;
     }
 
     visitWorkerDeclarationPositionCalc(node) {
-        log.debug('visit WorkerDeclarationPositionCalc');
     }
 
     endVisitWorkerDeclarationPositionCalc(node) {
-        log.debug('end visit WorkerDeclarationPositionCalc');
     }
 }
 
