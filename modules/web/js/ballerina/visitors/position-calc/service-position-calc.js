@@ -20,6 +20,7 @@ import log from 'log';
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import ASTFactory from './../../ast/ballerina-ast-factory';
+import {panel} from './../../configs/designer-defaults';
 
 class ServiceDefinitionPositionCalcVisitor {
 
@@ -63,7 +64,18 @@ class ServiceDefinitionPositionCalcVisitor {
         body.x = bodyX;
         body.y = bodyY;
 
-        log.debug('begin visit ServiceDefinitionPositionCalc');
+        // here we need to re adjest resource width to match the service width.
+        let children = node.getChildren();
+        // make sure you substract the panel padding to calculate the min width of a resource.
+        let minWidth = node.getViewState().bBox.w - ( panel.body.padding.left + panel.body.padding.right );
+        children.forEach(function(element) {
+            //@todo take connectors in to account.
+            let viewState = element.getViewState();
+            // if the service width is wider than resource width we will readjest. 
+            if(viewState.bBox.w < minWidth){
+                viewState.bBox.w = minWidth;
+            }
+        }, this);       
     }
 
     visitServiceDefinitionPositionCalc(node) {

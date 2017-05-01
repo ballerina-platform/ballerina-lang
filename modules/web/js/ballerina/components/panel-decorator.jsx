@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 import React from 'react';
-import ImageUtils from './image-util';
+import ImageUtil from './image-util';
 
 class PanelDecorator extends React.Component {
 
@@ -30,8 +30,13 @@ class PanelDecorator extends React.Component {
                      <g className="panel-header">
                          <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleHeight } rx="0" ry="0" className="headingRect" data-original-title="" title=""></rect>
                          <text x={ bBox.x + titleHeight } y={ bBox.y + titleHeight / 2 + 5 }>{this.props.title}</text>
+                         <image x={bBox.x + 5} y={bBox.y + 5} width={iconSize} height={iconSize} xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}/>
                          <g className="panel-header-controls">
-                             <rect x={ bBox.x + bBox.w - 19.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize } rx="0" ry="0" title="" className="headingExpandIcon" style={{opacity: 0.4}} data-original-title="Collapse Pane"></rect>
+                             <image x={ bBox.x + bBox.w - 44.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize } className="control"
+                                  xlinkHref={ImageUtil.getSVGIconString('delete')}/>
+                             <line x1={ bBox.x + bBox.w - 50} y1={ bBox.y + 5} x2={ bBox.x + bBox.w - 50} y2={ bBox.y + 20} className="operations-separator"></line>
+                             <image x={ bBox.x + bBox.w - 19.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize }  className="control"
+                                  xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')}/>
                              <line x1={ bBox.x + bBox.w - 25} y1={ bBox.y + 5} x2={ bBox.x + bBox.w - 25} y2={ bBox.y + 20} className="operations-separator"></line>
                          </g>
                      </g>

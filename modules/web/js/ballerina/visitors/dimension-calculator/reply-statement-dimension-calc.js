@@ -18,8 +18,8 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import {util} from './../sizing-utils';
- 
-class FunctionInvocationStatementDimensionCalculatorVisitor {
+
+class ReplyStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
         return true;
@@ -34,11 +34,11 @@ class FunctionInvocationStatementDimensionCalculatorVisitor {
     endVisit(node) {
         var viewState = node.getViewState();
 
-        var textViewState = util.getTextWidth(node.children[0].getFunctionalExpression());
+        var textViewState = util.getTextWidth(node.getReplyExpression());
         viewState.bBox.w = textViewState.w;
         viewState.bBox.h = DesignerDefaults.statement.height;
         viewState.expression = textViewState.text;
     }
 }
 
-export default FunctionInvocationStatementDimensionCalculatorVisitor;
+export default ReplyStatementDimensionCalculatorVisitor;

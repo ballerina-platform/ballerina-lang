@@ -20,14 +20,20 @@ import React from 'react'
 import ResourceDefinition from './resource-definition.jsx'
 import StatementView from './statement-decorator.jsx'
 import PanelDecorator from './panel-decorator';
+import {getComponentForNodeArray} from './utils';
 
 class ServiceDefinition extends React.Component {
 
     render() {
-        const bBox = this.props.bBox;
-        return (<PanelDecorator title={this.props.name} bBox={bBox}>
-                    <ResourceDefinition name="echo-resource" bBox={{x: 75, w:800, y:75, h:800}}>
-                    </ResourceDefinition>
+        let model = this.props.model;
+        let bBox = model.viewState.bBox;
+
+        //get the service name
+        let title = model.getServiceName();
+
+        var children = getComponentForNodeArray(this.props.model.getChildren());
+        return (<PanelDecorator  icon="service" title={title} bBox={bBox}>
+                {children}
                 </PanelDecorator>);
     }
 }

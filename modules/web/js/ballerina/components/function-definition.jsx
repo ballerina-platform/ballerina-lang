@@ -15,40 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 import React from 'react';
 import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
-import {getComponentForNodeArray} from './components';
-
-// require possible themes
-function requireAll(requireContext) {
-	let components = {};
-	requireContext.keys().map((item, index) => {
-		var module = requireContext(item);
-		if(module.default){
-			components[module.default.name] = module.default; 	
-		}
-	});
-	return components;
-}
-var components = requireAll(require.context('./', true, /\.jsx$/));
+import {getComponentForNodeArray} from './utils';
 
 class FunctionDefinition extends React.Component {
 
     constructor(props) {
         super(props);
-        this.components = components;
-    }    
+    }
 
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getFunctionName();
         const statementContainer = this.props.model.viewState.components.statementContainer;
         let func_worker_bBox = this.props.model.viewState.components.defaultWorker;
-        var children = getComponentForNodeArray(this.props.model.getChildren(),this.components);
-        return (<PanelDecorator title={name} bBox={bBox}>
+        var children = getComponentForNodeArray(this.props.model.getChildren());
+        return (<PanelDecorator icon="tool-icons/function" title={name} bBox={bBox}>
                     <StatementContainer title="StatementContainer" bBox={statementContainer}/>
                     <LifeLine title="FunctionWorker" bBox={func_worker_bBox}/>
                     {children}

@@ -17,7 +17,9 @@
  */
 
 import log from 'log';
-import * as DimensionConstants from './../../configs/designer-defaults';
+import * as DesignerDefaults from './../../configs/designer-defaults';
+import SimpleBBox from './../../ast/simple-bounding-box';
+import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
 class ResourceDefinitionDimensionCalculatorVisitor {
 
@@ -35,7 +37,45 @@ class ResourceDefinitionDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        log.debug('end visit ResourceDefinitionDimensionCalc');
+        var viewState = node.getViewState();
+        var components = {};
+
+        components['heading'] = new SimpleBBox();
+        components['heading'].h = DesignerDefaults.panel.heading.height;
+
+        components['statementContainer'] = new SimpleBBox();
+        var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        var statementWidth = 0;
+        var statementHeight = 0;
+
+        _.forEach(statementChildren, function(child) {
+            statementHeight += child.viewState.bBox.h + DesignerDefaults.statement.gutter.v;
+            if(child.viewState.bBox.w > statementWidth){
+                statementWidth = child.viewState.bBox.w;
+            }
+        });
+
+        /**
+         * We add an extra gap to the statement container height, in order to maintain the gap between the
+         * last statement's bottom margin and the default worker bottom rect's top margin
+         */
+        statementHeight += DesignerDefaults.statement.gutter.v;
+
+        components['statementContainer'].h = statementHeight;
+        components['statementContainer'].w = statementWidth;
+
+        components['body'] = new SimpleBBox();
+
+        components['body'].h = ((DesignerDefaults.panel.body.height < components['statementContainer'].h)? components['statementContainer'].h:DesignerDefaults.panel.body.height)
+                               + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+        components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
+
+        viewState.bBox.h = components['heading'].h + components['body'].h;
+        viewState.bBox.w = components['heading'].w + components['body'].w;
+
+        viewState.components = components;
+        
+        log.info('end visit FunctionDefinitionDimensionCalc');
     }
 }
 

@@ -46,8 +46,8 @@ export const panel = {
 export const innerPanel = {
     wrapper: {
         gutter: {
-            v: 0,
-            h: 0
+            v: 50,
+            h: 50
         }
     },
     heading: {
@@ -89,9 +89,16 @@ export const statement = {
     width: 120,
     height: 30,
     gutter: {
-        v: 30,
+        v: 20,
         h: 0
-    }
+    },
+    padding: {
+        top: 5,
+        right: 5,
+        bottom: 5,
+        left: 5
+    },
+    maxWidth: 300
 };
 
 export const blockStatement = {

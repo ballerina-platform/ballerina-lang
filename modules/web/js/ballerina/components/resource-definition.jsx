@@ -15,23 +15,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 import React from 'react';
 import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import StatementView from './statement-decorator';
 import PanelDecorator from './panel-decorator';
+import {getComponentForNodeArray} from './utils';
+import {panel} from './../configs/designer-defaults';
+import {statement} from './../configs/designer-defaults';
 
 class ResourceDefinition extends React.Component {
 
     render() {
-        const bBox = this.props.bBox;
-        return (<PanelDecorator title={this.props.name} bBox={bBox}>
-                    <LifeLine title="ResourceWorker" bBox={{x: bBox.x + 50, w: 200 , h: bBox.h - 100, y: bBox.y + 50}}/>
-                    <StatementContainer>
-                      <StatementView bBox={{x:bBox.x + 60, y:bBox.y + 90, w:181.7, h:30}} expression="http:convertToResponse(m)">
-                      </StatementView>
-                    </StatementContainer>
+        const bBox = this.props.model.viewState.bBox;
+        const name = this.props.model.getResourceName();
+
+        //lets calculate function worker lifeline bounding box.
+        let resource_worker_bBox = {};
+        resource_worker_bBox.x = bBox.x + panel.body.padding.left;
+        resource_worker_bBox.y = bBox.y + panel.heading.height + panel.body.padding.top;
+        //@todo set the correct width
+        resource_worker_bBox.w = statement.width;
+        resource_worker_bBox.h = bBox.h - panel.heading.height - panel.body.padding.top - panel.body.padding.bottom;
+
+        var children = getComponentForNodeArray(this.props.model.getChildren());
+        return (<PanelDecorator icon="resource" title={name} bBox={bBox}>
+                    <LifeLine title="ResourceWorker" bBox={resource_worker_bBox}/>
+                    {children}
                 </PanelDecorator>);
     }
 }

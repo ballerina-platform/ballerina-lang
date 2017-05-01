@@ -858,3 +858,12 @@ input#package-name-input {
 .expression-editor-form-body-property-wrapper .ace_ballerina-keyword-non-primitive-type{
     color: #f39100;
 }
+
+.panel > .panel-header > .panel-header-controls > .control {
+    opacity: 0.4;
+    cursor: pointer;
+}
+
+.panel > .panel-header > .panel-header-controls > .control:hover {
+    opacity: 1;
+}
