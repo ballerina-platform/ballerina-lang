@@ -23,12 +23,12 @@ import * as DesignerDefaults from './../../configs/designer-defaults';
 
 class FunctionDefinitionPositionCalcVisitor {
 
-    canVisitFunctionDefinitionPositionCalc(node) {
+    canVisit(node) {
         log.debug('can visit FunctionDefinitionPositionCalc');
         return true;
     }
 
-    beginVisitFunctionDefinitionPositionCalc(node) {
+    beginVisit(node) {
         let viewSate = node.getViewState();
         let bBox = viewSate.bBox;
         let parent = node.getParent();
@@ -75,11 +75,11 @@ class FunctionDefinitionPositionCalcVisitor {
         log.debug('begin visit FunctionDefinitionPositionCalc');
     }
 
-    visitFunctionDefinitionPositionCalc(node) {
+    visit(node) {
         log.debug('visit FunctionDefinitionPositionCalc');
     }
 
-    endVisitFunctionDefinitionPositionCalc(node) {
+    endVisit(node) {
         log.debug('end visit FunctionDefinitionPositionCalc');
     }
 }

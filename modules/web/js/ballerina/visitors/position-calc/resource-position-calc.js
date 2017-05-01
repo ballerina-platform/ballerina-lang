@@ -24,12 +24,12 @@ import ASTFactory from './../../ast/ballerina-ast-factory';
 
 class ResourceDefinitionPositionCalcVisitor {
 
-    canVisitResourceDefinitionPositionCalc(node) {
+    canVisit(node) {
         log.debug('can visit ResourceDefinitionPositionCalc');
         return true;
     }
 
-    beginVisitResourceDefinitionPositionCalc(node) {
+    beginVisit(node) {
         let parent = node.getParent();
         let viewSate = node.getViewState();
         let parentViewState = parent.getViewState();
@@ -72,10 +72,10 @@ class ResourceDefinitionPositionCalcVisitor {
         bodyBBox.y = bodyY;
     }
 
-    visitResourceDefinitionPositionCalc(node) {
+    visit(node) {
     }
 
-    endVisitResourceDefinitionPositionCalc(node) {
+    endVisit(node) {
     }
 }
 

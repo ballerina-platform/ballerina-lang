@@ -20,12 +20,12 @@ import {panel} from './../../configs/designer-defaults';
 
 class BallerinaASTRootPositionCalcVisitor {
 
-    canVisitBallerinaASTRootPositionCalc(serviceDefinition) {
+    canVisit(node) {
         return true;
     }
 
-    beginVisitBallerinaASTRootPositionCalc(node) {
-        // here we need to re adjest pannel width to match the screen.
+    beginVisit(node) {
+        // here we need to re adjust panel width to match the screen.
         let children = node.getChildren();
         let minWidth = node.getViewState().container.width - ( panel.wrapper.gutter.h * 2 );
         children.forEach(function(element) {
@@ -36,16 +36,12 @@ class BallerinaASTRootPositionCalcVisitor {
         }, this);
     }
 
-    visitBallerinaASTRootPositionCalc(node) {
+    visit(node) {
         log.debug('Visit BallerinaASTRoot');
     }
 
-    endVisitBallerinaASTRootPositionCalc(node) {
+    endVisit(node) {
         log.debug('End Visit BallerinaASTRoot');
-    }
-
-    canVisitServiceDefinisionPositionCalc(node) {
-        return true;
     }
 }
 

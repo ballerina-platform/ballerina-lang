@@ -24,12 +24,12 @@ import {panel} from './../../configs/designer-defaults';
 
 class ServiceDefinitionPositionCalcVisitor {
 
-    canVisitServiceDefinitionPositionCalc(node) {
+    canVisit(node) {
         log.debug('can visit ServiceDefinitionPositionCalc');
         return true;
     }
 
-    beginVisitServiceDefinitionPositionCalc(node) {
+    beginVisit(node) {
         let viewSate = node.getViewState();
         let bBox = viewSate.bBox;
         let parent = node.getParent();
@@ -78,11 +78,11 @@ class ServiceDefinitionPositionCalcVisitor {
         }, this);       
     }
 
-    visitServiceDefinitionPositionCalc(node) {
+    visit(node) {
         log.debug('visit ServiceDefinitionPositionCalc');
     }
 
-    endVisitServiceDefinitionPositionCalc(node) {
+    endVisit(node) {
         log.debug('end visit ServiceDefinitionPositionCalc');
     }
 }
