@@ -37,37 +37,28 @@ class WorkerDeclarationPositionCalcVisitor {
             return child instanceof AST.WorkerDeclaration;
         });
         let workerIndex = _.findIndex(workers, node);
-        let x, y, middleLineStartX, middleLineStartY, middleLineEndX, middleLineEndY, topRectX, topRectY, bottomRectX, bottomRectY;
+        let x, y, middleLineStartX, middleLineStartY, middleLineEndX, middleLineEndY, topRectX, topRectY, bottomRectX,
+            bottomRectY;
 
         if (workerIndex === 0) {
             /**
-             * This is the default worker
+             * Always the first worker should place after the default worker lifeline. If in a case like fork-join
+             * we keep the first worker right next to the parent statement boundary.
              */
-            if(!node.isDefaultWorker()) {
-                throw 'Invalid Default worker found';
-            } else if (parentViewState.components.statementContainer.w) {
-                throw 'Statement container width should greater than or equal to life line width';
-            }
-            topRectX = parentViewState.components.statementContainer.x +
-                (parentViewState.components.statementContainer.w - bBox.w)/2;
-            topRectY = parentViewState.components.statementContainer.y - DesignerDefaults.lifeLine.head.height;
-        } else if (workerIndex > 0) {
-            let previousWorker = workers[workerIndex - 1];
-            let previousStatementContainer;
-            /**
-             * This is either the statement container of the previous worker, if it is not the default worker and
-             * otherwise it is the statement container of the parent (Resource, connector action, etc)
-             */
-            if (previousWorker.isDefaultWorker()) {
-                previousStatementContainer = node.getParent().getViewState().components.statementContainer;
+            if (parentViewState.components.defaultWorker) {
+                topRectX = parentViewState.components.statementContainer.getRight() +
+                    DesignerDefaults.lifeLine.gutter.h;
             } else {
-                previousStatementContainer = workers[workerIndex - 1].getViewState().components.statementContainer;
+                topRectX = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h;
             }
+        } else if (workerIndex > 0) {
+            const previousWorker = workers[workerIndex - 1];
+            const previousStatementContainer = previousWorker.getViewState().components.statementContainer;
             topRectX = previousStatementContainer.x + DesignerDefaults.innerPanel.body.padding.left;
-            topRectY = viewState.components.statementContainer.y - DesignerDefaults.lifeLine.head.height;
         } else {
             throw "Invalid index found for Worker Declaration";
         }
+        topRectY = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
 
         x = topRectX;
         y = topRectY;
@@ -80,14 +71,17 @@ class WorkerDeclarationPositionCalcVisitor {
 
         bBox.x = x;
         bBox.y = y;
-        (viewState.components.topRect).x = topRectX;
-        (viewState.components.topRect).y = topRectY;
-        (viewState.components.bottomRect).x = bottomRectX;
-        (viewState.components.bottomRect).y = bottomRectY;
+        viewState.components.topRect.x = topRectX;
+        viewState.components.topRect.y = topRectY;
+        viewState.components.bottomRect.x = bottomRectX;
+        viewState.components.bottomRect.y = bottomRectY;
         viewState.components.line.topX = middleLineStartX;
         viewState.components.line.topY = middleLineStartY;
         viewState.components.line.bottomX = middleLineEndX;
         viewState.components.line.bottomY = middleLineEndY;
+
+        viewState.components.statementContainer.x = x;
+        viewState.components.statementContainer.y = y + DesignerDefaults.lifeLine.head.height;
 
         log.debug('begin visit WorkerDeclarationPositionCalc');
     }

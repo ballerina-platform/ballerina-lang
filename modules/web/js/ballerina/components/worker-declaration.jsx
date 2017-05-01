@@ -15,23 +15,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
-import React from 'react';
-import PropTypes from 'prop-types';
 
-class StatementContainer extends React.Component {
+import React from 'react';
+import LifeLine from './lifeline.jsx';
+
+// require possible themes
+function requireAll(requireContext) {
+    let components = {};
+    requireContext.keys().map((item, index) => {
+        var module = requireContext(item);
+        if(module.default){
+            components[module.default.name] = module.default;
+        }
+    });
+    return components;
+}
+var components = requireAll(require.context('./', true, /\.jsx$/));
+
+class WorkerDeclaration extends React.Component {
 
     constructor(props) {
         super(props);
+        this.components = components;
     }
 
     render() {
-        const bBox = this.props.bBox;
-        return (<g className="statement-container">
-            <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h } rx="0" ry="0" className="main-drop-zone"></rect>
-        </g>);
+        const bBox = this.props.model.viewState.bBox;
+        return (<LifeLine title="FunctionWorker" bBox={bBox}/>);
     }
 }
 
-
-export default StatementContainer;
+export default WorkerDeclaration;
