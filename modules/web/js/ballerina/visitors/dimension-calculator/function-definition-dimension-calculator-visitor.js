@@ -81,10 +81,13 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
         const highestLifeLineHeight = highestStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;
 
-        components['body'].h = ((DesignerDefaults.panel.body.height < (_.max([workerLifeLineHeight, highestLifeLineHeight])))?
-                _.max([workerLifeLineHeight, highestLifeLineHeight]):DesignerDefaults.panel.body.height)
-                               + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
-
+        if(node.viewState.collapsed) {
+            components['body'].h = 0;
+        } else {
+            components['body'].h = ((DesignerDefaults.panel.body.height < (_.max([workerLifeLineHeight, highestLifeLineHeight])))?
+                    _.max([workerLifeLineHeight, highestLifeLineHeight]):DesignerDefaults.panel.body.height)
+                                   + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+        }
         /**
          * If the current default worker's statement container height is less than the highest worker's statement container
          * we set the default statement container height to the highest statement container's height

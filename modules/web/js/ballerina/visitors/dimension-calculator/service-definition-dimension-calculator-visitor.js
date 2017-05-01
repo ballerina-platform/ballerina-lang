@@ -65,14 +65,18 @@ class ServiceDefinitionDimensionCalculatorVisitor {
 
         components['body'] = new SimpleBBox();
 
-        components['body'].h = bodyHeight;
+        if(node.viewState.collapsed) {
+            components['body'].h = 0;
+        } else {
+            components['body'].h = bodyHeight;
+        }
         components['body'].w = bodyWidth;
         components['heading'].w = bodyWidth;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
         viewState.bBox.w = components['body'].w;
 
-        viewState.components = components;        
+        viewState.components = components;
     }
 }
 

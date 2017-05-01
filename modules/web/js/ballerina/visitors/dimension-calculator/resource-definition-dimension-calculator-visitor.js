@@ -67,9 +67,12 @@ class ResourceDefinitionDimensionCalculatorVisitor {
         components['body'] = new SimpleBBox();
 
         const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
-
-        components['body'].h = ((DesignerDefaults.panel.body.height < workerLifeLineHeight)? workerLifeLineHeight:DesignerDefaults.panel.body.height)
+        if(node.viewState.collapsed) {
+            components['body'].h = 0;
+        } else {
+            components['body'].h = ((DesignerDefaults.panel.body.height < workerLifeLineHeight)? workerLifeLineHeight:DesignerDefaults.panel.body.height)
                                + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+        }
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;

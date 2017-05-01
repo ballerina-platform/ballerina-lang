@@ -42,7 +42,7 @@ class FunctionDefinition extends React.Component {
         function_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<PanelDecorator icon="tool-icons/function" title={name} bBox={bBox}>
+        return (<PanelDecorator icon="tool-icons/function" title={name} bBox={bBox} model={this.props.model}>
                     <StatementContainer title="StatementContainer" bBox={statementContainerBBox}/>
                     <LifeLine title="FunctionWorker" bBox={function_worker_bBox}/>
                     {children}

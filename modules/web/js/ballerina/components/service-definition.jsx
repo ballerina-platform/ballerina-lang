@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 import React from 'react'
 import ResourceDefinition from './resource-definition.jsx'
 import StatementView from './statement-decorator.jsx'
@@ -32,7 +32,7 @@ class ServiceDefinition extends React.Component {
         let title = model.getServiceName();
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<PanelDecorator  icon="service" title={title} bBox={bBox}>
+        return (<PanelDecorator  icon="service" title={title} bBox={bBox} model={model}>
                 {children}
                 </PanelDecorator>);
     }
