@@ -18,6 +18,9 @@
 
 import React from 'react';
 import LifeLine from './lifeline.jsx';
+import {getComponentForNodeArray} from './utils';
+import StatementContainer from './statement-container';
+import * as DesignerDefaults from './../configs/designer-defaults';
 
 // require possible themes
 function requireAll(requireContext) {
@@ -40,8 +43,20 @@ class WorkerDeclaration extends React.Component {
     }
 
     render() {
-        const bBox = this.props.model.viewState.bBox;
-        return (<LifeLine title="FunctionWorker" bBox={bBox}/>);
+        const statementContainerBBox = this.props.model.viewState.components.statementContainer;
+        let workerBBox = {};
+        var children = getComponentForNodeArray(this.props.model.getChildren());
+        workerBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width)/2;
+        workerBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
+        workerBBox.w = DesignerDefaults.lifeLine.width;
+        workerBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
+
+        return (<g>
+                <StatementContainer bBox={statementContainerBBox}/>
+                <LifeLine title="Worker" bBox={workerBBox}/>
+                {children}
+            </g>
+        );
     }
 }
 
