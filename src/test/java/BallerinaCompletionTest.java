@@ -66,7 +66,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
      * Test package declaration level lookups.
      */
     public void testFirstLevelPackageLookups() {
-        PsiFile testFile = myFixture.addFileToProject("org/test/file1.bal", "package <caret>");
+        PsiFile testFile = myFixture.addFileToProject("org/test/file.bal", "package <caret>");
         myFixture.configureFromExistingVirtualFile(testFile.getVirtualFile());
         doTest(null, "org");
     }
@@ -76,7 +76,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     }
 
     public void testFirstLevelPackageInsertHandler() {
-        PsiFile testFile = myFixture.addFileToProject("org/test/file1.bal", "package org.<caret>");
+        PsiFile testFile = myFixture.addFileToProject("org/test/file.bal", "package org.<caret>");
         myFixture.configureFromExistingVirtualFile(testFile.getVirtualFile());
         doTest(null, "test");
     }
@@ -111,7 +111,6 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     /**
      * Test constant declaration level lookups.
      */
-
     public void testConstTypes() {
         doTest("const <caret>", DATA_TYPES.toArray(new String[DATA_TYPES.size()]));
     }
@@ -124,64 +123,92 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("const string NAME = <caret>");
     }
 
-    // todo - add annotation tests
+    public void testConstantAnnotation() {
+        doCheckResult("test.bal", "@<caret> const string S=\"\";", null, '@');
+    }
+
+    public void testConstantAnnotationWithImports() {
+        doCheckResult("test.bal", "import org.test; <caret> const string S=\"\";", null, '@', "test");
+    }
+
+    public void testConstantAnnotationWithImportsNoAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
+        doCheckResult("test.bal", "import org.test; @test<caret> const string S=\"\";", null, ':');
+    }
+
+    public void testConstantAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
+        doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null);
+    }
+
+    public void testConstantAnnotationWithImportsWithMatchingAnnotationDefinitions() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach const {} " +
+                "annotation TEST2 attach resource {}");
+        doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null, "TEST");
+    }
+
+    public void testConstantAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach const {}");
+        doCheckResult("test.bal", "import org.test; @test:T<caret> const string S=\"\";",
+                "import org.test; @test:TEST {} const string S=\"\";", null);
+    }
+
+    public void testConstantAnnotationInCurrentPackageSameFile() {
+        doCheckResult("test.bal", "annotation TEST attach const {} <caret> const string S=\"\";", null, '@',
+                "TEST");
+    }
+
+    public void testConstantAnnotationInCurrentPackageSameFileAutoComplete() {
+        doCheckResult("test.bal", "annotation TEST attach const {} @T<caret> const string S=\"\";",
+                "annotation TEST attach const {} @TEST {} const string S=\"\";", null);
+    }
+
+    public void testConstantAnnotationInCurrentPackageDifferentFile() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach const {}");
+        doCheckResult("test.bal", "<caret> const string S=\"\";", null, '@', "TEST");
+    }
+
+    public void testConstantAnnotationInCurrentPackageDifferentFileAutoComplete() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach function {}");
+        doCheckResult("test.bal", "@T<caret> function A(){}", "@TEST {} function A(){}", null);
+    }
+
+    public void testConstantAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
+        myFixture.addFileToProject("file.bal", "annotation TEST attach const {}");
+        doCheckResult("test.bal", "<caret> const string S=\"\"; service R{}", null, '@', "TEST");
+    }
+
+    public void testConstantAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
+        doCheckResult("test.bal", "annotation TEST attach const {} <caret> const string S=\"\"; service R{}", null, '@',
+                "TEST");
+    }
 
     /**
      * Test annotation level lookups.
      */
-    // todo - add tests
+    public void testAnnotationIdentifier() {
+        doTest("annotation <caret>");
+    }
+
+    public void testAnnotationAttachKeyword() {
+        doTest("annotation A <caret>", "attach");
+    }
+
+    public void testAnnotationAttachmentPoints() {
+        doTest("annotation A attach <caret>", "service", "connector", "action", "function", "typemapper", "struct",
+                "const", "parameter");
+    }
+
+    public void testMultipleAnnotationAttachmentPoints() {
+        doTest("annotation A attach service, <caret>", "service", "connector", "action", "function", "typemapper",
+                "struct", "const", "parameter");
+    }
 
     /**
      * Test function level lookups.
      */
     public void testFunctionIdentifier() {
         doTest("function <caret>");
-    }
-
-    public void testFunctionBodyWithoutParamsAndImports() {
-        List<String> FUNCTION_LEVEL_SUGGESTIONS = Collections.singletonList("test");
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
-        doTest("function test () { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testFunctionBodyWithParams() {
-        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg");
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
-        doTest("function test (int arg) { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testFunctionBodyWithConst() {
-        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg", "GREETING");
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
-        doTest("const string GREETING = \"Hello\"; function test (int arg) { <caret> }",
-                expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
-
-    public void testFunctionBodyWithImports() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.add("pack");
-        expectedLookups.add("test");
-        doTest("import org.pack; function test () { <caret> }",
-                expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionAnnotation() {
@@ -241,6 +268,282 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     public void testFunctionAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
         doCheckResult("test.bal", "annotation TEST attach function {} <caret> function A(){} service R{}", null, '@',
                 "TEST");
+    }
+
+    public void testFunctionBodyWithoutParamsAndImports() {
+        List<String> FUNCTION_LEVEL_SUGGESTIONS = Collections.singletonList("test");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
+        doTest("function test () { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testFunctionBodyWithParams() {
+        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
+        doTest("function test (int arg) { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testFunctionBodyWithConst() {
+        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg", "GREETING");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
+        doTest("const string GREETING = \"Hello\"; function test (int arg) { <caret> }",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testFunctionBodyWithImports() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("pack");
+        expectedLookups.add("test");
+        doTest("import org.pack; function test () { <caret> }",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testFunctionBodyWithCommonKeywords() {
+        doTest("function test () { i<caret> }", "exception", "int", "if", "string");
+    }
+
+    public void testFunctionBodyWithFunctionLevelKeywords() {
+        doTest("function test () { r<caret> }", "return", "string");
+    }
+
+    public void testInvokingFunctionInDifferentFile1() {
+        myFixture.addFileToProject("file1.bal", "function test(){}");
+        myFixture.configureByText("file2.bal", "function main(string[] args){ tes<caret> }");
+        doCheckResult("test.bal", "function main(string[] args){ te<caret> }",
+                "function main(string[] args){ test() }", null);
+    }
+
+    public void testInvokingFunctionInDifferentFile2() {
+        myFixture.addFileToProject("file.bal", "function test1(){} function test2(){}");
+        doTest("function main(string[] args){ tes<caret> }", "test1", "test2");
+    }
+
+    public void testVariable1() {
+        doTest("function main(string[] args){ int <caret> }");
+    }
+
+    public void testVariable2() {
+        doTest("function main(string[] args){ int a = <caret> }", "args", "main", "create");
+    }
+
+    public void testCreateKeywordAutoCompletion() {
+        doCheckResult("test.bal", "function main(string[] args){ http:ClientConnector con = cr<caret> }",
+                "function main(string[] args){ http:ClientConnector con = create }", null);
+    }
+
+    public void testFunctionFromPackageInvocation1() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test:<caret> }", "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation2() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test:g<caret> }", "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation3() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test(test:<caret>) } function test(string s){}",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation4() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test(test:g<caret>) } function test(string s){}",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation5() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:<caret>) } " +
+                "function test(string s){}", "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation6() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:g<caret>) } " +
+                "function test(string s){}", "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation7() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test(\"TEST\" + test:<caret>) } " +
+                "function test(string s){}", "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation8() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test(\"TEST\" + test:g<caret>) } " +
+                "function test(string s){}", "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation9() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:<caret>+\"TEST\") } " +
+                "function test(string s){}", "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation10() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:g<caret>+\"TEST\") } " +
+                "function test(string s){}", "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation11() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:<caret> +\"TEST\") } " +
+                "function test(string s){}", "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation12() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:g<caret> +\"TEST\") }",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation13() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s =test:<caret> }",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation14() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s =test:g<caret> }",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation15() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s = test:<caret> }",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation16() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s = test:g<caret> }",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation17() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s = test:<caret>+\"TEST\"; }",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation18() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s = test:g<caret>+\"TEST\"; }",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation19() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s = \"TEST\"+test:<caret>; }",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation20() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s = \"TEST\"+test:g<caret>; }",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation21() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s = test:getA()+test:<caret> \"TEST\"; }",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation22() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s = test:getA()+test:g<caret> \"TEST\"; }",
+                "getA", "getB");
+    }
+
+    public void testFunctionFromPackageInvocation23() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s = test:getA()+<caret> \"TEST\"; }",
+                "args", "main", "test");
+    }
+
+    public void testFunctionFromPackageInvocation24() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        doTest("import org.test; function main(string[] args){ string s = test:getA()+g<caret> \"TEST\"; }",
+                "args");
+    }
+
+    public void testConnectorInit() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
+        doTest("import org.test; function A(){ test:<caret> }",
+                "getA", "getB", "TestConnector");
+    }
+
+    public void testConnectorAutoCompletion() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
+        doCheckResult("file.bal", "import org.test; function A(){ test:T<caret> }",
+                "import org.test; function A(){ test:TestConnector }", null);
+    }
+
+    public void testConnectorInitCreateKeyword() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
+        doTest("import org.test; function A(){ test:TestConnector c = <caret> }", "create", "test", "A");
+    }
+
+    public void testConnectorInitCreateKeywordAutoCompletion() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
+        doCheckResult("test.bal", "import org.test; function A(){ test:TestConnector c = c<caret> }",
+                "import org.test; function A(){ test:TestConnector c = create }", null);
+    }
+
+    public void testConnectorCreation() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
+        doTest("import org.test; function A(){ test:TestConnector c = create <caret> }", "A", "test");
+    }
+
+    public void testConnectorCreationPackageAutoCompletion() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
+        doCheckResult("test.bal", "import org.test; function A(){ test:TestConnector con = create " +
+                "t<caret> }", "import org.test; function A(){ test:TestConnector con = create test: }", null);
+    }
+
+    public void testConnectorCreationCreateKeyword() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
+        doTest("import org.test; function A(){ test:TestConnector c = <caret> test:TestConnector() }",
+                "create");
+    }
+
+    public void testConnectorCreationCreateKeywordAutoCompletion() {
+        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
+        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
+        doCheckResult("test.bal", "import org.test; function A(){ test:TestConnector c = c<caret> " +
+                "test:TestConnector() }", "import org.test; function A(){ test:TestConnector c = " +
+                "create test:TestConnector() }", null);
     }
 
     /**
@@ -442,6 +745,9 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
                 "TEST");
     }
 
+    // todo -  test common keywords
+    // todo -  test resource level specific keywords
+
     /**
      * Test resource parameter level lookups.
      */
@@ -506,7 +812,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    //todo - query param annotations
+    // todo - query param annotations
 
     /**
      * Test connector level lookups.
@@ -588,172 +894,6 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
      * Test typemapper level lookups.
      */
     // todo - add tests
-
-    /**
-     *
-     */
-    public void testInvokingFunctionInDifferentFile1() {
-        myFixture.addFileToProject("file1.bal", "function test(){}");
-        myFixture.configureByText("file2.bal", "function main(string[] args){ tes<caret> }");
-        doCheckResult("test.bal", "function main(string[] args){ te<caret> }",
-                "function main(string[] args){ test() }", null);
-    }
-
-    public void testInvokingFunctionInDifferentFile2() {
-        myFixture.addFileToProject("file1.bal", "function test1(){} function test2(){}");
-        doTest("function main(string[] args){ tes<caret> }", "test1", "test2");
-    }
-
-    public void testVariable1() {
-        doTest("function main(string[] args){ int <caret> }");
-    }
-
-    public void testVariable2() {
-        doTest("function main(string[] args){ int a = <caret> }", "args", "main");
-    }
-
-    public void testFunctionFromPackageInvocation1() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test:<caret> }", "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation2() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test:g<caret> }", "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation3() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test(test:<caret>) } function test(string s){}",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation4() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test(test:g<caret>) } function test(string s){}",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation5() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:<caret>) } " +
-                "function test(string s){}", "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation6() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:g<caret>) } " +
-                "function test(string s){}", "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation7() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test(\"TEST\" + test:<caret>) } " +
-                "function test(string s){}", "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation8() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test(\"TEST\" + test:g<caret>) } " +
-                "function test(string s){}", "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation9() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:<caret>+\"TEST\") } " +
-                "function test(string s){}", "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation10() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:g<caret>+\"TEST\") } " +
-                "function test(string s){}", "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation11() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:<caret> +\"TEST\") } " +
-                "function test(string s){}", "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation12() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:g<caret> +\"TEST\") }",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation13() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s =test:<caret> }",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation14() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s =test:g<caret> }",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation15() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s = test:<caret> }",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation16() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s = test:g<caret> }",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation17() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s = test:<caret>+\"TEST\"; }",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation18() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s = test:g<caret>+\"TEST\"; }",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation19() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s = \"TEST\"+test:<caret>; }",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation20() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s = \"TEST\"+test:g<caret>; }",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation21() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s = test:getA()+test:<caret> \"TEST\"; }",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation22() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s = test:getA()+test:g<caret> \"TEST\"; }",
-                "getA", "getB");
-    }
-
-    public void testFunctionFromPackageInvocation23() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s = test:getA()+<caret> \"TEST\"; }",
-                "args", "main", "test");
-    }
-
-    public void testFunctionFromPackageInvocation24() {
-        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s = test:getA()+g<caret> \"TEST\"; }",
-                "args");
-    }
-
     private void doTest(String fileContent, String... expectedLookups) {
         if (fileContent != null) {
             myFixture.configureByText("test.bal", fileContent);
