@@ -790,6 +790,7 @@ public class BLangModelBuilder {
 
     public void addFunction(String name, boolean isNative) {
         currentCUBuilder.setName(name);
+        currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
 
         getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
