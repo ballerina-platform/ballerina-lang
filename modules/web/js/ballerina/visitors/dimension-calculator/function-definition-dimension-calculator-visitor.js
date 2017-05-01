@@ -55,11 +55,17 @@ class FunctionDefinitionDimensionCalculatorVisitor {
             }
         });
 
+        //if statement width is 0 set default
+        if(statementWidth == 0){
+            statementWidth = DesignerDefaults.statement.width;
+        }
+
         /**
          * We add an extra gap to the statement container height, in order to maintain the gap between the
          * last statement's bottom margin and the default worker bottom rect's top margin
          */
         statementHeight += DesignerDefaults.statement.gutter.v;
+
 
         components['statementContainer'].h = statementHeight;
         components['statementContainer'].w = statementWidth;
