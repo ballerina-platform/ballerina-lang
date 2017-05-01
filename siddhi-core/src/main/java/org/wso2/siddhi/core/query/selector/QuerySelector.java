@@ -55,7 +55,8 @@ public class QuerySelector implements Processor {
     private StateEventPopulator eventPopulator;
     private boolean batchingEnabled = true;
 
-    public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, ExecutionPlanContext executionPlanContext) {
+    public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, ExecutionPlanContext
+            executionPlanContext) {
         this.id = id;
         this.currentOn = currentOn;
         this.expiredOn = expiredOn;
@@ -102,7 +103,9 @@ public class QuerySelector implements Processor {
                         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
                             attributeProcessor.process(event);
                         }
-                        if (((event.getType() != StreamEvent.Type.CURRENT || !currentOn) && (event.getType() != StreamEvent.Type.EXPIRED || !expiredOn)) || ((havingConditionExecutor != null && !havingConditionExecutor.execute(event)))) {
+                        if (((event.getType() != StreamEvent.Type.CURRENT || !currentOn) && (event.getType() !=
+                                StreamEvent.Type.EXPIRED || !expiredOn)) || ((havingConditionExecutor != null &&
+                                !havingConditionExecutor.execute(event)))) {
                             complexEventChunk.remove();
                         }
                         break;
@@ -125,7 +128,8 @@ public class QuerySelector implements Processor {
     private void processGroupBy(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
 
-        ComplexEventChunk<ComplexEvent> currentComplexEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+        ComplexEventChunk<ComplexEvent> currentComplexEventChunk = new ComplexEventChunk<ComplexEvent>
+                (complexEventChunk.isBatch());
 
         synchronized (this) {
             while (complexEventChunk.hasNext()) {
@@ -141,7 +145,8 @@ public class QuerySelector implements Processor {
                         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
                             attributeProcessor.process(event);
                         }
-                        if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
+                        if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() ==
+                                StreamEvent.Type.EXPIRED && expiredOn)) {
                             if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
                                 complexEventChunk.remove();
                                 currentComplexEventChunk.add(new GroupedComplexEvent(groupedByKey, event));
@@ -180,7 +185,8 @@ public class QuerySelector implements Processor {
                             attributeProcessor.process(event);
                         }
                         if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
-                            if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
+                            if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() ==
+                                    StreamEvent.Type.EXPIRED && expiredOn)) {
                                 complexEventChunk.remove();
                                 lastEvent = event;
                             }
@@ -224,7 +230,8 @@ public class QuerySelector implements Processor {
                         }
 
                         if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
-                            if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
+                            if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() ==
+                                    StreamEvent.Type.EXPIRED && expiredOn)) {
                                 complexEventChunk.remove();
                                 groupedEvents.put(groupByKey, event);
                             }
@@ -245,7 +252,8 @@ public class QuerySelector implements Processor {
         if (groupedEvents.size() != 0) {
             complexEventChunk.clear();
             for (Map.Entry<String, ComplexEvent> groupedEventEntry : groupedEvents.entrySet()) {
-                complexEventChunk.add(new GroupedComplexEvent(groupedEventEntry.getKey(), groupedEventEntry.getValue()));
+                complexEventChunk.add(new GroupedComplexEvent(groupedEventEntry.getKey(), groupedEventEntry.getValue
+                        ()));
             }
             complexEventChunk.reset();
             outputRateLimiter.process(complexEventChunk);
@@ -261,7 +269,6 @@ public class QuerySelector implements Processor {
     public void setNextProcessor(Processor processor) {
         //this method will not be used as there is no processors after a query selector
     }
-
 
     public void setNextProcessor(OutputRateLimiter outputRateLimiter) {
         if (this.outputRateLimiter == null) {
@@ -299,13 +306,15 @@ public class QuerySelector implements Processor {
         this.groupByKeyGenerator = groupByKeyGenerator;
     }
 
-    public void setHavingConditionExecutor(ConditionExpressionExecutor havingConditionExecutor, boolean containsAggregator) {
+    public void setHavingConditionExecutor(ConditionExpressionExecutor havingConditionExecutor, boolean
+            containsAggregator) {
         this.havingConditionExecutor = havingConditionExecutor;
         this.containsAggregator = this.containsAggregator || containsAggregator;
     }
 
     public QuerySelector clone(String key) {
-        QuerySelector clonedQuerySelector = new QuerySelector(id + key, selector, currentOn, expiredOn, executionPlanContext);
+        QuerySelector clonedQuerySelector = new QuerySelector(id + key, selector, currentOn, expiredOn,
+                executionPlanContext);
         List<AttributeProcessor> clonedAttributeProcessorList = new ArrayList<AttributeProcessor>();
         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
             clonedAttributeProcessorList.add(attributeProcessor.cloneProcessor(key));

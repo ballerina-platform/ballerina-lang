@@ -32,7 +32,8 @@ public class TestSiddhiLatency {
     private static final Logger log = Logger.getLogger(TestSiddhiLatency.class);
     private static InputHandler eligibilityStreamInputHandler;
     private static Map<String, ResultContainer> resultMap = new ConcurrentHashMap<String, ResultContainer>();
-    private static Map<String, InputHandler> requestStreamInputHandlerMap = new ConcurrentHashMap<String, InputHandler>();
+    private static Map<String, InputHandler> requestStreamInputHandlerMap = new ConcurrentHashMap<String,
+            InputHandler>();
     private static AtomicInteger ruleCount = new AtomicInteger(0);
 
     public static void main(String[] args) {
@@ -81,7 +82,8 @@ public class TestSiddhiLatency {
                 log.info("Common callback latency =" + (System.currentTimeMillis() - (Long) events[0].getData(3)));
 
                 for (Event event : events) {
-                    resultMap.get(event.getData(1).toString()).addResult((String) event.getData(0), (Boolean) event.getData(2));
+                    resultMap.get(event.getData(1).toString()).addResult((String) event.getData(0), (Boolean) event
+                            .getData(2));
                 }
             }
         });
@@ -95,7 +97,8 @@ public class TestSiddhiLatency {
                 "app_tier string, api_tier string, user_id string, properties object, timeNow long);";
         String eligibilityQuery = "FROM RequestStream\n" +
                 "SELECT 'sub_gold' AS rule, messageID, ( api_tier == 'Gold') AS isEligible,false as " +
-                "isLocallyThrottled,  str:concat('sub_gold_', api_key,app_key,user_id,'_key') AS throttle_key, timeNow\n" +
+                "isLocallyThrottled,  str:concat('sub_gold_', api_key,app_key,user_id,'_key') AS throttle_key, " +
+                "timeNow\n" +
                 "INSERT INTO EligibilityStream;";
 
         ExecutionPlanRuntime ruleRuntime = siddhiManager.createExecutionPlanRuntime(requestStream + eligibilityQuery);

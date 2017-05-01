@@ -63,7 +63,9 @@ public class InMemoryBroker {
 
         @Override
         public void register(final Subscriber subscriber) {
-            if (subscriber == null) throw new NullPointerException("Subscriber cannot be null.");
+            if (subscriber == null) {
+                throw new NullPointerException("Subscriber cannot be null.");
+            }
             synchronized (MUTEX) {
                 if (topicSubscribers.containsKey(subscriber.getTopic())) {
                     if (!topicSubscribers.get(subscriber.getTopic()).contains(subscriber)) {

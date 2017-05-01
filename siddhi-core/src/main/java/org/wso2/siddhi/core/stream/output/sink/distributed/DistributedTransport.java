@@ -35,17 +35,18 @@ import java.util.List;
  */
 public abstract class DistributedTransport extends OutputTransport {
     private static final Logger log = Logger.getLogger(DistributedTransport.class);
-    private OptionHolder sinkOptionHolder;
     protected PublishingStrategy strategy;
     protected StreamDefinition streamDefinition;
     protected ExecutionPlanContext executionPlanContext;
+    private OptionHolder sinkOptionHolder;
     private String[] supportedDynamicOptions;
 
     /**
      * Will be called for initialing the {@link OutputTransport}
      *
      * @param outputStreamDefinition The stream definition this Output transport/sink is attached to
-     * @param optionHolder           Option holder containing static and dynamic options related to the {@link OutputTransport}
+     * @param optionHolder           Option holder containing static and dynamic options related to the
+     * {@link OutputTransport}
      * @param executionPlanContext   Context of the execution plan which this output sink belongs to
      */
     @Override
@@ -58,6 +59,7 @@ public abstract class DistributedTransport extends OutputTransport {
 
     /**
      * This is method contains the additional parameters which require to initialize distributed transport
+     *
      * @param streamDefinition
      * @param transportOptionHolder
      * @param executionPlanContext
@@ -66,12 +68,13 @@ public abstract class DistributedTransport extends OutputTransport {
      * @param strategy
      */
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
-                     OutputMapper outputMapper, String mapType, OptionHolder mapOptionHolder,String payload,
+                     OutputMapper outputMapper, String mapType, OptionHolder mapOptionHolder, String payload,
                      ExecutionPlanContext executionPlanContext, List<OptionHolder> destinationOptionHolders,
                      Annotation sinkAnnotation, PublishingStrategy strategy, String[] supportedDynamicOptions) {
         this.strategy = strategy;
         this.supportedDynamicOptions = supportedDynamicOptions;
-        init(streamDefinition, type, transportOptionHolder, outputMapper, mapType, mapOptionHolder, payload, executionPlanContext);
+        init(streamDefinition, type, transportOptionHolder, outputMapper, mapType, mapOptionHolder, payload,
+                executionPlanContext);
         initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, executionPlanContext);
     }
 
@@ -80,12 +83,12 @@ public abstract class DistributedTransport extends OutputTransport {
         int errorCount = 0;
         StringBuilder errorMessages = null;
         List<Integer> destinationsToPublish = strategy.getDestinationsToPublish(payload, transportOptions);
-        for  (Integer destinationId : destinationsToPublish){
+        for (Integer destinationId : destinationsToPublish) {
             try {
                 publish(payload, transportOptions, destinationId);
             } catch (ConnectionUnavailableException e) {
                 errorCount++;
-                if (errorMessages == null){
+                if (errorMessages == null) {
                     errorMessages = new StringBuilder();
                 }
                 errorMessages.append("[Destination ").append(destinationId).append("]:").append(e.getMessage());
@@ -93,8 +96,8 @@ public abstract class DistributedTransport extends OutputTransport {
             }
         }
 
-        if (errorCount > 0){
-            throw new ConnectionUnavailableException(errorCount + "/" + destinationsToPublish.size()  + " connections"
+        if (errorCount > 0) {
+            throw new ConnectionUnavailableException(errorCount + "/" + destinationsToPublish.size() + " connections"
                     + " failed while trying to publish with following error messages:" + errorMessages.toString());
         }
     }
@@ -107,13 +110,15 @@ public abstract class DistributedTransport extends OutputTransport {
      */
     @Override
     public String[] getSupportedDynamicOptions() {
-      return supportedDynamicOptions;
+        return supportedDynamicOptions;
     }
 
-    public abstract void publish(Object payload, DynamicOptions transportOptions, int destinationId) throws ConnectionUnavailableException;
+    public abstract void publish(Object payload, DynamicOptions transportOptions, int destinationId) throws
+            ConnectionUnavailableException;
 
 
-    public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders, Annotation
+    public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders,
+                                       Annotation
             sinkAnnotation, ExecutionPlanContext executionPlanContext);
 
 

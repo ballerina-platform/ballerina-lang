@@ -42,18 +42,19 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
     private OutputMapper mapper;
     private boolean tryConnect = false;
     private String elementId;
-    private AtomicBoolean isConnected =  new AtomicBoolean(false);
+    private AtomicBoolean isConnected = new AtomicBoolean(false);
 
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder, OutputMapper
             outputMapper, String mapType, OptionHolder mapOptionHolder, String payload, ExecutionPlanContext
-            executionPlanContext) {
+                             executionPlanContext) {
         this.type = type;
         this.optionHolder = transportOptionHolder;
         this.streamDefinition = streamDefinition;
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
         init(streamDefinition, transportOptionHolder, executionPlanContext);
         if (outputMapper != null) {
-            outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload, transportOptionHolder, executionPlanContext);
+            outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload, transportOptionHolder,
+                    executionPlanContext);
             this.mapper = outputMapper;
         }
 
@@ -78,10 +79,12 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
      * Will be called for initialing the {@link OutputTransport}
      *
      * @param outputStreamDefinition
-     * @param optionHolder           Option holder containing static and dynamic options related to the {@link OutputTransport}
+     * @param optionHolder           Option holder containing static and dynamic options related to the
+     * {@link OutputTransport}
      * @param executionPlanContext
      */
-    protected abstract void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext);
+    protected abstract void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
+                                 ExecutionPlanContext executionPlanContext);
 
     /**
      * Will be called to connect to the backend before events are published
@@ -128,7 +131,7 @@ public abstract class OutputTransport implements OutputTransportListener, Snapsh
 
     }
 
-    public boolean isConnected(){
+    public boolean isConnected() {
         return isConnected.get();
     }
 

@@ -31,9 +31,9 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.sql.DataSource;
 
 public class UpdateOrInsertTableTestCase {
     private static final Logger log = Logger.getLogger(UpdateOrInsertTableTestCase.class);
@@ -58,11 +58,13 @@ public class UpdateOrInsertTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -104,10 +106,12 @@ public class UpdateOrInsertTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
-                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query2') " +
@@ -143,13 +147,15 @@ public class UpdateOrInsertTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
                         "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -162,7 +168,8 @@ public class UpdateOrInsertTableTestCase {
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
-                        "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
+                        "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in " +
+                        "StockTable] " +
                         "insert into OutStream;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -236,12 +243,14 @@ public class UpdateOrInsertTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
-                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query2') " +
@@ -250,7 +259,8 @@ public class UpdateOrInsertTableTestCase {
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
-                        "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
+                        "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in " +
+                        "StockTable] " +
                         "insert into OutStream;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -325,13 +335,15 @@ public class UpdateOrInsertTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
                         "define stream UpdateStockStream (comp string, vol long); " +
-                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -394,13 +406,15 @@ public class UpdateOrInsertTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
                         "define stream UpdateStockStream (comp string, vol long); " +
-                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "' , bloom.filters = 'enable') " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "' , bloom.filters = 'enable') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -415,7 +429,8 @@ public class UpdateOrInsertTableTestCase {
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
-                        "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
+                        "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in " +
+                        "StockTable] " +
                         "insert into OutStream;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -490,13 +505,15 @@ public class UpdateOrInsertTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long, price float); " +
                         "define stream UpdateStockStream (comp string, vol long); " +
-                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -510,7 +527,8 @@ public class UpdateOrInsertTableTestCase {
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
-                        "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price < StockTable.price) in StockTable] " +
+                        "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price < " +
+                        "StockTable.price) in StockTable] " +
                         "insert into OutStream;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -581,12 +599,14 @@ public class UpdateOrInsertTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long, price float); " +
-                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query2') " +
@@ -596,7 +616,8 @@ public class UpdateOrInsertTableTestCase {
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
-                        "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price < StockTable.price) in StockTable] " +
+                        "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price < " +
+                        "StockTable.price) in StockTable] " +
                         "insert into OutStream;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -666,13 +687,15 @@ public class UpdateOrInsertTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long, price float); " +
                         "define stream UpdateStockStream (comp string, vol long); " +
-                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -687,7 +710,8 @@ public class UpdateOrInsertTableTestCase {
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
-                        "from CheckStockStream[(CheckStockStream.symbol==StockTable.symbol and CheckStockStream.volume==StockTable.volume and CheckStockStream.price < StockTable.price) in StockTable] " +
+                        "from CheckStockStream[(CheckStockStream.symbol==StockTable.symbol and CheckStockStream" +
+                        ".volume==StockTable.volume and CheckStockStream.price < StockTable.price) in StockTable] " +
                         "insert into OutStream;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -758,13 +782,15 @@ public class UpdateOrInsertTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long, price float); " +
                         "define stream UpdateStockStream (comp string, vol long); " +
-                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -779,7 +805,8 @@ public class UpdateOrInsertTableTestCase {
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
-                        "from CheckStockStream[(symbol==StockTable.symbol and volume == StockTable.volume and price < StockTable.price) in StockTable] " +
+                        "from CheckStockStream[(symbol==StockTable.symbol and volume == StockTable.volume and price <" +
+                        " StockTable.price) in StockTable] " +
                         "insert into OutStream;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -848,21 +875,23 @@ public class UpdateOrInsertTableTestCase {
 
         try {
             if (dataSource.getConnection() != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
                 String streams = "" +
-                                 "define stream StockStream (symbol string, price float, volume long); " +
-                                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                                 "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
-                                 "define table StockTable (symbol string, price float, volume long); ";
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream UpdateStockStream (symbol string, price float, volume long); " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
-                               "@info(name = 'query1') " +
-                               "from StockStream " +
-                               "insert into StockTable ;" +
-                               "" +
-                               "@info(name = 'query2') " +
-                               "from UpdateStockStream " +
-                               "update or insert into StockTable " +
-                               "   on StockTable.volume==volume ;";
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from UpdateStockStream " +
+                        "update or insert into StockTable " +
+                        "   on StockTable.volume==volume ;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
@@ -895,21 +924,23 @@ public class UpdateOrInsertTableTestCase {
 
         try {
             if (dataSource.getConnection() != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
                 String streams = "" +
-                                 "define stream StockStream (symbol string, price float, volume long); " +
-                                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                                 "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
-                                 "define table StockTable (symbol string, price float, volume long); ";
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream UpdateStockStream (symbol string, price float, volume long); " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
-                               "@info(name = 'query1') " +
-                               "from StockStream " +
-                               "insert into StockTable ;" +
-                               "" +
-                               "@info(name = 'query2') " +
-                               "from UpdateStockStream " +
-                               "update or insert into StockTable " +
-                               "   on StockTable.volume == volume ;";
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from UpdateStockStream " +
+                        "update or insert into StockTable " +
+                        "   on StockTable.volume == volume ;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 

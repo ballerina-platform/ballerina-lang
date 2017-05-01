@@ -28,7 +28,8 @@ public class SequenceSingleProcessStreamReceiver extends SingleProcessStreamRece
 
     private StateStreamRuntime stateStreamRuntime;
 
-    public SequenceSingleProcessStreamReceiver(String streamId, StateStreamRuntime stateStreamRuntime, String lockKey, LatencyTracker latencyTracker, String queryName) {
+    public SequenceSingleProcessStreamReceiver(String streamId, StateStreamRuntime stateStreamRuntime, String
+            lockKey, LatencyTracker latencyTracker, String queryName) {
         super(streamId, lockKey, latencyTracker, queryName);
         this.stateStreamRuntime = stateStreamRuntime;
     }

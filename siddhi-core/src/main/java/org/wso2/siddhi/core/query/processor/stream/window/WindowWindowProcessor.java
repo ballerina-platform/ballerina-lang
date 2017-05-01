@@ -60,7 +60,8 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner) {
         // Pass the event  to the post JoinProcessor
         nextProcessor.process(streamEventChunk);
     }
@@ -72,8 +73,12 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, String queryName) {
-        return eventWindow.compileCondition(expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                              ExecutionPlanContext executionPlanContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, EventTable> eventTableMap, String queryName) {
+        return eventWindow.compileCondition(expression, matchingMetaInfoHolder, executionPlanContext,
+                variableExpressionExecutors, eventTableMap, queryName);
     }
 
     @Override
@@ -100,7 +105,8 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
             streamProcessor.attributeExpressionLength = attributeExpressionLength;
             streamProcessor.additionalAttributes = additionalAttributes;
             streamProcessor.complexEventPopulater = complexEventPopulater;
-            streamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents);
+            streamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext,
+                    outputExpectsExpiredEvents);
             streamProcessor.start();
             return streamProcessor;
 

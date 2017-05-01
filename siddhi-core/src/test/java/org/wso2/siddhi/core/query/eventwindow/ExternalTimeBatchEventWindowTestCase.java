@@ -57,7 +57,8 @@ public class ExternalTimeBatchEventWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 6 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 6 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -111,7 +112,8 @@ public class ExternalTimeBatchEventWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec) output all" +
+                " events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -169,7 +171,8 @@ public class ExternalTimeBatchEventWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec) output all" +
+                " events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -227,7 +230,8 @@ public class ExternalTimeBatchEventWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 6 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 6 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -285,7 +289,8 @@ public class ExternalTimeBatchEventWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 3 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 3 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -339,7 +344,8 @@ public class ExternalTimeBatchEventWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 3 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 3 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -398,7 +404,8 @@ public class ExternalTimeBatchEventWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 2 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 2 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -461,7 +468,8 @@ public class ExternalTimeBatchEventWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 2 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 2 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -751,8 +759,10 @@ public class ExternalTimeBatchEventWindowTestCase {
         String streams = "" +
                 "define stream cseEventStream (timestamp long, symbol string, price float, volume int); " +
                 "define stream twitterStream (timestamp long, user string, tweet string, company string); " +
-                "define window cseEventWindow (timestamp long, symbol string, price float, volume int) externalTimeBatch(timestamp, 1 sec, 0); " +
-                "define window twitterWindow (timestamp long, user string, tweet string, company string) externalTimeBatch(timestamp, 1 sec, 0); ";
+                "define window cseEventWindow (timestamp long, symbol string, price float, volume int) " +
+                "externalTimeBatch(timestamp, 1 sec, 0); " +
+                "define window twitterWindow (timestamp long, user string, tweet string, company string) " +
+                "externalTimeBatch(timestamp, 1 sec, 0); ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from cseEventStream " +
@@ -809,8 +819,10 @@ public class ExternalTimeBatchEventWindowTestCase {
         String streams = "" +
                 "define stream cseEventStream (timestamp long, symbol string, price float, volume int); " +
                 "define stream twitterStream (timestamp long, user string, tweet string, company string); " +
-                "define window cseEventWindow (timestamp long, symbol string, price float, volume int) externalTimeBatch(timestamp, 1 sec, 0); " +
-                "define window twitterWindow (timestamp long, user string, tweet string, company string) externalTimeBatch(timestamp, 1 sec, 0); ";
+                "define window cseEventWindow (timestamp long, symbol string, price float, volume int) " +
+                "externalTimeBatch(timestamp, 1 sec, 0); " +
+                "define window twitterWindow (timestamp long, user string, tweet string, company string) " +
+                "externalTimeBatch(timestamp, 1 sec, 0); ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from cseEventStream " +
@@ -922,7 +934,8 @@ public class ExternalTimeBatchEventWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String stream = "define stream jmxMetric(cpu int, memory int, bytesIn long, bytesOut long, timestamp long); " +
-                "define window jmxMetricWindow(cpu int, memory int, bytesIn long, bytesOut long, timestamp long) externalTimeBatch(timestamp, 10 sec) output current events; ";
+                "define window jmxMetricWindow(cpu int, memory int, bytesIn long, bytesOut long, timestamp long) " +
+                "externalTimeBatch(timestamp, 10 sec) output current events; ";
 
         String query = "" +
                 "@info(name = 'query0') " +
@@ -1000,7 +1013,8 @@ public class ExternalTimeBatchEventWindowTestCase {
         for (int i = 0; i < len; i++) {
             // cpu int, memory int, bytesIn long, bytesOut long, timestamp long
             events[i] = new Event(externalTs,
-                    new Object[]{15 + 10 * i * ite, 1500 + 10 * i * ite, 1000L, 2000L, externalTs + ite * 10000 + i * 50});
+                    new Object[]{15 + 10 * i * ite, 1500 + 10 * i * ite, 1000L, 2000L, externalTs + ite * 10000 + i *
+                            50});
         }
 
         input.send(events);
@@ -1129,7 +1143,8 @@ public class ExternalTimeBatchEventWindowTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "define stream inputStream(currentTime long,value int); " +
-                "define window inputWindow(currentTime long,value int) externalTimeBatch(currentTime,5 sec, 0, 6 sec) output current events; ";
+                "define window inputWindow(currentTime long,value int) externalTimeBatch(currentTime,5 sec, 0, 6 sec)" +
+                " output current events; ";
         String query = " " +
                 "@info(name = 'query0') " +
                 "from inputStream " +

@@ -38,6 +38,7 @@ public class NotEqualCompareConditionExpressionExecutorIntLong extends
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new NotEqualCompareConditionExpressionExecutorIntLong(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new NotEqualCompareConditionExpressionExecutorIntLong(leftExpressionExecutor.cloneExecutor(key),
+                rightExpressionExecutor.cloneExecutor(key));
     }
 }

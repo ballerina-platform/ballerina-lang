@@ -48,7 +48,8 @@ public class CronWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream#window.cron('*/5 * * * * ?') select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.cron('*/5 * * * * ?') select symbol,price," +
+                "volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -94,7 +95,8 @@ public class CronWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream#window.cron('*/5 * * * * ?') select symbol,price,volume insert expired events into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.cron('*/5 * * * * ?') select symbol,price," +
+                "volume insert expired events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -104,7 +106,7 @@ public class CronWindowTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                        removeEventCount++;
+                    removeEventCount++;
                 }
                 eventArrived = true;
             }

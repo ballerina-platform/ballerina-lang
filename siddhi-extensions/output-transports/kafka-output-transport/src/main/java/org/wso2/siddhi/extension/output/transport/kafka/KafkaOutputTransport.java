@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.extension.output.transport.kafka;
 
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
@@ -43,21 +43,19 @@ import java.util.concurrent.ScheduledExecutorService;
 )
 public class KafkaOutputTransport extends OutputTransport {
 
-    private ScheduledExecutorService executorService;
-    private Producer<String, String>  producer;
-    private Option topicOption = null;
-    private String kafkaConnect;
-    private String optionalConfigs;
-    private Option partitionOption;
-
     private static final String KAFKA_PUBLISH_TOPIC = "topic";
     private static final String KAFKA_BROKER_LIST = "bootstrap.servers";
     private static final String KAFKA_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
     private static final String HEADER_SEPARATOR = ",";
     private static final String ENTRY_SEPARATOR = ":";
     private static final String KAFKA_PARTITION_NO = "partition.no";
-
     private static final Logger log = Logger.getLogger(KafkaOutputTransport.class);
+    private ScheduledExecutorService executorService;
+    private Producer<String, String> producer;
+    private Option topicOption = null;
+    private String kafkaConnect;
+    private String optionalConfigs;
+    private Option partitionOption;
 
     @Override
     protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
@@ -152,7 +150,7 @@ public class KafkaOutputTransport extends OutputTransport {
         @Override
         public void run() {
             try {
-                if(null == partitionNo) {
+                if (null == partitionNo) {
                     producer.send(new ProducerRecord<>(topic, message.toString()));
                 } else {
                     producer.send(new ProducerRecord<>(topic, partitionNo, message.toString()));

@@ -36,7 +36,8 @@ public class PeriodicEventTrigger implements EventTrigger {
     private ScheduledFuture scheduledFuture;
 
     @Override
-    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction streamJunction) {
+    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction
+            streamJunction) {
 
         this.triggerDefinition = triggerDefinition;
         this.executionPlanContext = executionPlanContext;

@@ -51,7 +51,8 @@ public class MinForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minForever(price1) as minForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -112,7 +113,8 @@ public class MinForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minForever(price1) as minForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -162,7 +164,8 @@ public class MinForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minForever(price1) as minForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -223,7 +226,8 @@ public class MinForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minForever(price1) as minForever " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -273,7 +277,8 @@ public class MinForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minForever(price1, price2, price3) as minForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
     }
 
 }

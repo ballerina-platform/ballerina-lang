@@ -77,7 +77,8 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        mostFrequentCount = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue()));
+        mostFrequentCount = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)
+                attributeExpressionExecutors[0]).getValue()));
         variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length - 1];
         for (int i = 1; i < attributeExpressionExecutors.length; i++) {
             variableExpressionExecutors[i - 1] = (VariableExpressionExecutor) attributeExpressionExecutors[i];
@@ -85,7 +86,8 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner) {
         synchronized (this) {
             StreamEvent streamEvent = streamEventChunk.getFirst();
             streamEventChunk.clear();
@@ -162,7 +164,8 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
         countMap = (ConcurrentHashMap<String, Integer>) state.get("CountMap");
     }
 
-    private String generateKey(StreamEvent event) {      // for performance reason if its all attribute we don't do the attribute list check
+    private String generateKey(StreamEvent event) {      // for performance reason if its all attribute we don't do
+        // the attribute list check
         StringBuilder stringBuilder = new StringBuilder();
         if (variableExpressionExecutors.length == 0) {
             for (Object data : event.getOutputData()) {

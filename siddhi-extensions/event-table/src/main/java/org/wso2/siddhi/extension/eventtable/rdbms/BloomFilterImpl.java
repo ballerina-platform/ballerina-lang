@@ -81,7 +81,8 @@ public class BloomFilterImpl {
             results.close();
             this.bloomFilters = bloomFilters;
         } catch (SQLException ex) {
-            throw new ExecutionPlanRuntimeException("Error while initiating blooms filter with db data, " + ex.getMessage(), ex);
+            throw new ExecutionPlanRuntimeException("Error while initiating blooms filter with db data, " + ex
+                    .getMessage(), ex);
         }
     }
 

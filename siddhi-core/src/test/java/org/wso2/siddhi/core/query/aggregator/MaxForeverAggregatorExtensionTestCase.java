@@ -52,7 +52,8 @@ public class MaxForeverAggregatorExtensionTestCase {
                 "from inputStream " +
                 "select maxForever(price1) as maxForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -113,7 +114,8 @@ public class MaxForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maxForever(price1) as maxForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -163,7 +165,8 @@ public class MaxForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maxForever(price1) as maxForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -224,7 +227,8 @@ public class MaxForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maxForever(price1) as maxForever " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -274,7 +278,8 @@ public class MaxForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maxForever(price1, price2, price3) as maxForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
     }
 
 }

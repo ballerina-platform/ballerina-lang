@@ -24,14 +24,15 @@ import org.wso2.siddhi.core.function.EvalScript;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EvalScriptExtensionHolder extends AbstractExtensionHolder {
-    private static Class clazz =EvalScript.class;
+    private static Class clazz = EvalScript.class;
 
     protected EvalScriptExtensionHolder(ExecutionPlanContext executionPlanContext) {
         super(clazz, executionPlanContext);
     }
 
     public static EvalScriptExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext
+                ().getExtensionHolderMap();
         AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
             abstractExtensionHolder = new EvalScriptExtensionHolder(executionPlanContext);

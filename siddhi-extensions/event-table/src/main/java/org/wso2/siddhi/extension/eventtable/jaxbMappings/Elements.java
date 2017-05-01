@@ -19,8 +19,8 @@
 
 package org.wso2.siddhi.extension.eventtable.jaxbMappings;
 
-import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Contain list of elements available for each db type

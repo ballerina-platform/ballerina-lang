@@ -32,15 +32,17 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
-    private String id;
     private final Long value;
-    private ComplexEvent lastEvent = null;
     private final ScheduledExecutorService scheduledExecutorService;
+    private String id;
+    private ComplexEvent lastEvent = null;
     private Scheduler scheduler;
     private long scheduledTime;
     private String queryName;
 
-    public AllAggregationPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext, String queryName) {
+    public AllAggregationPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService
+            scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter,
+                                                      ExecutionPlanContext executionPlanContext, String queryName) {
         super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
         this.queryName = queryName;
         this.id = id;
@@ -86,8 +88,10 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
     }
 
     @Override
-    public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        return new AllAggregationPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+    public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
+            wrappedSnapshotOutputRateLimiter) {
+        return new AllAggregationPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
+                wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
     }
 
     @Override

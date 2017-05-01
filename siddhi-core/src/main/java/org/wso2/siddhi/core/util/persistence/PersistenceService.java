@@ -53,7 +53,8 @@ public class PersistenceService {
             }
             return revision;
         } else {
-            throw new NoPersistenceStoreException("No persistence store assigned for execution plan " + executionPlanName);
+            throw new NoPersistenceStoreException("No persistence store assigned for execution plan " +
+                    executionPlanName);
         }
 
     }
@@ -70,7 +71,8 @@ public class PersistenceService {
                 log.debug("Restored revision: " + revision);
             }
         } else {
-            throw new NoPersistenceStoreException("No persistence store assigned for execution plan " + executionPlanName);
+            throw new NoPersistenceStoreException("No persistence store assigned for execution plan " +
+                    executionPlanName);
         }
 
     }
@@ -84,7 +86,8 @@ public class PersistenceService {
                     restoreRevision(revision);
                 }
             } else {
-                throw new NoPersistenceStoreException("No persistence store assigned for execution plan " + executionPlanName);
+                throw new NoPersistenceStoreException("No persistence store assigned for execution plan " +
+                        executionPlanName);
             }
         } finally {
             threadBarrier.unlock();

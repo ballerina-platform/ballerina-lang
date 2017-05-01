@@ -26,8 +26,8 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -65,7 +65,8 @@ public class PatternPartitionTestCase {
 
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -124,7 +125,8 @@ public class PatternPartitionTestCase {
 
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -185,7 +187,8 @@ public class PatternPartitionTestCase {
 
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -267,7 +270,8 @@ public class PatternPartitionTestCase {
 
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -327,7 +331,8 @@ public class PatternPartitionTestCase {
 
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -402,7 +407,8 @@ public class PatternPartitionTestCase {
 
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -474,7 +480,8 @@ public class PatternPartitionTestCase {
 
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -537,7 +544,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -598,7 +606,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -672,7 +681,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -732,7 +742,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -789,7 +800,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -841,7 +853,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -907,7 +920,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -963,7 +977,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -1013,7 +1028,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -1067,7 +1083,8 @@ public class PatternPartitionTestCase {
                 "insert into StockQuote;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("StockQuote", new StreamCallback() {
             @Override
@@ -1125,7 +1142,8 @@ public class PatternPartitionTestCase {
                 "insert into StockQuote;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("StockQuote", new StreamCallback() {
             @Override
@@ -1183,7 +1201,8 @@ public class PatternPartitionTestCase {
                 "insert into StockQuote;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("StockQuote", new StreamCallback() {
             @Override
@@ -1241,7 +1260,8 @@ public class PatternPartitionTestCase {
                 "insert into StockQuote;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("StockQuote", new StreamCallback() {
             @Override
@@ -1300,7 +1320,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -1354,7 +1375,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -1406,7 +1428,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -1460,7 +1483,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -1528,7 +1552,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -1582,7 +1607,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -1637,7 +1663,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -1707,7 +1734,8 @@ public class PatternPartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
@@ -1765,11 +1793,13 @@ public class PatternPartitionTestCase {
         String partitionEnd = "end";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from every e1 = Stream1 [ price >= 50 and volume > 100 ] -> e2 = Stream1 [price <= 40 ] <2:> -> e3 = Stream1 [volume <= 70 ] " +
+                "from every e1 = Stream1 [ price >= 50 and volume > 100 ] -> e2 = Stream1 [price <= 40 ] <2:> -> e3 =" +
+                " Stream1 [volume <= 70 ] " +
                 "select e1.symbol as symbol1, e2[last].symbol as symbol2, e3.symbol as symbol3 " +
                 "insert into StockQuote;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
 
         executionPlanRuntime.addCallback("StockQuote", new StreamCallback() {
@@ -1846,7 +1876,8 @@ public class PatternPartitionTestCase {
                 "select e3.symbol as symbol1, e2[0].symbol as symbol2, e3.volume as symbol3 " +
                 "insert into StockQuote;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("StockQuote", new StreamCallback() {
             @Override
@@ -1917,7 +1948,8 @@ public class PatternPartitionTestCase {
                 "select e3.symbol as symbol1, e2[0].symbol as symbol2, e3.volume as volume3 " +
                 "insert into StockQuote;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("StockQuote", new StreamCallback() {
             @Override
@@ -1983,9 +2015,11 @@ public class PatternPartitionTestCase {
                 "@info(name = 'query1') " +
                 "from every e1 = Stream1 -> e2 = Stream2 [e1.symbol != 'AMBA' ] <2:> -> e3 = Stream2 [volume <= 70 ] " +
                 "select e3.symbol as symbol1, e2[0].symbol as symbol2, e3.volume as volume3 " +
-                "insert into #StockQuote;         @info(name = 'query2') from #StockQuote select symbol1, symbol2, volume3 insert into StockQuote;";
+                "insert into #StockQuote;         @info(name = 'query2') from #StockQuote select symbol1, symbol2, " +
+                "volume3 insert into StockQuote;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
 
         executionPlanRuntime.addCallback("StockQuote", new StreamCallback() {
@@ -2064,7 +2098,8 @@ public class PatternPartitionTestCase {
 
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart + query + partitionEnd);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+                + query + partitionEnd);
 
         executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override

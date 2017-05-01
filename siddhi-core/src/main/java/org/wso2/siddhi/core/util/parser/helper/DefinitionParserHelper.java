@@ -28,11 +28,13 @@ import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.source.InputMapper;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
-import org.wso2.siddhi.core.stream.output.sink.*;
+import org.wso2.siddhi.core.stream.output.sink.DynamicOptionGroupDeterminer;
+import org.wso2.siddhi.core.stream.output.sink.OutputGroupDeterminer;
+import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.PartitionedGroupDeterminer;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
-import org.wso2.siddhi.core.util.transport.MultiClientDistributedTransport;
 import org.wso2.siddhi.core.stream.output.sink.distributed.PublishingStrategy;
-import org.wso2.siddhi.core.util.transport.SingleClientDistributedTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
 import org.wso2.siddhi.core.trigger.CronEventTrigger;
@@ -41,19 +43,37 @@ import org.wso2.siddhi.core.trigger.PeriodicEventTrigger;
 import org.wso2.siddhi.core.trigger.StartEventTrigger;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.extension.holder.*;
+import org.wso2.siddhi.core.util.extension.holder.EvalScriptExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.EventTableExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.InputMapperExecutorExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.InputTransportExecutorExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.OutputMapperExecutorExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.OutputTransportExecutorExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.PublishingStrategyExtensionHolder;
+import org.wso2.siddhi.core.util.transport.MultiClientDistributedTransport;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.core.util.transport.SingleClientDistributedTransport;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.*;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.TriggerDefinition;
+import org.wso2.siddhi.query.api.definition.WindowDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.extension.Extension;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -65,22 +85,27 @@ import java.util.stream.Collectors;
 public class DefinitionParserHelper {
 
 
-    public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
-                                          ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, ConcurrentMap<String, AbstractDefinition> windowDefinitionMap) {
+    public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition>
+            streamDefinitionMap,
+                                          ConcurrentMap<String, AbstractDefinition> tableDefinitionMap,
+                                          ConcurrentMap<String, AbstractDefinition> windowDefinitionMap) {
         AbstractDefinition existingTableDefinition = tableDefinitionMap.get(definition.getId());
-        if (existingTableDefinition != null && (!existingTableDefinition.equals(definition) || definition instanceof StreamDefinition)) {
+        if (existingTableDefinition != null && (!existingTableDefinition.equals(definition) || definition instanceof
+                StreamDefinition)) {
             throw new DuplicateDefinitionException("Table Definition with same Stream Id '" +
                     definition.getId() + "' already exist : " + existingTableDefinition +
                     ", hence cannot add " + definition);
         }
         AbstractDefinition existingStreamDefinition = streamDefinitionMap.get(definition.getId());
-        if (existingStreamDefinition != null && (!existingStreamDefinition.equals(definition) || definition instanceof TableDefinition)) {
+        if (existingStreamDefinition != null && (!existingStreamDefinition.equals(definition) || definition
+                instanceof TableDefinition)) {
             throw new DuplicateDefinitionException("Stream Definition with same Stream Id '" +
                     definition.getId() + "' already exist : " + existingStreamDefinition +
                     ", hence cannot add " + definition);
         }
         AbstractDefinition existingWindowDefinition = windowDefinitionMap.get(definition.getId());
-        if (existingWindowDefinition != null && (!existingWindowDefinition.equals(definition) || definition instanceof WindowDefinition)) {
+        if (existingWindowDefinition != null && (!existingWindowDefinition.equals(definition) || definition
+                instanceof WindowDefinition)) {
             throw new DuplicateDefinitionException("Window Definition with same Window Id '" +
                     definition.getId() + "' already exist : " + existingWindowDefinition +
                     ", hence cannot add " + definition);
@@ -89,7 +114,8 @@ public class DefinitionParserHelper {
     }
 
 
-    public static void addStreamJunction(StreamDefinition streamDefinition, ConcurrentMap<String, StreamJunction> streamJunctionMap, ExecutionPlanContext executionPlanContext) {
+    public static void addStreamJunction(StreamDefinition streamDefinition, ConcurrentMap<String, StreamJunction>
+            streamJunctionMap, ExecutionPlanContext executionPlanContext) {
         if (!streamJunctionMap.containsKey(streamDefinition.getId())) {
             StreamJunction streamJunction = new StreamJunction(streamDefinition,
                     executionPlanContext.getExecutorService(),
@@ -98,13 +124,16 @@ public class DefinitionParserHelper {
         }
     }
 
-    public static void validateOutputStream(StreamDefinition outputStreamDefinition, AbstractDefinition existingStream) {
+    public static void validateOutputStream(StreamDefinition outputStreamDefinition, AbstractDefinition
+            existingStream) {
         if (!existingStream.equalsIgnoreAnnotations(outputStreamDefinition)) {
-            throw new DuplicateDefinitionException("Different definition same as output stream definition :" + outputStreamDefinition + " already exist as:" + existingStream);
+            throw new DuplicateDefinitionException("Different definition same as output stream definition :" +
+                    outputStreamDefinition + " already exist as:" + existingStream);
         }
     }
 
-    public static void addEventTable(TableDefinition tableDefinition, ConcurrentMap<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext) {
+    public static void addEventTable(TableDefinition tableDefinition, ConcurrentMap<String, EventTable>
+            eventTableMap, ExecutionPlanContext executionPlanContext) {
 
         if (!eventTableMap.containsKey(tableDefinition.getId())) {
 
@@ -115,7 +144,8 @@ public class DefinitionParserHelper {
             }
 
             StreamEventPool tableStreamEventPool = new StreamEventPool(tableMetaStreamEvent, 10);
-            StreamEventCloner tableStreamEventCloner = new StreamEventCloner(tableMetaStreamEvent, tableStreamEventPool);
+            StreamEventCloner tableStreamEventCloner = new StreamEventCloner(tableMetaStreamEvent,
+                    tableStreamEventPool);
 
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
                     tableDefinition.getAnnotations()); //// TODO: 12/5/16 this must be removed
@@ -134,7 +164,8 @@ public class DefinitionParserHelper {
                         return evenTableType;
                     }
                 };
-                eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
+                eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension,
+                        EventTableExtensionHolder.getInstance(executionPlanContext));
             } else {
                 eventTable = new InMemoryEventTable();
             }
@@ -143,14 +174,16 @@ public class DefinitionParserHelper {
         }
     }
 
-    public static void addWindow(WindowDefinition windowDefinition, ConcurrentMap<String, EventWindow> eventWindowMap, ExecutionPlanContext executionPlanContext) {
+    public static void addWindow(WindowDefinition windowDefinition, ConcurrentMap<String, EventWindow>
+            eventWindowMap, ExecutionPlanContext executionPlanContext) {
         if (!eventWindowMap.containsKey(windowDefinition.getId())) {
             EventWindow eventTable = new EventWindow(windowDefinition, executionPlanContext);
             eventWindowMap.putIfAbsent(windowDefinition.getId(), eventTable);
         }
     }
 
-    public static void addFunction(ExecutionPlanContext executionPlanContext, final FunctionDefinition functionDefinition) {
+    public static void addFunction(ExecutionPlanContext executionPlanContext, final FunctionDefinition
+            functionDefinition) {
         EvalScript evalScript = (EvalScript) SiddhiClassLoader.loadExtensionImplementation(
                 new Extension() {
                     @Override
@@ -173,26 +206,33 @@ public class DefinitionParserHelper {
             if (triggerDefinition.getAtEvery() == null) {
                 String expression = triggerDefinition.getAt();
                 if (expression == null) {
-                    throw new ExecutionPlanValidationException("Trigger Definition '" + triggerDefinition.getId() + "' must have trigger time defined");
+                    throw new ExecutionPlanValidationException("Trigger Definition '" + triggerDefinition.getId() +
+                            "' must have trigger time defined");
                 } else {
                     if (!expression.trim().equalsIgnoreCase(SiddhiConstants.TRIGGER_START)) {
                         try {
                             org.quartz.CronExpression.isValidExpression(expression);
                         } catch (Throwable t) {
-                            throw new ExecutionPlanValidationException("Trigger Definition '" + triggerDefinition.getId() +
-                                    "' have invalid trigger time defined, expected 'start' or valid cron but found '" + expression + "'");
+                            throw new ExecutionPlanValidationException("Trigger Definition '" + triggerDefinition
+                                    .getId() +
+                                    "' have invalid trigger time defined, expected 'start' or valid cron but found '"
+                                    + expression + "'");
                         }
                     }
                 }
             } else if (triggerDefinition.getAt() != null) {
-                throw new ExecutionPlanValidationException("Trigger Definition '" + triggerDefinition.getId() + "' must either have trigger time in cron or 'start' or time interval defined, and it cannot have more than one defined as '" + triggerDefinition + "'");
+                throw new ExecutionPlanValidationException("Trigger Definition '" + triggerDefinition.getId() + "' " +
+                        "must either have trigger time in cron or 'start' or time interval defined, and it cannot " +
+                        "have more than one defined as '" + triggerDefinition + "'");
             }
         } else {
             throw new ExecutionPlanValidationException("Trigger Definition id cannot be null");
         }
     }
 
-    public static void addEventTrigger(TriggerDefinition triggerDefinition, ConcurrentMap<String, EventTrigger> eventTriggerMap, ConcurrentMap<String, StreamJunction> streamJunctionMap, ExecutionPlanContext executionPlanContext) {
+    public static void addEventTrigger(TriggerDefinition triggerDefinition, ConcurrentMap<String, EventTrigger>
+            eventTriggerMap, ConcurrentMap<String, StreamJunction> streamJunctionMap, ExecutionPlanContext
+            executionPlanContext) {
         if (!eventTriggerMap.containsKey(triggerDefinition.getId())) {
             EventTrigger eventTrigger;
             if (triggerDefinition.getAtEvery() != null) {
@@ -217,7 +257,8 @@ public class DefinitionParserHelper {
                 Annotation mapAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_MAP,
                         sourceAnnotation.getAnnotations());
                 if (mapAnnotation == null) {
-                    mapAnnotation = Annotation.annotation(SiddhiConstants.ANNOTATION_MAP).element(SiddhiConstants.ANNOTATION_ELEMENT_TYPE, "passThrough");
+                    mapAnnotation = Annotation.annotation(SiddhiConstants.ANNOTATION_MAP).element(SiddhiConstants
+                            .ANNOTATION_ELEMENT_TYPE, "passThrough");
                 }
                 final String sourceType = sourceAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                 final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
@@ -275,13 +316,15 @@ public class DefinitionParserHelper {
                 if (mapAnnotation != null) {
                     String[] supportedDynamicOptions = null;
                     List<OptionHolder> destinationOptHolders = new ArrayList<>();
-                    String sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);;
+                    String sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                    ;
                     final boolean isDistributedTransport = (distributionAnnotation != null);
                     boolean isMultiClient = false;
-                    if (isDistributedTransport){
+                    if (isDistributedTransport) {
                         OutputTransport clientTransport = createOutputTransport(sinkType, sinkAnnotation,
                                 streamDefinition, execPlanContext);
-                        isMultiClient = isMultiClientDistributedTransport(clientTransport, streamDefinition, distributionAnnotation);
+                        isMultiClient = isMultiClientDistributedTransport(clientTransport, streamDefinition,
+                                distributionAnnotation);
                         supportedDynamicOptions = clientTransport.getSupportedDynamicOptions();
                         destinationOptHolders = createDestinationOptionHolders(distributionAnnotation,
                                 streamDefinition, clientTransport);
@@ -290,14 +333,14 @@ public class DefinitionParserHelper {
                     final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                     if (sinkType != null && mapType != null) {
                         OutputTransport outputTransport;
-                        if (isDistributedTransport){
+                        if (isDistributedTransport) {
                             outputTransport = (isMultiClient) ? new MultiClientDistributedTransport() :
                                     new SingleClientDistributedTransport();
                         } else {
                             outputTransport = createOutputTransport(sinkType, sinkAnnotation, streamDefinition,
                                     execPlanContext);
                         }
-                        if (supportedDynamicOptions == null){
+                        if (supportedDynamicOptions == null) {
                             supportedDynamicOptions = outputTransport.getSupportedDynamicOptions();
                         }
 
@@ -328,12 +371,13 @@ public class DefinitionParserHelper {
                             publishingStrategy.init(streamDefinition, transportOptionHolder, distributionOptHolder,
                                     destinationOptHolders);
 
-                           ((DistributedTransport)outputTransport).init(streamDefinition, sinkType,
-                                   transportOptionHolder, outputMapper, mapType, mapOptionHolder, payload,
-                                   execPlanContext, destinationOptHolders, sinkAnnotation, publishingStrategy,
-                                   supportedDynamicOptions);
+                            ((DistributedTransport) outputTransport).init(streamDefinition, sinkType,
+                                    transportOptionHolder, outputMapper, mapType, mapOptionHolder, payload,
+                                    execPlanContext, destinationOptHolders, sinkAnnotation, publishingStrategy,
+                                    supportedDynamicOptions);
                         } else {
-                            outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
+                            outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper,
+                                    mapType,
                                     mapOptionHolder, payload, execPlanContext);
                         }
 
@@ -351,7 +395,7 @@ public class DefinitionParserHelper {
                             eventSinkMap.put(streamDefinition.getId(), eventSinks);
                         } else {
                             eventSinks.add(outputTransport);
-                        }  
+                        }
                     }
                 } else {
                     throw new ExecutionPlanCreationException("Both @sink(type=) and @map(type=) are required.");
@@ -360,21 +404,25 @@ public class DefinitionParserHelper {
         }
     }
 
-    private static OutputGroupDeterminer constructOutputGroupDeterminer(OptionHolder transportOptHolder, OptionHolder distributedOptHolder,
-                                                                        StreamDefinition streamDef, int destinationCount) {
+    private static OutputGroupDeterminer constructOutputGroupDeterminer(OptionHolder transportOptHolder, OptionHolder
+            distributedOptHolder,
+                                                                        StreamDefinition streamDef, int
+                                                                                destinationCount) {
 
         OutputGroupDeterminer groupDeterminer = null;
         if (distributedOptHolder != null) {
             String strategy = distributedOptHolder.validateAndGetStaticValue(SiddhiConstants.DISTRIBUTION_STRATEGY_KEY);
             if (strategy.equalsIgnoreCase(SiddhiConstants.DISTRIBUTION_STRATEGY_PARTITIONED)) {
-                String partitionKeyField = distributedOptHolder.validateAndGetStaticValue(SiddhiConstants.PARTITION_KEY_FIELD_KEY);
+                String partitionKeyField = distributedOptHolder.validateAndGetStaticValue(SiddhiConstants
+                        .PARTITION_KEY_FIELD_KEY);
                 int partitioningFieldIndex = streamDef.getAttributePosition(partitionKeyField);
                 groupDeterminer = new PartitionedGroupDeterminer(partitioningFieldIndex, destinationCount);
             }
         }
 
         if (groupDeterminer == null) {
-            List<Option> dynamicTransportOptions = new ArrayList<Option>(transportOptHolder.getDynamicOptionsKeys().size());
+            List<Option> dynamicTransportOptions = new ArrayList<Option>(transportOptHolder.getDynamicOptionsKeys()
+                    .size());
             transportOptHolder.getDynamicOptionsKeys().
                     forEach(option -> dynamicTransportOptions.add(transportOptHolder.validateAndGetOption(option)));
 
@@ -387,7 +435,7 @@ public class DefinitionParserHelper {
     }
 
     public static Extension constructExtension(StreamDefinition streamDefinition, String typeName, String typeValue,
-                                                Annotation annotation, String defaultNamespace) {
+                                               Annotation annotation, String defaultNamespace) {
         String[] namespaceAndName = typeValue.split(SiddhiConstants.EXTENSION_SEPARATOR);
         String namespace;
         String name;
@@ -398,7 +446,8 @@ public class DefinitionParserHelper {
             namespace = namespaceAndName[0];
             name = namespaceAndName[1];
         } else {
-            throw new ExecutionPlanCreationException("Malformed '" + typeName + "' annotation type '" + typeValue + "' " +
+            throw new ExecutionPlanCreationException("Malformed '" + typeName + "' annotation type '" + typeValue +
+                    "' " +
                     "provided, for annotation '" + annotation + "' on stream '" + streamDefinition.getId() + "', " +
                     "it should be either '<namespace>:<name>' or '<name>'");
         }
@@ -441,7 +490,8 @@ public class DefinitionParserHelper {
                 throw new ExecutionPlanCreationException("@payload() annotation should only contain single element.");
             }
         } else if (attributeAnnotations.size() > 1) {
-            throw new ExecutionPlanCreationException("@map() annotation should only contain single @payload() annotation.");
+            throw new ExecutionPlanCreationException("@map() annotation should only contain single @payload() " +
+                    "annotation.");
         } else {
             return null;
         }
@@ -462,8 +512,10 @@ public class DefinitionParserHelper {
                 if (supportedDynamicOptionList.contains(element.getKey())) {
                     dynamicOptions.put(element.getKey(), element.getValue());
                 } else {
-                    throw new ExecutionPlanCreationException("'" + element.getKey() + "' is not a supported DynamicOption " +
-                            "for the Extension '" + extension.namespace() + ":" + extension.name() + "', it only supports " +
+                    throw new ExecutionPlanCreationException("'" + element.getKey() + "' is not a supported " +
+                            "DynamicOption " +
+                            "for the Extension '" + extension.namespace() + ":" + extension.name() + "', it only " +
+                            "supports " +
                             "following as its DynamicOptions: " + supportedDynamicOptionList);
                 }
             } else {
@@ -474,7 +526,7 @@ public class DefinitionParserHelper {
     }
 
     private static boolean isMultiClientDistributedTransport(OutputTransport clientTransport, StreamDefinition
-                                                      streamDefinition, Annotation distributionAnnotation){
+            streamDefinition, Annotation distributionAnnotation) {
 
         // fetch the @distribution annotations from the @sink annotation
         List<OptionHolder> destinationOptHolders = createDestinationOptionHolders(distributionAnnotation,
@@ -482,15 +534,15 @@ public class DefinitionParserHelper {
 
         List<String> dynamicOptions = Arrays.asList(clientTransport.getSupportedDynamicOptions());
         // If at least one of the @destination contains a static option then multi client transport should be used
-        for (OptionHolder optionHolder: destinationOptHolders){
-            for (String key: optionHolder.getDynamicOptionsKeys()){
-                if (!dynamicOptions.contains(key)){
+        for (OptionHolder optionHolder : destinationOptHolders) {
+            for (String key : optionHolder.getDynamicOptionsKeys()) {
+                if (!dynamicOptions.contains(key)) {
                     return true;
                 }
             }
 
-            for (String key: optionHolder.getStaticOptionsKeys()){
-                if (!dynamicOptions.contains(key)){
+            for (String key : optionHolder.getStaticOptionsKeys()) {
+                if (!dynamicOptions.contains(key)) {
                     return true;
                 }
             }
@@ -500,7 +552,7 @@ public class DefinitionParserHelper {
     }
 
     private static OutputTransport createOutputTransport(String type, Annotation sinkAnnotation, StreamDefinition
-            streamDefinition, ExecutionPlanContext executionPlanContext){
+            streamDefinition, ExecutionPlanContext executionPlanContext) {
 
         // Create a temp instance of the underlying transport to get supported dynamic options
         Extension sink = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,
@@ -512,7 +564,7 @@ public class DefinitionParserHelper {
     }
 
     private static List<OptionHolder> createDestinationOptionHolders(Annotation distributionAnnotation, StreamDefinition
-            streamDefinition, OutputTransport clientTransport){
+            streamDefinition, OutputTransport clientTransport) {
 
         org.wso2.siddhi.annotation.Extension outputTransportExt
                 = clientTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class);
@@ -527,7 +579,7 @@ public class DefinitionParserHelper {
     }
 
     private static PublishingStrategy constructPublishingStrategy(OptionHolder distributionOptHolder, StreamDefinition
-            streamDefinition, Annotation sinkAnnotation, ExecutionPlanContext execPlanContext){
+            streamDefinition, Annotation sinkAnnotation, ExecutionPlanContext execPlanContext) {
         String strategyType = distributionOptHolder.validateAndGetStaticValue(SiddhiConstants
                 .DISTRIBUTION_STRATEGY_KEY);
         Extension strategy = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,

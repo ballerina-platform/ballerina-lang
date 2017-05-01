@@ -32,9 +32,11 @@ import java.util.Map;
 @Extension(
         name = "inMemory",
         namespace = "inputtransport",
-        description = "In-memory transport that can communicate with other in-memory transports within the same JVM, it " +
+        description = "In-memory transport that can communicate with other in-memory transports within the same JVM, " +
+                "it " +
                 "is assumed that the publisher and subscriber of a topic uses same event schema (stream definition).",
-        parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Subscribes to sent on the given" +
+        parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Subscribes to sent on the " +
+                "given" +
                 " topic.")
 )
 public class InMemoryInputTransport extends InputTransport {
@@ -44,7 +46,8 @@ public class InMemoryInputTransport extends InputTransport {
     private InMemoryBroker.Subscriber subscriber;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ExecutionPlanContext
+            executionPlanContext) {
         this.sourceEventListener = sourceEventListener;
         String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY, "input inMemory transport");
         this.subscriber = new InMemoryBroker.Subscriber() {

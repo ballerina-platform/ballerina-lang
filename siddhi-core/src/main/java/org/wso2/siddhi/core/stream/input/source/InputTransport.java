@@ -40,7 +40,8 @@ public abstract class InputTransport implements Snapshotable {
         init(inputMapper, transportOptionHolder, executionPlanContext);
     }
 
-    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext);
+    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
+                              ExecutionPlanContext executionPlanContext);
 
     public abstract void connect() throws ConnectionUnavailableException;
 

@@ -35,10 +35,10 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
         description = "Event to Text output mapper."
 )
 public class TextOutputMapper extends OutputMapper {
-    private StreamDefinition streamDefinition;
-    private TemplateBuilder payloadTemplateBuilder;
     private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
     private static final String EVENT_ATTRIBUTE_VALUE_SEPARATOR = ":";
+    private StreamDefinition streamDefinition;
+    private TemplateBuilder payloadTemplateBuilder;
 
     @Override
     public String[] getSupportedDynamicOptions() {
@@ -53,7 +53,8 @@ public class TextOutputMapper extends OutputMapper {
      * @param payloadTemplateBuilder
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder
+            payloadTemplateBuilder) {
         this.streamDefinition = streamDefinition;
         this.payloadTemplateBuilder = payloadTemplateBuilder;
     }
@@ -98,7 +99,8 @@ public class TextOutputMapper extends OutputMapper {
         for (int i = 0; i < data.length; i++) {
             String attributeName = streamDefinition.getAttributeNameArray()[i];
             Object attributeValue = data[i];
-            eventText.append(attributeName).append(EVENT_ATTRIBUTE_VALUE_SEPARATOR).append(attributeValue.toString()).append(EVENT_ATTRIBUTE_SEPARATOR).append("\n");
+            eventText.append(attributeName).append(EVENT_ATTRIBUTE_VALUE_SEPARATOR).append(attributeValue.toString())
+                    .append(EVENT_ATTRIBUTE_SEPARATOR).append("\n");
         }
         eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
         eventText.deleteCharAt(eventText.lastIndexOf("\n"));
@@ -109,7 +111,8 @@ public class TextOutputMapper extends OutputMapper {
 //            // Add arbitrary data key-value to the default template
 //            eventText.append(EVENT_ATTRIBUTE_SEPARATOR);
 //            for (Map.Entry<String, Object> entry : arbitraryDataMap.entrySet()) {
-//                eventText.append("\n" + entry.getKey() + EVENT_ATTRIBUTE_SEPARATOR + entry.getValue() + EVENT_ATTRIBUTE_SEPARATOR);
+//                eventText.append("\n" + entry.getKey() + EVENT_ATTRIBUTE_SEPARATOR + entry.getValue() +
+// EVENT_ATTRIBUTE_SEPARATOR);
 //            }
 //            eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
 //            eventText.deleteCharAt(eventText.lastIndexOf("\n"));

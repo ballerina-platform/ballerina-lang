@@ -27,7 +27,8 @@ public class AndCollectionExpression implements CollectionExpression {
     private CollectionExpression leftCollectionExpression;
     private CollectionExpression rightCollectionExpression;
 
-    public AndCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression leftCollectionExpression, CollectionExpression rightCollectionExpression) {
+    public AndCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression
+            leftCollectionExpression, CollectionExpression rightCollectionExpression) {
         this.expression = expression;
         this.collectionScope = collectionScope;
         this.leftCollectionExpression = leftCollectionExpression;

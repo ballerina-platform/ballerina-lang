@@ -67,7 +67,7 @@ public class PartitionedPublishingStrategy extends PublishingStrategy {
         try {
             int partitionKeyFieldPosition = streamDefinition.getAttributePosition(partitionKey);
             partitionOption = new Option(partitionKeyFieldPosition);
-        } catch (AttributeNotExistException e){
+        } catch (AttributeNotExistException e) {
             throw new ExecutionPlanValidationException("Could not find partition key attribute", e);
         }
 

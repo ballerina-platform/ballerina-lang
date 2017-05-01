@@ -27,13 +27,13 @@ import java.util.List;
 
 /**
  * Publishing strategy to broad case message to all destinations
- * */
+ */
 @Extension(
         name = "boradcast",
         namespace = "distributionstrategy",
         description = ""
 )
-public class BroadcastDistributionStrategy extends PublishingStrategy{
+public class BroadcastDistributionStrategy extends PublishingStrategy {
     /**
      * Initialize the Distribution strategy with the information it will require to make decisions.
      *
@@ -43,7 +43,8 @@ public class BroadcastDistributionStrategy extends PublishingStrategy{
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders) {
+    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder
+            distributionOptionHolder, List<OptionHolder> destinationOptionHolders) {
 
     }
 

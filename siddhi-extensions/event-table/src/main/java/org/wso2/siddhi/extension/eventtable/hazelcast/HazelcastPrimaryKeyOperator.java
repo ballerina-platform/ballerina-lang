@@ -38,7 +38,8 @@ public class HazelcastPrimaryKeyOperator implements Operator {
     protected final int storeEventPosition;
     protected final int indexPosition;
 
-    public HazelcastPrimaryKeyOperator(ExpressionExecutor expressionExecutor, int storeEventPosition, int indexPosition) {
+    public HazelcastPrimaryKeyOperator(ExpressionExecutor expressionExecutor, int storeEventPosition, int
+            indexPosition) {
         this.expressionExecutor = expressionExecutor;
         this.storeEventPosition = storeEventPosition;
         this.indexPosition = indexPosition;
@@ -46,7 +47,8 @@ public class HazelcastPrimaryKeyOperator implements Operator {
 
     @Override
     public CompiledCondition cloneCompiledCondition(String key) {
-        return new HazelcastPrimaryKeyOperator(expressionExecutor.cloneExecutor(key), storeEventPosition, indexPosition);
+        return new HazelcastPrimaryKeyOperator(expressionExecutor.cloneExecutor(key), storeEventPosition,
+                indexPosition);
     }
 
     @Override
@@ -79,7 +81,8 @@ public class HazelcastPrimaryKeyOperator implements Operator {
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[]
+            updateAttributeMappers) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             StateEvent updatingEvent = updatingEventChunk.next();
@@ -101,7 +104,8 @@ public class HazelcastPrimaryKeyOperator implements Operator {
                                                     UpdateAttributeMapper[] updateAttributeMappers,
                                                     AddingStreamEventExtractor addingStreamEventExtractor) {
         updatingOrAddingEventChunk.reset();
-        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(updatingOrAddingEventChunk.isBatch());
+        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>
+                (updatingOrAddingEventChunk.isBatch());
         while (updatingOrAddingEventChunk.hasNext()) {
             StateEvent overwritingOrAddingEvent = updatingOrAddingEventChunk.next();
             Object matchingKey = expressionExecutor.execute(overwritingOrAddingEvent);

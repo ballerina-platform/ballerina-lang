@@ -31,7 +31,8 @@ public class SystemTimeBasedScheduler extends Scheduler {
     private volatile boolean running = false;
     private ScheduledExecutorService scheduledExecutorService;
 
-    public SystemTimeBasedScheduler(ScheduledExecutorService scheduledExecutorService, Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
+    public SystemTimeBasedScheduler(ScheduledExecutorService scheduledExecutorService, Schedulable
+            singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
         super(singleThreadEntryValve, executionPlanContext);
         this.scheduledExecutorService = scheduledExecutorService;
         this.eventCaller = new EventCaller();
@@ -57,7 +58,8 @@ public class SystemTimeBasedScheduler extends Scheduler {
 
     @Override
     public Scheduler clone(String key, EntryValveProcessor entryValveProcessor) {
-        Scheduler scheduler = new SystemTimeBasedScheduler(scheduledExecutorService, entryValveProcessor, executionPlanContext);
+        Scheduler scheduler = new SystemTimeBasedScheduler(scheduledExecutorService, entryValveProcessor,
+                executionPlanContext);
         scheduler.elementId = elementId + "-" + key;
         return scheduler;
     }
@@ -83,7 +85,8 @@ public class SystemTimeBasedScheduler extends Scheduler {
                 long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
                 if (!executionPlanContext.isPlayback()) {
                     if (toNotifyTime != null) {
-                        scheduledExecutorService.schedule(eventCaller, toNotifyTime - currentTime, TimeUnit.MILLISECONDS);
+                        scheduledExecutorService.schedule(eventCaller, toNotifyTime - currentTime, TimeUnit
+                                .MILLISECONDS);
                     } else {
                         synchronized (toNotifyQueue) {
                             running = false;

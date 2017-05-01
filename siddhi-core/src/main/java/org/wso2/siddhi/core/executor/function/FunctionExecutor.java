@@ -32,10 +32,11 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
     protected String elementId;
-    private int attributeSize;
     protected String queryName;
+    private int attributeSize;
 
-    public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, String queryName) {
+    public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+            executionPlanContext, String queryName) {
         try {
             this.executionPlanContext = executionPlanContext;
             this.attributeExpressionExecutors = attributeExpressionExecutors;
@@ -75,7 +76,8 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
      * @param attributeExpressionExecutors are the executors of each function parameters
      * @param executionPlanContext         the context of the execution plan
      */
-    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
+    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+            executionPlanContext);
 
 
     /**
@@ -100,7 +102,8 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
                     return execute(data);
             }
         } catch (Exception e) {
-            log.error("Exception on execution plan '" + executionPlanContext.getName() + "' on class '" + this.getClass().getName() + "', " + e.getMessage(), e);
+            log.error("Exception on execution plan '" + executionPlanContext.getName() + "' on class '" + this
+                    .getClass().getName() + "', " + e.getMessage(), e);
             return null;
         }
     }

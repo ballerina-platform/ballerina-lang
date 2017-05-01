@@ -39,7 +39,8 @@ public class HazelcastCollectionEventHolder implements EventHolder, Collection<S
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter = new ZeroStreamEventConverter();
 
-    public HazelcastCollectionEventHolder(IList storeEventList, StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter) {
+    public HazelcastCollectionEventHolder(IList storeEventList, StreamEventPool tableStreamEventPool,
+                                          StreamEventConverter eventConverter) {
         this.storeEventList = storeEventList;
         this.tableStreamEventPool = tableStreamEventPool;
         this.eventConverter = eventConverter;

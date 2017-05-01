@@ -31,7 +31,8 @@ import javax.ws.rs.core.Response;
 @Path("/siddhi")
 
 @io.swagger.annotations.Api(description = "The siddhi API")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-03-15T08:56:59.657Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date =
+        "2017-03-15T08:56:59.657Z")
 public class SiddhiApi {
     private final SiddhiApiService delegate = SiddhiApiServiceFactory.getSiddhiApi();
 
@@ -39,7 +40,8 @@ public class SiddhiApi {
     @Path("/artifact/deploy")
     @Consumes({"text/plain"})
     @Produces({"application/json"})
-    @io.swagger.annotations.ApiOperation(value = "", notes = "Deploys the execution plan. Request **executionPlan** explains the Siddhi Query ", response = Success.class, tags = {})
+    @io.swagger.annotations.ApiOperation(value = "", notes = "Deploys the execution plan. Request **executionPlan** " +
+            "explains the Siddhi Query ", response = Success.class, tags = {})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Successful response", response = Success.class),
             @io.swagger.annotations.ApiResponse(code = 200, message = "Unexpected error", response = Success.class)})
@@ -51,7 +53,9 @@ public class SiddhiApi {
     @GET
     @Path("/artifact/undeploy/{executionPlan}")
     @Produces({"application/json"})
-    @io.swagger.annotations.ApiOperation(value = "", notes = "Undeploys the execution plan as given by `executionPlanName`. Path param of **executionPlanName** determines name of the execution plan ", response = Success.class, tags = {})
+    @io.swagger.annotations.ApiOperation(value = "", notes = "Undeploys the execution plan as given by " +
+            "`executionPlanName`. Path param of **executionPlanName** determines name of the execution plan ",
+            response = Success.class, tags = {})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Successful response", response = Success.class),
             @io.swagger.annotations.ApiResponse(code = 200, message = "Unexpected error", response = Success.class)})

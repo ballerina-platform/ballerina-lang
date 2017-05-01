@@ -27,12 +27,14 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
 
-    protected ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(batchProcessingAllowed);
     protected final String lockKey;
-    private QuerySelector querySelector;
+    protected ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>
+            (batchProcessingAllowed);
     protected String queryName;
+    private QuerySelector querySelector;
 
-    public SingleProcessStreamReceiver(String streamId, String lockKey, LatencyTracker latencyTracker, String queryName) {
+    public SingleProcessStreamReceiver(String streamId, String lockKey, LatencyTracker latencyTracker, String
+            queryName) {
         super(streamId, latencyTracker, queryName);
         this.lockKey = lockKey;
         this.queryName = queryName;
@@ -55,7 +57,8 @@ public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
                 streamEventChunk.remove();
                 stabilizeStates();
                 currentStreamEventChunk.add(streamEvent);
-                ComplexEventChunk<StateEvent> eventChunk = ((StreamPreStateProcessor) next).processAndReturn(currentStreamEventChunk);
+                ComplexEventChunk<StateEvent> eventChunk = ((StreamPreStateProcessor) next).processAndReturn
+                        (currentStreamEventChunk);
                 if (eventChunk.getFirst() != null) {
                     retEventChunk.add(eventChunk.getFirst());
                 }
@@ -67,7 +70,7 @@ public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
         while (retEventChunk.hasNext()) {
             StateEvent stateEvent = retEventChunk.next();
             retEventChunk.remove();
-            querySelector.process(new ComplexEventChunk<StateEvent>(stateEvent,stateEvent, false));
+            querySelector.process(new ComplexEventChunk<StateEvent>(stateEvent, stateEvent, false));
         }
     }
 

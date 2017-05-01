@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.stream.output.sink.InMemoryOutputTransport;
+import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -107,7 +107,8 @@ public class TextOutputMapperWithSiddhiQueryAPITestCase {
                 InputStream.stream("FooStream")
         );
         query.select(
-                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
+                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable
+                        ("volume"))
         );
         query.insertInto("BarStream");
 
@@ -197,7 +198,8 @@ public class TextOutputMapperWithSiddhiQueryAPITestCase {
                 InputStream.stream("FooStream")
         );
         query.select(
-                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
+                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable
+                        ("volume"))
         );
         query.insertInto("BarStream");
 
@@ -220,9 +222,12 @@ public class TextOutputMapperWithSiddhiQueryAPITestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom text
-        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of WSO2 is 55.6", onMessageList.get(0).toString());
-        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of IBM is 75.6", onMessageList.get(1).toString());
-        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of WSO2 is 57.6", onMessageList.get(2).toString());
+        Assert.assertEquals("Mismatch of custom text with the event consumed!", "Stock price of WSO2 is 55.6",
+                onMessageList.get(0).toString());
+        Assert.assertEquals("Mismatch of custom text with the event consumed!", "Stock price of IBM is 75.6",
+                onMessageList.get(1).toString());
+        Assert.assertEquals("Mismatch of custom text with the event consumed!", "Stock price of WSO2 is 57.6",
+                onMessageList.get(2).toString());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic

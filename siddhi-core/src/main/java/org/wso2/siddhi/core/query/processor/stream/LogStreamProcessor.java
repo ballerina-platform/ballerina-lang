@@ -47,8 +47,6 @@ import java.util.Map;
 )
 public class LogStreamProcessor extends StreamProcessor {
 
-    enum LogPriority {INFO, DEBUG, WARN, FATAL, ERROR, OFF, TRACE}
-
     private ExpressionExecutor isLogEventExpressionExecutor = null;
     private ExpressionExecutor logMessageExpressionExecutor = null;
     private ExpressionExecutor logPriorityExpressionExecutor = null;
@@ -64,7 +62,8 @@ public class LogStreamProcessor extends StreamProcessor {
      * @return the additional output attributes introduced by the function
      */
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
+            attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         int inputExecutorLength = attributeExpressionExecutors.length;
         if (inputExecutorLength == 1) {
             if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
@@ -72,7 +71,10 @@ public class LogStreamProcessor extends StreamProcessor {
             } else if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.BOOL) {
                 isLogEventExpressionExecutor = attributeExpressionExecutors[0];
             } else {
-                throw new ExecutionPlanValidationException("Input attribute is expected to be 'isEventLogged (Bool)' or 'logMessage (String)' or 'isEventLogged (Bool), logMessage (String)' or 'priority (String), isEventLogged (Bool), logMessage (String)', but its 1st attribute is " + attributeExpressionExecutors[0].getReturnType());
+                throw new ExecutionPlanValidationException("Input attribute is expected to be 'isEventLogged (Bool)' " +
+                        "or 'logMessage (String)' or 'isEventLogged (Bool), logMessage (String)' or 'priority " +
+                        "(String), isEventLogged (Bool), logMessage (String)', but its 1st attribute is " +
+                        attributeExpressionExecutors[0].getReturnType());
             }
         } else if (inputExecutorLength == 2) {
             if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING &&
@@ -82,43 +84,56 @@ public class LogStreamProcessor extends StreamProcessor {
             } else if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING &&
                     attributeExpressionExecutors[1].getReturnType() == Attribute.Type.STRING) {
                 if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
-                    logPriority = LogPriority.valueOf(((String) attributeExpressionExecutors[0].execute(null)).toUpperCase());
+                    logPriority = LogPriority.valueOf(((String) attributeExpressionExecutors[0].execute(null))
+                            .toUpperCase());
                 } else {
                     logPriorityExpressionExecutor = attributeExpressionExecutors[0];
                 }
                 logMessageExpressionExecutor = attributeExpressionExecutors[1];
             } else {
-                throw new ExecutionPlanValidationException("Input attribute is expected to be 'logMessage (String), isEventLogged (Bool)' or 'priority (String), logMessage (String)', but its returning are '" + attributeExpressionExecutors[0].getReturnType() + ", " + attributeExpressionExecutors[1].getReturnType() + "'");
+                throw new ExecutionPlanValidationException("Input attribute is expected to be 'logMessage (String), " +
+                        "isEventLogged (Bool)' or 'priority (String), logMessage (String)', but its returning are '"
+                        + attributeExpressionExecutors[0].getReturnType() + ", " + attributeExpressionExecutors[1]
+                        .getReturnType() + "'");
             }
         } else if (inputExecutorLength == 3) {
             if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
                 if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
-                    logPriority = LogPriority.valueOf(((String) attributeExpressionExecutors[0].execute(null)).toUpperCase());
+                    logPriority = LogPriority.valueOf(((String) attributeExpressionExecutors[0].execute(null))
+                            .toUpperCase());
                 } else {
                     logPriorityExpressionExecutor = attributeExpressionExecutors[0];
                 }
             } else {
-                throw new ExecutionPlanValidationException("Input attribute is expected to be 'priority (String), logMessage (String), isEventLogged (Bool)', but its 1st attribute is returning " + attributeExpressionExecutors[0].getReturnType());
+                throw new ExecutionPlanValidationException("Input attribute is expected to be 'priority (String), " +
+                        "logMessage (String), isEventLogged (Bool)', but its 1st attribute is returning " +
+                        attributeExpressionExecutors[0].getReturnType());
             }
             if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.STRING) {
                 logMessageExpressionExecutor = attributeExpressionExecutors[1];
             } else {
-                throw new ExecutionPlanValidationException("Input attribute is expected to be 'priority (String), logMessage (String), isEventLogged (Bool)', but its 2nd attribute is returning " + attributeExpressionExecutors[1].getReturnType());
+                throw new ExecutionPlanValidationException("Input attribute is expected to be 'priority (String), " +
+                        "logMessage (String), isEventLogged (Bool)', but its 2nd attribute is returning " +
+                        attributeExpressionExecutors[1].getReturnType());
             }
             if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.BOOL) {
                 isLogEventExpressionExecutor = attributeExpressionExecutors[2];
             } else {
-                throw new ExecutionPlanValidationException("Input attribute is expected to be 'priority (String), logMessage (String), isEventLogged (Bool)', but its 3rd attribute is returning " + attributeExpressionExecutors[2].getReturnType());
+                throw new ExecutionPlanValidationException("Input attribute is expected to be 'priority (String), " +
+                        "logMessage (String), isEventLogged (Bool)', but its 3rd attribute is returning " +
+                        attributeExpressionExecutors[2].getReturnType());
             }
         } else if (inputExecutorLength > 3) {
-            throw new ExecutionPlanValidationException("Input parameters for Log can be logMessage (String), isEventLogged (Bool), but there are " + attributeExpressionExecutors.length + " in the input!");
+            throw new ExecutionPlanValidationException("Input parameters for Log can be logMessage (String), " +
+                    "isEventLogged (Bool), but there are " + attributeExpressionExecutors.length + " in the input!");
         }
         logPrefix = executionPlanContext.getName() + ": ";
         return new ArrayList<Attribute>();
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         while (streamEventChunk.hasNext()) {
             ComplexEvent complexEvent = streamEventChunk.next();
             switch (attributeExpressionLength) {
@@ -139,16 +154,19 @@ public class LogStreamProcessor extends StreamProcessor {
                 case 2:
                     if (isLogEventExpressionExecutor != null) {
                         if ((Boolean) isLogEventExpressionExecutor.execute(complexEvent)) {
-                            log.info(logPrefix + logMessageExpressionExecutor.execute(complexEvent) + ", " + complexEvent);
+                            log.info(logPrefix + logMessageExpressionExecutor.execute(complexEvent) + ", " +
+                                    complexEvent);
                         } else {
                             log.info(logPrefix + logMessageExpressionExecutor.execute(complexEvent));
                         }
                     } else {
                         LogPriority tempLogPriority = logPriority;
                         if (logPriorityExpressionExecutor != null) {
-                            tempLogPriority = LogPriority.valueOf((String) logPriorityExpressionExecutor.execute(complexEvent));
+                            tempLogPriority = LogPriority.valueOf((String) logPriorityExpressionExecutor.execute
+                                    (complexEvent));
                         }
-                        String message = logPrefix + logMessageExpressionExecutor.execute(complexEvent) + ", " + complexEvent;
+                        String message = logPrefix + logMessageExpressionExecutor.execute(complexEvent) + ", " +
+                                complexEvent;
                         logMessage(tempLogPriority, message);
                     }
                     break;
@@ -161,7 +179,8 @@ public class LogStreamProcessor extends StreamProcessor {
                     }
                     LogPriority tempLogPriority = logPriority;
                     if (logPriorityExpressionExecutor != null) {
-                        tempLogPriority = LogPriority.valueOf((String) logPriorityExpressionExecutor.execute(complexEvent));
+                        tempLogPriority = LogPriority.valueOf((String) logPriorityExpressionExecutor.execute
+                                (complexEvent));
                     }
                     logMessage(tempLogPriority, message);
             }
@@ -204,7 +223,6 @@ public class LogStreamProcessor extends StreamProcessor {
         //Do nothing
     }
 
-
     @Override
     public Map<String, Object> currentState() {
         //No state
@@ -214,6 +232,16 @@ public class LogStreamProcessor extends StreamProcessor {
     @Override
     public void restoreState(Map<String, Object> state) {
         //Nothing to be done
+    }
+
+    enum LogPriority {
+        INFO,
+        DEBUG,
+        WARN,
+        FATAL,
+        ERROR,
+        OFF,
+        TRACE
     }
 
 

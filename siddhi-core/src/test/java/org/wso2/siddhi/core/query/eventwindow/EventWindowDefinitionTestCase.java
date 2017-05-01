@@ -31,7 +31,7 @@ public class EventWindowDefinitionTestCase {
 
     @Test
     public void testEventWindow1() throws InterruptedException {
-        log.info("EventWindowDefinitionTestCase Test1");
+        log.info("EventWindowDefinitionTestCase test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -44,7 +44,7 @@ public class EventWindowDefinitionTestCase {
 
     @Test
     public void testEventWindow2() throws InterruptedException {
-        log.info("EventWindowDefinitionTestCase Test2");
+        log.info("EventWindowDefinitionTestCase test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -123,8 +123,14 @@ public class EventWindowDefinitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String query = "define stream InStream (meta_tenantId int, contextId string, eventId string, eventType string, authenticationSuccess bool, username string, localUsername string, userStoreDomain string, tenantDomain string, remoteIp string, region string, inboundAuthType string, serviceProvider string, rememberMeEnabled bool, forceAuthEnabled bool, passiveAuthEnabled bool, rolesCommaSeparated string, authenticationStep string, identityProvider string, authStepSuccess bool, stepAuthenticator string, isFirstLogin bool, identityProviderType string, _timestamp long);\n" +
-                "define window countWindow (meta_tenantId int, batchEndTime long, timestamp long) externalTimeBatch(batchEndTime, 1 sec, 0, 10 sec, true);\n" +
+        String query = "define stream InStream (meta_tenantId int, contextId string, eventId string, eventType " +
+                "string, authenticationSuccess bool, username string, localUsername string, userStoreDomain string, " +
+                "tenantDomain string, remoteIp string, region string, inboundAuthType string, serviceProvider string," +
+                " rememberMeEnabled bool, forceAuthEnabled bool, passiveAuthEnabled bool, rolesCommaSeparated string," +
+                " authenticationStep string, identityProvider string, authStepSuccess bool, stepAuthenticator string," +
+                " isFirstLogin bool, identityProviderType string, _timestamp long);\n" +
+                "define window countWindow (meta_tenantId int, batchEndTime long, timestamp long) externalTimeBatch" +
+                "(batchEndTime, 1 sec, 0, 10 sec, true);\n" +
                 "from InStream\n" +
                 "select meta_tenantId, eventId\n" +
                 "insert into countStream;\n" +

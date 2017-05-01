@@ -39,16 +39,17 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
- * This mapper converts XML string input to {@link ComplexEventChunk}. This extension accepts optional xpath expressions to
+ * This mapper converts XML string input to {@link ComplexEventChunk}. This extension accepts optional xpath
+ * expressions to
  * select specific attributes from the stream.
  */
 @Extension(
@@ -134,7 +135,8 @@ public class XmlInputMapper extends InputMapper {
                     try {
                         axiomxPath.addNamespace(entry.getKey(), entry.getValue());
                     } catch (JaxenException e) {
-                        throw new ExecutionPlanValidationException("Error occurred when adding namespace: " + entry.getKey()
+                        throw new ExecutionPlanValidationException("Error occurred when adding namespace: " + entry
+                                .getKey()
                                 + ":" + entry.getValue() + " to XPath element: " + attributeMapping.getMapping());
                     }
                 }
@@ -257,7 +259,8 @@ public class XmlInputMapper extends InputMapper {
             } else {
                 log.warn("Incoming XML message should adhere to pre-defined format" +
                         "when using default mapping. Root element name should be " + EVENTS_PARENT_ELEMENT + ". But " +
-                        "found " + rootOMElement.getLocalName() + ". Hence dropping XML message : " + rootOMElement.toString());
+                        "found " + rootOMElement.getLocalName() + ". Hence dropping XML message : " + rootOMElement
+                        .toString());
             }
         }
         return eventList.toArray(new Event[0]);
@@ -269,7 +272,8 @@ public class XmlInputMapper extends InputMapper {
         for (String ns : namespaces) {
             String[] splits = ns.split("=");
             if (splits.length != 2) {
-                log.warn("Malformed namespace mapping found: " + ns + ". Each namespace has to have format: <prefix>=<uri>");
+                log.warn("Malformed namespace mapping found: " + ns + ". Each namespace has to have format: " +
+                        "<prefix>=<uri>");
             }
             namespaceMap.put(splits[0].trim(), splits[1].trim());
         }
@@ -286,7 +290,8 @@ public class XmlInputMapper extends InputMapper {
                 List selectedNodes = axiomXPath.selectNodes(eventOMElement);
                 if (selectedNodes.size() == 0) {
                     if (failOnUnknownAttribute) {
-                        log.warn("Xpath: '" + axiomXPath.toString() + " did not yield any results. Hence dropping the " +
+                        log.warn("Xpath: '" + axiomXPath.toString() + " did not yield any results. Hence dropping the" +
+                                " " +
                                 "event : " + eventOMElement.toString());
                         return null;
                     } else {
@@ -320,7 +325,8 @@ public class XmlInputMapper extends InputMapper {
                 } else if (elementObj instanceof OMAttribute) {
                     OMAttribute omAttribute = (OMAttribute) elementObj;
                     try {
-                        data[i] = attributeConverter.getPropertyValue(omAttribute.getAttributeValue(), attribute.getType());
+                        data[i] = attributeConverter.getPropertyValue(omAttribute.getAttributeValue(), attribute
+                                .getType());
                     } catch (ExecutionPlanRuntimeException | NumberFormatException e) {
                         log.warn("Error occurred when extracting attribute value. Cause: " + e.getMessage() +
                                 ". Hence dropping the event: " + eventOMElement.toString());

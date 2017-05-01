@@ -47,7 +47,9 @@ public class SnapshotService {
             snapshotableMap.put(queryName, snapshotableList);
         } else {
             // add if item is not already in list
-            if (!snapshotableList.contains(snapshotable)) snapshotableList.add(snapshotable);
+            if (!snapshotableList.contains(snapshotable)) {
+                snapshotableList.add(snapshotable);
+            }
         }
     }
 
@@ -108,7 +110,8 @@ public class SnapshotService {
 
 
     public void restore(byte[] snapshot) {
-        HashMap<String, Map<String, Object>> snapshots = (HashMap<String, Map<String, Object>>) ByteSerializer.BToO(snapshot);
+        HashMap<String, Map<String, Object>> snapshots = (HashMap<String, Map<String, Object>>) ByteSerializer.BToO
+                (snapshot);
         List<Snapshotable> snapshotableList;
         try {
             this.executionPlanContext.getThreadBarrier().lock();

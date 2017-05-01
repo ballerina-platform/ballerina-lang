@@ -27,13 +27,161 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.executor.condition.*;
-import org.wso2.siddhi.core.executor.condition.compare.equal.*;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than.*;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal.*;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.*;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal.*;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.*;
+import org.wso2.siddhi.core.executor.condition.AndConditionExpressionExecutor;
+import org.wso2.siddhi.core.executor.condition.BoolConditionExpressionExecutor;
+import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
+import org.wso2.siddhi.core.executor.condition.InConditionExpressionExecutor;
+import org.wso2.siddhi.core.executor.condition.IsNullConditionExpressionExecutor;
+import org.wso2.siddhi.core.executor.condition.IsNullStreamConditionExpressionExecutor;
+import org.wso2.siddhi.core.executor.condition.NotConditionExpressionExecutor;
+import org.wso2.siddhi.core.executor.condition.OrConditionExpressionExecutor;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorBoolBool;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorDoubleDouble;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorDoubleFloat;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorDoubleInt;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorDoubleLong;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorFloatDouble;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorFloatFloat;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorFloatInt;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorFloatLong;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorIntDouble;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorIntFloat;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorIntInt;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorIntLong;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorLongDouble;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorLongFloat;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorLongInt;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorLongLong;
+import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorStringString;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorDoubleDouble;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorDoubleFloat;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorDoubleInt;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorDoubleLong;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorFloatDouble;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorFloatFloat;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorFloatInt;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorFloatLong;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorIntDouble;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorIntFloat;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than.GreaterThanCompareConditionExpressionExecutorIntInt;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorIntLong;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorLongDouble;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorLongFloat;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorLongInt;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than
+        .GreaterThanCompareConditionExpressionExecutorLongLong;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorDoubleDouble;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorDoubleFloat;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorDoubleInt;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorDoubleLong;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorFloatDouble;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorFloatFloat;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorFloatInt;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorFloatLong;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorIntDouble;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorIntFloat;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorIntInt;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorIntLong;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorLongDouble;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorLongFloat;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorLongInt;
+import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+        .GreaterThanEqualCompareConditionExpressionExecutorLongLong;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorDoubleDouble;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorDoubleFloat;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorDoubleInt;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorDoubleLong;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorFloatDouble;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorFloatFloat;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorFloatInt;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorFloatLong;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorIntDouble;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorIntFloat;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorIntInt;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorIntLong;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorLongDouble;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorLongFloat;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorLongInt;
+import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorLongLong;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorDoubleDouble;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorDoubleFloat;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorDoubleInt;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorDoubleLong;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorFloatDouble;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorFloatFloat;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorFloatInt;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorFloatLong;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorIntDouble;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorIntFloat;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorIntInt;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorIntLong;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorLongDouble;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorLongFloat;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorLongInt;
+import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+        .LessThanEqualCompareConditionExpressionExecutorLongLong;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorBoolBool;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorDoubleDouble;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorDoubleFloat;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorDoubleInt;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorDoubleLong;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorFloatDouble;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorFloatFloat;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorFloatInt;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorFloatLong;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorIntDouble;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorIntFloat;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorIntInt;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorIntLong;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorLongDouble;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorLongFloat;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorLongInt;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorLongLong;
+import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorStringString;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorDouble;
 import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorFloat;
@@ -73,15 +221,37 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.condition.*;
-import org.wso2.siddhi.query.api.expression.constant.*;
-import org.wso2.siddhi.query.api.expression.math.*;
+import org.wso2.siddhi.query.api.expression.condition.And;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
+import org.wso2.siddhi.query.api.expression.condition.In;
+import org.wso2.siddhi.query.api.expression.condition.IsNull;
+import org.wso2.siddhi.query.api.expression.condition.Not;
+import org.wso2.siddhi.query.api.expression.condition.Or;
+import org.wso2.siddhi.query.api.expression.constant.BoolConstant;
+import org.wso2.siddhi.query.api.expression.constant.Constant;
+import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
+import org.wso2.siddhi.query.api.expression.constant.FloatConstant;
+import org.wso2.siddhi.query.api.expression.constant.IntConstant;
+import org.wso2.siddhi.query.api.expression.constant.LongConstant;
+import org.wso2.siddhi.query.api.expression.constant.StringConstant;
+import org.wso2.siddhi.query.api.expression.math.Add;
+import org.wso2.siddhi.query.api.expression.math.Divide;
+import org.wso2.siddhi.query.api.expression.math.Mod;
+import org.wso2.siddhi.query.api.expression.math.Multiply;
+import org.wso2.siddhi.query.api.expression.math.Subtract;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.*;
+import static org.wso2.siddhi.core.util.SiddhiConstants.HAVING_STATE;
+import static org.wso2.siddhi.core.util.SiddhiConstants.LAST;
+import static org.wso2.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_INDEX_IN_TYPE;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_TYPE_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_EVENT_CHAIN_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_EVENT_INDEX_IN_CHAIN;
+import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
 /**
  * Class to parse Expressions and create Expression executors.
@@ -101,46 +271,79 @@ public class ExpressionParser {
      * @param defaultStreamEventIndex Default StreamEvent Index
      * @return ExpressionExecutor
      */
-    public static ExpressionExecutor parseExpression(Expression expression, MetaComplexEvent metaEvent, int currentState,
-                                                     Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> executorList,
-                                                     ExecutionPlanContext executionPlanContext, boolean groupBy, int defaultStreamEventIndex, String queryName) {
+    public static ExpressionExecutor parseExpression(Expression expression, MetaComplexEvent metaEvent, int
+            currentState,
+                                                     Map<String, EventTable> eventTableMap,
+                                                     List<VariableExpressionExecutor> executorList,
+                                                     ExecutionPlanContext executionPlanContext, boolean groupBy, int
+                                                             defaultStreamEventIndex, String queryName) {
         if (expression instanceof And) {
             return new AndConditionExpressionExecutor(
-                    parseExpression(((And) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext,
+                    parseExpression(((And) expression).getLeftExpression(), metaEvent, currentState, eventTableMap,
+                            executorList, executionPlanContext,
                             groupBy, defaultStreamEventIndex, queryName),
-                    parseExpression(((And) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName)
+                    parseExpression(((And) expression).getRightExpression(), metaEvent, currentState, eventTableMap,
+                            executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName)
             );
         } else if (expression instanceof Or) {
             return new OrConditionExpressionExecutor(
-                    parseExpression(((Or) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
-                    parseExpression(((Or) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                    parseExpression(((Or) expression).getLeftExpression(), metaEvent, currentState, eventTableMap,
+                            executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                    parseExpression(((Or) expression).getRightExpression(), metaEvent, currentState, eventTableMap,
+                            executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
         } else if (expression instanceof Not) {
-            return new NotConditionExpressionExecutor(parseExpression(((Not) expression).getExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+            return new NotConditionExpressionExecutor(parseExpression(((Not) expression).getExpression(), metaEvent,
+                    currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                    defaultStreamEventIndex, queryName));
         } else if (expression instanceof Compare) {
             if (((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
                 return parseEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.NOT_EQUAL) {
                 return parseNotEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.GREATER_THAN) {
                 return parseGreaterThanCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.GREATER_THAN_EQUAL) {
                 return parseGreaterThanEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.LESS_THAN) {
                 return parseLessThanCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.LESS_THAN_EQUAL) {
                 return parseLessThanEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
+                                eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                                queryName));
             }
 
         } else if (expression instanceof Constant) {
@@ -162,8 +365,12 @@ public class ExpressionParser {
             return parseVariable((Variable) expression, metaEvent, currentState, executorList, defaultStreamEventIndex);
 
         } else if (expression instanceof Multiply) {
-            ExpressionExecutor left = parseExpression(((Multiply) expression).getLeftValue(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
-            ExpressionExecutor right = parseExpression(((Multiply) expression).getRightValue(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+            ExpressionExecutor left = parseExpression(((Multiply) expression).getLeftValue(), metaEvent,
+                    currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                    defaultStreamEventIndex, queryName);
+            ExpressionExecutor right = parseExpression(((Multiply) expression).getRightValue(), metaEvent,
+                    currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                    defaultStreamEventIndex, queryName);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -177,8 +384,10 @@ public class ExpressionParser {
                 default: //Will not happen. Handled in parseArithmeticOperationResultType()
             }
         } else if (expression instanceof Add) {
-            ExpressionExecutor left = parseExpression(((Add) expression).getLeftValue(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
-            ExpressionExecutor right = parseExpression(((Add) expression).getRightValue(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+            ExpressionExecutor left = parseExpression(((Add) expression).getLeftValue(), metaEvent, currentState,
+                    eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+            ExpressionExecutor right = parseExpression(((Add) expression).getRightValue(), metaEvent, currentState,
+                    eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -192,8 +401,12 @@ public class ExpressionParser {
                 default: //Will not happen. Handled in parseArithmeticOperationResultType()
             }
         } else if (expression instanceof Subtract) {
-            ExpressionExecutor left = parseExpression(((Subtract) expression).getLeftValue(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
-            ExpressionExecutor right = parseExpression(((Subtract) expression).getRightValue(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+            ExpressionExecutor left = parseExpression(((Subtract) expression).getLeftValue(), metaEvent,
+                    currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                    defaultStreamEventIndex, queryName);
+            ExpressionExecutor right = parseExpression(((Subtract) expression).getRightValue(), metaEvent,
+                    currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                    defaultStreamEventIndex, queryName);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -207,8 +420,10 @@ public class ExpressionParser {
                 default: //Will not happen. Handled in parseArithmeticOperationResultType()
             }
         } else if (expression instanceof Mod) {
-            ExpressionExecutor left = parseExpression(((Mod) expression).getLeftValue(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
-            ExpressionExecutor right = parseExpression(((Mod) expression).getRightValue(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+            ExpressionExecutor left = parseExpression(((Mod) expression).getLeftValue(), metaEvent, currentState,
+                    eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+            ExpressionExecutor right = parseExpression(((Mod) expression).getRightValue(), metaEvent, currentState,
+                    eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -222,8 +437,11 @@ public class ExpressionParser {
                 default: //Will not happen. Handled in parseArithmeticOperationResultType()
             }
         } else if (expression instanceof Divide) {
-            ExpressionExecutor left = parseExpression(((Divide) expression).getLeftValue(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
-            ExpressionExecutor right = parseExpression(((Divide) expression).getRightValue(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+            ExpressionExecutor left = parseExpression(((Divide) expression).getLeftValue(), metaEvent, currentState,
+                    eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+            ExpressionExecutor right = parseExpression(((Divide) expression).getRightValue(), metaEvent,
+                    currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                    defaultStreamEventIndex, queryName);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -241,18 +459,22 @@ public class ExpressionParser {
             //extensions
             Object executor;
             try {
-                executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression, FunctionExecutorExtensionHolder.getInstance(executionPlanContext));
+                executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression,
+                        FunctionExecutorExtensionHolder.getInstance(executionPlanContext));
             } catch (ExecutionPlanCreationException ex) {
                 try {
-                    executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression, AttributeAggregatorExtensionHolder.getInstance(executionPlanContext));
+                    executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression,
+                            AttributeAggregatorExtensionHolder.getInstance(executionPlanContext));
                 } catch (ExecutionPlanCreationException e) {
-                    throw new ExecutionPlanCreationException("'" + ((AttributeFunction) expression).getName() + "' is neither a function extension nor an aggregated attribute extension");
+                    throw new ExecutionPlanCreationException("'" + ((AttributeFunction) expression).getName() + "' is" +
+                            " neither a function extension nor an aggregated attribute extension");
                 }
             }
             if (executor instanceof FunctionExecutor) {
                 FunctionExecutor expressionExecutor = (FunctionExecutor) executor;
                 Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
-                ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent, currentState, eventTableMap, executorList,
+                ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent,
+                        currentState, eventTableMap, executorList,
                         executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
                 expressionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext, queryName);
                 if (expressionExecutor.getReturnType() == Attribute.Type.BOOL) {
@@ -262,14 +484,17 @@ public class ExpressionParser {
             } else {
                 AttributeAggregator attributeAggregator = (AttributeAggregator) executor;
                 Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
-                ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent, currentState, eventTableMap, executorList,
+                ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent,
+                        currentState, eventTableMap, executorList,
                         executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
                 attributeAggregator.initAggregator(innerExpressionExecutors, executionPlanContext);
                 AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
                 if (groupBy) {
-                    aggregationAttributeProcessor = new GroupByAggregationAttributeExecutor(attributeAggregator, innerExpressionExecutors, executionPlanContext, queryName);
+                    aggregationAttributeProcessor = new GroupByAggregationAttributeExecutor(attributeAggregator,
+                            innerExpressionExecutors, executionPlanContext, queryName);
                 } else {
-                    aggregationAttributeProcessor = new AggregationAttributeExecutor(attributeAggregator, innerExpressionExecutors, executionPlanContext, queryName);
+                    aggregationAttributeProcessor = new AggregationAttributeExecutor(attributeAggregator,
+                            innerExpressionExecutors, executionPlanContext, queryName);
                 }
                 SelectorParser.getContainsAggregatorThreadLocal().set("true");
                 return aggregationAttributeProcessor;
@@ -277,16 +502,21 @@ public class ExpressionParser {
         } else if (expression instanceof In) {
 
             EventTable eventTable = eventTableMap.get(((In) expression).getSourceId());
-            MatchingMetaInfoHolder matchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaEvent, defaultStreamEventIndex, eventTable.getTableDefinition(), defaultStreamEventIndex);
-            CompiledCondition compiledCondition = eventTable.compileCondition(((In) expression).getExpression(), matchingMetaInfoHolder, executionPlanContext, executorList, eventTableMap, queryName);
-            return new InConditionExpressionExecutor(eventTable, compiledCondition, matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length, metaEvent instanceof StateEvent, 0);
+            MatchingMetaInfoHolder matchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaEvent,
+                    defaultStreamEventIndex, eventTable.getTableDefinition(), defaultStreamEventIndex);
+            CompiledCondition compiledCondition = eventTable.compileCondition(((In) expression).getExpression(),
+                    matchingMetaInfoHolder, executionPlanContext, executorList, eventTableMap, queryName);
+            return new InConditionExpressionExecutor(eventTable, compiledCondition, matchingMetaInfoHolder
+                    .getMetaStateEvent().getMetaStreamEvents().length, metaEvent instanceof StateEvent, 0);
 
         } else if (expression instanceof IsNull) {
 
             IsNull isNull = (IsNull) expression;
 
             if (isNull.getExpression() != null) {
-                ExpressionExecutor innerExpressionExecutor = parseExpression(isNull.getExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                ExpressionExecutor innerExpressionExecutor = parseExpression(isNull.getExpression(), metaEvent,
+                        currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                        defaultStreamEventIndex, queryName);
                 return new IsNullConditionExpressionExecutor(innerExpressionExecutor);
             } else {
                 String streamId = isNull.getStreamId();
@@ -311,7 +541,8 @@ public class ExpressionParser {
                         throw new ExecutionPlanCreationException("IsNull does not support streamId being null");
                     } else {
                         MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
-                        for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength; i++) {
+                        for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength;
+                             i++) {
                             MetaStreamEvent metaStreamEvent = metaStreamEvents[i];
                             AbstractDefinition definition = metaStreamEvent.getLastInputDefinition();
                             if (metaStreamEvent.getInputReferenceId() == null) {
@@ -322,7 +553,8 @@ public class ExpressionParser {
                             } else {
                                 if (metaStreamEvent.getInputReferenceId().equals(streamId)) {
                                     eventPosition[STREAM_EVENT_CHAIN_INDEX] = i;
-                                    if (currentState > -1 && metaStreamEvents[currentState].getInputReferenceId() != null && streamIndex != null && streamIndex <= LAST) {
+                                    if (currentState > -1 && metaStreamEvents[currentState].getInputReferenceId() !=
+                                            null && streamIndex != null && streamIndex <= LAST) {
                                         if (streamId.equals(metaStreamEvents[currentState].getInputReferenceId())) {
                                             eventPosition[STREAM_EVENT_INDEX_IN_CHAIN] = streamIndex;
                                         }
@@ -361,78 +593,100 @@ public class ExpressionParser {
                     case STRING:
                         throw new OperationNotSupportedException("int cannot be compared with string");
                     case INT:
-                        return new GreaterThanCompareConditionExpressionExecutorIntInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorIntInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new GreaterThanCompareConditionExpressionExecutorIntLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorIntLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new GreaterThanCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new GreaterThanCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("int cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("int cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("int cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case LONG:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("long cannot be compared with string");
                     case INT:
-                        return new GreaterThanCompareConditionExpressionExecutorLongInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorLongInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new GreaterThanCompareConditionExpressionExecutorLongLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorLongLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new GreaterThanCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new GreaterThanCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("long cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("long cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("long cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case FLOAT:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("float cannot be compared with string");
                     case INT:
-                        return new GreaterThanCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new GreaterThanCompareConditionExpressionExecutorFloatLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorFloatLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new GreaterThanCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new GreaterThanCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("float cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("float cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("float cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case DOUBLE:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("double cannot be compared with string");
                     case INT:
-                        return new GreaterThanCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new GreaterThanCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new GreaterThanCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new GreaterThanCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("double cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("double cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("double cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case BOOL:
                 throw new OperationNotSupportedException("bool cannot used in greater than comparisons");
             default:
-                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in greater than comparisons");
+                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in" +
+                        " greater than comparisons");
         }
     }
 
     /**
-     * Create greater than or equal Compare Condition Expression Executor which evaluates whether value of leftExpressionExecutor
+     * Create greater than or equal Compare Condition Expression Executor which evaluates whether value of
+     * leftExpressionExecutor
      * is greater than or equal to value of rightExpressionExecutor.
      *
      * @param leftExpressionExecutor  left ExpressionExecutor
@@ -449,73 +703,94 @@ public class ExpressionParser {
                     case STRING:
                         throw new OperationNotSupportedException("int cannot be compared with string");
                     case INT:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorIntLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorIntLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorIntDouble
+                                (leftExpressionExecutor, rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("int cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("int cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("int cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case LONG:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("long cannot be compared with string");
                     case INT:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorLongInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorLongInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorLongLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorLongLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorLongFloat
+                                (leftExpressionExecutor, rightExpressionExecutor);
                     case DOUBLE:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorLongDouble
+                                (leftExpressionExecutor, rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("long cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("long cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("long cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case FLOAT:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("float cannot be compared with string");
                     case INT:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorFloatLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorFloatLong
+                                (leftExpressionExecutor, rightExpressionExecutor);
                     case FLOAT:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorFloatFloat
+                                (leftExpressionExecutor, rightExpressionExecutor);
                     case DOUBLE:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorFloatDouble
+                                (leftExpressionExecutor, rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("float cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("float cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("float cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case DOUBLE:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("double cannot be compared with string");
                     case INT:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorDoubleInt
+                                (leftExpressionExecutor, rightExpressionExecutor);
                     case LONG:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorDoubleLong
+                                (leftExpressionExecutor, rightExpressionExecutor);
                     case FLOAT:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorDoubleFloat
+                                (leftExpressionExecutor, rightExpressionExecutor);
                     case DOUBLE:
-                        return new GreaterThanEqualCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new GreaterThanEqualCompareConditionExpressionExecutorDoubleDouble
+                                (leftExpressionExecutor, rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("double cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("double cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("double cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case BOOL:
                 throw new OperationNotSupportedException("bool cannot used in greater than equal comparisons");
             default:
-                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in greater than comparisons");
+                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in" +
+                        " greater than comparisons");
         }
     }
 
@@ -537,78 +812,100 @@ public class ExpressionParser {
                     case STRING:
                         throw new OperationNotSupportedException("int cannot be compared with string");
                     case INT:
-                        return new LessThanCompareConditionExpressionExecutorIntInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorIntInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new LessThanCompareConditionExpressionExecutorIntLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorIntLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new LessThanCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new LessThanCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("int cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("int cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("int cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case LONG:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("long cannot be compared with string");
                     case INT:
-                        return new LessThanCompareConditionExpressionExecutorLongInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorLongInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new LessThanCompareConditionExpressionExecutorLongLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorLongLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new LessThanCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new LessThanCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("long cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("long cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("long cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case FLOAT:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("float cannot be compared with string");
                     case INT:
-                        return new LessThanCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new LessThanCompareConditionExpressionExecutorFloatLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorFloatLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new LessThanCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new LessThanCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("float cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("float cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("float cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case DOUBLE:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("double cannot be compared with string");
                     case INT:
-                        return new LessThanCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new LessThanCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new LessThanCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new LessThanCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("double cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("double cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("double cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case BOOL:
                 throw new OperationNotSupportedException("bool cannot used in less than comparisons");
             default:
-                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in less than comparisons");
+                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in" +
+                        " less than comparisons");
         }
     }
 
     /**
-     * Create less than or equal Compare Condition Expression Executor which evaluates whether value of leftExpressionExecutor
+     * Create less than or equal Compare Condition Expression Executor which evaluates whether value of
+     * leftExpressionExecutor
      * is less than or equal to value of rightExpressionExecutor.
      *
      * @param leftExpressionExecutor  left ExpressionExecutor
@@ -625,73 +922,94 @@ public class ExpressionParser {
                     case STRING:
                         throw new OperationNotSupportedException("int cannot be compared with string");
                     case INT:
-                        return new LessThanEqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new LessThanEqualCompareConditionExpressionExecutorIntLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorIntLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new LessThanEqualCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new LessThanEqualCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("int cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("int cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("int cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case LONG:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("long cannot be compared with string");
                     case INT:
-                        return new LessThanEqualCompareConditionExpressionExecutorLongInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorLongInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new LessThanEqualCompareConditionExpressionExecutorLongLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorLongLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new LessThanEqualCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new LessThanEqualCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("long cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("long cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("long cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case FLOAT:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("float cannot be compared with string");
                     case INT:
-                        return new LessThanEqualCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new LessThanEqualCompareConditionExpressionExecutorFloatLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorFloatLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new LessThanEqualCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new LessThanEqualCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("float cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("float cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("float cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case DOUBLE:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("double cannot be compared with string");
                     case INT:
-                        return new LessThanEqualCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new LessThanEqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new LessThanEqualCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new LessThanEqualCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new LessThanEqualCompareConditionExpressionExecutorDoubleDouble
+                                (leftExpressionExecutor, rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("double cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("double cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("double cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case BOOL:
                 throw new OperationNotSupportedException("bool cannot used in less than equal comparisons");
             default:
-                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in less than comparisons");
+                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in" +
+                        " less than comparisons");
         }
     }
 
@@ -709,87 +1027,112 @@ public class ExpressionParser {
             case STRING:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
-                        return new EqualCompareConditionExpressionExecutorStringString(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorStringString(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     default:
-                        throw new OperationNotSupportedException("sting cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("sting cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case INT:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("int cannot be compared with string");
                     case INT:
-                        return new EqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new EqualCompareConditionExpressionExecutorIntLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorIntLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new EqualCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new EqualCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("int cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("int cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("int cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case LONG:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("long cannot be compared with string");
                     case INT:
-                        return new EqualCompareConditionExpressionExecutorLongInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorLongInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new EqualCompareConditionExpressionExecutorLongLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorLongLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new EqualCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new EqualCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("long cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("long cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("long cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case FLOAT:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("float cannot be compared with string");
                     case INT:
-                        return new EqualCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new EqualCompareConditionExpressionExecutorFloatLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorFloatLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new EqualCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new EqualCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("float cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("float cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("float cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case DOUBLE:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("double cannot be compared with string");
                     case INT:
-                        return new EqualCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new EqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new EqualCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new EqualCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("double cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("double cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("double cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case BOOL:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case BOOL:
-                        return new EqualCompareConditionExpressionExecutorBoolBool(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorBoolBool(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     default:
-                        throw new OperationNotSupportedException("bool cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("bool cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             default:
-                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in equal comparisons");
+                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in" +
+                        " equal comparisons");
         }
     }
 
@@ -807,87 +1150,112 @@ public class ExpressionParser {
             case STRING:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
-                        return new NotEqualCompareConditionExpressionExecutorStringString(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorStringString(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     default:
-                        throw new OperationNotSupportedException("sting cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("sting cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case INT:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("int cannot be compared with string");
                     case INT:
-                        return new NotEqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new NotEqualCompareConditionExpressionExecutorIntLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorIntLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new NotEqualCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new NotEqualCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("int cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("int cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("int cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case LONG:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("long cannot be compared with string");
                     case INT:
-                        return new NotEqualCompareConditionExpressionExecutorLongInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorLongInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new NotEqualCompareConditionExpressionExecutorLongLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorLongLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new NotEqualCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new NotEqualCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("long cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("long cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("long cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case FLOAT:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("float cannot be compared with string");
                     case INT:
-                        return new NotEqualCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new NotEqualCompareConditionExpressionExecutorFloatLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorFloatLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new NotEqualCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new NotEqualCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("float cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("float cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("float cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case DOUBLE:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case STRING:
                         throw new OperationNotSupportedException("double cannot be compared with string");
                     case INT:
-                        return new NotEqualCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case LONG:
-                        return new NotEqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case FLOAT:
-                        return new NotEqualCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case DOUBLE:
-                        return new NotEqualCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     case BOOL:
                         throw new OperationNotSupportedException("double cannot be compared with bool");
                     default:
-                        throw new OperationNotSupportedException("double cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("double cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             case BOOL:
                 switch (rightExpressionExecutor.getReturnType()) {
                     case BOOL:
-                        return new NotEqualCompareConditionExpressionExecutorBoolBool(leftExpressionExecutor, rightExpressionExecutor);
+                        return new NotEqualCompareConditionExpressionExecutorBoolBool(leftExpressionExecutor,
+                                rightExpressionExecutor);
                     default:
-                        throw new OperationNotSupportedException("bool cannot be compared with " + rightExpressionExecutor.getReturnType());
+                        throw new OperationNotSupportedException("bool cannot be compared with " +
+                                rightExpressionExecutor.getReturnType());
                 }
             default:
-                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in not equal comparisons");
+                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in" +
+                        " not equal comparisons");
         }
     }
 
@@ -897,7 +1265,8 @@ public class ExpressionParser {
      * @param variable     Variable to be parsed
      * @param metaEvent    Meta event used to collect execution info of stream associated with query
      * @param currentState Current State Number
-     * @param executorList List to hold VariableExpressionExecutors to update after query parsing  @return VariableExpressionExecutor representing given variable
+     * @param executorList List to hold VariableExpressionExecutors to update after query parsing  @return
+     *                     VariableExpressionExecutor representing given variable
      */
     private static ExpressionExecutor parseVariable(Variable variable,
                                                     MetaComplexEvent metaEvent,
@@ -929,10 +1298,13 @@ public class ExpressionParser {
                 type = abstractDefinition.getAttributeType(attributeName);
                 ((MetaStreamEvent) metaEvent).addData(new Attribute(attributeName, type));
             }
-            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(new Attribute(attributeName, type), eventPosition[STREAM_EVENT_CHAIN_INDEX], eventPosition[STREAM_EVENT_INDEX_IN_CHAIN]);
+            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(new Attribute
+                    (attributeName, type), eventPosition[STREAM_EVENT_CHAIN_INDEX],
+                    eventPosition[STREAM_EVENT_INDEX_IN_CHAIN]);
             if (((MetaStreamEvent) metaEvent).isTableEvent() || ((MetaStreamEvent) metaEvent).isWindowEvent()) {
                 variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = OUTPUT_DATA_INDEX;
-                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX_IN_TYPE] = abstractDefinition.getAttributePosition(variableExpressionExecutor.getAttribute().getName());
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX_IN_TYPE] = abstractDefinition
+                        .getAttributePosition(variableExpressionExecutor.getAttribute().getName());
             }
             if (executorList != null) {
                 executorList.add(variableExpressionExecutor);
@@ -971,8 +1343,10 @@ public class ExpressionParser {
                         } else {
                             try {
                                 definition.getAttributeType(attributeName);
-                                throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " + definition.getId() + " with " +
-                                        "reference: " + metaStreamEvent.getInputReferenceId() + " contains attribute with same" +
+                                throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " +
+                                        definition.getId() + " with " +
+                                        "reference: " + metaStreamEvent.getInputReferenceId() + " contains attribute " +
+                                        "with same" +
                                         " name '" + attributeName + "'");
                             } catch (AttributeNotExistException e) {
                                 //do nothing as its expected
@@ -1005,8 +1379,10 @@ public class ExpressionParser {
                         if (metaStreamEvent.getInputReferenceId().equals(variable.getStreamId())) {
                             type = definition.getAttributeType(attributeName);
                             eventPosition[STREAM_EVENT_CHAIN_INDEX] = i;
-                            if (currentState > -1 && metaStreamEvents[currentState].getInputReferenceId() != null && variable.getStreamIndex() != null && variable.getStreamIndex() <= LAST) {
-                                if (variable.getStreamId().equals(metaStreamEvents[currentState].getInputReferenceId())) {
+                            if (currentState > -1 && metaStreamEvents[currentState].getInputReferenceId() != null &&
+                                    variable.getStreamIndex() != null && variable.getStreamIndex() <= LAST) {
+                                if (variable.getStreamId().equals(metaStreamEvents[currentState].getInputReferenceId
+                                        ())) {
                                     eventPosition[STREAM_EVENT_INDEX_IN_CHAIN] = variable.getStreamIndex();
                                 }
                             }
@@ -1020,25 +1396,38 @@ public class ExpressionParser {
                         variable.getStreamId() + " not found");
             }
 
-            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(new Attribute(attributeName, type), eventPosition[STREAM_EVENT_CHAIN_INDEX], eventPosition[STREAM_EVENT_INDEX_IN_CHAIN]);
+            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(new Attribute
+                    (attributeName, type), eventPosition[STREAM_EVENT_CHAIN_INDEX],
+                    eventPosition[STREAM_EVENT_INDEX_IN_CHAIN]);
             if (eventPosition[STREAM_EVENT_CHAIN_INDEX] != HAVING_STATE) {
-                MetaStreamEvent metaStreamEvent = ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]);
+                MetaStreamEvent metaStreamEvent = ((MetaStateEvent) metaEvent).getMetaStreamEvent
+                        (eventPosition[STREAM_EVENT_CHAIN_INDEX]);
                 if (metaStreamEvent.isTableEvent()) {
                     variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = OUTPUT_DATA_INDEX;
-                    variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX_IN_TYPE] = metaStreamEvent.getLastInputDefinition().getAttributePosition(variableExpressionExecutor.getAttribute().getName());
-                    for (Attribute attribute : ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).getLastInputDefinition().getAttributeList()) {
-                        ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addOutputData(new Attribute(attribute.getName(), attribute.getType()));
+                    variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX_IN_TYPE] = metaStreamEvent
+                            .getLastInputDefinition().getAttributePosition(variableExpressionExecutor.getAttribute()
+                                    .getName());
+                    for (Attribute attribute : ((MetaStateEvent) metaEvent).getMetaStreamEvent
+                            (eventPosition[STREAM_EVENT_CHAIN_INDEX]).getLastInputDefinition().getAttributeList()) {
+                        ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX])
+                                .addOutputData(new Attribute(attribute.getName(), attribute.getType()));
                     }
                 } else if (metaStreamEvent.isWindowEvent()) {
-                    if (((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).getOutputData().size() == 0) {
+                    if (((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX])
+                            .getOutputData().size() == 0) {
                         variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = OUTPUT_DATA_INDEX;
-                        variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX_IN_TYPE] = metaStreamEvent.getLastInputDefinition().getAttributePosition(variableExpressionExecutor.getAttribute().getName());
-                        for (Attribute attribute : ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).getLastInputDefinition().getAttributeList()) {
-                            ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addOutputData(new Attribute(attribute.getName(), attribute.getType()));
+                        variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX_IN_TYPE] = metaStreamEvent
+                                .getLastInputDefinition().getAttributePosition(variableExpressionExecutor
+                                        .getAttribute().getName());
+                        for (Attribute attribute : ((MetaStateEvent) metaEvent).getMetaStreamEvent
+                                (eventPosition[STREAM_EVENT_CHAIN_INDEX]).getLastInputDefinition().getAttributeList()) {
+                            ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX])
+                                    .addOutputData(new Attribute(attribute.getName(), attribute.getType()));
                         }
                     }
                 }
-                ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addData(new Attribute(attributeName, type));
+                ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addData(new
+                        Attribute(attributeName, type));
             }
             if (executorList != null) {
                 executorList.add(variableExpressionExecutor);
@@ -1056,16 +1445,21 @@ public class ExpressionParser {
      */
     private static Attribute.Type parseArithmeticOperationResultType(
             ExpressionExecutor leftExpressionExecutor, ExpressionExecutor rightExpressionExecutor) {
-        if (leftExpressionExecutor.getReturnType() == Attribute.Type.DOUBLE || rightExpressionExecutor.getReturnType() == Attribute.Type.DOUBLE) {
+        if (leftExpressionExecutor.getReturnType() == Attribute.Type.DOUBLE || rightExpressionExecutor.getReturnType
+                () == Attribute.Type.DOUBLE) {
             return Attribute.Type.DOUBLE;
-        } else if (leftExpressionExecutor.getReturnType() == Attribute.Type.FLOAT || rightExpressionExecutor.getReturnType() == Attribute.Type.FLOAT) {
+        } else if (leftExpressionExecutor.getReturnType() == Attribute.Type.FLOAT || rightExpressionExecutor
+                .getReturnType() == Attribute.Type.FLOAT) {
             return Attribute.Type.FLOAT;
-        } else if (leftExpressionExecutor.getReturnType() == Attribute.Type.LONG || rightExpressionExecutor.getReturnType() == Attribute.Type.LONG) {
+        } else if (leftExpressionExecutor.getReturnType() == Attribute.Type.LONG || rightExpressionExecutor
+                .getReturnType() == Attribute.Type.LONG) {
             return Attribute.Type.LONG;
-        } else if (leftExpressionExecutor.getReturnType() == Attribute.Type.INT || rightExpressionExecutor.getReturnType() == Attribute.Type.INT) {
+        } else if (leftExpressionExecutor.getReturnType() == Attribute.Type.INT || rightExpressionExecutor
+                .getReturnType() == Attribute.Type.INT) {
             return Attribute.Type.INT;
         } else {
-            throw new ArithmeticException("Arithmetic operation between " + leftExpressionExecutor.getReturnType() + " and " + rightExpressionExecutor.getReturnType() + " cannot be executed");
+            throw new ArithmeticException("Arithmetic operation between " + leftExpressionExecutor.getReturnType() +
+                    " and " + rightExpressionExecutor.getReturnType() + " cannot be executed");
         }
     }
 
@@ -1082,21 +1476,28 @@ public class ExpressionParser {
      * @param defaultStreamEventIndex Default StreamEvent Index
      * @return List of expressionExecutors
      */
-    private static ExpressionExecutor[] parseInnerExpression(Expression[] innerExpressions, MetaComplexEvent metaEvent, int currentState,
-                                                             Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> executorList,
-                                                             ExecutionPlanContext executionPlanContext, boolean groupBy, int defaultStreamEventIndex, String queryName) {
+    private static ExpressionExecutor[] parseInnerExpression(Expression[] innerExpressions, MetaComplexEvent
+            metaEvent, int currentState,
+                                                             Map<String, EventTable> eventTableMap,
+                                                             List<VariableExpressionExecutor> executorList,
+                                                             ExecutionPlanContext executionPlanContext, boolean
+                                                                     groupBy, int defaultStreamEventIndex, String
+                                                                     queryName) {
         ExpressionExecutor[] innerExpressionExecutors;
         if (innerExpressions != null) {
             if (innerExpressions.length > 0) {
                 innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
                 for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
-                    innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                    innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState,
+                            eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                            queryName);
                 }
             } else {
                 List<Expression> outputAttributes = new ArrayList<Expression>();
                 if (metaEvent instanceof MetaStreamEvent) {
 
-                    List<Attribute> attributeList = ((MetaStreamEvent) metaEvent).getLastInputDefinition().getAttributeList();
+                    List<Attribute> attributeList = ((MetaStreamEvent) metaEvent).getLastInputDefinition()
+                            .getAttributeList();
                     for (Attribute attribute : attributeList) {
                         outputAttributes.add(new Variable(attribute.getName()));
                     }
@@ -1109,17 +1510,21 @@ public class ExpressionParser {
                                 outputAttributes.add(outputAttribute);
                             } else {
                                 List<AbstractDefinition> definitions = new ArrayList<AbstractDefinition>();
-                                for (MetaStreamEvent aMetaStreamEvent : ((MetaStateEvent) metaEvent).getMetaStreamEvents()) {
+                                for (MetaStreamEvent aMetaStreamEvent : ((MetaStateEvent) metaEvent)
+                                        .getMetaStreamEvents()) {
                                     definitions.add(aMetaStreamEvent.getLastInputDefinition());
                                 }
-                                throw new DuplicateAttributeException("Duplicate attribute exist in streams " + definitions);
+                                throw new DuplicateAttributeException("Duplicate attribute exist in streams " +
+                                        definitions);
                             }
                         }
                     }
                 }
                 innerExpressionExecutors = new ExpressionExecutor[outputAttributes.size()];
                 for (int i = 0, innerExpressionsLength = outputAttributes.size(); i < innerExpressionsLength; i++) {
-                    innerExpressionExecutors[i] = parseExpression(outputAttributes.get(i), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                    innerExpressionExecutors[i] = parseExpression(outputAttributes.get(i), metaEvent, currentState,
+                            eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
+                            queryName);
                 }
             }
         } else {

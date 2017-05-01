@@ -29,9 +29,9 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.sql.DataSource;
 
 public class JoinRDBMSTableTestCase {
     private static final Logger log = Logger.getLogger(JoinRDBMSTableTestCase.class);
@@ -57,12 +57,14 @@ public class JoinRDBMSTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -71,7 +73,8 @@ public class JoinRDBMSTableTestCase {
                         "" +
                         "@info(name = 'query2') " +
                         "from CheckStockStream#window.length(1) join StockTable " +
-                        "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                        "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable" +
+                        ".volume as volume  " +
                         "insert into OutputStream ;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -137,12 +140,14 @@ public class JoinRDBMSTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -152,7 +157,8 @@ public class JoinRDBMSTableTestCase {
                         "@info(name = 'query2') " +
                         "from CheckStockStream#window.length(1) join StockTable " +
                         " on CheckStockStream.symbol==StockTable.symbol " +
-                        "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                        "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable" +
+                        ".volume as volume  " +
                         "insert into OutputStream ;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -215,12 +221,14 @@ public class JoinRDBMSTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol1 string); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -293,12 +301,14 @@ public class JoinRDBMSTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -370,12 +380,14 @@ public class JoinRDBMSTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -448,12 +460,14 @@ public class JoinRDBMSTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "', cache='lru', cache.size='1000') " +
+                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "', cache='lru', cache.size='1000') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -525,12 +539,14 @@ public class JoinRDBMSTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -540,7 +556,8 @@ public class JoinRDBMSTableTestCase {
                         "@info(name = 'query2') " +
                         "from CheckStockStream#window.length(1) join StockTable " +
                         " on StockTable.symbol==CheckStockStream.symbol " +
-                        "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                        "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable" +
+                        ".volume as volume  " +
                         "insert into OutputStream ;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -603,12 +620,13 @@ public class JoinRDBMSTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,"table2");
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, "table2");
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = 'table2') " +
+                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = 'table2') " +
                         "define table StockTable (symbol string, price float); ";
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -672,7 +690,8 @@ public class JoinRDBMSTableTestCase {
     }
 
 
-   //----------------------------------------------- Connection Properties ----------------------------------------------------------
+    //----------------------------------------------- Connection Properties
+    // ----------------------------------------------------------
 
     @Test
     public void testTableJoinQuery9() throws InterruptedException {
@@ -683,12 +702,15 @@ public class JoinRDBMSTableTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(eventtable = 'rdbms' , jdbc.url = 'jdbc:mysql://localhost:3306/cepdb' , username = 'root' , password = 'root' , driver.name = 'com.mysql.jdbc.Driver' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' , jdbc.url = 'jdbc:mysql://localhost:3306/cepdb' , username = " +
+                        "'root' , password = 'root' , driver.name = 'com.mysql.jdbc.Driver' , table.name = '" +
+                        RDBMSTestConstants.TABLE_NAME + "') " +
                         "@connection(maxWait = '4000')" +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
@@ -698,7 +720,8 @@ public class JoinRDBMSTableTestCase {
                         "" +
                         "@info(name = 'query2') " +
                         "from CheckStockStream#window.length(1) join StockTable " +
-                        "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                        "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable" +
+                        ".volume as volume  " +
                         "insert into OutputStream ;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);

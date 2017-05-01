@@ -439,7 +439,8 @@ public class UpdateOrInsertTableTestCase {
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable" +
+                ".price) in StockTable] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -514,7 +515,8 @@ public class UpdateOrInsertTableTestCase {
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable" +
+                ".price) in StockTable] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -594,7 +596,8 @@ public class UpdateOrInsertTableTestCase {
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable" +
+                ".price) in StockTable] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -675,7 +678,8 @@ public class UpdateOrInsertTableTestCase {
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable" +
+                ".price) in StockTable] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -694,7 +698,7 @@ public class UpdateOrInsertTableTestCase {
                             case 2:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", 300l, 55.6f}, event.getData());
                                 break;
-                                                        default:
+                            default:
                                 Assert.assertSame(2, inEventCount);
                         }
                     }

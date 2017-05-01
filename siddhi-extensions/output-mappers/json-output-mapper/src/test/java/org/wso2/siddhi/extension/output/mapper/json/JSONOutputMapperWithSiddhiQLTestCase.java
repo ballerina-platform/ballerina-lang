@@ -26,8 +26,8 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.NoSuchAttributeException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.stream.output.sink.InMemoryOutputTransport;
+import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -182,19 +182,19 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom json
-        Assert.assertEquals("Mapping incorrect!","{\n" +
+        Assert.assertEquals("Mapping incorrect!", "{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"WSO2\",\n" +
                 "      \"Price\":55.6\n" +
                 "   }\n" +
                 "}", onMessageList.get(0).toString());
-        Assert.assertEquals("Mapping incorrect!","{\n" +
+        Assert.assertEquals("Mapping incorrect!", "{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"IBM\",\n" +
                 "      \"Price\":75.6\n" +
                 "   }\n" +
                 "}", onMessageList.get(1).toString());
-        Assert.assertEquals("Mapping incorrect!","{\n" +
+        Assert.assertEquals("Mapping incorrect!", "{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"WSO2\",\n" +
                 "      \"Price\":57.6\n" +
@@ -265,7 +265,7 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         //assert event count
         Assert.assertEquals("Incorrect number of events consumed!", 1, wso2Count.get());
         //assert custom json
-        Assert.assertEquals("Mapping incorrect!","{\n" +
+        Assert.assertEquals("Mapping incorrect!", "{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"WSO2\",\n" +
                 "      \"Price\":55.6\n" +

@@ -43,10 +43,12 @@ public class StreamEventCloner {
     public StreamEvent copyStreamEvent(StreamEvent streamEvent) {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
         if (beforeWindowDataSize > 0) {
-            System.arraycopy(streamEvent.getBeforeWindowData(), 0, borrowedEvent.getBeforeWindowData(), 0, beforeWindowDataSize);
+            System.arraycopy(streamEvent.getBeforeWindowData(), 0, borrowedEvent.getBeforeWindowData(), 0,
+                    beforeWindowDataSize);
         }
         if (onAfterWindowDataSize > 0) {
-            System.arraycopy(streamEvent.getOnAfterWindowData(), 0, borrowedEvent.getOnAfterWindowData(), 0, onAfterWindowDataSize);
+            System.arraycopy(streamEvent.getOnAfterWindowData(), 0, borrowedEvent.getOnAfterWindowData(), 0,
+                    onAfterWindowDataSize);
         }
         if (outputDataSize > 0) {
             System.arraycopy(streamEvent.getOutputData(), 0, borrowedEvent.getOutputData(), 0, outputDataSize);

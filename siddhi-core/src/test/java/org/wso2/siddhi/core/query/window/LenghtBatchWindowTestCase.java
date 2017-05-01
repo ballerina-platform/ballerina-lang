@@ -391,10 +391,10 @@ public class LenghtBatchWindowTestCase {
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
                     if (inEvents != null) {
-                        inEventCount+=(inEvents.length);
+                        inEventCount += (inEvents.length);
                     }
                     if (removeEvents != null) {
-                        removeEventCount+=(removeEvents.length);
+                        removeEventCount += (removeEvents.length);
                     }
                     eventArrived = true;
                 }
@@ -440,10 +440,10 @@ public class LenghtBatchWindowTestCase {
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
                     if (inEvents != null) {
-                        inEventCount+=(inEvents.length);
+                        inEventCount += (inEvents.length);
                     }
                     if (removeEvents != null) {
-                        removeEventCount+=(removeEvents.length);
+                        removeEventCount += (removeEvents.length);
                     }
                     eventArrived = true;
                 }

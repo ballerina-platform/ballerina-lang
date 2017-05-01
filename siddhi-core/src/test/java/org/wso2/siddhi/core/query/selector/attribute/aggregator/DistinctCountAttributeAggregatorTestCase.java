@@ -52,7 +52,8 @@ public class DistinctCountAttributeAggregatorTestCase {
                 "having distinctPages > 3 " +
                 "insert into outputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(org.wso2.siddhi.core.event.Event[] events) {
@@ -68,25 +69,25 @@ public class DistinctCountAttributeAggregatorTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{"E001","USER_1","WEB_PAGE_1"});
+        inputHandler.send(new Object[]{"E001", "USER_1", "WEB_PAGE_1"});
         Thread.sleep(1000);
-        inputHandler.send(new Object[]{"E002","USER_2","WEB_PAGE_1"});
+        inputHandler.send(new Object[]{"E002", "USER_2", "WEB_PAGE_1"});
         Thread.sleep(1000);
-        inputHandler.send(new Object[]{"E003","USER_1","WEB_PAGE_2"}); // 1st Event in window
+        inputHandler.send(new Object[]{"E003", "USER_1", "WEB_PAGE_2"}); // 1st Event in window
         Thread.sleep(1000);
-        inputHandler.send(new Object[]{"E004","USER_2","WEB_PAGE_2"});
+        inputHandler.send(new Object[]{"E004", "USER_2", "WEB_PAGE_2"});
         Thread.sleep(1000);
-        inputHandler.send(new Object[]{"E005","USER_1","WEB_PAGE_3"}); // 2nd Event in window
+        inputHandler.send(new Object[]{"E005", "USER_1", "WEB_PAGE_3"}); // 2nd Event in window
         Thread.sleep(1000);
-        inputHandler.send(new Object[]{"E006","USER_1","WEB_PAGE_1"}); // 3rd Event in window
+        inputHandler.send(new Object[]{"E006", "USER_1", "WEB_PAGE_1"}); // 3rd Event in window
         Thread.sleep(1000);
-        inputHandler.send(new Object[]{"E007","USER_1","WEB_PAGE_4"}); // 4th Event in window
+        inputHandler.send(new Object[]{"E007", "USER_1", "WEB_PAGE_4"}); // 4th Event in window
         Thread.sleep(1000);
-        inputHandler.send(new Object[]{"E008","USER_2","WEB_PAGE_2"});
+        inputHandler.send(new Object[]{"E008", "USER_2", "WEB_PAGE_2"});
         Thread.sleep(1000);
-        inputHandler.send(new Object[]{"E009","USER_1","WEB_PAGE_1"});
+        inputHandler.send(new Object[]{"E009", "USER_1", "WEB_PAGE_1"});
         Thread.sleep(1000);
-        inputHandler.send(new Object[]{"E010","USER_2","WEB_PAGE_1"});
+        inputHandler.send(new Object[]{"E010", "USER_2", "WEB_PAGE_1"});
 
         Thread.sleep(2000);
         executionPlanRuntime.shutdown();

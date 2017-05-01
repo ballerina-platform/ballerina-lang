@@ -108,11 +108,11 @@ public class XMLOutputMapperWithSiddhiQLTestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert default mapping
-        Assert.assertEquals("Incorrect mapping!","<events><event><symbol>WSO2</symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<events><event><symbol>WSO2</symbol>" +
                 "<price>55.6</price><volume>100</volume></event></events>", onMessageList.get(0).toString());
-        Assert.assertEquals("Incorrect mapping!","<events><event><symbol>IBM</symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<events><event><symbol>IBM</symbol>" +
                 "<price>75.6</price><volume>100</volume></event></events>", onMessageList.get(1).toString());
-        Assert.assertEquals("Incorrect mapping!","<events><event><symbol>WSO2</symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<events><event><symbol>WSO2</symbol>" +
                 "<price>57.6</price><volume>100</volume></event></events>", onMessageList.get(2).toString());
         executionPlanRuntime.shutdown();
 
@@ -261,11 +261,11 @@ public class XMLOutputMapperWithSiddhiQLTestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom xml
-        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>WSO2</Symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<StockData><Symbol>WSO2</Symbol>" +
                 "<Price>55.6</Price></StockData>", onMessageList.get(0).toString());
-        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>IBM</Symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<StockData><Symbol>IBM</Symbol>" +
                 "<Price>75.6</Price></StockData>", onMessageList.get(1).toString());
-        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>WSO2</Symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<StockData><Symbol>WSO2</Symbol>" +
                 "<Price>57.6</Price></StockData>", onMessageList.get(2).toString());
         executionPlanRuntime.shutdown();
 
@@ -337,11 +337,11 @@ public class XMLOutputMapperWithSiddhiQLTestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom xml
-        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>WSO2</Symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<portfolio><StockData><Symbol>WSO2</Symbol>" +
                 "<Price>55.6</Price></StockData></portfolio>", onMessageList.get(0).toString());
-        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>IBM</Symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<portfolio><StockData><Symbol>IBM</Symbol>" +
                 "<Price>75.6</Price></StockData></portfolio>", onMessageList.get(1).toString());
-        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>WSO2</Symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<portfolio><StockData><Symbol>WSO2</Symbol>" +
                 "<Price>57.6</Price></StockData></portfolio>", onMessageList.get(2).toString());
         executionPlanRuntime.shutdown();
 
@@ -413,11 +413,11 @@ public class XMLOutputMapperWithSiddhiQLTestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom xml
-        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>WSO2</Symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<portfolio><StockData><Symbol>WSO2</Symbol>" +
                 "<Price>55.6</Price></StockData></portfolio>", onMessageList.get(0).toString());
-        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>IBM</Symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<portfolio><StockData><Symbol>IBM</Symbol>" +
                 "<Price>75.6</Price></StockData></portfolio>", onMessageList.get(1).toString());
-        Assert.assertEquals("Incorrect mapping!","<portfolio><StockData><Symbol>WSO2</Symbol>" +
+        Assert.assertEquals("Incorrect mapping!", "<portfolio><StockData><Symbol>WSO2</Symbol>" +
                 "<Price>57.6</Price></StockData></portfolio>", onMessageList.get(2).toString());
         executionPlanRuntime.shutdown();
 

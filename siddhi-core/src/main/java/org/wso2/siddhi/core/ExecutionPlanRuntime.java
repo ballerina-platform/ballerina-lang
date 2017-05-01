@@ -63,6 +63,9 @@ import java.util.stream.Collectors;
  */
 public class ExecutionPlanRuntime {
     private static final Logger log = Logger.getLogger(ExecutionPlanRuntime.class);
+    // Contains event tables.
+    private final ConcurrentMap<String, List<InputTransport>> eventSourceMap;
+    private final ConcurrentMap<String, List<OutputTransport>> eventSinkMap;
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String,
             AbstractDefinition>(); // Contains stream definition.
     private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String,
@@ -72,9 +75,6 @@ public class ExecutionPlanRuntime {
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>()
             ; // Contains stream junctions.
     private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //
-    // Contains event tables.
-    private final ConcurrentMap<String, List<InputTransport>> eventSourceMap;
-    private final ConcurrentMap<String, List<OutputTransport>> eventSinkMap;
     private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>();
     // Contains partitions.
     private ExecutionPlanContext executionPlanContext;
@@ -131,6 +131,7 @@ public class ExecutionPlanRuntime {
 
     /**
      * Get the stream definition map.
+     *
      * @return Map of {@link StreamDefinition}s.
      */
     public Map<String, StreamDefinition> getStreamDefinitionMap() {
@@ -142,6 +143,7 @@ public class ExecutionPlanRuntime {
 
     /**
      * Get the table definition map.
+     *
      * @return Map of {@link TableDefinition}s.
      */
     public Map<String, TableDefinition> getTableDefinitionMap() {
@@ -153,6 +155,7 @@ public class ExecutionPlanRuntime {
 
     /**
      * Get the names of the available queries.
+     *
      * @return {@link Set<String>} of query names.
      */
     public Set<String> getQueryNames() {

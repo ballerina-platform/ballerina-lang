@@ -41,7 +41,8 @@ public class DefineTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        TableDefinition tableDefinition = TableDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        TableDefinition tableDefinition = TableDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineTable(tableDefinition);

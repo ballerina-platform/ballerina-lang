@@ -29,9 +29,9 @@ public class ValuePartitionExecutor implements PartitionExecutor {
     }
 
     public String execute(ComplexEvent event) {
-        try{
+        try {
             return expressionExecutor.execute(event).toString();
-        }  catch (NullPointerException ex){
+        } catch (NullPointerException ex) {
             return null;
         }
     }

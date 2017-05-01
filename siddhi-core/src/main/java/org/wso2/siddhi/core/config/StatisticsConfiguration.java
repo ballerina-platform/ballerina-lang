@@ -22,14 +22,14 @@ import org.wso2.siddhi.core.util.statistics.StatisticsTrackerFactory;
 
 public class StatisticsConfiguration {
 
-    private String matricPrefix= "org.wso2.siddhi";
+    private String matricPrefix = "org.wso2.siddhi";
     private StatisticsTrackerFactory factory;
 
-    public StatisticsConfiguration(StatisticsTrackerFactory factory){
+    public StatisticsConfiguration(StatisticsTrackerFactory factory) {
         this.factory = factory;
     }
 
-    public StatisticsTrackerFactory getFactory(){
+    public StatisticsTrackerFactory getFactory() {
         return factory;
     }
 

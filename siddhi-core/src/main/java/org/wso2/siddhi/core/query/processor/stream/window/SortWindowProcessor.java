@@ -39,7 +39,12 @@ import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Sample Query:
@@ -85,7 +90,8 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
-            lengthToKeep = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue()));
+            lengthToKeep = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)
+                    attributeExpressionExecutors[0]).getValue()));
         } else {
             throw new UnsupportedOperationException("The first parameter should be an integer");
         }
@@ -98,8 +104,10 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
                 ExpressionExecutor variableExpressionExecutor = attributeExpressionExecutors[i];
                 int order;
                 String nextParameter;
-                if (i + 1 < parametersLength && attributeExpressionExecutors[i + 1].getReturnType() == Attribute.Type.STRING) {
-                    nextParameter = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[i + 1]).getValue();
+                if (i + 1 < parametersLength && attributeExpressionExecutors[i + 1].getReturnType() == Attribute.Type
+                        .STRING) {
+                    nextParameter = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[i + 1])
+                            .getValue();
                     if (nextParameter.equalsIgnoreCase(DESC)) {
                         order = -1;
                         i++;
@@ -107,7 +115,8 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
                         order = 1;
                         i++;
                     } else {
-                        throw new UnsupportedOperationException("Parameter string literals should only be \"asc\" or \"desc\"");
+                        throw new UnsupportedOperationException("Parameter string literals should only be \"asc\" or " +
+                                "\"desc\"");
                     }
                 } else {
                     order = 1; //assigning the default order: "asc"
@@ -119,7 +128,8 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner) {
 
         synchronized (this) {
             long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
@@ -177,9 +187,12 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, String queryName) {
-        return OperatorParser.constructOperator(sortedWindow, expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, this.queryName);
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                              ExecutionPlanContext executionPlanContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, EventTable> eventTableMap, String queryName) {
+        return OperatorParser.constructOperator(sortedWindow, expression, matchingMetaInfoHolder,
+                executionPlanContext, variableExpressionExecutors, eventTableMap, this.queryName);
     }
 
     private class EventComparator implements Comparator<StreamEvent> {

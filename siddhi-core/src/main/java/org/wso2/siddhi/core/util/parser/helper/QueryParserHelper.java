@@ -40,7 +40,15 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.*;
+import static org.wso2.siddhi.core.util.SiddhiConstants.BEFORE_WINDOW_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.HAVING_STATE;
+import static org.wso2.siddhi.core.util.SiddhiConstants.ON_AFTER_WINDOW_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STATE_OUTPUT_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_INDEX_IN_TYPE;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_TYPE_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_EVENT_CHAIN_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
 /**
  * Utility class for queryParser to help with QueryRuntime
@@ -86,7 +94,8 @@ public class QueryParserHelper {
         }
     }
 
-    public static void updateVariablePosition(MetaComplexEvent metaComplexEvent, List<VariableExpressionExecutor> variableExpressionExecutorList) {
+    public static void updateVariablePosition(MetaComplexEvent metaComplexEvent, List<VariableExpressionExecutor>
+            variableExpressionExecutorList) {
 
         for (VariableExpressionExecutor variableExpressionExecutor : variableExpressionExecutorList) {
             int streamEventChainIndex = variableExpressionExecutor.getPosition()[STREAM_EVENT_CHAIN_INDEX];
@@ -98,11 +107,14 @@ public class QueryParserHelper {
                 }
                 variableExpressionExecutor.getPosition()[STREAM_EVENT_CHAIN_INDEX] = UNKNOWN_STATE;
                 variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX_IN_TYPE] = metaComplexEvent.
-                        getOutputStreamDefinition().getAttributeList().indexOf(variableExpressionExecutor.getAttribute());
+                        getOutputStreamDefinition().getAttributeList().indexOf(variableExpressionExecutor
+                        .getAttribute());
                 continue;
-            } else if (metaComplexEvent instanceof MetaStreamEvent && streamEventChainIndex >= 1) { //for VariableExpressionExecutor on Event table
+            } else if (metaComplexEvent instanceof MetaStreamEvent && streamEventChainIndex >= 1) { //for
+                // VariableExpressionExecutor on Event table
                 continue;
-            } else if (metaComplexEvent instanceof MetaStateEvent && streamEventChainIndex >= ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents().length) { //for VariableExpressionExecutor on Event table
+            } else if (metaComplexEvent instanceof MetaStateEvent && streamEventChainIndex >= ((MetaStateEvent)
+                    metaComplexEvent).getMetaStreamEvents().length) { //for VariableExpressionExecutor on Event table
                 continue;
             }
 
@@ -132,7 +144,8 @@ public class QueryParserHelper {
         }
     }
 
-    public static void initStreamRuntime(StreamRuntime runtime, MetaComplexEvent metaComplexEvent, LockWrapper lockWrapper, String queryName) {
+    public static void initStreamRuntime(StreamRuntime runtime, MetaComplexEvent metaComplexEvent, LockWrapper
+            lockWrapper, String queryName) {
 
         if (runtime instanceof SingleStreamRuntime) {
             initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaComplexEvent, null, lockWrapper, queryName);
@@ -148,7 +161,8 @@ public class QueryParserHelper {
     }
 
     private static void initSingleStreamRuntime(SingleStreamRuntime singleStreamRuntime, int streamEventChainIndex,
-                                                MetaComplexEvent metaComplexEvent, StateEventPool stateEventPool, LockWrapper lockWrapper, String queryName) {
+                                                MetaComplexEvent metaComplexEvent, StateEventPool stateEventPool,
+                                                LockWrapper lockWrapper, String queryName) {
         MetaStreamEvent metaStreamEvent;
 
         if (metaComplexEvent instanceof MetaStateEvent) {
@@ -171,7 +185,8 @@ public class QueryParserHelper {
             if (processor instanceof AbstractStreamProcessor) {
                 ((AbstractStreamProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent,
                         streamEventPool));
-                ((AbstractStreamProcessor) processor).constructStreamEventPopulater(metaStreamEvent, streamEventChainIndex);
+                ((AbstractStreamProcessor) processor).constructStreamEventPopulater(metaStreamEvent,
+                        streamEventChainIndex);
             }
             if (stateEventPool != null && processor instanceof JoinProcessor) {
                 ((JoinProcessor) processor).setStateEventPool(stateEventPool);
@@ -180,9 +195,11 @@ public class QueryParserHelper {
             if (stateEventPool != null && processor instanceof StreamPreStateProcessor) {
                 ((StreamPreStateProcessor) processor).setStateEventPool(stateEventPool);
                 ((StreamPreStateProcessor) processor).setStreamEventPool(streamEventPool);
-                ((StreamPreStateProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent, streamEventPool));
+                ((StreamPreStateProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent,
+                        streamEventPool));
                 if (metaComplexEvent instanceof MetaStateEvent) {
-                    ((StreamPreStateProcessor) processor).setStateEventCloner(new StateEventCloner(((MetaStateEvent) metaComplexEvent), stateEventPool));
+                    ((StreamPreStateProcessor) processor).setStateEventCloner(new StateEventCloner(((MetaStateEvent)
+                            metaComplexEvent), stateEventPool));
                 }
             }
 

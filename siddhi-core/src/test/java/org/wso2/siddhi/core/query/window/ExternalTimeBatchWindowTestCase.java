@@ -39,11 +39,11 @@ public class ExternalTimeBatchWindowTestCase {
 
 
     private static final Logger log = Logger.getLogger(TimeWindowTestCase.class);
+    private static SiddhiManager siddhiManager;
     private int inEventCount;
     private int removeEventCount;
     private long sum;
     private boolean eventArrived;
-    private static SiddhiManager siddhiManager;
 
     @Before
     public void init() {
@@ -78,7 +78,8 @@ public class ExternalTimeBatchWindowTestCase {
         }
 
         Thread.sleep(1000);
-        Assert.assertFalse("Event happens inner external time batch window, should not have event recieved in callback!", recieved.get());
+        Assert.assertFalse("Event happens inner external time batch window, should not have event recieved in " +
+                "callback!", recieved.get());
 
         runtime.shutdown();
     }
@@ -223,7 +224,8 @@ public class ExternalTimeBatchWindowTestCase {
         for (int i = 0; i < len; i++) {
             // cpu int, memory int, bytesIn long, bytesOut long, timestamp long
             events[i] = new Event(externalTs,
-                    new Object[]{15 + 10 * i * ite, 1500 + 10 * i * ite, 1000L, 2000L, externalTs + ite * 10000 + i * 50});
+                    new Object[]{15 + 10 * i * ite, 1500 + 10 * i * ite, 1000L, 2000L, externalTs + ite * 10000 + i *
+                            50});
         }
 
         input.send(events);
@@ -1046,7 +1048,8 @@ public class ExternalTimeBatchWindowTestCase {
                 "define stream twitterStream (timestamp long, user string, tweet string, company string); ";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from cseEventStream#window.externalTimeBatch(timestamp, 1 sec, 0) join twitterStream#window.externalTimeBatch(timestamp, 1 sec, 0) " +
+                "from cseEventStream#window.externalTimeBatch(timestamp, 1 sec, 0) join twitterStream#window" +
+                ".externalTimeBatch(timestamp, 1 sec, 0) " +
                 "on cseEventStream.symbol== twitterStream.company " +
                 "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
                 "insert into outputStream ;";
@@ -1058,10 +1061,10 @@ public class ExternalTimeBatchWindowTestCase {
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
                     if (inEvents != null) {
-                        inEventCount+=(inEvents.length);
+                        inEventCount += (inEvents.length);
                     }
                     if (removeEvents != null) {
-                        removeEventCount+=(removeEvents.length);
+                        removeEventCount += (removeEvents.length);
                     }
                     eventArrived = true;
                 }
@@ -1070,8 +1073,8 @@ public class ExternalTimeBatchWindowTestCase {
             InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
             executionPlanRuntime.start();
             cseEventStreamHandler.send(new Object[]{1366335804341l, "WSO2", 55.6f, 100});
-            twitterStreamHandler.send(new Object[]{ 1366335804341l, "User1", "Hello World", "WSO2"});
-            twitterStreamHandler.send(new Object[]{ 1366335805301l, "User2", "Hello World2", "WSO2"});
+            twitterStreamHandler.send(new Object[]{1366335804341l, "User1", "Hello World", "WSO2"});
+            twitterStreamHandler.send(new Object[]{1366335805301l, "User2", "Hello World2", "WSO2"});
             cseEventStreamHandler.send(new Object[]{1366335805341l, "WSO2", 75.6f, 100});
             cseEventStreamHandler.send(new Object[]{1366335806541l, "WSO2", 57.6f, 100});
             Thread.sleep(1000);
@@ -1093,7 +1096,8 @@ public class ExternalTimeBatchWindowTestCase {
                 "define stream twitterStream (timestamp long, user string, tweet string, company string); ";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from cseEventStream#window.externalTimeBatch(timestamp, 1 sec, 0) join twitterStream#window.externalTimeBatch(timestamp, 1 sec, 0) " +
+                "from cseEventStream#window.externalTimeBatch(timestamp, 1 sec, 0) join twitterStream#window" +
+                ".externalTimeBatch(timestamp, 1 sec, 0) " +
                 "on cseEventStream.symbol== twitterStream.company " +
                 "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
                 "insert all events into outputStream ;";
@@ -1105,10 +1109,10 @@ public class ExternalTimeBatchWindowTestCase {
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
                     if (inEvents != null) {
-                        inEventCount+=(inEvents.length);
+                        inEventCount += (inEvents.length);
                     }
                     if (removeEvents != null) {
-                        removeEventCount+=(removeEvents.length);
+                        removeEventCount += (removeEvents.length);
                     }
                     eventArrived = true;
                 }
@@ -1117,8 +1121,8 @@ public class ExternalTimeBatchWindowTestCase {
             InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
             executionPlanRuntime.start();
             cseEventStreamHandler.send(new Object[]{1366335804341l, "WSO2", 55.6f, 100});
-            twitterStreamHandler.send(new Object[]{ 1366335804341l, "User1", "Hello World", "WSO2"});
-            twitterStreamHandler.send(new Object[]{ 1366335805301l, "User2", "Hello World2", "WSO2"});
+            twitterStreamHandler.send(new Object[]{1366335804341l, "User1", "Hello World", "WSO2"});
+            twitterStreamHandler.send(new Object[]{1366335805301l, "User2", "Hello World2", "WSO2"});
             cseEventStreamHandler.send(new Object[]{1366335805341l, "WSO2", 75.6f, 100});
             cseEventStreamHandler.send(new Object[]{1366335806541l, "WSO2", 57.6f, 100});
             Thread.sleep(1000);

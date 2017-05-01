@@ -54,7 +54,7 @@ import java.util.Map;
         returnAttributes = @ReturnAttribute(
                 description = "Returned type will be same as the 'ifExpression' and 'elseExpression' type.",
                 type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                DataType.STRING, DataType.BOOL, DataType.OBJECT})
+                        DataType.STRING, DataType.BOOL, DataType.OBJECT})
 )
 public class IfThenElseFunctionExecutor extends FunctionExecutor {
     private static final Logger log = Logger.getLogger(IfThenElseFunctionExecutor.class);

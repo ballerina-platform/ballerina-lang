@@ -32,7 +32,8 @@ public class StartEventTrigger implements EventTrigger {
     private StreamJunction streamJunction;
 
     @Override
-    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction streamJunction) {
+    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction
+            streamJunction) {
 
         this.triggerDefinition = triggerDefinition;
         this.executionPlanContext = executionPlanContext;

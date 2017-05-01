@@ -50,7 +50,8 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     private ComplexEventChunk<ComplexEvent> streamEventChunk;
 
 
-    public PartitionStreamReceiver(ExecutionPlanContext executionPlanContext, MetaStreamEvent metaStreamEvent, StreamDefinition streamDefinition,
+    public PartitionStreamReceiver(ExecutionPlanContext executionPlanContext, MetaStreamEvent metaStreamEvent,
+                                   StreamDefinition streamDefinition,
                                    List<PartitionExecutor> partitionExecutors,
                                    PartitionRuntime partitionRuntime) {
         this.metaStreamEvent = metaStreamEvent;
@@ -128,7 +129,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
                             }
 
-                            if(!currentEventMatchedPrevPartitionExecutor) {
+                            if (!currentEventMatchedPrevPartitionExecutor) {
                                 streamEventChunk.add(borrowedEvent);
                             }
 
@@ -244,7 +245,8 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     }
 
     /**
-     * create local streamJunctions through which events received by partitionStreamReceiver, are sent to queryStreamReceivers
+     * create local streamJunctions through which events received by partitionStreamReceiver, are sent to
+     * queryStreamReceivers
      *
      * @param key              partitioning key
      * @param queryRuntimeList queryRuntime list of the partition
@@ -262,8 +264,10 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         for (QueryRuntime queryRuntime : queryRuntimeList) {
             StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
             for (int i = 0; i < queryRuntime.getInputStreamId().size(); i++) {
-                if ((streamRuntime.getSingleStreamRuntimes().get(i)).getProcessStreamReceiver().getStreamId().equals(streamId + key)) {
-                    streamJunction.subscribe((streamRuntime.getSingleStreamRuntimes().get(i)).getProcessStreamReceiver());
+                if ((streamRuntime.getSingleStreamRuntimes().get(i)).getProcessStreamReceiver().getStreamId().equals
+                        (streamId + key)) {
+                    streamJunction.subscribe((streamRuntime.getSingleStreamRuntimes().get(i))
+                            .getProcessStreamReceiver());
                 }
             }
         }

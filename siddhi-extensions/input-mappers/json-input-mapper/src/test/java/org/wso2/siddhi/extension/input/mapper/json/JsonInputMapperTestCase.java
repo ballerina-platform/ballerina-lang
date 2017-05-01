@@ -23,10 +23,10 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.stream.input.source.InMemoryInputTransport;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.stream.input.source.InMemoryInputTransport;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -71,7 +71,7 @@ public class JsonInputMapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock","{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
+        InMemoryBroker.publish("stock", "{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
 
         executionPlanRuntime.shutdown();
     }
@@ -100,7 +100,7 @@ public class JsonInputMapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock","{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
+        InMemoryBroker.publish("stock", "{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
 
         executionPlanRuntime.shutdown();
     }
@@ -137,7 +137,7 @@ public class JsonInputMapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock","{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
+        InMemoryBroker.publish("stock", "{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
 
         executionPlanRuntime.shutdown();
     }
@@ -174,7 +174,7 @@ public class JsonInputMapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock","{'country': 'Sri Lanka', 'symbol': 'WSO2', 'price': 56.75, 'volume': 5}");
+        InMemoryBroker.publish("stock", "{'country': 'Sri Lanka', 'symbol': 'WSO2', 'price': 56.75, 'volume': 5}");
 
         executionPlanRuntime.shutdown();
     }
@@ -183,7 +183,7 @@ public class JsonInputMapperTestCase {
     public void subscriptionTest5() throws InterruptedException {
         log.info("Subscription Test 5: Test infer output stream using json mapping - expect exception");
 
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "stock"));
         subscription.map(Mapping.format("json").map("volume", "$.volume").map("symbol", "$.symbol").map("price", "$" +
                 ".price"));
         subscription.insertInto("FooStream");
@@ -197,7 +197,7 @@ public class JsonInputMapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock","{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
+        InMemoryBroker.publish("stock", "{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
 
         executionPlanRuntime.shutdown();
     }
@@ -207,7 +207,7 @@ public class JsonInputMapperTestCase {
         log.info("Subscription Test 6: Test error in infer output stream using json mapping without mapping name" +
                 " - expect exception");
 
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "stock"));
         subscription.map(Mapping.format("json").map("$.volume").map("$.symbol").map("$.price"));
         subscription.insertInto("FooStream");
 
@@ -226,7 +226,7 @@ public class JsonInputMapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock","{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
+        InMemoryBroker.publish("stock", "{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
 
         executionPlanRuntime.shutdown();
     }

@@ -43,7 +43,8 @@ public class GroupByKeyGenerator {
             groupByExecutors = new VariableExpressionExecutor[groupByList.size()];
             for (int i = 0, expressionsSize = groupByList.size(); i < expressionsSize; i++) {
                 groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(groupByList.get(i),
-                        metaComplexEvent, SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, siddhiContext, false, 0, queryName);
+                        metaComplexEvent, SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, siddhiContext,
+                        false, 0, queryName);
             }
         }
     }

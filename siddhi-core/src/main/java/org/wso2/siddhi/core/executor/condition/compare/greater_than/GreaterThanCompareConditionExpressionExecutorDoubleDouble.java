@@ -37,6 +37,7 @@ public class GreaterThanCompareConditionExpressionExecutorDoubleDouble extends
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new GreaterThanCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new GreaterThanCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor.cloneExecutor
+                (key), rightExpressionExecutor.cloneExecutor(key));
     }
 }

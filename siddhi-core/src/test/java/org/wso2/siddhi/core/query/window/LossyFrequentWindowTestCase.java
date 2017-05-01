@@ -135,7 +135,8 @@ public class LossyFrequentWindowTestCase {
             inputHandler.send(new Object[]{"3234-3244-2432-4124", 73.36f});
             inputHandler.send(new Object[]{"3234-3244-2432-4124", 78.36f});
             inputHandler.send(new Object[]{"1234-3244-2432-123", 86.36f});
-            inputHandler.send(new Object[]{"5768-3244-2432-5646", 48.36f});//this event will not include in to the window during first iteration because 1+0<5*0.25
+            inputHandler.send(new Object[]{"5768-3244-2432-5646", 48.36f});//this event will not include in to the
+            // window during first iteration because 1+0<5*0.25
         }
         Thread.sleep(1000);
         Assert.assertEquals("Event arrived", true, eventArrived);
@@ -184,7 +185,8 @@ public class LossyFrequentWindowTestCase {
             inputHandler.send(new Object[]{"3234-3244-2432-4124", 73.36f});
             inputHandler.send(new Object[]{"3234-3244-2432-4124", 78.36f});
             inputHandler.send(new Object[]{"1234-3244-2432-123", 86.36f});
-            inputHandler.send(new Object[]{"3234-3244-2432-4124", 48.36f});//this event will be included because we only consider cardNo
+            inputHandler.send(new Object[]{"3234-3244-2432-4124", 48.36f});//this event will be included because we
+            // only consider cardNo
         }
         Thread.sleep(1000);
         Assert.assertEquals("Event arrived", true, eventArrived);

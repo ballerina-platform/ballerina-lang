@@ -26,12 +26,12 @@ import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import javax.sql.DataSource;
 
 /**
  * This is the main interface class of Siddhi where users will interact when using Siddhi as a library.
@@ -40,7 +40,8 @@ public class SiddhiManager {
 
     private static final Logger log = Logger.getLogger(SiddhiManager.class);
     private SiddhiContext siddhiContext;
-    private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap = new ConcurrentHashMap<String, ExecutionPlanRuntime>();
+    private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap = new ConcurrentHashMap<String,
+            ExecutionPlanRuntime>();
 
     /**
      * Creates a Siddhi Manager instance with default {@link SiddhiContext}. This is the only method to create a new
@@ -51,7 +52,8 @@ public class SiddhiManager {
     }
 
     public ExecutionPlanRuntime createExecutionPlanRuntime(ExecutionPlan executionPlan) {
-        ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder = ExecutionPlanParser.parse(executionPlan, siddhiContext);
+        ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder = ExecutionPlanParser.parse(executionPlan,
+                siddhiContext);
         executionPlanRuntimeBuilder.setExecutionPlanRuntimeMap(executionPlanRuntimeMap);
         ExecutionPlanRuntime executionPlanRuntime = executionPlanRuntimeBuilder.build();
         executionPlanRuntimeMap.put(executionPlanRuntime.getName(), executionPlanRuntime);
@@ -73,7 +75,8 @@ public class SiddhiManager {
     }
 
     public void validateExecutionPlan(ExecutionPlan executionPlan) {
-        final ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext).build();
+        final ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext)
+                .build();
         executionPlanRuntime.start();
         executionPlanRuntime.shutdown();
     }
@@ -114,9 +117,10 @@ public class SiddhiManager {
 
     /**
      * Method used to remove the extensions registered in the siddhi manager.
+     *
      * @param name Name of the extension as given in the annotation.
      */
-    public void removeExtension(String name){
+    public void removeExtension(String name) {
         siddhiContext.getSiddhiExtensions().remove(name);
     }
 
@@ -160,7 +164,8 @@ public class SiddhiManager {
     }
 
     /**
-     * Method used to restore state of Current Siddhi Manager instance. This will internally call all ExecutionPlanRuntimes
+     * Method used to restore state of Current Siddhi Manager instance. This will internally call all
+     * ExecutionPlanRuntimes
      * within Siddhi Manager.
      */
     public void restoreLastState() {

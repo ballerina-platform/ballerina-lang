@@ -33,7 +33,8 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
     protected String elementId;
     private int attributeSize;
 
-    public void initAggregator(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    public void initAggregator(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+            executionPlanContext) {
         try {
             this.executionPlanContext = executionPlanContext;
             this.attributeExpressionExecutors = attributeExpressionExecutors;
@@ -108,7 +109,8 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
      * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         Execution plan runtime context
      */
-    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
+    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+            executionPlanContext);
 
     public abstract Attribute.Type getReturnType();
 

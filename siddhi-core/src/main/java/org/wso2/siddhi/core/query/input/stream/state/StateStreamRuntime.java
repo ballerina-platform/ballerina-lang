@@ -58,7 +58,8 @@ public class StateStreamRuntime implements StreamRuntime {
                 ((SequenceSingleProcessStreamReceiver) processStreamReceiver).setStateStreamRuntime(stateStreamRuntime);
             }
         }
-        ((StreamPreStateProcessor) stateStreamRuntime.innerStateRuntime.getFirstProcessor()).setThisLastProcessor((StreamPostStateProcessor)
+        ((StreamPreStateProcessor) stateStreamRuntime.innerStateRuntime.getFirstProcessor()).setThisLastProcessor(
+                (StreamPostStateProcessor)
                 stateStreamRuntime.innerStateRuntime.getLastProcessor());
         return stateStreamRuntime;
     }
@@ -75,12 +76,12 @@ public class StateStreamRuntime implements StreamRuntime {
         return metaStateEvent;
     }
 
-    public void setInnerStateRuntime(InnerStateRuntime innerStateRuntime) {
-        this.innerStateRuntime = innerStateRuntime;
-    }
-
     public InnerStateRuntime getInnerStateRuntime() {
         return innerStateRuntime;
+    }
+
+    public void setInnerStateRuntime(InnerStateRuntime innerStateRuntime) {
+        this.innerStateRuntime = innerStateRuntime;
     }
 
     public void resetAndUpdate() {

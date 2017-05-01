@@ -60,7 +60,8 @@ public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
                     allComplexEventChunk.add(event);
                     counter++;
                     if (counter == value) {
-                        ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                        ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>
+                                (complexEventChunk.isBatch());
                         outputEventChunk.add(allComplexEventChunk.getFirst());
                         allComplexEventChunk.clear();
                         counter = 0;

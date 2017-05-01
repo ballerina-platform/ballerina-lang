@@ -41,8 +41,10 @@ public class UpdateOrInsertTableCallback extends OutputCallback {
     private StreamEventPool streamEventPool;
     private StreamEventConverter streamEventConvertor;
 
-    public UpdateOrInsertTableCallback(EventTable eventTable, CompiledCondition compiledCondition, AbstractDefinition updatingStreamDefinition,
-                                       int matchingStreamIndex, boolean convertToStreamEvent, StateEventPool stateEventPool,
+    public UpdateOrInsertTableCallback(EventTable eventTable, CompiledCondition compiledCondition, AbstractDefinition
+            updatingStreamDefinition,
+                                       int matchingStreamIndex, boolean convertToStreamEvent, StateEventPool
+                                               stateEventPool,
                                        StreamEventPool streamEventPool, StreamEventConverter streamEventConvertor) {
         this.matchingStreamIndex = matchingStreamIndex;
         this.eventTable = eventTable;
@@ -60,10 +62,13 @@ public class UpdateOrInsertTableCallback extends OutputCallback {
     public void send(ComplexEventChunk updateOrAddEventChunk) {
         updateOrAddEventChunk.reset();
         if (updateOrAddEventChunk.hasNext()) {
-            ComplexEventChunk<StateEvent> updateOrAddStateEventChunk = constructMatchingStateEventChunk(updateOrAddEventChunk,
+            ComplexEventChunk<StateEvent> updateOrAddStateEventChunk = constructMatchingStateEventChunk
+                    (updateOrAddEventChunk,
                     convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
-            constructMatchingStateEventChunk(updateOrAddEventChunk, convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
-            eventTable.updateOrAdd(updateOrAddStateEventChunk, compiledCondition, updateAttributeMappers, addingStreamEventExtractor);
+            constructMatchingStateEventChunk(updateOrAddEventChunk, convertToStreamEvent, stateEventPool,
+                    matchingStreamIndex, streamEventPool, streamEventConvertor);
+            eventTable.updateOrAdd(updateOrAddStateEventChunk, compiledCondition, updateAttributeMappers,
+                    addingStreamEventExtractor);
         }
     }
 

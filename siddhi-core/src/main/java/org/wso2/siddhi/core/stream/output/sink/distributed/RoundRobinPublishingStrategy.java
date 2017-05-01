@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * Publishing strategy to implement messages in a round robin manner to multiple destinations
- * */
+ */
 
 @Extension(
         name = "roundRobin",
@@ -42,8 +42,9 @@ public class RoundRobinPublishingStrategy extends PublishingStrategy {
 
     /**
      * Initialize the Distribution strategy with the information it will require to make decisions.
-     * @param streamDefinition The stream attached to the sink this PublishingStrategy is used in
-     * @param transportOptionHolder Sink options of the sink which uses this PublishingStrategy
+     *
+     * @param streamDefinition         The stream attached to the sink this PublishingStrategy is used in
+     * @param transportOptionHolder    Sink options of the sink which uses this PublishingStrategy
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
      */
     @Override
@@ -63,16 +64,16 @@ public class RoundRobinPublishingStrategy extends PublishingStrategy {
      */
     @Override
     public List<Integer> getDestinationsToPublish(Object payload, DynamicOptions transportOptions) {
-        if (destinationIds.isEmpty()){
+        if (destinationIds.isEmpty()) {
             return PublishingStrategy.EMPTY_RETURN_VALUE;
         }
 
         int currentDestinationCount = destinationIds.size();
-        if (destinationCount != currentDestinationCount){
+        if (destinationCount != currentDestinationCount) {
             destinationCount = currentDestinationCount;
         }
 
-        if (!returnValue.isEmpty()){
+        if (!returnValue.isEmpty()) {
             returnValue.remove(0);
         }
 

@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.extension.output.transport.http;
 
-import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -29,12 +28,11 @@ import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 
-import javax.xml.bind.DatatypeConverter;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.*;
+import javax.xml.bind.DatatypeConverter;
 
 @Extension(
         name = "http",
@@ -162,9 +160,13 @@ public class HttpOutputTransport extends OutputTransport {
     }
 
     private void checkHTTPClientInit(Map<String, String> staticProperties) {
-        if (httpClient != null) return;
+        if (httpClient != null) {
+            return;
+        }
         synchronized (HttpOutputTransport.class) {
-            if (this.httpClient != null) return;
+            if (this.httpClient != null) {
+                return;
+            }
             httpClient = new HttpClient(connectionManager);
             String proxyHost = staticProperties.get(ADAPTER_PROXY_HOST);
             String proxyPort = staticProperties.get(ADAPTER_PROXY_PORT);

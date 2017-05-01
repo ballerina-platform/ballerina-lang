@@ -18,10 +18,10 @@
 
 package org.wso2.siddhi.extension.evalscript;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.function.EvalScript;
-import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import javax.script.ScriptEngine;
@@ -35,9 +35,9 @@ import javax.script.ScriptException;
 )
 public class EvalJavaScript implements EvalScript {
 
+    String functionName;
     private ScriptEngine engine;
     private Attribute.Type returnType;
-    String functionName;
 
     public EvalJavaScript() {
         engine = new ScriptEngineManager().getEngineByName("JavaScript");
@@ -82,12 +82,12 @@ public class EvalJavaScript implements EvalScript {
     }
 
     @Override
-    public void setReturnType(Attribute.Type returnType) {
-        this.returnType = returnType;
+    public Attribute.Type getReturnType() {
+        return returnType;
     }
 
     @Override
-    public Attribute.Type getReturnType() {
-        return returnType;
+    public void setReturnType(Attribute.Type returnType) {
+        this.returnType = returnType;
     }
 }

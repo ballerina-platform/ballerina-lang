@@ -48,7 +48,8 @@ public class SimpleFilterSingleQueryPerformance {
                     eventCount++;
                     timeSpent += (System.currentTimeMillis() - (Long) event.getData(3));
                     if (eventCount % 1000000 == 0) {
-                        System.out.println("Throughput : " + (eventCount * 1000) / ((System.currentTimeMillis()) - startTime));
+                        System.out.println("Throughput : " + (eventCount * 1000) / ((System.currentTimeMillis()) -
+                                startTime));
                         System.out.println("Time spent :  " + (timeSpent * 1.0 / eventCount));
                         startTime = System.currentTimeMillis();
                         eventCount = 0;

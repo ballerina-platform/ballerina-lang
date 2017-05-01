@@ -17,42 +17,40 @@
  */
 package org.wso2.siddhi.annotation.processor;
 
-import org.wso2.siddhi.annotation.*;
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Messager;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.TypeElement;
 
 /**
  * Annotation processor for validating the siddhi annotations added for documenting the processors at compile time
  */
 public class ValidationAnnotationProcessor extends AbstractProcessor {
-    private static final String STREAM_PROCESSOR_SUPER_CLASS = "org.wso2.siddhi.core.query.processor.stream.StreamProcessor";
-    private static final String FUNCTION_EXECUTOR_SUPER_CLASS = "org.wso2.siddhi.core.executor.function.FunctionExecutor";
-    private static final String ATTRIBUTE_AGGREGATOR_SUPER_CLASS = "org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator";
+//    private static final String STREAM_PROCESSOR_SUPER_CLASS = "org.wso2.siddhi.core.query.processor.stream" +
+//            ".StreamProcessor";
+//    private static final String FUNCTION_EXECUTOR_SUPER_CLASS = "org.wso2.siddhi.core.executor.function" +
+//            ".FunctionExecutor";
+//    private static final String ATTRIBUTE_AGGREGATOR_SUPER_CLASS = "org.wso2.siddhi.core.query.selector.attribute" +
+//            ".aggregator.AttributeAggregator";
 
-    private List<Class<? extends Annotation>> annotationsClasses;    // annotation classes that will be validated by this processor
-    private Messager messager;
+    private List<Class<? extends Annotation>> annotationsClasses;    // annotation classes that will be validated by
+    // this processor
+//    private Messager messager;
 
     @Override
     public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
-        messager = env.getMessager();
+//        messager = env.getMessager();
 
         // Populating the supported annotations class
         annotationsClasses = new ArrayList<>();
@@ -68,7 +66,8 @@ public class ValidationAnnotationProcessor extends AbstractProcessor {
 //            // Looping the elements annotated with the annotation classes
 //            for (Element element : roundEnv.getElementsAnnotatedWith(annotationClass)) {
 //                if (element.getKind() == ElementKind.CLASS) {
-//                    // Throw error if @ReturnAttribute or @ReturnEvent is applied to any class not extending StreamProcessor
+//                    // Throw error if @ReturnAttribute or @ReturnEvent is applied to any class not extending
+// StreamProcessor
 //                    if (annotationClass.equals(ReturnEvent.class)) {
 //                        validateSuperClassInheritance(
 //                                element, new String[]{STREAM_PROCESSOR_SUPER_CLASS}
@@ -85,7 +84,8 @@ public class ValidationAnnotationProcessor extends AbstractProcessor {
 //                        );
 //                    }
 //
-//                    // Throw error if @Return is applied to classes extending StreamProcessor, WindowProcessor & StreamFunction
+//                    // Throw error if @Return is applied to classes extending StreamProcessor, WindowProcessor &
+// StreamFunction
 //                    if (annotationClass.equals(Return.class)) {
 //                        validateSuperClassInheritance(
 //                                element, new String[]{
@@ -118,45 +118,15 @@ public class ValidationAnnotationProcessor extends AbstractProcessor {
         return SourceVersion.RELEASE_8;
     }
 
-    /**
-     * Show build showBuildError
-     *
-     * @param element Element for which the showBuildError should be shown
-     * @param message The showBuildError message to be shown. This string will be formatted using the args
-     * @param args    The arguments for formatting the message string
-     */
-    private void showBuildError(Element element, String message, Object... args) {
-        messager.printMessage(Diagnostic.Kind.ERROR, String.format(message, args), element);
-    }
+//    /**
+//     * Show build showBuildError
+//     *
+//     * @param element Element for which the showBuildError should be shown
+//     * @param message The showBuildError message to be shown. This string will be formatted using the args
+//     * @param args    The arguments for formatting the message string
+//     */
+//    private void showBuildError(Element element, String message, Object... args) {
+//        messager.printMessage(Diagnostic.Kind.ERROR, String.format(message, args), element);
+//    }
 
-    /**
-     * Validate if the element specified is inherited from the super class specified
-     * This will throw an error if it is not extnded from it
-     *
-     * @param elementToValidate The element to validate if extended from one of the superclasses
-     * @param superClassNames   The super classes one of which the element should inherit
-     */
-    private void validateSuperClassInheritance(Element elementToValidate, String[] superClassNames) {
-        TypeMirror superType = ((TypeElement) elementToValidate).getSuperclass();
-        boolean isAChildClass = false;
-
-        // Looping the inheritance hierarchy to check if the element inherits at least one of the super classes specified
-        while (!"none".equals(superType.toString())) {
-            Element superTypeElement = ((DeclaredType) superType).asElement();
-
-            if (Arrays.asList(superClassNames).contains(superTypeElement.toString())) {
-                isAChildClass = true;
-                break;
-            }
-
-            superType = ((TypeElement) superTypeElement).getSuperclass();
-        }
-
-        if (!isAChildClass) {
-            showBuildError(
-                    elementToValidate, "%s does not extend %s",
-                    elementToValidate.getSimpleName(), String.join(" or ", (CharSequence[]) superClassNames)
-            );
-        }
-    }
 }

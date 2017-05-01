@@ -56,8 +56,10 @@ public class QueryRuntime {
     private QuerySelector selector;
     private MetaComplexEvent metaComplexEvent;
 
-    public QueryRuntime(Query query, ExecutionPlanContext executionPlanContext, StreamRuntime streamRuntime, QuerySelector selector,
-                        OutputRateLimiter outputRateLimiter, OutputCallback outputCallback, MetaComplexEvent metaComplexEvent, boolean synchronised) {
+    public QueryRuntime(Query query, ExecutionPlanContext executionPlanContext, StreamRuntime streamRuntime,
+                        QuerySelector selector,
+                        OutputRateLimiter outputRateLimiter, OutputCallback outputCallback, MetaComplexEvent
+                                metaComplexEvent, boolean synchronised) {
         this.query = query;
         this.executionPlanContext = executionPlanContext;
         this.streamRuntime = streamRuntime;
@@ -120,7 +122,9 @@ public class QueryRuntime {
         if (query.getInputStream() instanceof SingleInputStream) {
             return ((SingleInputStream) query.getInputStream()).isInnerStream();
         } else if (query.getInputStream() instanceof JoinInputStream) {
-            return ((SingleInputStream) ((JoinInputStream) query.getInputStream()).getLeftInputStream()).isInnerStream() || ((SingleInputStream) ((JoinInputStream) query.getInputStream()).getRightInputStream()).isInnerStream();
+            return ((SingleInputStream) ((JoinInputStream) query.getInputStream()).getLeftInputStream())
+                    .isInnerStream() || ((SingleInputStream) ((JoinInputStream) query.getInputStream())
+                    .getRightInputStream()).isInnerStream();
         } else if (query.getInputStream() instanceof StateInputStream) {
             for (String streamId : query.getInputStream().getAllStreamIds()) {
                 if (streamId.startsWith("#")) {
@@ -154,7 +158,8 @@ public class QueryRuntime {
             queryRuntime.outputRateLimiter.setOutputCallback(outputCallback);
             queryRuntime.outputCallback = this.outputCallback;
         } else {
-            OutputCallback clonedQueryOutputCallback = OutputParser.constructOutputCallback(query.getOutputStream(), key,
+            OutputCallback clonedQueryOutputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
+                    key,
                     localStreamJunctionMap, outputStreamDefinition, executionPlanContext, queryId);
             queryRuntime.outputRateLimiter.setOutputCallback(clonedQueryOutputCallback);
             queryRuntime.outputCallback = clonedQueryOutputCallback;

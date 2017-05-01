@@ -31,7 +31,9 @@ public class MatchingMetaInfoHolder {
     private MetaStateEvent metaStateEvent;
     private int currentState = UNKNOWN_STATE;
 
-    public MatchingMetaInfoHolder(MetaStateEvent metaStateEvent, int matchingStreamEventIndex, int storeEventIndex, AbstractDefinition matchingStreamDefinition, AbstractDefinition storeDefinition, int currentState) {
+    public MatchingMetaInfoHolder(MetaStateEvent metaStateEvent, int matchingStreamEventIndex, int storeEventIndex,
+                                  AbstractDefinition matchingStreamDefinition, AbstractDefinition storeDefinition,
+                                  int currentState) {
         this.metaStateEvent = metaStateEvent;
         this.matchingStreamEventIndex = matchingStreamEventIndex;
         this.storeEventIndex = storeEventIndex;

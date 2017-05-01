@@ -39,7 +39,8 @@ public class UpdateTableCallback extends OutputCallback {
     private StreamEventPool streamEventPool;
     private StreamEventConverter streamEventConvertor;
 
-    public UpdateTableCallback(EventTable eventTable, CompiledCondition compiledCondition, AbstractDefinition updatingStreamDefinition,
+    public UpdateTableCallback(EventTable eventTable, CompiledCondition compiledCondition, AbstractDefinition
+            updatingStreamDefinition,
                                int matchingStreamIndex, boolean convertToStreamEvent, StateEventPool stateEventPool,
                                StreamEventPool streamEventPool, StreamEventConverter streamEventConvertor) {
         this.eventTable = eventTable;

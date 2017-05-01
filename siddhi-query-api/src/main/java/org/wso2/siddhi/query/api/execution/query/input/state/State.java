@@ -20,6 +20,9 @@ package org.wso2.siddhi.query.api.execution.query.input.state;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
+/**
+ * States of pattern
+ */
 public class State {
 
     public static StateElement every(StateElement stateElement) {
@@ -59,7 +62,8 @@ public class State {
     public static StateElement logicalNotAnd(StreamStateElement notStreamStateElement,
                                              StreamStateElement andStreamStateElement,
                                              TimeConstant time) {
-        return new LogicalStateElement(andStreamStateElement, LogicalStateElement.Type.NOT, notStreamStateElement, time);
+        return new LogicalStateElement(andStreamStateElement, LogicalStateElement.Type.NOT, notStreamStateElement,
+                time);
     }
 
     public static StateElement logicalNotAnd(StreamStateElement notStreamStateElement,

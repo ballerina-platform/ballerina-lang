@@ -34,7 +34,8 @@ public class FilterProcessor implements Processor {
         if (Attribute.Type.BOOL.equals(conditionExecutor.getReturnType())) {
             this.conditionExecutor = conditionExecutor;
         } else {
-            throw new OperationNotSupportedException("Return type of " + conditionExecutor.toString() + " should be of type BOOL. " +
+            throw new OperationNotSupportedException("Return type of " + conditionExecutor.toString() + " should be " +
+                    "of type BOOL. " +
                     "Actual type: " + conditionExecutor.getReturnType().toString());
         }
     }

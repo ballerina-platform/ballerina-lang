@@ -24,8 +24,8 @@ import java.util.List;
 
 public class Option {
     private final String key;
-    private String value;
     private final TemplateBuilder templateBuilder;
+    private String value;
     private List<String> variableValues = new ArrayList<>();
     private int dataIndex = -1;
 

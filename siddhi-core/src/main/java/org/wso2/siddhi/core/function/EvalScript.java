@@ -25,7 +25,7 @@ public interface EvalScript {
 
     Object eval(String name, Object[] arg);
 
-    void setReturnType(Attribute.Type returnType);
-
     Attribute.Type getReturnType();
+
+    void setReturnType(Attribute.Type returnType);
 }

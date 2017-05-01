@@ -100,10 +100,11 @@ public class HazelcastEventTable implements EventTable {
 
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
-     * @param tableDefinition        Definition of event table.
+     *
+     * @param tableDefinition      Definition of event table.
      * @param storeEventPool
      * @param storeEventCloner
-     * @param executionPlanContext   ExecutionPlan related meta information.
+     * @param executionPlanContext ExecutionPlan related meta information.
      */
     @Override
     public void init(TableDefinition tableDefinition,
@@ -228,12 +229,14 @@ public class HazelcastEventTable implements EventTable {
     }
 
     @Override
-    public synchronized void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
+    public synchronized void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition
+            compiledCondition) {
         ((Operator) compiledCondition).delete(deletingEventChunk, eventHolder);
     }
 
     @Override
-    public synchronized void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
+    public synchronized void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition
+            compiledCondition,
                                     UpdateAttributeMapper[] updateAttributeMappers) {
         ((Operator) compiledCondition).update(updatingEventChunk, eventHolder, updateAttributeMappers);
 
@@ -241,7 +244,8 @@ public class HazelcastEventTable implements EventTable {
 
     @Override
     public synchronized void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
-                                         CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers,
+                                         CompiledCondition compiledCondition, UpdateAttributeMapper[]
+                                                     updateAttributeMappers,
                                          AddingStreamEventExtractor addingStreamEventExtractor) {
         ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate(updateOrAddingEventChunk,
                 eventHolder, updateAttributeMappers, addingStreamEventExtractor);

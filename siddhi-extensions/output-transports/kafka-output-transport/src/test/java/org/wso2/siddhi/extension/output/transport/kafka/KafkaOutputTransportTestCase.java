@@ -20,7 +20,6 @@ package org.wso2.siddhi.extension.output.transport.kafka;
 
 import org.I0Itec.zkclient.exception.ZkTimeoutException;
 import org.apache.log4j.Logger;
-import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -28,20 +27,22 @@ import org.wso2.siddhi.extension.output.mapper.text.TextOutputMapper;
 
 public class KafkaOutputTransportTestCase {
     static final Logger log = Logger.getLogger(KafkaOutputTransportTestCase.class);
-//    @Test
+
+    //    @Test
     public void testPublisherWithKafkaTransport() throws InterruptedException {
         log.info("Creating test for publishing events for static topic with a partition");
         try {
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("outputmapper:text", TextOutputMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                "@Plan:name('TestExecutionPlan') " +
-                "define stream FooStream (symbol string, price float, volume long); " +
-                "@info(name = 'query1') " +
-                "@sink(type='kafka', topic='kafka_topic', bootstrap.servers='localhost:9092', partition.no='0', " +
-                    "@map(type='text'))" +
-                        "Define stream BarStream (symbol string, price float, volume long);" +
-                "from FooStream select symbol, price, volume insert into BarStream;");
+                    "@Plan:name('TestExecutionPlan') " +
+                            "define stream FooStream (symbol string, price float, volume long); " +
+                            "@info(name = 'query1') " +
+                            "@sink(type='kafka', topic='kafka_topic', bootstrap.servers='localhost:9092', partition" +
+                            ".no='0', " +
+                            "@map(type='text'))" +
+                            "Define stream BarStream (symbol string, price float, volume long);" +
+                            "from FooStream select symbol, price, volume insert into BarStream;");
             InputHandler fooStream = executionPlanRuntime.getInputHandler("FooStream");
             executionPlanRuntime.start();
             fooStream.send(new Object[]{"WSO2", 55.6f, 100L});
@@ -54,7 +55,7 @@ public class KafkaOutputTransportTestCase {
         }
     }
 
-//    @Test
+    //    @Test
     public void testPublisherWithKafkaTransportWithDynamicTopic() throws InterruptedException {
         log.info("Creating test for publishing events for dynamic topic without partition");
         try {
@@ -62,12 +63,12 @@ public class KafkaOutputTransportTestCase {
             siddhiManager.setExtension("outputmapper:text", TextOutputMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
-                    "define stream FooStream (symbol string, price float, volume long); " +
-                    "@info(name = 'query1') " +
-                    "@sink(type='kafka', topic='{{symbol}}', bootstrap.servers='localhost:9092', " +
-                        "@map(type='text'))" +
+                            "define stream FooStream (symbol string, price float, volume long); " +
+                            "@info(name = 'query1') " +
+                            "@sink(type='kafka', topic='{{symbol}}', bootstrap.servers='localhost:9092', " +
+                            "@map(type='text'))" +
                             "Define stream BarStream (symbol string, price float, volume long);" +
-                    "from FooStream select symbol, price, volume insert into BarStream; "
+                            "from FooStream select symbol, price, volume insert into BarStream; "
             );
             InputHandler fooStream = executionPlanRuntime.getInputHandler("FooStream");
             executionPlanRuntime.start();

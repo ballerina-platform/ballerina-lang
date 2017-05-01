@@ -31,11 +31,12 @@ public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
     private final int streamEventSize;
     private final boolean isMatchingEventAStateEvent;
     private final int matchingStreamIndex;
-    private EventTable eventTable;
     private final CompiledCondition compiledCondition;
+    private EventTable eventTable;
     private FinderStateEvent finderStateEvent;
 
-    public InConditionExpressionExecutor(EventTable eventTable, CompiledCondition compiledCondition, int streamEventSize, boolean isMatchingEventAStateEvent, int matchingStreamIndex) {
+    public InConditionExpressionExecutor(EventTable eventTable, CompiledCondition compiledCondition, int
+            streamEventSize, boolean isMatchingEventAStateEvent, int matchingStreamIndex) {
         this.streamEventSize = streamEventSize;
         this.isMatchingEventAStateEvent = isMatchingEventAStateEvent;
         this.matchingStreamIndex = matchingStreamIndex;
@@ -63,7 +64,8 @@ public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new InConditionExpressionExecutor(eventTable, compiledCondition.cloneCompiledCondition(key), streamEventSize, isMatchingEventAStateEvent, matchingStreamIndex);
+        return new InConditionExpressionExecutor(eventTable, compiledCondition.cloneCompiledCondition(key),
+                streamEventSize, isMatchingEventAStateEvent, matchingStreamIndex);
     }
 
 

@@ -49,7 +49,8 @@ public class HazelcastMapOperator extends MapOperator {
         while (deletingEventChunk.hasNext()) {
             StateEvent deletingEvent = deletingEventChunk.next();
             try {
-                for (Map.Entry<Object, StreamEvent> storeEventEntry : ((HazelcastPrimaryKeyEventHolder) storeEvents).entrySet()) {
+                for (Map.Entry<Object, StreamEvent> storeEventEntry : ((HazelcastPrimaryKeyEventHolder) storeEvents)
+                        .entrySet()) {
                     deletingEvent.setEvent(storeEventPosition, storeEventEntry.getValue());
                     if ((Boolean) expressionExecutor.execute(deletingEvent)) {
                         ((HazelcastPrimaryKeyEventHolder) storeEvents).remove(storeEventEntry.getKey());
@@ -69,18 +70,21 @@ public class HazelcastMapOperator extends MapOperator {
      * @param updateAttributeMappers Mapping positions array.
      */
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[]
+            updateAttributeMappers) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             StateEvent updatingEvent = updatingEventChunk.next();
             try {
-                for (Map.Entry<Object, StreamEvent> storeEventEntry : ((HazelcastPrimaryKeyEventHolder) storeEvents).entrySet()) {
+                for (Map.Entry<Object, StreamEvent> storeEventEntry : ((HazelcastPrimaryKeyEventHolder) storeEvents)
+                        .entrySet()) {
                     updatingEvent.setEvent(storeEventPosition, storeEventEntry.getValue());
                     if ((Boolean) expressionExecutor.execute(updatingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
                             updateAttributeMapper.mapOutputData(updatingEvent, storeEventEntry.getValue());
                         }
-                        ((HazelcastPrimaryKeyEventHolder) storeEvents).replace(storeEventEntry.getKey(), storeEventEntry.getValue());
+                        ((HazelcastPrimaryKeyEventHolder) storeEvents).replace(storeEventEntry.getKey(),
+                                storeEventEntry.getValue());
                     }
                 }
             } finally {
@@ -90,21 +94,26 @@ public class HazelcastMapOperator extends MapOperator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object storeEvents,
-                                                    UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
+    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object
+            storeEvents,
+                                                    UpdateAttributeMapper[] updateAttributeMappers,
+                                                    AddingStreamEventExtractor addingStreamEventExtractor) {
         updatingOrAddingEventChunk.reset();
-        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(updatingOrAddingEventChunk.isBatch());
+        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>
+                (updatingOrAddingEventChunk.isBatch());
         while (updatingOrAddingEventChunk.hasNext()) {
             StateEvent overwritingOrAddingEvent = updatingOrAddingEventChunk.next();
             try {
                 boolean updated = false;
-                for (Map.Entry<Object, StreamEvent> storeEventEntry : ((HazelcastPrimaryKeyEventHolder) storeEvents).entrySet()) {
+                for (Map.Entry<Object, StreamEvent> storeEventEntry : ((HazelcastPrimaryKeyEventHolder) storeEvents)
+                        .entrySet()) {
                     overwritingOrAddingEvent.setEvent(storeEventPosition, storeEventEntry.getValue());
                     if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
                             updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, storeEventEntry.getValue());
                         }
-                        ((HazelcastPrimaryKeyEventHolder) storeEvents).replace(storeEventEntry.getKey(), storeEventEntry.getValue());
+                        ((HazelcastPrimaryKeyEventHolder) storeEvents).replace(storeEventEntry.getKey(),
+                                storeEventEntry.getValue());
                         updated = true;
                     }
                 }

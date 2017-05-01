@@ -68,10 +68,10 @@ public interface RDBMSEventTableConstants {
     public static final String RDBMS_TABLE_CONFIG_FILE = "rdbms-table-config.xml";
 
 
-    public static final String  EVENT_TABLE_RDBMS_TABLE_JDBC_URL = "jdbc.url";
-    public static final String  EVENT_TABLE_RDBMS_TABLE_USERNAME = "username";
-    public static final String  EVENT_TABLE_RDBMS_TABLE_PASSWORD = "password";
-    public static final String  EVENT_TABLE_RDBMS_TABLE_DRIVER_NAME = "driver.name";
+    public static final String EVENT_TABLE_RDBMS_TABLE_JDBC_URL = "jdbc.url";
+    public static final String EVENT_TABLE_RDBMS_TABLE_USERNAME = "username";
+    public static final String EVENT_TABLE_RDBMS_TABLE_PASSWORD = "password";
+    public static final String EVENT_TABLE_RDBMS_TABLE_DRIVER_NAME = "driver.name";
 
     public static final String ANNOTATION_ELEMENT_BLOOM_FILTERS_SIZE = "bloom.filters.size";
     public static final String ANNOTATION_ELEMENT_BLOOM_FILTERS_HASH = "bloom.filters.hash";

@@ -25,7 +25,8 @@ import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 
 public interface EventTrigger extends EternalReferencedHolder {
 
-    void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction streamJunction);
+    void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction
+            streamJunction);
 
     TriggerDefinition getTriggerDefinition();
 

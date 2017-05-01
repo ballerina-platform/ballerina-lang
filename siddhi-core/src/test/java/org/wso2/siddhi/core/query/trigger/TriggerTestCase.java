@@ -52,7 +52,8 @@ public class TriggerTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        TriggerDefinition triggerDefinition = TriggerDefinition.id("cseEventStream").atEvery(Expression.Time.milliSec(500));
+        TriggerDefinition triggerDefinition = TriggerDefinition.id("cseEventStream").atEvery(Expression.Time.milliSec
+                (500));
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineTrigger(triggerDefinition);
@@ -66,7 +67,8 @@ public class TriggerTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        TriggerDefinition triggerDefinition = TriggerDefinition.id("cseEventStream").atEvery(Expression.Time.milliSec(500)).at("start");
+        TriggerDefinition triggerDefinition = TriggerDefinition.id("cseEventStream").atEvery(Expression.Time.milliSec
+                (500)).at("start");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineTrigger(triggerDefinition);
@@ -187,12 +189,12 @@ public class TriggerTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for(Event event:events){
-                    long timestamp  = event.getTimestamp();
+                for (Event event : events) {
+                    long timestamp = event.getTimestamp();
                     count++;
-                    if(count>1){
-                        float triggerTimeDiff = timestamp/1000 - lastTimeStamp/ 1000;
-                        Assert.assertEquals(1.0f,triggerTimeDiff);
+                    if (count > 1) {
+                        float triggerTimeDiff = timestamp / 1000 - lastTimeStamp / 1000;
+                        Assert.assertEquals(1.0f, triggerTimeDiff);
                     }
                     lastTimeStamp = timestamp;
                 }

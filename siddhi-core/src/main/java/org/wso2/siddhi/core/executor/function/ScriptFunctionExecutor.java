@@ -29,10 +29,9 @@ import java.util.Map;
 public class ScriptFunctionExecutor extends FunctionExecutor {
 
     static final Logger log = Logger.getLogger(ScriptFunctionExecutor.class);
-
-    private String functionId;
     Attribute.Type returnType;
     EvalScript evalScript;
+    private String functionId;
 
     public ScriptFunctionExecutor(String name) {
         this.functionId = name;

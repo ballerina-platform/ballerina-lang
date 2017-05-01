@@ -103,7 +103,8 @@ public class TextInputMapperTestCase {
 //        log.info("Subscription Test 8: Test an in memory transport with custom text mapping");
 //
 //        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "stock"));
-//        subscription.map(Mapping.format("text").map("regex1[1]").map("regex1[2]").map("regex1[3]").option("regex1", "" +
+//        subscription.map(Mapping.format("text").map("regex1[1]").map("regex1[2]").map("regex1[3]").option("regex1",
+// "" +
 //                "([^,;]+),([^,;]+),([^,;]+),([^,;]+)"));
 //        subscription.insertInto("FooStream");
 //

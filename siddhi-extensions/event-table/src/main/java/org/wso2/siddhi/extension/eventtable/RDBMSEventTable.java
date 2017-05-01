@@ -40,7 +40,12 @@ import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
-import org.wso2.siddhi.extension.eventtable.rdbms.*;
+import org.wso2.siddhi.extension.eventtable.rdbms.DBHandler;
+import org.wso2.siddhi.extension.eventtable.rdbms.DBQueryHelper;
+import org.wso2.siddhi.extension.eventtable.rdbms.PooledDataSource;
+import org.wso2.siddhi.extension.eventtable.rdbms.RDBMSEventTableConstants;
+import org.wso2.siddhi.extension.eventtable.rdbms.RDBMSOperator;
+import org.wso2.siddhi.extension.eventtable.rdbms.RDBMSOperatorParser;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -48,13 +53,13 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.sql.DataSource;
 
 @Extension(
         name = "rdbms",
@@ -102,11 +107,6 @@ import java.util.TimerTask;
 )
 public class RDBMSEventTable implements EventTable {
 
-    private TableDefinition tableDefinition;
-    private DBHandler dbHandler;
-    private CachingTable cachedTable;
-    private String cacheSizeInString;
-    private boolean isCachingEnabled;
     private static final Logger log = Logger.getLogger(RDBMSEventTable.class);
 
     /*
@@ -120,14 +120,22 @@ public class RDBMSEventTable implements EventTable {
         }
     }
 
+    private TableDefinition tableDefinition;
+    private DBHandler dbHandler;
+    private CachingTable cachedTable;
+    private String cacheSizeInString;
+    private boolean isCachingEnabled;
+
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
-     *  @param tableDefinition        Definition of event table
+     *
+     * @param tableDefinition      Definition of event table
      * @param storeEventPool
      * @param storeEventCloner
-     * @param executionPlanContext   ExecutionPlan related meta information
+     * @param executionPlanContext ExecutionPlan related meta information
      */
-    public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool, StreamEventCloner storeEventCloner, ExecutionPlanContext executionPlanContext) {
+    public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool, StreamEventCloner
+            storeEventCloner, ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
         Connection con = null;
         int bloomFilterSize = RDBMSEventTableConstants.BLOOM_FILTER_SIZE;
@@ -161,26 +169,31 @@ public class RDBMSEventTable implements EventTable {
             driverName = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_DRIVER_NAME);
             List<Element> connectionPropertyElements = null;
 
-            Annotation connectionAnnotation = AnnotationHelper.getAnnotation(RDBMSEventTableConstants.ANNOTATION_CONNECTION, tableDefinition.getAnnotations());
+            Annotation connectionAnnotation = AnnotationHelper.getAnnotation(RDBMSEventTableConstants
+                    .ANNOTATION_CONNECTION, tableDefinition.getAnnotations());
             if (connectionAnnotation != null) {
                 connectionPropertyElements = connectionAnnotation.getElements();
             }
-            dataSource = PooledDataSource.getPoolDataSource(driverName, jdbcConnectionUrl, username, password, connectionPropertyElements);
+            dataSource = PooledDataSource.getPoolDataSource(driverName, jdbcConnectionUrl, username, password,
+                    connectionPropertyElements);
         }
 
         if (dataSource == null) {
             throw new ExecutionPlanCreationException("Datasource specified for the event table is invalid/null");
         }
         if (tableName == null) {
-            throw new ExecutionPlanCreationException("Invalid query specified. Required properties (tableName) not found ");
+            throw new ExecutionPlanCreationException("Invalid query specified. Required properties (tableName) not " +
+                    "found ");
         }
 
         cacheType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE);
         cacheSizeInString = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_SIZE);
         cacheLoadingType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_LOADING);
-        cacheValidityInterval = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_VALIDITY_PERIOD);
+        cacheValidityInterval = fromAnnotation.getElement(RDBMSEventTableConstants
+                .ANNOTATION_ELEMENT_CACHE_VALIDITY_PERIOD);
         bloomsEnabled = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS);
-        bloomFilterValidityInterval = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_VALIDITY_PERIOD);
+        bloomFilterValidityInterval = fromAnnotation.getElement(RDBMSEventTableConstants
+                .ANNOTATION_ELEMENT_BLOOM_VALIDITY_PERIOD);
 
         try {
             this.dbHandler = new DBHandler(dataSource, tableName, attributeList, tableDefinition);
@@ -193,7 +206,8 @@ public class RDBMSEventTable implements EventTable {
                 cachedTable = new CachingTable(cacheType, cacheSizeInString, executionPlanContext, tableDefinition);
                 isCachingEnabled = true;
 
-                if (cacheLoadingType != null && cacheLoadingType.equalsIgnoreCase(RDBMSEventTableConstants.EAGER_CACHE_LOADING_ELEMENT)) {
+                if (cacheLoadingType != null && cacheLoadingType.equalsIgnoreCase(RDBMSEventTableConstants
+                        .EAGER_CACHE_LOADING_ELEMENT)) {
                     dbHandler.loadDBCache(cachedTable, cacheSizeInString);
                 }
 
@@ -207,8 +221,10 @@ public class RDBMSEventTable implements EventTable {
             } else if (bloomsEnabled != null && bloomsEnabled.equalsIgnoreCase("enable")) {
                 String bloomsFilterSize;
                 String bloomsFilterHash;
-                bloomsFilterSize = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_SIZE);
-                bloomsFilterHash = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_HASH);
+                bloomsFilterSize = fromAnnotation.getElement(RDBMSEventTableConstants
+                        .ANNOTATION_ELEMENT_BLOOM_FILTERS_SIZE);
+                bloomsFilterHash = fromAnnotation.getElement(RDBMSEventTableConstants
+                        .ANNOTATION_ELEMENT_BLOOM_FILTERS_HASH);
                 if (bloomsFilterSize != null) {
                     bloomFilterSize = Integer.parseInt(bloomsFilterSize);
                 }
@@ -278,8 +294,10 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Called when having "in" condition, to check the existence of the event
-     *  @param matchingEvent Event that need to be check for existence
-     * @param compiledCondition        Operator that perform RDBMS related search*/
+     *
+     * @param matchingEvent     Event that need to be check for existence
+     * @param compiledCondition Operator that perform RDBMS related search
+     */
     @Override
     public synchronized boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition) {
         if (isCachingEnabled) {
@@ -292,8 +310,10 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Called when deleting an event chunk from event table
-     *  @param deletingEventChunk Event list for deletion
-     * @param compiledCondition           Operator that perform RDBMS related operations*/
+     *
+     * @param deletingEventChunk Event list for deletion
+     * @param compiledCondition  Operator that perform RDBMS related operations
+     */
     @Override
     public synchronized void delete(ComplexEventChunk deletingEventChunk, CompiledCondition compiledCondition) {
         ((Operator) compiledCondition).delete(deletingEventChunk, null);

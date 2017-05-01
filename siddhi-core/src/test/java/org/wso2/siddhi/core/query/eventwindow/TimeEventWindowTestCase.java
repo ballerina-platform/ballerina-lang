@@ -42,7 +42,7 @@ public class TimeEventWindowTestCase {
 
     @Test
     public void testTimeWindow1() throws InterruptedException {
-        log.info("TimeWindow Test1");
+        log.info("TimeWindow test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -93,7 +93,7 @@ public class TimeEventWindowTestCase {
 
     @Test
     public void testTimeWindow2() throws InterruptedException {
-        log.info("TimeWindow Test2");
+        log.info("TimeWindow test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -154,7 +154,8 @@ public class TimeEventWindowTestCase {
 
 
         String queries = "define stream fireAlarmEventStream (deviceID string, sonar double); " +
-                "define window fireAlarmEventWindow (deviceID string, sonar double) time(30 milliseconds) output expired events; " +
+                "define window fireAlarmEventWindow (deviceID string, sonar double) time(30 milliseconds) output " +
+                "expired events; " +
                 "" +
                 "@info(name = 'query0') " +
                 "from fireAlarmEventStream " +

@@ -53,7 +53,8 @@ public class FirstPerEventOutputRateLimiter extends OutputRateLimiter {
                 if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
                     if (counter == 0) {
                         complexEventChunk.remove();
-                        ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                        ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>
+                                (complexEventChunk.isBatch());
                         firstPerEventChunk.add(event);
                         outputEventChunks.add(firstPerEventChunk);
                     }

@@ -25,10 +25,10 @@ import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 import org.wso2.siddhi.core.util.statistics.metrics.SiddhiMetricsFactory;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.sql.DataSource;
 
 public class SiddhiContext {
 
@@ -49,7 +49,8 @@ public class SiddhiContext {
         defaultDisrupterExceptionHandler = new ExceptionHandler<Object>() {
             @Override
             public void handleEventException(Throwable throwable, long l, Object event) {
-                log.error("Disruptor encountered an error processing" + " [sequence: " + l + ", event: " + event.toString() + "]", throwable);
+                log.error("Disruptor encountered an error processing" + " [sequence: " + l + ", event: " + event
+                        .toString() + "]", throwable);
             }
 
             @Override

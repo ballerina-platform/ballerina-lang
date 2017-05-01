@@ -44,12 +44,18 @@ public class MetaStateEventAttribute {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof MetaStateEventAttribute)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof MetaStateEventAttribute)) {
+            return false;
+        }
 
         MetaStateEventAttribute attribute1 = (MetaStateEventAttribute) o;
 
-        if (attribute != null ? !attribute.equals(attribute1.attribute) : attribute1.attribute != null) return false;
+        if (attribute != null ? !attribute.equals(attribute1.attribute) : attribute1.attribute != null) {
+            return false;
+        }
         return Arrays.equals(position, attribute1.position);
 
     }

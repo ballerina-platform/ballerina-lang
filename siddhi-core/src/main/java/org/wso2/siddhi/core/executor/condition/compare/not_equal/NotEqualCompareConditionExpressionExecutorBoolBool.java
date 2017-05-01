@@ -33,6 +33,7 @@ public class NotEqualCompareConditionExpressionExecutorBoolBool extends NotEqual
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new NotEqualCompareConditionExpressionExecutorBoolBool(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new NotEqualCompareConditionExpressionExecutorBoolBool(leftExpressionExecutor.cloneExecutor(key),
+                rightExpressionExecutor.cloneExecutor(key));
     }
 }

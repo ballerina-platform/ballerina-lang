@@ -50,7 +50,8 @@ public class MinimumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -111,7 +112,8 @@ public class MinimumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
         executionPlanRuntime.shutdown();
 
     }
@@ -125,7 +127,8 @@ public class MinimumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -174,7 +177,8 @@ public class MinimumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -235,7 +239,8 @@ public class MinimumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override

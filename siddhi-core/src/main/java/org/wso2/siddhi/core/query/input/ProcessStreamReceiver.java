@@ -39,15 +39,15 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
 
     protected String streamId;
     protected Processor next;
-    private StreamEventConverter streamEventConverter;
-    private MetaStreamEvent metaStreamEvent;
-    private StreamEventPool streamEventPool;
     protected List<PreStateProcessor> stateProcessors = new ArrayList<PreStateProcessor>();
     protected int stateProcessorsSize;
     protected LatencyTracker latencyTracker;
     protected LockWrapper lockWrapper;
     protected ComplexEventChunk<StreamEvent> batchingStreamEventChunk = new ComplexEventChunk<StreamEvent>(false);
     protected boolean batchProcessingAllowed;
+    private StreamEventConverter streamEventConverter;
+    private MetaStreamEvent metaStreamEvent;
+    private StreamEventPool streamEventPool;
     private SiddhiDebugger siddhiDebugger;
     private String queryName;
 
@@ -63,7 +63,8 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     public ProcessStreamReceiver clone(String key) {
-        ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(streamId + key, latencyTracker, queryName);
+        ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(streamId + key, latencyTracker,
+                queryName);
         processStreamReceiver.batchProcessingAllowed = this.batchProcessingAllowed;
         return processStreamReceiver;
     }

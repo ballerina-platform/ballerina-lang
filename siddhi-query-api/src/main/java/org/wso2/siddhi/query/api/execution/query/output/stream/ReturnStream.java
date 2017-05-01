@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.query.api.execution.query.output.stream;
 
+/**
+ * Query output anonymous stream deleting entry from table
+ */
 public class ReturnStream extends OutputStream {
 
     public ReturnStream(OutputEventType outputEventType) {

@@ -28,7 +28,11 @@ import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.execution.query.input.stream.*;
+import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.List;
 import java.util.Map;
@@ -54,22 +58,29 @@ public class InputStreamParser {
                                       Map<String, AbstractDefinition> windowDefinitionMap,
                                       Map<String, EventTable> eventTableMap, Map<String, EventWindow> eventWindowMap,
                                       List<VariableExpressionExecutor> executors,
-                                      LatencyTracker latencyTracker, boolean outputExpectsExpiredEvents, String queryName) {
+                                      LatencyTracker latencyTracker, boolean outputExpectsExpiredEvents, String
+                                              queryName) {
 
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
             EventWindow eventWindow = eventWindowMap.get(singleInputStream.getStreamId());
-            boolean batchProcessingAllowed = eventWindow != null;      // If stream is from window, allow batch processing
-            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(singleInputStream.getStreamId(), latencyTracker, queryName);
+            boolean batchProcessingAllowed = eventWindow != null;      // If stream is from window, allow batch
+            // processing
+            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(singleInputStream.getStreamId(),
+                    latencyTracker, queryName);
             processStreamReceiver.setBatchProcessingAllowed(batchProcessingAllowed);
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
-                    executionPlanContext, executors, streamDefinitionMap, null, windowDefinitionMap, eventTableMap, new MetaStreamEvent(), processStreamReceiver, true, outputExpectsExpiredEvents, queryName);
+                    executionPlanContext, executors, streamDefinitionMap, null, windowDefinitionMap, eventTableMap,
+                    new MetaStreamEvent(), processStreamReceiver, true, outputExpectsExpiredEvents, queryName);
         } else if (inputStream instanceof JoinInputStream) {
-            return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), executionPlanContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, eventTableMap, eventWindowMap, executors, latencyTracker, outputExpectsExpiredEvents, queryName);
+            return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), executionPlanContext,
+                    streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, eventTableMap, eventWindowMap,
+                    executors, latencyTracker, outputExpectsExpiredEvents, queryName);
         } else if (inputStream instanceof StateInputStream) {
             MetaStateEvent metaStateEvent = new MetaStateEvent(inputStream.getAllStreamIds().size());
             return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), executionPlanContext,
-                    metaStateEvent, streamDefinitionMap, null, null, eventTableMap, executors, latencyTracker, queryName);
+                    metaStateEvent, streamDefinitionMap, null, null, eventTableMap, executors, latencyTracker,
+                    queryName);
         } else {
             throw new OperationNotSupportedException();
         }

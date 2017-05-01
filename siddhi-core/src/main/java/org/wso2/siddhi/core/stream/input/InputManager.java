@@ -43,7 +43,7 @@ public class InputManager {
         this.streamDefinitionMap = streamDefinitionMap;
         this.streamJunctionMap = streamJunctionMap;
         this.inputDistributor = new InputDistributor();
-        this.inputEntryValve =new InputEntryValve(executionPlanContext,inputDistributor);
+        this.inputEntryValve = new InputEntryValve(executionPlanContext, inputDistributor);
     }
 
     public InputHandler getInputHandler(String streamId) {

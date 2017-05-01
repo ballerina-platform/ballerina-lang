@@ -81,7 +81,8 @@ import java.util.Map;
                 description = "Returns current and expired events.",
                 type = {})
 )
-public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
+public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor,
+        FindableProcessor {
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ComplexEventChunk<StreamEvent> expiredEventChunk = null;
     private StreamEvent resetEvent = null;
@@ -108,10 +109,12 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         if (attributeExpressionExecutors.length >= 2 && attributeExpressionExecutors.length <= 5) {
 
             if (!(attributeExpressionExecutors[0] instanceof VariableExpressionExecutor)) {
-                throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timestamp should be a variable, but found " + attributeExpressionExecutors[0].getClass());
+                throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timestamp should be a" +
+                        " variable, but found " + attributeExpressionExecutors[0].getClass());
             }
             if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG) {
-                throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timestamp should be type long, but found " + attributeExpressionExecutors[0].getReturnType());
+                throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timestamp should be " +
+                        "type long, but found " + attributeExpressionExecutors[0].getReturnType());
             }
             timestampExpressionExecutor = (VariableExpressionExecutor) attributeExpressionExecutors[0];
 
@@ -121,21 +124,28 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
             } else if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.LONG) {
                 timeToKeep = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
             } else {
-                throw new ExecutionPlanValidationException("ExternalTimeBatch window's 2nd parameter windowTime should be either int or long, but found " + attributeExpressionExecutors[1].getReturnType());
+                throw new ExecutionPlanValidationException("ExternalTimeBatch window's 2nd parameter windowTime " +
+                        "should be either int or long, but found " + attributeExpressionExecutors[1].getReturnType());
             }
 
             if (attributeExpressionExecutors.length >= 3) {
                 isStartTimeEnabled = true;
                 if ((attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
                     if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
-                        startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
+                        startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)
+                                attributeExpressionExecutors[2]).getValue()));
                     } else if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.LONG) {
-                        startTime = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
+                        startTime = Long.parseLong(String.valueOf(((ConstantExpressionExecutor)
+                                attributeExpressionExecutors[2]).getValue()));
                     } else {
-                        throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter startTime should either be a constant (of type int or long) or an attribute (of type long), but found " + attributeExpressionExecutors[2].getReturnType());
+                        throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter " +
+                                "startTime should either be a constant (of type int or long) or an attribute (of type" +
+                                " long), but found " + attributeExpressionExecutors[2].getReturnType());
                     }
                 } else if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.LONG) {
-                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter startTime should either be a constant (of type int or long) or an attribute (of type long), but found " + attributeExpressionExecutors[2].getReturnType());
+                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter startTime " +
+                            "should either be a constant (of type int or long) or an attribute (of type long), but " +
+                            "found " + attributeExpressionExecutors[2].getReturnType());
                 } else {
                     startTimeAsVariable = attributeExpressionExecutors[2];
                 }
@@ -143,23 +153,33 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
 
             if (attributeExpressionExecutors.length >= 4) {
                 if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
-                    schedulerTimeout = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[3]).getValue()));
+                    schedulerTimeout = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)
+                            attributeExpressionExecutors[3]).getValue()));
                 } else if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.LONG) {
-                    schedulerTimeout = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[3]).getValue()));
+                    schedulerTimeout = Long.parseLong(String.valueOf(((ConstantExpressionExecutor)
+                            attributeExpressionExecutors[3]).getValue()));
                 } else {
-                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 4th parameter timeout should be either int or long, but found " + attributeExpressionExecutors[3].getReturnType());
+                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 4th parameter timeout " +
+                            "should be either int or long, but found " + attributeExpressionExecutors[3]
+                            .getReturnType());
                 }
             }
 
             if (attributeExpressionExecutors.length == 5) {
                 if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.BOOL) {
-                    replaceTimestampWithBatchEndTime = Boolean.parseBoolean(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[4]).getValue()));
+                    replaceTimestampWithBatchEndTime = Boolean.parseBoolean(String.valueOf((
+                            (ConstantExpressionExecutor) attributeExpressionExecutors[4]).getValue()));
                 } else {
-                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 5th parameter replaceTimestampWithBatchEndTime should be bool, but found " + attributeExpressionExecutors[4].getReturnType());
+                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 5th parameter " +
+                            "replaceTimestampWithBatchEndTime should be bool, but found " +
+                            attributeExpressionExecutors[4].getReturnType());
                 }
             }
         } else {
-            throw new ExecutionPlanValidationException("ExternalTimeBatch window should only have two to five parameters (<long> timestamp, <int|long|time> windowTime, <long> startTime, <int|long|time> timeout, <bool> replaceTimestampWithBatchEndTime), but found " + attributeExpressionExecutors.length + " input attributes");
+            throw new ExecutionPlanValidationException("ExternalTimeBatch window should only have two to five " +
+                    "parameters (<long> timestamp, <int|long|time> windowTime, <long> startTime, <int|long|time> " +
+                    "timeout, <bool> replaceTimestampWithBatchEndTime), but found " + attributeExpressionExecutors
+                    .length + " input attributes");
         }
         if (schedulerTimeout > 0) {
             if (expiredEventChunk == null) {
@@ -175,7 +195,8 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
      * from https://docs.wso2.com/display/CEP400/Inbuilt+Windows#InbuiltWindows-externalTime
      */
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner) {
 
         // event incoming trigger process. No events means no action
         if (streamEventChunk.getFirst() == null) {
@@ -205,7 +226,8 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                         }
 
                         // rescheduling to emit the current batch after expiring it if no further events arrive.
-                        lastScheduledTime = executionPlanContext.getTimestampGenerator().currentTime() + schedulerTimeout;
+                        lastScheduledTime = executionPlanContext.getTimestampGenerator().currentTime() +
+                                schedulerTimeout;
                         scheduler.notifyAt(lastScheduledTime);
                     }
                     continue;
@@ -232,7 +254,8 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                     cloneAppend(streamEventCloner, currStreamEvent);
                     // triggering the last batch expiration.
                     if (schedulerTimeout > 0) {
-                        lastScheduledTime = executionPlanContext.getTimestampGenerator().currentTime() + schedulerTimeout;
+                        lastScheduledTime = executionPlanContext.getTimestampGenerator().currentTime() +
+                                schedulerTimeout;
                         scheduler.notifyAt(lastScheduledTime);
                     }
                 }
@@ -248,7 +271,8 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         if (endTime < 0) {
             if (isStartTimeEnabled) {
                 if (startTimeAsVariable == null) {
-                    endTime = findEndTime((Long) timestampExpressionExecutor.execute(firstStreamEvent), startTime, timeToKeep);
+                    endTime = findEndTime((Long) timestampExpressionExecutor.execute(firstStreamEvent), startTime,
+                            timeToKeep);
                 } else {
                     startTime = (Long) startTimeAsVariable.execute(firstStreamEvent);
                     endTime = startTime + timeToKeep;
@@ -264,7 +288,8 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         }
     }
 
-    private void flushToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>> complexEventChunks,
+    private void flushToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>>
+            complexEventChunks,
                                     long currentTime, boolean preserveCurrentEvents) {
 
         ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>(true);
@@ -312,7 +337,8 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         }
     }
 
-    private void appendToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>> complexEventChunks,
+    private void appendToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>>
+            complexEventChunks,
                                      long currentTime, boolean preserveCurrentEvents) {
         ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>(true);
         ComplexEventChunk<StreamEvent> sentEventChunk = new ComplexEventChunk<StreamEvent>(true);

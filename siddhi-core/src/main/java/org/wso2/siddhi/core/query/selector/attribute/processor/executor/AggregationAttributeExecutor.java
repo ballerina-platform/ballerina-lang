@@ -27,7 +27,8 @@ import java.util.Map;
 public class AggregationAttributeExecutor extends AbstractAggregationAttributeExecutor {
 
     public AggregationAttributeExecutor(AttributeAggregator attributeAggregator,
-                                        ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, String queryName) {
+                                        ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+                                                executionPlanContext, String queryName) {
         super(attributeAggregator, attributeExpressionExecutors, executionPlanContext, queryName);
     }
 
@@ -37,7 +38,8 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
     }
 
     public ExpressionExecutor cloneExecutor(String key) {
-        return new AggregationAttributeExecutor(attributeAggregator.cloneAggregator(key), attributeExpressionExecutors, executionPlanContext, queryName);
+        return new AggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
+                attributeExpressionExecutors, executionPlanContext, queryName);
     }
 
     @Override
@@ -46,7 +48,7 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
     }
 
     @Override
-    public void restoreState(Map<String,Object> state) {
+    public void restoreState(Map<String, Object> state) {
         attributeAggregator.restoreState(state);
     }
 }

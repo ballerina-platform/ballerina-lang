@@ -51,10 +51,10 @@ public class OuterJoinTestCase {
         String streams = "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, company string); ";
         String query = "@info(name = 'query1') " +
-                       "from cseEventStream#window.length(3) full outer join twitterStream#window.length(1) " +
-                       "on cseEventStream.symbol== twitterStream.company " +
-                       "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
-                       "insert all events into outputStream ;";
+                "from cseEventStream#window.length(3) full outer join twitterStream#window.length(1) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
+                "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
@@ -111,10 +111,11 @@ public class OuterJoinTestCase {
         String streams = "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, company string); ";
         String query = "@info(name = 'query1') " +
-                       "from cseEventStream#window.length(1) right outer join twitterStream#window.length(2) " +
-                       "on cseEventStream.symbol== twitterStream.company " +
-                       "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price,twitterStream.company as company " +
-                       "insert all events into outputStream ;";
+                "from cseEventStream#window.length(1) right outer join twitterStream#window.length(2) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price,twitterStream" +
+                ".company as company " +
+                "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
@@ -170,10 +171,11 @@ public class OuterJoinTestCase {
         String streams = "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, company string); ";
         String query = "@info(name = 'query1') " +
-                       "from cseEventStream#window.length(2) left outer join twitterStream#window.length(1) " +
-                       "on cseEventStream.symbol== twitterStream.company " +
-                       "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price,twitterStream.company as company " +
-                       "insert all events into outputStream ;";
+                "from cseEventStream#window.length(2) left outer join twitterStream#window.length(1) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price,twitterStream" +
+                ".company as company " +
+                "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
@@ -229,10 +231,10 @@ public class OuterJoinTestCase {
         String streams = "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, symbol string); ";
         String query = "@info(name = 'query1') " +
-                       "from cseEventStream#window.time(1 sec) outer join twitterStream#window.time(1 sec) " +
-                       "on cseEventStream.symbol== twitterStream.symbol " +
-                       "select * " +
-                       "insert into outputStream ;";
+                "from cseEventStream#window.time(1 sec) outer join twitterStream#window.time(1 sec) " +
+                "on cseEventStream.symbol== twitterStream.symbol " +
+                "select * " +
+                "insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
@@ -249,10 +251,10 @@ public class OuterJoinTestCase {
         String streams = "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, symbol string); ";
         String query = "@info(name = 'query1') " +
-                       "from cseEventStream#window.time(1 sec) full outer join twitterStream#window.time(1 sec) " +
-                       "on cseEventStream.symbol== twitterStream.symbol " +
-                       "select * " +
-                       "insert into outputStream ;";
+                "from cseEventStream#window.time(1 sec) full outer join twitterStream#window.time(1 sec) " +
+                "on cseEventStream.symbol== twitterStream.symbol " +
+                "select * " +
+                "insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
@@ -269,10 +271,10 @@ public class OuterJoinTestCase {
         String streams = "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, company string); ";
         String query = "@info(name = 'query1') " +
-                       "from cseEventStream#window.length(2) right outer join twitterStream " +
-                       "on cseEventStream.symbol== twitterStream.company " +
-                       "select cseEventStream.symbol as symbol, twitterStream.tweet " +
-                       "insert all events into outputStream ;";
+                "from cseEventStream#window.length(2) right outer join twitterStream " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet " +
+                "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
@@ -303,10 +305,10 @@ public class OuterJoinTestCase {
         String streams = "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, company string); ";
         String query = "@info(name = 'query1') " +
-                       "from cseEventStream left outer join twitterStream#window.length(2) " +
-                       "on cseEventStream.symbol== twitterStream.company " +
-                       "select cseEventStream.symbol as symbol, twitterStream.tweet " +
-                       "insert all events into outputStream ;";
+                "from cseEventStream left outer join twitterStream#window.length(2) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet " +
+                "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
@@ -336,10 +338,10 @@ public class OuterJoinTestCase {
         String streams = "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, company string); ";
         String query = "@info(name = 'query1') " +
-                       "from cseEventStream#window.length(3) inner join twitterStream#window.length(1) " +
-                       "on cseEventStream.symbol== twitterStream.company " +
-                       "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
-                       "insert all events into outputStream ;";
+                "from cseEventStream#window.length(3) inner join twitterStream#window.length(1) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
+                "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
@@ -388,10 +390,10 @@ public class OuterJoinTestCase {
         String streams = "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, company string); ";
         String query = "@info(name = 'query1') " +
-                       "from cseEventStream#window.length(3) join twitterStream#window.length(1) " +
-                       "on cseEventStream.symbol== twitterStream.company " +
-                       "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
-                       "insert all events into outputStream ;";
+                "from cseEventStream#window.length(3) join twitterStream#window.length(1) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
+                "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 

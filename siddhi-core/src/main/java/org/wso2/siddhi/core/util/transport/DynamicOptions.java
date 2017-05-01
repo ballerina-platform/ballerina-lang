@@ -33,11 +33,11 @@ public class DynamicOptions {
         return event;
     }
 
-    void setVariableOptionIndex(int index){
-        variableOptionIndex = index;
+    int getVariableOptionIndex() {
+        return variableOptionIndex;
     }
 
-    int getVariableOptionIndex(){
-        return variableOptionIndex;
+    void setVariableOptionIndex(int index) {
+        variableOptionIndex = index;
     }
 }

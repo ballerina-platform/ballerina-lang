@@ -24,6 +24,9 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
 
 import java.util.UUID;
 
+/**
+ * Anonymous input query stream
+ */
 public class AnonymousInputStream extends SingleInputStream {
     private Query query;
 
@@ -47,20 +50,28 @@ public class AnonymousInputStream extends SingleInputStream {
                 "} ";
     }
 
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AnonymousInputStream)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         AnonymousInputStream that = (AnonymousInputStream) o;
 
-        if (query != null ? !query.equals(that.query) : that.query != null) return false;
-
-        return true;
+        return query != null ? query.equals(that.query) : that.query == null;
     }
 
     @Override
     public int hashCode() {
-        return query != null ? query.hashCode() : 0;
+        int result = super.hashCode();
+        result = 31 * result + (query != null ? query.hashCode() : 0);
+        return result;
     }
 }

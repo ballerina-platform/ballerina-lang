@@ -35,14 +35,16 @@ public class NonAndCollectionExecutor implements CollectionExecutor {
     private final CollectionExpression.CollectionScope collectionScope;
     private final ExpressionExecutor valueExpressionExecutor;
 
-    public NonAndCollectionExecutor(ExpressionExecutor valueExpressionExecutor, CollectionExecutor aCollectionExecutor, CollectionExpression.CollectionScope collectionScope) {
+    public NonAndCollectionExecutor(ExpressionExecutor valueExpressionExecutor, CollectionExecutor
+            aCollectionExecutor, CollectionExpression.CollectionScope collectionScope) {
 
         this.valueExpressionExecutor = valueExpressionExecutor;
         collectionExecutor = aCollectionExecutor;
         this.collectionScope = collectionScope;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner
+            storeEventCloner) {
         if ((Boolean) valueExpressionExecutor.execute(matchingEvent)) {
             return collectionExecutor.find(matchingEvent, indexedEventHolder, storeEventCloner);
         } else {
@@ -69,7 +71,8 @@ public class NonAndCollectionExecutor implements CollectionExecutor {
 
     @Override
     public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        return (Boolean) valueExpressionExecutor.execute(matchingEvent) && collectionExecutor.contains(matchingEvent, indexedEventHolder);
+        return (Boolean) valueExpressionExecutor.execute(matchingEvent) && collectionExecutor.contains(matchingEvent,
+                indexedEventHolder);
     }
 
     @Override
@@ -81,9 +84,9 @@ public class NonAndCollectionExecutor implements CollectionExecutor {
 
     @Override
     public Cost getDefaultCost() {
-        if(collectionScope == CollectionExpression.CollectionScope.EXHAUSTIVE){
+        if (collectionScope == CollectionExpression.CollectionScope.EXHAUSTIVE) {
             return Cost.EXHAUSTIVE;
-        }else {
+        } else {
             return collectionExecutor.getDefaultCost();
         }
     }

@@ -56,7 +56,8 @@ public class StreamEventConverterFactory {
             MetaStreamEvent metaStreamEvent, int size) {
 
         AbstractDefinition inputDefinition = metaStreamEvent.getInputDefinitions().get(0);
-        List<StreamEventConverter.ConversionMapping> conversionMappings = new ArrayList<StreamEventConverter.ConversionMapping>(size);
+        List<StreamEventConverter.ConversionMapping> conversionMappings = new ArrayList<StreamEventConverter
+                .ConversionMapping>(size);
 
         for (int j = 0; j < 3; j++) {
             List<Attribute> currentDataList = null;
@@ -72,11 +73,12 @@ public class StreamEventConverterFactory {
                 for (Attribute attribute : currentDataList) {           //Only variable slots will be filled.
                     if (attribute == null) {
                         i++;
-                    } else if(!inputDefinition.getAttributeList().contains(attribute)) {
+                    } else if (!inputDefinition.getAttributeList().contains(attribute)) {
                         i++;
-                    }else {
+                    } else {
                         int fromPosition = inputDefinition.getAttributePosition(attribute.getName());
-                        StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
+                        StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter
+                                .ConversionMapping();
                         conversionMapping.setFromPosition(fromPosition);
                         int[] toPosition = new int[2];
                         toPosition[0] = j;

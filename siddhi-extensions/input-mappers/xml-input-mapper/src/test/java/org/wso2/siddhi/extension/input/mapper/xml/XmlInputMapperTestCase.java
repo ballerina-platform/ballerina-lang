@@ -43,11 +43,11 @@ public class XmlInputMapperTestCase {
     /**
      * Expected input format:
      * <events>
-     *     <event>
-     *         <symbol>WSO2</symbol>
-     *         <price>55.6</price>
-     *         <volume>100</volume>
-     *     </event>
+     * <event>
+     * <symbol>WSO2</symbol>
+     * <price>55.6</price>
+     * <volume>100</volume>
+     * </event>
      * </events>
      */
     @Test
@@ -220,7 +220,8 @@ public class XmlInputMapperTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = \"dt=urn:schemas-microsoft-com:datatypes\", " +
+                "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
+                "\"dt=urn:schemas-microsoft-com:datatypes\", " +
                 "enclosing.element=\"//portfolio\", @attributes(symbol = \"symbol\"" +
                 "                                           , price = \"price\"" +
                 "                                           , volume = \"volume\"))) " +
@@ -284,7 +285,8 @@ public class XmlInputMapperTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = \"dt=urn:schemas-microsoft-com:datatypes\", " +
+                "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
+                "\"dt=urn:schemas-microsoft-com:datatypes\", " +
                 "enclosing.element=\"//portfolio\", @attributes(symbol = \"company/symbol\"" +
                 "                                           , price = \"price\"" +
                 "                                           , volume = \"volume\"))) " +
@@ -348,7 +350,8 @@ public class XmlInputMapperTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = \"dt=urn:schemas-microsoft-com:datatypes\", " +
+                "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
+                "\"dt=urn:schemas-microsoft-com:datatypes\", " +
                 "enclosing.element=\"//portfolio\")) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";

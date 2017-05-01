@@ -37,7 +37,12 @@ import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.core.window.EventWindow;
-import org.wso2.siddhi.query.api.definition.*;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.TriggerDefinition;
+import org.wso2.siddhi.query.api.definition.WindowDefinition;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,18 +52,29 @@ import java.util.concurrent.ConcurrentMap;
  * For building ExecutionPlanRuntime
  */
 public class ExecutionPlanRuntimeBuilder {
-    private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
-    private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains table definition
-    private ConcurrentMap<String, AbstractDefinition> windowDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains window definition
-    private ConcurrentMap<String, TriggerDefinition> triggerDefinitionMap = new ConcurrentHashMap<String, TriggerDefinition>(); //contains trigger definition
+    private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String,
+            AbstractDefinition>(); //contains stream definition
+    private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String,
+            AbstractDefinition>(); //contains table definition
+    private ConcurrentMap<String, AbstractDefinition> windowDefinitionMap = new ConcurrentHashMap<String,
+            AbstractDefinition>(); //contains window definition
+    private ConcurrentMap<String, TriggerDefinition> triggerDefinitionMap = new ConcurrentHashMap<String,
+            TriggerDefinition>(); //contains trigger definition
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
-    private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
-    private ConcurrentMap<String, List<InputTransport>> eventSourceMap = new ConcurrentHashMap<String, List<InputTransport>>(); //contains event sources
-    private ConcurrentMap<String, List<OutputTransport>> eventSinkMap = new ConcurrentHashMap<String, List<OutputTransport>>(); //contains event sinks
-    private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //contains event tables
-    private ConcurrentMap<String, EventWindow> eventWindowMap = new ConcurrentHashMap<String, EventWindow>(); //contains event tables
-    private ConcurrentMap<String, EventTrigger> eventTriggerMap = new ConcurrentHashMap<String, EventTrigger>(); //contains event tables
-    private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
+    private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>()
+            ; //contains stream junctions
+    private ConcurrentMap<String, List<InputTransport>> eventSourceMap = new ConcurrentHashMap<String,
+            List<InputTransport>>(); //contains event sources
+    private ConcurrentMap<String, List<OutputTransport>> eventSinkMap = new ConcurrentHashMap<String,
+            List<OutputTransport>>(); //contains event sinks
+    private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //contains
+    // event tables
+    private ConcurrentMap<String, EventWindow> eventWindowMap = new ConcurrentHashMap<String, EventWindow>();
+    //contains event tables
+    private ConcurrentMap<String, EventTrigger> eventTriggerMap = new ConcurrentHashMap<String, EventTrigger>();
+    //contains event tables
+    private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>();
+    //contains partitions
     private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap = null;
     private ExecutionPlanContext executionPlanContext;
     private InputManager inputManager;
@@ -70,7 +86,8 @@ public class ExecutionPlanRuntimeBuilder {
     }
 
     public void defineStream(StreamDefinition streamDefinition) {
-        DefinitionParserHelper.validateDefinition(streamDefinition, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap);
+        DefinitionParserHelper.validateDefinition(streamDefinition, streamDefinitionMap, tableDefinitionMap,
+                windowDefinitionMap);
         if (!streamDefinitionMap.containsKey(streamDefinition.getId())) {
             streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
         }
@@ -80,7 +97,8 @@ public class ExecutionPlanRuntimeBuilder {
     }
 
     public void defineTable(TableDefinition tableDefinition) {
-        DefinitionParserHelper.validateDefinition(tableDefinition, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap);
+        DefinitionParserHelper.validateDefinition(tableDefinition, streamDefinitionMap, tableDefinitionMap,
+                windowDefinitionMap);
         if (!tableDefinitionMap.containsKey(tableDefinition.getId())) {
             tableDefinitionMap.putIfAbsent(tableDefinition.getId(), tableDefinition);
         }
@@ -88,7 +106,8 @@ public class ExecutionPlanRuntimeBuilder {
     }
 
     public void defineWindow(WindowDefinition windowDefinition) {
-        DefinitionParserHelper.validateDefinition(windowDefinition, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap);
+        DefinitionParserHelper.validateDefinition(windowDefinition, streamDefinitionMap, tableDefinitionMap,
+                windowDefinitionMap);
         DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, executionPlanContext);
         if (!windowDefinitionMap.containsKey(windowDefinition.getId())) {
             windowDefinitionMap.putIfAbsent(windowDefinition.getId(), windowDefinition);
@@ -101,7 +120,8 @@ public class ExecutionPlanRuntimeBuilder {
     public void defineTrigger(TriggerDefinition triggerDefinition) {
         DefinitionParserHelper.validateDefinition(triggerDefinition);
         triggerDefinitionMap.putIfAbsent(triggerDefinition.getId(), triggerDefinition);
-        DefinitionParserHelper.addEventTrigger(triggerDefinition, eventTriggerMap, streamJunctionMap, executionPlanContext);
+        DefinitionParserHelper.addEventTrigger(triggerDefinition, eventTriggerMap, streamJunctionMap,
+                executionPlanContext);
     }
 
     public void addPartition(PartitionRuntime partitionRuntime) {
@@ -126,7 +146,8 @@ public class ExecutionPlanRuntimeBuilder {
             StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
 
             streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-            DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition.getId()));
+            DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition
+                    .getId()));
             StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
 
             if (outputStreamJunction == null) {
@@ -135,13 +156,15 @@ public class ExecutionPlanRuntimeBuilder {
                         executionPlanContext.getBufferSize(), executionPlanContext);
                 streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
             }
-            insertIntoStreamCallback.init(streamJunctionMap.get(insertIntoStreamCallback.getOutputStreamDefinition().getId()));
+            insertIntoStreamCallback.init(streamJunctionMap.get(insertIntoStreamCallback.getOutputStreamDefinition()
+                    .getId()));
         } else if (outputCallback != null && outputCallback instanceof InsertIntoWindowCallback) {
             InsertIntoWindowCallback insertIntoWindowCallback = (InsertIntoWindowCallback) outputCallback;
             StreamDefinition streamDefinition = insertIntoWindowCallback.getOutputStreamDefinition();
 
             windowDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-            DefinitionParserHelper.validateOutputStream(streamDefinition, windowDefinitionMap.get(streamDefinition.getId()));
+            DefinitionParserHelper.validateOutputStream(streamDefinition, windowDefinitionMap.get(streamDefinition
+                    .getId()));
             StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
 
             if (outputStreamJunction == null) {
@@ -150,7 +173,8 @@ public class ExecutionPlanRuntimeBuilder {
                         executionPlanContext.getBufferSize(), executionPlanContext);
                 streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
             }
-            insertIntoWindowCallback.getEventWindow().setPublisher(streamJunctionMap.get(insertIntoWindowCallback.getOutputStreamDefinition().getId()).constructPublisher());
+            insertIntoWindowCallback.getEventWindow().setPublisher(streamJunctionMap.get(insertIntoWindowCallback
+                    .getOutputStreamDefinition().getId()).constructPublisher());
         }
 
         return queryRuntime.getQueryId();

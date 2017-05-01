@@ -84,7 +84,8 @@ public class ExtensionTestCase {
         siddhiManager.setExtension("email:getAll", StringConcatAggregatorString.class);
 
         String cseEventStream = "define stream cseEventStream (symbol string, price long, volume long);";
-        String query = ("@info(name = 'query1') from cseEventStream select symbol , custom:plus(price,volume) as totalCount " +
+        String query = ("@info(name = 'query1') from cseEventStream select symbol , custom:plus(price,volume) as " +
+                "totalCount " +
                 "insert into mailOutput;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 

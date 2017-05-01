@@ -26,7 +26,8 @@ public class NotCollectionExpression implements CollectionExpression {
     private final CollectionScope collectionScope;
     private CollectionExpression collectionExpression;
 
-    public NotCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression collectionExpression) {
+    public NotCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression
+            collectionExpression) {
         this.expression = expression;
         this.collectionScope = collectionScope;
         this.collectionExpression = collectionExpression;

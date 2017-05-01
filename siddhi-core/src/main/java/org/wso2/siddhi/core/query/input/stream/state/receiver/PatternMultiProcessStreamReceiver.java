@@ -26,7 +26,8 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class PatternMultiProcessStreamReceiver extends StateMultiProcessStreamReceiver {
 
-    public PatternMultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker, String queryName) {
+    public PatternMultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker, String
+            queryName) {
         super(streamId, processCount, latencyTracker, queryName);
         eventSequence = new int[processCount];
         int count = 0;

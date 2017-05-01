@@ -45,7 +45,8 @@ public class AnnotationHelper {
     }
 
     // TODO: 1/28/17 update helper methods to work with nested annotations.
-    public static Element getAnnotationElement(String annotationName, String elementName, List<Annotation> annotationList) {
+    public static Element getAnnotationElement(String annotationName, String elementName, List<Annotation>
+            annotationList) {
         Annotation annotation = getAnnotation(annotationName, annotationList);
         if (annotation != null) {
             Element element = null;
@@ -56,7 +57,8 @@ public class AnnotationHelper {
                         if (element == null) {
                             element = aElement;
                         } else {
-                            throw new DuplicateAnnotationException("Annotation element @" + annotationName + "(...) is defined twice");
+                            throw new DuplicateAnnotationException("Annotation element @" + annotationName + "(...) " +
+                                    "is defined twice");
                         }
                     }
                 } else {
@@ -65,7 +67,8 @@ public class AnnotationHelper {
                         if (element == null) {
                             element = aElement;
                         } else {
-                            throw new DuplicateAnnotationException("Annotation element @" + annotationName + "(" + elementName + "=...) is defined twice");
+                            throw new DuplicateAnnotationException("Annotation element @" + annotationName + "(" +
+                                    elementName + "=...) is defined twice");
                         }
                     }
                 }

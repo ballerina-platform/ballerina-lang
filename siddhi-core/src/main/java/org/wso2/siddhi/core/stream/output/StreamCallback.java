@@ -43,12 +43,12 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
         return streamId;
     }
 
-    public AbstractDefinition getStreamDefinition() {
-        return streamDefinition;
-    }
-
     public void setStreamId(String streamId) {
         this.streamId = streamId;
+    }
+
+    public AbstractDefinition getStreamDefinition() {
+        return streamDefinition;
     }
 
     public void setStreamDefinition(AbstractDefinition streamDefinition) {

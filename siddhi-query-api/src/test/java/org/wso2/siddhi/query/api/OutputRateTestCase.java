@@ -25,6 +25,9 @@ import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
+/**
+ * Test case to validate output rate limiting
+ */
 public class OutputRateTestCase {
 
     @Test
@@ -32,13 +35,14 @@ public class OutputRateTestCase {
         Query query = Query.query();
         query.from(
                 InputStream.stream("cseEventStream").
-                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value(9.5)),
-                                                Compare.Operator.GREATER_THAN,
-                                                Expression.variable("price")),
-                                        Expression.compare(Expression.value(100),
-                                                Compare.Operator.GREATER_THAN_EQUAL,
-                                                Expression.variable("volume")
-                                        )
+                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
+                                        (9.5)),
+                                Compare.Operator.GREATER_THAN,
+                                Expression.variable("price")),
+                                Expression.compare(Expression.value(100),
+                                        Compare.Operator.GREATER_THAN_EQUAL,
+                                        Expression.variable("volume")
+                                )
                                 )
                         ).window("lengthBatch", Expression.value(50))
         );
@@ -63,13 +67,14 @@ public class OutputRateTestCase {
         Query query = Query.query();
         query.from(
                 InputStream.stream("cseEventStream").
-                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value(9.5)),
-                                                Compare.Operator.GREATER_THAN,
-                                                Expression.variable("price")),
-                                        Expression.compare(Expression.value(100),
-                                                Compare.Operator.GREATER_THAN_EQUAL,
-                                                Expression.variable("volume")
-                                        )
+                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
+                                        (9.5)),
+                                Compare.Operator.GREATER_THAN,
+                                Expression.variable("price")),
+                                Expression.compare(Expression.value(100),
+                                        Compare.Operator.GREATER_THAN_EQUAL,
+                                        Expression.variable("volume")
+                                )
                                 )
                         ).window("lengthBatch", Expression.value(50))
         );
@@ -84,7 +89,7 @@ public class OutputRateTestCase {
                         ))
         );
 
-        query.output(OutputRate.perTimePeriod(Expression.value(1000l)).output(OutputRate.Type.LAST));
+        query.output(OutputRate.perTimePeriod(Expression.value(1000L)).output(OutputRate.Type.LAST));
         query.insertInto("StockQuote");
 
     }
@@ -94,13 +99,14 @@ public class OutputRateTestCase {
         Query query = Query.query();
         query.from(
                 InputStream.stream("cseEventStream").
-                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value(9.5)),
-                                                Compare.Operator.GREATER_THAN,
-                                                Expression.variable("price")),
-                                        Expression.compare(Expression.value(100),
-                                                Compare.Operator.GREATER_THAN_EQUAL,
-                                                Expression.variable("volume")
-                                        )
+                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
+                                        (9.5)),
+                                Compare.Operator.GREATER_THAN,
+                                Expression.variable("price")),
+                                Expression.compare(Expression.value(100),
+                                        Compare.Operator.GREATER_THAN_EQUAL,
+                                        Expression.variable("volume")
+                                )
                                 )
                         ).window("lengthBatch", Expression.value(50))
         );
@@ -125,13 +131,14 @@ public class OutputRateTestCase {
         Query query = Query.query();
         query.from(
                 InputStream.stream("cseEventStream").
-                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value(9.5)),
-                                                Compare.Operator.GREATER_THAN,
-                                                Expression.variable("price")),
-                                        Expression.compare(Expression.value(100),
-                                                Compare.Operator.GREATER_THAN_EQUAL,
-                                                Expression.variable("volume")
-                                        )
+                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
+                                        (9.5)),
+                                Compare.Operator.GREATER_THAN,
+                                Expression.variable("price")),
+                                Expression.compare(Expression.value(100),
+                                        Compare.Operator.GREATER_THAN_EQUAL,
+                                        Expression.variable("volume")
+                                )
                                 )
                         ).window("lengthBatch", Expression.value(50))
         );

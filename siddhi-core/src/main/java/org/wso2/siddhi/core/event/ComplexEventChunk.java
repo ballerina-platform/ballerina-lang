@@ -32,7 +32,7 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
     protected E previousToLastReturned;
     protected E lastReturned;
     protected E last;
-    protected boolean isBatch=false;
+    protected boolean isBatch = false;
 
     public ComplexEventChunk(boolean isBatch) {
         this.isBatch = isBatch;

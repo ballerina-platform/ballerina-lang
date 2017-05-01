@@ -32,6 +32,9 @@ import java.util.LinkedList;
 
 public class CachingTable {
 
+    public static final long DEFAULT_CACHE_SIZE = 4096;
+    public static final String CACHING_ALGO_LRU = "lru";
+    public static final String CACHING_ALGO_LFU = "lfu";
     private static final Logger log = Logger.getLogger(CachingTable.class);
     private final LinkedList<StreamEvent> list;
     private final ZeroStreamEventConverter eventConverter;
@@ -39,12 +42,8 @@ public class CachingTable {
     private String elementId;
     private CacheManager cacheManager;
 
-    public static final long DEFAULT_CACHE_SIZE = 4096;
-
-    public static final String CACHING_ALGO_LRU = "lru";
-    public static final String CACHING_ALGO_LFU = "lfu";
-
-    public CachingTable(String cachingAlgorithm, String cacheSize, ExecutionPlanContext executionPlanContext, TableDefinition tableDefinition) {
+    public CachingTable(String cachingAlgorithm, String cacheSize, ExecutionPlanContext executionPlanContext,
+                        TableDefinition tableDefinition) {
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
         this.list = new LinkedList<StreamEvent>();
         long cacheLimit = DEFAULT_CACHE_SIZE;
@@ -108,7 +107,7 @@ public class CachingTable {
             StreamEvent streamEvent = streamEventPool.borrowEvent();
             eventConverter.convertComplexEvent(updatingEvent, streamEvent);
             cacheManager.update(streamEvent);
-        }else {
+        } else {
             StreamEvent streamEvent = streamEventPool.borrowEvent();
             eventConverter.convertComplexEvent(updatingEvent, streamEvent);
             list.add(streamEvent);

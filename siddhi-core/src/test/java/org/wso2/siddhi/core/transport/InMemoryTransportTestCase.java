@@ -192,7 +192,7 @@ public class InMemoryTransportTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    switch ( wso2Count.incrementAndGet()) {
+                    switch (wso2Count.incrementAndGet()) {
                         case 1:
                             junit.framework.Assert.assertEquals(55.6f, event.getData(1));
                             break;
@@ -208,9 +208,9 @@ public class InMemoryTransportTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("WSO2",new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55.6f, 100L}));
-        InMemoryBroker.publish("IBM",new Event(System.currentTimeMillis(), new Object[]{"IBM", 75.6f, 100L}));
-        InMemoryBroker.publish("WSO2",new Event(System.currentTimeMillis(), new Object[]{"WSO2", 57.6f, 100L}));
+        InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55.6f, 100L}));
+        InMemoryBroker.publish("IBM", new Event(System.currentTimeMillis(), new Object[]{"IBM", 75.6f, 100L}));
+        InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 57.6f, 100L}));
         Thread.sleep(100);
 
         //assert event count
@@ -268,9 +268,9 @@ public class InMemoryTransportTestCase {
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
         executionPlanRuntime.start();
-        InMemoryBroker.publish("WSO2",new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55.6f, 100L}));
-        InMemoryBroker.publish("IBM",new Event(System.currentTimeMillis(), new Object[]{"IBM", 75.6f, 100L}));
-        InMemoryBroker.publish("WSO2",new Event(System.currentTimeMillis(), new Object[]{"WSO2", 57.6f, 100L}));
+        InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55.6f, 100L}));
+        InMemoryBroker.publish("IBM", new Event(System.currentTimeMillis(), new Object[]{"IBM", 75.6f, 100L}));
+        InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 57.6f, 100L}));
         Thread.sleep(100);
 
         //assert event count
@@ -336,9 +336,9 @@ public class InMemoryTransportTestCase {
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
         executionPlanRuntime.start();
-        InMemoryBroker.publish("WSO2",new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55.6f, 100L}));
-        InMemoryBroker.publish("IBM",new Event(System.currentTimeMillis(), new Object[]{"IBM", 75.6f, 100L}));
-        InMemoryBroker.publish("WSO2",new Event(System.currentTimeMillis(), new Object[]{"WSO2", 57.6f, 100L}));
+        InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55.6f, 100L}));
+        InMemoryBroker.publish("IBM", new Event(System.currentTimeMillis(), new Object[]{"IBM", 75.6f, 100L}));
+        InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 57.6f, 100L}));
         Thread.sleep(100);
 
         //assert event count

@@ -129,7 +129,8 @@ public class JoinTableTestCase {
                 "@info(name = 'query2') " +
                 "from CheckStockStream#window.length(1) join StockTable " +
                 " on CheckStockStream.symbol==StockTable.symbol " +
-                "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as " +
+                "volume  " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -263,7 +264,8 @@ public class JoinTableTestCase {
                 "@info(name = 'query2') " +
                 "from CheckStockStream#window.time(1 sec) join StockTable " +
                 " on CheckStockStream.symbol!=StockTable.symbol " +
-                "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as " +
+                "volume  " +
                 "insert all events into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -337,7 +339,8 @@ public class JoinTableTestCase {
                 "" +
                 "@info(name = 'query2') " +
                 "from CheckStockStream join StockTable " +
-                "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as " +
+                "volume  " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -408,7 +411,8 @@ public class JoinTableTestCase {
                 "" +
                 "from RequestStream join TimeTable " +
                 "on TimeTable.start == RequestStream.start " +
-                "select TimeTable.start as start, TimeTable.end as end, TimeTable.elapsedTime as elapsedTime, RequestStream.end as destination " +
+                "select TimeTable.start as start, TimeTable.end as end, TimeTable.elapsedTime as elapsedTime, " +
+                "RequestStream.end as destination " +
                 "insert into intermediateResultStream;" +
                 "" +
                 "@info(name = 'query1') " +
@@ -421,7 +425,8 @@ public class JoinTableTestCase {
                 "" +
                 "from intermediateResultStream2 join TimeTable " +
                 "on TimeTable.start == intermediateResultStream2.end " +
-                "select TimeTable.start as start, TimeTable.end as end, (intermediateResultStream2.elapsedTime + TimeTable.elapsedTime) as elapsedTime, destination " +
+                "select TimeTable.start as start, TimeTable.end as end, (intermediateResultStream2.elapsedTime + " +
+                "TimeTable.elapsedTime) as elapsedTime, destination " +
                 "insert into intermediateResultStream; ";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -430,7 +435,7 @@ public class JoinTableTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                eventArrived=true;
+                eventArrived = true;
             }
         });
 
@@ -439,12 +444,12 @@ public class JoinTableTestCase {
 
         executionPlanRuntime.start();
 
-        timeTableStream.send(new Object[]{"A","B",25,"1.27PM"});
-        timeTableStream.send(new Object[]{"B","C",10,"1.52PM"});
-        timeTableStream.send(new Object[]{"C","D",60,"2.52PM"});
+        timeTableStream.send(new Object[]{"A", "B", 25, "1.27PM"});
+        timeTableStream.send(new Object[]{"B", "C", 10, "1.52PM"});
+        timeTableStream.send(new Object[]{"C", "D", 60, "2.52PM"});
         Thread.sleep(1000);
 
-        requestStream.send(new Object[]{"A","D"});
+        requestStream.send(new Object[]{"A", "D"});
 
         Thread.sleep(1000);
 

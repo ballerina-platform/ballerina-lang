@@ -24,11 +24,10 @@ import org.wso2.siddhi.query.api.expression.constant.Constant;
 
 import java.util.List;
 
+/**
+ * Input stream in queries
+ */
 public abstract class InputStream {
-
-    public abstract List<String> getAllStreamIds();
-
-    public abstract List<String> getUniqueStreamIds();
 
     public static InputStream joinStream(SingleInputStream leftStream, JoinInputStream.Type type,
                                          SingleInputStream rightStream,
@@ -63,7 +62,6 @@ public abstract class InputStream {
                                          JoinInputStream.EventTrigger trigger) {
         return new JoinInputStream(leftStream, type, rightStream, null, null, trigger);
     }
-
 
     public static InputStream joinStream(SingleInputStream leftStream, JoinInputStream.Type type,
                                          SingleInputStream rightStream, Constant within) {
@@ -107,4 +105,8 @@ public abstract class InputStream {
     public static SingleInputStream stream(Query query) {
         return new AnonymousInputStream(query);
     }
+
+    public abstract List<String> getAllStreamIds();
+
+    public abstract List<String> getUniqueStreamIds();
 }

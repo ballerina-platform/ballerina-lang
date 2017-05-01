@@ -32,7 +32,10 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
 public class MatcherParser {
 
-    public static MatchingMetaInfoHolder constructMatchingMetaStateHolder(MetaComplexEvent matchingMetaComplexEvent, int defaultStreamEventIndex, AbstractDefinition candsidateDefinition, int currentState) {
+    public static MatchingMetaInfoHolder constructMatchingMetaStateHolder(MetaComplexEvent matchingMetaComplexEvent,
+                                                                          int defaultStreamEventIndex,
+                                                                          AbstractDefinition candsidateDefinition,
+                                                                          int currentState) {
         int storeEventIndex = 0;
 
         MetaStreamEvent eventTableStreamEvent = new MetaStreamEvent();
@@ -59,7 +62,8 @@ public class MatcherParser {
             //for join
             for (; storeEventIndex < metaStreamEvents.length; storeEventIndex++) {
                 MetaStreamEvent metaStreamEvent = metaStreamEvents[storeEventIndex];
-                if (storeEventIndex != defaultStreamEventIndex && metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candsidateDefinition)) {
+                if (storeEventIndex != defaultStreamEventIndex && metaStreamEvent.getLastInputDefinition()
+                        .equalsIgnoreAnnotations(candsidateDefinition)) {
                     metaStateEvent = ((MetaStateEvent) matchingMetaComplexEvent);
                     break;
                 }

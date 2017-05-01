@@ -58,7 +58,8 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new OperationNotSupportedException("MaxForever aggregator has to have exactly 1 parameter, currently " +
+            throw new OperationNotSupportedException("MaxForever aggregator has to have exactly 1 parameter, " +
+                    "currently " +
                     attributeExpressionExecutors.length + " parameters provided");
         }
         Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
@@ -92,7 +93,8 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
     @Override
     public Object processAdd(Object[] data) {
         // will not occur
-        return new IllegalStateException("MaxForever cannot process data array, but found " + Arrays.deepToString(data));
+        return new IllegalStateException("MaxForever cannot process data array, but found " + Arrays.deepToString
+                (data));
     }
 
     @Override
@@ -103,7 +105,8 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
     @Override
     public Object processRemove(Object[] data) {
         // will not occur
-        return new IllegalStateException("MaxForever cannot process data array, but found " + Arrays.deepToString(data));
+        return new IllegalStateException("MaxForever cannot process data array, but found " + Arrays.deepToString
+                (data));
     }
 
     @Override

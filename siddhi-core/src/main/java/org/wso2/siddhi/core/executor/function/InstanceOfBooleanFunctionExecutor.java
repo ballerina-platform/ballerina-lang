@@ -40,7 +40,8 @@ import java.util.Map;
                                 DataType.STRING, DataType.BOOL, DataType.OBJECT})
         },
         returnAttributes = @ReturnAttribute(
-                description = "Returned type will be boolean and true if and only if the input is a instance of Boolean.",
+                description = "Returned type will be boolean and true if and only if the input is a instance of " +
+                        "Boolean.",
                 type = {DataType.BOOL})
 )
 public class InstanceOfBooleanFunctionExecutor extends FunctionExecutor {
@@ -50,14 +51,16 @@ public class InstanceOfBooleanFunctionExecutor extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfBoolean() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfBoolean() " +
+                    "function, " +
                     "required only 1, but found " + attributeExpressionExecutors.length);
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        return null;//Since the instanceOfBoolean function takes in 1 parameter, this method does not get called. Hence, not implemented.
+        return null;//Since the instanceOfBoolean function takes in 1 parameter, this method does not get called.
+        // Hence, not implemented.
     }
 
     @Override

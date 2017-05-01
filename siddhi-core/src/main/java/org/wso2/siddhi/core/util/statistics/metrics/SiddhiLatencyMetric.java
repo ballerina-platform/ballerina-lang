@@ -28,14 +28,14 @@ public class SiddhiLatencyMetric implements LatencyTracker {
     private ThreadLocal<Timer.Context> context;
     private String metricName;
 
-    public SiddhiLatencyMetric(String name, final MetricRegistry metricRegistry){
+    public SiddhiLatencyMetric(String name, final MetricRegistry metricRegistry) {
         this.metricName = name + ".latency";
-        execLatencyTimer = new ThreadLocal<Timer>(){
+        execLatencyTimer = new ThreadLocal<Timer>() {
             protected Timer initialValue() {
                 return metricRegistry.timer(metricName);
             }
         };
-        context = new ThreadLocal<Timer.Context>(){
+        context = new ThreadLocal<Timer.Context>() {
             protected Timer.Context initialValue() {
                 return null;
             }
@@ -48,7 +48,7 @@ public class SiddhiLatencyMetric implements LatencyTracker {
      * process chain
      */
     public void markIn() {
-        if (context.get() != null){
+        if (context.get() != null) {
             throw new IllegalStateException("MarkIn consecutively called without calling markOut in " + metricName);
         }
         context.set(execLatencyTimer.get().time());
@@ -58,11 +58,12 @@ public class SiddhiLatencyMetric implements LatencyTracker {
      * This is called to when the processing of an event is finished. This is called at
      * two places,
      * 1. OutputRateLimiter#sendToCallBacks - When the event is processed and by the full chain and emitted out
-     * 2. ProcessStreamReceiver#receive - When event is not processed by full process chain(e.g. Filtered out by a filter)
+     * 2. ProcessStreamReceiver#receive - When event is not processed by full process chain(e.g. Filtered out by a
+     * filter)
      */
     @Override
     public void markOut() {
-        if (context.get() != null){
+        if (context.get() != null) {
             context.get().stop();
             context.set(null);
         }

@@ -31,13 +31,14 @@ import java.util.Collection;
 public class CompareCollectionExecutor implements CollectionExecutor {
 
 
-    private ExpressionExecutor expressionExecutor;
-    private int storeEventIndex;
     private final String attribute;
     private final Compare.Operator operator;
     private final ExpressionExecutor valueExpressionExecutor;
+    private ExpressionExecutor expressionExecutor;
+    private int storeEventIndex;
 
-    public CompareCollectionExecutor(ExpressionExecutor expressionExecutor, int storeEventIndex, String attribute, Compare.Operator operator, ExpressionExecutor valueExpressionExecutor) {
+    public CompareCollectionExecutor(ExpressionExecutor expressionExecutor, int storeEventIndex, String attribute,
+                                     Compare.Operator operator, ExpressionExecutor valueExpressionExecutor) {
         this.expressionExecutor = expressionExecutor;
         this.storeEventIndex = storeEventIndex;
 
@@ -46,7 +47,8 @@ public class CompareCollectionExecutor implements CollectionExecutor {
         this.valueExpressionExecutor = valueExpressionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner
+            storeEventCloner) {
 
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
         Collection<StreamEvent> storeEventSet = findEvents(matchingEvent, indexedEventHolder);
@@ -98,9 +100,9 @@ public class CompareCollectionExecutor implements CollectionExecutor {
 
     @Override
     public Cost getDefaultCost() {
-        if (operator == Compare.Operator.EQUAL ) {
+        if (operator == Compare.Operator.EQUAL) {
             return Cost.SINGLE_RETURN_INDEX_MATCHING;
-        } else  if (operator == Compare.Operator.NOT_EQUAL ) {
+        } else if (operator == Compare.Operator.NOT_EQUAL) {
             return Cost.EXHAUSTIVE;
         } else {
             return Cost.MULTI_RETURN_INDEX_MATCHING;

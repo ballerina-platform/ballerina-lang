@@ -74,7 +74,6 @@ public class ExternalTimeWindowTestCase {
         });
 
 
-
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 

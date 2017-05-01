@@ -32,8 +32,8 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
@@ -62,13 +62,14 @@ public class QueryParser {
 
     /**
      * Parse a query and return corresponding QueryRuntime.
-     *  @param query                query to be parsed.
+     *
+     * @param query                query to be parsed.
      * @param executionPlanContext associated Execution Plan context.
      * @param streamDefinitionMap  keyvalue containing user given stream definitions.
      * @param tableDefinitionMap   keyvalue containing table definitions.
      * @param eventTableMap        keyvalue containing event tables.
      * @param eventSourceMap
-     * @param eventSinkMap @return queryRuntime.
+     * @param eventSinkMap         @return queryRuntime.
      */
     public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext,
                                      Map<String, AbstractDefinition> streamDefinitionMap,
@@ -113,7 +114,8 @@ public class QueryParser {
                 outputExpectsExpiredEvents = true;
             }
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, eventTableMap, eventWindowMap, executors, latencyTracker, outputExpectsExpiredEvents, queryName);
+                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
+                    eventTableMap, eventWindowMap, executors, latencyTracker, outputExpectsExpiredEvents, queryName);
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
                     executionPlanContext, streamRuntime.getMetaComplexEvent(), eventTableMap, executors, queryName);
             boolean isWindow = query.getInputStream() instanceof JoinInputStream;
@@ -126,40 +128,51 @@ public class QueryParser {
                 }
             }
 
-            Element synchronizedElement = AnnotationHelper.getAnnotationElement("synchronized", null, query.getAnnotations());
+            Element synchronizedElement = AnnotationHelper.getAnnotationElement("synchronized", null, query
+                    .getAnnotations());
             if (synchronizedElement != null) {
                 if (!("false".equalsIgnoreCase(synchronizedElement.getValue()))) {
-                    lockWrapper = new LockWrapper("");  // Query LockWrapper does not need a unique id since it will not be passed to the LockSynchronizer.
+                    lockWrapper = new LockWrapper("");  // Query LockWrapper does not need a unique id since it will
+                    // not be passed to the LockSynchronizer.
                     lockWrapper.setLock(new ReentrantLock());   // LockWrapper does not have a default lock
                 }
             } else {
                 if (isWindow || !(streamRuntime instanceof SingleStreamRuntime)) {
                     if (streamRuntime instanceof JoinStreamRuntime) {
-                        // If at least one EventWindow is involved in the join, use the LockWrapper of that window for the query as well.
-                        // If join is between two EventWindows, sync the locks of the LockWrapper of those windows and use either of them for query.
+                        // If at least one EventWindow is involved in the join, use the LockWrapper of that window
+                        // for the query as well.
+                        // If join is between two EventWindows, sync the locks of the LockWrapper of those windows
+                        // and use either of them for query.
                         MetaStateEvent metaStateEvent = (MetaStateEvent) streamRuntime.getMetaComplexEvent();
                         MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
 
                         if (metaStreamEvents[0].isWindowEvent() && metaStreamEvents[1].isWindowEvent()) {
-                            LockWrapper leftLockWrapper = eventWindowMap.get(metaStreamEvents[0].getLastInputDefinition().getId()).getLock();
-                            LockWrapper rightLockWrapper = eventWindowMap.get(metaStreamEvents[1].getLastInputDefinition().getId()).getLock();
+                            LockWrapper leftLockWrapper = eventWindowMap.get(metaStreamEvents[0]
+                                    .getLastInputDefinition().getId()).getLock();
+                            LockWrapper rightLockWrapper = eventWindowMap.get(metaStreamEvents[1]
+                                    .getLastInputDefinition().getId()).getLock();
 
                             if (!leftLockWrapper.equals(rightLockWrapper)) {
                                 // Sync the lock across both wrappers
                                 lockSynchronizer.sync(leftLockWrapper, rightLockWrapper);
                             }
-                            // Can use either leftLockWrapper or rightLockWrapper since both of them will hold the same lock internally
-                            // If either of their lock is updated later, the other lock also will be update by the LockSynchronizer.
+                            // Can use either leftLockWrapper or rightLockWrapper since both of them will hold the
+                            // same lock internally
+                            // If either of their lock is updated later, the other lock also will be update by the
+                            // LockSynchronizer.
                             lockWrapper = leftLockWrapper;
                         } else if (metaStreamEvents[0].isWindowEvent()) {
                             // Share the same wrapper as the query lock wrapper
-                            lockWrapper = eventWindowMap.get(metaStreamEvents[0].getLastInputDefinition().getId()).getLock();
+                            lockWrapper = eventWindowMap.get(metaStreamEvents[0].getLastInputDefinition().getId())
+                                    .getLock();
                         } else if (metaStreamEvents[1].isWindowEvent()) {
                             // Share the same wrapper as the query lock wrapper
-                            lockWrapper = eventWindowMap.get(metaStreamEvents[1].getLastInputDefinition().getId()).getLock();
+                            lockWrapper = eventWindowMap.get(metaStreamEvents[1].getLastInputDefinition().getId())
+                                    .getLock();
                         } else {
                             // Join does not contain any EventWindow
-                            lockWrapper = new LockWrapper("");  // Query LockWrapper does not need a unique id since it will not be passed to the LockSynchronizer.
+                            lockWrapper = new LockWrapper("");  // Query LockWrapper does not need a unique id since
+                            // it will not be passed to the LockSynchronizer.
                             lockWrapper.setLock(new ReentrantLock());   // LockWrapper does not have a default lock
                         }
 
@@ -170,7 +183,8 @@ public class QueryParser {
                 }
             }
 
-            OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(),
+            OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream()
+                            .getId(),
                     query.getOutputRate(), query.getSelector().getGroupByList().size() != 0, isWindow,
                     executionPlanContext.getScheduledExecutorService(), executionPlanContext, queryName);
             if (outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter) {
@@ -184,8 +198,10 @@ public class QueryParser {
 
             QueryParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());
             QueryParserHelper.updateVariablePosition(streamRuntime.getMetaComplexEvent(), executors);
-            QueryParserHelper.initStreamRuntime(streamRuntime, streamRuntime.getMetaComplexEvent(), lockWrapper, queryName);
-            selector.setEventPopulator(StateEventPopulatorFactory.constructEventPopulator(streamRuntime.getMetaComplexEvent()));
+            QueryParserHelper.initStreamRuntime(streamRuntime, streamRuntime.getMetaComplexEvent(), lockWrapper,
+                    queryName);
+            selector.setEventPopulator(StateEventPopulatorFactory.constructEventPopulator(streamRuntime
+                    .getMetaComplexEvent()));
             queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter,
                     outputCallback, streamRuntime.getMetaComplexEvent(), lockWrapper != null);
 
@@ -199,13 +215,15 @@ public class QueryParser {
 
         } catch (DuplicateDefinitionException e) {
             if (nameElement != null) {
-                throw new DuplicateDefinitionException(e.getMessage() + ", when creating query " + nameElement.getValue(), e);
+                throw new DuplicateDefinitionException(e.getMessage() + ", when creating query " + nameElement
+                        .getValue(), e);
             } else {
                 throw new DuplicateDefinitionException(e.getMessage(), e);
             }
         } catch (RuntimeException e) {
             if (nameElement != null) {
-                throw new ExecutionPlanCreationException(e.getMessage() + ", when creating query " + nameElement.getValue(), e);
+                throw new ExecutionPlanCreationException(e.getMessage() + ", when creating query " + nameElement
+                        .getValue(), e);
             } else {
                 throw new ExecutionPlanCreationException(e.getMessage(), e);
             }

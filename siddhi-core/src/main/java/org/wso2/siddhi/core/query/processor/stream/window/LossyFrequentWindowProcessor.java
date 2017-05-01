@@ -80,9 +80,11 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        support = Double.parseDouble(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue()));
+        support = Double.parseDouble(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[0])
+                .getValue()));
         if (attributeExpressionExecutors.length > 1) {
-            error = Double.parseDouble(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
+            error = Double.parseDouble(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1])
+                    .getValue()));
         } else {
             error = support / 10; // recommended error is 10% of 20$ of support value;
         }
@@ -100,7 +102,8 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner) {
 
         synchronized (this) {
             long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
@@ -186,7 +189,8 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
         countMap = (ConcurrentHashMap<String, LossyCount>) state.get("CountMap");
     }
 
-    private String generateKey(StreamEvent event) {      // for performance reason if its all attribute we don't do the attribute list check
+    private String generateKey(StreamEvent event) {      // for performance reason if its all attribute we don't do
+        // the attribute list check
         StringBuilder stringBuilder = new StringBuilder();
         if (variableExpressionExecutors.length == 0) {
             for (Object data : event.getOutputData()) {
@@ -206,9 +210,12 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, String queryName) {
-        return OperatorParser.constructOperator(map.values(), expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, this.queryName);
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                              ExecutionPlanContext executionPlanContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, EventTable> eventTableMap, String queryName) {
+        return OperatorParser.constructOperator(map.values(), expression, matchingMetaInfoHolder,
+                executionPlanContext, variableExpressionExecutors, eventTableMap, this.queryName);
     }
 
     public class LossyCount {

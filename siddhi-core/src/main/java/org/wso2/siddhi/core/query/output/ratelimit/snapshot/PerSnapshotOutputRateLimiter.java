@@ -33,8 +33,8 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
-    private String id;
     private final Long value;
+    private String id;
     private ScheduledExecutorService scheduledExecutorService;
     private ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>(false);
     private ComplexEvent lastEvent;
@@ -42,7 +42,9 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     private long scheduledTime;
     private String queryName;
 
-    public PerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext, String queryName) {
+    public PerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService,
+                                        WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter,
+                                        ExecutionPlanContext executionPlanContext, String queryName) {
         super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
         this.queryName = queryName;
         this.id = id;
@@ -87,8 +89,10 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     }
 
     @Override
-    public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        return new PerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+    public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
+            wrappedSnapshotOutputRateLimiter) {
+        return new PerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
+                wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
     }
 
     @Override

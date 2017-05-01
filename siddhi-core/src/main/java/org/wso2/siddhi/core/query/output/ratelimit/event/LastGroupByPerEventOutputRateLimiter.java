@@ -61,7 +61,8 @@ public class LastGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
                     if (++counter == value) {
                         counter = 0;
                         if (allGroupByKeyEvents.size() != 0) {
-                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>
+                                    (complexEventChunk.isBatch());
 
                             for (ComplexEvent complexEvent : allGroupByKeyEvents.values()) {
                                 outputEventChunk.add(complexEvent);

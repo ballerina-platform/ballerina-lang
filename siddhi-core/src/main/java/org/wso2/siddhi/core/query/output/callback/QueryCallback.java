@@ -81,7 +81,8 @@ public abstract class QueryCallback {
         try {
             receive(timeStamp, currentEvents, expiredEvents);
         } catch (RuntimeException e) {
-            log.error("Error on sending events" + Arrays.deepToString(currentEvents) + ", " + Arrays.deepToString(expiredEvents), e);
+            log.error("Error on sending events" + Arrays.deepToString(currentEvents) + ", " + Arrays.deepToString
+                    (expiredEvents), e);
         }
     }
 

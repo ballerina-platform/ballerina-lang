@@ -72,10 +72,10 @@ import static org.junit.Assert.assertTrue;
 
 public class KafkaInputTransportTestCase {
     private static final Logger log = Logger.getLogger(KafkaInputTransportTestCase.class);
+    private static final String kafkaLogDir = "tmp_kafka_dir";
     private static TestingServer zkTestServer;
     private static KafkaServerStartable kafkaServer;
     private static ExecutorService executorService;
-    private static final String kafkaLogDir = "tmp_kafka_dir";
     private volatile int count;
     private volatile boolean eventArrived;
 
@@ -86,8 +86,58 @@ public class KafkaInputTransportTestCase {
             cleanLogDir();
             setupKafkaBroker();
             Thread.sleep(3000);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RemoteException("Exception caught when starting server", e);
+        }
+    }
+
+    //---- private methods --------
+    private static void setupKafkaBroker() {
+        try {
+            // mock zookeeper
+            zkTestServer = new TestingServer(2181);
+            // mock kafka
+            Properties props = new Properties();
+            props.put("broker.id", "0");
+            props.put("host.name", "localhost");
+            props.put("port", "9092");
+            props.put("log.dir", kafkaLogDir);
+            props.put("zookeeper.connect", zkTestServer.getConnectString());
+            props.put("replica.socket.timeout.ms", "30000");
+            props.put("delete.topic.enable", "true");
+            KafkaConfig config = new KafkaConfig(props);
+            kafkaServer = new KafkaServerStartable(config);
+            kafkaServer.startup();
+        } catch (Exception e) {
+            log.error("Error running local Kafka broker / Zookeeper", e);
+        }
+    }
+
+    @AfterClass
+    public static void stopKafkaBroker() {
+        try {
+            if (kafkaServer != null) {
+                kafkaServer.shutdown();
+            }
+            Thread.sleep(5000);
+            if (zkTestServer != null) {
+                zkTestServer.stop();
+            }
+            Thread.sleep(5000);
+            cleanLogDir();
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+        } catch (IOException e) {
+            log.error("Error shutting down Kafka broker / Zookeeper", e);
+        }
+    }
+
+    private static void cleanLogDir() {
+        try {
+            File f = new File(kafkaLogDir);
+            FileUtils.deleteDirectory(f);
+        } catch (IOException e) {
+            log.error("Failed to clean up: " + e);
         }
     }
 
@@ -318,21 +368,22 @@ public class KafkaInputTransportTestCase {
         }
     }
 
-//    @Test
+    //    @Test
     public void testKafkaMultipleTopicPartitionTopicWiseSubscription() throws InterruptedException {
-        try{
+        try {
             log.info("Creating test for multiple topics and partitions and thread topic wise");
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("inputmapper:text", TextInputMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
-                    "define stream BarStream (symbol string, price float, volume long); " +
-                    "@info(name = 'query1') " +
-                        "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', threading.option='topic.wise', " +
+                            "define stream BarStream (symbol string, price float, volume long); " +
+                            "@info(name = 'query1') " +
+                            "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', threading" +
+                            ".option='topic.wise', " +
                             "bootstrap.servers='localhost:9092', partition.no.list='0,1', " +
                             "@map(type='text'))" +
-                                "Define stream FooStream (symbol string, price float, volume long);" +
-                    "from FooStream select symbol, price, volume insert into BarStream;");
+                            "Define stream FooStream (symbol string, price float, volume long);" +
+                            "from FooStream select symbol, price, volume insert into BarStream;");
             executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
@@ -349,22 +400,22 @@ public class KafkaInputTransportTestCase {
         }
     }
 
-//    @Test
+    //    @Test
     public void testKafkaMultipleTopicPartitionSingleThreadSubscription() throws InterruptedException {
-        try{
+        try {
             log.info("Creating test for multiple topics and partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("inputmapper:text", TextInputMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
-                    "define stream BarStream (symbol string, price float, volume long); " +
-                    "@info(name = 'query1') " +
-                        "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', " +
+                            "define stream BarStream (symbol string, price float, volume long); " +
+                            "@info(name = 'query1') " +
+                            "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', " +
                             "threading.option='single.thread', bootstrap.servers='localhost:9092', " +
                             "partition.no.list='0,1', " +
                             "@map(type='text'))" +
-                                "Define stream FooStream (symbol string, price float, volume long);" +
-                    "from FooStream select symbol, price, volume insert into BarStream;");
+                            "Define stream FooStream (symbol string, price float, volume long);" +
+                            "from FooStream select symbol, price, volume insert into BarStream;");
             executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
@@ -381,21 +432,22 @@ public class KafkaInputTransportTestCase {
         }
     }
 
-//    @Test
+    //    @Test
     public void testKafkaSingleTopicSubscriptionWithPartition() throws InterruptedException {
-        try{
+        try {
             log.info("Creating test for single topic with multiple partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("inputmapper:text", TextInputMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
-                    "define stream BarStream (symbol string, price float, volume long); " +
-                    "@info(name = 'query1') " +
-                    "@source(type='kafka', topic='kafka_topic', group.id='test', threading.option='single.thread', " +
-                        "bootstrap.servers='localhost:9092', partition.no.list='0,1', " +
-                        "@map(type='text'))" +
+                            "define stream BarStream (symbol string, price float, volume long); " +
+                            "@info(name = 'query1') " +
+                            "@source(type='kafka', topic='kafka_topic', group.id='test', threading.option='single" +
+                            ".thread', " +
+                            "bootstrap.servers='localhost:9092', partition.no.list='0,1', " +
+                            "@map(type='text'))" +
                             "Define stream FooStream (symbol string, price float, volume long);" +
-                    "from FooStream select symbol, price, volume insert into BarStream;");
+                            "from FooStream select symbol, price, volume insert into BarStream;");
             executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
@@ -412,21 +464,21 @@ public class KafkaInputTransportTestCase {
         }
     }
 
-//    @Test
+    //    @Test
     public void testCreatingKafkaSubscriptionWithoutPartition() throws InterruptedException {
-        try{
+        try {
             log.info("Creating test for multiple topic with no partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("inputmapper:text", TextInputMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
-                    "define stream BarStream (symbol string, price float, volume long); " +
-                    "@info(name = 'query1') " +
-                        "@source(type='kafka', topic='simple_topic,simple_topic2', group.id='test', " +
+                            "define stream BarStream (symbol string, price float, volume long); " +
+                            "@info(name = 'query1') " +
+                            "@source(type='kafka', topic='simple_topic,simple_topic2', group.id='test', " +
                             "threading.option='single.thread', bootstrap.servers='localhost:9092', " +
                             "@map(type='text'))" +
-                                "Define stream FooStream (symbol string, price float, volume long);" +
-                    "from FooStream select symbol, price, volume insert into BarStream;");
+                            "Define stream FooStream (symbol string, price float, volume long);" +
+                            "from FooStream select symbol, price, volume insert into BarStream;");
             executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
@@ -441,34 +493,12 @@ public class KafkaInputTransportTestCase {
         }
     }
 
-//    @Test
+    //    @Test
     public void testCreatingFullKafkaEventFlow() throws InterruptedException {
         Runnable kafkaReceiver = new KafkaFlow();
         Thread t1 = new Thread(kafkaReceiver);
         t1.start();
         Thread.sleep(35000);
-    }
-
-    //---- private methods --------
-    private static void setupKafkaBroker() {
-        try {
-            // mock zookeeper
-            zkTestServer = new TestingServer(2181);
-            // mock kafka
-            Properties props = new Properties();
-            props.put("broker.id", "0");
-            props.put("host.name", "localhost");
-            props.put("port", "9092");
-            props.put("log.dir", kafkaLogDir);
-            props.put("zookeeper.connect", zkTestServer.getConnectString());
-            props.put("replica.socket.timeout.ms", "30000");
-            props.put("delete.topic.enable", "true");
-            KafkaConfig config = new KafkaConfig(props);
-            kafkaServer = new KafkaServerStartable(config);
-            kafkaServer.startup();
-        } catch (Exception e) {
-            log.error("Error running local Kafka broker / Zookeeper", e);
-        }
     }
 
     private void createTopic(String topics[], int numOfPartitions) {
@@ -483,34 +513,6 @@ public class KafkaInputTransportTestCase {
             }
         }
         zkClient.close();
-    }
-
-    @AfterClass
-    public static void stopKafkaBroker() {
-        try {
-            if (kafkaServer != null) {
-                kafkaServer.shutdown();
-            }
-            Thread.sleep(5000);
-            if (zkTestServer != null) {
-                zkTestServer.stop();
-            }
-            Thread.sleep(5000);
-            cleanLogDir();
-        } catch (InterruptedException e) {
-            log.error(e.getMessage(), e);
-        } catch (IOException e) {
-            log.error("Error shutting down Kafka broker / Zookeeper", e);
-        }
-    }
-
-    private static void cleanLogDir() {
-        try {
-            File f = new File(kafkaLogDir);
-            FileUtils.deleteDirectory(f);
-        } catch (IOException e) {
-            log.error("Failed to clean up: " + e);
-        }
     }
 
     private void kafkaPublisher(String topics[], int numOfPartitions, int numberOfEvents, long sleep) {
@@ -551,7 +553,7 @@ public class KafkaInputTransportTestCase {
     private class KafkaFlow implements Runnable {
         @Override
         public void run() {
-            try{
+            try {
                 StreamDefinition inputDefinition = StreamDefinition.id("FooStream")
                         .attribute("symbol", Attribute.Type.STRING)
                         .attribute("price", Attribute.Type.FLOAT)
@@ -583,7 +585,8 @@ public class KafkaInputTransportTestCase {
                         InputStream.stream("FooStream")
                 );
                 query.select(
-                        Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
+                        Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new
+                                Variable("volume"))
                 );
                 query.insertInto("BarStream");
 

@@ -43,7 +43,7 @@ public class ModExpressionExecutorInt implements ExpressionExecutor {
         if (right == 0) {
             return null;
         }
-        return  ((Number) leftObject).intValue() % right;
+        return ((Number) leftObject).intValue() % right;
     }
 
     public Attribute.Type getReturnType() {
@@ -52,7 +52,8 @@ public class ModExpressionExecutorInt implements ExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new ModExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new ModExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor
+                .cloneExecutor(key));
     }
 
 }

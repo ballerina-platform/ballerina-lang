@@ -24,7 +24,8 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class PatternSingleProcessStreamReceiver extends SingleProcessStreamReceiver {
 
-    public PatternSingleProcessStreamReceiver(String streamId, String lockKey, LatencyTracker latencyTracker, String queryName) {
+    public PatternSingleProcessStreamReceiver(String streamId, String lockKey, LatencyTracker latencyTracker, String
+            queryName) {
         super(streamId, lockKey, latencyTracker, queryName);
     }
 

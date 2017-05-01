@@ -23,17 +23,18 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FunctionExecutorExtensionHolder extends AbstractExtensionHolder {
-    private static Class clazz =FunctionExecutor.class;
+    private static Class clazz = FunctionExecutor.class;
 
     private FunctionExecutorExtensionHolder(ExecutionPlanContext executionPlanContext) {
         super(clazz, executionPlanContext);
     }
 
     public static FunctionExecutorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
-        AbstractExtensionHolder abstractExtensionHolder= extensionHolderMap.get(clazz);
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext
+                ().getExtensionHolderMap();
+        AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
-            abstractExtensionHolder=new FunctionExecutorExtensionHolder(executionPlanContext);
+            abstractExtensionHolder = new FunctionExecutorExtensionHolder(executionPlanContext);
             extensionHolderMap.putIfAbsent(clazz, abstractExtensionHolder);
         }
         return (FunctionExecutorExtensionHolder) extensionHolderMap.get(clazz);

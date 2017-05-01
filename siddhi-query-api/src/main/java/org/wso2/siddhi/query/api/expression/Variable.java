@@ -19,10 +19,13 @@ package org.wso2.siddhi.query.api.expression;
 
 import org.wso2.siddhi.query.api.util.SiddhiConstants;
 
+/**
+ * Variable {@link Expression}
+ */
 public class Variable extends Expression {
 
     public static final int LAST = -2;
-
+    private static final long serialVersionUID = 1L;
     private String streamId;
     private boolean isInnerStream;
     private Integer streamIndex = null;
@@ -40,8 +43,16 @@ public class Variable extends Expression {
         return streamId;
     }
 
+    public void setStreamId(String streamId) {
+        this.streamId = streamId;
+    }
+
     public String getAttributeName() {
         return attributeName;
+    }
+
+    public void setAttributeName(String attributeName) {
+        this.attributeName = attributeName;
     }
 
     public boolean isInnerStream() {
@@ -52,16 +63,24 @@ public class Variable extends Expression {
         return streamIndex;
     }
 
+    public void setStreamIndex(Integer streamIndex) {
+        this.streamIndex = streamIndex;
+    }
+
     public String getFunctionId() {
         return functionId;
+    }
+
+    public void setFunctionId(String functionId) {
+        this.functionId = functionId;
     }
 
     public Integer getFunctionIndex() {
         return functionIndex;
     }
 
-    public void setStreamId(String streamId) {
-        this.streamId = streamId;
+    public void setFunctionIndex(Integer functionIndex) {
+        this.functionIndex = functionIndex;
     }
 
     public void setStreamId(boolean isInnerStream, String streamId) {
@@ -72,22 +91,6 @@ public class Variable extends Expression {
             this.streamId = streamId;
 
         }
-    }
-
-    public void setStreamIndex(Integer streamIndex) {
-        this.streamIndex = streamIndex;
-    }
-
-    public void setFunctionId(String functionId) {
-        this.functionId = functionId;
-    }
-
-    public void setFunctionIndex(Integer functionIndex) {
-        this.functionIndex = functionIndex;
-    }
-
-    public void setAttributeName(String attributeName) {
-        this.attributeName = attributeName;
     }
 
     public Variable ofStream(String streamId) {
@@ -141,20 +144,33 @@ public class Variable extends Expression {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Variable)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Variable)) {
+            return false;
+        }
 
         Variable variable = (Variable) o;
 
-        if (isInnerStream != variable.isInnerStream) return false;
-        if (attributeName != null ? !attributeName.equals(variable.attributeName) : variable.attributeName != null)
+        if (isInnerStream != variable.isInnerStream) {
             return false;
-        if (functionId != null ? !functionId.equals(variable.functionId) : variable.functionId != null) return false;
-        if (functionIndex != null ? !functionIndex.equals(variable.functionIndex) : variable.functionIndex != null)
+        }
+        if (attributeName != null ? !attributeName.equals(variable.attributeName) : variable.attributeName != null) {
             return false;
-        if (streamId != null ? !streamId.equals(variable.streamId) : variable.streamId != null) return false;
-        if (streamIndex != null ? !streamIndex.equals(variable.streamIndex) : variable.streamIndex != null)
+        }
+        if (functionId != null ? !functionId.equals(variable.functionId) : variable.functionId != null) {
             return false;
+        }
+        if (functionIndex != null ? !functionIndex.equals(variable.functionIndex) : variable.functionIndex != null) {
+            return false;
+        }
+        if (streamId != null ? !streamId.equals(variable.streamId) : variable.streamId != null) {
+            return false;
+        }
+        if (streamIndex != null ? !streamIndex.equals(variable.streamIndex) : variable.streamIndex != null) {
+            return false;
+        }
 
         return true;
     }

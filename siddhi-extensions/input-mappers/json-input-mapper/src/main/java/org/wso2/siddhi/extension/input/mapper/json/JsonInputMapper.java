@@ -30,10 +30,10 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.source.InputMapper;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.util.AttributeConverter;
+import org.wso2.siddhi.core.util.transport.AttributeMapping;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.core.util.transport.AttributeMapping;
 
 import java.util.List;
 
@@ -54,15 +54,13 @@ import java.util.List;
 public class JsonInputMapper implements InputMapper {
 
     /**
-     * Logger to log the events.
-     */
-    private static final Logger log = Logger.getLogger(JsonInputMapper.class);
-
-    /**
      * JSON path interprets the root of a JSON object as $.
      */
     public static final String DEFAULT_JSON_MAPPING_PREFIX = "$.";
-
+    /**
+     * Logger to log the events.
+     */
+    private static final Logger log = Logger.getLogger(JsonInputMapper.class);
     /**
      * Output StreamDefinition of the input mapper.
      */

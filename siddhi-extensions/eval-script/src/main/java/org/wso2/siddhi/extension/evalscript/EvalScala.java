@@ -42,7 +42,7 @@ public class EvalScala implements EvalScript {
 
     public void init(String name, String body) {
         this.functionName = name;
-        if( returnType == null ) {
+        if (returnType == null) {
             throw new ExecutionPlanCreationException("Cannot find the return type of the function " + functionName);
         }
         ScalaEvaluationEngine scalaEvaluationEngine = new ScalaEvaluationEngine();
@@ -63,12 +63,12 @@ public class EvalScala implements EvalScript {
     }
 
     @Override
-    public void setReturnType(Attribute.Type returnType) {
-        this.returnType = returnType;
+    public Attribute.Type getReturnType() {
+        return returnType;
     }
 
     @Override
-    public Attribute.Type getReturnType() {
-        return returnType;
+    public void setReturnType(Attribute.Type returnType) {
+        this.returnType = returnType;
     }
 }

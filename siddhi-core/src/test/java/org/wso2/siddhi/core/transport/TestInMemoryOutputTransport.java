@@ -6,7 +6,6 @@ import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.stream.output.sink.InMemoryOutputTransport;
 
 
-
 @Extension(
         name = "testInMemory",
         namespace = "outputtransport",

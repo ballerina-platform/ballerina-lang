@@ -19,14 +19,14 @@ package org.wso2.siddhi.query.api.definition;
 
 import java.io.Serializable;
 
+/**
+ * Attributes of the Siddhi Definitions
+ */
 public class Attribute implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private String name;
     private Type type;
-
-    public enum Type {
-        STRING, INT, LONG, FLOAT, DOUBLE, BOOL, OBJECT
-    }
 
     public Attribute(String name, Type type) {
         this.name = name;
@@ -51,13 +51,21 @@ public class Attribute implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Attribute attribute = (Attribute) o;
 
-        if (name != null ? !name.equals(attribute.name) : attribute.name != null) return false;
-        if (type != attribute.type) return false;
+        if (name != null ? !name.equals(attribute.name) : attribute.name != null) {
+            return false;
+        }
+        if (type != attribute.type) {
+            return false;
+        }
 
         return true;
     }
@@ -67,5 +75,18 @@ public class Attribute implements Serializable {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
+    }
+
+    /**
+     * Different Type of Attribute Types
+     */
+    public enum Type {
+        STRING,
+        INT,
+        LONG,
+        FLOAT,
+        DOUBLE,
+        BOOL,
+        OBJECT
     }
 }

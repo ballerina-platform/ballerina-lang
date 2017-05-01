@@ -49,13 +49,15 @@ public class UUIDFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String planName = "@plan:name('UUIDFunction') ";
-        String cseEventStream = "define stream cseEventStream (symbol string, price double, volume long , quantity int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price double, volume long , quantity " +
+                "int);";
         String query = "@info(name = 'query1') " +
                 "from cseEventStream " +
                 "select symbol, price as price, quantity, UUID() as uniqueValue " +
                 "insert into outputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(planName + cseEventStream + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(planName +
+                cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override

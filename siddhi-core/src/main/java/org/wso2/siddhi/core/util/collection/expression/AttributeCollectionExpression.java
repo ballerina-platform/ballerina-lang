@@ -20,8 +20,6 @@ package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.List;
-
 public class AttributeCollectionExpression implements CollectionExpression {
     private final Expression expression;
     private final CollectionScope collectionScope = CollectionScope.INDEXED_ATTRIBUTE;

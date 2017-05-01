@@ -101,7 +101,8 @@ public class SortEventWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream cseEventStream (symbol string, price float, volume long); " +
-                "define window cseEventWindow (symbol string, price float, volume long) sort(2,volume, 'asc', price, 'desc'); ";
+                "define window cseEventWindow (symbol string, price float, volume long) sort(2,volume, 'asc', price, " +
+                "'desc'); ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from cseEventStream " +

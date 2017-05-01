@@ -49,7 +49,8 @@ public class HazelcastCollectionOperator extends CollectionOperator {
         while (deletingEventChunk.hasNext()) {
             StateEvent deletingEvent = deletingEventChunk.next();
             try {
-                for (Iterator<StreamEvent> iterator = ((HazelcastCollectionEventHolder) storeEvents).iterator(); iterator.hasNext(); ) {
+                for (Iterator<StreamEvent> iterator = ((HazelcastCollectionEventHolder) storeEvents).iterator();
+                     iterator.hasNext(); ) {
                     StreamEvent storeEvent = iterator.next();
                     deletingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(deletingEvent)) {
@@ -70,7 +71,8 @@ public class HazelcastCollectionOperator extends CollectionOperator {
      * @param updateAttributeMappers Mapping positions array.
      */
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[]
+            updateAttributeMappers) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             StateEvent updatingEvent = updatingEventChunk.next();
@@ -92,10 +94,13 @@ public class HazelcastCollectionOperator extends CollectionOperator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object storeEvents,
-                                                    UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
+    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object
+            storeEvents,
+                                                    UpdateAttributeMapper[] updateAttributeMappers,
+                                                    AddingStreamEventExtractor addingStreamEventExtractor) {
         updatingOrAddingEventChunk.reset();
-        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(updatingOrAddingEventChunk.isBatch());
+        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>
+                (updatingOrAddingEventChunk.isBatch());
         while (updatingOrAddingEventChunk.hasNext()) {
             StateEvent overwritingOrAddingEvent = updatingOrAddingEventChunk.next();
             try {

@@ -51,7 +51,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(price1, price2, price3) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -112,7 +113,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(price1, price2, price3) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
     }
 
     @Test
@@ -124,7 +126,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(price1, price2, price3) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -173,7 +176,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(price1, price2, price3) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -234,7 +238,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(price1, price2, price3) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -283,7 +288,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(*) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override

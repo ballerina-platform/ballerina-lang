@@ -28,8 +28,8 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -190,7 +190,8 @@ public class SnapshotOutputRateLimitTestCase {
                         Assert.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        Assert.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData(0)));
+                        Assert.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData
+                                (0)));
                     }
                 }
             }
@@ -250,7 +251,8 @@ public class SnapshotOutputRateLimitTestCase {
                         Assert.fail("Remove events emitted");
                     } else {
                         value++;
-                        Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData(0)));
+                        Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData
+                                (0)) || "192.10.1.4".equals(event.getData(0)));
                     }
                 }
             }
@@ -312,7 +314,8 @@ public class SnapshotOutputRateLimitTestCase {
                         Assert.fail("Remove events emitted");
                     } else {
                         value++;
-                        Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData(0)));
+                        Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData
+                                (0)));
 
                     }
                 }
@@ -597,7 +600,8 @@ public class SnapshotOutputRateLimitTestCase {
                         Assert.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData(0)));
+                        Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData
+                                (0)));
                     }
                 }
             }
@@ -651,7 +655,8 @@ public class SnapshotOutputRateLimitTestCase {
                         Assert.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData(0)));
+                        Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData
+                                (0)));
                     }
                 }
             }
@@ -752,7 +757,8 @@ public class SnapshotOutputRateLimitTestCase {
                         Assert.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        Assert.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.5".equals(event.getData(0)));
+                        Assert.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.5".equals(event.getData
+                                (0)));
                     }
                 }
             }
@@ -805,7 +811,8 @@ public class SnapshotOutputRateLimitTestCase {
                         Assert.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        Assert.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.5".equals(event.getData(0)));
+                        Assert.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.5".equals(event.getData
+                                (0)));
                     }
                 }
             }
@@ -910,7 +917,8 @@ public class SnapshotOutputRateLimitTestCase {
                 if (inEvents != null) {
                     count.incrementAndGet();
                     for (Event event : inEvents) {
-                        Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData(0)));
+                        Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData
+                                (0)));
                     }
                     value += inEvents.length;
                 }

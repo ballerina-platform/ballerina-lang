@@ -200,7 +200,8 @@ public class StreamJunction {
     private void sendData(long timeStamp, Object[] data) {
         // Set timestamp to system if Siddhi is in playback mode
         if (executionPlanContext.isPlayback()) {
-            ((EventTimeBasedMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator()).setCurrentTimestamp(timeStamp);
+            ((EventTimeBasedMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator())
+                    .setCurrentTimestamp(timeStamp);
         }
         if (throughputTracker != null) {
             throughputTracker.eventIn();

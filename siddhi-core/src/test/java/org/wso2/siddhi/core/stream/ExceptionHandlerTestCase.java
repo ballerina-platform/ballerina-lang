@@ -44,8 +44,8 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -66,7 +66,7 @@ public class ExceptionHandlerTestCase {
         failedCaught = false;
     }
 
-    private ExecutionPlanRuntime createTestExecutionRuntime(){
+    private ExecutionPlanRuntime createTestExecutionRuntime() {
         siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "@Plan:name('callbackTest1') " +
@@ -98,7 +98,7 @@ public class ExceptionHandlerTestCase {
      * @param inputHandler input handler
      * @throws Exception
      */
-    private void sendTestInvalidEvents(InputHandler inputHandler ) throws Exception {
+    private void sendTestInvalidEvents(InputHandler inputHandler) throws Exception {
         // Send 2 valid events
         inputHandler.send(new Object[]{"GOOD_0", 700.0f, 100l});
         Thread.sleep(100);
@@ -108,9 +108,9 @@ public class ExceptionHandlerTestCase {
             // Send 2 invalid event
             inputHandler.send(new Object[]{"BAD_2", "EBAY", 200l});
             Thread.sleep(100);
-            inputHandler.send(new Object[]{"BAD_3", "WSO2",700f});
+            inputHandler.send(new Object[]{"BAD_3", "WSO2", 700f});
             Thread.sleep(100);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             Assert.fail("Disruptor exception can't be caught by try-catch");
             throw ex;
         }
@@ -121,7 +121,7 @@ public class ExceptionHandlerTestCase {
         Thread.sleep(100);
     }
 
-    private void sendTestValidEvents(InputHandler inputHandler ) throws Exception {
+    private void sendTestValidEvents(InputHandler inputHandler) throws Exception {
         inputHandler.send(new Object[]{"IBM", 700.0f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"IBM", 700.0f, 100l});
@@ -158,7 +158,8 @@ public class ExceptionHandlerTestCase {
             public void handleEventException(Throwable throwable, long l, Object o) {
                 failedCount.incrementAndGet();
                 failedCaught = true;
-                log.info(o+": properly handle event exception for bad event [sequence: " + l + ", failed: "+failedCount+"]", throwable);
+                log.info(o + ": properly handle event exception for bad event [sequence: " + l + ", failed: " +
+                        failedCount + "]", throwable);
             }
 
             @Override
@@ -180,10 +181,10 @@ public class ExceptionHandlerTestCase {
         SiddhiTestHelper.waitForEvents(100, 2, failedCount, 60000);
 
         // No following events can be processed correctly
-        Assert.assertTrue("Should properly process all the 4 valid events",eventArrived);
-        Assert.assertEquals("Should properly process all the 4 valid events",4, count.get());
-        Assert.assertTrue("Exception is properly handled thrown by 2 invalid events",failedCaught);
-        Assert.assertEquals("Exception is properly handled thrown by 2 invalid events",2, failedCount.get());
+        Assert.assertTrue("Should properly process all the 4 valid events", eventArrived);
+        Assert.assertEquals("Should properly process all the 4 valid events", 4, count.get());
+        Assert.assertTrue("Exception is properly handled thrown by 2 invalid events", failedCaught);
+        Assert.assertEquals("Exception is properly handled thrown by 2 invalid events", 2, failedCount.get());
         executionPlanRuntime.shutdown();
     }
 }

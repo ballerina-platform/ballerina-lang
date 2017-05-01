@@ -19,6 +19,9 @@ package org.wso2.siddhi.query.api.execution.query.input.state;
 
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
+/**
+ * Count state element used in patterns
+ */
 public class CountStateElement implements StateElement {
 
     public static final int ANY = -1;
@@ -73,16 +76,28 @@ public class CountStateElement implements StateElement {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CountStateElement)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CountStateElement)) {
+            return false;
+        }
 
         CountStateElement that = (CountStateElement) o;
 
-        if (maxCount != that.maxCount) return false;
-        if (minCount != that.minCount) return false;
-        if (streamStateElement != null ? !streamStateElement.equals(that.streamStateElement) : that.streamStateElement != null)
+        if (maxCount != that.maxCount) {
             return false;
-        if (within != null ? !within.equals(that.within) : that.within != null) return false;
+        }
+        if (minCount != that.minCount) {
+            return false;
+        }
+        if (streamStateElement != null ? !streamStateElement.equals(that.streamStateElement) : that
+                .streamStateElement != null) {
+            return false;
+        }
+        if (within != null ? !within.equals(that.within) : that.within != null) {
+            return false;
+        }
 
         return true;
     }

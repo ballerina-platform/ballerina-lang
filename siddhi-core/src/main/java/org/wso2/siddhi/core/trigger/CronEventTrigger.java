@@ -19,7 +19,17 @@
 package org.wso2.siddhi.core.trigger;
 
 import org.apache.log4j.Logger;
-import org.quartz.*;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.Job;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
+import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
@@ -41,7 +51,8 @@ public class CronEventTrigger implements EventTrigger, Job {
     private String jobGroup = "TriggerGroup";
 
     @Override
-    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction streamJunction) {
+    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction
+            streamJunction) {
 
         this.triggerDefinition = triggerDefinition;
         this.executionPlanContext = executionPlanContext;
@@ -112,7 +123,8 @@ public class CronEventTrigger implements EventTrigger, Job {
             scheduler.scheduleJob(job, trigger);
 
         } catch (SchedulerException e) {
-            log.error("Error while instantiating quartz scheduler for trigger '" + triggerDefinition.getId() + "'," + e.getMessage(), e);
+            log.error("Error while instantiating quartz scheduler for trigger '" + triggerDefinition.getId() + "'," +
+                    e.getMessage(), e);
         }
     }
 

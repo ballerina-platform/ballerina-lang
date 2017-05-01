@@ -47,11 +47,14 @@ public class ConvertFunctionTestCase {
 
         String cseEventStream = "" +
                 "" +
-                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool, typeN double) ;";
+                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB " +
+                "bool, typeN double) ;";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from typeStream " +
-                "select convert(typeS,'string') as valueS, convert(typeF,'float') as valueF, convert(typeD,'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
+                "select convert(typeS,'string') as valueS, convert(typeF,'float') as valueF, convert(typeD,'double') " +
+                "as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , convert(typeB,'bool')" +
+                " as valueB, convert(typeN,'string') as valueN " +
                 "insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -88,16 +91,29 @@ public class ConvertFunctionTestCase {
 
         String cseEventStream = "" +
                 "" +
-                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
+                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB " +
+                "bool) ;";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from typeStream " +
-                "select convert(typeS,'string') as valueS1, convert(typeS,'float') as valueF1, convert(typeS,'double') as valueD1, convert(typeS,'int') as valueI1 , convert(typeS,'long') as valueL1 , convert(typeS,'bool') as valueB1, " +
-                "        convert(typeF,'string') as valueS2, convert(typeF,'float') as valueF2, convert(typeF,'double') as valueD2, convert(typeF,'int') as valueI2 , convert(typeF,'long') as valueL2 , convert(typeF,'bool') as valueB2, " +
-                "        convert(typeD,'string') as valueS3, convert(typeD,'float') as valueF3, convert(typeD,'double') as valueD3, convert(typeD,'int') as valueI3 , convert(typeD,'long') as valueL3 , convert(typeD,'bool') as valueB3, " +
-                "        convert(typeI,'string') as valueS4, convert(typeI,'float') as valueF4, convert(typeI,'double') as valueD4, convert(typeI,'int') as valueI4 , convert(typeI,'long') as valueL4 , convert(typeI,'bool') as valueB4, " +
-                "        convert(typeL,'string') as valueS5, convert(typeL,'float') as valueF5, convert(typeL,'double') as valueD5, convert(typeL,'int') as valueI5 , convert(typeL,'long') as valueL5 , convert(typeL,'bool') as valueB5, " +
-                "        convert(typeB,'string') as valueS6, convert(typeB,'float') as valueF6, convert(typeB,'double') as valueD6, convert(typeB,'int') as valueI6 , convert(typeB,'long') as valueL6 , convert(typeB,'bool') as valueB6  " +
+                "select convert(typeS,'string') as valueS1, convert(typeS,'float') as valueF1, convert(typeS," +
+                "'double') as valueD1, convert(typeS,'int') as valueI1 , convert(typeS,'long') as valueL1 , convert" +
+                "(typeS,'bool') as valueB1, " +
+                "        convert(typeF,'string') as valueS2, convert(typeF,'float') as valueF2, convert(typeF," +
+                "'double') as valueD2, convert(typeF,'int') as valueI2 , convert(typeF,'long') as valueL2 , convert" +
+                "(typeF,'bool') as valueB2, " +
+                "        convert(typeD,'string') as valueS3, convert(typeD,'float') as valueF3, convert(typeD," +
+                "'double') as valueD3, convert(typeD,'int') as valueI3 , convert(typeD,'long') as valueL3 , convert" +
+                "(typeD,'bool') as valueB3, " +
+                "        convert(typeI,'string') as valueS4, convert(typeI,'float') as valueF4, convert(typeI," +
+                "'double') as valueD4, convert(typeI,'int') as valueI4 , convert(typeI,'long') as valueL4 , convert" +
+                "(typeI,'bool') as valueB4, " +
+                "        convert(typeL,'string') as valueS5, convert(typeL,'float') as valueF5, convert(typeL," +
+                "'double') as valueD5, convert(typeL,'int') as valueI5 , convert(typeL,'long') as valueL5 , convert" +
+                "(typeL,'bool') as valueB5, " +
+                "        convert(typeB,'string') as valueS6, convert(typeB,'float') as valueF6, convert(typeB," +
+                "'double') as valueD6, convert(typeB,'int') as valueI6 , convert(typeB,'long') as valueL6 , convert" +
+                "(typeB,'bool') as valueB6  " +
                 "insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -166,11 +182,14 @@ public class ConvertFunctionTestCase {
 
         String cseEventStream = "" +
                 "" +
-                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
+                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB " +
+                "bool) ;";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from typeStream " +
-                "select convert(typeS,'bool') as valueB1, convert(typeF,'bool') as valueB2, convert(typeD,'bool') as valueB3 , convert(typeI,'bool') as valueB4 , convert(typeL,'bool') as valueB5 , convert(typeB,'bool') as valueB6 " +
+                "select convert(typeS,'bool') as valueB1, convert(typeF,'bool') as valueB2, convert(typeD,'bool') as " +
+                "valueB3 , convert(typeI,'bool') as valueB4 , convert(typeL,'bool') as valueB5 , convert(typeB," +
+                "'bool') as valueB6 " +
                 "insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -205,7 +224,8 @@ public class ConvertFunctionTestCase {
 
         String cseEventStream = "" +
                 "" +
-                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
+                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB " +
+                "bool) ;";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from typeStream " +
@@ -239,7 +259,8 @@ public class ConvertFunctionTestCase {
 
         String cseEventStream = "" +
                 "" +
-                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
+                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB " +
+                "bool) ;";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from typeStream " +
@@ -273,7 +294,8 @@ public class ConvertFunctionTestCase {
 
         String cseEventStream = "" +
                 "" +
-                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
+                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB " +
+                "bool) ;";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from typeStream " +

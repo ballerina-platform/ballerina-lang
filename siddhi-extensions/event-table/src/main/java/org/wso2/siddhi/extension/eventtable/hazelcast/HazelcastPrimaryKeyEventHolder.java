@@ -38,7 +38,9 @@ public class HazelcastPrimaryKeyEventHolder implements EventHolder, Map<Object, 
     private int indexPosition;
     private String indexAttribute;
 
-    public HazelcastPrimaryKeyEventHolder(IMap storeEventMap, StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter, int indexPosition, String indexAttribute) {
+    public HazelcastPrimaryKeyEventHolder(IMap storeEventMap, StreamEventPool tableStreamEventPool,
+                                          StreamEventConverter eventConverter, int indexPosition, String
+                                                  indexAttribute) {
         this.storeEventMap = storeEventMap;
         this.tableStreamEventPool = tableStreamEventPool;
         this.eventConverter = eventConverter;

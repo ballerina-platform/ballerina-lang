@@ -27,7 +27,8 @@ public class UpdateAttributeMapper {
     private String storeEventAttributeName;
     private int matchingStreamEventPosition;
 
-    public UpdateAttributeMapper(int updatingAttributePosition, int storeEventAttributePosition, String storeEventAttributeName, int matchingStreamEventPosition) {
+    public UpdateAttributeMapper(int updatingAttributePosition, int storeEventAttributePosition, String
+            storeEventAttributeName, int matchingStreamEventPosition) {
 
         this.updatingAttributePosition = updatingAttributePosition;
         this.storeEventAttributePosition = storeEventAttributePosition;

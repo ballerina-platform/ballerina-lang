@@ -21,15 +21,19 @@ import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.Arrays;
 
+/**
+ * Attribute function {@link Expression}
+ */
 public class AttributeFunction extends Expression implements Extension {
 
+    private static final long serialVersionUID = 1L;
     private String functionName;
     private Expression[] parameters;
     private String extensionNamespace;
 
     public AttributeFunction(String extensionNamespace, String functionName, Expression... parameters) {
         this.functionName = functionName;
-        this.parameters = parameters;
+        this.parameters = Arrays.copyOfRange(parameters, 0, parameters.length);
         this.extensionNamespace = extensionNamespace;
     }
 
@@ -41,12 +45,12 @@ public class AttributeFunction extends Expression implements Extension {
         return functionName;
     }
 
-    public void setParameters(Expression[] parameters) {
-        this.parameters = parameters;
+    public Expression[] getParameters() {
+        return Arrays.copyOfRange(parameters, 0, parameters.length);
     }
 
-    public Expression[] getParameters() {
-        return parameters;
+    public void setParameters(Expression[] parameters) {
+        this.parameters = Arrays.copyOfRange(parameters, 0, parameters.length);
     }
 
     @Override
@@ -69,7 +73,8 @@ public class AttributeFunction extends Expression implements Extension {
 
         AttributeFunction that = (AttributeFunction) o;
 
-        if (extensionNamespace != null ? !extensionNamespace.equals(that.extensionNamespace) : that.extensionNamespace != null) {
+        if (extensionNamespace != null ? !extensionNamespace.equals(that.extensionNamespace) : that
+                .extensionNamespace != null) {
             return false;
         }
         if (functionName != null ? !functionName.equals(that.functionName) : that.functionName != null) {

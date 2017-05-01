@@ -23,16 +23,17 @@ import org.antlr.v4.runtime.Recognizer;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 /**
- * Created by suho on 8/2/14.
+ * Error listener in Siddhi Parser
  */
 public class SiddhiErrorListener extends BaseErrorListener {
-    public static SiddhiErrorListener INSTANCE = new SiddhiErrorListener();
+    public static final SiddhiErrorListener INSTANCE = new SiddhiErrorListener();
 
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
                             int line, int charPositionInLine,
                             String msg, RecognitionException e) {
 
-        throw new SiddhiParserException("You have an error in your SiddhiQL at line " + line + ":" + charPositionInLine + ", " + msg);
+        throw new SiddhiParserException("You have an error in your SiddhiQL at line " + line + ":" +
+                charPositionInLine + ", " + msg);
     }
 }

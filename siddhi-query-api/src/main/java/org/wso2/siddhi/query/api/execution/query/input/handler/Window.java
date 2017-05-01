@@ -22,15 +22,19 @@ import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.Arrays;
 
+/**
+ * Siddhi window handler
+ */
 public class Window implements StreamHandler, Extension {
 
+    private static final long serialVersionUID = 1L;
     private String namespace = "";
     private String function;
     private Expression[] parameters;
 
     public Window(String namespace, String functionName, Expression[] parameters) {
         this.function = functionName;
-        this.parameters = parameters;
+        this.parameters = Arrays.copyOfRange(parameters, 0, parameters.length);
         this.namespace = namespace;
     }
 
@@ -41,7 +45,7 @@ public class Window implements StreamHandler, Extension {
 
     public Window(String functionName, Expression[] parameters) {
         this.function = functionName;
-        this.parameters = parameters;
+        this.parameters = Arrays.copyOfRange(parameters, 0, parameters.length);
     }
 
     public Window(String functionName) {
@@ -53,7 +57,7 @@ public class Window implements StreamHandler, Extension {
     }
 
     public Expression[] getParameters() {
-        return parameters;
+        return Arrays.copyOfRange(parameters, 0, parameters.length);
     }
 
     public String getNamespace() {
@@ -62,14 +66,22 @@ public class Window implements StreamHandler, Extension {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Window window = (Window) o;
 
-        if (function != null ? !function.equals(window.function) : window.function != null) return false;
+        if (function != null ? !function.equals(window.function) : window.function != null) {
+            return false;
+        }
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(parameters, window.parameters)) return false;
+        if (!Arrays.equals(parameters, window.parameters)) {
+            return false;
+        }
         return namespace != null ? namespace.equals(window.namespace) : window.namespace == null;
     }
 

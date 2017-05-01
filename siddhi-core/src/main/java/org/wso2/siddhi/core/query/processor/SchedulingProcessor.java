@@ -25,8 +25,8 @@ import org.wso2.siddhi.core.util.Scheduler;
  */
 public interface SchedulingProcessor extends Processor {
 
-    void setScheduler(Scheduler scheduler);
-
     Scheduler getScheduler();
+
+    void setScheduler(Scheduler scheduler);
 
 }

@@ -42,13 +42,12 @@ import java.util.Map;
 )
 public class JMSInputTransport extends InputTransport {
     private static final Logger log = Logger.getLogger(JMSInputTransport.class);
-
+    private final int DEFAULT_THREAD_POOL_SIZE = 1;
     private SourceEventListener sourceEventListener;
     private OptionHolder optionHolder;
     private JMSServerConnector jmsServerConnector;
     private JMSMessageProcessor jmsMessageProcessor;
     private int threadPoolSize;
-    private final int DEFAULT_THREAD_POOL_SIZE = 1;
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
@@ -103,6 +102,7 @@ public class JMSInputTransport extends InputTransport {
      * Initializing JMS properties.
      * The properties in the required options list are mandatory.
      * Other JMS options can be passed in as key value pairs, key being in the JMS spec or the broker spec.
+     *
      * @return all the options map.
      */
     private Map<String, String> initJMSProperties() {

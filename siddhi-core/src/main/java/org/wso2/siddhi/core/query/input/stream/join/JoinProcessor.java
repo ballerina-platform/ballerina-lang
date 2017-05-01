@@ -45,7 +45,8 @@ public class JoinProcessor implements Processor {
     private Processor nextProcessor;
     private QuerySelector selector;
 
-    public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor, boolean outerJoinProcessor, int matchingStreamIndex) {
+    public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor, boolean outerJoinProcessor, int
+            matchingStreamIndex) {
         this.leftJoinProcessor = leftJoinProcessor;
         this.preJoinProcessor = preJoinProcessor;
         this.outerJoinProcessor = outerJoinProcessor;
@@ -172,7 +173,8 @@ public class JoinProcessor implements Processor {
      */
     @Override
     public Processor cloneProcessor(String key) {
-        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor, outerJoinProcessor, matchingStreamIndex);
+        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor, outerJoinProcessor,
+                matchingStreamIndex);
         joinProcessor.setTrigger(trigger);
         if (trigger) {
             joinProcessor.setCompiledCondition(compiledCondition.cloneCompiledCondition(key));

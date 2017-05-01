@@ -72,7 +72,8 @@ public class CustomJoinEventWindowTestCase {
                 "@info(name = 'query2') " +
                 "from CheckStockWindow join StockTable " +
                 " on CheckStockWindow.symbol==StockTable.symbol " +
-                "select CheckStockWindow.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                "select CheckStockWindow.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as " +
+                "volume  " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -345,8 +346,10 @@ public class CustomJoinEventWindowTestCase {
         executionPlanRuntime.start();
 
         InputHandler stockInputStreamInputHandler = executionPlanRuntime.getInputHandler("StockInputStream");
-        InputHandler summaryOfCompanyTriggerStreamInputHandler = executionPlanRuntime.getInputHandler("SummaryOfCompanyTriggerStream");
-        InputHandler volumeGreaterThanTriggerStreamInputHandler = executionPlanRuntime.getInputHandler("VolumeGreaterThanTriggerStream");
+        InputHandler summaryOfCompanyTriggerStreamInputHandler = executionPlanRuntime.getInputHandler
+                ("SummaryOfCompanyTriggerStream");
+        InputHandler volumeGreaterThanTriggerStreamInputHandler = executionPlanRuntime.getInputHandler
+                ("VolumeGreaterThanTriggerStream");
 
         // 10 inputs
         stockInputStreamInputHandler.send(new Object[]{"WSO2", 84.0f, 20L});
@@ -383,7 +386,8 @@ public class CustomJoinEventWindowTestCase {
 
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "define window StockWindow (symbol string, price float, volume long) timeBatch(1 sec) output current events; ";
+                "define window StockWindow (symbol string, price float, volume long) timeBatch(1 sec) output current " +
+                "events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from StockStream " +
@@ -491,7 +495,8 @@ public class CustomJoinEventWindowTestCase {
 
         String streams = "" +
                 "define stream SensorStream (name string, value float, roomNo int, deviceID string); " +
-                "define window SensorWindow (name string, value float, roomNo int, deviceID string) timeBatch(1 second); ";
+                "define window SensorWindow (name string, value float, roomNo int, deviceID string) timeBatch(1 " +
+                "second); ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from SensorStream " +

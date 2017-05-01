@@ -38,7 +38,8 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
     private CountPostStateProcessor countPostStateProcessor;
     private volatile boolean startStateReset = false;
 
-    public CountPreStateProcessor(int minCount, int maxCount, StateInputStream.Type stateType, List<Map.Entry<Long, Set<Integer>>> withinStates) {
+    public CountPreStateProcessor(int minCount, int maxCount, StateInputStream.Type stateType, List<Map.Entry<Long,
+            Set<Integer>>> withinStates) {
         super(stateType, withinStates);
         this.minCount = minCount;
         this.maxCount = maxCount;
@@ -46,7 +47,8 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
 
 
     public PreStateProcessor cloneProcessor(String key) {
-        CountPreStateProcessor countPreStateProcessor = new CountPreStateProcessor(minCount, maxCount, stateType, withinStates);
+        CountPreStateProcessor countPreStateProcessor = new CountPreStateProcessor(minCount, maxCount, stateType,
+                withinStates);
         cloneProperties(countPreStateProcessor, key);
         countPreStateProcessor.init(executionPlanContext, queryName);
         return countPreStateProcessor;
@@ -124,12 +126,12 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
         }
     }
 
-    public void setCountPostStateProcessor(CountPostStateProcessor countPostStateProcessor) {
-        this.countPostStateProcessor = countPostStateProcessor;
-    }
-
     public CountPostStateProcessor getCountPostStateProcessor() {
         return countPostStateProcessor;
+    }
+
+    public void setCountPostStateProcessor(CountPostStateProcessor countPostStateProcessor) {
+        this.countPostStateProcessor = countPostStateProcessor;
     }
 
     public void startStateReset() {

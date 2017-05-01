@@ -29,7 +29,9 @@ public class CompareCollectionExpression implements CollectionExpression {
     private Compare.Operator operator;
     private CollectionExpression valueCollectionExpression;
 
-    public CompareCollectionExpression(Compare compareExpression, CollectionScope collectionScope, CollectionExpression attributeCollectionExpression, Compare.Operator operator, CollectionExpression valueCollectionExpression) {
+    public CompareCollectionExpression(Compare compareExpression, CollectionScope collectionScope,
+                                       CollectionExpression attributeCollectionExpression, Compare.Operator operator,
+                                       CollectionExpression valueCollectionExpression) {
         this.compareExpression = compareExpression;
         this.collectionScope = collectionScope;
         this.attributeCollectionExpression = attributeCollectionExpression;

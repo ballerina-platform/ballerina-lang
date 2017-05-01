@@ -36,6 +36,7 @@ public class GreaterThanEqualCompareConditionExpressionExecutorIntInt
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new GreaterThanEqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new GreaterThanEqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor.cloneExecutor(key)
+                , rightExpressionExecutor.cloneExecutor(key));
     }
 }

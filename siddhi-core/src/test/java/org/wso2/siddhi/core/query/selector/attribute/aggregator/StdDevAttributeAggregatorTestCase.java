@@ -227,7 +227,7 @@ public class StdDevAttributeAggregatorTestCase {
     public void stdDevAggregatorTest6() throws InterruptedException {
         log.info("stdDevAggregator Test #6");
 
-        final double[] results = new double[] {0.0, 489.95, 400.09052, 405.11802, 199.96026};
+        final double[] results = new double[]{0.0, 489.95, 400.09052, 405.11802, 199.96026};
 
         SiddhiManager siddhiManager = new SiddhiManager();
 

@@ -256,7 +256,6 @@ public class AsyncTestCase {
     }
 
 
-
     @Test
     public void asyncTest5() throws InterruptedException {
         log.info("async test 5");

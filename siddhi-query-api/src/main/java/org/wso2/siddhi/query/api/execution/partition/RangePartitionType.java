@@ -21,6 +21,9 @@ import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.Arrays;
 
+/**
+ * Partition type supporting value ranges
+ */
 public class RangePartitionType implements PartitionType {
 
     private final String streamId;
@@ -29,7 +32,8 @@ public class RangePartitionType implements PartitionType {
     public RangePartitionType(String streamId, RangePartitionProperty[] rangePartitionProperties) {
 
         this.streamId = streamId;
-        this.rangePartitionProperties = rangePartitionProperties;
+        this.rangePartitionProperties = Arrays.copyOfRange(rangePartitionProperties, 0, rangePartitionProperties
+                .length);
     }
 
     public String getStreamId() {
@@ -37,9 +41,48 @@ public class RangePartitionType implements PartitionType {
     }
 
     public RangePartitionProperty[] getRangePartitionProperties() {
-        return rangePartitionProperties;
+        return Arrays.copyOfRange(rangePartitionProperties, 0, rangePartitionProperties.length);
     }
 
+    @Override
+    public String toString() {
+        return "RangePartitionType{" +
+                "id='" + streamId + '\'' +
+                ", rangePartitionProperties=" + Arrays.toString(rangePartitionProperties) +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RangePartitionType)) {
+            return false;
+        }
+
+        RangePartitionType that = (RangePartitionType) o;
+
+        if (!Arrays.equals(rangePartitionProperties, that.rangePartitionProperties)) {
+            return false;
+        }
+        if (streamId != null ? !streamId.equals(that.streamId) : that.streamId != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = streamId != null ? streamId.hashCode() : 0;
+        result = 31 * result + (rangePartitionProperties != null ? Arrays.hashCode(rangePartitionProperties) : 0);
+        return result;
+    }
+
+    /**
+     * Each range partition property
+     */
     public static class RangePartitionProperty {
         private final String partitionKey;
         private final Expression condition;
@@ -68,13 +111,21 @@ public class RangePartitionType implements PartitionType {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             RangePartitionProperty that = (RangePartitionProperty) o;
 
-            if (!condition.equals(that.condition)) return false;
-            if (!partitionKey.equals(that.partitionKey)) return false;
+            if (!condition.equals(that.condition)) {
+                return false;
+            }
+            if (!partitionKey.equals(that.partitionKey)) {
+                return false;
+            }
 
             return true;
         }
@@ -85,33 +136,5 @@ public class RangePartitionType implements PartitionType {
             result = 31 * result + condition.hashCode();
             return result;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "RangePartitionType{" +
-                "id='" + streamId + '\'' +
-                ", rangePartitionProperties=" + Arrays.toString(rangePartitionProperties) +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof RangePartitionType)) return false;
-
-        RangePartitionType that = (RangePartitionType) o;
-
-        if (!Arrays.equals(rangePartitionProperties, that.rangePartitionProperties)) return false;
-        if (streamId != null ? !streamId.equals(that.streamId) : that.streamId != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = streamId != null ? streamId.hashCode() : 0;
-        result = 31 * result + (rangePartitionProperties != null ? Arrays.hashCode(rangePartitionProperties) : 0);
-        return result;
     }
 }

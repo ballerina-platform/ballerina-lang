@@ -37,7 +37,11 @@ import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.*;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.TriggerDefinition;
+import org.wso2.siddhi.query.api.definition.WindowDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -130,7 +134,8 @@ public class ExecutionPlanParser {
             if (annotation != null) {
                 String idleTime = null;
                 String increment = null;
-                EventTimeBasedMillisTimestampGenerator timestampGenerator = new EventTimeBasedMillisTimestampGenerator(executionPlanContext.getScheduledExecutorService());
+                EventTimeBasedMillisTimestampGenerator timestampGenerator = new
+                        EventTimeBasedMillisTimestampGenerator(executionPlanContext.getScheduledExecutorService());
                 // Get the optional elements of playback annotation
                 for (Element e : annotation.getElements()) {
                     if (SiddhiConstants.ANNOTATION_IDLE_TIME.equalsIgnoreCase(e.getKey())) {
@@ -138,26 +143,32 @@ public class ExecutionPlanParser {
                     } else if (SiddhiConstants.ANNOTATION_INCREMENT.equalsIgnoreCase(e.getKey())) {
                         increment = e.getValue();
                     } else {
-                        throw new ExecutionPlanValidationException("Playback annotation accepts only idleTime and increment but found " + e.getKey());
+                        throw new ExecutionPlanValidationException("Playback annotation accepts only idleTime and " +
+                                "increment but found " + e.getKey());
                     }
                 }
 
                 // idleTime and increment are optional but if one presents, the other also should be given
                 if (idleTime != null && increment == null) {
-                    throw new ExecutionPlanValidationException("Playback annotation requires both idleTime and increment but increment not found");
+                    throw new ExecutionPlanValidationException("Playback annotation requires both idleTime and " +
+                            "increment but increment not found");
                 } else if (idleTime == null && increment != null) {
-                    throw new ExecutionPlanValidationException("Playback annotation requires both idleTime and increment but idleTime does not found");
+                    throw new ExecutionPlanValidationException("Playback annotation requires both idleTime and " +
+                            "increment but idleTime does not found");
                 } else if (idleTime != null) {
                     // The fourth case idleTime == null && increment == null are ignored because it means no heartbeat.
                     try {
                         timestampGenerator.setIdleTime(SiddhiCompiler.parseTimeConstantDefinition(idleTime).value());
                     } catch (SiddhiParserException ex) {
-                        throw new SiddhiParserException("Invalid idleTime constant '" + idleTime + "' in playback annotation", ex);
+                        throw new SiddhiParserException("Invalid idleTime constant '" + idleTime + "' in playback " +
+                                "annotation", ex);
                     }
                     try {
-                        timestampGenerator.setIncrementInMilliseconds(SiddhiCompiler.parseTimeConstantDefinition(increment).value());
+                        timestampGenerator.setIncrementInMilliseconds(SiddhiCompiler.parseTimeConstantDefinition
+                                (increment).value());
                     } catch (SiddhiParserException ex) {
-                        throw new SiddhiParserException("Invalid increment constant '" + increment + "' in playback annotation", ex);
+                        throw new SiddhiParserException("Invalid increment constant '" + increment + "' in playback " +
+                                "annotation", ex);
                     }
                 }
 
@@ -196,7 +207,8 @@ public class ExecutionPlanParser {
                         .getFactory()
                         .createLatencyTracker(metricName, executionPlanContext.getStatisticsManager());
             }
-            eventWindow.init(executionPlanRuntimeBuilder.getEventTableMap(), executionPlanRuntimeBuilder.getEventWindowMap(), latencyTracker, eventWindow.getWindowDefinition().getId());
+            eventWindow.init(executionPlanRuntimeBuilder.getEventTableMap(), executionPlanRuntimeBuilder
+                    .getEventWindowMap(), latencyTracker, eventWindow.getWindowDefinition().getId());
         }
         try {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {

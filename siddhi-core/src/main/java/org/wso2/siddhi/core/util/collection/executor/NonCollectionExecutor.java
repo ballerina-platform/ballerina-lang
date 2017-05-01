@@ -36,7 +36,8 @@ public class NonCollectionExecutor implements CollectionExecutor {
         this.expressionExecutor = expressionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner
+            storeEventCloner) {
 
         if ((Boolean) expressionExecutor.execute(matchingEvent)) {
 

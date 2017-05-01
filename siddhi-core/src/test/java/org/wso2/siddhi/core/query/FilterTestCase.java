@@ -120,7 +120,8 @@ public class FilterTestCase {
 
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[150 > volume] select symbol,price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[150 > volume] select symbol,price insert into " +
+                "outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -154,7 +155,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream[70 > price] select symbol,price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[70 > price] select symbol,price insert into " +
+                "outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -188,7 +190,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 50f] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 50f] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -219,7 +222,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -251,7 +255,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -283,7 +288,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -315,7 +321,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume float);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -348,7 +355,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume float);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 50f] select symbol,price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 50f] select symbol,price insert into " +
+                "outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -381,7 +389,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 50d] select symbol,price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 50d] select symbol,price insert into " +
+                "outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -413,7 +422,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 50f] select symbol,price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 50f] select symbol,price insert into " +
+                "outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -445,7 +455,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 45] select symbol,price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 45] select symbol,price insert into " +
+                "outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -477,7 +488,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume float);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 50d] select symbol,price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 50d] select symbol,price insert into " +
+                "outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -509,7 +521,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume float);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 45] select symbol,price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 45] select symbol,price insert into " +
+                "outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -540,8 +553,10 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume float, quantity int);";
-        String query = "@info(name = 'query1') from cseEventStream[quantity > 4d] select symbol,price,quantity insert into outputStream ;";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume float, quantity " +
+                "int);";
+        String query = "@info(name = 'query1') from cseEventStream[quantity > 4d] select symbol,price,quantity insert" +
+                " into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -573,7 +588,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 50d] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 50d] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -602,12 +618,15 @@ public class FilterTestCase {
         log.info("Filter test17");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.GREATER_THAN, Expression.value(45))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.GREATER_THAN, Expression.value(45))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("volume", Expression.variable("volume")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("volume", Expression.variable("volume")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -642,7 +661,8 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").
@@ -692,7 +712,8 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").
@@ -743,7 +764,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[volume != 100] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume != 100] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -776,7 +798,8 @@ public class FilterTestCase {
 
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[volume > 12l and price < 56] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume > 12l and price < 56] select symbol,price," +
+                "volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -809,7 +832,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[symbol != 'WSO2' and volume != 55l and price != 45f ] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[symbol != 'WSO2' and volume != 55l and price != " +
+                "45f ] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -840,7 +864,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[volume != 50f] select symbol,price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume != 50f] select symbol,price insert into " +
+                "outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -873,7 +898,8 @@ public class FilterTestCase {
 
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[price != 35l] select symbol,price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[price != 35l] select symbol,price insert into " +
+                "outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -905,7 +931,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[volume != 100 and volume != 70d] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume != 100 and volume != 70d] select symbol," +
+                "price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -937,7 +964,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[price != 53.6d or price != 87] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[price != 53.6d or price != 87] select symbol," +
+                "price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -968,7 +996,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream[volume != 40f and volume != 400] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume != 40f and volume != 400] select symbol," +
+                "price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1001,7 +1030,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream[volume != 40d and volume != 400d] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume != 40d and volume != 400d] select symbol," +
+                "price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1032,7 +1062,8 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String cseEventStream = "define stream cseEventStream (symbol string, price float, available bool);";
-        String query = "@info(name = 'query1') from cseEventStream[available != true ] select symbol,price,available insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[available != true ] select symbol,price,available " +
+                "insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1062,7 +1093,8 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("available", Attribute.Type.BOOL);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("available", Attribute.Type.BOOL);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").
@@ -1113,7 +1145,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream[price != 50 and volume != 50l] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[price != 50 and volume != 50l] select symbol," +
+                "price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1144,7 +1177,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[volume != 50d] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume != 50d] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1175,7 +1209,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[volume != 50f  or volume != 50] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume != 50f  or volume != 50] select symbol," +
+                "price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1206,7 +1241,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[volume != 50l] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume != 50l] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1236,7 +1272,8 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("available", Attribute.Type.BOOL);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("available", Attribute.Type.BOOL);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").
@@ -1287,7 +1324,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[volume == 50d] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume == 50d] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1318,7 +1356,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[symbol == 'IBM'] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[symbol == 'IBM'] select symbol,price,volume insert" +
+                " into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1349,7 +1388,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[price <= 53.5f] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[price <= 53.5f] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1380,7 +1420,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
-        String query = "@info(name = 'query1') from cseEventStream[price <= 54] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[price <= 54] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1411,7 +1452,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream[volume <= 40] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume <= 40] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1442,7 +1484,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream[price >= 54] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[price >= 54] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1473,7 +1516,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[volume >= 50] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume >= 50] select symbol,price,volume insert " +
+                "into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -1504,7 +1548,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[volume >= 50 and volume] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume >= 50 and volume] select symbol,price," +
+                "volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
     }
@@ -1516,7 +1561,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[price and volume >= 50 ] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[price and volume >= 50 ] select symbol,price," +
+                "volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
     }
@@ -1528,7 +1574,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[volume >= 50 or volume] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume >= 50 or volume] select symbol,price,volume" +
+                " insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
     }
@@ -1540,7 +1587,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[price or volume >= 50 ] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[price or volume >= 50 ] select symbol,price,volume" +
+                " insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
     }
@@ -1551,7 +1599,8 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("available", Attribute.Type.BOOL);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("available", Attribute.Type.BOOL);
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").
                 filter(Expression.not(Expression.variable("price"))));
@@ -1577,7 +1626,8 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("available", Attribute.Type.BOOL);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("available", Attribute.Type.BOOL);
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").
                 filter(Expression.variable("price")));
@@ -1604,7 +1654,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[volume] select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream[volume] select symbol,price,volume insert into " +
+                "outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
     }
@@ -1614,12 +1665,15 @@ public class FilterTestCase {
         log.info("Filter test51");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.EQUAL, Expression.value(60f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.EQUAL, Expression.value(60f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -1653,12 +1707,15 @@ public class FilterTestCase {
         log.info("Filter test52");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.EQUAL, Expression.value(60))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.EQUAL, Expression.value(60))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
 
@@ -1693,12 +1750,15 @@ public class FilterTestCase {
         log.info("Filter test53");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.EQUAL, Expression.value(60l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.EQUAL, Expression.value(60l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
 
@@ -1733,12 +1793,15 @@ public class FilterTestCase {
         log.info("Filter test54");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.EQUAL, Expression.value(50d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.EQUAL, Expression.value(50d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -1770,12 +1833,15 @@ public class FilterTestCase {
         log.info("Filter test55");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.EQUAL, Expression.value(50f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.EQUAL, Expression.value(50f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -1807,12 +1873,15 @@ public class FilterTestCase {
         log.info("Filter test56");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.EQUAL, Expression.value(70))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.EQUAL, Expression.value(70))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -1844,12 +1913,15 @@ public class FilterTestCase {
         log.info("Filter test57");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.EQUAL, Expression.value(60l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.EQUAL, Expression.value(60l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -1881,12 +1953,16 @@ public class FilterTestCase {
         log.info("Filter test58");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.EQUAL, Expression.value(5d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.EQUAL, Expression.value(5d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -1918,12 +1994,16 @@ public class FilterTestCase {
         log.info("Filter test59");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.EQUAL, Expression.value(5f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.EQUAL, Expression.value(5f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -1955,12 +2035,16 @@ public class FilterTestCase {
         log.info("Filter test60");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.EQUAL, Expression.value(2))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.EQUAL, Expression.value(2))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -1992,12 +2076,16 @@ public class FilterTestCase {
         log.info("Filter test61");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.EQUAL, Expression.value(4l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.EQUAL, Expression.value(4l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2029,12 +2117,16 @@ public class FilterTestCase {
         log.info("Filter test62");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute
+                ("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.EQUAL, Expression.value(200l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.EQUAL, Expression.value(200l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2066,12 +2158,15 @@ public class FilterTestCase {
         log.info("Filter test63");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.EQUAL, Expression.value(40d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.EQUAL, Expression.value(40d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2103,12 +2198,15 @@ public class FilterTestCase {
         log.info("Filter test64");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.EQUAL, Expression.value(40f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.EQUAL, Expression.value(40f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2140,12 +2238,15 @@ public class FilterTestCase {
         log.info("Filter test65");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.EQUAL, Expression.value(40))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.EQUAL, Expression.value(40))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2179,12 +2280,15 @@ public class FilterTestCase {
         log.info("Filter test66");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.not(Expression.compare(Expression.variable("volume"), Compare.Operator.EQUAL, Expression.value(40)))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.not(Expression.compare(Expression.variable
+                ("volume"), Compare.Operator.EQUAL, Expression.value(40)))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2218,12 +2322,15 @@ public class FilterTestCase {
         log.info("Filter test67");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(60d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(60d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2255,12 +2362,15 @@ public class FilterTestCase {
         log.info("Filter test68");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(100f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(100f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2292,12 +2402,15 @@ public class FilterTestCase {
         log.info("Filter test69");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(50))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(50))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2329,12 +2442,16 @@ public class FilterTestCase {
         log.info("Filter test70");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(200l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(200l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2366,12 +2483,15 @@ public class FilterTestCase {
         log.info("Filter test71");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(50d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(50d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2402,12 +2522,16 @@ public class FilterTestCase {
         log.info("Filter test72");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(200l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(200l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2439,12 +2563,16 @@ public class FilterTestCase {
         log.info("Filter test73");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(5d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(5d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2476,12 +2604,16 @@ public class FilterTestCase {
         log.info("Filter test74");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(5f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(5f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2514,12 +2646,16 @@ public class FilterTestCase {
         log.info("Filter test75");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(3l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(3l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2551,12 +2687,15 @@ public class FilterTestCase {
         log.info("Filter test76");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(50d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(50d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2587,12 +2726,15 @@ public class FilterTestCase {
         log.info("Filter test77");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(50f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(50f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2623,12 +2765,15 @@ public class FilterTestCase {
         log.info("Filter test78");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(50))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(50))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2659,12 +2804,16 @@ public class FilterTestCase {
         log.info("Filter test79");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute
+                ("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.LESS_THAN_EQUAL, Expression.value(60l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.LESS_THAN_EQUAL, Expression.value(60l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2699,12 +2848,15 @@ public class FilterTestCase {
         log.info("Filter test80");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.LESS_THAN, Expression.value(50d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.LESS_THAN, Expression.value(50d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2735,12 +2887,15 @@ public class FilterTestCase {
         log.info("Filter test81");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.LESS_THAN, Expression.value(70f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.LESS_THAN, Expression.value(70f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2771,12 +2926,15 @@ public class FilterTestCase {
         log.info("Filter test82");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.LESS_THAN, Expression.value(50))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.LESS_THAN, Expression.value(50))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2808,12 +2966,16 @@ public class FilterTestCase {
         log.info("Filter test83");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.LESS_THAN, Expression.value(60l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.LESS_THAN, Expression.value(60l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2844,12 +3006,16 @@ public class FilterTestCase {
         log.info("Filter test84");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.LESS_THAN, Expression.value(60l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.LESS_THAN, Expression.value(60l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2880,12 +3046,16 @@ public class FilterTestCase {
         log.info("Filter test85");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.LESS_THAN, Expression.value(4l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.LESS_THAN, Expression.value(4l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2916,12 +3086,16 @@ public class FilterTestCase {
         log.info("Filter test86");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute
+                ("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.LESS_THAN, Expression.value(40l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.LESS_THAN, Expression.value(40l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2952,12 +3126,15 @@ public class FilterTestCase {
         log.info("Filter test87");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.LESS_THAN, Expression.value(50d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.LESS_THAN, Expression.value(50d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -2989,12 +3166,15 @@ public class FilterTestCase {
         log.info("Filter test88");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.LESS_THAN, Expression.value(55f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.LESS_THAN, Expression.value(55f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3025,12 +3205,16 @@ public class FilterTestCase {
         log.info("Filter test89");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.LESS_THAN, Expression.value(50d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.LESS_THAN, Expression.value(50d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3061,12 +3245,16 @@ public class FilterTestCase {
         log.info("Filter test90");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.LESS_THAN, Expression.value(10f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.LESS_THAN, Expression.value(10f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3097,12 +3285,16 @@ public class FilterTestCase {
         log.info("Filter test91");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.LESS_THAN, Expression.value(15))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.LESS_THAN, Expression.value(15))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3133,12 +3325,16 @@ public class FilterTestCase {
         log.info("Filter test92");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute
+                ("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.LESS_THAN, Expression.value(100d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.LESS_THAN, Expression.value(100d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3169,12 +3365,16 @@ public class FilterTestCase {
         log.info("Filter test93");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute
+                ("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.LESS_THAN, Expression.value(100f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.LESS_THAN, Expression.value(100f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3209,12 +3409,15 @@ public class FilterTestCase {
         log.info("Filter test94");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(50d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(50d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3245,12 +3448,15 @@ public class FilterTestCase {
         log.info("Filter test95");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(70f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(70f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3281,12 +3487,15 @@ public class FilterTestCase {
         log.info("Filter test96");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(50))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(50))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3318,12 +3527,16 @@ public class FilterTestCase {
         log.info("Filter test97");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(60l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(60l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3354,12 +3567,16 @@ public class FilterTestCase {
         log.info("Filter test98");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(60l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(60l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3390,12 +3607,16 @@ public class FilterTestCase {
         log.info("Filter test99");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(4l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(4l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3426,12 +3647,16 @@ public class FilterTestCase {
         log.info("Filter test100");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute
+                ("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(40l))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(40l))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3463,12 +3688,15 @@ public class FilterTestCase {
         log.info("Filter test101");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(50d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(50d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3499,12 +3727,15 @@ public class FilterTestCase {
         log.info("Filter test102");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(55f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(55f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3535,12 +3766,16 @@ public class FilterTestCase {
         log.info("Filter test103");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(50d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(50d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3572,12 +3807,16 @@ public class FilterTestCase {
         log.info("Filter test104");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(10f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(10f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3608,12 +3847,16 @@ public class FilterTestCase {
         log.info("Filter test105");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(15))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(15))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3645,12 +3888,16 @@ public class FilterTestCase {
         log.info("Filter test106");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute
+                ("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(100d))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(100d))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3681,12 +3928,16 @@ public class FilterTestCase {
         log.info("Filter test107");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute
+                ("quantity", Attribute.Type.INT);
 
         Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.GREATER_THAN_EQUAL, Expression.value(100f))));
+        query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
+                Compare.Operator.GREATER_THAN_EQUAL, Expression.value(100f))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
+                .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -3719,7 +3970,8 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").
@@ -3752,7 +4004,9 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT).attribute("awards", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT).attribute("awards", Attribute.Type.LONG);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -3800,7 +4054,9 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT).attribute("awards", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT).attribute("awards", Attribute.Type.LONG);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -3808,10 +4064,14 @@ public class FilterTestCase {
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
-                        select("decreasedPrice", Expression.subtract(Expression.variable("price"), Expression.value(20))).
-                        select("decreasedVolume", Expression.subtract(Expression.variable("volume"), Expression.value(50))).
-                        select("decreasedQuantity", Expression.subtract(Expression.variable("quantity"), Expression.value(4))).
-                        select("decreasedAwards", Expression.subtract(Expression.variable("awards"), Expression.value(10)))
+                        select("decreasedPrice", Expression.subtract(Expression.variable("price"), Expression.value
+                                (20))).
+                        select("decreasedVolume", Expression.subtract(Expression.variable("volume"), Expression.value
+                                (50))).
+                        select("decreasedQuantity", Expression.subtract(Expression.variable("quantity"), Expression
+                                .value(4))).
+                        select("decreasedAwards", Expression.subtract(Expression.variable("awards"), Expression.value
+                                (10)))
 
         );
         query.insertInto("OutputStream");
@@ -3853,7 +4113,9 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT).attribute("awards", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT).attribute("awards", Attribute.Type.LONG);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -3863,7 +4125,8 @@ public class FilterTestCase {
                         select("symbol", Expression.variable("symbol")).
                         select("dividedPrice", Expression.divide(Expression.variable("price"), Expression.value(2))).
                         select("dividedVolume", Expression.divide(Expression.variable("volume"), Expression.value(2))).
-                        select("dividedQuantity", Expression.divide(Expression.variable("quantity"), Expression.value(5))).
+                        select("dividedQuantity", Expression.divide(Expression.variable("quantity"), Expression.value
+                                (5))).
                         select("dividedAwards", Expression.divide(Expression.variable("awards"), Expression.value(10)))
 
         );
@@ -3906,7 +4169,9 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT).attribute("awards", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT).attribute("awards", Attribute.Type.LONG);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -3914,10 +4179,14 @@ public class FilterTestCase {
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
-                        select("multipliedQuantity", Expression.multiply(Expression.variable("quantity"), Expression.value(4))).
-                        select("multipliedPrice", Expression.multiply(Expression.variable("price"), Expression.value(2))).
-                        select("multipliedVolume", Expression.multiply(Expression.variable("volume"), Expression.value(3))).
-                        select("multipliedAwards", Expression.multiply(Expression.variable("awards"), Expression.value(5)))
+                        select("multipliedQuantity", Expression.multiply(Expression.variable("quantity"), Expression
+                                .value(4))).
+                        select("multipliedPrice", Expression.multiply(Expression.variable("price"), Expression.value
+                                (2))).
+                        select("multipliedVolume", Expression.multiply(Expression.variable("volume"), Expression
+                                .value(3))).
+                        select("multipliedAwards", Expression.multiply(Expression.variable("awards"), Expression
+                                .value(5)))
 
         );
         query.insertInto("OutputStream");
@@ -3959,7 +4228,9 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE).attribute("quantity", Attribute.Type.INT).attribute("awards", Attribute.Type.LONG);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.DOUBLE)
+                .attribute("quantity", Attribute.Type.INT).attribute("awards", Attribute.Type.LONG);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -4010,12 +4281,15 @@ public class FilterTestCase {
         log.info("Filter test114");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT)
+                .attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").filter(Expression.value(true)));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price1", Expression.variable("price1")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price1", Expression
+                .variable("price1")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -4047,12 +4321,15 @@ public class FilterTestCase {
         log.info("Filter test115");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT)
+                .attribute("volume", Attribute.Type.LONG).attribute("quantity", Attribute.Type.INT);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").filter(Expression.value(false)));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price1", Expression.variable("price1")).select("quantity", Expression.variable("quantity")));
+        query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price1", Expression
+                .variable("price1")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -4083,7 +4360,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream select symbol,price+5 as price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol,price+5 as price insert into " +
+                "outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -4115,7 +4393,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(500) select symbol,sum(price)+5 as price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(500) select symbol,sum(price)+5 " +
+                "as price insert into outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -4150,7 +4429,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(500)  select volume, sum(price) as price group by volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(500)  select volume, sum(price) " +
+                "as price group by volume insert into outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -4182,7 +4462,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream select symbol,sum(price)+10 as price group by symbol having price > 880 insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol,sum(price)+10 as price group by " +
+                "symbol having price > 880 insert into outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -4214,7 +4495,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream select symbol,sum(price) as sumprice group by symbol having sumprice > 880 insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol,sum(price) as sumprice group by " +
+                "symbol having sumprice > 880 insert into outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -4246,13 +4528,16 @@ public class FilterTestCase {
 ////        siddhiManager.setExtension("str:concat", ConcatFunctionExtension.class);
 //
 //
-//        String cseEventStream = " define stream RequestStream (messageID string, app_key string, api_key string, app_tier string, api_tier string, user_id string, properties string, timeNow long); " +
-//                " define stream EligibilityStream (rule string, messageID string, isEligible bool, isLocallyThrottled bool, throttle_key string , timeNow long); ";
+//        String cseEventStream = " define stream RequestStream (messageID string, app_key string, api_key string,
+// app_tier string, api_tier string, user_id string, properties string, timeNow long); " +
+//                " define stream EligibilityStream (rule string, messageID string, isEligible bool,
+// isLocallyThrottled bool, throttle_key string , timeNow long); ";
 //
 //        String query = "" +
 //                "@info(name = 'query1') " +
 //                "FROM RequestStream " +
-//                "SELECT 'sub_gold' AS rule, messageID, ( api_tier == 'Gold') AS isEligible,false as isLocallyThrottled,  'sub_gold_TEST1TEST1Test1_key' AS throttle_key , timeNow \n" +
+//                "SELECT 'sub_gold' AS rule, messageID, ( api_tier == 'Gold') AS isEligible,false as
+// isLocallyThrottled,  'sub_gold_TEST1TEST1Test1_key' AS throttle_key , timeNow \n" +
 //                "INSERT INTO EligibilityStream; " +
 //                "@info(name = 'query2') FROM EligibilityStream[isEligible==false]\n" +
 //                "\t\tSELECT rule, messageID, false AS isThrottled , timeNow\n" +
@@ -4279,7 +4564,8 @@ public class FilterTestCase {
 //                            eventCount++;
 //                            timeSpent += (System.currentTimeMillis() - (Long) event.getData(3));
 //                            if (eventCount % 1000000 == 0) {
-//                                System.out.println("Throughput : " + (eventCount * 1000) / ((System.currentTimeMillis()) - startTime));
+//                                System.out.println("Throughput : " + (eventCount * 1000) / ((System
+// .currentTimeMillis()) - startTime));
 //                                System.out.println("Time spend :  " + (timeSpent * 1.0 / eventCount));
 //                                startTime = System.currentTimeMillis();
 //                                eventCount = 0;
@@ -4317,10 +4603,14 @@ public class FilterTestCase {
 //        public void run() {
 //            while (true) {
 //                try {
-//                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System.currentTimeMillis()});
-//                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System.currentTimeMillis()});
-//                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System.currentTimeMillis()});
-//                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System.currentTimeMillis()});
+//                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System
+// .currentTimeMillis()});
+//                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System
+// .currentTimeMillis()});
+//                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System
+// .currentTimeMillis()});
+//                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System
+// .currentTimeMillis()});
 //                } catch (InterruptedException e) {
 //                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
 //                }

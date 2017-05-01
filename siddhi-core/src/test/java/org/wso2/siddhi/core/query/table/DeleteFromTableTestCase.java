@@ -257,7 +257,7 @@ public class DeleteFromTableTestCase {
                 "from DeleteStockStream[vol>=100] " +
                 "delete StockTable " +
                 "   on StockTable.symbol==symbol ;" +
-                ""+
+                "" +
                 "@info(name = 'query3') " +
                 "from CountStockStream#window.length(0) join StockTable" +
                 " on CountStockStream.symbol==StockTable.symbol " +
@@ -275,7 +275,7 @@ public class DeleteFromTableTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                inEventCount+=events.length;
+                inEventCount += events.length;
             }
         });
         executionPlanRuntime.start();
@@ -287,7 +287,7 @@ public class DeleteFromTableTestCase {
         countStockStream.send(new Object[]{"WSO2"});
 
         Thread.sleep(500);
-        Assert.assertEquals(2,inEventCount);
+        Assert.assertEquals(2, inEventCount);
         executionPlanRuntime.shutdown();
 
     }

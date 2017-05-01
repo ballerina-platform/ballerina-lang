@@ -59,13 +59,14 @@ public class TableQueryTestCase {
         Query query = Query.query();
         query.from(
                 InputStream.stream("cseEventStream").
-                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value(9.5)),
-                                                Compare.Operator.GREATER_THAN,
-                                                Expression.variable("price")),
-                                        Expression.compare(Expression.value(100),
-                                                Compare.Operator.GREATER_THAN_EQUAL,
-                                                Expression.variable("volume")
-                                        )
+                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
+                                        (9.5)),
+                                Compare.Operator.GREATER_THAN,
+                                Expression.variable("price")),
+                                Expression.compare(Expression.value(100),
+                                        Compare.Operator.GREATER_THAN_EQUAL,
+                                        Expression.variable("volume")
+                                )
                                 )
                         ).window("lengthBatch", Expression.value(50))
         );
@@ -83,13 +84,14 @@ public class TableQueryTestCase {
         Query query = Query.query();
         query.from(
                 InputStream.stream("cseEventStream").
-                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value(9.5)),
-                                                Compare.Operator.GREATER_THAN,
-                                                Expression.variable("price")),
-                                        Expression.compare(Expression.value(100),
-                                                Compare.Operator.GREATER_THAN_EQUAL,
-                                                Expression.variable("volume")
-                                        )
+                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
+                                        (9.5)),
+                                Compare.Operator.GREATER_THAN,
+                                Expression.variable("price")),
+                                Expression.compare(Expression.value(100),
+                                        Compare.Operator.GREATER_THAN_EQUAL,
+                                        Expression.variable("volume")
+                                )
                                 )
                         ).window("lengthBatch", Expression.value(50))
         );
@@ -109,13 +111,14 @@ public class TableQueryTestCase {
         Query query = Query.query();
         query.from(
                 InputStream.stream("cseEventStream").
-                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value(9.5)),
-                                                Compare.Operator.GREATER_THAN,
-                                                Expression.variable("price")),
-                                        Expression.compare(Expression.value(100),
-                                                Compare.Operator.GREATER_THAN_EQUAL,
-                                                Expression.variable("volume")
-                                        )
+                        filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
+                                        (9.5)),
+                                Compare.Operator.GREATER_THAN,
+                                Expression.variable("price")),
+                                Expression.compare(Expression.value(100),
+                                        Compare.Operator.GREATER_THAN_EQUAL,
+                                        Expression.variable("volume")
+                                )
                                 )
                         ).window("lengthBatch", Expression.value(50))
         );

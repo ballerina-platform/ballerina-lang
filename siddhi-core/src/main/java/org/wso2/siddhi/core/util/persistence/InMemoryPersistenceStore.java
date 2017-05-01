@@ -47,7 +47,8 @@ public class InMemoryPersistenceStore implements PersistenceStore {
             revisionList = new ArrayList<String>();
             revisionMap.put(executionPlanId, revisionList);
         }
-        if (revisionList.size() == 0 || (revisionList.size() > 0 && !revision.equals(revisionList.get(revisionList.size() - 1)))) {
+        if (revisionList.size() == 0 || (revisionList.size() > 0 && !revision.equals(revisionList.get(revisionList
+                .size() - 1)))) {
             revisionList.add(revision);
             revisionMap.put(executionPlanId, revisionList);
         }

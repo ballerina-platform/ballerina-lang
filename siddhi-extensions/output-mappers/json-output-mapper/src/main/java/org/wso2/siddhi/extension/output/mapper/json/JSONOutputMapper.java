@@ -36,14 +36,13 @@ import java.util.Map;
         description = "Event to JSON output mapper."
 )
 public class JSONOutputMapper extends OutputMapper {
-    private StreamDefinition streamDefinition;
     private static final String GROUP_EVENTS_OPTION = "groupEvents";
     private static final String EVENTS_PARENT_TAG = "events";
     private static final String EVENT_PARENT_TAG = "event";
     private static final String EVENT_ARBITRARY_DATA_MAP_TAG = "arbitraryDataMap";
     //Todo  use group events to group multiple events.
     boolean groupEvents = false;
-
+    private StreamDefinition streamDefinition;
 
     /**
      * Initialize the mapper and the mapping configurations.
@@ -53,7 +52,8 @@ public class JSONOutputMapper extends OutputMapper {
      * @param payloadTemplateBuilder Unmapped payload for reference
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder
+            payloadTemplateBuilder) {
         this.streamDefinition = streamDefinition;
         ///TODO 2/3/2017 Fix this to support grouping events
 //        String groupEventsString = optionHolder.getStaticOption(GROUP_EVENTS_OPTION);
@@ -135,7 +135,8 @@ public class JSONOutputMapper extends OutputMapper {
 //            Gson gson = new Gson();
 //            JsonParser parser = new JsonParser();
 //            JsonObject jsonObject = parser.parse(eventText).getAsJsonObject();
-//            jsonObject.getAsJsonObject(EVENT_PARENT_TAG).add(EVENT_ARBITRARY_DATA_MAP_TAG, gson.toJsonTree(arbitraryDataMap));
+//            jsonObject.getAsJsonObject(EVENT_PARENT_TAG).add(EVENT_ARBITRARY_DATA_MAP_TAG, gson.toJsonTree
+// (arbitraryDataMap));
 //            eventText = gson.toJson(jsonObject);
 //        }
 

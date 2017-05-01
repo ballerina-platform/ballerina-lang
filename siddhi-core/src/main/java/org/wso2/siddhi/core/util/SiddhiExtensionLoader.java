@@ -83,17 +83,21 @@ public class SiddhiExtensionLoader {
             if (!siddhiExtensionAnnotation.name().isEmpty()) {
                 Class previousClass;
                 if (!siddhiExtensionAnnotation.namespace().isEmpty()) {
-                    previousClass = siddhiExtensionsMap.putIfAbsent(siddhiExtensionAnnotation.namespace() + SiddhiConstants.EXTENSION_SEPARATOR +
+                    previousClass = siddhiExtensionsMap.putIfAbsent(siddhiExtensionAnnotation.namespace() +
+                            SiddhiConstants.EXTENSION_SEPARATOR +
                             siddhiExtensionAnnotation.name(), extensionClass);
                     if (previousClass != null) {
-                        log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already loaded with the " +
-                                "same namespace and name '" + siddhiExtensionAnnotation.namespace() + SiddhiConstants.EXTENSION_SEPARATOR +
+                        log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already " +
+                                "loaded with the " +
+                                "same namespace and name '" + siddhiExtensionAnnotation.namespace() + SiddhiConstants
+                                .EXTENSION_SEPARATOR +
                                 siddhiExtensionAnnotation.name() + "'");
                     }
                 } else {
                     previousClass = siddhiExtensionsMap.put(siddhiExtensionAnnotation.name(), extensionClass);
                     if (previousClass != null) {
-                        log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already loaded with the " +
+                        log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already " +
+                                "loaded with the " +
                                 "same name '" + siddhiExtensionAnnotation.name() + "'");
                     }
                 }
@@ -101,7 +105,8 @@ public class SiddhiExtensionLoader {
                 log.error("Unable to load extension " + extensionClass.getName() + ", missing Extension annotation.");
             }
         } else {
-            log.error("Unable to load extension " + extensionClass.getName() + ", empty name element given in Extension annotation.");
+            log.error("Unable to load extension " + extensionClass.getName() + ", empty name element given in " +
+                    "Extension annotation.");
         }
     }
 

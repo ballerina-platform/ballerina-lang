@@ -27,7 +27,8 @@ public class OrCollectionExpression implements CollectionExpression {
     private CollectionExpression leftCollectionExpression;
     private CollectionExpression rightCollectionExpression;
 
-    public OrCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression leftCollectionExpression, CollectionExpression rightCollectionExpression) {
+    public OrCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression
+            leftCollectionExpression, CollectionExpression rightCollectionExpression) {
         this.expression = expression;
         this.collectionScope = collectionScope;
         this.leftCollectionExpression = leftCollectionExpression;

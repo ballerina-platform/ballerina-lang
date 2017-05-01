@@ -25,8 +25,8 @@ import org.wso2.carbon.databridge.commons.Event;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.stream.output.sink.InMemoryOutputTransport;
+import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -102,14 +102,16 @@ public class WSO2EventOutputMapperTestCase {
                 .annotation(Annotation.annotation("sink")
                         .element("type", "inMemory")
                         .element("topic", "{{meta_symbol}}")
-                        .annotation(Annotation.annotation("map").element("type", "wso2event").element("streamID", "BarStream")));
+                        .annotation(Annotation.annotation("map").element("type", "wso2event").element("streamID",
+                                "BarStream")));
 
         Query query = Query.query();
         query.from(
                 InputStream.stream("FooStream")
         );
         query.select(
-                Selector.selector().select(new Variable("meta_symbol")).select(new Variable("correlation_price")).select(new Variable("volume"))
+                Selector.selector().select(new Variable("meta_symbol")).select(new Variable("correlation_price"))
+                        .select(new Variable("volume"))
         );
         query.insertInto("BarStream");
 

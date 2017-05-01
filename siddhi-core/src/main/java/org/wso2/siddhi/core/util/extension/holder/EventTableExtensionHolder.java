@@ -19,20 +19,20 @@
 package org.wso2.siddhi.core.util.extension.holder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EventTableExtensionHolder extends AbstractExtensionHolder {
-    private static Class clazz =EventTable.class;
+    private static Class clazz = EventTable.class;
 
     protected EventTableExtensionHolder(ExecutionPlanContext executionPlanContext) {
         super(clazz, executionPlanContext);
     }
 
     public static EventTableExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext
+                ().getExtensionHolderMap();
         AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
             abstractExtensionHolder = new EventTableExtensionHolder(executionPlanContext);

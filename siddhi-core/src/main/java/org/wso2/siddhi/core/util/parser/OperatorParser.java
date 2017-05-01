@@ -30,7 +30,13 @@ import org.wso2.siddhi.core.util.collection.executor.CollectionExecutor;
 import org.wso2.siddhi.core.util.collection.expression.AttributeCollectionExpression;
 import org.wso2.siddhi.core.util.collection.expression.CollectionExpression;
 import org.wso2.siddhi.core.util.collection.expression.CompareCollectionExpression;
-import org.wso2.siddhi.core.util.collection.operator.*;
+import org.wso2.siddhi.core.util.collection.operator.CollectionOperator;
+import org.wso2.siddhi.core.util.collection.operator.EventChunkOperator;
+import org.wso2.siddhi.core.util.collection.operator.IndexOperator;
+import org.wso2.siddhi.core.util.collection.operator.MapOperator;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.wso2.siddhi.core.util.collection.operator.Operator;
+import org.wso2.siddhi.core.util.collection.operator.OverwriteTableIndexOperator;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
@@ -52,8 +58,10 @@ public class OperatorParser {
         if (storeEvents instanceof IndexedEventHolder) {
             CollectionExpression collectionExpression = CollectionExpressionParser.parseCollectionExpression(expression,
                     matchingMetaInfoHolder, (IndexedEventHolder) storeEvents);
-            CollectionExecutor collectionExecutor = CollectionExpressionParser.buildCollectionExecutor(collectionExpression,
-                    matchingMetaInfoHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, true, queryName);
+            CollectionExecutor collectionExecutor = CollectionExpressionParser.buildCollectionExecutor
+                    (collectionExpression,
+                    matchingMetaInfoHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, true,
+                            queryName);
             if (collectionExpression instanceof CompareCollectionExpression &&
                     ((CompareCollectionExpression) collectionExpression).getOperator() == Compare.Operator.EQUAL &&
                     collectionExpression.getCollectionScope() == INDEXED_RESULT_SET &&
@@ -68,30 +76,37 @@ public class OperatorParser {
             }
         } else if (storeEvents instanceof ComplexEventChunk) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(),
+                    eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new EventChunkOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else if (storeEvents instanceof Map) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(),
+                    eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new MapOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else if (storeEvents instanceof Collection) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(),
+                    eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new CollectionOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else {
             throw new OperationNotSupportedException(storeEvents.getClass() + " is not supported by OperatorParser!");
         }
     }
 
-    private static boolean isTableIndexVariable(MatchingMetaInfoHolder matchingMetaInfoHolder, Expression expression, String indexAttribute) {
+    private static boolean isTableIndexVariable(MatchingMetaInfoHolder matchingMetaInfoHolder, Expression expression,
+                                                String indexAttribute) {
         if (expression instanceof Variable) {
             Variable variable = (Variable) expression;
             if (variable.getStreamId() != null) {
-                MetaStreamEvent tableStreamEvent = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvent(matchingMetaInfoHolder.getStoreEventIndex());
+                MetaStreamEvent tableStreamEvent = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvent
+                        (matchingMetaInfoHolder.getStoreEventIndex());
                 if (tableStreamEvent != null) {
-                    if ((tableStreamEvent.getInputReferenceId() != null && variable.getStreamId().equals(tableStreamEvent.getInputReferenceId())) ||
+                    if ((tableStreamEvent.getInputReferenceId() != null && variable.getStreamId().equals
+                            (tableStreamEvent.getInputReferenceId())) ||
                             (tableStreamEvent.getLastInputDefinition().getId().equals(variable.getStreamId()))) {
-                        if (Arrays.asList(tableStreamEvent.getLastInputDefinition().getAttributeNameArray()).contains(indexAttribute)) {
+                        if (Arrays.asList(tableStreamEvent.getLastInputDefinition().getAttributeNameArray()).contains
+                                (indexAttribute)) {
                             return true;
                         }
                     }

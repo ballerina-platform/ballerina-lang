@@ -39,20 +39,23 @@ public class PassThroughOutputMapper extends OutputMapper {
     }
 
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder
+            payloadTemplateBuilder) {
         // do nothing
     }
 
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws
+            ConnectionUnavailableException {
         updateEventIds(events);
         outputTransportListener.publish(events, dynamicOptions);
     }
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws
+            ConnectionUnavailableException {
         updateEventId(event);
         outputTransportListener.publish(event, dynamicOptions);
     }

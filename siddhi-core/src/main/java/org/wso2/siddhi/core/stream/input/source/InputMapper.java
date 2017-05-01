@@ -31,10 +31,10 @@ import java.util.List;
  */
 public abstract class InputMapper implements SourceEventListener {
 
+    private static final Logger log = Logger.getLogger(InputMapper.class);
     private InputHandler inputHandler;
     private StreamDefinition streamDefinition;
     private String mapType;
-    private static final Logger log = Logger.getLogger(InputMapper.class);
 
     public void init(StreamDefinition streamDefinition, String mapType, OptionHolder mapOptionHolder,
                      List<AttributeMapping> attributeMappings) {
@@ -43,14 +43,15 @@ public abstract class InputMapper implements SourceEventListener {
         init(streamDefinition, mapOptionHolder, attributeMappings);
     }
 
-    public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping> attributeMappingList);
-
-    public void setInputHandler(InputHandler inputHandler) {
-        this.inputHandler = inputHandler;
-    }
+    public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
+            attributeMappingList);
 
     public InputHandler getInputHandler() {
         return inputHandler;
+    }
+
+    public void setInputHandler(InputHandler inputHandler) {
+        this.inputHandler = inputHandler;
     }
 
     public void onEvent(Object eventObject) {

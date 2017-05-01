@@ -40,15 +40,16 @@ import java.util.List;
  */
 public class RDBMSOperator implements Operator {
 
+    private final int[] attributeIndexArray;
     private Operator inMemoryEventTableOperator;
     private List<ExpressionExecutor> expressionExecutorList;
     private DBHandler dbHandler;
     private boolean isBloomEnabled;
-    private final int[] attributeIndexArray;
     private ExecutionInfo executionInfo;
     private int matchingEventOutputSize;
 
-    public RDBMSOperator(ExecutionInfo executionInfo, List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Operator inMemoryEventTableOperator, int matchingEventOutputSize) {
+    public RDBMSOperator(ExecutionInfo executionInfo, List<ExpressionExecutor> expressionExecutorList, DBHandler
+            dbHandler, Operator inMemoryEventTableOperator, int matchingEventOutputSize) {
         this.expressionExecutorList = expressionExecutorList;
         this.dbHandler = dbHandler;
         this.inMemoryEventTableOperator = inMemoryEventTableOperator;
@@ -65,6 +66,18 @@ public class RDBMSOperator implements Operator {
         for (Attribute attribute : conditionList) {
             attributeIndexArray[i++] = getAttributeIndex(dbHandler, attribute.getName());
         }
+    }
+
+    private static int getAttributeIndex(DBHandler dbHandler, String attributeName) {
+        int i = 0;
+        for (Attribute attribute : dbHandler.getAttributeList()) {
+            if (attribute.getName().equals(attributeName)) {
+                return i;
+            }
+            i++;
+        }
+        //not-possible to happen
+        return 0;
     }
 
     @Override
@@ -89,13 +102,14 @@ public class RDBMSOperator implements Operator {
             deletionEventList.add(obj);
         }
 
-        if(deletionEventList.size() > 0){
+        if (deletionEventList.size() > 0) {
             dbHandler.deleteEvent(deletionEventList, executionInfo);
         }
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[]
+            updateAttributeMappers) {
         updatingEventChunk.reset();
         List<Object[]> updateEventList = new ArrayList<Object[]>();
         while (updatingEventChunk.hasNext()) {
@@ -112,13 +126,15 @@ public class RDBMSOperator implements Operator {
             updateEventList.add(obj);
         }
 
-        if(updateEventList.size() > 0){
+        if (updateEventList.size() > 0) {
             dbHandler.updateEvent(updateEventList, executionInfo);
         }
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
+    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object
+            storeEvents, UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor
+            addingStreamEventExtractor) {
         updatingOrAddingEventChunk.reset();
         List<Object[]> updateEventList = new ArrayList<Object[]>();
 
@@ -141,7 +157,8 @@ public class RDBMSOperator implements Operator {
 
     @Override
     public CompiledCondition cloneCompiledCondition(String key) {
-        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator, matchingEventOutputSize);
+        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator,
+                matchingEventOutputSize);
     }
 
     @Override
@@ -155,7 +172,8 @@ public class RDBMSOperator implements Operator {
                 Object value = expressionExecutor.execute(matchingEvent);
                 obj[count] = value;
                 if (isBloomEnabled) {
-                    boolean mightContain = dbHandler.getBloomFilters()[attributeIndexArray[count]].membershipTest(new Key(value.toString().getBytes()));
+                    boolean mightContain = dbHandler.getBloomFilters()[attributeIndexArray[count]].membershipTest(new
+                            Key(value.toString().getBytes()));
                     if (!mightContain) {
                         return null;
                     }
@@ -179,7 +197,8 @@ public class RDBMSOperator implements Operator {
                 Object value = expressionExecutor.execute(matchingEvent);
                 obj[count] = value;
                 if (isBloomEnabled) {
-                    boolean mightContain = dbHandler.getBloomFilters()[attributeIndexArray[count]].membershipTest(new Key(value.toString().getBytes()));
+                    boolean mightContain = dbHandler.getBloomFilters()[attributeIndexArray[count]].membershipTest(new
+                            Key(value.toString().getBytes()));
                     if (!mightContain) {
                         return false;
                     }
@@ -194,18 +213,5 @@ public class RDBMSOperator implements Operator {
 
     public Operator getInMemoryEventTableOperator() {
         return inMemoryEventTableOperator;
-    }
-
-
-    private static int getAttributeIndex(DBHandler dbHandler, String attributeName) {
-        int i = 0;
-        for (Attribute attribute : dbHandler.getAttributeList()) {
-            if (attribute.getName().equals(attributeName)) {
-                return i;
-            }
-            i++;
-        }
-        //not-possible to happen
-        return 0;
     }
 }

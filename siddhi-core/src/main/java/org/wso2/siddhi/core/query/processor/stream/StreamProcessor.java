@@ -40,7 +40,8 @@ public abstract class StreamProcessor extends AbstractStreamProcessor {
     protected boolean outputExpectsExpiredEvents;
 
     @Override
-    protected void processEventChunk(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+    protected void processEventChunk(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                                     StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         streamEventChunk.reset();
         process(streamEventChunk, nextProcessor, streamEventCloner, complexEventPopulater);
     }
@@ -67,12 +68,14 @@ public abstract class StreamProcessor extends AbstractStreamProcessor {
      * @return the additional output attributes introduced by the function
      */
     protected List<Attribute> init(AbstractDefinition inputDefinition,
-                                   ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents){
+                                   ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+                                           executionPlanContext, boolean outputExpectsExpiredEvents) {
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
-        return init(inputDefinition,attributeExpressionExecutors,executionPlanContext);
+        return init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
     }
 
     protected abstract List<Attribute> init(AbstractDefinition inputDefinition,
-                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
+                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+                                                    executionPlanContext);
 
 }

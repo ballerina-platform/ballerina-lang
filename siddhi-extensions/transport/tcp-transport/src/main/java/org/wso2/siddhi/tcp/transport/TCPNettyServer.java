@@ -135,8 +135,8 @@ public class TCPNettyServer {
  * {@link org.wso2.siddhi.tcp.transport.utils.Constant#DEFAULT_QUEUE_SIZE_OF_TCP_TRANSPORT}).
  */
 class FlowController extends ChannelInboundHandlerAdapter {
-    private ChannelHandlerContext channelHandlerContext;
     private final CircularFifoQueue<Object> queue;
+    private ChannelHandlerContext channelHandlerContext;
     private boolean paused;
 
     FlowController(int size) {

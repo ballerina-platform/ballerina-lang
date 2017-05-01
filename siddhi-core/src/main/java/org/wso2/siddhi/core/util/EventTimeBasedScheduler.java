@@ -28,7 +28,8 @@ public class EventTimeBasedScheduler extends Scheduler {
         super(singleThreadEntryValve, executionPlanContext);
 
         if (executionPlanContext.isPlayback()) {
-            ((EventTimeBasedMillisTimestampGenerator) executionPlanContext.getTimestampGenerator()).addTimeChangeListener(new EventTimeBasedMillisTimestampGenerator.TimeChangeListener() {
+            ((EventTimeBasedMillisTimestampGenerator) executionPlanContext.getTimestampGenerator())
+                    .addTimeChangeListener(new EventTimeBasedMillisTimestampGenerator.TimeChangeListener() {
                 @Override
                 public void onTimeChange(long currentTimestamp) {
                     Long lastTime = toNotifyQueue.peek();

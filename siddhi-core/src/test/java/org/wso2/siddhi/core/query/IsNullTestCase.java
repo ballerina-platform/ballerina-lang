@@ -103,9 +103,11 @@ public class IsNullTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from every e1=Stream1[price>20], " +
-                "   e2=Stream1[(price>=e2[last].price and not e2[last-1] is null and price>=e2[last-1].price+5)  or ( e2[last-1] is null and price>=e1.price+5 )]+, " +
+                "   e2=Stream1[(price>=e2[last].price and not e2[last-1] is null and price>=e2[last-1].price+5)  or (" +
+                " e2[last-1] is null and price>=e1.price+5 )]+, " +
                 "   e3=Stream1[price<e2[last].price]" +
-                "select e1.price as price1, e2[0].price as price2, e2[last-2] is null as check1, e2[last-1].price as price3, e2[last].price as price4, e3.price as price5, e2 is null as check2 " +
+                "select e1.price as price1, e2[0].price as price2, e2[last-2] is null as check1, e2[last-1].price as " +
+                "price3, e2[last].price as price4, e3.price as price5, e2 is null as check2 " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -119,7 +121,8 @@ public class IsNullTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                org.junit.Assert.assertArrayEquals(new Object[]{43.6f, 58.7f, true, null, 58.7f, 45.6f, false}, event.getData());
+                                org.junit.Assert.assertArrayEquals(new Object[]{43.6f, 58.7f, true, null, 58.7f,
+                                        45.6f, false}, event.getData());
                                 break;
                             default:
                                 org.junit.Assert.assertSame(1, inEventCount);

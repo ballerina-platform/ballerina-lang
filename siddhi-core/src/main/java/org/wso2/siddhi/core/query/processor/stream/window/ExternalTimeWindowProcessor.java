@@ -71,24 +71,31 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
         this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         if (attributeExpressionExecutors.length == 2) {
             if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
-                timeToKeep = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
+                timeToKeep = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)
+                        attributeExpressionExecutors[1]).getValue()));
             } else {
-                timeToKeep = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
+                timeToKeep = Long.parseLong(String.valueOf(((ConstantExpressionExecutor)
+                        attributeExpressionExecutors[1]).getValue()));
             }
             if (!(attributeExpressionExecutors[0] instanceof VariableExpressionExecutor)) {
-                throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timeStamp should be a type long stream attribute but found " + attributeExpressionExecutors[0].getClass());
+                throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timeStamp should be a" +
+                        " type long stream attribute but found " + attributeExpressionExecutors[0].getClass());
             }
             timeStampVariableExpressionExecutor = ((VariableExpressionExecutor) attributeExpressionExecutors[0]);
             if (timeStampVariableExpressionExecutor.getReturnType() != Attribute.Type.LONG) {
-                throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timeStamp should be type long, but found " + timeStampVariableExpressionExecutor.getReturnType());
+                throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timeStamp should be " +
+                        "type long, but found " + timeStampVariableExpressionExecutor.getReturnType());
             }
         } else {
-            throw new ExecutionPlanValidationException("ExternalTime window should only have two parameter (<long> timeStamp, <int|long|time> windowTime), but found " + attributeExpressionExecutors.length + " input attributes");
+            throw new ExecutionPlanValidationException("ExternalTime window should only have two parameter (<long> " +
+                    "timeStamp, <int|long|time> windowTime), but found " + attributeExpressionExecutors.length + " " +
+                    "input attributes");
         }
     }
 
     @Override
-    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                                        StreamEventCloner streamEventCloner) {
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
 

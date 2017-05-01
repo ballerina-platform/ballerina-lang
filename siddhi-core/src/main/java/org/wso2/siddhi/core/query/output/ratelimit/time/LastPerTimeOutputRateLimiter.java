@@ -33,18 +33,18 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
-    private String id;
+    static final Logger log = Logger.getLogger(LastPerTimeOutputRateLimiter.class);
     private final Long value;
+    private String id;
     private ComplexEvent lastEvent = null;
     private ScheduledExecutorService scheduledExecutorService;
     private Scheduler scheduler;
     private long scheduledTime;
     private String queryName;
 
-    static final Logger log = Logger.getLogger(LastPerTimeOutputRateLimiter.class);
 
-
-    public LastPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, String queryName) {
+    public LastPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService,
+                                        String queryName) {
         this.queryName = queryName;
         this.id = id;
         this.value = value;
@@ -53,7 +53,8 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
 
     @Override
     public OutputRateLimiter clone(String key) {
-        LastPerTimeOutputRateLimiter instance = new LastPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService, queryName);
+        LastPerTimeOutputRateLimiter instance = new LastPerTimeOutputRateLimiter(id + key, value,
+                scheduledExecutorService, queryName);
         instance.setLatencyTracker(latencyTracker);
         return instance;
     }
@@ -69,7 +70,8 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
                 if (event.getType() == ComplexEvent.Type.TIMER) {
                     if (event.getTimestamp() >= scheduledTime) {
                         if (lastEvent != null) {
-                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>
+                                    (complexEventChunk.isBatch());
                             outputEventChunk.add(lastEvent);
                             lastEvent = null;
                             outputEventChunks.add(outputEventChunk);
@@ -77,7 +79,8 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
-                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
+                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type
+                        .EXPIRED) {
                     complexEventChunk.remove();
                     lastEvent = event;
                 }

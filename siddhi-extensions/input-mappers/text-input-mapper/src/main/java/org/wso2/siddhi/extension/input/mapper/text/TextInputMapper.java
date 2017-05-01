@@ -23,11 +23,11 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
+import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.source.InputMapper;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.util.AttributeConverter;
-import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -48,15 +48,13 @@ import java.util.regex.Pattern;
 public class TextInputMapper extends InputMapper {
 
     /**
-     * Logger to log the events.
-     */
-    private static final Logger log = Logger.getLogger(TextInputMapper.class);
-
-    /**
      * Default regex assumes that the attributes in the text are separated by comma in order.
      */
     public static final String DEFAULT_MAPPING_REGEX = "([^,;]+)";
-
+    /**
+     * Logger to log the events.
+     */
+    private static final Logger log = Logger.getLogger(TextInputMapper.class);
     /**
      * Output StreamDefinition of the input mapper.
      */
@@ -82,7 +80,8 @@ public class TextInputMapper extends InputMapper {
      * @param attributeMappingList list of attributes mapping
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping> attributeMappingList) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
+            attributeMappingList) {
         attributeConverter = new AttributeConverter();
         this.streamDefinition = streamDefinition;
         this.streamAttributes = this.streamDefinition.getAttributeList();

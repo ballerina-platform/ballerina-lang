@@ -305,7 +305,8 @@ public class UpdateFromTableTestCase {
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable" +
+                ".price) in StockTable] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -386,7 +387,8 @@ public class UpdateFromTableTestCase {
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable" +
+                ".price) in StockTable] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);

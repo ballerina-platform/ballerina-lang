@@ -19,7 +19,6 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
@@ -50,7 +49,8 @@ public class UUIDFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        return null; //Since the e function takes in no parameters, this method does not get called. Hence, not implemented.
+        return null; //Since the e function takes in no parameters, this method does not get called. Hence, not
+        // implemented.
     }
 
     @Override

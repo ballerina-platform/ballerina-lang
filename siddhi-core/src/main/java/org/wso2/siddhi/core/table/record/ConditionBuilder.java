@@ -35,9 +35,24 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.condition.*;
-import org.wso2.siddhi.query.api.expression.constant.*;
-import org.wso2.siddhi.query.api.expression.math.*;
+import org.wso2.siddhi.query.api.expression.condition.And;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
+import org.wso2.siddhi.query.api.expression.condition.In;
+import org.wso2.siddhi.query.api.expression.condition.IsNull;
+import org.wso2.siddhi.query.api.expression.condition.Not;
+import org.wso2.siddhi.query.api.expression.condition.Or;
+import org.wso2.siddhi.query.api.expression.constant.BoolConstant;
+import org.wso2.siddhi.query.api.expression.constant.Constant;
+import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
+import org.wso2.siddhi.query.api.expression.constant.FloatConstant;
+import org.wso2.siddhi.query.api.expression.constant.IntConstant;
+import org.wso2.siddhi.query.api.expression.constant.LongConstant;
+import org.wso2.siddhi.query.api.expression.constant.StringConstant;
+import org.wso2.siddhi.query.api.expression.math.Add;
+import org.wso2.siddhi.query.api.expression.math.Divide;
+import org.wso2.siddhi.query.api.expression.math.Mod;
+import org.wso2.siddhi.query.api.expression.math.Multiply;
+import org.wso2.siddhi.query.api.expression.math.Subtract;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,14 +62,16 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
 public class ConditionBuilder {
     private final Map<String, ExpressionExecutor> variableExpressionExecutorMap;
-    private Expression expression;
     private final MatchingMetaInfoHolder matchingMetaInfoHolder;
     private final ExecutionPlanContext executionPlanContext;
     private final List<VariableExpressionExecutor> variableExpressionExecutors;
     private final Map<String, EventTable> eventTableMap;
     private final String queryName;
+    private Expression expression;
 
-    ConditionBuilder(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, String queryName) {
+    ConditionBuilder(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext
+            executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String,
+            EventTable> eventTableMap, String queryName) {
         this.expression = expression;
         this.matchingMetaInfoHolder = matchingMetaInfoHolder;
         this.executionPlanContext = executionPlanContext;
@@ -271,8 +288,10 @@ public class ConditionBuilder {
                         } else {
                             try {
                                 definition.getAttributeType(attributeName);
-                                throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " + definition.getId() + " with " +
-                                        "reference: " + metaStreamEvent.getInputReferenceId() + " contains attribute with same" +
+                                throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " +
+                                        definition.getId() + " with " +
+                                        "reference: " + metaStreamEvent.getInputReferenceId() + " contains attribute " +
+                                        "with same" +
                                         " name '" + attributeName + "'");
                             } catch (AttributeNotExistException e) {
                                 //do nothing as its expected
@@ -283,12 +302,14 @@ public class ConditionBuilder {
                         if (matchingMetaInfoHolder.getMatchingStreamEventIndex() == streamEventChainIndex) {
                             buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
                         } else {
-                            buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder.getStoreDefinition());
+                            buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder
+                                    .getStoreDefinition());
                         }
                     }
                 } else {
 
-                    MetaStreamEvent metaStreamEvent = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvent(matchingMetaInfoHolder.getCurrentState());
+                    MetaStreamEvent metaStreamEvent = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvent
+                            (matchingMetaInfoHolder.getCurrentState());
                     definition = metaStreamEvent.getLastInputDefinition();
                     try {
                         type = definition.getAttributeType(attributeName);
@@ -297,10 +318,12 @@ public class ConditionBuilder {
                                 definition.getId() + " with " + "reference: " + metaStreamEvent.getInputReferenceId());
                     }
 
-                    if (matchingMetaInfoHolder.getCurrentState() == matchingMetaInfoHolder.getMatchingStreamEventIndex()) {
+                    if (matchingMetaInfoHolder.getCurrentState() == matchingMetaInfoHolder
+                            .getMatchingStreamEventIndex()) {
                         buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
                     } else {
-                        buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder.getStoreDefinition());
+                        buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder
+                                .getStoreDefinition());
                     }
                 }
 
@@ -327,7 +350,8 @@ public class ConditionBuilder {
                 if (matchingMetaInfoHolder.getMatchingStreamEventIndex() == streamEventChainIndex) {
                     buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
                 } else {
-                    buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder.getStoreDefinition());
+                    buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder
+                            .getStoreDefinition());
                 }
             }
         }

@@ -53,13 +53,15 @@ public class EventHolderPasser {
                 tableDefinition.getAnnotations());
         if (primaryKeyAnnotation != null) {
             if (primaryKeyAnnotation.getElements().size() > 1) {
-                throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation contains " +
+                throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation " +
+                        "contains " +
                         primaryKeyAnnotation.getElements().size() +
                         " elements, Siddhi in-memory table only supports indexing based on a single attribute, " +
                         "at '" + tableDefinition.getId() + "'");
             }
             if (primaryKeyAnnotation.getElements().size() == 0) {
-                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation contains "
+                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation " +
+                        "contains "
                         + primaryKeyAnnotation.getElements().size() + " element, at '" + tableDefinition.getId() + "'");
             }
             primaryKeyAttribute = primaryKeyAnnotation.getElements().get(0).getValue().trim();
@@ -76,9 +78,12 @@ public class EventHolderPasser {
                         + indexAnnotation.getElements().size() + " element");
             }
             for (Element element : indexAnnotation.getElements()) {
-                Integer previousValue = indexMetaData.put(element.getValue().trim(), tableDefinition.getAttributePosition(element.getValue().trim()));
+                Integer previousValue = indexMetaData.put(element.getValue().trim(), tableDefinition
+                        .getAttributePosition(element.getValue().trim()));
                 if (previousValue != null) {
-                    throw new ExecutionPlanCreationException("Multiple " + SiddhiConstants.ANNOTATION_INDEX + " annotations defined with same attribute '" + element.getValue().trim() + "', at '" + tableDefinition.getId() + "'");
+                    throw new ExecutionPlanCreationException("Multiple " + SiddhiConstants.ANNOTATION_INDEX + " " +
+                            "annotations defined with same attribute '" + element.getValue().trim() + "', at '" +
+                            tableDefinition.getId() + "'");
                 }
             }
         }

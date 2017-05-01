@@ -56,7 +56,8 @@ public class JunctionTestCase {
     public void JunctionToReceiverTest() throws InterruptedException {
         log.info("junction to receiver");
 
-        StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
         StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024, executionPlanContext);
         StreamJunction.Publisher streamPublisherA = streamJunctionA.constructPublisher();
@@ -85,13 +86,15 @@ public class JunctionTestCase {
     public void OneToOneTest() throws InterruptedException {
         log.info("one to one");
 
-        StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
 
         StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024, executionPlanContext);
         StreamJunction.Publisher streamPublisherA = streamJunctionA.constructPublisher();
 
-        StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
 
         StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024, executionPlanContext);
@@ -116,7 +119,8 @@ public class JunctionTestCase {
                 count += streamEvents.length;
                 eventArrived = true;
                 for (Event streamEvent : streamEvents) {
-                    Assert.assertTrue(streamEvent.getData()[0].equals("IBM") || (streamEvent.getData()[0].equals("WSO2")));
+                    Assert.assertTrue(streamEvent.getData()[0].equals("IBM") || (streamEvent.getData()[0].equals
+                            ("WSO2")));
                 }
             }
         };
@@ -152,12 +156,14 @@ public class JunctionTestCase {
     public void MultiThreadedTest1() throws InterruptedException {
         log.info("multi threaded 1");
 
-        StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("async"));
         StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024, executionPlanContext);
         StreamJunction.Publisher streamPublisherA = streamJunctionA.constructPublisher();
 
-        StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("async"));
         StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024, executionPlanContext);
         final StreamJunction.Publisher streamPublisherB_1 = streamJunctionB.constructPublisher();
@@ -208,7 +214,8 @@ public class JunctionTestCase {
                 for (Event streamEvent : streamEvents) {
                     count++;
                     eventArrived = true;
-                    Assert.assertTrue(streamEvent.getData()[0].equals("IBM") || (streamEvent.getData()[0].equals("WSO2")));
+                    Assert.assertTrue(streamEvent.getData()[0].equals("IBM") || (streamEvent.getData()[0].equals
+                            ("WSO2")));
                 }
             }
         };
@@ -244,19 +251,22 @@ public class JunctionTestCase {
     public void MultiThreadedTest2() throws InterruptedException {
         log.info("multi threaded 2");
 
-        StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("async"));
         StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024, executionPlanContext);
         StreamJunction.Publisher streamPublisherA = streamJunctionA.constructPublisher();
 
-        StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("async"));
         StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024, executionPlanContext);
         final StreamJunction.Publisher streamPublisherB_1 = streamJunctionB.constructPublisher();
         final StreamJunction.Publisher streamPublisherB_2 = streamJunctionB.constructPublisher();
         final StreamJunction.Publisher streamPublisherB_3 = streamJunctionB.constructPublisher();
 
-        StreamDefinition streamC = StreamDefinition.id("streamC").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition streamC = StreamDefinition.id("streamC").attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("async"));
         StreamJunction streamJunctionC = new StreamJunction(streamC, executorService, 1024, executionPlanContext);
         final StreamJunction.Publisher streamPublisherC_1 = streamJunctionC.constructPublisher();
@@ -333,7 +343,8 @@ public class JunctionTestCase {
             }
         };
 
-        final boolean[] eventsArrived = {false, false, false, false, false, false, false, false, false, false, false, false};
+        final boolean[] eventsArrived = {false, false, false, false, false, false, false, false, false, false, false,
+                false};
 
         StreamCallback streamCallbackC = new StreamCallback() {
             @Override
@@ -418,19 +429,22 @@ public class JunctionTestCase {
         final StreamEventPool streamEventPool_B_2 = new StreamEventPool(2, 2, 2, 4);
 
 
-        StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("async"));
         StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024, executionPlanContext);
         StreamJunction.Publisher streamPublisherA = streamJunctionA.constructPublisher();
 
-        StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("async"));
         StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024, executionPlanContext);
         final StreamJunction.Publisher streamPublisherB_1 = streamJunctionB.constructPublisher();
         final StreamJunction.Publisher streamPublisherB_2 = streamJunctionB.constructPublisher();
         final StreamJunction.Publisher streamPublisherB_3 = streamJunctionB.constructPublisher();
 
-        StreamDefinition streamC = StreamDefinition.id("streamC").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition streamC = StreamDefinition.id("streamC").attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("async"));
         StreamJunction streamJunctionC = new StreamJunction(streamC, executorService, 1024, executionPlanContext);
         final StreamJunction.Publisher streamPublisherC_1 = streamJunctionC.constructPublisher();
@@ -508,7 +522,8 @@ public class JunctionTestCase {
         };
 
 
-        final boolean[] eventsArrived = {false, false, false, false, false, false, false, false, false, false, false, false};
+        final boolean[] eventsArrived = {false, false, false, false, false, false, false, false, false, false, false,
+                false};
 
 
         StreamCallback streamCallbackC = new StreamCallback() {

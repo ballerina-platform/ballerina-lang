@@ -33,7 +33,8 @@ public class JoinQueryTestCase {
     @Test
     public void testCreatingJoinQuery() {
         Query.query().
-                annotation(Annotation.annotation("foo").element("name", "Query1").element("summery", "Test Query").element("Custom")).
+                annotation(Annotation.annotation("foo").element("name", "Query1").element("summery", "Test Query")
+                        .element("Custom")).
                 from(
                         InputStream.joinStream(
                                 InputStream.stream("s1", "cseEventStream").
@@ -41,14 +42,14 @@ public class JoinQueryTestCase {
                                 JoinInputStream.Type.JOIN,
                                 InputStream.stream("s2", "cseEventStream").
                                         filter(Expression.and(
-                                                        Expression.compare(
-                                                                Expression.add(Expression.value(7), Expression.value(9.5)),
-                                                                Compare.Operator.GREATER_THAN,
-                                                                Expression.variable("price").ofStream("cseEventStream")),
-                                                        Expression.compare(Expression.value(100),
-                                                                Compare.Operator.GREATER_THAN_EQUAL,
-                                                                Expression.variable("volume").ofStream("cseEventStream")
-                                                        )
+                                                Expression.compare(
+                                                        Expression.add(Expression.value(7), Expression.value(9.5)),
+                                                        Compare.Operator.GREATER_THAN,
+                                                        Expression.variable("price").ofStream("cseEventStream")),
+                                                Expression.compare(Expression.value(100),
+                                                        Compare.Operator.GREATER_THAN_EQUAL,
+                                                        Expression.variable("volume").ofStream("cseEventStream")
+                                                )
                                                 )
                                         ).window("lengthBatch", Expression.value(50)),
                                 Expression.compare(

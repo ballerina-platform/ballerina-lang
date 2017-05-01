@@ -46,14 +46,16 @@ public class TimeLengthEventWindowTestCase {
     */
     @Test
     public void testTimeLengthWindow1() throws InterruptedException {
-        log.info("Testing timeLength window with no of events less than window length and time period less than window time");
+        log.info("Testing timeLength window with no of events less than window length and time period less than " +
+                "window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define window cseEventWindow (symbol string, price float, volume int) timeLength(4 sec,10); ";
 
-        String query = "@info(name = 'query0') from cseEventStream insert into cseEventWindow; @info(name = 'query1') from cseEventWindow select symbol,price," +
+        String query = "@info(name = 'query0') from cseEventStream insert into cseEventWindow; @info(name = 'query1')" +
+                " from cseEventWindow select symbol,price," +
                 "volume insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -97,7 +99,8 @@ public class TimeLengthEventWindowTestCase {
     */
     @Test
     public void testTimeLengthWindow2() throws InterruptedException {
-        log.info("Testing timeLength window with no of events less than window length and time period greater than window time");
+        log.info("Testing timeLength window with no of events less than window length and time period greater than " +
+                "window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -149,7 +152,8 @@ public class TimeLengthEventWindowTestCase {
     */
     @Test
     public void testTimeLengthWindow3() throws InterruptedException {
-        log.info("Testing timeLength window with no of events greater than window length and time period less than window time");
+        log.info("Testing timeLength window with no of events greater than window length and time period less than " +
+                "window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -211,7 +215,8 @@ public class TimeLengthEventWindowTestCase {
     @Test
     public void testTimeLengthWindow4() throws InterruptedException {
 
-        log.info("Testing timeLength window with no of events greater than window length and time period greater than window time");
+        log.info("Testing timeLength window with no of events greater than window length and time period greater than" +
+                " window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -268,7 +273,8 @@ public class TimeLengthEventWindowTestCase {
     */
     @Test
     public void testTimeLengthWindow6() throws InterruptedException {
-        log.info("Testing timeLength window with no of events greater than window length and time period greater than window time");
+        log.info("Testing timeLength window with no of events greater than window length and time period greater than" +
+                " window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -348,7 +354,8 @@ public class TimeLengthEventWindowTestCase {
     */
     @Test
     public void testTimeLengthWindow7() throws InterruptedException {
-        log.info("Testing timeLength window with no of events less than window length and time period less than window time");
+        log.info("Testing timeLength window with no of events less than window length and time period less than " +
+                "window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -397,7 +404,8 @@ public class TimeLengthEventWindowTestCase {
 
     @Test
     public void testTimeLengthWindow10() throws InterruptedException {
-        log.info("Testing timeLength window with no of events greater than window length and time period less than window time");
+        log.info("Testing timeLength window with no of events greater than window length and time period less than " +
+                "window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 

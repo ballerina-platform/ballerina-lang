@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.extension.output.transport.tcp;
 
-import org.junit.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -63,10 +63,12 @@ public class TCPOutputTransportTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         TCPNettyServer tcpNettyServer = new TCPNettyServer();
@@ -140,7 +142,8 @@ public class TCPOutputTransportTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         Thread.sleep(300);
         executionPlanRuntime.shutdown();
@@ -159,10 +162,12 @@ public class TCPOutputTransportTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         TCPNettyServer tcpNettyServer = new TCPNettyServer();
@@ -237,10 +242,12 @@ public class TCPOutputTransportTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         TCPNettyServer tcpNettyServer = new TCPNettyServer();
@@ -315,10 +322,12 @@ public class TCPOutputTransportTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         TCPNettyServer tcpNettyServer = new TCPNettyServer();
@@ -419,10 +428,12 @@ public class TCPOutputTransportTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         TCPNettyServer tcpNettyServer = new TCPNettyServer();
@@ -494,10 +505,12 @@ public class TCPOutputTransportTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         TCPNettyServer tcpNettyServer = new TCPNettyServer();
@@ -569,10 +582,12 @@ public class TCPOutputTransportTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         TCPNettyServer tcpNettyServer = new TCPNettyServer();
@@ -631,7 +646,8 @@ public class TCPOutputTransportTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
@@ -722,10 +738,12 @@ public class TCPOutputTransportTestCase {
                 "select *  " +
                 "insert into outputStream2; " +
                 "");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         TCPNettyServer tcpNettyServer = new TCPNettyServer();
@@ -812,14 +830,17 @@ public class TCPOutputTransportTestCase {
                 "select *  " +
                 "insert into outputStream; " +
                 "");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         StreamDefinition streamDefinition1 = StreamDefinition.id("foo1").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         StreamDefinition streamDefinition2 = StreamDefinition.id("foo2").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         TCPNettyServer tcpNettyServer1 = new TCPNettyServer();
@@ -934,10 +955,13 @@ public class TCPOutputTransportTestCase {
                 "insert into outputStream;" +
                 " " +
                 "");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
-        StreamDefinition streamDefinition1 = StreamDefinition.id("foo/inputStream1").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+        StreamDefinition streamDefinition1 = StreamDefinition.id("foo/inputStream1").attribute("a", Attribute.Type
+                .STRING)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         TCPNettyServer tcpNettyServer1 = new TCPNettyServer();
@@ -1009,10 +1033,12 @@ public class TCPOutputTransportTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
-                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute.Type.LONG)
+                .attribute("b", Attribute.Type.INT).attribute("c", Attribute.Type.FLOAT).attribute("d", Attribute
+                        .Type.LONG)
                 .attribute("e", Attribute.Type.DOUBLE).attribute("f", Attribute.Type.BOOL);
 
         TCPNettyServer tcpNettyServer = new TCPNettyServer();

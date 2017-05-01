@@ -54,7 +54,8 @@ public class PassThroughTestCase {
         log.info("pass through test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -98,8 +99,10 @@ public class PassThroughTestCase {
         log.info("pass through test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
-        StreamDefinition cseEventStream1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition cseEventStream1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -143,8 +146,10 @@ public class PassThroughTestCase {
         log.info("pass through test3");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
-        StreamDefinition cseEventStream1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition cseEventStream1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -152,7 +157,7 @@ public class PassThroughTestCase {
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
-                        select("price",Expression.variable("symbol"))
+                        select("price", Expression.variable("symbol"))
         );
         query.insertInto("StockQuote");
 

@@ -20,16 +20,16 @@ package org.wso2.siddhi.extension.eventtable.rdbms;
 
 import org.apache.log4j.Logger;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.sql.DataSource;
 
 public class DBConnectionHelper {
 
-    private Logger log = Logger.getLogger(DBConnectionHelper.class);
     private static DBConnectionHelper dbConnectionHelper;
+    private Logger log = Logger.getLogger(DBConnectionHelper.class);
 
     private DBConnectionHelper() {
 
@@ -42,7 +42,7 @@ public class DBConnectionHelper {
         return dbConnectionHelper;
     }
 
-    public void clearDatabaseTable(DataSource dataSource,String tableName) {
+    public void clearDatabaseTable(DataSource dataSource, String tableName) {
         PreparedStatement stmt = null;
         Connection con = null;
         try {

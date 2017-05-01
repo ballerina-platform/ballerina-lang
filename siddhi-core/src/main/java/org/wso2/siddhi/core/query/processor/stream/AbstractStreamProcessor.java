@@ -51,11 +51,13 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     protected int attributeExpressionLength;
     protected ComplexEventPopulater complexEventPopulater;
     protected String elementId = null;
-    private boolean outputExpectsExpiredEvents;
     protected String queryName;
+    private boolean outputExpectsExpiredEvents;
 
     public AbstractDefinition initProcessor(AbstractDefinition inputDefinition,
-                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents, String queryName) {
+                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+                                                    executionPlanContext, boolean outputExpectsExpiredEvents, String
+                                                    queryName) {
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
         try {
             this.inputDefinition = inputDefinition;
@@ -67,7 +69,8 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
                 elementId = "AbstractStreamProcessor-" + executionPlanContext.getElementIdGenerator().createNewId();
             }
             executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
-            this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents);
+            this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, executionPlanContext,
+                    outputExpectsExpiredEvents);
 
             executionPlanContext.addEternalReferencedHolder(this);
 
@@ -95,7 +98,8 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
      * @return the additional output attributes introduced by the function
      */
     protected abstract List<Attribute> init(AbstractDefinition inputDefinition,
-                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents);
+                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+                                                    executionPlanContext, boolean outputExpectsExpiredEvents);
 
     public void process(ComplexEventChunk streamEventChunk) {
         streamEventChunk.reset();
@@ -116,14 +120,15 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
      * @param complexEventPopulater helps to populate the events with the resultant attributes
      */
     protected abstract void processEventChunk(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
-                                              StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater);
-
-    public void setNextProcessor(Processor processor) {
-        this.nextProcessor = processor;
-    }
+                                              StreamEventCloner streamEventCloner, ComplexEventPopulater
+                                                      complexEventPopulater);
 
     public Processor getNextProcessor() {
         return nextProcessor;
+    }
+
+    public void setNextProcessor(Processor processor) {
+        this.nextProcessor = processor;
     }
 
     @Override
@@ -142,7 +147,8 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
             abstractStreamProcessor.complexEventPopulater = complexEventPopulater;
             abstractStreamProcessor.executionPlanContext = executionPlanContext;
             abstractStreamProcessor.elementId = elementId + "-" + key;
-            abstractStreamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents);
+            abstractStreamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext,
+                    outputExpectsExpiredEvents);
             abstractStreamProcessor.start();
             return abstractStreamProcessor;
 

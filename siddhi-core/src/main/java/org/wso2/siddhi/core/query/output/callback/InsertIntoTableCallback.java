@@ -45,7 +45,8 @@ public class InsertIntoTableCallback extends OutputCallback {
     @Override
     public void send(ComplexEventChunk complexEventChunk) {
         if (convertToStreamEvent) {
-            ComplexEventChunk<StreamEvent> streamEventChunk = new ComplexEventChunk<StreamEvent>(complexEventChunk.isBatch());
+            ComplexEventChunk<StreamEvent> streamEventChunk = new ComplexEventChunk<StreamEvent>(complexEventChunk
+                    .isBatch());
             complexEventChunk.reset();
             while (complexEventChunk.hasNext()) {
                 ComplexEvent complexEvent = complexEventChunk.next();
@@ -53,7 +54,8 @@ public class InsertIntoTableCallback extends OutputCallback {
                 streamEventConvertor.convertData(
                         complexEvent.getTimestamp(),
                         complexEvent.getOutputData(),
-                        complexEvent.getType() == ComplexEvent.Type.EXPIRED ? ComplexEvent.Type.CURRENT : complexEvent.getType(),
+                        complexEvent.getType() == ComplexEvent.Type.EXPIRED ? ComplexEvent.Type.CURRENT :
+                                complexEvent.getType(),
                         borrowEvent);
                 streamEventChunk.add(borrowEvent);
             }

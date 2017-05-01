@@ -23,6 +23,6 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 
 public interface Schedulable {
 
-    void process(ComplexEventChunk complexEventChunk) ;
+    void process(ComplexEventChunk complexEventChunk);
 
 }

@@ -18,8 +18,11 @@
 
 package org.wso2.siddhi.core.util.statistics.metrics;
 
-import com.codahale.metrics.Reporter;
-import org.wso2.siddhi.core.util.statistics.*;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
+import org.wso2.siddhi.core.util.statistics.StatisticsManager;
+import org.wso2.siddhi.core.util.statistics.StatisticsTrackerFactory;
+import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 import org.wso2.siddhi.query.api.annotation.Element;
 
 import java.util.List;
@@ -35,7 +38,7 @@ public class SiddhiMetricsFactory implements StatisticsTrackerFactory {
         return new SiddhiThroughputMetric(name, statisticsManager.getRegistry());
     }
 
-    public MemoryUsageTracker createMemoryUsageTracker(StatisticsManager statisticsManager){
+    public MemoryUsageTracker createMemoryUsageTracker(StatisticsManager statisticsManager) {
         return new SiddhiMemoryUsageMetric(statisticsManager.getRegistry());
     }
 

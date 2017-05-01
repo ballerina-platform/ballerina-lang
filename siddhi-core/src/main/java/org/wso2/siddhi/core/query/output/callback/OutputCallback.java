@@ -30,11 +30,16 @@ public abstract class OutputCallback {
 
     public abstract void send(ComplexEventChunk complexEventChunk);
 
-    protected ComplexEventChunk<StateEvent> constructMatchingStateEventChunk(ComplexEventChunk matchingComplexEventChunk,
-                                                                             boolean convertToStreamEvent, StateEventPool stateEventPool,
-                                                                             int matchingStreamIndex, StreamEventPool streamEventPool,
-                                                                             StreamEventConverter streamEventConvertor) {
-        ComplexEventChunk<StateEvent> stateEventChunk = new ComplexEventChunk<StateEvent>(matchingComplexEventChunk.isBatch());
+    protected ComplexEventChunk<StateEvent> constructMatchingStateEventChunk(ComplexEventChunk
+                                                                                     matchingComplexEventChunk,
+                                                                             boolean convertToStreamEvent,
+                                                                             StateEventPool stateEventPool,
+                                                                             int matchingStreamIndex, StreamEventPool
+                                                                                     streamEventPool,
+                                                                             StreamEventConverter
+                                                                                     streamEventConvertor) {
+        ComplexEventChunk<StateEvent> stateEventChunk = new ComplexEventChunk<StateEvent>(matchingComplexEventChunk
+                .isBatch());
         while (matchingComplexEventChunk.hasNext()) {
             ComplexEvent matchingComplexEvent = matchingComplexEventChunk.next();
             matchingComplexEventChunk.remove();
@@ -44,7 +49,8 @@ public abstract class OutputCallback {
                 streamEventConvertor.convertData(
                         matchingComplexEvent.getTimestamp(),
                         matchingComplexEvent.getOutputData(),
-                        matchingComplexEvent.getType() == ComplexEvent.Type.EXPIRED ? ComplexEvent.Type.CURRENT : matchingComplexEvent.getType(),
+                        matchingComplexEvent.getType() == ComplexEvent.Type.EXPIRED ? ComplexEvent.Type.CURRENT :
+                                matchingComplexEvent.getType(),
                         borrowEvent);
                 stateEvent.addEvent(matchingStreamIndex, borrowEvent);
             } else {

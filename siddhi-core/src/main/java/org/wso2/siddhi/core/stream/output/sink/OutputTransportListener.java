@@ -25,8 +25,8 @@ public interface OutputTransportListener {
     /**
      * Sending events via output transport
      *
-     * @param payload payload of the event
-     * @param transportOptions   one of the event constructing the payload
+     * @param payload          payload of the event
+     * @param transportOptions one of the event constructing the payload
      * @throws ConnectionUnavailableException
      */
     void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException;

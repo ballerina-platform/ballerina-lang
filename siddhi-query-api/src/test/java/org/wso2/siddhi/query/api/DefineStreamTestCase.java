@@ -30,31 +30,38 @@ public class DefineStreamTestCase {
 
     @Test
     public void testCreatingStreamDefinition() {
-        ExecutionPlan.executionPlan("Test").defineStream(StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT));
+        ExecutionPlan.executionPlan("Test").defineStream(StreamDefinition.id("StockStream").attribute("symbol",
+                Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type
+                .FLOAT));
 
 
     }
 
     @Test(expected = DuplicateAttributeException.class)
     public void testCreatingStreamWithDuplicateAttribute() {
-        StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("symbol", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT);
+        StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("symbol", Attribute
+                .Type.INT).attribute("volume", Attribute.Type.FLOAT);
 
     }
 
     @Test
     public void testCreatingStreamDefinitionWithObject() {
-        StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT).attribute("data", Attribute.Type.OBJECT);
+        StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute
+                .Type.INT).attribute("volume", Attribute.Type.FLOAT).attribute("data", Attribute.Type.OBJECT);
     }
 
     @Test
     public void testAnnotatingStreamDefinition() {
-        ExecutionPlan.executionPlan("Test").defineStream(StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("distribute").element("true")));
+        ExecutionPlan.executionPlan("Test").defineStream(StreamDefinition.id("StockStream").attribute("symbol",
+                Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type
+                .FLOAT).annotation(Annotation.annotation("distribute").element("true")));
 
     }
 
     @Test
     public void testAttribute() {
-        StreamDefinition streamDefinition = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT);
+        StreamDefinition streamDefinition = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT);
         Assert.assertEquals(1, streamDefinition.getAttributePosition("price"));
         Assert.assertEquals(Attribute.Type.FLOAT, streamDefinition.getAttributeType("volume"));
     }

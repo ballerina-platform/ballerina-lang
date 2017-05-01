@@ -25,6 +25,9 @@ import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
 
+/**
+ * Basic single input stream using filters, windows and functions
+ */
 public class BasicSingleInputStream extends SingleInputStream {
 
     protected BasicSingleInputStream(String streamId) {
@@ -52,7 +55,7 @@ public class BasicSingleInputStream extends SingleInputStream {
         return streamReferenceId;
     }
 
-    public SingleInputStream as(String streamReferenceId) {
+    public BasicSingleInputStream as(String streamReferenceId) {
         this.streamReferenceId = streamReferenceId;
         return this;
     }
@@ -102,6 +105,4 @@ public class BasicSingleInputStream extends SingleInputStream {
         streamHandlers.add(streamFunction);
         return this;
     }
-
-
 }

@@ -32,7 +32,8 @@ public class FunctionSample {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);" +
+                "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int)" +
+                ";" +
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream " +
