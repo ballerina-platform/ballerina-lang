@@ -38,19 +38,15 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
     endVisit(node) {
         var viewState = node.getViewState();
-        /**
-         * @type {{heading: SimpleBBox, body: SimpleBBox, statementContainer: SimpleBBox, defaultWorker: SimpleBBox}}
-         */
         var components = {};
 
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
 
         components['statementContainer'] = new SimpleBBox();
-        components['defaultWorker'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementWidth = DesignerDefaults.statementContainer.width;
-        var statementHeight = DesignerDefaults.statementContainer.height;
+        var statementWidth = 0;
+        var statementHeight = 0;
 
         _.forEach(statementChildren, function(child) {
             statementHeight += child.viewState.bBox.h + DesignerDefaults.statement.gutter.v;
@@ -68,24 +64,18 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         components['statementContainer'].h = statementHeight;
         components['statementContainer'].w = statementWidth;
 
-        components['defaultWorker'].w = DesignerDefaults.lifeLine.width;
-        components['defaultWorker'].h = DesignerDefaults.lifeLine.head.height +
-            DesignerDefaults.lifeLine.footer.height + statementHeight;
-
         components['body'] = new SimpleBBox();
-        components['body'].h = ((DesignerDefaults.panel.body.height < components['statementContainer'].h)?
-                components['statementContainer'].h:DesignerDefaults.panel.body.height)
-                               + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
 
-        components['body'].w = components['statementContainer'].w +
-            DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
+        const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
+
+        components['body'].h = ((DesignerDefaults.panel.body.height < workerLifeLineHeight)? workerLifeLineHeight:DesignerDefaults.panel.body.height)
+                               + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+        components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;
 
         viewState.components = components;
-        
-        log.info('end visit FunctionDefinitionDimensionCalc');
     }
 }
 

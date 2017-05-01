@@ -76,8 +76,6 @@ class ResourceDefinitionDimensionCalculatorVisitor {
         viewState.bBox.w = components['heading'].w + components['body'].w;
 
         viewState.components = components;
-        
-        log.info('end visit FunctionDefinitionDimensionCalc');
     }
 }
 

@@ -69,8 +69,8 @@ class FunctionDefinitionPositionCalcVisitor {
         statementContainer.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
             DesignerDefaults.lifeLine.head.height;
 
-        defaultWorker.x = statementContainer.x + (statementContainer.w - defaultWorker.w)/2;
-        defaultWorker.y = statementContainer.y - DesignerDefaults.lifeLine.head.height;
+        //defaultWorker.x = statementContainer.x + (statementContainer.w - defaultWorker.w)/2;
+        //defaultWorker.y = statementContainer.y - DesignerDefaults.lifeLine.head.height;
 
         log.debug('begin visit FunctionDefinitionPositionCalc');
     }
