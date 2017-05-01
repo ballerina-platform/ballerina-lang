@@ -106,8 +106,13 @@ public class BallerinaPsiImplUtil {
 
         PsiElement parent;
 
-        if (identifierElement.getParent().getParent() instanceof AliasNode) {
-            PsiElement temp = identifierElement.getParent().getParent();
+
+        PsiElement tempParent = identifierElement.getParent();
+        if (tempParent == null) {
+            return new PsiDirectory[0];
+        }
+        if (tempParent.getParent() instanceof AliasNode) {
+            PsiElement temp = tempParent.getParent();
             while (temp != null && !(temp instanceof PackagePathNode)) {
                 temp = temp.getPrevSibling();
             }
@@ -117,7 +122,7 @@ public class BallerinaPsiImplUtil {
                 return new PsiDirectory[0];
             }
         } else {
-            parent = identifierElement.getParent();
+            parent = tempParent;
         }
 
         // This is used to store all the packages which need to resolve the current package.
@@ -170,13 +175,14 @@ public class BallerinaPsiImplUtil {
      */
     @Nullable
     private static VirtualFile getMatchingDirectory(@NotNull VirtualFile root, List<PsiElement> packages) {
+        VirtualFile tempRoot = root;
         VirtualFile match = null;
         for (PsiElement element : packages) {
-            match = root.findChild(element.getText());
+            match = tempRoot.findChild(element.getText());
             if (match == null) {
                 break;
             }
-            root = match;
+            tempRoot = match;
         }
         return match;
     }
@@ -276,23 +282,24 @@ public class BallerinaPsiImplUtil {
      * @return all matching directories
      */
     @NotNull
-    private static List<VirtualFile> suggestDirectory(VirtualFile root, List<PsiElement> packages) {
+    private static List<VirtualFile> suggestDirectory(@NotNull VirtualFile root, List<PsiElement> packages) {
+        VirtualFile tempRoot = root;
         List<VirtualFile> results = new ArrayList<>();
         VirtualFile match;
         int count = 1;
         for (PsiElement element : packages) {
             if (count == packages.size()) {
-                for (VirtualFile file : root.getChildren()) {
+                for (VirtualFile file : tempRoot.getChildren()) {
                     if (file.isDirectory() && !file.getName().startsWith(".")) {
                         results.add(file);
                     }
                 }
             } else {
-                match = root.findChild(element.getText());
+                match = tempRoot.findChild(element.getText());
                 if (match == null) {
                     break;
                 }
-                root = match;
+                tempRoot = match;
             }
             count++;
         }
@@ -357,8 +364,8 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static List<PsiElement> getAllStructsInPackage(PsiDirectory packageElement) {
-        return getAllMatchingElementsFromPackage(packageElement, STRUCT_DEFINITION);
+    public static List<PsiElement> getAllStructsInPackage(PsiDirectory directory) {
+        return getAllMatchingElementsFromPackage(directory, STRUCT_DEFINITION);
     }
 
     @NotNull
@@ -374,13 +381,13 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static List<PsiElement> getAllFunctionsInPackage(PsiDirectory packageElement) {
-        return getAllMatchingElementsFromPackage(packageElement, FUNCTION_DEFINITION);
+    public static List<PsiElement> getAllFunctionsInPackage(PsiDirectory directory) {
+        return getAllMatchingElementsFromPackage(directory, FUNCTION_DEFINITION);
     }
 
     @NotNull
-    public static List<PsiElement> getAllConstantsInPackage(PsiDirectory packageElement) {
-        return getAllMatchingElementsFromPackage(packageElement, CONSTANT_DEFINITION);
+    public static List<PsiElement> getAllConstantsInPackage(PsiDirectory directory) {
+        return getAllMatchingElementsFromPackage(directory, CONSTANT_DEFINITION);
     }
 
     @NotNull
