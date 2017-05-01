@@ -58,19 +58,19 @@ class SimpleBBox  {
     }
 
     getTop() {
-        return this._y;
+        return this.y;
     }
 
     getBottom() {
-        return this._y + this._h;
+        return this.y + this.h;
     }
 
     getLeft() {
-        return this._x;
+        return this.x;
     }
 
     getRight() {
-        return this._x + this._w;
+        return this.x + this.w;
     }
 
     getTopCenterX() {
@@ -90,7 +90,7 @@ class SimpleBBox  {
      * @return {number} X coordinate
      */
     getCenterX() {
-        return this._x + (this._w / 2);
+        return this.x + (this.w / 2);
     }
 
     /**
@@ -98,7 +98,7 @@ class SimpleBBox  {
      * @return {number} Y coordinate
      */
     getCenterY() {
-        return this._y + (this._h / 2);
+        return this.y + (this.h / 2);
     }
 }
 
