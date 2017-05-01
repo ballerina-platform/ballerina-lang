@@ -37,8 +37,7 @@ class WorkerDeclarationPositionCalcVisitor {
             return child instanceof AST.WorkerDeclaration;
         });
         let workerIndex = _.findIndex(workers, node);
-        let x, y, middleLineStartX, middleLineStartY, middleLineEndX, middleLineEndY, topRectX, topRectY, bottomRectX,
-            bottomRectY;
+        let x, y;
 
         if (workerIndex === 0) {
             /**
@@ -46,40 +45,22 @@ class WorkerDeclarationPositionCalcVisitor {
              * we keep the first worker right next to the parent statement boundary.
              */
             if (parentViewState.components.defaultWorker) {
-                topRectX = parentViewState.components.statementContainer.getRight() +
+                x = parentViewState.components.statementContainer.getRight() +
                     DesignerDefaults.lifeLine.gutter.h;
             } else {
-                topRectX = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h;
+                x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h;
             }
         } else if (workerIndex > 0) {
             const previousWorker = workers[workerIndex - 1];
             const previousStatementContainer = previousWorker.getViewState().components.statementContainer;
-            topRectX = previousStatementContainer.x + DesignerDefaults.innerPanel.body.padding.left;
+            x = previousStatementContainer.x + DesignerDefaults.innerPanel.body.padding.left;
         } else {
             throw "Invalid index found for Worker Declaration";
         }
-        topRectY = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
-
-        x = topRectX;
-        y = topRectY;
-        bottomRectX = topRectX;
-        bottomRectY = topRectY + DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.line.height;
-        middleLineStartX = topRectX + viewState.components.topRect.w/2;
-        middleLineStartY = topRectY + viewState.components.topRect.h;
-        middleLineEndX = middleLineStartX;
-        middleLineEndY = middleLineStartY + DesignerDefaults.lifeLine.line.height;
+        y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
 
         bBox.x = x;
         bBox.y = y;
-        viewState.components.topRect.x = topRectX;
-        viewState.components.topRect.y = topRectY;
-        viewState.components.bottomRect.x = bottomRectX;
-        viewState.components.bottomRect.y = bottomRectY;
-        viewState.components.line.topX = middleLineStartX;
-        viewState.components.line.topY = middleLineStartY;
-        viewState.components.line.bottomX = middleLineEndX;
-        viewState.components.line.bottomY = middleLineEndY;
-
         viewState.components.statementContainer.x = x;
         viewState.components.statementContainer.y = y + DesignerDefaults.lifeLine.head.height;
 
