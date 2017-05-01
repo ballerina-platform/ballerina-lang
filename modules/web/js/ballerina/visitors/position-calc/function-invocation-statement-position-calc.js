@@ -21,21 +21,21 @@ import * as Utils from './utils';
 
 class FunctionInvocationStatementPositionCalcVisitor {
 
-    canVisitFunctionInvocationStatementPositionCalc(node) {
+    canVisit(node) {
         log.debug('can visit FunctionInvocationStatementPositionCalc');
         return true;
     }
 
-    beginVisitFunctionInvocationStatementPositionCalc(node) {
+    beginVisit(node) {
         log.debug('begin visit FunctionInvocationStatementPositionCalc');
         Utils.getSimpleStatementPosition(node);
     }
 
-    visitFunctionInvocationStatementPositionCalc(node) {
+    visit(node) {
         log.debug('visit FunctionInvocationStatementPositionCalc');
     }
 
-    endVisitFunctionInvocationStatementPositionCalc(node) {
+    endVisit(node) {
         log.debug('end visit FunctionInvocationStatementPositionCalc');
     }
 }

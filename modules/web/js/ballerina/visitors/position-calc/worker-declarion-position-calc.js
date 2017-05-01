@@ -23,12 +23,12 @@ import * as DesignerDefaults from './../../configs/designer-defaults';
 
 class WorkerDeclarationPositionCalcVisitor {
 
-    canVisitWorkerDeclarationPositionCalc(node) {
+    canVisit(node) {
         log.debug('can visit ServiceDefinitionPositionCalc');
         return true;
     }
 
-    beginVisitWorkerDeclarationPositionCalc(node) {
+    beginVisit(node) {
         let viewState = node.getViewState();
         let bBox = viewState.bBox;
         let parent = node.getParent();
@@ -65,10 +65,10 @@ class WorkerDeclarationPositionCalcVisitor {
         //viewState.components.statementContainer.y = y + DesignerDefaults.lifeLine.head.height;
     }
 
-    visitWorkerDeclarationPositionCalc(node) {
+    visit(node) {
     }
 
-    endVisitWorkerDeclarationPositionCalc(node) {
+    endVisit(node) {
     }
 }
 
