@@ -71,6 +71,7 @@
     "raw-loader": "^0.5.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
+    "react-transition-group": "^1.1.2",
     "select2": "^4.0.3",
     "typeahead.js": "^0.11.1"
   }
