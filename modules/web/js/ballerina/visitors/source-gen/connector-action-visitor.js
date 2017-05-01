@@ -37,6 +37,18 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
+    canVisitConnectorDeclaration(connectorDeclaration) {
+        return true;
+    }
+
+    canVisitVariableDeclaration(variableDeclaration) {
+        return true;
+    }
+
+    canVisitWorkerDeclaration(workerDeclaration) {
+        return true;
+    }
+
     /**
      * Begin visit of the connector action
      * @param {ConnectorAction} connectorAction
@@ -112,4 +124,3 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
 }
 
 export default ConnectorActionVisitor;
-    

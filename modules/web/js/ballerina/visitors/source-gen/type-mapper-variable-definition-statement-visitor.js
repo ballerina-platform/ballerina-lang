@@ -31,6 +31,10 @@ class TypeMapperVariableDefinitionStatementVisitor extends AbstractStatementSour
         return variableDefinitionStatement instanceof VariableDefinitionStatement;
     }
 
+    canVisitRightOperandExpression(rightOperandExpression) {
+        return true;
+    }
+
     beginVisitVariableDefinitionStatement(variableDefinitionStatement) {
         this.appendSource(variableDefinitionStatement.getLeftExpression());
         if (variableDefinitionStatement.getRightExpression() != null) {

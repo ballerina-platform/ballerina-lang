@@ -38,6 +38,26 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
+    canVisitStatement(statement) {
+        return true;
+    }
+
+    canVisitExpression(expression) {
+        return true;
+    }
+
+    canVisitConnectorDeclaration(connectorDeclaration) {
+        return true;
+    }
+
+    canVisitVariableDeclaration(variableDeclaration) {
+        return true;
+    }
+
+    canVisitWorkerDeclaration(workerDeclaration) {
+        return true;
+    }
+
     beginVisitResourceDefinition(resourceDefinition) {
         /**
          * set the configuration start for the resource definition language construct
@@ -118,4 +138,3 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
 }
 
 export default ResourceDefinitionVisitor;
-
