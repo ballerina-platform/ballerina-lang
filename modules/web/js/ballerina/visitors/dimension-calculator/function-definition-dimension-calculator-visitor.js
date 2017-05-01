@@ -20,6 +20,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import {util} from './../sizing-utils'
 
 class FunctionDefinitionDimensionCalculatorVisitor {
 
@@ -72,11 +73,26 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
         components['body'] = new SimpleBBox();
 
-        const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
+        let workerChildren = node.filterChildren(function (child) {
+            return BallerinaASTFactory.isWorkerDeclaration(child);
+        });
 
-        components['body'].h = ((DesignerDefaults.panel.body.height < workerLifeLineHeight)? workerLifeLineHeight:DesignerDefaults.panel.body.height)
+        const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
+        const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
+        const highestLifeLineHeight = highestStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;
+
+        components['body'].h = ((DesignerDefaults.panel.body.height < (_.max([workerLifeLineHeight, highestLifeLineHeight])))?
+                _.max([workerLifeLineHeight, highestLifeLineHeight]):DesignerDefaults.panel.body.height)
                                + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
-        components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
+
+        /**
+         * If the current default worker's statement container height is less than the highest worker's statement container
+         * we set the default statement container height to the highest statement container's height
+         */
+        components['statementContainer'].h = _.max([components['statementContainer'].h, highestStatementContainerHeight]);
+
+        components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
+            DesignerDefaults.panel.body.padding.left;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;
