@@ -8,7 +8,7 @@
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</recordInsertQuery>
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
-        <recordMergeQuery>MERGE INTO {{TABLE_NAME}} ({{COLUMN}}) KEY ({{KEYS}}) VALUES ({{Q}})</recordMergeQuery>
+        <recordMergeQuery>MERGE INTO {{TABLE_NAME}} ({{COLUMN}}) KEY ({{KEYS}}) VALUES ({{Q}}) {{CONDITION}}</recordMergeQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <stringSize>254</stringSize>
         <typeMapping>
