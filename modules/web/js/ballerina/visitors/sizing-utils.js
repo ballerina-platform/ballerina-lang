@@ -17,6 +17,7 @@
  */
 
 import {statement} from './../configs/designer-defaults';
+import _ from 'lodash';
 
 class SizingUtil {
     constructor(){
@@ -66,6 +67,13 @@ class SizingUtil {
         viewState.bBox.h = statement.height + statement.gutter.v;
         viewState.expression = textViewState.text;
         return viewState;
+    }
+
+    getHighestStatementContainer(workers) {
+        const sortedWorkers = _.sortBy(workers, function (worker) {
+            return worker.viewState.components.statementContainer.h;
+        });
+        return sortedWorkers.length > 0 ? sortedWorkers[0].getViewState().components.statementContainer.h : -1;
     }
 }
 
