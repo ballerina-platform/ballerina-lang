@@ -89,7 +89,7 @@ export const statement = {
     width: 120,
     height: 30,
     gutter: {
-        v: 20,
+        v: 25,
         h: 0
     },
     padding: {

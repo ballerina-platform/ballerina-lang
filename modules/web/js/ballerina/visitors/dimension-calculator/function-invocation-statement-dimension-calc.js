@@ -32,12 +32,7 @@ class FunctionInvocationStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        var viewState = node.getViewState();
-
-        var textViewState = util.getTextWidth(node.children[0].getFunctionalExpression());
-        viewState.bBox.w = textViewState.w;
-        viewState.bBox.h = DesignerDefaults.statement.height;
-        viewState.expression = textViewState.text;
+        util.populateSimpleStatementBBox( node.children[0].getFunctionalExpression() , node.getViewState());
     }
 }
 

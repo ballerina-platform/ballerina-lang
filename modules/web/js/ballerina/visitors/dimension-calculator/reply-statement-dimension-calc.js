@@ -32,12 +32,7 @@ class ReplyStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        var viewState = node.getViewState();
-
-        var textViewState = util.getTextWidth(node.getReplyExpression());
-        viewState.bBox.w = textViewState.w;
-        viewState.bBox.h = DesignerDefaults.statement.height;
-        viewState.expression = textViewState.text;
+        util.populateSimpleStatementBBox( node.getReplyExpression() , node.getViewState());
     }
 }
 

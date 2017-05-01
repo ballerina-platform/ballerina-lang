@@ -53,12 +53,19 @@ class SizingUtil {
             text = text.substring(0, (possibleCharactersCount - ellipses.length)) + ellipses; // Appending ellipses.
 
             width = statement.maxWidth;
-            debugger;
         }
         return {
             w: width,
             text :text
         }        
+    }
+
+    populateSimpleStatementBBox(expression, viewState){
+        var textViewState = util.getTextWidth(expression);
+        viewState.bBox.w = textViewState.w;
+        viewState.bBox.h = statement.height + statement.gutter.v;
+        viewState.expression = textViewState.text;
+        return viewState;
     }
 }
 

@@ -41,8 +41,10 @@ class ResourceDefinition extends React.Component {
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
         return (<PanelDecorator icon="resource" title={name} bBox={bBox}>
+                  <StatementContainer>
                     <LifeLine title="ResourceWorker" bBox={resource_worker_bBox}/>
                     {children}
+                  </StatementContainer>
                 </PanelDecorator>);
     }
 }

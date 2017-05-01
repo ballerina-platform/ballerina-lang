@@ -33,12 +33,7 @@ class VariableDefinitionStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        var viewState = node.getViewState();
-
-        var textViewState = util.getTextWidth(node.getExpression());
-        viewState.bBox.w = textViewState.w;
-        viewState.bBox.h = DesignerDefaults.statement.height;
-        viewState.expression = textViewState.text;
+        util.populateSimpleStatementBBox( node.getExpression() , node.getViewState());
     }
 }
 
