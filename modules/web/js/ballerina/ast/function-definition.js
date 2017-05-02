@@ -38,6 +38,8 @@ class FunctionDefinition extends CallableDefinition {
         this._isPublic = _.get(args, "isPublic") || false;
         this._annotations = _.get(args, 'annotations', []);
         this.BallerinaASTFactory = this.getFactory();
+        var defaultWorker = this.BallerinaASTFactory.createWorkerDeclaration({isDefaultWorker: true});
+        this.addChild(defaultWorker);
     }
 
     setFunctionName(name, options) {
