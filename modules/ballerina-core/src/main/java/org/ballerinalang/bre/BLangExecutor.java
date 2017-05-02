@@ -84,6 +84,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
@@ -720,6 +721,10 @@ public class BLangExecutor implements NodeExecutor {
         if (rExpr.getType() == BTypes.typeNull || lExpr.getType() == BTypes.typeNull) {
             return binaryEqualityExpr.getRefTypeEvalFunc().apply(lValue, rValue);
         }
+
+        if ((rExpr instanceof VariableRefTypeAccessExpr) && (lExpr instanceof VariableRefTypeAccessExpr)) {
+            return binaryEqualityExpr.getRefTypeEvalFunc().apply(lValue, rValue);
+        }
         
         return binaryEqualityExpr.getEvalFunc().apply((BValueType) lValue, (BValueType) rValue);
     }
@@ -1107,7 +1112,7 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(VariableRefTypeAccessExpr variableRefTypeAccessExpr) {
         Expression varRef = variableRefTypeAccessExpr.getVarRef();
         BValue value = varRef.execute(this);
-        return new BInteger(((BArray) value).size());
+        return new BTypeValue(value.getType());
     }
 
     @Override

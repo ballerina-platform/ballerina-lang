@@ -49,6 +49,9 @@ public class EqualExpression extends BinaryEqualityExpression {
     public static final BiFunction<BValue, BValue, BValueType> EQUAL_NULL_FUNC =
             (lVal, rVal) -> new BBoolean(lVal == rVal);
 
+    public static final BiFunction<BValue, BValue, BValueType> EQUAL_TYPE_FUNC =
+            (lVal, rVal) -> new BBoolean(lVal.getType() == rVal.getType());
+
     public EqualExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
         super(location, lExpr, EQUAL, rExpr);
     }

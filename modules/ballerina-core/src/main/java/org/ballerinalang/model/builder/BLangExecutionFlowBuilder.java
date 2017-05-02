@@ -1068,7 +1068,18 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     public void visit(VariableRefTypeAccessExpr variableRefTypeAccessExpr) {
         calculateTempOffSet(variableRefTypeAccessExpr);
         VariableRefTypeAccessExprEndNode endNode = new VariableRefTypeAccessExprEndNode(variableRefTypeAccessExpr);
-        variableRefTypeAccessExpr.setNext(endNode);
+        if (variableRefTypeAccessExpr.getVarRef() instanceof StructFieldAccessExpr) {
+            StructFieldAccessExprEndNode varNode =
+                    new StructFieldAccessExprEndNode((StructFieldAccessExpr) variableRefTypeAccessExpr.getVarRef());
+            variableRefTypeAccessExpr.setNext(varNode);
+            varNode.setNext(endNode);
+        } else if (variableRefTypeAccessExpr.getVarRef() instanceof ArrayMapAccessExpr) {
+            variableRefTypeAccessExpr.setNext(variableRefTypeAccessExpr.getVarRef());
+            variableRefTypeAccessExpr.getVarRef().setNextSibling(endNode);
+            variableRefTypeAccessExpr.getVarRef().accept(this);
+        } else {
+            variableRefTypeAccessExpr.setNext(endNode);
+        }
         endNode.setNext(findNext(variableRefTypeAccessExpr));
     }
 

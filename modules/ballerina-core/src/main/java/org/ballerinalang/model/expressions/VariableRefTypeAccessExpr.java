@@ -23,7 +23,6 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -73,7 +72,7 @@ public class VariableRefTypeAccessExpr extends UnaryExpression implements Refere
 
     @Override
     public BType getType() {
-        return BTypes.typeInt;
+        return varRefExpr.getType();
     }
 
 }

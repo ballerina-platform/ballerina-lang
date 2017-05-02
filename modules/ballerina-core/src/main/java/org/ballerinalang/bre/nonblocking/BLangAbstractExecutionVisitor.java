@@ -127,6 +127,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
@@ -1090,10 +1091,12 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BValue rValue = getTempValue(rExpr);
         BValue lValue = getTempValue(lExpr);
         BValue binaryExprRslt;
-        
+
         try {
             if (rExpr.getType() == BTypes.typeNull || lExpr.getType() == BTypes.typeNull) {
                 // if this is a null check, then need to pass the BValue
+                binaryExprRslt = binaryExpr.getRefTypeEvalFunc().apply(lValue, rValue);
+            } else if ((rExpr instanceof VariableRefTypeAccessExpr) && (lExpr instanceof VariableRefTypeAccessExpr)) {
                 binaryExprRslt = binaryExpr.getRefTypeEvalFunc().apply(lValue, rValue);
             } else {
                 binaryExprRslt = binaryExpr.getEvalFunc().apply((BValueType) lValue, (BValueType) rValue);
@@ -1839,7 +1842,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     @Override
     public void visit(VariableRefTypeAccessExpr variableRefTypeAccessExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing ArrayLengthAccessExpr {}",
+            logger.debug("Executing VariableRefTypeAccessExpr {}",
                     getNodeLocation(variableRefTypeAccessExpr.getNodeLocation()));
         }
         next = variableRefTypeAccessExpr.next;
@@ -1848,13 +1851,18 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     @Override
     public void visit(VariableRefTypeAccessExprEndNode variableRefTypeAccessExprEndNode) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing ArrayLengthAccess - EndNode");
+            logger.debug("Executing VariableRefTypeAccess - EndNode");
         }
         next = variableRefTypeAccessExprEndNode.next;
         VariableRefTypeAccessExpr variableRefTypeAccessExpr = variableRefTypeAccessExprEndNode.getExpression();
         Expression varRef = variableRefTypeAccessExpr.getVarRef();
-        BValue value = getTempValue(varRef);
-        setTempValue(variableRefTypeAccessExpr.getTempOffset(), new BInteger(((BArray) value).size()));
+        BValue value;
+        if (varRef instanceof VariableRefExpr) {
+            value = getTempValue(varRef);
+        } else {
+            value = getTempValue(varRef.getTempOffset());
+        }
+        setTempValue(variableRefTypeAccessExpr.getTempOffset(), new BTypeValue(value.getType()));
     }
 
 }
