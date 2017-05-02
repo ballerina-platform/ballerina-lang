@@ -158,6 +158,22 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         CREATE = createKeywordLookupElement("create", AddSpaceInsertHandler.INSTANCE);
     }
 
+    public BallerinaCompletionContributor() {
+        extend(CompletionType.BASIC,
+                PlatformPatterns.psiElement(),
+                new CompletionProvider<CompletionParameters>() {
+                    public void addCompletions(@NotNull CompletionParameters parameters, ProcessingContext context,
+                                               @NotNull CompletionResultSet resultSet) {
+                        // The file will be loaded to memory and and will be edited. parameters.getOriginalFile()
+                        // contains the original file. parameters.getPosition().getContainingFile() will return null
+                        // because it only exists in the memory. So use parameters.getOriginalFile().getContainingFile()
+                        // if you want to get the details like containing directory, etc.
+                        addSuggestions(parameters, resultSet);
+                    }
+                }
+        );
+    }
+
     /**
      * Creates a lookup element.
      *
@@ -213,24 +229,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         return createLookupElement(name, insertHandler).withTypeText("Reference Type", true);
     }
 
-    public BallerinaCompletionContributor() {
-        extend(CompletionType.BASIC,
-                PlatformPatterns.psiElement(),
-                new CompletionProvider<CompletionParameters>() {
-                    public void addCompletions(@NotNull CompletionParameters parameters, ProcessingContext context,
-                                               @NotNull CompletionResultSet resultSet) {
-                        // The file will be loaded to memory and and will be edited. parameters.getOriginalFile()
-                        // contains the original file. parameters.getPosition().getContainingFile() will return null
-                        // because it only exists in the memory. So use parameters.getOriginalFile().getContainingFile()
-                        // if you want to get the details like containing directory, etc.
-                        addSuggestions(parameters, resultSet);
-                    }
-                }
-        );
-    }
-
     /**
-     * Adds lookups.
+     * Adds lookup according to the current node caret is at.
      *
      * @param parameters parameters which contain details of completion invocation
      * @param resultSet  result list which is used to add lookups
@@ -299,9 +299,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param withPackage indicates whether to add 'package' keyword
      * @param withImport  indicates whether to add 'import' keyword
      */
-    private void addFileLevelKeywordsAsLookups(@NotNull CompletionResultSet resultSet, int priority, boolean
-            withPackage,
-                                               boolean withImport) {
+    private void addFileLevelKeywordsAsLookups(@NotNull CompletionResultSet resultSet, int priority,
+                                               boolean withPackage, boolean withImport) {
         if (withPackage) {
             resultSet.addElement(PrioritizedLookupElement.withPriority(PACKAGE, priority));
         }
@@ -323,7 +322,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param parameters parameters which contain details of completion invocation
      * @param resultSet  result list which is used to add lookups
      */
-    private void handlePackageNameNode(CompletionParameters parameters, @NotNull CompletionResultSet resultSet) {
+    private void handlePackageNameNode(@NotNull CompletionParameters parameters,
+                                       @NotNull CompletionResultSet resultSet) {
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
         PsiElement superParent = parent.getParent();
@@ -343,7 +343,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param parameters parameters which passed to completion contributor
      * @param resultSet  result list which is used to add lookups
      */
-    private void handleImportDeclarationNode(CompletionParameters parameters, @NotNull CompletionResultSet resultSet) {
+    private void handleImportDeclarationNode(@NotNull CompletionParameters parameters,
+                                             @NotNull CompletionResultSet resultSet) {
         PsiElement element = parameters.getPosition();
         PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestImportPackages(element);
         for (PsiDirectory directory : psiDirectories) {
@@ -363,7 +364,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param parameters parameters which passed to completion contributor
      * @param resultSet  result list which is used to add lookups
      */
-    private void handleConstantDefinitionNode(CompletionParameters parameters, @NotNull CompletionResultSet resultSet) {
+    private void handleConstantDefinitionNode(@NotNull CompletionParameters parameters,
+                                              @NotNull CompletionResultSet resultSet) {
         PsiElement element = parameters.getPosition();
         PsiElement prevSibling = element.getPrevSibling();
         // Eg: const <caret>
@@ -378,72 +380,16 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param parameters parameters which passed to completion contributor
      * @param resultSet  result list which is used to add lookups
      */
-    private void handleNameReferenceNode(CompletionParameters parameters, @NotNull CompletionResultSet resultSet) {
-
+    private void handleNameReferenceNode(@NotNull CompletionParameters parameters,
+                                         @NotNull CompletionResultSet resultSet) {
         PsiFile originalFile = parameters.getOriginalFile();
-
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
 
         ParameterNode parameterNode = PsiTreeUtil.getParentOfType(parent, ParameterNode.class);
         if (parameterNode != null) {
-
-            PsiElement prevElement = getPreviousNonEmptyElement(originalFile, parameters.getOffset());
-            if (prevElement instanceof IdentifierPSINode) {
-                int count = 1;
-                PsiElement token = originalFile.findElementAt(prevElement.getTextOffset() - count++);
-                while (token instanceof PsiWhiteSpace) {
-                    token = originalFile.findElementAt(prevElement.getTextOffset() - count++);
-                }
-                if (token != null && token instanceof LeafPsiElement) {
-                    IElementType elementType = ((LeafPsiElement) token).getElementType();
-                    if (elementType == BallerinaTypes.COLON) {
-                        PsiElement partialIdentifier = prevElement;
-                        PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                        suggestElementsFromAPackage(parameters, resultSet, packageNode, partialIdentifier, false,
-                                true, true, false);
-                    } else {
-                        addAllImportedPackagesAsLookups(resultSet, originalFile);
-                        addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                        addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                    }
-
-                    if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
-                        addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                        addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                    }
-                } else {
-                    PsiElement partialIdentifier = prevElement;
-                    PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                    suggestElementsFromAPackage(parameters, resultSet, packageNode, partialIdentifier, false, true,
-                            true, false);
-                }
-            } else if (prevElement instanceof LeafPsiElement) {
-
-                IElementType elementType = ((LeafPsiElement) prevElement).getElementType();
-
-                // Cannot use a switch statement since the types are not constants and declaring them final does not fix
-                // the issue as well.
-                if (elementType == BallerinaTypes.COLON) {
-                    PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                    suggestElementsFromAPackage(parameters, resultSet, packageNode, null, false, true, true, false);
-                } else if (elementType == BallerinaTypes.LPAREN || elementType == BallerinaTypes.COMMA) {
-
-                    addAllImportedPackagesAsLookups(resultSet, originalFile);
-                    addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                    addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                }
-            } else {
-                addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
-                addOtherCommonKeywords(resultSet);
-
-                addFunctionSpecificKeywords(parameters, resultSet, originalFile);
-
-                addVariablesAsLookups(resultSet, prevElement);
-                addConstantsAsLookups(resultSet, originalFile);
-            }
+            handleNodeWithPrevNode(parameters, resultSet, parameters.getOffset(), this::handleIdentifierInParameter,
+                    this::handleLeafElementInParameter, this::handleOtherTypesInParameter);
             return;
         }
 
@@ -459,61 +405,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
         PsiElement superParent = parent.getParent();
         if (superParent instanceof AnnotationAttachmentNode) {
-            PsiElement nextSibling = PsiTreeUtil.skipSiblingsForward(superParent, PsiWhiteSpace.class, PsiComment.class,
-                    AnnotationAttachmentNode.class);
-            String type = null;
-            if (nextSibling == null) {
-                AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(element,
-                        AnnotationAttachmentNode.class);
-                if (annotationAttachmentNode != null) {
-                    PsiElement definitionNode = annotationAttachmentNode.getParent();
-                    type = getAnnotationAttachmentType(definitionNode);
-                }
-            } else if (nextSibling instanceof DefinitionNode) {
-                PsiElement[] children = nextSibling.getChildren();
-                if (children.length != 0) {
-                    PsiElement definitionNode = children[0];
-                    type = getAnnotationAttachmentType(definitionNode);
-                }
-
-            } else if (nextSibling.getParent() instanceof ResourceDefinitionNode) {
-                type = "resource";
-            } else if (nextSibling.getParent() instanceof ActionDefinitionNode) {
-                type = "action";
-            }
-
-            if (type == null) {
+            if (handleAnnotationAttachmentNode(parameters, resultSet)) {
                 return;
             }
-            PsiElement prevElement = getPreviousNonEmptyElement(originalFile, parameters.getOffset());
-            if (prevElement instanceof IdentifierPSINode) {
-                PsiElement token = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
-                if (token != null && token instanceof LeafPsiElement) {
-                    IElementType elementType = ((LeafPsiElement) token).getElementType();
-                    if (elementType == BallerinaTypes.COLON) {
-                        PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                        suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, type);
-                    } else {
-                        addAllImportedPackagesAsLookups(resultSet, originalFile);
-                        suggestAnnotationsFromAPackage(parameters, resultSet, null, type);
-                    }
-                } else {
-                    PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                    suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, type);
-                }
-            } else if (prevElement instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) prevElement).getElementType();
-                // Cannot use a switch statement since the types are not constants and declaring them final does not fix
-                // the issue as well.
-                if (elementType == BallerinaTypes.COLON) {
-                    PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                    suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, type);
-                } else if (elementType == BallerinaTypes.AT) {
-                    addAllImportedPackagesAsLookups(resultSet, originalFile);
-                    suggestAnnotationsFromAPackage(parameters, resultSet, null, type);
-                }
-            }
-            return;
         }
 
         PsiElement prevElement = getPreviousNonEmptyElement(originalFile, parameters.getOffset());
@@ -556,6 +450,183 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
     }
 
+    private boolean handleAnnotationAttachmentNode(@NotNull CompletionParameters parameters,
+                                                   @NotNull CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement element = parameters.getPosition();
+        PsiElement parent = element.getParent();
+        PsiElement superParent = parent.getParent();
+        PsiElement nextSibling = PsiTreeUtil.skipSiblingsForward(superParent, PsiWhiteSpace.class, PsiComment.class,
+                AnnotationAttachmentNode.class);
+        String type = null;
+        if (nextSibling == null) {
+            AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(element,
+                    AnnotationAttachmentNode.class);
+            if (annotationAttachmentNode != null) {
+                PsiElement definitionNode = annotationAttachmentNode.getParent();
+                type = getAnnotationAttachmentType(definitionNode);
+            }
+        } else if (nextSibling instanceof DefinitionNode) {
+            PsiElement[] children = nextSibling.getChildren();
+            if (children.length != 0) {
+                PsiElement definitionNode = children[0];
+                type = getAnnotationAttachmentType(definitionNode);
+            }
+
+        } else if (nextSibling.getParent() instanceof ResourceDefinitionNode) {
+            type = "resource";
+        } else if (nextSibling.getParent() instanceof ActionDefinitionNode) {
+            type = "action";
+        }
+
+        if (type == null) {
+            return true;
+        }
+        PsiElement prevElement = getPreviousNonEmptyElement(originalFile, parameters.getOffset());
+        if (prevElement instanceof IdentifierPSINode) {
+            PsiElement token = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
+            if (token != null && token instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) token).getElementType();
+                if (elementType == BallerinaTypes.COLON) {
+                    PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                    suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, type);
+                } else {
+                    addAllImportedPackagesAsLookups(resultSet, originalFile);
+                    suggestAnnotationsFromAPackage(parameters, resultSet, null, type);
+                }
+            } else {
+                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, type);
+            }
+        } else if (prevElement instanceof LeafPsiElement) {
+            IElementType elementType = ((LeafPsiElement) prevElement).getElementType();
+            // Cannot use a switch statement since the types are not constants and declaring them final does not fix
+            // the issue as well.
+            if (elementType == BallerinaTypes.COLON) {
+                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, type);
+            } else if (elementType == BallerinaTypes.AT) {
+                addAllImportedPackagesAsLookups(resultSet, originalFile);
+                suggestAnnotationsFromAPackage(parameters, resultSet, null, type);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Handles situations where we want to consider previous node's element before adding lookup elements to the
+     * current node.
+     *
+     * @param parameters     parameters which passed to completion contributor
+     * @param resultSet      result list which is used to add lookups
+     * @param offset         offset of  the current element
+     * @param identifierNode lookup element adding strategy if the previous element is an identifier node
+     * @param leafNode       lookup element adding strategy if the previous element is a leaf node
+     * @param otherNodes     lookup element adding strategy if the previous element is not an identifier or leaf node
+     */
+    private void handleNodeWithPrevNode(@NotNull CompletionParameters parameters,
+                                        @NotNull CompletionResultSet resultSet, int offset,
+                                        CompletionInterface<CompletionParameters, CompletionResultSet> identifierNode,
+                                        CompletionInterface<CompletionParameters, CompletionResultSet> leafNode,
+                                        CompletionInterface<CompletionParameters, CompletionResultSet> otherNodes) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement prevElement = getPreviousNonEmptyElement(originalFile, offset);
+        if (prevElement instanceof IdentifierPSINode) {
+            identifierNode.call(parameters, resultSet);
+        } else if (prevElement instanceof LeafPsiElement) {
+            leafNode.call(parameters, resultSet);
+        } else {
+            otherNodes.call(parameters, resultSet);
+        }
+    }
+
+    /**
+     * Contains logic to add lookup elements for a parameter node if the previous node is an identifier node.
+     *
+     * @param parameters parameters which passed to completion contributor
+     * @param resultSet  result list which is used to add lookups
+     */
+    private void handleIdentifierInParameter(@NotNull CompletionParameters parameters,
+                                             @NotNull CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement prevElement = getPreviousNonEmptyElement(originalFile, parameters.getOffset());
+        int count = 1;
+        PsiElement token = originalFile.findElementAt(prevElement.getTextOffset() - count++);
+        while (token instanceof PsiWhiteSpace) {
+            token = originalFile.findElementAt(prevElement.getTextOffset() - count++);
+        }
+        if (token != null && token instanceof LeafPsiElement) {
+            IElementType elementType = ((LeafPsiElement) token).getElementType();
+            if (elementType == BallerinaTypes.COLON) {
+                PsiElement partialIdentifier = prevElement;
+                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                suggestElementsFromAPackage(parameters, resultSet, packageNode, partialIdentifier, false,
+                        true, true, false);
+            } else {
+                addAllImportedPackagesAsLookups(resultSet, originalFile);
+                addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+                addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+            }
+
+            if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
+                addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+                addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+            }
+        } else {
+            PsiElement partialIdentifier = prevElement;
+            PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+            suggestElementsFromAPackage(parameters, resultSet, packageNode, partialIdentifier, false, true,
+                    true, false);
+        }
+    }
+
+    /**
+     * Contains logic to add lookup elements for a parameter node if the previous node is an leaf element node.
+     *
+     * @param parameters parameters which passed to completion contributor
+     * @param resultSet  result list which is used to add lookups
+     */
+    private void handleLeafElementInParameter(@NotNull CompletionParameters parameters,
+                                              @NotNull CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement prevElement = getPreviousNonEmptyElement(originalFile, parameters.getOffset());
+        IElementType elementType = ((LeafPsiElement) prevElement).getElementType();
+
+        // Cannot use a switch statement since the types are not constants and declaring them final does not fix
+        // the issue as well.
+        if (elementType == BallerinaTypes.COLON) {
+            PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+            suggestElementsFromAPackage(parameters, resultSet, packageNode, null, false, true, true, false);
+        } else if (elementType == BallerinaTypes.LPAREN || elementType == BallerinaTypes.COMMA) {
+
+            addAllImportedPackagesAsLookups(resultSet, originalFile);
+            addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+            addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+        }
+    }
+
+    /**
+     * Contains logic to add lookup elements for a parameter node if the previous node is not an identifier or leaf
+     * element node.
+     *
+     * @param parameters parameters which passed to completion contributor
+     * @param resultSet  result list which is used to add lookups
+     */
+    private void handleOtherTypesInParameter(@NotNull CompletionParameters parameters,
+                                             @NotNull CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement prevElement = getPreviousNonEmptyElement(originalFile, parameters.getOffset());
+        addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+        addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+        addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
+        addOtherCommonKeywords(resultSet);
+
+        addFunctionSpecificKeywords(parameters, resultSet, originalFile);
+
+        addVariablesAsLookups(resultSet, prevElement);
+        addConstantsAsLookups(resultSet, originalFile);
+    }
+
     /**
      * Handles function invocation statements. Mostly this will be called when the parameters (for a function
      * invocation, etc) are being typed.
@@ -565,7 +636,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param parameters parameters which passed to completion contributor
      * @param resultSet  result list which is used to add lookups
      */
-    private void handleFunctionInvocationStatementNode(CompletionParameters parameters,
+    private void handleFunctionInvocationStatementNode(@NotNull CompletionParameters parameters,
                                                        @NotNull CompletionResultSet resultSet) {
         identifyAndAddSuggestions(parameters, resultSet);
     }
@@ -599,7 +670,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         suggestElementsFromAPackage(parameters, resultSet, packageName, null, true, true, true, true);
     }
 
-    private void handleVariableReferenceNode(CompletionParameters parameters, @NotNull CompletionResultSet resultSet) {
+    private void handleVariableReferenceNode(@NotNull CompletionParameters parameters,
+                                             @NotNull CompletionResultSet resultSet) {
 
         PsiFile originalFile = parameters.getOriginalFile();
 
@@ -700,154 +772,110 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     }
 
     /**
-     * Adds lookups related to a statement node.
+     * Adds lookups for a statement node.
      *
      * @param parameters parameters which passed to completion contributor
      * @param resultSet  result list which is used to add lookups
      */
-    private void handleStatementNode(CompletionParameters parameters, @NotNull CompletionResultSet resultSet) {
+    private void handleStatementNode(@NotNull CompletionParameters parameters,
+                                     @NotNull CompletionResultSet resultSet) {
+        handleNodeWithPrevNode(parameters, resultSet, parameters.getOffset(), this::handleIdentifierInStatement,
+                this::handleLeafElementsInStatement, this::handleOtherTypesInStatement);
+    }
+
+    private void handleIdentifierInStatement(@NotNull CompletionParameters parameters,
+                                             @NotNull CompletionResultSet resultSet) {
         PsiFile originalFile = parameters.getOriginalFile();
         PsiElement prevElement = getPreviousNonEmptyElement(originalFile, parameters.getOffset());
-        if (prevElement instanceof IdentifierPSINode) {
-            PsiElement token = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
-            if (token != null && token instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) token).getElementType();
-                if (elementType == BallerinaTypes.COLON) {
-                    PsiElement partialIdentifier = prevElement;
-                    PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                    suggestElementsFromAPackage(parameters, resultSet, packageNode, partialIdentifier, true, true,
-                            true, true);
-                } else {
-                    addFunctionsAsLookups(resultSet, prevElement, originalFile);
-                    addAllImportedPackagesAsLookups(resultSet, originalFile);
-                    addVariablesAsLookups(resultSet, prevElement);
-                    addConstantsAsLookups(resultSet, originalFile);
-                    addFunctionSpecificKeywords(parameters, resultSet, originalFile);
-                    addOtherCommonKeywords(resultSet);
-                    if (elementType == BallerinaTypes.ASSIGN) {
-                        addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
-                    }
-                }
-
-                if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
-                    addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                    addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                }
-            } else {
+        PsiElement token = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
+        if (token != null && token instanceof LeafPsiElement) {
+            IElementType elementType = ((LeafPsiElement) token).getElementType();
+            if (elementType == BallerinaTypes.COLON) {
                 PsiElement partialIdentifier = prevElement;
                 PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                suggestElementsFromAPackage(parameters, resultSet, packageNode, partialIdentifier, true, true, true,
-                        true);
-            }
-        } else if (prevElement instanceof LeafPsiElement) {
-
-            IElementType elementType = ((LeafPsiElement) prevElement).getElementType();
-
-            // Cannot use a switch statement since the types are not constants and declaring them final does not fix
-            // the issue as well.
-            if (elementType == BallerinaTypes.COLON) {
-                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                suggestElementsFromAPackage(parameters, resultSet, packageNode, null, true, true, true, true);
-            } else if (elementType == BallerinaTypes.ADD || elementType == BallerinaTypes.SUB ||
-                    elementType == BallerinaTypes.MUL || elementType == BallerinaTypes.DIV ||
-                    elementType == BallerinaTypes.ASSIGN || elementType == BallerinaTypes.GT ||
-                    elementType == BallerinaTypes.LT || elementType == BallerinaTypes.EQUAL ||
-                    elementType == BallerinaTypes.LE || elementType == BallerinaTypes.GE ||
-                    elementType == BallerinaTypes.NOTEQUAL || elementType == BallerinaTypes.AND ||
-                    elementType == BallerinaTypes.OR || elementType == BallerinaTypes.MOD) {
-                addFunctionsAsLookups(resultSet, prevElement, originalFile);
-                addAllImportedPackagesAsLookups(resultSet, originalFile);
-                addVariablesAsLookups(resultSet, prevElement);
-                addConstantsAsLookups(resultSet, originalFile);
-
-                if (elementType == BallerinaTypes.ASSIGN) {
-                    addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
-                }
+                suggestElementsFromAPackage(parameters, resultSet, packageNode, partialIdentifier, true, true,
+                        true, true);
             } else {
-                addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-
                 addFunctionsAsLookups(resultSet, prevElement, originalFile);
                 addAllImportedPackagesAsLookups(resultSet, originalFile);
                 addVariablesAsLookups(resultSet, prevElement);
                 addConstantsAsLookups(resultSet, originalFile);
                 addFunctionSpecificKeywords(parameters, resultSet, originalFile);
                 addOtherCommonKeywords(resultSet);
+                if (elementType == BallerinaTypes.ASSIGN) {
+                    addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
+                }
+            }
+
+            if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
+                addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+                addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+            }
+        } else {
+            PsiElement partialIdentifier = prevElement;
+            PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+            suggestElementsFromAPackage(parameters, resultSet, packageNode, partialIdentifier, true, true, true,
+                    true);
+        }
+    }
+
+    private void handleLeafElementsInStatement(@NotNull CompletionParameters parameters,
+                                               @NotNull CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement prevElement = getPreviousNonEmptyElement(originalFile, parameters.getOffset());
+        IElementType elementType = ((LeafPsiElement) prevElement).getElementType();
+
+        // Cannot use a switch statement since the types are not constants and declaring them final does not fix
+        // the issue as well.
+        if (elementType == BallerinaTypes.COLON) {
+            PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+            suggestElementsFromAPackage(parameters, resultSet, packageNode, null, true, true, true, true);
+        } else if (elementType == BallerinaTypes.ADD || elementType == BallerinaTypes.SUB ||
+                elementType == BallerinaTypes.MUL || elementType == BallerinaTypes.DIV ||
+                elementType == BallerinaTypes.ASSIGN || elementType == BallerinaTypes.GT ||
+                elementType == BallerinaTypes.LT || elementType == BallerinaTypes.EQUAL ||
+                elementType == BallerinaTypes.LE || elementType == BallerinaTypes.GE ||
+                elementType == BallerinaTypes.NOTEQUAL || elementType == BallerinaTypes.AND ||
+                elementType == BallerinaTypes.OR || elementType == BallerinaTypes.MOD) {
+            addFunctionsAsLookups(resultSet, prevElement, originalFile);
+            addAllImportedPackagesAsLookups(resultSet, originalFile);
+            addVariablesAsLookups(resultSet, prevElement);
+            addConstantsAsLookups(resultSet, originalFile);
+
+            if (elementType == BallerinaTypes.ASSIGN) {
+                addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
             }
         } else {
             addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
             addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
-            addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
-            addOtherCommonKeywords(resultSet);
-
-            addFunctionSpecificKeywords(parameters, resultSet, originalFile);
 
             addFunctionsAsLookups(resultSet, prevElement, originalFile);
             addAllImportedPackagesAsLookups(resultSet, originalFile);
             addVariablesAsLookups(resultSet, prevElement);
             addConstantsAsLookups(resultSet, originalFile);
+            addFunctionSpecificKeywords(parameters, resultSet, originalFile);
+            addOtherCommonKeywords(resultSet);
         }
-
-
-        //        int count = 1;
-        //        PsiFile file = parameters.getOriginalFile();
-        //        PsiElement prevElement = file.findElementAt(parameters.getOffset() - count);
-        //        //        PsiTreeUtil.skipSiblingsBackward(,   PsiWhiteSpace.class);
-        //
-        //        while (prevElement instanceof PsiWhiteSpace) {
-        //            prevElement = file.findElementAt(parameters.getOffset() - ++count);
-        //        }
-        //
-        //        if (prevElement == null /*|| !(prevElement.getParent() instanceof StatementNode ||
-        //                prevElement instanceof CallableUnitBodyNode)*/) {
-        //            return;
-        //        }
-        //        // Todo - Add struct field suggestions
-        //        if (":".equals(prevElement.getText())) {
-        //            // Nothing typed after "package:". So we suggest all elements in the package.
-        //            prevElement = file.findElementAt(parameters.getOffset() - 2);
-        //            if (prevElement == null) {
-        //                return;
-        //            }
-        //            suggestElementsFromAPackage(resultSet, originalFile, prevElement, null);
-        //        } else if (".".equals(prevElement.getText())) {
-        //            addStructFields(parameters, resultSet, file);
-        //        } else if (("=".equals(prevElement.getText()) && prevElement instanceof IdentifierPSINode)
-        //                || "+".equals(prevElement.getText())) {
-        //            addFunctionsAsLookups(resultSet, prevElement, originalFile);
-        //            addPackagesAsLookups(resultSet, originalFile);
-        //            addVariablesAsLookups(resultSet, prevElement);
-        //            addConstantsAsLookups(resultSet, originalFile);
-        //        } else {
-        //            // Something typed after "package:". In that case we need to suggest elements which starts with
-        // what is
-        //            // typed after "package:".
-        //
-        //            count = 2;
-        //            PsiElement element = file.findElementAt(parameters.getOffset() - count);
-        //            while (element != null && !":".equals(element.getText())) {
-        //
-        //                int offset = parameters.getOffset() - ++count;
-        //                if (offset >= prevElement.getTextOffset()) {
-        //                    element = file.findElementAt(offset);
-        //                } else {
-        //                    break;
-        //                }
-        //            }
-        //            if (element == null) {
-        //                return;
-        //            }
-        //            PsiElement packageNode = file.findElementAt(parameters.getOffset() - (count + 1));
-        //            if (packageNode == null) {
-        //                return;
-        //            }
-        //            PsiElement identifierNode = file.findElementAt(parameters.getOffset() - (count - 1));
-        //            if (identifierNode == null) {
-        //                return;
-        //            }
-        //            suggestElementsFromAPackage(resultSet, originalFile, packageNode, identifierNode);
-        //        }
     }
+
+    private void handleOtherTypesInStatement(@NotNull CompletionParameters parameters,
+                                             @NotNull CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement prevElement = getPreviousNonEmptyElement(originalFile, parameters.getOffset());
+
+        addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+        addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
+        addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
+        addOtherCommonKeywords(resultSet);
+
+        addFunctionSpecificKeywords(parameters, resultSet, originalFile);
+
+        addFunctionsAsLookups(resultSet, prevElement, originalFile);
+        addAllImportedPackagesAsLookups(resultSet, originalFile);
+        addVariablesAsLookups(resultSet, prevElement);
+        addConstantsAsLookups(resultSet, originalFile);
+    }
+
 
     private PsiElement getPreviousNonEmptyElement(PsiFile originalFile, int offset) {
         int count = 1;
@@ -858,7 +886,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         return prevElement;
     }
 
-    private void addFunctionSpecificKeywords(CompletionParameters parameters, @NotNull CompletionResultSet resultSet,
+    private void addFunctionSpecificKeywords(@NotNull CompletionParameters parameters,
+                                             @NotNull CompletionResultSet resultSet,
                                              PsiFile originalFile) {
         PsiElement element = originalFile.findElementAt(parameters.getOffset());
         FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
@@ -867,7 +896,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
     }
 
-    private void addStructFields(CompletionParameters parameters, @NotNull CompletionResultSet resultSet,
+    private void addStructFields(@NotNull CompletionParameters parameters,
+                                 @NotNull CompletionResultSet resultSet,
                                  PsiFile file) {
         PsiElement prevElement;// struct field access.
         prevElement = file.findElementAt(parameters.getOffset() - 2);
@@ -926,10 +956,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
     }
 
-    private void suggestElementsFromAPackage(CompletionParameters parameters, @NotNull CompletionResultSet resultSet,
-                                             PsiElement packageElement, PsiElement partialIdentifier,
-                                             boolean suggestFunctions, boolean suggestConnectors,
-                                             boolean suggestStructs, boolean suggestConstants) {
+    private void suggestElementsFromAPackage(@NotNull CompletionParameters parameters,
+                                             @NotNull CompletionResultSet resultSet, PsiElement packageElement,
+                                             PsiElement partialIdentifier, boolean suggestFunctions,
+                                             boolean suggestConnectors, boolean suggestStructs, boolean
+                                                     suggestConstants) {
 
         PsiFile originalFile = parameters.getOriginalFile();
 
@@ -953,7 +984,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     if (suggestFunctions) {
                         List<PsiElement> functions =
                                 BallerinaPsiImplUtil.getAllFunctionsInPackage(psiDirectories[0]);
-
                         if (partialIdentifier != null) {
                             functions = functions.stream()
                                     .filter(function -> function.getText().contains(partialIdentifier.getText()))
@@ -965,6 +995,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     if (suggestConnectors) {
                         List<PsiElement> connectors =
                                 BallerinaPsiImplUtil.getAllConnectorsInPackage(psiDirectories[0]);
+                        if (partialIdentifier != null) {
+                            connectors = connectors.stream()
+                                    .filter(connector -> connector.getText().contains(partialIdentifier.getText()))
+                                    .collect(Collectors.toList());
+                        }
                         addConnectorsAsLookups(resultSet, connectors);
                     }
                     if (suggestStructs) {
@@ -991,7 +1026,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
     }
 
-    private void suggestAnnotationsFromAPackage(CompletionParameters parameters, @NotNull CompletionResultSet resultSet,
+    private void suggestAnnotationsFromAPackage(@NotNull CompletionParameters parameters,
+                                                @NotNull CompletionResultSet resultSet,
                                                 PsiElement packageElement, String type) {
         PsiFile originalFile = parameters.getOriginalFile();
         if (packageElement != null) {
@@ -1055,9 +1091,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void addOtherCommonKeywords(@NotNull CompletionResultSet resultSet) {
         addKeywordAsLookup(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
         addKeywordAsLookup(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
+        // todo - add fork/join, while, etc
     }
 
-    private void handleActionInvocationNode(CompletionParameters parameters, @NotNull CompletionResultSet resultSet) {
+    private void handleActionInvocationNode(@NotNull CompletionParameters parameters,
+                                            @NotNull CompletionResultSet resultSet) {
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
         // Get the NameReferenceNode.
@@ -1105,7 +1143,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param parameters parameters which contain details of completion invocation
      * @param resultSet  result list which is used to add lookups
      */
-    private void handlePsiErrorElement(CompletionParameters parameters, @NotNull CompletionResultSet resultSet) {
+    private void handlePsiErrorElement(@NotNull CompletionParameters parameters,
+                                       @NotNull CompletionResultSet resultSet) {
 
         PsiFile originalFile = parameters.getOriginalFile();
 
@@ -1270,7 +1309,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
     }
 
-    private void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, LookupElement lookupElement, int priority) {
+    private void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, @NotNull LookupElement lookupElement,
+                                    int priority) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, priority));
     }
 
@@ -1342,8 +1382,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param resultSet    result list which is used to add lookups
      * @param originalFile original file which we are editing
      */
-    private void addFunctionsAsLookups(@NotNull CompletionResultSet resultSet, PsiElement element, PsiFile
-            originalFile) {
+    private void addFunctionsAsLookups(@NotNull CompletionResultSet resultSet, PsiElement element,
+                                       PsiFile originalFile) {
         PsiElement parent = element.getParent();
         PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
         if (packageNameNode == null) {
