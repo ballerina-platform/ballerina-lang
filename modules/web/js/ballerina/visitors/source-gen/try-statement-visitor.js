@@ -49,12 +49,6 @@ class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Try Statement');
     }
-
-    visitStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
-    }
 }
 
 export default TryStatementVisitor;
