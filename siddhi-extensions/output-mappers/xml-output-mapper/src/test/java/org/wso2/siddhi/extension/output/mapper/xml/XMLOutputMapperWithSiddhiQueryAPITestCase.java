@@ -393,7 +393,7 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
                         .annotation(Annotation.annotation("map")
                                 .element("type", "xml")
                                 .element("enclosing.element", "<portfolio>")
-                                .element("validateXml", "true")
+                                .element("validate.xml", "true")
                                 .annotation(Annotation.annotation("payload")
                                         .element("<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}" +
                                                 "</Price></StockData>"))));
@@ -491,7 +491,7 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
                         .annotation(Annotation.annotation("map")
                                 .element("type", "xml")
                                 .element("enclosing.element", "<portfolio")
-                                .element("validateXml", "true")
+                                .element("validate.xml", "true")
                                 .annotation(Annotation.annotation("payload")
                                         .element("<StockData><Symbol>{{symbol}}</Symbol><Price>" +
                                                 "{{price}}</Price></StockData>"))));

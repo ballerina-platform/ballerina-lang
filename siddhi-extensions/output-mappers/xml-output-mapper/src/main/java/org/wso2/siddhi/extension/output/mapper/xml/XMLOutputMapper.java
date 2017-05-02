@@ -55,7 +55,7 @@ public class XMLOutputMapper extends OutputMapper {
     private static final String EVENT_PARENT_OPENING_TAG = "<event>";
     private static final String EVENT_PARENT_CLOSING_TAG = "</event>";
     private static final String OPTION_ENCLOSING_ELEMENT = "enclosing.element";
-    private static final String OPTION_VALIDATE_XML = "validateXml";
+    private static final String OPTION_VALIDATE_XML = "validate.xml";
     private static final String NS_XSI_NIL_ENABLE = " xsi:nil=\"true\"/";
 
     private StreamDefinition streamDefinition;
