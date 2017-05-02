@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import ASTFactory from './../../ast/ballerina-ast-factory';
+import * as DesignerDefaults from './../../configs/designer-defaults';
 
 function getSimpleStatementPosition(node) {
     let viewState = node.getViewState();
@@ -32,7 +33,7 @@ function getSimpleStatementPosition(node) {
     let x, y;
 
     /**
-     * Here we center the function invocation statement based on the parent's statement container's dimensions
+     * Here we center the statement based on the parent's statement container's dimensions
      * Always the statement container's width should be greater than the statements/expressions
      */
     if (parentStatementContainer.w < bBox.w) {
@@ -52,5 +53,29 @@ function getSimpleStatementPosition(node) {
     bBox.y = y;
 }
 
-export {getSimpleStatementPosition};
+function getBlockStatementPosition(node) {
+    let viewState = node.getViewState();
+    let bBox = viewState.bBox;
+    const currentIndex = _.findIndex(node.getParent().getChildren(), node);
+    /**
+     * Current Index should be greater than 0
+     */
+    if (currentIndex <= 0) {
+        throw 'Invalid Current Index Found for Block Statement';
+    }
+    const previousStatement = node.getParent().getChildren()[currentIndex - 1];
+    let x, y, statementContainerX, statementContainerY;
+
+    x = previousStatement.getViewState().bBox.x;
+    y = previousStatement.getViewState().bBox.getBottom();
+    statementContainerX = x;
+    statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
+
+    bBox.x = x;
+    bBox.y = y;
+    viewState.components.statementContainer.x = statementContainerX;
+    viewState.components.statementContainer.y = statementContainerY;
+}
+
+export {getSimpleStatementPosition, getBlockStatementPosition};
 
