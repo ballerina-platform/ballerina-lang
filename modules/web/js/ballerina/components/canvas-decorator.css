@@ -1,0 +1,8 @@
+.svg-container .drop-zone.active {
+    fill-opacity: 0.2;
+}
+
+.svg-container .drop-zone {
+    fill: green;
+    fill-opacity: 0;
+}
