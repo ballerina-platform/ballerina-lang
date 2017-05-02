@@ -20,6 +20,8 @@ import React from 'react';
 import ImageUtil from './image-util';
 import PropTypes from 'prop-types';
 import ASTNode from '../ast/node';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import './panel-decorator.css';
 
 class PanelDecorator extends React.Component {
 
@@ -55,10 +57,16 @@ class PanelDecorator extends React.Component {
                          </g>
                      </g>
                      <g className="panel-body">
-                        { !collapsed &&
-                             <rect x={ bBox.x } y={ bBox.y + titleHeight} width={ bBox.w } height={ bBox.h - titleHeight } rx="0" ry="0" className="resource-content" fill="#fff"></rect>
-                        }
-                        { !collapsed && this.props.children}
+                        <CSSTransitionGroup
+                           component="g"
+                           transitionName="panel-slide"
+                           transitionEnterTimeout={300}
+                           transitionLeaveTimeout={300}>
+                              { !collapsed &&
+                                   <rect x={ bBox.x } y={ bBox.y + titleHeight} width={ bBox.w } height={ bBox.h - titleHeight } rx="0" ry="0" className="resource-content" fill="#fff"></rect>
+                              }
+                              { !collapsed && this.props.children}
+                        </CSSTransitionGroup>
                      </g>
                  </g>);
     }
