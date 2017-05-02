@@ -30,7 +30,7 @@ class AssignmentStatement extends React.Component {
         let model = this.props.model,
             bBox = model.viewState.bBox,
             expression = model.viewState.expression;
-        return (<StatementDecorator bBox={bBox} expression={expression}/>);
+        return (<StatementDecorator bBox={bBox} expression={expression} model={model} />);
     }
 }
 
