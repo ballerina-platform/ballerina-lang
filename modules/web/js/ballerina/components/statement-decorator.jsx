@@ -19,27 +19,49 @@ import React from "react";
 import PropTypes from 'prop-types';
 import {statement} from './../configs/designer-defaults';
 import {lifeLine} from './../configs/designer-defaults';
+import ASTNode from '../ast/node';
+import DragDropManager from '../tool-palette/drag-drop-manager';
+import './statement-decorator.css';
 
 const text_offset = 50;
 
 class StatementView extends React.Component {
 
+	constructor(props) {
+		super(props);
+	}
+
 	render() {
-		const { bBox, expression } = this.props;
+		const { bBox, expression, model} = this.props;
 		// we need to draw a drop box above and a statement box
 		let statement_h = bBox.h - statement.gutter.v;
 		let statement_y = bBox.y + statement.gutter.v;
 		const text_x = bBox.x + (bBox.w / 2);
 		const text_y = statement_y + (statement_h / 2);
 		let drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
-		return (<g>
-			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v} className="inner-drop-zone" />
+		let dropZoneActivated = model.viewState.dropZoneActivated || false;
+		return (<g className="statement" >
+			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
+					className={(!dropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active"}
+			 		onMouseOver={(e) => this.onDropZoneActivate(e)}
+					onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
 			<rect x={bBox.x} y={statement_y} width={bBox.w} height={statement_h} className="statement-rect" />
 			<g className="statement-body">
 				<text x={text_x} y={text_y} className="statement-text">{expression}</text>
 			</g>
 		</g>);
 	}
+
+	onDropZoneActivate (e) {
+			let dragDropManager = this.context.dragDropManager;
+			this.props.model.setAttribute('viewState.dropZoneActivated', true);
+	}
+
+	onDropZoneDeactivate (e) {
+			let dragDropManager = this.context.dragDropManager;
+			this.props.model.setAttribute('viewState.dropZoneActivated', false);
+	}
+
 }
 
 StatementView.propTypes = {
@@ -49,7 +71,12 @@ StatementView.propTypes = {
 		w: React.PropTypes.number.isRequired,
 		h: React.PropTypes.number.isRequired,
 	}),
-	expression: PropTypes.string.isRequired
+	expression: PropTypes.string.isRequired,
+	model: PropTypes.instanceOf(ASTNode).isRequired
+};
+
+StatementView.contextTypes = {
+	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
 };
 
 

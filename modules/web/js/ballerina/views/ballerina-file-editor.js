@@ -252,8 +252,9 @@ class BallerinaFileEditor extends BallerinaView {
                 height : this._$canvasContainer.height()
             };
             //create Rect component for diagram
-            let root = React.createElement(BallerinaDiagram, { 
-                model: this._model
+            let root = React.createElement(BallerinaDiagram, {
+                model: this._model,
+                dragDropManager: this.toolPalette.dragDropManager
             }, null);
             ReactDOM.render(
               root,

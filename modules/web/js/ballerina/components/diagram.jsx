@@ -17,11 +17,14 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import CanvasDecorator from './canvas-decorator';
 import FunctionDefinition from './function-definition';
 import PositionCalcVisitor from '../visitors/position-calculator-visitor';
 import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor';
 import {getComponentForNodeArray} from './utils';
+import DragDropManager from '../tool-palette/drag-drop-manager';
+import ASTRoot from '../ast/ballerina-ast-root';
 
 class Diagram extends React.Component {
 
@@ -74,6 +77,25 @@ class Diagram extends React.Component {
                    {others}
                </CanvasDecorator>
     }
+
+    getChildContext() {
+       return { dragDropManager: this.props.dragDropManager };
+    }
 }
+
+Diagram.propTypes = {
+	bBox: PropTypes.shape({
+		x: PropTypes.number.isRequired,
+		y: PropTypes.number.isRequired,
+		w: PropTypes.number.isRequired,
+		h: PropTypes.number.isRequired,
+	}),
+  model: PropTypes.instanceOf(ASTRoot).isRequired,
+  dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
+}
+
+Diagram.childContextTypes = {
+    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
+};
 
 export default Diagram;
