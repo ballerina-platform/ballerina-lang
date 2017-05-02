@@ -53,13 +53,40 @@ class StatementView extends React.Component {
 	}
 
 	onDropZoneActivate (e) {
-			let dragDropManager = this.context.dragDropManager;
-			this.props.model.setAttribute('viewState.dropZoneActivated', true);
+			const dragDropManager = this.context.dragDropManager,
+						dropTarget = this.props.model.getParent(),
+						model = this.props.model;
+			if(dragDropManager.isOnDrag()) {
+					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+							return;
+					}
+					dragDropManager.setActivatedDropTarget(dropTarget,
+							(nodeBeingDragged) => {
+									// IMPORTANT: override node's default validation logic
+									// This drop zone is for statements only.
+									// Statements should only be allowed here.
+									return model.getFactory().isStatement(nodeBeingDragged);
+							},
+							() => {
+									return dropTarget.getIndexOfChild(model);
+							}
+					);
+					this.props.model.setAttribute('viewState.dropZoneActivated', true);
+					dragDropManager.once('drop-target-changed', function(){
+							model.setAttribute('viewState.dropZoneActivated', false);
+					});
+			}
 	}
 
 	onDropZoneDeactivate (e) {
-			let dragDropManager = this.context.dragDropManager;
-			this.props.model.setAttribute('viewState.dropZoneActivated', false);
+			const dragDropManager = this.context.dragDropManager,
+						dropTarget = this.props.model.getParent();
+			if(dragDropManager.isOnDrag()){
+					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+							dragDropManager.clearActivatedDropTarget();
+							this.props.model.setAttribute('viewState.dropZoneActivated', false);
+					}
+			}
 	}
 
 }
