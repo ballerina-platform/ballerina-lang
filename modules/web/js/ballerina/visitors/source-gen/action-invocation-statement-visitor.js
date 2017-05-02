@@ -25,6 +25,10 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
         super(parent);
     }
 
+    canVisitActionInvocationExpression(actionInvocation) {
+        return true;
+    }
+
     canVisitActionInvocationStatement(actionInvocationStatement) {
         return true;
     }

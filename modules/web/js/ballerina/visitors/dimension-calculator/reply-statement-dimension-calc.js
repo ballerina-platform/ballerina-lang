@@ -15,24 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
-import React from 'react';
-import PropTypes from 'prop-types';
+import log from 'log';
+import * as DesignerDefaults from './../../configs/designer-defaults';
+import {util} from './../sizing-utils';
 
-class StatementContainer extends React.Component {
+class ReplyStatementDimensionCalculatorVisitor {
 
-    constructor(props) {
-        super(props);
+    canVisit(node) {
+        return true;
     }
 
-    render() {
-        const bBox = this.props.bBox;
-        return (<g className="statement-container">
-            <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h } className="main-drop-zone"></rect>
-            {this.props.children}
-        </g>);
+    beginVisit(node) {
+    }
+
+    visit(node) {
+    }
+
+    endVisit(node) {
+        util.populateSimpleStatementBBox( node.getReplyExpression() , node.getViewState());
     }
 }
 
-
-export default StatementContainer;
+export default ReplyStatementDimensionCalculatorVisitor;

@@ -23,7 +23,9 @@ class PositionCalculatorVisitor {
     canVisit(node) {
         if(Visitors[node.getType() + 'PositionCalcVisitor']) {
             var nodeVisitor = new Visitors[node.getType() + 'PositionCalcVisitor']();
-            return nodeVisitor['canVisit' + node.getType() + 'PositionCalc'](node);
+            return nodeVisitor['canVisit'](node);
+        }else{
+            console.log("Unable to find position visitor for : " + node.getType());
         }
 
         return undefined;
@@ -32,7 +34,7 @@ class PositionCalculatorVisitor {
     visit(node) {
         if (Visitors[node.getType() + 'PositionCalcVisitor']) {
             var nodeVisitor = new Visitors[node.getType() + 'PositionCalcVisitor']();
-            return nodeVisitor['visit' + node.getType() + 'PositionCalc'](node);
+            return nodeVisitor['visit'](node);
         }
         return undefined;
     }
@@ -40,7 +42,7 @@ class PositionCalculatorVisitor {
     beginVisit(node) {
         if (Visitors[node.getType() + 'PositionCalcVisitor']) {
             var nodeVisitor = new Visitors[node.getType() + 'PositionCalcVisitor']();
-            return nodeVisitor['beginVisit' + node.getType() + 'PositionCalc'](node);
+            return nodeVisitor['beginVisit'](node);
         }
         return undefined;
     }
@@ -48,7 +50,7 @@ class PositionCalculatorVisitor {
     endVisit(node) {
         if(Visitors[node.getType() + 'PositionCalcVisitor']) {
             var nodeVisitor = new Visitors[node.getType() + 'PositionCalcVisitor']();
-            return nodeVisitor['endVisit' + node.getType() + 'PositionCalc'](node);
+            return nodeVisitor['endVisit'](node);
         }
         return undefined;
     }

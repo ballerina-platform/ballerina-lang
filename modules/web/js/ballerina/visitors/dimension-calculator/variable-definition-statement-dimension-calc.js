@@ -15,26 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import log from 'log';
+import * as DesignerDefaults from './../../configs/designer-defaults';
+import {util} from './../sizing-utils';
 
-class StatementPositionCalcVisitor {
+
+class VariableDefinitionStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('can visit StatementPositionCalc');
+        log.debug('Begin visit VariableDefinitionStatementDimensionCalculatorVisitor');
+        return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit StatementPositionCalc');
     }
 
     visit(node) {
-        log.debug('visit StatementPositionCalc');
     }
 
     endVisit(node) {
-        log.debug('end visit StatementPositionCalc');
+        log.debug('End visit VariableDefinitionStatementDimensionCalculatorVisitor');
+        util.populateSimpleStatementBBox( node.getStatementString() , node.getViewState());
     }
 }
 
-export default StatementPositionCalcVisitor;
+export default VariableDefinitionStatementDimensionCalculatorVisitor;

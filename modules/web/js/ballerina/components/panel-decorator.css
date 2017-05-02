@@ -1,0 +1,17 @@
+.panel-slide-enter {
+  opacity: 0.01;
+}
+
+.panel-slide-enter.panel-slide-enter-active {
+  opacity: 1;
+  transition: opacity 300ms ease-in;
+}
+
+.panel-slide-leave {
+  opacity: 1;
+}
+
+.panel-slide-leave.panel-slide-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}

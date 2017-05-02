@@ -1,15 +1,39 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import React from 'react'
 import ResourceDefinition from './resource-definition.jsx'
 import StatementView from './statement-decorator.jsx'
 import PanelDecorator from './panel-decorator';
+import {getComponentForNodeArray} from './utils';
 
 class ServiceDefinition extends React.Component {
 
     render() {
-        const bBox = this.props.bBox;
-        return (<PanelDecorator title={this.props.name} bBox={bBox}>
-                    <ResourceDefinition name="echo-resource" bBox={{x: 75, w:800, y:75, h:800}}>
-                    </ResourceDefinition>
+        let model = this.props.model;
+        let bBox = model.viewState.bBox;
+
+        //get the service name
+        let title = model.getServiceName();
+
+        var children = getComponentForNodeArray(this.props.model.getChildren());
+        return (<PanelDecorator  icon="service" title={title} bBox={bBox} model={model}>
+                {children}
                 </PanelDecorator>);
     }
 }

@@ -473,6 +473,11 @@ text-anchor: start;
     fill-opacity: 0.2;
 }
 
+/* temporary need to remove*/
+.inner-drop-zone{
+    fill-opacity: 0;
+}
+
 .statement-container .inner-drop-zone{
     fill-opacity: 0;
     fill: #008000;

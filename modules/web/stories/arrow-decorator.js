@@ -17,10 +17,10 @@
  */
 
 import React from 'react';
-import {storiesOf, action, linkTo} from '@kadira/storybook';
+import { storiesOf, action, linkTo } from '@kadira/storybook';
 import CanvasDecorator from '../js/ballerina/components/canvas-decorator';
-import StatementContainer from '../js/ballerina/components/statement-container';
-import { components } from '../js/ballerina/components/components';
+import ArrowDecorator from '../js/ballerina/components/arrow-decorator';
+import components from '../js/ballerina/components/components';
 import '../css/diagram/diagram.css';
 
 const canvasBbox = {
@@ -28,20 +28,25 @@ const canvasBbox = {
   h: 500
 };
 
-storiesOf('Variable-Definition-Statement', module)
-    .add('default view', () => {
-        const variableDefinitionStatement = React.createElement(components['VariableDefinitionStatement'],
-            {
-                model: {
-                    viewState: {bBox: {x: 0, y: 0, w: 200, h: 50}},
-                    expression: "int a = b"
-                }
-            }, null);
-        return (
-            <CanvasDecorator bBox={canvasBbox}>
-                <StatementContainer>
-                    {variableDefinitionStatement}
-                </StatementContainer>
-            </CanvasDecorator>
-        );
-    });
+storiesOf('ArrowDecorator', module)
+  .add('default view', () => {
+    return (
+      <CanvasDecorator bBox={canvasBbox}>
+          <ArrowDecorator start={{x: 10, y: 10}} end={{x: 300, y: 10}}/>
+      </CanvasDecorator>
+    );
+  })
+  .add('angled arrow', () => {
+    return (
+      <CanvasDecorator bBox={canvasBbox}>
+          <ArrowDecorator start={{x: 0, y: 0}} end={{x: 320, y: 100}}/>
+      </CanvasDecorator>
+    );
+  })
+  .add('dashed arrow', () => {
+    return (
+      <CanvasDecorator bBox={canvasBbox}>
+          <ArrowDecorator start={{x: 10, y: 10}} end={{x: 300, y: 10}} dashed />
+      </CanvasDecorator>
+    );
+  });

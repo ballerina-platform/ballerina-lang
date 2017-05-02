@@ -18,14 +18,13 @@
 
 import log from 'log';
 import _ from 'lodash';
-import * as DesignerDefaults from './../../configs/designer-defaults';
 import ASTFactory from './../../ast/ballerina-ast-factory';
-import {panel} from './../../configs/designer-defaults';
+import * as DesignerDefaults from './../../configs/designer-defaults';
 
-class ServiceDefinitionPositionCalcVisitor {
+class FunctionDefinitionPositionCalcVisitor {
 
     canVisit(node) {
-        log.debug('can visit ServiceDefinitionPositionCalc');
+        log.debug('can visit FunctionDefinitionPositionCalc');
         return true;
     }
 
@@ -39,17 +38,19 @@ class ServiceDefinitionPositionCalcVisitor {
         });
         let heading = viewSate.components.heading;
         let body = viewSate.components.body;
-        let currentServiceIndex = _.findIndex(panelChildren, node);
+        let currentFunctionIndex = _.findIndex(panelChildren, node);
+        let statementContainer = viewSate.components.statementContainer;
+        let defaultWorker = viewSate.components.defaultWorker;
         let x, y, headerX, headerY, bodyX, bodyY;
-        if (currentServiceIndex === 0) {
+        if (currentFunctionIndex === 0) {
             headerX = DesignerDefaults.panel.wrapper.gutter.h;
             headerY = DesignerDefaults.panel.wrapper.gutter.v;
-        } else if (currentServiceIndex > 0) {
-            let previousServiceBBox = panelChildren[currentServiceIndex - 1].getViewState().bBox;
+        } else if (currentFunctionIndex > 0) {
+            let previousPanelBBox = panelChildren[currentFunctionIndex - 1].getViewState().bBox;
             headerX = DesignerDefaults.panel.wrapper.gutter.h;
-            headerY = previousServiceBBox.y + previousServiceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
+            headerY = previousPanelBBox.y + previousPanelBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
         } else {
-            throw 'Invalid Index for Service Definition';
+            throw 'Invalid Index for Function Definition';
         }
 
         x = headerX;
@@ -64,27 +65,23 @@ class ServiceDefinitionPositionCalcVisitor {
         body.x = bodyX;
         body.y = bodyY;
 
-        // here we need to re adjest resource width to match the service width.
-        let children = node.getChildren();
-        // make sure you substract the panel padding to calculate the min width of a resource.
-        let minWidth = node.getViewState().bBox.w - ( panel.body.padding.left + panel.body.padding.right );
-        children.forEach(function(element) {
-            //@todo take connectors in to account.
-            let viewState = element.getViewState();
-            // if the service width is wider than resource width we will readjest. 
-            if(viewState.bBox.w < minWidth){
-                viewState.bBox.w = minWidth;
-            }
-        }, this);       
+        statementContainer.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
+        statementContainer.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
+            DesignerDefaults.lifeLine.head.height;
+
+        //defaultWorker.x = statementContainer.x + (statementContainer.w - defaultWorker.w)/2;
+        //defaultWorker.y = statementContainer.y - DesignerDefaults.lifeLine.head.height;
+
+        log.debug('begin visit FunctionDefinitionPositionCalc');
     }
 
     visit(node) {
-        log.debug('visit ServiceDefinitionPositionCalc');
+        log.debug('visit FunctionDefinitionPositionCalc');
     }
 
     endVisit(node) {
-        log.debug('end visit ServiceDefinitionPositionCalc');
+        log.debug('end visit FunctionDefinitionPositionCalc');
     }
 }
 
-export default ServiceDefinitionPositionCalcVisitor;
+export default FunctionDefinitionPositionCalcVisitor;

@@ -15,24 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
-import React from 'react';
-import PropTypes from 'prop-types';
 
-class StatementContainer extends React.Component {
+// require all react images
+function requireAll(requireContext) {
+    let components = {};
+    requireContext.keys().map((item) => {
+        var module = requireContext(item);
+        if (module) {
+            components[_getBasename(item, '.svg')] = module;
+        }
+    });
+    return components;
+}
 
-    constructor(props) {
-        super(props);
-    }
+function _getBasename(filename, ext) {
+    return filename.substring(2, filename.indexOf(ext));
+}
 
-    render() {
-        const bBox = this.props.bBox;
-        return (<g className="statement-container">
-            <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h } className="main-drop-zone"></rect>
-            {this.props.children}
-        </g>);
+const images = requireAll(require.context('images', true, /\.svg$/));
+
+class ImageUtils {
+    static getSVGIconString (iconName) {
+        return images[iconName];
     }
 }
 
-
-export default StatementContainer;
+export default ImageUtils;

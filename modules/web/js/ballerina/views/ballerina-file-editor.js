@@ -37,6 +37,7 @@ import alerts from 'alerts';
 import 'typeahead.js';
 import FindBreakpointsVisitor from './../visitors/find-breakpoints-visitor';
 import DimensionCalculatorVisitor from './../visitors/dimension-calculator-visitor';
+import PositionCalculatorVisitor from './../visitors/position-calculator-visitor';
 import DebugManager from './../../debugger/debug-manager';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -244,9 +245,16 @@ class BallerinaFileEditor extends BallerinaView {
 
         var importDeclarations = [];
         if(!this._parseFailed) {
-            var dimensionCalculatorVisitor = new DimensionCalculatorVisitor();
-            this._model.accept(dimensionCalculatorVisitor);
-            let root = React.createElement(BallerinaDiagram, { model: this._model }, null);
+            //pass the container width and height to root view state.
+            let viewState = this._model.getViewState();
+            viewState.container = {
+                width : this._$canvasContainer.width(),
+                height : this._$canvasContainer.height()
+            };
+            //create Rect component for diagram
+            let root = React.createElement(BallerinaDiagram, { 
+                model: this._model
+            }, null);
             ReactDOM.render(
               root,
               this._$canvasContainer[0]

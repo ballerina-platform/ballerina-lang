@@ -1,38 +1,86 @@
-import React from 'react'
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import React from 'react';
+import ImageUtil from './image-util';
+import PropTypes from 'prop-types';
+import ASTNode from '../ast/node';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import './panel-decorator.css';
 
 class PanelDecorator extends React.Component {
+
+    constructor(props) {
+        super(props);
+    }
+
+    onCollapseClick() {
+        this.props.model.setAttribute('viewState.collapsed', !this.props.model.viewState.collapsed);
+    }
+
+    onDelete() {
+        this.props.model.remove();
+    }
 
     render() {
         const bBox = this.props.bBox;
         const titleHeight = 25;
         const iconSize = 14;
-        return ( <g>
-                     <g>
+        const collapsed = this.props.model.viewState.collapsed|| false;
+        return ( <g className="panel">
+                     <g className="panel-header">
                          <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleHeight } rx="0" ry="0" className="headingRect" data-original-title="" title=""></rect>
                          <text x={ bBox.x + titleHeight } y={ bBox.y + titleHeight / 2 + 5 }>{this.props.title}</text>
-                         <g>
-                             <rect x={ bBox.x + bBox.w - 25} y={ bBox.y + 1} width={ titleHeight - 1 } height={ titleHeight - 1 } rx="0" ry="0" className="heading-icon-wrapper hoverable heading-icon-collpase-wrapper" data-original-title="" title=""></rect>
-                             <rect x={ bBox.x + bBox.w - 19.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize } rx="0" ry="0" title="" className="headingExpandIcon" style={{opacity: 0.4}} data-original-title="Collapse Pane"></rect>
+                         <image x={bBox.x + 5} y={bBox.y + 5} width={iconSize} height={iconSize} xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}/>
+                         <g className="panel-header-controls">
+                             <image x={ bBox.x + bBox.w - 44.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize } className="control"
+                                  xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}/>
+                             <line x1={ bBox.x + bBox.w - 50} y1={ bBox.y + 5} x2={ bBox.x + bBox.w - 50} y2={ bBox.y + 20} className="operations-separator"></line>
+                             <image x={ bBox.x + bBox.w - 19.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize }  className="control"
+                                  xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')} onClick={() => this.onCollapseClick()}/>
                              <line x1={ bBox.x + bBox.w - 25} y1={ bBox.y + 5} x2={ bBox.x + bBox.w - 25} y2={ bBox.y + 20} className="operations-separator"></line>
-                             <line x1={ bBox.w } y1={ bBox.y + 5} x2={ bBox.w } y2={ bBox.y + 20} className="operations-separator"></line>
-                             <line x1={ bBox.x + bBox.w - 75} y1={ bBox.y + 5} x2={ bBox.x + bBox.w - 75} y2={ bBox.y + 20} className="operations-separator"></line>
-                             <line x1={ bBox.x + bBox.w - 100} y1={ bBox.y + 5} x2={ bBox.x + bBox.w - 100} y2={ bBox.y + 20} className="operations-separator"></line>
-                             <rect x={ bBox.w } y={ bBox.y + 1} width={ titleHeight - 1 } height={ titleHeight - 2 } rx="0" ry="0" className="heading-icon-wrapper heading-icon-delete-wrapper" data-original-title="" title=""></rect>
-                             <rect x={ bBox.x + bBox.w - 44.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize } rx="0" ry="0" className="headingDeleteIcon" style={{opacity: 0.4}} data-original-title="" title=""></rect>
-                             <rect x={ bBox.x + bBox.w - 75} y={ bBox.y + 1} width={ titleHeight - 1 } height={ titleHeight - 2 } rx="0" ry="0" className="heading-icon-wrapper heading-icon-annotation-wrapper" data-original-title="" title=""></rect>
-                             <rect x={ bBox.x + bBox.w - 59.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize } rx="0" ry="0" title="" className="headingAnnotationBlackIcon" style={{opacity: 0.4}} data-original-title="Annotations"></rect>
-                             <rect x={ bBox.x + bBox.w - 100} y={ bBox.y + 1} width={ titleHeight - 1 } height={ titleHeight - 2 } rx="0" ry="0" className="heading-icon-wrapper heading-icon-arguments-wrapper" data-original-title="" title=""></rect>
-                             <rect x={ bBox.x + bBox.w - 94.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize } rx="0" ry="0" title="" className="headingArgumentsBlackIcon" style={{opacity: 0.4}} data-original-title="Arguments"></rect>
                          </g>
-                         <rect x={ bBox.x + 1 } y={ bBox.y + 1} width={ titleHeight } height={ titleHeight } rx="0" ry="0" className="resourceHeadingIconHolder" data-original-title="" title=""></rect>
-                         <rect x={ bBox.x } y={ bBox.y } width={ titleHeight } height={ titleHeight } rx="0" ry="0" className="headingRectIcon" data-original-title="" title=""></rect>
                      </g>
-                     <g>
-                         <rect x={ bBox.x } y={ bBox.y + titleHeight} width={ bBox.w } height={ bBox.h - titleHeight } rx="0" ry="0" className="resource-content" fill="#fff"></rect>
+                     <g className="panel-body">
+                        <CSSTransitionGroup
+                           component="g"
+                           transitionName="panel-slide"
+                           transitionEnterTimeout={300}
+                           transitionLeaveTimeout={300}>
+                              { !collapsed &&
+                                   <rect x={ bBox.x } y={ bBox.y + titleHeight} width={ bBox.w } height={ bBox.h - titleHeight } rx="0" ry="0" className="resource-content" fill="#fff"></rect>
+                              }
+                              { !collapsed && this.props.children}
+                        </CSSTransitionGroup>
                      </g>
-                     {this.props.children}
                  </g>);
     }
+}
+
+
+PanelDecorator.propTypes = {
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired,
+    }),
+    model: PropTypes.instanceOf(ASTNode).isRequired
 }
 
 export default PanelDecorator;

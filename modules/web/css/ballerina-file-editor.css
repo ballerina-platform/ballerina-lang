@@ -18,8 +18,6 @@
 }
 
 .canvas-container {
-    padding-left: 20px;
-    padding-top: 20px;
     padding-bottom: 120px;
     float: left;
     height: auto;
@@ -859,4 +857,13 @@ input#package-name-input {
 
 .expression-editor-form-body-property-wrapper .ace_ballerina-keyword-non-primitive-type{
     color: #f39100;
+}
+
+.panel > .panel-header > .panel-header-controls > .control {
+    opacity: 0.4;
+    cursor: pointer;
+}
+
+.panel > .panel-header > .panel-header-controls > .control:hover {
+    opacity: 1;
 }

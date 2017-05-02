@@ -15,24 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
-import React from 'react';
-import PropTypes from 'prop-types';
 
-class StatementContainer extends React.Component {
+import log from 'log';
+import * as Utils from './utils';
 
-    constructor(props) {
-        super(props);
+class FunctionInvocationStatementPositionCalcVisitor {
+
+    canVisit(node) {
+        log.debug('can visit FunctionInvocationStatementPositionCalc');
+        return true;
     }
 
-    render() {
-        const bBox = this.props.bBox;
-        return (<g className="statement-container">
-            <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h } className="main-drop-zone"></rect>
-            {this.props.children}
-        </g>);
+    beginVisit(node) {
+        log.debug('begin visit FunctionInvocationStatementPositionCalc');
+        Utils.getSimpleStatementPosition(node);
+    }
+
+    visit(node) {
+        log.debug('visit FunctionInvocationStatementPositionCalc');
+    }
+
+    endVisit(node) {
+        log.debug('end visit FunctionInvocationStatementPositionCalc');
     }
 }
 
-
-export default StatementContainer;
+export default FunctionInvocationStatementPositionCalcVisitor;

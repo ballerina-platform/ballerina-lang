@@ -28,8 +28,8 @@ class VariableDefinitionStatement extends React.Component {
      * */
     render() {
         let model = this.props.model,
-            bBox = model.viewState.bBox,
-            expression = model.expression;
+            bBox = model.viewState.bBox;
+        let expression = model.viewState.expression;
         return (<StatementDecorator bBox={bBox} expression={expression}/>);
     }
 }
@@ -40,9 +40,6 @@ VariableDefinitionStatement.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired
-    }),
-    expression: PropTypes.shape({
-        expression: PropTypes.string
     })
 };
 

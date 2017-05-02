@@ -30,6 +30,10 @@ class FunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
         return true;
     }
 
+    canVisitFuncInvocationExpression(functionInvocation) {
+        return true;
+    }
+
     visitFuncInvocationExpression(functionInvocation) {
         this.appendSource(functionInvocation.getFunctionalExpression());
     }

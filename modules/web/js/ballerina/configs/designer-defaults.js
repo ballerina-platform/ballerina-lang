@@ -16,26 +16,6 @@
  * under the License.
  */
 
-export const resourceDefinitionDimensions = {
-    width: 400,
-    panelBody: {
-        height: 200
-    },
-    panelHeading: {
-        height: 25
-    }
-};
-
-export const functionDefinitionDimensions = {
-    width: 400,
-    panelBody: {
-        height: 200
-    },
-    panelHeading: {
-        height: 25
-    }
-};
-
 export const panel = {
     wrapper: {
         gutter: {
@@ -49,7 +29,8 @@ export const panel = {
             right: 0,
             bottom: 0,
             left: 0
-        }
+        },
+        height:25
     },
     body: {
         padding: {
@@ -57,15 +38,16 @@ export const panel = {
             right: 50,
             bottom: 50,
             left: 50
-        }
+        },
+        height: 200
     }
 };
 
 export const innerPanel = {
     wrapper: {
         gutter: {
-            v: 0,
-            h: 0
+            v: 50,
+            h: 50
         }
     },
     heading: {
@@ -98,23 +80,55 @@ export const lifeLine = {
         height: 320
     },
     gutter: {
-        v: 0,
+        v: 50,
         h: 50
     }
 };
 
 export const statement = {
-    minWidth: 120,
-    minHeight: 30,
+    width: 120,
+    height: 30,
     gutter: {
-        v: 30,
+        v: 25,
         h: 0
-    }
+    },
+    padding: {
+        top: 5,
+        right: 5,
+        bottom: 5,
+        left: 5
+    },
+    maxWidth: 300
 };
 
 export const blockStatement = {
-    title : {
+    heading : {
         width: 50,
-        height: statement.minHeight
+        height: statement.height
+    },
+    body: {
+        padding: {
+            top: 50,
+            right: 50,
+            bottom: 50,
+            left: 50
+        },
+        height: 200
     }
+};
+
+export const canvas = {
+    body: {
+        padding: {
+            top: 50,
+            right: 50,
+            bottom: 50,
+            left: 50
+        },
+    }
+};
+
+export const statementContainer = {
+    width: 120,
+    height: 400
 };

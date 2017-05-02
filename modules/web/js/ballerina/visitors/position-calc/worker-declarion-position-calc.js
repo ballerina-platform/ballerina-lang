@@ -23,12 +23,12 @@ import * as DesignerDefaults from './../../configs/designer-defaults';
 
 class WorkerDeclarationPositionCalcVisitor {
 
-    canVisitWorkerDeclarationPositionCalc(node) {
+    canVisit(node) {
         log.debug('can visit ServiceDefinitionPositionCalc');
         return true;
     }
 
-    beginVisitWorkerDeclarationPositionCalc(node) {
+    beginVisit(node) {
         let viewState = node.getViewState();
         let bBox = viewState.bBox;
         let parent = node.getParent();
@@ -37,47 +37,39 @@ class WorkerDeclarationPositionCalcVisitor {
             return child instanceof AST.WorkerDeclaration;
         });
         let workerIndex = _.findIndex(workers, node);
-        let x, y, middleLineStartX, middleLineStartY, middleLineEndX, middleLineEndY, topRectX, topRectY, bottomRectX, bottomRectY;
+        let x, y;
 
         if (workerIndex === 0) {
-            topRectX = parentViewState.components.body.x() + DesignerDefaults.innerPanel.body.padding.left;
-            topRectY = parentViewState.components.body.y() + DesignerDefaults.innerPanel.body.padding.top;
+            /**
+             * Always the first worker should place after the default worker lifeline. If in a case like fork-join
+             * we keep the first worker right next to the parent statement boundary.
+             */
+            if (parentViewState.components.statementContainer) {
+                x = parentViewState.components.statementContainer.getRight() +
+                    DesignerDefaults.lifeLine.gutter.h;
+            } else {
+                x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h;
+            }
         } else if (workerIndex > 0) {
-            let previousWorker = workers[workerIndex - 1];
-            let previousWorkerViewState = previousWorker.getViewState();
-            topRectX = previousWorkerViewState.components.body.x() + DesignerDefaults.innerPanel.body.padding.left;
-            topRectY = parentViewState.components.body.y() + DesignerDefaults.innerPanel.body.padding.top;
+            const previousWorker = workers[workerIndex - 1];
+            const previousStatementContainer = previousWorker.getViewState().components.statementContainer;
+            x = previousStatementContainer.getRight() + DesignerDefaults.innerPanel.body.padding.left;
         } else {
             throw "Invalid index found for Worker Declaration";
         }
+        y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
 
-        x = topRectX;
-        y = topRectY;
-        bottomRectX = topRectX;
-        bottomRectY = topRectY + DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.line.height;
-        middleLineStartX = topRectX + viewState.components.topRect.w()/2;
-        middleLineStartY = topRectY + viewState.components.topRect.h();
-        middleLineEndX = middleLineStartX;
-        middleLineEndY = middleLineStartY + DesignerDefaults.lifeLine.line.height;
-
-        bBox.x(x).y(y);
-        (viewState.components.topRect).x(topRectX).y(topRectY);
-        (viewState.components.bottomRect).x(bottomRectX).y(bottomRectY);
-        viewState.components.line.topX = middleLineStartX;
-        viewState.components.line.topY = middleLineStartY;
-        viewState.components.line.bottomX = middleLineEndX;
-        viewState.components.line.bottomY = middleLineEndY;
-
-        log.debug('begin visit WorkerDeclarationPositionCalc');
+        bBox.x = x;
+        bBox.y = y;
+        viewState.components.statementContainer.x = x;
+        viewState.components.statementContainer.y = y + DesignerDefaults.lifeLine.head.height;
     }
 
-    visitWorkerDeclarationPositionCalc(node) {
-        log.debug('visit WorkerDeclarationPositionCalc');
+    visit(node) {
     }
 
-    endVisitWorkerDeclarationPositionCalc(node) {
-        log.debug('end visit WorkerDeclarationPositionCalc');
+    endVisit(node) {
     }
 }
 
-export default ServiceDefinitionPositionCalcVisitor;
+export default WorkerDeclarationPositionCalcVisitor;

@@ -17,69 +17,27 @@
  */
 
 import log from 'log';
-import _ from 'lodash';
-import ASTFactory from './../../ast/ballerina-ast-factory';
-import * as DesignerDefaults from './../../configs/designer-defaults';
+import * as PositioningUtils from './utils';
 
-class StatementPositionCalcVisitor {
+class AssignmentStatementPositionCalcVisitor {
 
-    canVisitAssignmentStatementPositionCalc(node) {
-        log.debug('can visit StatementPositionCalc');
+    canVisit(node) {
+        log.debug('can visit AssignmentStatementPositionCalc');
         return true;
     }
 
-    beginVisitAssignmentStatementPositionCalc(node) {
-        log.debug('begin visit StatementPositionCalc');
-        let viewState = node.getViewState();
-        let bBox = viewState.bBox;
-        let parent = node.getParent();
-        let parentViewState = parent.getViewState();
-        let parentStatementContainer = parentViewState.component.statementContainer;
-        let parentStatements = _.filter(parent.getChildren(), function (child) {
-            return ASTFactory.isStatement(child);
-        });
-        let statementIndex = _.findIndex(parentStatements, node);
-        let x, y;
-
-        /**
-         * Statements are positioned based on the positioning of the respective statement container of the parent
-         * Therefore all the positioning logic takes in to consider, the positioning and the dimensions of the
-         * Particular statement container
-         */
-
-        if (bBox.w() > parentStatementContainer.w()) {
-            /**
-             * Ideally the statementContainerW <= statementWidth, otherwise the calculations have been off
-             * Ideally we won't reach this
-             */
-            throw "Statement Container width cannot be less than Statement's Width";
-        }
-
-        /**
-         * X position calculation, centers the statement horizontally inside the statement container
-         */
-        x = parentStatementContainer.x() + (parentStatementContainer.w() - bBox.w())/2;
-
-        if (statementIndex === 0) {
-            y = parentStatementContainer.y() + DesignerDefaults.statement.gutter.v;
-        } else if (statementIndex > 0) {
-            y = parentStatements[statementIndex - 1].getViewState().bBox.y() +
-                parentStatements[statementIndex - 1].getViewState().bBox.h() + DesignerDefaults.statement.gutter.v
-        } else {
-            throw "Invalid Index found for Statement";
-        }
-
-        bBox.x(x);
-        bBox.y(y);
+    beginVisit(node) {
+        log.debug('visit AssignmentStatementPositionCalc');
+        PositioningUtils.getSimpleStatementPosition(node);
     }
 
-    visitAssignmentStatementPositionCalc(node) {
-        log.debug('visit StatementPositionCalc');
+    visit(node) {
+        log.debug('visit AssignmentStatementPositionCalc');
     }
 
-    endVisitAssignmentStatementPositionCalc(node) {
-        log.debug('end visit StatementPositionCalc');
+    endVisit(node) {
+        log.debug('end visit AssignmentStatementPositionCalc');
     }
 }
 
-export default StatementPositionCalcVisitor;
+export default AssignmentStatementPositionCalcVisitor;

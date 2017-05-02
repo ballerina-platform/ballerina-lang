@@ -37,6 +37,22 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
+    canVisitStatement(statement) {
+        return true;
+    }
+
+    canVisitConnectorDeclaration(connectorDeclaration) {
+        return true;
+    }
+
+    canVisitResourceDefinition(resourceDefinition) {
+        return true;
+    }
+
+    canVisitVariableDeclaration(variableDeclaration) {
+        return true;
+    }
+
     beginVisitServiceDefinition(serviceDefinition) {
         /**
          * set the configuration start for the service definition language construct

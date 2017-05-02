@@ -21,27 +21,24 @@ import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
-class ResourceDefinitionDimensionCalculatorVisitor {
+class WorkerDeclarationDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('can visit ResourceDefinitionDimensionCalc');
+        log.debug('can visit WorkerDeclarationDimensionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit ResourceDefinitionDimensionCalc');
+        log.debug('begin visit WorkerDeclarationDimensionCalc');
     }
 
     visit(node) {
-        log.debug('visit ResourceDefinitionDimensionCalc');
+        log.debug('visit WorkerDeclarationDimensionCalc');
     }
 
     endVisit(node) {
         var viewState = node.getViewState();
         var components = {};
-
-        components['heading'] = new SimpleBBox();
-        components['heading'].h = DesignerDefaults.panel.heading.height;
 
         components['statementContainer'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
@@ -61,25 +58,14 @@ class ResourceDefinitionDimensionCalculatorVisitor {
          */
         statementHeight += DesignerDefaults.statement.gutter.v;
 
+        viewState.bBox.h = statementHeight + DesignerDefaults.lifeLine.head.height * 2;
+        viewState.bBox.w = statementWidth;
+
         components['statementContainer'].h = statementHeight;
         components['statementContainer'].w = statementWidth;
-
-        components['body'] = new SimpleBBox();
-
-        const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
-        if(node.viewState.collapsed) {
-            components['body'].h = 0;
-        } else {
-            components['body'].h = ((DesignerDefaults.panel.body.height < workerLifeLineHeight)? workerLifeLineHeight:DesignerDefaults.panel.body.height)
-                               + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
-        }
-        components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
-
-        viewState.bBox.h = components['heading'].h + components['body'].h;
-        viewState.bBox.w = components['heading'].w + components['body'].w;
 
         viewState.components = components;
     }
 }
 
-export default ResourceDefinitionDimensionCalculatorVisitor;
+export default WorkerDeclarationDimensionCalculatorVisitor;

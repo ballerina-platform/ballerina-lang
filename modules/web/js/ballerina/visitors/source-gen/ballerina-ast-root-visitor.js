@@ -34,7 +34,43 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
         super();
     }
 
-    canVisitBallerinaASTRoot(serviceDefinition) {
+    canVisitBallerinaASTRoot(astRoot) {
+        return true;
+    }
+
+    canVisitServiceDefinition(serviceDefinition) {
+        return true;
+    }
+
+    canVisitAnnotationDefinition(annotationDefinition) {
+        return true;
+    }
+
+    canVisitConnectorDefinition(connectionDefinition) {
+        return true;
+    }
+
+    canVisitFunctionDefinition(functionDefinition) {
+        return true;
+    }
+
+    canVisitStructDefinition(structDefinition) {
+        return true;
+    }
+
+    canVisitTypeMapperDefinition(typeMapperDefinition) {
+        return true;
+    }
+
+    canVisitPackageDefinition(packageDefinition) {
+        return true;
+    }
+
+    canVisitImportDeclaration(importDeclaration) {
+        return true;
+    }
+
+    canVisitConstantDefinition(constantDefinition) {
         return true;
     }
 
@@ -97,4 +133,3 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
 }
 
 export default BallerinaASTRootVisitor;
-    

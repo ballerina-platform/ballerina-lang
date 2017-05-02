@@ -22,9 +22,9 @@ import PropTypes from 'prop-types';
 class FunctionInvocationStatement extends React.Component {
 
 	render() {
-		let model = this.props.model,
-			expression = model.expression,
-				bBox = model.viewState.bBox;
+		let model = this.props.model;
+		let bBox = model.viewState.bBox;
+		let expression = model.viewState.expression;
 		return (<StatementDecorator bBox={bBox} expression={expression} />);
     }
 }
@@ -35,9 +35,6 @@ FunctionInvocationStatement.propTypes = {
 		y: PropTypes.number.isRequired,
 		w: PropTypes.number.isRequired,
 		h: PropTypes.number.isRequired,
-	}),
-	expression: PropTypes.shape({
-		expression:  PropTypes.string
 	})
 }
 
