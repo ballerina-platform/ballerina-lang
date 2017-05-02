@@ -757,4 +757,33 @@ public class BallerinaPsiImplUtil {
         }
         return results;
     }
+
+    @Nullable
+    public static PsiDirectory resolvePackage(@NotNull PackageNameNode packageNameNode) {
+        PsiElement nameIdentifier = packageNameNode.getNameIdentifier();
+        if (nameIdentifier == null) {
+            return null;
+        }
+        PsiReference reference = nameIdentifier.getReference();
+        if (reference != null) {
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement != null && resolvedElement instanceof PsiDirectory) {
+                return ((PsiDirectory) resolvedElement);
+            }
+        }
+        PsiReference[] references = nameIdentifier.getReferences();
+        if (references.length == 0) {
+            return null;
+        }
+        for (PsiReference psiReference : references) {
+            PsiElement resolvedElement = psiReference.resolve();
+            if (resolvedElement == null) {
+                continue;
+            }
+            if (resolvedElement instanceof PsiDirectory) {
+                return ((PsiDirectory) resolvedElement);
+            }
+        }
+        return null;
+    }
 }

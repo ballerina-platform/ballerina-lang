@@ -17,7 +17,7 @@
 package org.ballerinalang.plugins.idea.completion;
 
 @FunctionalInterface
-public interface CompletionInterface<T, U> {
+public interface CompletionInterface<T, U, V> {
 
-    void call(T t, U u);
+    void call(T t, U u, V v);
 }
