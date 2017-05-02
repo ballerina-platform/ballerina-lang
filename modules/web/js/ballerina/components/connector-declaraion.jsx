@@ -1,0 +1,63 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import React from 'react';
+import LifeLine from './lifeline.jsx';
+import {getComponentForNodeArray} from './utils';
+import StatementContainer from './statement-container';
+import * as DesignerDefaults from './../configs/designer-defaults';
+
+// require possible themes
+function requireAll(requireContext) {
+    let components = {};
+    requireContext.keys().map((item, index) => {
+        var module = requireContext(item);
+        if(module.default){
+            components[module.default.name] = module.default;
+        }
+    });
+    return components;
+}
+var components = requireAll(require.context('./', true, /\.jsx$/));
+
+class ConnectorDeclaration extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.components = components;
+    }
+
+    render() {
+        const statementContainerBBox = this.props.model.viewState.components.statementContainer;
+        let connectorBBox = {};
+        var children = getComponentForNodeArray(this.props.model.getChildren());
+        connectorBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width)/2;
+        connectorBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
+        connectorBBox.w = DesignerDefaults.lifeLine.width;
+        connectorBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
+
+        return (<g>
+                <StatementContainer bBox={statementContainerBBox}/>
+                <LifeLine title="Connector" bBox={connectorBBox}/>
+                {children}
+            </g>
+        );
+    }
+}
+
+export default ConnectorDeclaration;

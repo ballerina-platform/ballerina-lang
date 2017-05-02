@@ -79,14 +79,29 @@ class FunctionDefinitionDimensionCalculatorVisitor {
             return BallerinaASTFactory.isWorkerDeclaration(child);
         });
 
-        var workerWidth = 0;
-        _.forEach(workerChildren, function(child) {
-            workerWidth += child.viewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
+        let connectorChildren = node.filterChildren(function (child) {
+            return BallerinaASTFactory.isConnectorDeclaration(child);
         });
 
         const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
         const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
         const highestLifeLineHeight = highestStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;
+
+        var workerWidth = 0;
+        _.forEach(workerChildren, function(child) {
+            workerWidth += child.viewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
+            child.getViewState().bBox.h = _.max([components['statementContainer'].h, highestStatementContainerHeight]) +
+                DesignerDefaults.lifeLine.head.height * 2;
+            child.getViewState().components.statementContainer.h = _.max([components['statementContainer'].h,
+                highestStatementContainerHeight]);
+        });
+
+        _.forEach(connectorChildren, function(child) {
+            child.getViewState().bBox.h = _.max([components['statementContainer'].h, highestStatementContainerHeight]) +
+                DesignerDefaults.lifeLine.head.height * 2;
+            child.getViewState().components.statementContainer.h = _.max([components['statementContainer'].h,
+                highestStatementContainerHeight]);
+        });
 
         //following is to handle node collapsed for panels.
         if(node.viewState.collapsed) {
