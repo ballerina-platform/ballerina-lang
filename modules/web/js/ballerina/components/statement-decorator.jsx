@@ -29,6 +29,7 @@ class StatementView extends React.Component {
 
 	constructor(props) {
 		super(props);
+		this.state = {innerDropZoneActivated: false};
 	}
 
 	render() {
@@ -39,10 +40,10 @@ class StatementView extends React.Component {
 		const text_x = bBox.x + (bBox.w / 2);
 		const text_y = statement_y + (statement_h / 2);
 		let drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
-		let dropZoneActivated = model.viewState.dropZoneActivated || false;
+		let innerDropZoneActivated = this.state.innerDropZoneActivated;
 		return (<g className="statement" >
 			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
-					className={(!dropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active"}
+					className={(!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active"}
 			 		onMouseOver={(e) => this.onDropZoneActivate(e)}
 					onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
 			<rect x={bBox.x} y={statement_y} width={bBox.w} height={statement_h} className="statement-rect" />
@@ -71,10 +72,10 @@ class StatementView extends React.Component {
 									return dropTarget.getIndexOfChild(model);
 							}
 					);
-					this.props.model.setAttribute('viewState.dropZoneActivated', true);
+					this.setState({'innerDropZoneActivated': true});
 					dragDropManager.once('drop-target-changed', function(){
-							model.setAttribute('viewState.dropZoneActivated', false);
-					});
+							this.setState({'innerDropZoneActivated': false});
+					}, this);
 			}
 	}
 
@@ -84,7 +85,7 @@ class StatementView extends React.Component {
 			if(dragDropManager.isOnDrag()){
 					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
 							dragDropManager.clearActivatedDropTarget();
-							this.props.model.setAttribute('viewState.dropZoneActivated', false);
+							this.setState({'innerDropZoneActivated': false});
 					}
 			}
 	}
