@@ -53,7 +53,7 @@ class WorkerDeclarationPositionCalcVisitor {
         } else if (workerIndex > 0) {
             const previousWorker = workers[workerIndex - 1];
             const previousStatementContainer = previousWorker.getViewState().components.statementContainer;
-            x = previousStatementContainer.getRight() + DesignerDefaults.innerPanel.body.padding.left;
+            x = previousStatementContainer.getRight() + DesignerDefaults.lifeLine.gutter.h;
         } else {
             throw "Invalid index found for Worker Declaration";
         }
