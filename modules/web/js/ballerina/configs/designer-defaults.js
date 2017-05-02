@@ -77,7 +77,8 @@ export const lifeLine = {
         height: 30
     },
     line: {
-        height: 320
+        // set the default line height as two time of a statement
+        height: 135
     },
     gutter: {
         v: 50,
