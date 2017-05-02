@@ -15,3 +15,11 @@
   opacity: 0.01;
   transition: opacity 300ms ease-in;
 }
+
+.panel-body-rect {
+    fill: #008000;
+    fill-opacity: 0;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+    stroke: #909090;
+}

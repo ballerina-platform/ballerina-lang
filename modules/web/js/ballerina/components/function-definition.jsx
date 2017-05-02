@@ -50,7 +50,8 @@ class FunctionDefinition extends React.Component {
         }
 
         return (<PanelDecorator icon={icons} title={name} bBox={bBox} model={this.props.model}>
-                    <StatementContainer title="StatementContainer" bBox={statementContainerBBox}/>
+                    <StatementContainer  dropTarget={this.props.model}
+                      title="StatementContainer" bBox={statementContainerBBox}/>
                     <LifeLine title="FunctionWorker" bBox={function_worker_bBox}/>
                     {children}
                 </PanelDecorator>);

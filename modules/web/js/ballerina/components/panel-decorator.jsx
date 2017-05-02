@@ -63,7 +63,7 @@ class PanelDecorator extends React.Component {
                            transitionEnterTimeout={300}
                            transitionLeaveTimeout={300}>
                               { !collapsed &&
-                                   <rect x={ bBox.x } y={ bBox.y + titleHeight} width={ bBox.w } height={ bBox.h - titleHeight } rx="0" ry="0" className="resource-content" fill="#fff"></rect>
+                                   <rect x={ bBox.x } y={ bBox.y + titleHeight} width={ bBox.w } height={ bBox.h - titleHeight } rx="0" ry="0" className="panel-body-rect" fill="#fff"></rect>
                               }
                               { !collapsed && this.props.children}
                         </CSSTransitionGroup>
