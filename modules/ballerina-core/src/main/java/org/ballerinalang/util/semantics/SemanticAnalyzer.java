@@ -2766,7 +2766,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             function.setParameterTypes(paramTypes);
             FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(function.getName(),
-                    function.getPackagePath(), paramTypes);
+                                                                            null, paramTypes);
             function.setSymbolName(symbolName);
 
             BLangSymbol functionSymbol = currentScope.resolve(symbolName);
