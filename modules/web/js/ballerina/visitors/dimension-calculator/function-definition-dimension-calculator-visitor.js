@@ -79,6 +79,11 @@ class FunctionDefinitionDimensionCalculatorVisitor {
             return BallerinaASTFactory.isWorkerDeclaration(child);
         });
 
+        var workerWidth = 0;
+        _.forEach(workerChildren, function(child) {
+            workerWidth += child.viewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
+        });
+
         const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
         const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
         const highestLifeLineHeight = highestStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;
@@ -97,7 +102,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         components['statementContainer'].h = _.max([components['statementContainer'].h, highestStatementContainerHeight]);
 
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
-            DesignerDefaults.panel.body.padding.left;
+            DesignerDefaults.panel.body.padding.left + workerWidth;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;
