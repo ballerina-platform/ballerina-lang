@@ -249,6 +249,12 @@ public class XmlInputMapperTestCase {
                         case 2:
                             org.junit.Assert.assertEquals(75.6f, event.getData(1));
                             break;
+                        case 3:
+                            org.junit.Assert.assertEquals("null", event.getData(0));
+                            break;
+                        case 4:
+                            org.junit.Assert.assertEquals("", event.getData(0));
+                            break;
                         default:
                             org.junit.Assert.fail();
                     }
@@ -288,9 +294,24 @@ public class XmlInputMapperTestCase {
                 "    <symbol>WSO2</symbol>" +
                 "    <price dt:dt=\"number\">null</price>" +
                 "  </stock>" +
+                "  <stock exchange=\"nasdaq\">" +
+                "    <volume>100</volume>" +
+                "    <symbol></symbol>" +
+                "    <price dt:dt=\"number\">100</price>" +
+                "  </stock>" +
+                "  <stock exchange=\"nasdaq\">" +
+                "    <volume></volume>" +
+                "    <symbol>WSO2</symbol>" +
+                "    <price dt:dt=\"number\">100</price>" +
+                "  </stock>" +
+                "  <stock exchange=\"nasdaq\">" +
+                "    <volume>100</volume>" +
+                "    <symbol>WSO2</symbol>" +
+                "    <price dt:dt=\"number\"></price>" +
+                "  </stock>" +
                 "</portfolio>");
         //assert event count
-        Assert.assertEquals("Number of events", 3, count.get());
+        Assert.assertEquals("Number of events", 4, count.get());
         executionPlanRuntime.shutdown();
         siddhiManager.shutdown();
     }
@@ -303,9 +324,9 @@ public class XmlInputMapperTestCase {
                 "@Plan:name('TestExecutionPlan')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:datatypes\", " +
-                "enclosing.element=\"//portfolio\", @attributes(symbol = \"symbol\"" +
-                "                                           , price = \"price\"" +
-                "                                           , volume = \"volume\"))) " +
+                "enclosing.element=\"//portfolio\", @attributes(symbol = \"symbol/@exchange\"" +
+                "                                           , price = \"price/@priceAttr\"" +
+                "                                           , volume = \"volume/@volAttr\"))) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
@@ -325,10 +346,14 @@ public class XmlInputMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            org.junit.Assert.assertEquals(55.6f, event.getData(1));
+                            org.junit.Assert.assertEquals(55.8f, event.getData(1));
+                            org.junit.Assert.assertEquals("null", event.getData(0));
+                            org.junit.Assert.assertEquals(108L, event.getData(2));
                             break;
                         case 2:
-                            org.junit.Assert.assertEquals(75.6f, event.getData(1));
+                            org.junit.Assert.assertEquals(75.8f, event.getData(1));
+                            org.junit.Assert.assertEquals("nasdaq", event.getData(0));
+                            org.junit.Assert.assertEquals(208L, event.getData(2));
                             break;
                         default:
                             org.junit.Assert.fail();
@@ -340,17 +365,17 @@ public class XmlInputMapperTestCase {
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nasdaq\">" +
-                "    <volume>100</volume>" +
-                "    <symbol>WSO2</symbol>" +
-                "    <price dt:dt=\"number\">55.6</price>" +
+                "    <volume volAttr=\"108\">100</volume>" +
+                "    <symbol exchange=\"null\">WSO2</symbol>" +
+                "    <price priceAttr=\"55.8\">55.6</price>" +
                 "  </stock>" +
                 "</portfolio>");
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nyse\">" +
-                "    <volume>200</volume>" +
-                "    <symbol>IBM</symbol>" +
-                "    <price dt:dt=\"number\">75.6</price>" +
+                "    <volume volAttr=\"208\">200</volume>" +
+                "    <symbol exchange=\"nasdaq\">IBM</symbol>" +
+                "    <price priceAttr=\"75.8\">75.6</price>" +
                 "  </stock>" +
                 "</portfolio>");
         //assert event count
@@ -716,7 +741,7 @@ public class XmlInputMapperTestCase {
 
     @Test(expected = ExecutionPlanValidationException.class)
     public void testXmlInputMappingCustom9() throws InterruptedException {
-        log.info("Verify xml message being dropped due to incorrect grouping element configuration");
+        log.info("Verify xml message being dropped due to non existence stream attributes");
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
@@ -809,6 +834,71 @@ public class XmlInputMapperTestCase {
                 "    <price dt:dt=\"number\">75.6</price>" +
                 "  </stock>" +
                 "</portfolio>");
+        //assert event count
+        Assert.assertEquals("Number of events", 2, count.get());
+        executionPlanRuntime.shutdown();
+        siddhiManager.shutdown();
+    }
+
+    @Test
+    public void testXmlInputMappingCustom11() throws InterruptedException {
+        log.info("Verify xml mapping when multiple enclosing tags are present");
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
+                "\"dt=urn:schemas-microsoft-com:datatypes\", " +
+                "enclosing.element=\"//portfolio\", @attributes(symbol = \"symbol\"" +
+                "                                           , price = \"price\"" +
+                "                                           , volume = \"volume\"))) " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1:
+                            org.junit.Assert.assertEquals(55.6f, event.getData(1));
+                            break;
+                        case 2:
+                            org.junit.Assert.assertEquals(75.6f, event.getData(1));
+                            break;
+                        default:
+                            org.junit.Assert.fail();
+                    }
+                }
+            }
+        });
+        executionPlanRuntime.start();
+        InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
+                "<root>" +
+                "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
+                "  <stock exchange=\"nasdaq\">" +
+                "    <volume>55</volume>" +
+                "    <symbol>WSO2</symbol>" +
+                "    <price>55.6</price>" +
+                "  </stock>" +
+                "</portfolio>" +
+                "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
+                "  <stock exchange=\"nyse\">" +
+                "    <volume>200</volume>" +
+                "    <symbol>IBM</symbol>" +
+                "    <price>75.6</price>" +
+                "  </stock>" +
+                "</portfolio>" +
+                "</root>");
         //assert event count
         Assert.assertEquals("Number of events", 2, count.get());
         executionPlanRuntime.shutdown();
