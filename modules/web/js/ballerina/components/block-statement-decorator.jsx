@@ -41,13 +41,14 @@ class BlockStatementDecorator extends React.Component {
         let title_y = bBox.y + title_h / 2;
 
         return (<g>
-            <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect"></rect>
-            <rect x={bBox.x} y={bBox.y} width={bBox.w} height={title_h} rx="0" ry="0" className="statement-title-rect"></rect>
+            <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect"/>
+            <rect x={bBox.x} y={bBox.y} width={bBox.w} height={title_h} rx="0" ry="0" className="statement-title-rect"/>
             <text x={title_x} y={title_y} className="statement-text">{title}</text>
-            <polyline points={`${p1_x},${p1_y} ${p2_x},${p2_y} ${p3_x},${p3_y}`} className="statement-title-polyline"></polyline>
+            <polyline points={`${p1_x},${p1_y} ${p2_x},${p2_y} ${p3_x},${p3_y}`} className="statement-title-polyline"/>
             <g className="statement-container">
-                <rect x={bBox.x} y={stc_y} width={bBox.w} height={stc_h} className="main-drop-zone"></rect>
+                <rect x={bBox.x} y={stc_y} width={bBox.w} height={stc_h} className="main-drop-zone"/>
             </g>
+            {this.props.children}
         </g>);
 
     }
@@ -60,7 +61,7 @@ BlockStatementDecorator.propTypes = {
 		w: React.PropTypes.number.isRequired,
 		h: React.PropTypes.number.isRequired,
 	})
-}
+};
 
 
 export default BlockStatementDecorator;

@@ -17,7 +17,11 @@
  */
 
 import {statement} from './../configs/designer-defaults';
+import {blockStatement} from './../configs/designer-defaults';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory'
+import SimpleBBox from './../ast/simple-bounding-box';
 import _ from 'lodash';
+
 
 class SizingUtil {
     constructor(){
@@ -73,7 +77,43 @@ class SizingUtil {
         const sortedWorkers = _.sortBy(workers, function (worker) {
             return worker.viewState.components.statementContainer.h;
         });
-        return sortedWorkers.length > 0 ? sortedWorkers[0].getViewState().components.statementContainer.h : -1;
+        return sortedWorkers.length > 0 ? sortedWorkers[sortedWorkers.length - 1].getViewState().components.statementContainer.h : -1;
+    }
+
+    populateBlockStatement(node) {
+        let viewState = node.getViewState();
+        let components = {};
+
+        components['statementContainer'] = new SimpleBBox();
+        var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        var statementContainerWidth = 0;
+        var statementContainerHeight = 0;
+
+        _.forEach(statementChildren, function(child) {
+            statementContainerHeight += child.viewState.bBox.h;
+            if(child.viewState.bBox.w > statementContainerWidth){
+                statementContainerWidth = child.viewState.bBox.w;
+            }
+        });
+
+        /**
+         * Add the left padding and right padding for the statement container and
+         * add the additional gutter height to the statement container height, in order to keep the gap between the
+         * last statement and the block statement bottom margin
+         */
+        statementContainerHeight += (statementContainerHeight > 0 ? statement.gutter.v :
+        blockStatement.body.height - blockStatement.heading.height);
+
+        statementContainerWidth += (statementContainerWidth > 0 ?
+            (blockStatement.body.padding.left + blockStatement.body.padding.right) : blockStatement.width);
+
+        components['statementContainer'].h = statementContainerHeight;
+        components['statementContainer'].w = statementContainerWidth;
+
+        viewState.bBox.h = statementContainerHeight + blockStatement.heading.height;
+        viewState.bBox.w = statementContainerWidth;
+
+        viewState.components = components;
     }
 }
 
