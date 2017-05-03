@@ -40,7 +40,6 @@ public class RDBMSQueryConfigurationEntry {
     private String recordInsertQuery;
     private String recordUpdateQuery;
     private String recordDeleteQuery;
-    private String quoteMark = "";
     private boolean keyExplicitNotNull = false;
     private String stringSize;
     private RDBMSTypeMapping RDBMSTypeMapping;
@@ -151,14 +150,6 @@ public class RDBMSQueryConfigurationEntry {
 
     public void setRecordDeleteQuery(String recordDeleteQuery) {
         this.recordDeleteQuery = recordDeleteQuery;
-    }
-
-    public String getQuoteMark() {
-        return quoteMark;
-    }
-
-    public void setQuoteMark(String quoteMark) {
-        this.quoteMark = quoteMark;
     }
 
     public boolean isKeyExplicitNotNull() {

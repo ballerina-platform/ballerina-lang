@@ -91,7 +91,7 @@ public class RDBMSTableUtils {
         }
     }
 
-    public static RDBMSQueryConfiguration loadQueryConfiguration() throws CannotLoadConfigurationException {
+    private static RDBMSQueryConfiguration loadQueryConfiguration() throws CannotLoadConfigurationException {
         return new RDBMSTableConfigLoader().loadConfiguration();
     }
 
@@ -132,39 +132,39 @@ public class RDBMSTableUtils {
             Object parameter = entry.getValue();
             if (parameter instanceof Constant) {
                 Constant constant = (Constant) parameter;
-                RDBMSTableUtils.populateStatementWithSingleElement(stmt, seed + entry.getKey(), constant.getType(),
+                populateStatementWithSingleElement(stmt, seed + entry.getKey(), constant.getType(),
                         constant.getValue());
             } else {
                 Attribute variable = (Attribute) parameter;
-                RDBMSTableUtils.populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
+                populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
                         parameterMap.get(variable.getName()));
             }
         }
     }
 
-    public static void populateStatementWithSingleElement(PreparedStatement stmt, int position, Attribute.Type type,
+    public static void populateStatementWithSingleElement(PreparedStatement stmt, int ordinal, Attribute.Type type,
                                                           Object value) throws SQLException {
         switch (type) {
             case BOOL:
-                stmt.setBoolean(position, (Boolean) value);
+                stmt.setBoolean(ordinal, (Boolean) value);
                 break;
             case DOUBLE:
-                stmt.setDouble(position, (Double) value);
+                stmt.setDouble(ordinal, (Double) value);
                 break;
             case FLOAT:
-                stmt.setFloat(position, (Float) value);
+                stmt.setFloat(ordinal, (Float) value);
                 break;
             case INT:
-                stmt.setInt(position, (Integer) value);
+                stmt.setInt(ordinal, (Integer) value);
                 break;
             case LONG:
-                stmt.setLong(position, (Long) value);
+                stmt.setLong(ordinal, (Long) value);
                 break;
             case OBJECT:
-                stmt.setObject(position, value);
+                stmt.setObject(ordinal, value);
                 break;
             case STRING:
-                stmt.setString(position, (String) value);
+                stmt.setString(ordinal, (String) value);
                 break;
         }
     }
@@ -182,14 +182,14 @@ public class RDBMSTableUtils {
 
     public static Map<String, String> processFieldLengths(String fieldInfo) {
         Map<String, String> fieldLengths = new HashMap<>();
-        List<String[]> processedLengths = RDBMSTableUtils.processKeyValuePairs(fieldInfo);
-        processedLengths.forEach(field -> fieldLengths.put(field[0].toLowerCase(), field[1]));
+        List<String[]> processedLengths = processKeyValuePairs(fieldInfo);
+        processedLengths.forEach(field -> fieldLengths.put(field[0], field[1]));
         return fieldLengths;
     }
 
     public static List<String[]> processKeyValuePairs(String annotationString) {
         List<String[]> keyValuePairs = new ArrayList<>();
-        if (RDBMSTableUtils.isEmpty(annotationString)) {
+        if (!isEmpty(annotationString)) {
             String[] pairs = annotationString.split(",");
             for (String element : pairs) {
                 if (!element.contains(":")) {
@@ -248,6 +248,7 @@ public class RDBMSTableUtils {
         private boolean checkVersion(RDBMSQueryConfigurationEntry entry, double version) {
             double minVersion = entry.getMinVersion();
             double maxVersion = entry.getMaxVersion();
+            //Keeping things readable
             if (minVersion != 0 && version < minVersion) {
                 return false;
             }
@@ -283,7 +284,5 @@ public class RDBMSTableUtils {
             }
             return versionResults.get(0);
         }
-
     }
-
 }

@@ -24,20 +24,12 @@ public class RDBMSTypeMapping {
 
     // -- Type mapping -- //
     private String binaryType;
-
     private String booleanType;
-
     private String doubleType;
-
     private String floatType;
-
     private String integerType;
-
     private String longType;
-
     private String stringType;
-
-    private String timestampType;
 
     public String getBinaryType() {
         return binaryType;
@@ -93,14 +85,6 @@ public class RDBMSTypeMapping {
 
     public void setStringType(String stringType) {
         this.stringType = stringType;
-    }
-
-    public String getTimestampType() {
-        return timestampType;
-    }
-
-    public void setTimestampType(String timestampType) {
-        this.timestampType = timestampType;
     }
 
 }

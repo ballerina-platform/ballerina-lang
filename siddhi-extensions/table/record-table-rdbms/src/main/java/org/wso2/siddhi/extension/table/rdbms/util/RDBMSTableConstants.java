@@ -52,7 +52,7 @@ public class RDBMSTableConstants {
     public static final String ANNOTATION_ELEMENT_JNDI_RESOURCE = "jndi.resource";
 
     private RDBMSTableConstants() {
-
+        //preventing initialization
     }
 
 }

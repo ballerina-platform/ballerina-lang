@@ -43,7 +43,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
     private static final String SQL_COMPARE_LESS_THAN_EQUAL = "<=";
     private static final String SQL_COMPARE_GREATER_THAN_EQUAL = ">=";
     private static final String SQL_COMPARE_EQUAL = "=";
-    private static final String SQL_COMPARE_NOT_EQUAL = "!=";   // "<>" ?
+    private static final String SQL_COMPARE_NOT_EQUAL = "<>"; //Using the ANSI SQL-92 standard over '!=' (non-standard)
     private static final String SQL_MATH_ADD = "+";
     private static final String SQL_MATH_DIVIDE = "/";
     private static final String SQL_MATH_MULTIPLY = "*";
@@ -284,7 +284,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
     @Override
     public void beginVisitAttributeFunction(String namespace, String functionName) {
         if (RDBMSTableUtils.isEmpty(namespace)) {
-            condition.append(functionName).append(WHITESPACE);
+            condition.append(functionName).append(RDBMSTableConstants.OPEN_PARENTHESIS);
         } else {
             throw new RDBMSTableException("The RDBMS Event table does not support function namespaces, but namespace '"
                     + namespace + "' was specified. Please use functions supported by the defined RDBMS data store.");
@@ -293,7 +293,12 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void endVisitAttributeFunction(String namespace, String functionName) {
-        //Not applicable
+        if (RDBMSTableUtils.isEmpty(namespace)) {
+            condition.append(RDBMSTableConstants.OPEN_PARENTHESIS).append(WHITESPACE);
+        } else {
+            throw new RDBMSTableException("The RDBMS Event table does not support function namespaces, but namespace '"
+                    + namespace + "' was specified. Please use functions supported by the defined RDBMS data store.");
+        }
     }
 
     @Override
