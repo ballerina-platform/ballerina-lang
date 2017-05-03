@@ -24,7 +24,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.wso2.carbon.kernel.utils.Utils;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
@@ -37,6 +36,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -228,7 +229,7 @@ public class Util {
         if (keyStoreFilePath == null || keyStorePass == null) {
             throw new IllegalArgumentException("keyStoreFile or keyStorePass not defined for HTTPS scheme");
         }
-        File keyStore = new File(Utils.substituteVariables(keyStoreFilePath));
+        File keyStore = new File(substituteVariables(keyStoreFilePath));
         if (!keyStore.exists()) {
             throw new IllegalArgumentException("KeyStore File " + keyStoreFilePath + " not found");
         }
@@ -257,7 +258,7 @@ public class Util {
         }
         if (trustStoreFilePath != null) {
 
-            File trustStore = new File(Utils.substituteVariables(trustStoreFilePath));
+            File trustStore = new File(substituteVariables(trustStoreFilePath));
 
             if (!trustStore.exists()) {
                 throw new IllegalArgumentException("trustStore File " + trustStoreFilePath + " not found");
@@ -282,13 +283,13 @@ public class Util {
         SSLConfig sslConfig = new SSLConfig(null, null).setCertPass(null);
 
         if (keyStoreFilePath != null) {
-            File keyStore = new File(Utils.substituteVariables(keyStoreFilePath));
+            File keyStore = new File(substituteVariables(keyStoreFilePath));
             if (!keyStore.exists()) {
                 throw new IllegalArgumentException("KeyStore File " + trustStoreFilePath + " not found");
             }
             sslConfig = new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
         }
-        File trustStore = new File(Utils.substituteVariables(trustStoreFilePath));
+        File trustStore = new File(substituteVariables(trustStoreFilePath));
 
         sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
         sslConfig.setClientMode(true);
@@ -428,4 +429,56 @@ public class Util {
         return (Long) propertyVal;
     }
 
+    //TODO Below code segment is directly copied from kernel. Once kernel Utils been moved as a separate dependency
+    //Need to remove below part and use that.
+    private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
+
+    /**
+     * Replace system property holders in the property values.
+     * e.g. Replace ${carbon.home} with value of the carbon.home system property.
+     *
+     * @param value string value to substitute
+     * @return String substituted string
+     */
+    public static String substituteVariables(String value) {
+        Matcher matcher = varPattern.matcher(value);
+        boolean found = matcher.find();
+        if (!found) {
+            return value;
+        }
+        StringBuffer sb = new StringBuffer();
+        do {
+            String sysPropKey = matcher.group(1);
+            String sysPropValue = getSystemVariableValue(sysPropKey, null);
+            if (sysPropValue == null || sysPropValue.length() == 0) {
+                throw new RuntimeException("System property " + sysPropKey + " is not specified");
+            }
+            // Due to reported bug under CARBON-14746
+            sysPropValue = sysPropValue.replace("\\", "\\\\");
+            matcher.appendReplacement(sb, sysPropValue);
+        } while (matcher.find());
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * A utility which allows reading variables from the environment or System properties.
+     * If the variable in available in the environment as well as a System property, the System property takes
+     * precedence.
+     *
+     * @param variableName System/environment variable name
+     * @param defaultValue default value to be returned if the specified system variable is not specified.
+     * @return value of the system/environment variable
+     */
+    public static String getSystemVariableValue(String variableName, String defaultValue) {
+        String value;
+        if (System.getProperty(variableName) != null) {
+            value = System.getProperty(variableName);
+        } else if (System.getenv(variableName) != null) {
+            value = System.getenv(variableName);
+        } else {
+            value = defaultValue;
+        }
+        return value;
+    }
 }
