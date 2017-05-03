@@ -29,7 +29,7 @@ class StatementView extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = {innerDropZoneActivated: false};
+		this.state = {innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false};
 	}
 
 	render() {
@@ -39,11 +39,14 @@ class StatementView extends React.Component {
 		let statement_y = bBox.y + statement.gutter.v;
 		const text_x = bBox.x + (bBox.w / 2);
 		const text_y = statement_y + (statement_h / 2);
-		let drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
-		let innerDropZoneActivated = this.state.innerDropZoneActivated;
+		const drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
+		const innerDropZoneActivated = this.state.innerDropZoneActivated;
+		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
+		const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
+											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 		return (<g className="statement" >
 			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
-					className={(!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active"}
+					className={dropZoneClassName}
 			 		onMouseOver={(e) => this.onDropZoneActivate(e)}
 					onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
 			<rect x={bBox.x} y={statement_y} width={bBox.w} height={statement_h} className="statement-rect" />
@@ -72,9 +75,11 @@ class StatementView extends React.Component {
 									return dropTarget.getIndexOfChild(model);
 							}
 					);
-					this.setState({'innerDropZoneActivated': true});
+					this.setState({innerDropZoneActivated: true,
+							innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()
+					});
 					dragDropManager.once('drop-target-changed', function(){
-							this.setState({'innerDropZoneActivated': false});
+							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
 					}, this);
 			}
 	}
@@ -85,7 +90,7 @@ class StatementView extends React.Component {
 			if(dragDropManager.isOnDrag()){
 					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
 							dragDropManager.clearActivatedDropTarget();
-							this.setState({'innerDropZoneActivated': false});
+							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
 					}
 			}
 	}
