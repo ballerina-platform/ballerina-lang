@@ -28,6 +28,10 @@
     fill-opacity: 0.2;
 }
 
+.panel-body-rect.drop-zone.active.block {
+    fill: red;
+}
+
 .panel-body-rect.drop-zone {
     fill: green;
     fill-opacity: 0;
