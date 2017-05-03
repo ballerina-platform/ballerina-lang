@@ -49,13 +49,27 @@ class FunctionDefinition extends React.Component {
             icons = "tool-icons/main-function";
         }
 
-        return (<PanelDecorator icon={icons} title={name} bBox={bBox} model={this.props.model}>
+        return (<PanelDecorator icon={icons} title={name} bBox={bBox}
+                        model={this.props.model}
+                        dropTarget={this.props.model}
+                        dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}>
                     <StatementContainer  dropTarget={this.props.model}
                       title="StatementContainer" bBox={statementContainerBBox}/>
                     <LifeLine title="FunctionWorker" bBox={function_worker_bBox}/>
                     {children}
                 </PanelDecorator>);
     }
+
+    canDropToPanelBody (nodeBeingDragged) {
+          let nodeFactory = this.props.model.getFactory();
+          // IMPORTANT: override default validation logic
+          // Panel's drop zone is for worker and connector declarations only.
+          // Statements should only be allowed on top of function worker's dropzone.
+          return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
+              || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
+    }
+
+
 }
 
 export default FunctionDefinition;
