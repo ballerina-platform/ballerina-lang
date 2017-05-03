@@ -45,7 +45,7 @@ import java.util.Map;
  */
 @Extension(
         name = "map",
-        namespace = "sourcemapper",
+        namespace = "sourceMapper",
         description = ""
 )
 public class MapSourcemapper implements Sourcemapper {

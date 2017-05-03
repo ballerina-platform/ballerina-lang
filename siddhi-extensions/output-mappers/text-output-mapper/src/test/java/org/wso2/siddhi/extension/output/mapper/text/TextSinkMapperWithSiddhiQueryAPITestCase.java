@@ -56,7 +56,7 @@ public class TextSinkMapperWithSiddhiQueryAPITestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map text
     @Test
-    public void testTextOutputMapperWithDefaultMapping() throws InterruptedException {
+    public void testTextSinkmapperWithDefaultMapping() throws InterruptedException {
         log.info("Test default text mapping with Siddhi Query API");
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
@@ -112,7 +112,7 @@ public class TextSinkMapperWithSiddhiQueryAPITestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(outputDefinition);
@@ -141,7 +141,7 @@ public class TextSinkMapperWithSiddhiQueryAPITestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map text custom
     @Test
-    public void testTextOutputMapperWithCustomMapping() throws InterruptedException {
+    public void testTextSinkmapperWithCustomMapping() throws InterruptedException {
         log.info("Test custom text mapping with Siddhi Query API");
         List<Object> onMessageList = new ArrayList<Object>();
 
@@ -202,7 +202,7 @@ public class TextSinkMapperWithSiddhiQueryAPITestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(outputDefinition);

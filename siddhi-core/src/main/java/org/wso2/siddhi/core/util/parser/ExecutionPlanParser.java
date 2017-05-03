@@ -86,7 +86,7 @@ public class ExecutionPlanParser {
                     executionPlan.getAnnotations());
             if (annotation != null) {
                 executionPlanContext.setAsync(true);
-                String bufferSizeString = annotation.getElement(SiddhiConstants.ANNOTATION_BUFFER_SIZE);
+                String bufferSizeString = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BUFFER_SIZE);
                 if (bufferSizeString != null) {
                     int bufferSize = Integer.parseInt(bufferSizeString);
                     executionPlanContext.setBufferSize(bufferSize);
@@ -133,26 +133,26 @@ public class ExecutionPlanParser {
                 EventTimeBasedMillisTimestampGenerator timestampGenerator = new EventTimeBasedMillisTimestampGenerator(executionPlanContext.getScheduledExecutorService());
                 // Get the optional elements of playback annotation
                 for (Element e : annotation.getElements()) {
-                    if (SiddhiConstants.ANNOTATION_IDLE_TIME.equalsIgnoreCase(e.getKey())) {
+                    if (SiddhiConstants.ANNOTATION_ELEMENT_IDLE_TIME.equalsIgnoreCase(e.getKey())) {
                         idleTime = e.getValue();
-                    } else if (SiddhiConstants.ANNOTATION_INCREMENT.equalsIgnoreCase(e.getKey())) {
+                    } else if (SiddhiConstants.ANNOTATION_ELEMENT_INCREMENT.equalsIgnoreCase(e.getKey())) {
                         increment = e.getValue();
                     } else {
-                        throw new ExecutionPlanValidationException("Playback annotation accepts only idleTime and increment but found " + e.getKey());
+                        throw new ExecutionPlanValidationException("Playback annotation accepts only idle.time and increment but found " + e.getKey());
                     }
                 }
 
                 // idleTime and increment are optional but if one presents, the other also should be given
                 if (idleTime != null && increment == null) {
-                    throw new ExecutionPlanValidationException("Playback annotation requires both idleTime and increment but increment not found");
+                    throw new ExecutionPlanValidationException("Playback annotation requires both idle.time and increment but increment not found");
                 } else if (idleTime == null && increment != null) {
-                    throw new ExecutionPlanValidationException("Playback annotation requires both idleTime and increment but idleTime does not found");
+                    throw new ExecutionPlanValidationException("Playback annotation requires both idle.time and increment but idle.time does not found");
                 } else if (idleTime != null) {
                     // The fourth case idleTime == null && increment == null are ignored because it means no heartbeat.
                     try {
                         timestampGenerator.setIdleTime(SiddhiCompiler.parseTimeConstantDefinition(idleTime).value());
                     } catch (SiddhiParserException ex) {
-                        throw new SiddhiParserException("Invalid idleTime constant '" + idleTime + "' in playback annotation", ex);
+                        throw new SiddhiParserException("Invalid idle.time constant '" + idleTime + "' in playback annotation", ex);
                     }
                     try {
                         timestampGenerator.setIncrementInMilliseconds(SiddhiCompiler.parseTimeConstantDefinition(increment).value());

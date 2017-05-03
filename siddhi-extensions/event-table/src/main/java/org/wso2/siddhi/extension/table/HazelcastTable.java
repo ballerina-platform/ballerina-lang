@@ -66,7 +66,7 @@ import java.util.Map;
  */
 @Extension(
         name = "hazelcast",
-        namespace = "table",
+        namespace = "store",
         description = "",
         parameters = {
                 @Parameter(name = "cluster.name",
@@ -121,7 +121,7 @@ public class HazelcastTable implements Table {
         boolean serverMode;
 
         Annotation fromAnnotation = AnnotationHelper.getAnnotation(
-                SiddhiConstants.ANNOTATION_FROM, tableDefinition.getAnnotations());
+                SiddhiConstants.ANNOTATION_STORE, tableDefinition.getAnnotations());
         //// TODO: 12/6/16 This must be deprecated
 
         clusterName = fromAnnotation.getElement(

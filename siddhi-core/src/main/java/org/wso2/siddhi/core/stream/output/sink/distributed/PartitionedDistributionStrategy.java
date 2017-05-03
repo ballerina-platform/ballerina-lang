@@ -36,7 +36,7 @@ import java.util.List;
  */
 @Extension(
         name = "partitioned",
-        namespace = "distributionstrategy",
+        namespace = "distributionStrategy",
         description = ""
 )
 public class PartitionedDistributionStrategy extends DistributionStrategy {

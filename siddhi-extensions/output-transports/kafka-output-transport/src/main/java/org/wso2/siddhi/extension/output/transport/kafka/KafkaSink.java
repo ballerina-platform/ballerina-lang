@@ -39,7 +39,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 @Extension(
         name = "kafka",
-        namespace = "outputtransport",
+        namespace = "sink",
         description = ""
 )
 public class KafkaSink extends Sink {

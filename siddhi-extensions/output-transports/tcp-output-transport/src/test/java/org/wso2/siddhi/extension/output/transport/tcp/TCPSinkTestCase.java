@@ -51,7 +51,7 @@ public class TCPSinkTestCase {
     }
 
     @Test
-    public void testTcpOutputTransport1() throws InterruptedException {
+    public void testTcpSink1() throws InterruptedException {
         log.info("tcpSource TestCase 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -128,7 +128,7 @@ public class TCPSinkTestCase {
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
-    public void testTcpOutputTransport2() throws InterruptedException {
+    public void testTcpSink2() throws InterruptedException {
         log.info("tcpSource TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -147,7 +147,7 @@ public class TCPSinkTestCase {
     }
 
     @Test
-    public void testTcpOutputTransport3() throws InterruptedException {
+    public void testTcpSink3() throws InterruptedException {
         log.info("tcpSource TestCase 3");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -225,7 +225,7 @@ public class TCPSinkTestCase {
     }
 
     @Test
-    public void testTcpOutputTransport4() throws InterruptedException {
+    public void testTcpSink4() throws InterruptedException {
         log.info("tcpSource TestCase 4");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -303,7 +303,7 @@ public class TCPSinkTestCase {
     }
 
     @Test
-    public void testTcpOutputTransport5() throws InterruptedException {
+    public void testTcpSink5() throws InterruptedException {
         log.info("tcpSource TestCase 5");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -381,7 +381,7 @@ public class TCPSinkTestCase {
     }
 
     @Test(expected = ExecutionPlanCreationException.class)
-    public void testTcpOutputTransport6() throws InterruptedException {
+    public void testTcpSink6() throws InterruptedException {
         log.info("tcpSource TestCase 6");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -407,7 +407,7 @@ public class TCPSinkTestCase {
     }
 
     @Test
-    public void testTcpOutputTransport7() throws InterruptedException {
+    public void testTcpSink7() throws InterruptedException {
         log.info("tcpSource TestCase 7");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -482,7 +482,7 @@ public class TCPSinkTestCase {
     }
 
     @Test
-    public void testTcpOutputTransport8() throws InterruptedException {
+    public void testTcpSink8() throws InterruptedException {
         log.info("tcpSource TestCase 8");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -557,7 +557,7 @@ public class TCPSinkTestCase {
     }
 
     @Test
-    public void testTcpOutputTransport9() throws InterruptedException {
+    public void testTcpSink9() throws InterruptedException {
         log.info("tcpSource TestCase 9");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -619,7 +619,7 @@ public class TCPSinkTestCase {
     @Ignore
     @Test
     //todo validate log
-    public void testTcpOutputTransport10() throws InterruptedException {
+    public void testTcpSink10() throws InterruptedException {
         log.info("tcpSource TestCase 10");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -650,7 +650,7 @@ public class TCPSinkTestCase {
     }
 
     @Test(expected = ExecutionPlanCreationException.class)
-    public void testTcpOutputTransport11() throws InterruptedException {
+    public void testTcpSink11() throws InterruptedException {
         log.info("tcpSource TestCase 11");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -676,7 +676,7 @@ public class TCPSinkTestCase {
     }
 
     @Test(expected = ExecutionPlanCreationException.class)
-    public void testTcpOutputTransport12() throws InterruptedException {
+    public void testTcpSink12() throws InterruptedException {
         log.info("tcpSource TestCase 12");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -702,7 +702,7 @@ public class TCPSinkTestCase {
     }
 
     @Test
-    public void testTcpOutputTransport13() throws InterruptedException {
+    public void testTcpSink13() throws InterruptedException {
         log.info("tcpSource TestCase 13");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -797,7 +797,7 @@ public class TCPSinkTestCase {
     }
 
     @Test
-    public void testTcpOutputTransport14() throws InterruptedException {
+    public void testTcpSink14() throws InterruptedException {
         log.info("tcpSource TestCase 14");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -918,7 +918,7 @@ public class TCPSinkTestCase {
     }
 
     @Test
-    public void testTcpOutputTransport15() throws InterruptedException {
+    public void testTcpSink15() throws InterruptedException {
         log.info("tcpSource TestCase 15");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -997,7 +997,7 @@ public class TCPSinkTestCase {
     }
 
     @Test
-    public void testTcpOutputTransport16() throws InterruptedException {
+    public void testTcpSink16() throws InterruptedException {
         log.info("tcpSource TestCase 16");
         SiddhiManager siddhiManager = new SiddhiManager();
 

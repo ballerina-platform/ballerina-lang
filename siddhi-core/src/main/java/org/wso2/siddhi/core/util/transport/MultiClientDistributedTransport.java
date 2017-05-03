@@ -65,7 +65,7 @@ public class MultiClientDistributedTransport extends DistributedTransport {
         String transportType = sinkOptionHolder.validateAndGetStaticValue(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
         Extension sinkExtension = DefinitionParserHelper.constructExtension
                 (streamDefinition, SiddhiConstants.ANNOTATION_SINK, transportType, sinkAnnotation, SiddhiConstants
-                        .NAMESPACE_OUTPUT_TRANSPORT);
+                        .NAMESPACE_SINK);
 
         destinationOptionHolders.forEach(destinationOption -> {
             Sink sink = (Sink) SiddhiClassLoader.loadExtensionImplementation(

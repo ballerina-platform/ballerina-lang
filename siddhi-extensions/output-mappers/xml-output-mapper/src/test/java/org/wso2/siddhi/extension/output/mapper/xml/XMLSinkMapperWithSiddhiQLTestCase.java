@@ -49,7 +49,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map xml
     @Test
-    public void testXMLOutputMapperDefaultMappingWithSiddhiQL() throws InterruptedException {
+    public void testXMLSinkmapperDefaultMappingWithSiddhiQL() throws InterruptedException {
         log.info("Test default xml mapping with SiddhiQL");
         List<Object> onMessageList = new ArrayList<Object>();
 
@@ -95,7 +95,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -127,7 +127,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
     }
 
     @Test
-    public void testXMLOutputMapperDefaultMappingWithSiddhiQL2() throws InterruptedException {
+    public void testXMLSinkmapperDefaultMappingWithSiddhiQL2() throws InterruptedException {
         log.info("Test default xml mapping with SiddhiQL for multiple events");
         AtomicInteger companyCount = new AtomicInteger(0);
         List<Object> onMessageList = new ArrayList<Object>();
@@ -160,7 +160,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -187,7 +187,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
     }
 
     @Test
-    public void testXMLOutputMapperDefaultMappingWithNullElementSiddhiQL() throws InterruptedException {
+    public void testXMLSinkmapperDefaultMappingWithNullElementSiddhiQL() throws InterruptedException {
         log.info("Test default xml mapping with null elements");
         List<Object> onMessageList = new ArrayList<Object>();
 
@@ -233,7 +233,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -312,7 +312,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -389,7 +389,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -468,7 +468,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -544,7 +544,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -570,7 +570,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
     }
 
     @Test
-    public void testXMLOutputMapperCustomMappingWithNullAttributes() throws InterruptedException {
+    public void testXMLSinkmapperCustomMappingWithNullAttributes() throws InterruptedException {
         log.info("Test default xml mapping with SiddhiQL for multiple events");
         AtomicInteger companyCount = new AtomicInteger(0);
         List<Object> onMessageList = new ArrayList<Object>();
@@ -605,7 +605,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -680,7 +680,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -754,7 +754,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -820,7 +820,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -862,7 +862,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 

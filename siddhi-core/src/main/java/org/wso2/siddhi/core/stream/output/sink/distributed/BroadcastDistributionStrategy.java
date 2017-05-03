@@ -30,8 +30,8 @@ import java.util.List;
  * Publishing strategy to broad case message to all destinations
  * */
 @Extension(
-        name = "boradcast",
-        namespace = "distributionstrategy",
+        name = "broadcast",
+        namespace = "distributionStrategy",
         description = ""
 )
 public class BroadcastDistributionStrategy extends DistributionStrategy {

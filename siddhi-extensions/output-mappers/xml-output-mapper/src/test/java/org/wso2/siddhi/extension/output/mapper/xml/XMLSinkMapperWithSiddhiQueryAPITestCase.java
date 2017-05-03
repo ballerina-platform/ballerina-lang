@@ -57,7 +57,7 @@ public class XMLSinkMapperWithSiddhiQueryAPITestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map xml
     @Test
-    public void testXMLOutputMapperWithDefaultMapping() throws InterruptedException {
+    public void testXMLSinkmapperWithDefaultMapping() throws InterruptedException {
         log.info("Test default xml mapping with Siddhi Query API");
         List<Object> onMessageList = new ArrayList<Object>();
 
@@ -117,7 +117,7 @@ public class XMLSinkMapperWithSiddhiQueryAPITestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(outputDefinition);
@@ -153,7 +153,7 @@ public class XMLSinkMapperWithSiddhiQueryAPITestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map xml custom
     @Test
-    public void testXMLOutputMapperWithCustomMapping() throws InterruptedException {
+    public void testXMLSinkmapperWithCustomMapping() throws InterruptedException {
         log.info("Test custom xml mapping with Siddhi Query API");
         List<Object> onMessageList = new ArrayList<Object>();
 
@@ -216,7 +216,7 @@ public class XMLSinkMapperWithSiddhiQueryAPITestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(outputDefinition);
@@ -312,7 +312,7 @@ public class XMLSinkMapperWithSiddhiQueryAPITestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(outputDefinition);
@@ -409,7 +409,7 @@ public class XMLSinkMapperWithSiddhiQueryAPITestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(outputDefinition);
@@ -507,7 +507,7 @@ public class XMLSinkMapperWithSiddhiQueryAPITestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(outputDefinition);

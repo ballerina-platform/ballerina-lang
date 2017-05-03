@@ -21,13 +21,13 @@ package org.wso2.siddhi.core.util;
 public final class SiddhiConstants {
 
     public static final String NAMESPACE_STORE = "store";
-    public static final String NAMESPACE_INPUT_TRANSPORT = "transport.input";
-    public static final String NAMESPACE_INPUT_MAPPER = "input.mapper";
+    public static final String NAMESPACE_SOURCE = "source";
+    public static final String NAMESPACE_SOURCE_MAPPER = "sourceMapper";
 
-    public static final String NAMESPACE_OUTPUT_TRANSPORT = "outputtransport";
-    public static final String NAMESPACE_OUTPUT_MAPPER = "output-mapper";
+    public static final String NAMESPACE_SINK = "sink";
+    public static final String NAMESPACE_SINK_MAPPER = "sinkMapper";
 
-    public static final String NAMESPACE_DISTRIBUTED_PUBLISHING_STRATEGY = "distributionstrategy";
+    public static final String NAMESPACE_DISTRIBUTION_STRATEGY = "distributionStrategy";
     public static final String DISTRIBUTION_STRATEGY_PARTITIONED = "partitioned";
 
     public static final int BEFORE_WINDOW_DATA_INDEX = 0;
@@ -48,17 +48,17 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_INDEX_BY = "IndexBy";
     public static final String ANNOTATION_INDEX = "Index";
     public static final String ANNOTATION_PRIMARY_KEY = "PrimaryKey";
-    public static final String ANNOTATION_FROM = "from";
-    public static final String ANNOTATION_SOURCE = "source";
-    public static final String ANNOTATION_SINK = "sink";
-    public static final String ANNOTATION_MAP = "map";
-    public static final String ANNOTATION_DISTRIBUTION = "distribution";
-    public static final String ANNOTATION_DESTINATION = "destination";
-    public static final String ANNOTATION_ATTRIBUTES = "attributes";
-    public static final String ANNOTATION_PAYLOAD = "payload";
-    public static final String ANNOTATION_BUFFER_SIZE = "BufferSize";
-    public static final String ANNOTATION_IDLE_TIME = "IdleTime";
-    public static final String ANNOTATION_INCREMENT = "Increment";
+    public static final String ANNOTATION_STORE = "Store";
+    public static final String ANNOTATION_SOURCE = "Source";
+    public static final String ANNOTATION_SINK = "Sink";
+    public static final String ANNOTATION_MAP = "Map";
+    public static final String ANNOTATION_DISTRIBUTION = "Distribution";
+    public static final String ANNOTATION_DESTINATION = "Destination";
+    public static final String ANNOTATION_ATTRIBUTES = "Attributes";
+    public static final String ANNOTATION_PAYLOAD = "Payload";
+    public static final String ANNOTATION_ELEMENT_BUFFER_SIZE = "buffer.size";
+    public static final String ANNOTATION_ELEMENT_IDLE_TIME = "idle.time";
+    public static final String ANNOTATION_ELEMENT_INCREMENT = "increment";
     public static final String ANNOTATION_ELEMENT_TYPE = "type";
 
     public static final String TRUE = "true";

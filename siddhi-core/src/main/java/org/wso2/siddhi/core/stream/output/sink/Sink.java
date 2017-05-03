@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * This is a Sink type. these let users to publish events according to
  * some type. this type can either be local, jms or ws (or any custom extension)
  */
-public abstract class Sink implements OutputTransportListener, Snapshotable {
+public abstract class Sink implements SinkListener, Snapshotable {
 
     private static final Logger log = Logger.getLogger(Sink.class);
     private String type;

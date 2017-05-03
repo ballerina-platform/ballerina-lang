@@ -201,8 +201,8 @@ public class SingleInputStreamParser {
         } else if (streamHandler instanceof StreamFunction) {
             AbstractStreamProcessor abstractStreamProcessor;
             configReader = executionPlanContext.getSiddhiContext().getConfigManager().
-                    generateConfigReader(((Window) streamHandler).getNamespace(),
-                            ((Window) streamHandler).getName());
+                    generateConfigReader(((StreamFunction) streamHandler).getNamespace(),
+                            ((StreamFunction) streamHandler).getName());
             if (supportsBatchProcessing) {
                 try {
                     abstractStreamProcessor = (StreamProcessor) SiddhiClassLoader.loadExtensionImplementation(

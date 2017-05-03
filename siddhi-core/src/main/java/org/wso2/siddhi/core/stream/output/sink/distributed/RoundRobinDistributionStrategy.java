@@ -33,7 +33,7 @@ import java.util.List;
 
 @Extension(
         name = "roundRobin",
-        namespace = "distributionstrategy",
+        namespace = "distributionStrategy",
         description = ""
 )
 public class RoundRobinDistributionStrategy extends DistributionStrategy {

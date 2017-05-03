@@ -84,7 +84,7 @@ public class StreamJunction {
             async = executionPlanContext.isAsync();
             if (annotation != null) {
                 async = true;
-                String bufferSizeString = annotation.getElement(SiddhiConstants.ANNOTATION_BUFFER_SIZE);
+                String bufferSizeString = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BUFFER_SIZE);
                 if (bufferSizeString != null) {
                     this.bufferSize = Integer.parseInt(bufferSizeString);
                 }

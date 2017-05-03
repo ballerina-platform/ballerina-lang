@@ -48,7 +48,7 @@ import java.util.List;
  */
 @Extension(
         name = "json",
-        namespace = "sourcemapper",
+        namespace = "sourceMapper",
         description = ""
 )
 public class JsonSourcemapper implements Sourcemapper {

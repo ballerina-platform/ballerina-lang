@@ -29,7 +29,7 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 @Extension(
         name = "passThrough",
-        namespace = "outputmapper",
+        namespace = "sinkMapper",
         description = "Pass-through mapper passed events (Event[]) through without any mapping or modifications."
 )
 public class PassThroughSinkMapper extends SinkMapper {
@@ -46,15 +46,15 @@ public class PassThroughSinkMapper extends SinkMapper {
 
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+                           SinkListener sinkListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
         updateEventIds(events);
-        outputTransportListener.publish(events, dynamicOptions);
+        sinkListener.publish(events, dynamicOptions);
     }
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+                           SinkListener sinkListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
         updateEventId(event);
-        outputTransportListener.publish(event, dynamicOptions);
+        sinkListener.publish(event, dynamicOptions);
     }
 }

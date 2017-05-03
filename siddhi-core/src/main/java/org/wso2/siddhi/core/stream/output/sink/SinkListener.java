@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.stream.output.sink;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 
-public interface OutputTransportListener {
+public interface SinkListener {
     /**
      * Sending events via output transport
      *

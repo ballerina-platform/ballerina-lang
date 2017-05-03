@@ -32,7 +32,7 @@ import java.util.List;
 
 @Extension(
         name = "passThrough",
-        namespace = "sourcemapper",
+        namespace = "sourceMapper",
         description = "Pass-through mapper passed events (Event[]) through without any mapping or modifications."
 )
 public class PassThroughSourceMapper extends SourceMapper {

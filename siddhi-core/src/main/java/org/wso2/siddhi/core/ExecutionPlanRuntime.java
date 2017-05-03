@@ -112,10 +112,10 @@ public class ExecutionPlanRuntime {
             monitorQueryMemoryUsage();
         }
 
-        for (Map.Entry<String, List<Sink>> outputTransportEntries : eventSinkMap.entrySet()) {
-            addCallback(outputTransportEntries.getKey(),
-                    new SinkCallback(outputTransportEntries.getValue(),
-                            streamDefinitionMap.get(outputTransportEntries.getKey())));
+        for (Map.Entry<String, List<Sink>> sinkEntries : eventSinkMap.entrySet()) {
+            addCallback(sinkEntries.getKey(),
+                    new SinkCallback(sinkEntries.getValue(),
+                            streamDefinitionMap.get(sinkEntries.getKey())));
         }
         for (Map.Entry<String, List<Source>> sourceEntries : eventSourceMap.entrySet()) {
             InputHandler inputHandler = getInputHandler(sourceEntries.getKey());

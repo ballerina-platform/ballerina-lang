@@ -98,13 +98,13 @@ public abstract class SinkMapper implements Snapshotable {
                                       mapperConfigReader);
 
     /**
-     * Called to map the events and send them to {@link OutputTransportListener}
+     * Called to map the events and send them to {@link SinkListener}
      *
      * @param events                  {@link Event}s that need to be mapped
-     * @param outputTransportListener {@link OutputTransportListener} that will be called with the mapped events
+     * @param sinkListener {@link SinkListener} that will be called with the mapped events
      * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
-    public void mapAndSend(Event[] events, OutputTransportListener outputTransportListener)
+    public void mapAndSend(Event[] events, SinkListener sinkListener)
             throws ConnectionUnavailableException {
 
         if (groupDeterminer != null) {
@@ -117,55 +117,55 @@ public abstract class SinkMapper implements Snapshotable {
 
             for (ArrayList<Event> eventList : eventMap.values()) {
                 mapAndSend(eventList.toArray(new Event[eventList.size()]), optionHolder,
-                        payloadTemplateBuilder, outputTransportListener, new DynamicOptions(eventList.get(0)));
+                        payloadTemplateBuilder, sinkListener, new DynamicOptions(eventList.get(0)));
 
             }
         } else {
-            mapAndSend(events, optionHolder, payloadTemplateBuilder, outputTransportListener,
+            mapAndSend(events, optionHolder, payloadTemplateBuilder, sinkListener,
                     new DynamicOptions(events[0]));
         }
     }
 
     /**
-     * Called to map the event and send it to {@link OutputTransportListener}
+     * Called to map the event and send it to {@link SinkListener}
      *
      * @param event                   The {@link Event} that need to be mapped
-     * @param outputTransportListener {@link OutputTransportListener} that will be called with the mapped event
+     * @param sinkListener {@link SinkListener} that will be called with the mapped event
      * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
-    public void mapAndSend(Event event, OutputTransportListener outputTransportListener)
+    public void mapAndSend(Event event, SinkListener sinkListener)
             throws ConnectionUnavailableException {
-        mapAndSend(event, optionHolder, payloadTemplateBuilder, outputTransportListener, new DynamicOptions(event));
+        mapAndSend(event, optionHolder, payloadTemplateBuilder, sinkListener, new DynamicOptions(event));
     }
 
     /**
-     * Called to map the events and send them to {@link OutputTransportListener}
+     * Called to map the events and send them to {@link SinkListener}
      *
      * @param events                  {@link Event}s that need to be mapped
      * @param optionHolder            Option holder containing static and dynamic options related to the mapper
      * @param payloadTemplateBuilder  To build the message payload based on the given template
-     * @param outputTransportListener {@link OutputTransportListener} that will be called with the mapped events
+     * @param sinkListener {@link SinkListener} that will be called with the mapped events
      * @param dynamicOptions          {@link DynamicOptions} containing transport related options which will be passed
-     *                                to the  {@link OutputTransportListener}
+     *                                to the  {@link SinkListener}
      * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
     public abstract void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                                    OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions)
+                                    SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException;
 
     /**
-     * Called to map the event and send it to {@link OutputTransportListener}
+     * Called to map the event and send it to {@link SinkListener}
      *
      * @param event                   {@link Event} that need to be mapped
      * @param optionHolder            Option holder containing static and dynamic options related to the mapper
      * @param payloadTemplateBuilder  To build the message payload based on the given template
-     * @param outputTransportListener {@link OutputTransportListener} that will be called with the mapped event
+     * @param sinkListener {@link SinkListener} that will be called with the mapped event
      * @param dynamicOptions          {@link DynamicOptions} containing transport related options which will be passed
-     *                                to the  {@link OutputTransportListener}
+     *                                to the  {@link SinkListener}
      * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
     public abstract void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                                    OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions)
+                                    SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException;
 
     public final String getType() {

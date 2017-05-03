@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Extension(
         name = "tcp",
-        namespace = "outputtransport",
+        namespace = "sink",
         description = ""
 )
 public class TCPSink extends Sink {

@@ -22,7 +22,7 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransportListener;
+import org.wso2.siddhi.core.stream.output.sink.SinkListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -32,7 +32,7 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 @Extension(
         name = "text",
-        namespace = "outputmapper",
+        namespace = "sinkMapper",
         description = "Event to Text output mapper."
 )
 public class TextSinkMapper extends SinkMapper {
@@ -61,29 +61,29 @@ public class TextSinkMapper extends SinkMapper {
 
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions)
+                           SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
         updateEventIds(events);
         if (this.payloadTemplateBuilder != null) {
             for (Event event : events) {
-                outputTransportListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
+                sinkListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
             }
         } else {
             for (Event event : events) {
-                outputTransportListener.publish(constructDefaultMapping(event), dynamicOptions);
+                sinkListener.publish(constructDefaultMapping(event), dynamicOptions);
             }
         }
     }
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions)
+                           SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
         updateEventId(event);
         if (this.payloadTemplateBuilder != null) {
-            outputTransportListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
+            sinkListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
         } else {
-            outputTransportListener.publish(constructDefaultMapping(event), dynamicOptions);
+            sinkListener.publish(constructDefaultMapping(event), dynamicOptions);
         }
     }
 

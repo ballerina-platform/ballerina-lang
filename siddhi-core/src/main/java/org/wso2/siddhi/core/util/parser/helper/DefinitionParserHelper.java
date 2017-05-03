@@ -148,7 +148,7 @@ public class DefinitionParserHelper {
             StreamEventCloner tableStreamEventCloner = new StreamEventCloner(tableMetaStreamEvent,
                     tableStreamEventPool);
 
-            Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
+            Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_STORE,
                     tableDefinition.getAnnotations()); //// TODO: 12/5/16 this must be removed
 
             Table table;
@@ -276,13 +276,13 @@ public class DefinitionParserHelper {
                 if (sourceType != null && mapType != null) {
                     // load input transport extension
                     Extension sourceExtension = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SOURCE,
-                            sourceType, sourceAnnotation, SiddhiConstants.NAMESPACE_INPUT_TRANSPORT);
+                            sourceType, sourceAnnotation, SiddhiConstants.NAMESPACE_SOURCE);
                     Source source = (Source) SiddhiClassLoader.loadExtensionImplementation(
                             sourceExtension, SourceExecutorExtensionHolder.getInstance(executionPlanContext));
 
                     // load input mapper extension
                     Extension mapperExtension = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
-                            mapType, sourceAnnotation, SiddhiConstants.NAMESPACE_INPUT_MAPPER);
+                            mapType, sourceAnnotation, SiddhiConstants.NAMESPACE_SOURCE_MAPPER);
                     SourceMapper sourceMapper = (SourceMapper) SiddhiClassLoader.loadExtensionImplementation(
                             mapperExtension, SourceMapperExecutorExtensionHolder.getInstance(executionPlanContext));
 
@@ -335,7 +335,7 @@ public class DefinitionParserHelper {
                     String sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
 
                     Extension sinkExtension = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,
-                            sinkType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_TRANSPORT);
+                            sinkType, sinkAnnotation, SiddhiConstants.NAMESPACE_SINK);
                     ConfigReader sinkConfigReader = executionPlanContext.getSiddhiContext().
                             getConfigManager().generateConfigReader(sinkExtension.getNamespace(),
                             sinkExtension.getName());
@@ -343,7 +343,7 @@ public class DefinitionParserHelper {
                     final boolean isDistributedTransport = (distributionAnnotation != null);
                     boolean isMultiClient = false;
                     if (isDistributedTransport) {
-                        Sink sink = createOutputTransport(sinkExtension, executionPlanContext);
+                        Sink sink = createSink(sinkExtension, executionPlanContext);
                         isMultiClient = isMultiClientDistributedTransport(sink, streamDefinition,
                                 distributionAnnotation);
                         supportedDynamicOptions = sink.getSupportedDynamicOptions();
@@ -358,7 +358,7 @@ public class DefinitionParserHelper {
                             sink = (isMultiClient) ? new MultiClientDistributedTransport() :
                                     new SingleClientDistributedTransport();
                         } else {
-                            sink = createOutputTransport(sinkExtension, executionPlanContext);
+                            sink = createSink(sinkExtension, executionPlanContext);
                         }
                         if (supportedDynamicOptions == null) {
                             supportedDynamicOptions = sink.getSupportedDynamicOptions();
@@ -366,7 +366,7 @@ public class DefinitionParserHelper {
 
                         //load output mapper extension
                         Extension mapperExtension = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
-                                mapType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_MAPPER);
+                                mapType, sinkAnnotation, SiddhiConstants.NAMESPACE_SINK_MAPPER);
                         ConfigReader mapperConfigReader = executionPlanContext.getSiddhiContext().
                                 getConfigManager().generateConfigReader(sinkExtension.getNamespace(),
                                 sinkExtension.getName());
@@ -395,7 +395,7 @@ public class DefinitionParserHelper {
                             Extension strategyExtension = constructExtension(streamDefinition, SiddhiConstants
                                             .ANNOTATION_SINK,
                                     strategyType, sinkAnnotation, SiddhiConstants
-                                            .NAMESPACE_DISTRIBUTED_PUBLISHING_STRATEGY);
+                                            .NAMESPACE_DISTRIBUTION_STRATEGY);
                             ConfigReader configReader = executionPlanContext.getSiddhiContext().
                                     getConfigManager().generateConfigReader
                                     (strategyExtension.getNamespace(), strategyExtension.getName());
@@ -585,26 +585,26 @@ public class DefinitionParserHelper {
         return false;
     }
 
-    private static Sink createOutputTransport(Extension sinkExtension, ExecutionPlanContext executionPlanContext) {
+    private static Sink createSink(Extension sinkExtension, ExecutionPlanContext executionPlanContext) {
 
         // Create a temp instance of the underlying transport to get supported dynamic options
-        Sink outputTransport = (Sink) SiddhiClassLoader.loadExtensionImplementation(
+        Sink sink = (Sink) SiddhiClassLoader.loadExtensionImplementation(
                 sinkExtension, SinkExecutorExtensionHolder.getInstance(executionPlanContext));
 
-        return outputTransport;
+        return sink;
     }
 
     private static List<OptionHolder> createDestinationOptionHolders(Annotation distributionAnnotation, StreamDefinition
             streamDefinition, Sink clientTransport) {
 
-        org.wso2.siddhi.annotation.Extension outputTransportExt
+        org.wso2.siddhi.annotation.Extension sinkExt
                 = clientTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class);
 
         List<OptionHolder> destinationOptHolders = new ArrayList<>();
         distributionAnnotation.getAnnotations().stream()
                 .filter(annotation -> annotation.getName().equalsIgnoreCase(SiddhiConstants.ANNOTATION_DESTINATION))
                 .forEach(destinationAnnotation -> destinationOptHolders.add(constructOptionProcessor(streamDefinition,
-                        destinationAnnotation, outputTransportExt, clientTransport.getSupportedDynamicOptions())));
+                        destinationAnnotation, sinkExt, clientTransport.getSupportedDynamicOptions())));
 
         return destinationOptHolders;
     }

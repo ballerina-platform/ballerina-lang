@@ -8,7 +8,7 @@ import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
 
 @Extension(
         name = "testInMemory",
-        namespace = "outputtransport",
+        namespace = "sink",
         description = "In-memory transport for testing distributed transport in multi client mode. This dummy " +
                 "transport simply overrides getSupportedDynamicOptions return nothing so that when distributed " +
                 "transport will identify it as a multi-client transport as there are no dynamic options",

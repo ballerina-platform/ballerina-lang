@@ -104,7 +104,7 @@ public class KafkaSourceTestCase {
             String topics[] = new String[]{"kafka_topic", "kafka_topic2"};
             createTopic(topics, 2);
             SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("sourcemapper:text", TextSourceMapper.class);
+            siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
                             "define stream BarStream (symbol string, price float, volume long); " +
@@ -161,7 +161,7 @@ public class KafkaSourceTestCase {
             String topics[] = new String[]{"kafka_topic3"};
             createTopic(topics, 2);
             SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("sourcemapper:text", TextSourceMapper.class);
+            siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
                             "define stream BarStream (symbol string, price float, volume long); " +
@@ -235,7 +235,7 @@ public class KafkaSourceTestCase {
             PersistenceStore persistenceStore = new InMemoryPersistenceStore();
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setPersistenceStore(persistenceStore);
-            siddhiManager.setExtension("sourcemapper:text", TextSourceMapper.class);
+            siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
 
             String query = "@Plan:name('TestExecutionPlan') " +
                     "define stream BarStream (count long); " +
@@ -323,7 +323,7 @@ public class KafkaSourceTestCase {
         try{
             log.info("Creating test for multiple topics and partitions and thread topic wise");
             SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("sourcemapper:text", TextSourceMapper.class);
+            siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
                     "define stream BarStream (symbol string, price float, volume long); " +
@@ -354,7 +354,7 @@ public class KafkaSourceTestCase {
         try{
             log.info("Creating test for multiple topics and partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("sourcemapper:text", TextSourceMapper.class);
+            siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
                     "define stream BarStream (symbol string, price float, volume long); " +
@@ -386,7 +386,7 @@ public class KafkaSourceTestCase {
         try{
             log.info("Creating test for single topic with multiple partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("sourcemapper:text", TextSourceMapper.class);
+            siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
                     "define stream BarStream (symbol string, price float, volume long); " +
@@ -417,7 +417,7 @@ public class KafkaSourceTestCase {
         try{
             log.info("Creating test for multiple topic with no partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("sourcemapper:text", TextSourceMapper.class);
+            siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
                     "define stream BarStream (symbol string, price float, volume long); " +
@@ -588,8 +588,8 @@ public class KafkaSourceTestCase {
                 query.insertInto("BarStream");
 
                 SiddhiManager siddhiManager = new SiddhiManager();
-                siddhiManager.setExtension("sourcemapper:text", TextSourceMapper.class);
-                siddhiManager.setExtension("outputmapper:text", TextSinkMapper.class);
+                siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
+                siddhiManager.setExtension("sink.mapper:text", TextSinkMapper.class);
 
                 ExecutionPlan executionPlan = new ExecutionPlan("ep1");
                 executionPlan.defineStream(inputDefinition);

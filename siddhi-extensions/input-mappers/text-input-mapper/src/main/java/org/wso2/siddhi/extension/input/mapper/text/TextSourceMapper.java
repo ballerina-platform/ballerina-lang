@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
  */
 @Extension(
         name = "text",
-        namespace = "sourcemapper",
+        namespace = "sourceMapper",
         description = ""
 )
 public class TextSourceMapper extends SourceMapper {

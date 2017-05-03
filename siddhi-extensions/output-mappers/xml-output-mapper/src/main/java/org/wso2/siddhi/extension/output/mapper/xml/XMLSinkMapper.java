@@ -23,7 +23,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransportListener;
+import org.wso2.siddhi.core.stream.output.sink.SinkListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.Option;
@@ -40,7 +40,7 @@ import java.io.IOException;
 
 @Extension(
         name = "xml",
-        namespace = "outputmapper",
+        namespace = "sinkMapper",
         description = "Event to XML output mapper"
 )
 /**
@@ -103,7 +103,7 @@ public class XMLSinkMapper extends SinkMapper {
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions)
+                           SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
         StringBuilder sb = new StringBuilder();
         if (payloadTemplateBuilder != null) {   //custom mapping
@@ -137,7 +137,7 @@ public class XMLSinkMapper extends SinkMapper {
                 sb.append(EVENTS_PARENT_CLOSING_TAG);
             }
         }
-        outputTransportListener.publish(sb.toString(), dynamicOptions);
+        sinkListener.publish(sb.toString(), dynamicOptions);
     }
 
     /**
@@ -146,11 +146,11 @@ public class XMLSinkMapper extends SinkMapper {
      * @param events                  Event object array
      * @param optionHolder            option holder containing static and dynamic options
      * @param payloadTemplateBuilder  Unmapped payload for reference
-     * @param outputTransportListener output transport callback
+     * @param sinkListener output transport callback
      */
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions)
+                           SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
         if (events.length < 1) {        //todo valid case?
             return;
@@ -187,7 +187,7 @@ public class XMLSinkMapper extends SinkMapper {
                 sb.append(EVENTS_PARENT_CLOSING_TAG);
             }
         }
-        outputTransportListener.publish(sb.toString(), dynamicOptions);
+        sinkListener.publish(sb.toString(), dynamicOptions);
     }
 
     /**

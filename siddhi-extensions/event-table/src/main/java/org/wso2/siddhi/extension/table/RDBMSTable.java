@@ -59,7 +59,7 @@ import java.util.TimerTask;
 
 @Extension(
         name = "rdbms",
-        namespace = "table",
+        namespace = "store",
         description = "Using this extension the data source or the connection instructions can be " +
                 "assigned to the event table.",
         parameters = {
@@ -143,7 +143,7 @@ public class RDBMSTable implements Table {
         String bloomFilterValidityInterval;
 
 
-        Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
+        Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_STORE,
                 tableDefinition.getAnnotations());
         dataSourceName = fromAnnotation.getElement(RDBMSTableConstants.ANNOTATION_ELEMENT_DATASOURCE_NAME);
         tableName = fromAnnotation.getElement(RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_NAME);
