@@ -17,16 +17,19 @@
  */
 
 import React from 'react';
+import _ from 'lodash';
 import ImageUtil from './image-util';
 import PropTypes from 'prop-types';
 import ASTNode from '../ast/node';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import DragDropManager from '../tool-palette/drag-drop-manager';
 import './panel-decorator.css';
 
 class PanelDecorator extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {dropZoneActivated: false};
     }
 
     onCollapseClick() {
@@ -42,6 +45,7 @@ class PanelDecorator extends React.Component {
         const titleHeight = 25;
         const iconSize = 14;
         const collapsed = this.props.model.viewState.collapsed|| false;
+        const dropZoneActivated = this.state.dropZoneActivated;
         return ( <g className="panel">
                      <g className="panel-header">
                          <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleHeight } rx="0" ry="0" className="headingRect" data-original-title="" title=""></rect>
@@ -63,12 +67,49 @@ class PanelDecorator extends React.Component {
                            transitionEnterTimeout={300}
                            transitionLeaveTimeout={300}>
                               { !collapsed &&
-                                   <rect x={ bBox.x } y={ bBox.y + titleHeight} width={ bBox.w } height={ bBox.h - titleHeight } rx="0" ry="0" className="panel-body-rect" fill="#fff"></rect>
+                                   <rect x={ bBox.x } y={ bBox.y + titleHeight} width={ bBox.w } height={ bBox.h - titleHeight }
+                                      rx="0" ry="0" fill="#fff"
+                                      className={(!dropZoneActivated) ? "panel-body-rect drop-zone" : "panel-body-rect drop-zone active"}
+                                      onMouseOver={(e) => this.onDropZoneActivate(e)}
+                                      onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
                               }
                               { !collapsed && this.props.children}
                         </CSSTransitionGroup>
                      </g>
                  </g>);
+    }
+
+    onDropZoneActivate (e) {
+        const dragDropManager = this.context.dragDropManager,
+              dropTarget = this.props.dropTarget,
+              dropSourceValidateCB = this.props.dropSourceValidateCB;
+        if(!_.isNil(dropTarget) && dragDropManager.isOnDrag()) {
+            if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+                return;
+            }
+            if(_.isNil(dropSourceValidateCB)) {
+                dragDropManager.setActivatedDropTarget(dropTarget);
+            } else if (_.isFunction(dropSourceValidateCB)) {
+                dragDropManager.setActivatedDropTarget(dropTarget, dropSourceValidateCB);
+            }
+            this.setState({dropZoneActivated: true});
+            dragDropManager.once('drop-target-changed', () => {
+                this.setState({dropZoneActivated: false});
+            });
+        }
+        e.stopPropagation();
+    }
+
+    onDropZoneDeactivate (e) {
+        const dragDropManager = this.context.dragDropManager,
+              dropTarget = this.props.model;
+        if(!_.isNil(dropTarget) && dragDropManager.isOnDrag()){
+            if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+                dragDropManager.clearActivatedDropTarget();
+                this.setState({dropZoneActivated: false});
+            }
+        }
+        e.stopPropagation();
     }
 }
 
@@ -80,7 +121,13 @@ PanelDecorator.propTypes = {
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
     }),
-    model: PropTypes.instanceOf(ASTNode).isRequired
+    model: PropTypes.instanceOf(ASTNode).isRequired,
+    dropTarget: PropTypes.instanceOf(ASTNode),
+    dropSourceValidateCB: PropTypes.func
 }
+
+PanelDecorator.contextTypes = {
+	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
+};
 
 export default PanelDecorator;

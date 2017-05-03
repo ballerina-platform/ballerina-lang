@@ -23,3 +23,12 @@
     shape-rendering: crispEdges;
     stroke: #909090;
 }
+
+.panel-body-rect.drop-zone.active {
+    fill-opacity: 0.2;
+}
+
+.panel-body-rect.drop-zone {
+    fill: green;
+    fill-opacity: 0;
+}
