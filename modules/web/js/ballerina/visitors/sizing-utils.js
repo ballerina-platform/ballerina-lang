@@ -80,7 +80,7 @@ class SizingUtil {
         return sortedWorkers.length > 0 ? sortedWorkers[sortedWorkers.length - 1].getViewState().components.statementContainer.h : -1;
     }
 
-    populateBlockStatement(node) {
+    populateCompoundStatementChild(node) {
         let viewState = node.getViewState();
         let components = {};
 

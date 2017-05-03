@@ -17,20 +17,30 @@
  */
  
 import React from "react";
-import StatementDecorator from "./statement-decorator";
 import PropTypes from 'prop-types';
+import {getComponentForNodeArray} from './utils';
+import BlockStatementDecorator from "./block-statement-decorator";
+import SimpleBBox from './../ast/simple-bounding-box';
+import * as DesignerDefaults from './../configs/designer-defaults';
 
 class WhileStatement extends React.Component {
 
 	render() {
 		let model = this.props.model,
-				bBox = model.viewState.bBox;
-		const text_x = bBox.x + (bBox.w / 2);
-		const text_y = bBox.y + (bBox.h / 2);
-		return (<StatementDecorator bBox={bBox}>
-							<text x={text_x} y={text_y} className="statement-text">{model.expression}</text>
-						</StatementDecorator>) ;
-    }
+			bBox = model.viewState.bBox;
+		let blockStatementBBox = new SimpleBBox();
+		blockStatementBBox.x = bBox.x;
+		blockStatementBBox.y = bBox.y + DesignerDefaults.statement.gutter.v;
+		blockStatementBBox.h = bBox.h - DesignerDefaults.statement.gutter.v;
+		blockStatementBBox.w = bBox.w;
+		const children = getComponentForNodeArray(this.props.model.getChildren());
+		return (<g>
+			<rect x={bBox.x} y={bBox.y} width={bBox.w} height={DesignerDefaults.statement.gutter.v} className="inner-drop-zone" />
+			<BlockStatementDecorator bBox={blockStatementBBox} title={"While"}>
+				{children}
+			</BlockStatementDecorator>
+		</g>);
+	}
 }
 
 WhileStatement.propTypes = {
