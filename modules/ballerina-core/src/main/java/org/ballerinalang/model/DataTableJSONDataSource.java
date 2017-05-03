@@ -20,6 +20,7 @@ package org.ballerinalang.model;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.ballerinalang.model.values.BDataTable;
@@ -49,10 +50,10 @@ public class DataTableJSONDataSource implements JSONDataSource {
     }
 
     @Override
-    public void serialize(JsonGenerator gen) throws IOException {
+    public void serialize(JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
         gen.writeStartArray();
         while (this.df.next()) {
-            this.objGen.transform(this.df).serialize(gen, null);
+            this.objGen.transform(this.df).serialize(gen, serializerProvider);
         }
         gen.writeEndArray();
         this.df.close();
