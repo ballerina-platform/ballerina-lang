@@ -17,9 +17,11 @@
  */
 
 import log from 'log';
+import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import {util} from './../sizing-utils'
 
 class ResourceDefinitionDimensionCalculatorVisitor {
 
@@ -66,14 +68,42 @@ class ResourceDefinitionDimensionCalculatorVisitor {
 
         components['body'] = new SimpleBBox();
 
+        let workerChildren = node.filterChildren(function (child) {
+            return BallerinaASTFactory.isWorkerDeclaration(child);
+        });
+
+        let connectorChildren = node.filterChildren(function (child) {
+            return BallerinaASTFactory.isConnectorDeclaration(child);
+        });
+
+        const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
         const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
+        const highestLifeLineHeight = highestStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;
+
+        var lifeLineWidth = 0;
+        _.forEach(workerChildren.concat(connectorChildren), function(child) {
+            lifeLineWidth += child.viewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
+            child.getViewState().bBox.h = _.max([components['statementContainer'].h, highestStatementContainerHeight]) +
+                DesignerDefaults.lifeLine.head.height * 2;
+            child.getViewState().components.statementContainer.h = _.max([components['statementContainer'].h,
+                highestStatementContainerHeight]);
+        });
+
         if(node.viewState.collapsed) {
             components['body'].h = 0;
         } else {
             components['body'].h = ((DesignerDefaults.panel.body.height < workerLifeLineHeight)? workerLifeLineHeight:DesignerDefaults.panel.body.height)
                                + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         }
-        components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
+
+        /**
+         * If the current default worker's statement container height is less than the highest worker's statement container
+         * we set the default statement container height to the highest statement container's height
+         */
+        components['statementContainer'].h = _.max([components['statementContainer'].h, highestStatementContainerHeight]);
+
+        components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
+            DesignerDefaults.panel.body.padding.left + lifeLineWidth;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;

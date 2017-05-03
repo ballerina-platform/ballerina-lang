@@ -20,7 +20,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
-import {util} from './../sizing-utils'
+import {util} from './../sizing-utils';
 
 class FunctionDefinitionDimensionCalculatorVisitor {
 
@@ -87,16 +87,9 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
         const highestLifeLineHeight = highestStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;
 
-        var workerWidth = 0;
-        _.forEach(workerChildren, function(child) {
-            workerWidth += child.viewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
-            child.getViewState().bBox.h = _.max([components['statementContainer'].h, highestStatementContainerHeight]) +
-                DesignerDefaults.lifeLine.head.height * 2;
-            child.getViewState().components.statementContainer.h = _.max([components['statementContainer'].h,
-                highestStatementContainerHeight]);
-        });
-
-        _.forEach(connectorChildren, function(child) {
+        var lifeLineWidth = 0;
+        _.forEach(workerChildren.concat(connectorChildren), function(child) {
+            lifeLineWidth += child.viewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
             child.getViewState().bBox.h = _.max([components['statementContainer'].h, highestStatementContainerHeight]) +
                 DesignerDefaults.lifeLine.head.height * 2;
             child.getViewState().components.statementContainer.h = _.max([components['statementContainer'].h,
@@ -117,7 +110,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         components['statementContainer'].h = _.max([components['statementContainer'].h, highestStatementContainerHeight]);
 
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
-            DesignerDefaults.panel.body.padding.left + workerWidth;
+            DesignerDefaults.panel.body.padding.left + lifeLineWidth;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;
