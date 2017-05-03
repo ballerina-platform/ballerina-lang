@@ -19,6 +19,7 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
+import {util} from './../sizing-utils'
 
 class ConnectorDefinitionDimensionCalculatorVisitor {
 
@@ -37,46 +38,7 @@ class ConnectorDefinitionDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        var viewState = node.getViewState();
-        var components = {};
-
-        components['heading'] = new SimpleBBox();
-        components['heading'].h = DesignerDefaults.panel.heading.height;
-
-        //Initial statement height include panel heading and pannel padding.
-        var bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
-        // Set the width to 0 dont add the padding now since we do a comparison.
-        var bodyWidth = 0;
-
-        node.children.forEach(function(child,index) {
-            bodyHeight += child.viewState.bBox.h ;
-            // If there is only one child no need to add gutter
-            if(index == 1){
-                bodyHeight = bodyHeight + DesignerDefaults.innerPanel.wrapper.gutter.v;
-            }
-            if(child.viewState.bBox.w > bodyWidth){
-                bodyWidth = child.viewState.bBox.w;
-            }
-        });
-
-
-        // now add the padding for width
-        bodyWidth = bodyWidth + DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
-
-        components['body'] = new SimpleBBox();
-
-        if(node.viewState.collapsed) {
-            components['body'].h = 0;
-        } else {
-            components['body'].h = bodyHeight;
-        }
-        components['body'].w = bodyWidth;
-        components['heading'].w = bodyWidth;
-
-        viewState.bBox.h = components['heading'].h + components['body'].h;
-        viewState.bBox.w = components['body'].w;
-
-        viewState.components = components;
+        util.populatePanelDecoratorBBox(node);
     }
 }
 
