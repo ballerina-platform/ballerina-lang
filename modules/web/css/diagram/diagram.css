@@ -38,3 +38,8 @@
 .action-arrow-head{
   stroke: #000000;
 }
+
+.struct-variable-definition-wrapper{
+    stroke: #9d9d9d;
+    fill: #FFF;
+}
