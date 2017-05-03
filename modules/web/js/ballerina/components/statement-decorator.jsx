@@ -99,10 +99,10 @@ class StatementView extends React.Component {
 
 StatementView.propTypes = {
 	bBox: PropTypes.shape({
-		x: React.PropTypes.number.isRequired,
-		y: React.PropTypes.number.isRequired,
-		w: React.PropTypes.number.isRequired,
-		h: React.PropTypes.number.isRequired,
+		x: PropTypes.number.isRequired,
+		y: PropTypes.number.isRequired,
+		w: PropTypes.number.isRequired,
+		h: PropTypes.number.isRequired,
 	}),
 	expression: PropTypes.string.isRequired,
 	model: PropTypes.instanceOf(ASTNode).isRequired
