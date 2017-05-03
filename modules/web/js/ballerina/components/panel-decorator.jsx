@@ -49,6 +49,7 @@ class PanelDecorator extends React.Component {
         const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
         const dropZoneClassName = ((!dropZoneActivated) ? "panel-body-rect drop-zone" : "panel-body-rect drop-zone active")
                           + ((dropZoneDropNotAllowed) ? " block" : "");
+        const panelBodyClassName = "panel-body" + ((dropZoneActivated) ? " drop-zone active" : "");
         return ( <g className="panel">
                      <g className="panel-header">
                          <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleHeight } rx="0" ry="0" className="headingRect" data-original-title="" title=""></rect>
@@ -63,7 +64,7 @@ class PanelDecorator extends React.Component {
                              <line x1={ bBox.x + bBox.w - 25} y1={ bBox.y + 5} x2={ bBox.x + bBox.w - 25} y2={ bBox.y + 20} className="operations-separator"></line>
                          </g>
                      </g>
-                     <g className="panel-body">
+                     <g className={panelBodyClassName}>
                         <CSSTransitionGroup
                            component="g"
                            transitionName="panel-slide"
