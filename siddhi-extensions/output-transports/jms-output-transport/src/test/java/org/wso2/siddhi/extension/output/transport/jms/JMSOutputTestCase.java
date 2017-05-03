@@ -37,7 +37,7 @@ public class JMSOutputTestCase {
     public static void setup() throws InterruptedException {
         // starting the ActiveMQ broker
         //ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(PROVIDER_URL);
-        Thread listenerThread = new Thread(new JMSClient("activemq", "", "DAS_JMS_OUTPUT_TEST_ALAKALANKA"));
+        Thread listenerThread = new Thread(new JMSClient("activemq", "", "DAS_JMS_OUTPUT_TEST"));
         listenerThread.start();
         Thread.sleep(5000);
     }
@@ -49,8 +49,8 @@ public class JMSOutputTestCase {
         String inStreamDefinition = "" +
                 "@sink(type='jms', @map(type='text'), "
                 + "factoryInitial='org.apache.activemq.jndi.ActiveMQInitialContextFactory', "
-                + "providerUrl='tcp://localhost:61616',"
-                + "destination='DAS_JMS_OUTPUT_TEST_ALAKALANKA', "
+                + "providerUrl='vm://localhost',"
+                + "destination='DAS_JMS_OUTPUT_TEST', "
                 + "connectionFactoryType='queue',"
                 + "connectionFactoryJNDIName='QueueConnectionFactory'"
                 +")" +
