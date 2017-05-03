@@ -156,7 +156,7 @@ public class TextSourceMapper extends SourceMapper {
         // Validate the event
         // Validate the event
         if (eventObject == null) {
-            throw new ExecutionPlanRuntimeException("Null object received from the Source to TextSourceMapper");
+            throw new ExecutionPlanRuntimeException("Null object received from the Source to TextsourceMapper");
         }
 
         if (!(eventObject instanceof String)) {

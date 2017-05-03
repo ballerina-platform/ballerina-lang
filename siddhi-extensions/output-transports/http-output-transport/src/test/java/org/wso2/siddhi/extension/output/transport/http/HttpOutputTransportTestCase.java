@@ -76,7 +76,7 @@ public class HttpSinkTestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("sinkmapper:text", PassThroughSinkmapper.class);
+        siddhiManager.setExtension("sinkMapper:text", PassThroughSinkmapper.class);
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);

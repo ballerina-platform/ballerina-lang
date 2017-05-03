@@ -153,7 +153,7 @@ public class MapSourcemapper implements Sourcemapper {
 
     private Event convertToEvent(Object eventObject) {
         if (eventObject == null) {
-            throw new ExecutionPlanRuntimeException("Null object received from the Source to MapSourcemapper");
+            throw new ExecutionPlanRuntimeException("Null object received from the Source to MapsourceMapper");
         } else if (!(eventObject instanceof HashMap)) {
             throw new ExecutionPlanRuntimeException("Invalid Map object received. Expected HashMap, but found " +
                     eventObject.getClass()

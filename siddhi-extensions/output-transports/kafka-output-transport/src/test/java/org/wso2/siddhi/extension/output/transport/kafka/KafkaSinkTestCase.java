@@ -32,7 +32,7 @@ public class KafkaSinkTestCase {
         log.info("Creating test for publishing events for static topic with a partition");
         try {
             SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("sinkmapper:text", TextSinkMapper.class);
+            siddhiManager.setExtension("sinkMapper:text", TextSinkMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                 "@Plan:name('TestExecutionPlan') " +
                 "define stream FooStream (symbol string, price float, volume long); " +
@@ -58,7 +58,7 @@ public class KafkaSinkTestCase {
         log.info("Creating test for publishing events for dynamic topic without partition");
         try {
             SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("sinkmapper:text", TextSinkMapper.class);
+            siddhiManager.setExtension("sinkMapper:text", TextSinkMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
                     "define stream FooStream (symbol string, price float, volume long); " +
