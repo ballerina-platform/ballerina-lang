@@ -70,6 +70,9 @@ import VariableDefinition from './variable-definition';
 import BreakStatement from './statements/break-statement';
 import CommentStatement from './statements/comment-statement';
 import TypeCastExpression from './expressions/type-cast-expression';
+import Annotation from './annotations/annotation';
+import AnnotationEntry from './annotations/annotation-entry';
+import AnnotationEntryArray from './annotations/annotation-entry-array';
 
         export default  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -126,7 +129,9 @@ import TypeCastExpression from './expressions/type-cast-expression';
             VariableDefinition : VariableDefinition,
             BreakStatement : BreakStatement,
             CommentStatement : CommentStatement,
-            TypeCastExpression : TypeCastExpression
+            TypeCastExpression : TypeCastExpression,
+            Annotation : Annotation,
+            AnnotationEntry : AnnotationEntry,
+            AnnotationEntryArray : AnnotationEntryArray
         }
-    
 

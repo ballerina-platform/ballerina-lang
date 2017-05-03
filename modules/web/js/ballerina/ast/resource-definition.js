@@ -24,9 +24,6 @@ import CommonUtils from '../utils/common-utils';
  * Constructor for ResourceDefinition
  * @param {Object} args - The arguments to create the ServiceDefinition
  * @param {string} [args.resourceName=newResource] - Service name
- * @param {string[]} [args.annotations] - Resource annotations
- * @param {string} [args.annotations.Method] - Resource annotation for Method
- * @param {string} [args.annotations.Path] - Resource annotation for Path
  * @constructor
  */
 class ResourceDefinition extends ASTNode {
@@ -34,26 +31,6 @@ class ResourceDefinition extends ASTNode {
         // TODO: All the types should be referred from the global constants
         super('Resource', 'resource {', '}');
         this._resourceName = _.get(args, 'resourceName');
-        this._annotations = _.get(args, 'annotations', []);
-
-        // Adding available annotations and their default values.
-        if (_.isNil(_.find(this._annotations, function (annotation) {
-                return annotation.key == "http:Method";
-            }))) {
-            this._annotations.push({
-                key: "http:Method",
-                value: "GET"
-            });
-        }
-
-        if (_.isNil(_.find(this._annotations, function (annotation) {
-                return annotation.key == "Path";
-            }))) {
-            this._annotations.push({
-                key: "http:Path",
-                value: ""
-            });
-        }
 
         this.BallerinaASTFactory = this.getFactory();
 
@@ -97,10 +74,6 @@ class ResourceDefinition extends ASTNode {
 
     getResourceName() {
         return this._resourceName;
-    }
-
-    getAnnotations() {
-        return this._annotations;
     }
 
     /**
@@ -214,37 +187,6 @@ class ResourceDefinition extends ASTNode {
         }
     }
 
-    /**
-     * Override the super call to addChild
-     * @param child
-     * @param index
-     */
-    addChild(child, index) {
-        if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
-        } else {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
-        }
-    }
-
-    /**
-     * Adding/Updating an annotation.
-     * @param key - Annotation key
-     * @param value - Value for the annotation.
-     */
-    addAnnotation(key, value) {
-        if (!_.isNil(key) && !_.isNil(value)) {
-            var options = {
-              predicate: {key: key}
-          };
-            this.pushToArrayAttribute('_annotations', {key: key, value: value}, options);
-        } else {
-            var errorString = "Cannot add annotation @" + key + "(\"" + value + "\").";
-            log.error(errorString);
-            throw errorString;
-        }
-    }
-
     getConnectionDeclarations() {
         var connectorDeclaration = [];
         var self = this;
@@ -297,68 +239,11 @@ class ResourceDefinition extends ASTNode {
      */
     initFromJson(jsonNode) {
         this.setResourceName(jsonNode.resource_name, {doSilently: true});
-        this._annotations = _.isNil(this._annotations) ? [] : this._annotations;
-
-        var self = this;
-
-        // Check if a annotation of type http method is received from the service.
-        var existingMethodAnnotationFromService = _.find(jsonNode.annotation_attachments, function (annotation) {
-            return annotation.annotation_name === "POST" || annotation.annotation_name === "GET" ||
-                annotation.annotation_name === "PUT" || annotation.annotation_name === "DELETE" ||
-                annotation.annotation_name === "HEAD" || annotation.annotation_name === "PATCH" ||
-                annotation.annotation_name === "OPTIONS";
-        });
-
-        // Get the method annotation of the model.
-        var existingMethodAnnotationInModel = _.find(self._annotations, function (annotation) {
-            return annotation.key === "http:Method";
-        });
-
-        // If http method annotation is received from the service.
-        if (!_.isNil(existingMethodAnnotationFromService)) {
-            // Remove the existing value.
-            existingMethodAnnotationInModel.value = "";
-            _.forEach(jsonNode.annotation_attachments, function (annotation) {
-                // Updating the new http method value.
-                if (annotation.annotation_name === "POST" || annotation.annotation_name === "GET" ||
-                    annotation.annotation_name === "PUT" || annotation.annotation_name === "DELETE" ||
-                    annotation.annotation_name === "HEAD" || annotation.annotation_name === "PATCH" ||
-                    annotation.annotation_name === "OPTIONS") {
-                    if (_.isEmpty(existingMethodAnnotationInModel.value)) {
-                        existingMethodAnnotationInModel.value = annotation.annotation_name;
-                    } else {
-                        existingMethodAnnotationInModel.value = existingMethodAnnotationInModel.value + ", " +
-                            annotation.annotation_name;
-                    }
-                }
-            });
-        }
-
-        // Updating the annotations of the model according to the annotations received from the service that are not
-        // related to http methods.
-        _.forEach(jsonNode.annotation_attachments, function(annotationFromService){
-           if (!(annotationFromService.annotation_name === "POST" || annotationFromService.annotation_name === "GET" ||
-               annotationFromService.annotation_name === "PUT" || annotationFromService.annotation_name === "DELETE" ||
-               annotationFromService.annotation_name === "HEAD" || annotationFromService.annotation_name === "PATCH" ||
-               annotationFromService.annotation_name === "OPTIONS")) {
-               var existingAnnotation = _.find(self._annotations, function (annotationInModel) {
-                   return annotationInModel.key === annotationFromService.annotation_name;
-               });
-               if (_.isNil(existingAnnotation)) {
-                   self._annotations.push({
-                       key: annotationFromService.annotation_name,
-                       value: annotationFromService.annotation_value
-                   });
-               } else {
-                   existingAnnotation.value = annotationFromService.annotation_value;
-               }
-           }
-        });
-
+        let self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = undefined;
             var childNodeTemp = undefined;
-            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.BallerinaASTFactory.createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
@@ -377,38 +262,35 @@ class ResourceDefinition extends ASTNode {
      * @param {number|undefined} index
      */
     addChild(child, index) {
-        var indexNew;
-        var self = this;
-        if (self.BallerinaASTFactory.isWorkerDeclaration(child)) {
-            indexNew = _.findLastIndex(this.getChildren(), function (node) {
-                self.BallerinaASTFactory.isWorkerDeclaration(node);
+        if (_.isUndefined(index)) {
+            let indexNew;
+
+            let lastAnnotationIndex = _.findLastIndex(this.getChildren(), (child) => {
+                return this.BallerinaASTFactory.isAnnotation(child);
             });
-            indexNew = (indexNew === -1) ? 0 : (indexNew + 1);
-        } else if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
-            var firstWorker = _.findIndex(this.getChildren(), function (node) {
-                self.BallerinaASTFactory.isWorkerDeclaration(node);
-            });
-            if (firstWorker !== -1) {
-                indexNew = firstWorker - 1;
+
+            indexNew = lastAnnotationIndex === -1 ? 0 : lastAnnotationIndex + 1;
+
+            if (!this.BallerinaASTFactory.isAnnotation(child)) {
+                let lastWorkerDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
+                    return this.BallerinaASTFactory.isWorkerDeclaration(child);
+                });
+
+                indexNew = lastWorkerDeclarationIndex === -1 ? indexNew : lastWorkerDeclarationIndex + 1;
+
+                if (!this.BallerinaASTFactory.isWorkerDeclaration(child)) {
+                    let lastConnectorDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
+                        return this.BallerinaASTFactory.isConnectorDeclaration(child);
+                    });
+
+                    indexNew = lastConnectorDeclarationIndex === -1 ? indexNew : lastConnectorDeclarationIndex + 1;
+                }
             }
+
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
         } else {
-            var firstWorker = _.findIndex(this.getChildren(), function (node) {
-                self.BallerinaASTFactory.isWorkerDeclaration(node);
-            });
-            var firstConnector = _.findIndex(this.getChildren(), function (node) {
-                self.BallerinaASTFactory.isWorkerDeclaration(node);
-            });
-
-            if (firstConnector !== -1) {
-                indexNew = firstConnector - 1;
-            } else if (firstWorker !== -1) {
-                indexNew = index;
-            } else {
-                indexNew = index;
-            }
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
         }
-
-        Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
     }
 
     /**
@@ -458,7 +340,36 @@ class ResourceDefinition extends ASTNode {
 
         return !_.isEmpty(connectorReferences) ? connectorReferences : this.getParent().getConnectorsInImmediateScope();
     }
+
+    /**
+     * Gets the @http:Path{value: '/abc'} annotation AST.
+     * @return {Annotation|undefined}
+     */
+    getPathAnnotation() {
+        let pathAnnotation = undefined;
+        _.forEach(this.getChildrenOfType(this.getFactory().isAnnotation), annotationAST => {
+            if (_.isEqual(annotationAST.getPackageName().toLowerCase(), 'http') && _.isEqual(annotationAST.getIdentifier().toLowerCase(), 'path')) {
+                pathAnnotation = annotationAST;
+            }
+        });
+
+        return pathAnnotation;
+    }
+
+    /**
+     * Gets the @http:GET{} annotation AST
+     * @return {Annotation|undefined}
+     */
+    getHttpMethodAnnotation() {
+        let httpMethodAnnotation = undefined;
+        _.forEach(this.getChildrenOfType(this.getFactory().isAnnotation), annotationAST => {
+            if (_.isEqual(annotationAST.getUniqueIdentifier(), 'httpMethod')) {
+                httpMethodAnnotation = annotationAST;
+            }
+        });
+
+        return httpMethodAnnotation;
+    }
 }
 
 export default ResourceDefinition;
-

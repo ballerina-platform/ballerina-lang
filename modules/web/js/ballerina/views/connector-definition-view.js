@@ -28,6 +28,7 @@ import Axis from './axis';
 import ConnectorDeclarationView from './connector-declaration-view';
 import VariableDefinitionsPaneView from './variable-definitions-pane-view';
 import ArgumentsView from './function-arguments-view';
+import AnnotationView from './annotation-view';
 
 /**
  * The view to represent a connector definition which is an AST visitor.
@@ -238,6 +239,38 @@ class ConnectorDefinitionView extends SVGCanvas {
         });
 
         var operationsPane = this.getOperationsPane();
+
+        // Creating annotation icon.
+        var panelAnnotationIcon = $('<i/>', {
+            class: 'fw fw-annotation pull-right right-icon-clickable hoverable',
+            title: 'Annotations'
+        }).appendTo(operationsPane).tooltip();
+
+        // Stopping event propagation to the elements behind.
+        panelAnnotationIcon.click(function (event) {
+            event.stopPropagation();
+        });
+
+        // Adding separator for annotation icon.
+        $('<span class=\'pull-right canvas-operations-separator\'>|</span>').appendTo(operationsPane);
+
+        let annotationViewArgs = {
+            astNode: this.getModel(),
+            diagramRenderingContext: this.getDiagramRenderingContext(),
+            viewPrependElement: this.getContainer().parent().parent()
+        };
+        this._annotationView = new AnnotationView(annotationViewArgs);
+        this._annotationView.render();
+        $(panelAnnotationIcon).click(function() {
+            let isClicked = $(this).data('isClicked');
+            if (isClicked) {
+                self._annotationView.hideEditor();
+                $(this).data('isClicked', false);
+            } else {
+                self._annotationView.showEditor();
+                $(this).data('isClicked', true);
+            }
+        });
 
         // Creating arguments icon.
         var panelArgumentsIcon = $('<i/>', {
