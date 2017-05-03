@@ -1,0 +1,11 @@
+.package-definition-header {
+    fill: #FFFFFF;
+}
+
+.package-definition-text {
+    dominant-baseline: central;
+}
+
+.package-definition-package-name {
+    dominant-baseline: central;
+}

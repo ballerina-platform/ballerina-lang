@@ -52,7 +52,7 @@ class WorkerDeclaration extends React.Component {
         workerBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
 
         return (<g>
-                <StatementContainer bBox={statementContainerBBox}/>
+                <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}/>
                 <LifeLine title="Worker" bBox={workerBBox}/>
                 {children}
             </g>

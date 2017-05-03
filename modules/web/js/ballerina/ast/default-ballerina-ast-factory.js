@@ -55,9 +55,11 @@ import BallerinaASTFactory from './ballerina-ast-factory';
      */
     DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
         var connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
+        var actionDef = DefaultBallerinaASTFactory.createConnectorAction(args);
         var connectorArg = BallerinaASTFactory.createResourceParameter();
         connectorArg.setType("message");
         connectorArg.setIdentifier("m");
+        connectorDef.addChild(actionDef);
         connectorDef.addChild(connectorArg);
         return connectorDef;
     };
