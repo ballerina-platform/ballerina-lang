@@ -28,7 +28,7 @@ class ElseStatementPositionCalcVisitor {
 
     beginVisit(node) {
         log.debug('visit ElseStatementPositionCalcVisitor');
-        Utils.getBlockStatementPosition(node);
+        Utils.getCompoundStatementChildPosition(node);
     }
 
     visit(node) {

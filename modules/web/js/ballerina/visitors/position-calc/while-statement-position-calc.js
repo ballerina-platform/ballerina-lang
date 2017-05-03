@@ -18,26 +18,30 @@
 
 import log from 'log';
 import * as Utils from './utils';
+import * as DesignerDefaults from './../../configs/designer-defaults';
 
-class CatchStatementPositionCalcVisitor {
+class WhileStatementPositionCalcVisitor {
 
     canVisit(node) {
-        log.debug('can visit CatchStatementPositionCalcVisitor');
+        log.debug('can visit WhileStatementPositionCalcVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('visit CatchStatementPositionCalcVisitor');
-        Utils.getCompoundStatementChildPosition(node);
+        log.debug('visit WhileStatementPositionCalcVisitor');
+        Utils.getSimpleStatementPosition(node);
+        node.getViewState().components.statementContainer.x = node.getViewState().bBox.x;
+        node.getViewState().components.statementContainer.y = node.getViewState().bBox.y +
+            DesignerDefaults.blockStatement.heading.height + DesignerDefaults.statement.gutter.v;
     }
 
     visit(node) {
-        log.debug('visit CatchStatementPositionCalcVisitor');
+        log.debug('visit WhileStatementPositionCalcVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit CatchStatementPositionCalcVisitor');
+        log.debug('end visit WhileStatementPositionCalcVisitor');
     }
 }
 
-export default CatchStatementPositionCalcVisitor;
+export default WhileStatementPositionCalcVisitor;

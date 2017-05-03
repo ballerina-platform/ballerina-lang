@@ -35,7 +35,7 @@ class ElseIfStatementDimensionCalculatorVisitor {
 
     endVisit(node) {
         log.debug('End Visit ElseIfStatementDimensionCalculatorVisitor');
-        util.populateBlockStatement(node);
+        util.populateCompoundStatementChild(node);
     }
 }
 

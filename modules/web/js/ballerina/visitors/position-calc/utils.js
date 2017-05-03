@@ -53,7 +53,7 @@ function getSimpleStatementPosition(node) {
     bBox.y = y;
 }
 
-function getBlockStatementPosition(node) {
+function getCompoundStatementChildPosition(node) {
     let viewState = node.getViewState();
     let bBox = viewState.bBox;
     const currentIndex = _.findIndex(node.getParent().getChildren(), node);
@@ -77,5 +77,5 @@ function getBlockStatementPosition(node) {
     viewState.components.statementContainer.y = statementContainerY;
 }
 
-export {getSimpleStatementPosition, getBlockStatementPosition};
+export {getSimpleStatementPosition, getCompoundStatementChildPosition};
 

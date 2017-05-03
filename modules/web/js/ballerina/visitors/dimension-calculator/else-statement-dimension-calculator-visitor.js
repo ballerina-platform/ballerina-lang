@@ -35,7 +35,7 @@ class ElseStatementDimensionCalculatorVisitor {
 
     endVisit(node) {
         log.debug('End Visit ElseStatementDimensionCalculatorVisitor');
-        util.populateBlockStatement(node);
+        util.populateCompoundStatementChild(node);
     }
 }
 

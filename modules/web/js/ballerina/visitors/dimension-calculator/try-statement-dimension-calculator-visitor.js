@@ -35,7 +35,7 @@ class TryStatementDimensionCalculatorVisitor {
 
     endVisit(node) {
         log.debug('End Visit TryStatementDimensionCalculatorVisitor');
-        util.populateBlockStatement(node);
+        util.populateCompoundStatementChild(node);
     }
 }
 
