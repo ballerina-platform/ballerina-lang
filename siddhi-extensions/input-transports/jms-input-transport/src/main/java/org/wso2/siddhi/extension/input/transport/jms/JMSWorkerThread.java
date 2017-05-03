@@ -45,22 +45,27 @@ public class JMSWorkerThread implements Runnable {
 
     @Override
     public void run() {
-        if (carbonMessage instanceof TextCarbonMessage) {
-            String event = ((TextCarbonMessage) carbonMessage).getText();
-            sourceEventListener.onEvent(event);
-        } else if (carbonMessage instanceof MapCarbonMessage) {
-            Map<String, String> event = new HashMap<>();
-            Enumeration<String> mapNames = ((MapCarbonMessage) carbonMessage).getMapNames();
-            while (mapNames.hasMoreElements()) {
-                String key = mapNames.nextElement();
-                event.put(key, ((MapCarbonMessage) carbonMessage).getValue(key));
+        try {
+            if (carbonMessage instanceof TextCarbonMessage) {
+                String event = ((TextCarbonMessage) carbonMessage).getText();
+                sourceEventListener.onEvent(event);
+            } else if (carbonMessage instanceof MapCarbonMessage) {
+                Map<String, String> event = new HashMap<>();
+                Enumeration<String> mapNames = ((MapCarbonMessage) carbonMessage).getMapNames();
+                while (mapNames.hasMoreElements()) {
+                    String key = mapNames.nextElement();
+                    event.put(key, ((MapCarbonMessage) carbonMessage).getValue(key));
+                }
+                sourceEventListener.onEvent(event);
+            } else {
+                throw new JMSInputAdaptorRuntimeException("The message type of the JMS message is not supported!");
             }
-            sourceEventListener.onEvent(event);
-        } else {
-            throw new JMSInputAdaptorRuntimeException("The message type of the JMS message is not supported!");
-        }
-        if (carbonCallback != null) {
-            carbonCallback.done(carbonMessage);
+            // ACK only if the event is processed i.e: no exceptions thrown from the onEvent method.
+            if (carbonCallback != null) {
+                carbonCallback.done(carbonMessage);
+            }
+        } catch (RuntimeException e) {
+            throw new JMSInputAdaptorRuntimeException("Failed to process JMS message.", e);
         }
     }
 }
