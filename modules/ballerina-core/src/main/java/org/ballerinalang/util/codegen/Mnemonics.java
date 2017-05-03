@@ -64,6 +64,17 @@ public class Mnemonics {
         mnemonics[InstructionCodes.bastore] = "bastore";
         mnemonics[InstructionCodes.rastore] = "rastore";
 
+        mnemonics[InstructionCodes.ifieldload] = "ifieldload";
+        mnemonics[InstructionCodes.ffieldload] = "ffieldload";
+        mnemonics[InstructionCodes.sfieldload] = "sfieldload";
+        mnemonics[InstructionCodes.bfieldload] = "bfieldload";
+        mnemonics[InstructionCodes.rfieldload] = "rfieldload";
+        mnemonics[InstructionCodes.ifieldstore] = "ifieldstore";
+        mnemonics[InstructionCodes.ffieldstore] = "ffieldstore";
+        mnemonics[InstructionCodes.sfieldstore] = "sfieldstore";
+        mnemonics[InstructionCodes.bfieldstore] = "bfieldstore";
+        mnemonics[InstructionCodes.rfieldstore] = "rfieldstore";
+
         mnemonics[InstructionCodes.iadd] = "iadd";
         mnemonics[InstructionCodes.fadd] = "fadd";
         mnemonics[InstructionCodes.sadd] = "sadd";
@@ -97,6 +108,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.snewarray] = "snewarray";
         mnemonics[InstructionCodes.bnewarray] = "bnewarray";
         mnemonics[InstructionCodes.rnewarray] = "rnewarray";
+
+        mnemonics[InstructionCodes.newstruct] = "newstruct";
     }
 
     public static String getMnem(int opcode) {

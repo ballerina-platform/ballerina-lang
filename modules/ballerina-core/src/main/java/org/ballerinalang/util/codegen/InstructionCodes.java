@@ -69,17 +69,29 @@ public interface InstructionCodes {
     int bastore = 40;
     int rastore = 41;
 
-    int iadd = 50;
-    int fadd = 51;
-    int sadd = 52;
-    int isub = 53;
-    int fsub = 54;
-    int imul = 55;
-    int fmul = 56;
-    int idiv = 57;
-    int fdiv = 58;
-    int imod = 59;
-    int fmod = 60;
+    int ifieldload = 50;
+    int ffieldload = 51;
+    int sfieldload = 52;
+    int bfieldload = 53;
+    int rfieldload = 54;
+
+    int ifieldstore = 60;
+    int ffieldstore = 61;
+    int sfieldstore = 62;
+    int bfieldstore = 63;
+    int rfieldstore = 64;
+
+    int iadd = 70;
+    int fadd = 71;
+    int sadd = 72;
+    int isub = 73;
+    int fsub = 74;
+    int imul = 75;
+    int fmul = 76;
+    int idiv = 77;
+    int fdiv = 78;
+    int imod = 79;
+    int fmod = 80;
 
     int icmp = 100;
     int fcmp = 101;
@@ -102,5 +114,7 @@ public interface InstructionCodes {
     int bnewarray = 203;
     int rnewarray = 204;
 
-    int InstructionCodeCount = 205;
+    int newstruct = 210;
+
+    int InstructionCodeCount = 211;
 }
