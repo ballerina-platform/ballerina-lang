@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -63,19 +64,22 @@ public abstract class StreamProcessor extends AbstractStreamProcessor {
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors of each function parameters
+     * @param configReader
      * @param executionPlanContext         the context of the execution plan
-     * @param outputExpectsExpiredEvents   is output expects ExpiredEvents
-     * @return the additional output attributes introduced by the function
+     * @param outputExpectsExpiredEvents   is output expects ExpiredEvents   @return the additional output attributes
+     *                                     introduced by the function
      */
     protected List<Attribute> init(AbstractDefinition inputDefinition,
-                                   ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+                                   ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                                   ExecutionPlanContext
                                            executionPlanContext, boolean outputExpectsExpiredEvents) {
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
-        return init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
+        return init(inputDefinition,attributeExpressionExecutors,configReader,executionPlanContext);
     }
 
     protected abstract List<Attribute> init(AbstractDefinition inputDefinition,
-                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+                                            ExpressionExecutor[] attributeExpressionExecutors, ConfigReader
+                                                    configReader, ExecutionPlanContext
                                                     executionPlanContext);
 
 }

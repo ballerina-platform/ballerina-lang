@@ -38,18 +38,18 @@ public class MatcherParser {
                                                                           int currentState) {
         int storeEventIndex = 0;
 
-        MetaStreamEvent eventTableStreamEvent = new MetaStreamEvent();
-        eventTableStreamEvent.setTableEvent(true);
-        eventTableStreamEvent.addInputDefinition(candsidateDefinition);
+        MetaStreamEvent tableStreamEvent = new MetaStreamEvent();
+        tableStreamEvent.setTableEvent(true);
+        tableStreamEvent.addInputDefinition(candsidateDefinition);
         for (Attribute attribute : candsidateDefinition.getAttributeList()) {
-            eventTableStreamEvent.addOutputData(attribute);
+            tableStreamEvent.addOutputData(attribute);
         }
 
         MetaStateEvent metaStateEvent = null;
         if (matchingMetaComplexEvent instanceof MetaStreamEvent) {
             metaStateEvent = new MetaStateEvent(2);
             metaStateEvent.addEvent(((MetaStreamEvent) matchingMetaComplexEvent));
-            metaStateEvent.addEvent(eventTableStreamEvent);
+            metaStateEvent.addEvent(tableStreamEvent);
             storeEventIndex = 1;
             defaultStreamEventIndex = 0;
             if (currentState == UNKNOWN_STATE) {
@@ -74,7 +74,7 @@ public class MatcherParser {
                 for (MetaStreamEvent metaStreamEvent : metaStreamEvents) {
                     metaStateEvent.addEvent(metaStreamEvent);
                 }
-                metaStateEvent.addEvent(eventTableStreamEvent);
+                metaStateEvent.addEvent(tableStreamEvent);
                 storeEventIndex = metaStreamEvents.length;
             }
         }

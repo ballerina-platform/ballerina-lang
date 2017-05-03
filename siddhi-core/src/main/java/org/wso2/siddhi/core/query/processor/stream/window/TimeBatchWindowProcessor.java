@@ -32,11 +32,12 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -72,6 +73,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     private ComplexEventChunk<StreamEvent> expiredEventChunk = null;
     private StreamEvent resetEvent = null;
     private Scheduler scheduler;
+    private boolean outputExpectsExpiredEvents;
     private ExecutionPlanContext executionPlanContext;
     private boolean isStartTimeEnabled = false;
     private long startTime = 0;
@@ -91,7 +93,9 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     }
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, boolean
+            outputExpectsExpiredEvents, ExecutionPlanContext executionPlanContext) {
+        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
         this.executionPlanContext = executionPlanContext;
         if (outputExpectsExpiredEvents) {
             this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
@@ -272,11 +276,11 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, EventTable> eventTableMap, String queryName) {
+                                              Map<String, Table> tableMap, String queryName) {
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
         return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder,
-                executionPlanContext, variableExpressionExecutors, eventTableMap, this.queryName);
+                executionPlanContext, variableExpressionExecutors, tableMap, this.queryName);
     }
 }

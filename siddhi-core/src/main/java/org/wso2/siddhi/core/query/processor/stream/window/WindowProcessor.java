@@ -25,6 +25,7 @@ import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -33,15 +34,12 @@ import java.util.List;
 
 public abstract class WindowProcessor extends AbstractStreamProcessor {
 
-    //Introduced to maintain backward compatible
-    protected boolean outputExpectsExpiredEvents;
-
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean
+            attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext,
+                                   boolean
                                            outputExpectsExpiredEvents) {
-        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
-        init(attributeExpressionExecutors, executionPlanContext);
+        init(attributeExpressionExecutors, configReader, outputExpectsExpiredEvents, executionPlanContext);
         return new ArrayList<Attribute>(0);
     }
 
@@ -49,9 +47,12 @@ public abstract class WindowProcessor extends AbstractStreamProcessor {
      * The init method of the WindowProcessor, this method will be called before other methods
      *
      * @param attributeExpressionExecutors the executors of each function parameters
+     * @param configReader                 the config reader of window
+     * @param outputExpectsExpiredEvents
      * @param executionPlanContext         the context of the execution plan
      */
-    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                                 boolean outputExpectsExpiredEvents, ExecutionPlanContext
             executionPlanContext);
 
     @Override

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.extension.eventtable.rdbms;
+package org.wso2.siddhi.extension.table.rdbms;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -62,7 +62,7 @@ public class UpdateFromRDBMSTestCase {
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        "@from(table = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
                         ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
@@ -115,7 +115,7 @@ public class UpdateFromRDBMSTestCase {
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        "@from(table = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
                         ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "', cache='lru', cache.size='1000')  " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
@@ -167,7 +167,7 @@ public class UpdateFromRDBMSTestCase {
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        "@from(table = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
                         ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "', cache='lru', cache.size='1000') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
@@ -237,7 +237,7 @@ public class UpdateFromRDBMSTestCase {
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        "@from(table = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
                         ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "' , bloom.filters = 'enable') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
@@ -308,7 +308,7 @@ public class UpdateFromRDBMSTestCase {
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        "@from(table = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
                         ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "' , bloom.filters = 'enable') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
@@ -378,7 +378,7 @@ public class UpdateFromRDBMSTestCase {
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        "@from(table = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
                         ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
@@ -450,7 +450,7 @@ public class UpdateFromRDBMSTestCase {
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, price float, volume long); " +
                         "define stream UpdateStockStream (comp string, prc float); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        "@from(table = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
                         ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
@@ -544,7 +544,7 @@ public class UpdateFromRDBMSTestCase {
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        "@from(table = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
                         ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
@@ -597,7 +597,7 @@ public class UpdateFromRDBMSTestCase {
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        "@from(table = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
                         ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
                         "define table StockTable (symbol string, price float, volume long); ";
 

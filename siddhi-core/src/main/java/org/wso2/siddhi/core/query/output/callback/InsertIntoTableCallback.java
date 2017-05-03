@@ -22,20 +22,20 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 public class InsertIntoTableCallback extends OutputCallback {
-    private EventTable eventTable;
+    private Table table;
     private StreamDefinition outputStreamDefinition;
     private boolean convertToStreamEvent;
     private StreamEventPool streamEventPool;
     private StreamEventConverter streamEventConvertor;
 
-    public InsertIntoTableCallback(EventTable eventTable, StreamDefinition outputStreamDefinition,
+    public InsertIntoTableCallback(Table table, StreamDefinition outputStreamDefinition,
                                    boolean convertToStreamEvent, StreamEventPool streamEventPool,
                                    StreamEventConverter streamEventConvertor) {
-        this.eventTable = eventTable;
+        this.table = table;
         this.outputStreamDefinition = outputStreamDefinition;
         this.convertToStreamEvent = convertToStreamEvent;
         this.streamEventPool = streamEventPool;
@@ -59,7 +59,7 @@ public class InsertIntoTableCallback extends OutputCallback {
                         borrowEvent);
                 streamEventChunk.add(borrowEvent);
             }
-            eventTable.add(streamEventChunk);
+            table.add(streamEventChunk);
         } else {
             complexEventChunk.reset();
             while (complexEventChunk.hasNext()) {
@@ -68,7 +68,7 @@ public class InsertIntoTableCallback extends OutputCallback {
                     complexEvent.setType(ComplexEvent.Type.CURRENT);
                 }
             }
-            eventTable.add((ComplexEventChunk<StreamEvent>) complexEventChunk);
+            table.add((ComplexEventChunk<StreamEvent>) complexEventChunk);
         }
     }
 

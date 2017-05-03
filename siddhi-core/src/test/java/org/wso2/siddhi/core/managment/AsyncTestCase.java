@@ -201,7 +201,7 @@ public class AsyncTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "@plan:async(bufferSize='2')" +
+                "@plan:async(buffer.size='2')" +
                 " " +
                 "define stream cseEventStream (symbol string, price float, volume int);" +
                 "define stream cseEventStream2 (symbol string, price float, volume int);" +
@@ -264,7 +264,7 @@ public class AsyncTestCase {
 
         String executionPlan = "" +
                 " " +
-                "@async(bufferSize='2')" +
+                "@async(buffer.size='2')" +
                 "define stream cseEventStream (symbol string, price float, volume int);" +
                 "" +
                 "define stream cseEventStream2 (symbol string, price float, volume int);" +

@@ -33,11 +33,11 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
-import org.wso2.siddhi.core.stream.input.source.InputTransport;
+import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.SinkCallback;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.AsyncSnapshotPersistor;
@@ -74,7 +74,10 @@ public class ExecutionPlanRuntime {
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>()
             ; // Contains stream junctions.
-    private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //
+    private ConcurrentMap<String, Table> tableMap = new ConcurrentHashMap<String, Table>(); //
+    // Contains event tables.
+    private final ConcurrentMap<String, List<Source>> eventSourceMap;
+    private final ConcurrentMap<String, List<Sink>> eventSinkMap;
     private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>();
     // Contains partitions.
     private ExecutionPlanContext executionPlanContext;
@@ -86,9 +89,9 @@ public class ExecutionPlanRuntime {
                                 ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager,
                                 ConcurrentMap<String, QueryRuntime> queryProcessorMap,
                                 ConcurrentMap<String, StreamJunction> streamJunctionMap,
-                                ConcurrentMap<String, EventTable> eventTableMap,
-                                ConcurrentMap<String, List<InputTransport>> eventSourceMap,
-                                ConcurrentMap<String, List<OutputTransport>> eventSinkMap,
+                                ConcurrentMap<String, Table> tableMap,
+                                ConcurrentMap<String, List<Source>> eventSourceMap,
+                                ConcurrentMap<String, List<Sink>> eventSinkMap,
                                 ConcurrentMap<String, PartitionRuntime> partitionMap,
                                 ExecutionPlanContext executionPlanContext,
                                 ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap) {
@@ -97,7 +100,7 @@ public class ExecutionPlanRuntime {
         this.inputManager = inputManager;
         this.queryProcessorMap = queryProcessorMap;
         this.streamJunctionMap = streamJunctionMap;
-        this.eventTableMap = eventTableMap;
+        this.tableMap = tableMap;
         this.eventSourceMap = eventSourceMap;
         this.eventSinkMap = eventSinkMap;
         this.partitionMap = partitionMap;
@@ -112,15 +115,15 @@ public class ExecutionPlanRuntime {
             monitorQueryMemoryUsage();
         }
 
-        for (Map.Entry<String, List<OutputTransport>> outputTransportEntries : eventSinkMap.entrySet()) {
-            addCallback(outputTransportEntries.getKey(),
-                    new SinkCallback(outputTransportEntries.getValue(),
-                            streamDefinitionMap.get(outputTransportEntries.getKey())));
+        for (Map.Entry<String, List<Sink>> sinkEntries : eventSinkMap.entrySet()) {
+            addCallback(sinkEntries.getKey(),
+                    new SinkCallback(sinkEntries.getValue(),
+                            streamDefinitionMap.get(sinkEntries.getKey())));
         }
-        for (Map.Entry<String, List<InputTransport>> inputTransportEntries : eventSourceMap.entrySet()) {
-            InputHandler inputHandler = getInputHandler(inputTransportEntries.getKey());
-            for (InputTransport inputTransport : inputTransportEntries.getValue()) {
-                inputTransport.getMapper().setInputHandler(inputHandler);
+        for (Map.Entry<String, List<Source>> sourceEntries : eventSourceMap.entrySet()) {
+            InputHandler inputHandler = getInputHandler(sourceEntries.getKey());
+            for (Source source : sourceEntries.getValue()) {
+                source.getMapper().setInputHandler(inputHandler);
             }
         }
     }
@@ -195,20 +198,20 @@ public class ExecutionPlanRuntime {
         return inputManager.getInputHandler(streamId);
     }
 
-    public Collection<List<InputTransport>> getInputTransports() {
+    public Collection<List<Source>> getSources() {
         return eventSourceMap.values();
     }
 
     public synchronized void shutdown() {
-        for (List<InputTransport> inputTransports : eventSourceMap.values()) {
-            for (InputTransport inputTransport : inputTransports) {
-                inputTransport.shutdown();
+        for (List<Source> sources : eventSourceMap.values()) {
+            for (Source source : sources) {
+                source.shutdown();
             }
         }
 
-        for (List<OutputTransport> outputTransports : eventSinkMap.values()) {
-            for (OutputTransport outputTransport : outputTransports) {
-                outputTransport.shutdown();
+        for (List<Sink> sinks : eventSinkMap.values()) {
+            for (Sink sink : sinks) {
+                sink.shutdown();
             }
         }
 
@@ -261,17 +264,17 @@ public class ExecutionPlanRuntime {
         for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
             eternalReferencedHolder.start();
         }
-        for (List<OutputTransport> outputTransports : eventSinkMap.values()) {
-            for (OutputTransport outputTransport : outputTransports) {
-                outputTransport.connectWithRetry(executionPlanContext.getExecutorService());
+        for (List<Sink> sinks : eventSinkMap.values()) {
+            for (Sink sink : sinks) {
+                sink.connectWithRetry(executionPlanContext.getExecutorService());
             }
         }
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.startProcessing();
         }
-        for (List<InputTransport> inputTransports : eventSourceMap.values()) {
-            for (InputTransport inputTransport : inputTransports) {
-                inputTransport.connectWithRetry(executionPlanContext.getExecutorService());
+        for (List<Source> sources : eventSourceMap.values()) {
+            for (Source source : sources) {
+                source.connectWithRetry(executionPlanContext.getExecutorService());
             }
         }
     }
@@ -300,7 +303,7 @@ public class ExecutionPlanRuntime {
     public Future persist() {
         try {
             // first, pause all the event sources
-            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::pause));
+            eventSourceMap.values().forEach(list -> list.forEach(Source::pause));
             // take snapshots of execution units
             byte[] snapshots = executionPlanContext.getSnapshotService().snapshot();
             // start the snapshot persisting task asynchronously
@@ -308,43 +311,43 @@ public class ExecutionPlanRuntime {
                     executionPlanContext.getSiddhiContext().getPersistenceStore(), executionPlanContext.getName()));
         } finally {
             // at the end, resume the event sources
-            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::resume));
+            eventSourceMap.values().forEach(list -> list.forEach(Source::resume));
         }
     }
 
     public byte[] snapshot() {
         try {
             // first, pause all the event sources
-            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::pause));
+            eventSourceMap.values().forEach(list -> list.forEach(Source::pause));
             // take snapshots of execution units
             return executionPlanContext.getSnapshotService().snapshot();
         } finally {
             // at the end, resume the event sources
-            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::resume));
+            eventSourceMap.values().forEach(list -> list.forEach(Source::resume));
         }
     }
 
     public void restoreRevision(String revision) {
         try {
             // first, pause all the event sources
-            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::pause));
+            eventSourceMap.values().forEach(list -> list.forEach(Source::pause));
             // start the restoring process
             executionPlanContext.getPersistenceService().restoreRevision(revision);
         } finally {
             // at the end, resume the event sources
-            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::resume));
+            eventSourceMap.values().forEach(list -> list.forEach(Source::resume));
         }
     }
 
     public void restoreLastRevision() {
         try {
             // first, pause all the event sources
-            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::pause));
+            eventSourceMap.values().forEach(list -> list.forEach(Source::pause));
             // start the restoring process
             executionPlanContext.getPersistenceService().restoreLastRevision();
         } finally {
             // at the end, resume the event sources
-            eventSourceMap.values().forEach(list -> list.forEach(InputTransport::resume));
+            eventSourceMap.values().forEach(list -> list.forEach(Source::resume));
         }
     }
 

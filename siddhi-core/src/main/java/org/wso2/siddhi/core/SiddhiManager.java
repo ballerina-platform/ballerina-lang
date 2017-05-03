@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.config.StatisticsConfiguration;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
+import org.wso2.siddhi.core.util.config.ConfigManager;
 import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 import org.wso2.siddhi.query.api.ExecutionPlan;
@@ -94,6 +95,15 @@ public class SiddhiManager {
      */
     public void setPersistenceStore(PersistenceStore persistenceStore) {
         this.siddhiContext.setPersistenceStore(persistenceStore);
+    }
+
+    /**
+     * Method to set configManager for the Siddhi Manager instance.
+     *
+     * @param configManager Config Manager implementation to be used.
+     */
+    public void setConfigManager(ConfigManager configManager) {
+        this.siddhiContext.setConfigManager(configManager);
     }
 
     /**

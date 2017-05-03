@@ -21,7 +21,8 @@ package org.wso2.siddhi.core.executor.function;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.function.EvalScript;
+import org.wso2.siddhi.core.function.Script;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.Map;
@@ -30,7 +31,7 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
 
     static final Logger log = Logger.getLogger(ScriptFunctionExecutor.class);
     Attribute.Type returnType;
-    EvalScript evalScript;
+    Script script;
     private String functionId;
 
     public ScriptFunctionExecutor(String name) {
@@ -43,19 +44,19 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        returnType = executionPlanContext.getEvalScript(functionId).getReturnType();
-        evalScript = executionPlanContext.getEvalScript(functionId);
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+        returnType = executionPlanContext.getScript(functionId).getReturnType();
+        script = executionPlanContext.getScript(functionId);
     }
 
     @Override
     protected Object execute(Object[] data) {
-        return evalScript.eval(functionId, data);
+        return script.eval(functionId, data);
     }
 
     @Override
     protected Object execute(Object data) {
-        return evalScript.eval(functionId, new Object[]{data});
+        return script.eval(functionId, new Object[]{data});
     }
 
     @Override

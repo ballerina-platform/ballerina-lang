@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.query.processor.stream.function;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -53,7 +54,7 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
      */
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+            attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         inputExecutorLength = attributeExpressionExecutors.length;
 
         if (inputExecutorLength < 2 || inputExecutorLength > 3) {

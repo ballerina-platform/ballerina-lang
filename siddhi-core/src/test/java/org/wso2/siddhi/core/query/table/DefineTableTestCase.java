@@ -56,7 +56,7 @@ public class DefineTableTestCase {
         log.info("testTableDefinition2 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String tables = "define table EventTable(symbol string, price int, volume float) ";
+        String tables = "define table Table(symbol string, price int, volume float) ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
         executionPlanRuntime.shutdown();
     }
@@ -66,8 +66,8 @@ public class DefineTableTestCase {
         log.info("testTableDefinition3 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String tables = "define table TestEventTable(symbol string, price int, volume float); " +
-                "define table TestEventTable(symbols string, price int, volume float); ";
+        String tables = "define table TestTable(symbol string, price int, volume float); " +
+                "define table TestTable(symbols string, price int, volume float); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
         executionPlanRuntime.shutdown();
     }
@@ -77,8 +77,8 @@ public class DefineTableTestCase {
         log.info("testTableDefinition4 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String tables = "define table TestEventTable(symbol string, volume float); " +
-                "define table TestEventTable(symbols string, price int, volume float); ";
+        String tables = "define table TestTable(symbol string, volume float); " +
+                "define table TestTable(symbols string, price int, volume float); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
         executionPlanRuntime.shutdown();
     }
@@ -88,8 +88,8 @@ public class DefineTableTestCase {
         log.info("testTableDefinition5 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String tables = "define table TestEventTable(symbol string, price int, volume float); " +
-                "define table TestEventTable(symbol string, price int, volume float); ";
+        String tables = "define table TestTable(symbol string, price int, volume float); " +
+                "define table TestTable(symbol string, price int, volume float); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
         executionPlanRuntime.shutdown();
     }
@@ -99,8 +99,8 @@ public class DefineTableTestCase {
         log.info("testTableDefinition6 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String definitions = "define stream TestEventTable(symbol string, price int, volume float); " +
-                "define table TestEventTable(symbol string, price int, volume float); ";
+        String definitions = "define stream TestTable(symbol string, price int, volume float); " +
+                "define table TestTable(symbol string, price int, volume float); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(definitions);
         executionPlanRuntime.shutdown();
     }
@@ -110,8 +110,8 @@ public class DefineTableTestCase {
         log.info("testTableDefinition7 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String definitions = "define table TestEventTable(symbol string, price int, volume float); " +
-                "define stream TestEventTable(symbol string, price int, volume float); ";
+        String definitions = "define table TestTable(symbol string, price int, volume float); " +
+                "define stream TestTable(symbol string, price int, volume float); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(definitions);
         executionPlanRuntime.shutdown();
     }

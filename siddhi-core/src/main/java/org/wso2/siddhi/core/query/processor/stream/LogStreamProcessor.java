@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -59,11 +60,12 @@ public class LogStreamProcessor extends StreamProcessor {
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors for the function parameters
      * @param executionPlanContext         execution plan context
+     * @param configReader
      * @return the additional output attributes introduced by the function
      */
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+            attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         int inputExecutorLength = attributeExpressionExecutors.length;
         if (inputExecutorLength == 1) {
             if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {

@@ -21,13 +21,15 @@ package org.wso2.siddhi.core.util.transport;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.extension.holder.OutputTransportExecutorExtensionHolder;
+import org.wso2.siddhi.core.util.config.ConfigReader;
+import org.wso2.siddhi.core.util.extension.holder.SinkExecutorExtensionHolder;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.annotation.Annotation;
+import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,19 +38,19 @@ import java.util.Map;
 
 /**
  * This is the distributed transport to publish to multiple endpoints using client/publisher for each endpoint. There
- * will be a separate independent {@link OutputTransport} instance connecting to each destination. This class interacts
- * with OutputTransport interface and it does not make any assumptions on the underlying transport implementation.
+ * will be a separate independent {@link Sink} instance connecting to each destination. This class interacts
+ * with Sink interface and it does not make any assumptions on the underlying transport implementation.
  */
 public class MultiClientDistributedTransport extends DistributedTransport {
     private static final Logger log = Logger.getLogger(MultiClientDistributedTransport.class);
 
-    private List<OutputTransport> transports = new ArrayList<>();
+    private List<Sink> transports = new ArrayList<>();
 
     @Override
     public void publish(Object payload, DynamicOptions transportOptions, int destinationId)
             throws ConnectionUnavailableException {
         try {
-            OutputTransport transport = transports.get(destinationId);
+            Sink transport = transports.get(destinationId);
             transport.publish(payload, transportOptions);
         } catch (ConnectionUnavailableException e) {
             strategy.destinationFailed(destinationId);
@@ -59,18 +61,18 @@ public class MultiClientDistributedTransport extends DistributedTransport {
 
     @Override
     public void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders, Annotation
-            sinkAnnotation, ExecutionPlanContext executionPlanContext) {
+            sinkAnnotation, ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext) {
         String transportType = sinkOptionHolder.validateAndGetStaticValue(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-        org.wso2.siddhi.query.api.extension.Extension sink = DefinitionParserHelper.constructExtension
+        Extension sinkExtension = DefinitionParserHelper.constructExtension
                 (streamDefinition, SiddhiConstants.ANNOTATION_SINK, transportType, sinkAnnotation, SiddhiConstants
-                        .NAMESPACE_OUTPUT_TRANSPORT);
+                        .NAMESPACE_SINK);
 
         destinationOptionHolders.forEach(destinationOption -> {
-            OutputTransport transport = (OutputTransport) SiddhiClassLoader.loadExtensionImplementation(
-                    sink, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
+            Sink sink = (Sink) SiddhiClassLoader.loadExtensionImplementation(
+                    sinkExtension, SinkExecutorExtensionHolder.getInstance(executionPlanContext));
             destinationOption.merge(sinkOptionHolder);
-            transport.initOnlyTransport(streamDefinition, destinationOption, executionPlanContext);
-            transports.add(transport);
+            sink.initOnlyTransport(streamDefinition, destinationOption,sinkConfigReader, executionPlanContext);
+            transports.add(sink);
         });
     }
 
@@ -113,7 +115,7 @@ public class MultiClientDistributedTransport extends DistributedTransport {
      */
     @Override
     public void disconnect() {
-        transports.forEach(OutputTransport::disconnect);
+        transports.forEach(Sink::disconnect);
     }
 
     /**
@@ -121,7 +123,7 @@ public class MultiClientDistributedTransport extends DistributedTransport {
      */
     @Override
     public void destroy() {
-        transports.forEach(OutputTransport::destroy);
+        transports.forEach(Sink::destroy);
     }
 
     /**

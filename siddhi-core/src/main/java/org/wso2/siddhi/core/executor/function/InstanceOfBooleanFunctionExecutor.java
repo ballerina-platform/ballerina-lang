@@ -24,6 +24,7 @@ import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
@@ -49,7 +50,7 @@ public class InstanceOfBooleanFunctionExecutor extends FunctionExecutor {
     Attribute.Type returnType = Attribute.Type.BOOL;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfBoolean() " +
                     "function, " +

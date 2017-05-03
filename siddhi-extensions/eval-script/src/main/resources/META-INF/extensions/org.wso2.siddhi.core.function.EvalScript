@@ -1,2 +1,2 @@
-org.wso2.siddhi.extension.evalscript.EvalScala
-org.wso2.siddhi.extension.evalscript.EvalJavaScript
+org.wso2.siddhi.extension.script.EvalScala
+org.wso2.siddhi.extension.script.EvalJavaScript

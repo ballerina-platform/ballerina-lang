@@ -25,6 +25,7 @@ import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute.Type;
 
 import java.util.HashMap;
@@ -46,15 +47,17 @@ import java.util.Map;
 public class StringConcatAggregatorString extends AttributeAggregator {
     private static final long serialVersionUID = 1358667438272544590L;
     private String aggregatedStringValue = "";
+    private boolean appendAbc = false;
 
     /**
      * The initialization method for FunctionExecutor
-     *
-     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     *  @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param configReader
      * @param executionPlanContext         SiddhiContext
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+        appendAbc = Boolean.parseBoolean(configReader.readConfig("append.abc", "false"));
 
     }
 
@@ -67,7 +70,12 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     @Override
     public Object processAdd(Object data) {
         aggregatedStringValue = aggregatedStringValue + data;
-        return aggregatedStringValue;
+        if(appendAbc){
+            return aggregatedStringValue+"-abc";
+        }else {
+            return aggregatedStringValue;
+        }
+
     }
 
     @Override
@@ -75,14 +83,22 @@ public class StringConcatAggregatorString extends AttributeAggregator {
         for (Object aData : data) {
             aggregatedStringValue = aggregatedStringValue + aData;
         }
-        return aggregatedStringValue;
+        if(appendAbc){
+            return aggregatedStringValue+"-abc";
+        }else {
+            return aggregatedStringValue;
+        }
     }
 
 
     @Override
     public Object processRemove(Object data) {
         aggregatedStringValue = aggregatedStringValue.replaceFirst(data.toString(), "");
-        return aggregatedStringValue;
+        if(appendAbc){
+            return aggregatedStringValue+"-abc";
+        }else {
+            return aggregatedStringValue;
+        }
     }
 
     @Override
@@ -90,7 +106,11 @@ public class StringConcatAggregatorString extends AttributeAggregator {
         for (Object aData : data) {
             aggregatedStringValue = aggregatedStringValue.replaceFirst(aData.toString(), "");
         }
-        return aggregatedStringValue;
+        if(appendAbc){
+            return aggregatedStringValue+"-abc";
+        }else {
+            return aggregatedStringValue;
+        }
     }
 
     @Override

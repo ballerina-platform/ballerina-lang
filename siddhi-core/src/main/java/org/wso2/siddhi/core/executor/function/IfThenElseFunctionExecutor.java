@@ -25,6 +25,7 @@ import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
@@ -62,7 +63,7 @@ public class IfThenElseFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
-                        ExecutionPlanContext executionPlanContext) {
+                        ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 3) {
             // check whether all the arguments passed
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to ifThenElse() function, " +

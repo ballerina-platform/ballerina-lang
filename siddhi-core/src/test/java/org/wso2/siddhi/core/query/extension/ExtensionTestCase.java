@@ -29,6 +29,10 @@ import org.wso2.siddhi.core.query.extension.util.StringConcatAggregatorString;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.config.InMemoryConfigManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ExtensionTestCase {
     static final Logger log = Logger.getLogger(ExtensionTestCase.class);
@@ -200,6 +204,53 @@ public class ExtensionTestCase {
         inputHandler.send(new Object[]{700l, 100l});
         inputHandler.send(new Object[]{605l, 200l});
         inputHandler.send(new Object[]{60l, 200l});
+        Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void extensionTest5() throws InterruptedException, ClassNotFoundException {
+        log.info("extension test5");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        Map<String, String> configMap= new HashMap<>();
+        configMap.put("email.getAllNew.append.abc","true");
+        siddhiManager.setConfigManager(new InMemoryConfigManager(configMap));
+        siddhiManager.setExtension("custom:plus", CustomFunctionExtension.class);
+        siddhiManager.setExtension("email:getAllNew", StringConcatAggregatorString.class);
+
+        String cseEventStream = "" +
+                "" +
+                "define stream cseEventStream (symbol string, price float, volume long);";
+        String query = ("" +
+                "@info(name = 'query1') " +
+                "from cseEventStream " +
+                "select price , email:getAllNew(symbol,'') as toConcat " +
+                "group by volume " +
+                "insert into mailOutput;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                count = count + inEvents.length;
+                if (count == 3) {
+                    Assert.assertEquals("WSO2ABC-abc", inEvents[inEvents.length - 1].getData(1));
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 700f, 100l});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{"ABC", 60.5f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);

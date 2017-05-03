@@ -52,7 +52,7 @@ public class PartitionParser {
             QueryRuntime queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap,
                     executionPlanRuntimeBuilder.getTableDefinitionMap(),
                     executionPlanRuntimeBuilder.getWindowDefinitionMap(),
-                    executionPlanRuntimeBuilder.getEventTableMap(),
+                    executionPlanRuntimeBuilder.getTableMap(),
                     executionPlanRuntimeBuilder.getEventWindowMap(),
                     executionPlanRuntimeBuilder.getEventSourceMap(),
                     executionPlanRuntimeBuilder.getEventSinkMap(),

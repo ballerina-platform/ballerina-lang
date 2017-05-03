@@ -101,11 +101,11 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.siddhi.extension.eventtable.hazelcast.internal.*
+                            org.wso2.siddhi.extension.table.hazelcast.internal.*
                         </Private-Package>
                         <Export-Package>
-                            !org.wso2.siddhi.extension.eventtable.hazelcast.internal.*,
-                            org.wso2.siddhi.extension.eventtable.*;version="${siddhi.version}"
+                            !org.wso2.siddhi.extension.table.hazelcast.internal.*,
+                            org.wso2.siddhi.extension.table.*;version="${siddhi.version}"
                         </Export-Package>
                         <Import-Package>
                             org.apache.hadoop.util.bloom;version="${hadoop.common.version}",

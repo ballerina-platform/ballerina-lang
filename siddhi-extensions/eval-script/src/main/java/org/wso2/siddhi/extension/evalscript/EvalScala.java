@@ -16,21 +16,21 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.evalscript;
+package org.wso2.siddhi.extension.script;
 
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
-import org.wso2.siddhi.core.function.EvalScript;
+import org.wso2.siddhi.core.function.Script;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import scala.Function1;
 
 @Extension(
         name = "scala",
-        namespace = "evalscript",
+        namespace = "script",
         description = ""
 )
-public class EvalScala implements EvalScript {
+public class EvalScala implements Script {
 
     private Function1<Object[], Object> scalaFunction;
     private Attribute.Type returnType;

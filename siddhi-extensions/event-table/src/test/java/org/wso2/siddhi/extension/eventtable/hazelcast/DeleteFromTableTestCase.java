@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.eventtable.hazelcast;
+package org.wso2.siddhi.extension.table.hazelcast;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -29,7 +29,7 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.extension.eventtable.test.util.SiddhiTestHelper;
+import org.wso2.siddhi.extension.table.test.util.SiddhiTestHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,7 +61,7 @@ public class DeleteFromTableTestCase {
                 "@Plan:name('DeleteFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table StockTableT011 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -98,7 +98,7 @@ public class DeleteFromTableTestCase {
                 "@Plan:name('DeleteFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table StockTableT021 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -136,7 +136,7 @@ public class DeleteFromTableTestCase {
                 "@Plan:name('DeleteFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table StockTableT031 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -174,7 +174,7 @@ public class DeleteFromTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table StockTableT041 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -248,7 +248,7 @@ public class DeleteFromTableTestCase {
                 "define stream StockStream (symbol string, price float, vol long); " +
                 "define stream DeleteStockStream (symbol string, price float, vol long); " +
                 "define stream CountStockStream (symbol string); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table StockTableT051 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +

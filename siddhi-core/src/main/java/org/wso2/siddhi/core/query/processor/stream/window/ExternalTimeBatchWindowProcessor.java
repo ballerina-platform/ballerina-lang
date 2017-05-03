@@ -33,11 +33,12 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -99,9 +100,12 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     private boolean flushed = false;
     private boolean storeExpiredEvents = false;
     private boolean replaceTimestampWithBatchEndTime = false;
+    private boolean outputExpectsExpiredEvents;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, boolean
+            outputExpectsExpiredEvents, ExecutionPlanContext executionPlanContext) {
+        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
         if (outputExpectsExpiredEvents) {
             this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
             this.storeExpiredEvents = true;
@@ -466,13 +470,13 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, EventTable> eventTableMap, String queryName) {
+                                              Map<String, Table> tableMap, String queryName) {
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
             storeExpiredEvents = true;
         }
         return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder,
-                executionPlanContext, variableExpressionExecutors, eventTableMap, this.queryName);
+                executionPlanContext, variableExpressionExecutors, tableMap, this.queryName);
     }
 
     @Override

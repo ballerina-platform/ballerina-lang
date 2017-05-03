@@ -21,8 +21,9 @@ package org.wso2.siddhi.core.stream.output.sink.distributed;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
+import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -33,25 +34,27 @@ import java.util.List;
 /**
  * This is the base class for Distributed transports. All distributed transport types must inherit from this class
  */
-public abstract class DistributedTransport extends OutputTransport {
+public abstract class DistributedTransport extends Sink {
     private static final Logger log = Logger.getLogger(DistributedTransport.class);
-    protected PublishingStrategy strategy;
+    protected DistributionStrategy strategy;
     protected StreamDefinition streamDefinition;
     protected ExecutionPlanContext executionPlanContext;
     private OptionHolder sinkOptionHolder;
     private String[] supportedDynamicOptions;
 
     /**
-     * Will be called for initialing the {@link OutputTransport}
+     * Will be called for initialing the {@link Sink}
      *
      * @param outputStreamDefinition The stream definition this Output transport/sink is attached to
      * @param optionHolder           Option holder containing static and dynamic options related to the
-     * {@link OutputTransport}
+     * {@link Sink}
+     * @param sinkConfigReader
      * @param executionPlanContext   Context of the execution plan which this output sink belongs to
      */
     @Override
-    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext
-            executionPlanContext) {
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
+                        ConfigReader sinkConfigReader, ExecutionPlanContext
+                                executionPlanContext) {
         this.streamDefinition = outputStreamDefinition;
         this.sinkOptionHolder = optionHolder;
         this.executionPlanContext = executionPlanContext;
@@ -62,20 +65,22 @@ public abstract class DistributedTransport extends OutputTransport {
      *
      * @param streamDefinition
      * @param transportOptionHolder
+     * @param sinkConfigReader
+     * @param mapperConfigReader
      * @param executionPlanContext
      * @param destinationOptionHolders
      * @param sinkAnnotation
      * @param strategy
      */
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
-                     OutputMapper outputMapper, String mapType, OptionHolder mapOptionHolder, String payload,
-                     ExecutionPlanContext executionPlanContext, List<OptionHolder> destinationOptionHolders,
-                     Annotation sinkAnnotation, PublishingStrategy strategy, String[] supportedDynamicOptions) {
+                     ConfigReader sinkConfigReader,
+                     SinkMapper sinkMapper, String mapType, OptionHolder mapOptionHolder,String payload,
+                     ConfigReader mapperConfigReader,ExecutionPlanContext executionPlanContext, List<OptionHolder> destinationOptionHolders,
+                     Annotation sinkAnnotation, DistributionStrategy strategy, String[] supportedDynamicOptions) {
         this.strategy = strategy;
         this.supportedDynamicOptions = supportedDynamicOptions;
-        init(streamDefinition, type, transportOptionHolder, outputMapper, mapType, mapOptionHolder, payload,
-                executionPlanContext);
-        initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, executionPlanContext);
+        init(streamDefinition, type, transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder, payload,mapperConfigReader, executionPlanContext);
+        initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, sinkConfigReader,executionPlanContext);
     }
 
     @Override
@@ -118,8 +123,7 @@ public abstract class DistributedTransport extends OutputTransport {
 
 
     public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders,
-                                       Annotation
-            sinkAnnotation, ExecutionPlanContext executionPlanContext);
+            AnnotationsinkAnnotation, ConfigReader sinkConfigReader,ExecutionPlanContext executionPlanContext);
 
 
 }

@@ -32,21 +32,20 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.stream.input.source.InputTransport;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.stream.input.source.Source;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.window.EventWindow;
+import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
-import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
@@ -67,7 +66,7 @@ public class QueryParser {
      * @param executionPlanContext associated Execution Plan context.
      * @param streamDefinitionMap  keyvalue containing user given stream definitions.
      * @param tableDefinitionMap   keyvalue containing table definitions.
-     * @param eventTableMap        keyvalue containing event tables.
+     * @param tableMap        keyvalue containing event tables.
      * @param eventSourceMap
      * @param eventSinkMap         @return queryRuntime.
      */
@@ -75,10 +74,10 @@ public class QueryParser {
                                      Map<String, AbstractDefinition> streamDefinitionMap,
                                      Map<String, AbstractDefinition> tableDefinitionMap,
                                      Map<String, AbstractDefinition> windowDefinitionMap,
-                                     Map<String, EventTable> eventTableMap,
-                                     Map<String, EventWindow> eventWindowMap,
-                                     Map<String, List<InputTransport>> eventSourceMap,
-                                     Map<String, List<OutputTransport>> eventSinkMap,
+                                     Map<String, Table> tableMap,
+                                     Map<String, Window> eventWindowMap,
+                                     Map<String, List<Source>> eventSourceMap,
+                                     Map<String, List<Sink>> eventSinkMap,
                                      LockSynchronizer lockSynchronizer) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
@@ -114,14 +113,13 @@ public class QueryParser {
                 outputExpectsExpiredEvents = true;
             }
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
-                    eventTableMap, eventWindowMap, executors, latencyTracker, outputExpectsExpiredEvents, queryName);
+                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, eventWindowMap, executors, latencyTracker, outputExpectsExpiredEvents, queryName);
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
-                    executionPlanContext, streamRuntime.getMetaComplexEvent(), eventTableMap, executors, queryName);
+                    executionPlanContext, streamRuntime.getMetaComplexEvent(), tableMap, executors, queryName);
             boolean isWindow = query.getInputStream() instanceof JoinInputStream;
             if (!isWindow && query.getInputStream() instanceof SingleInputStream) {
                 for (StreamHandler streamHandler : ((SingleInputStream) query.getInputStream()).getStreamHandlers()) {
-                    if (streamHandler instanceof Window) {
+                    if (streamHandler instanceof org.wso2.siddhi.query.api.execution.query.input.handler.Window) {
                         isWindow = true;
                         break;
                     }
@@ -139,7 +137,7 @@ public class QueryParser {
             } else {
                 if (isWindow || !(streamRuntime instanceof SingleStreamRuntime)) {
                     if (streamRuntime instanceof JoinStreamRuntime) {
-                        // If at least one EventWindow is involved in the join, use the LockWrapper of that window
+                        // If at least one Window is involved in the join, use the LockWrapper of that window
                         // for the query as well.
                         // If join is between two EventWindows, sync the locks of the LockWrapper of those windows
                         // and use either of them for query.
@@ -170,7 +168,7 @@ public class QueryParser {
                             lockWrapper = eventWindowMap.get(metaStreamEvents[1].getLastInputDefinition().getId())
                                     .getLock();
                         } else {
-                            // Join does not contain any EventWindow
+                            // Join does not contain any Window
                             lockWrapper = new LockWrapper("");  // Query LockWrapper does not need a unique id since
                             // it will not be passed to the LockSynchronizer.
                             lockWrapper.setLock(new ReentrantLock());   // LockWrapper does not have a default lock
@@ -193,7 +191,7 @@ public class QueryParser {
             executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
-                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), eventTableMap, eventWindowMap,
+                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), tableMap, eventWindowMap,
                     executionPlanContext, !(streamRuntime instanceof SingleStreamRuntime), queryName);
 
             QueryParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());

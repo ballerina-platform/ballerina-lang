@@ -80,8 +80,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.siddhi.extension.evalscript,
-                            org.wso2.siddhi.extension.evalscript.*
+                            org.wso2.siddhi.extension.script,
+                            org.wso2.siddhi.extension.script.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional

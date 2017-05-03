@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.input.source.InputMapper;
-import org.wso2.siddhi.core.stream.input.source.InputTransport;
+import org.wso2.siddhi.core.stream.input.source.Sourcemapper;
+import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.util.AttributeConverter;
 import org.wso2.siddhi.core.util.transport.AttributeMapping;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -48,10 +48,15 @@ import java.util.List;
  */
 @Extension(
         name = "json",
-        namespace = "inputmapper",
+        namespace = "sourceMapper",
         description = ""
 )
-public class JsonInputMapper implements InputMapper {
+public class JsonSourcemapper implements Sourcemapper {
+
+    /**
+     * Logger to log the events.
+     */
+    private static final Logger log = Logger.getLogger(JsonSourcemapper.class);
 
     /**
      * JSON path interprets the root of a JSON object as $.
@@ -117,7 +122,7 @@ public class JsonInputMapper implements InputMapper {
     }
 
     /**
-     * Receive JSON string from {@link InputTransport}, convert to {@link ComplexEventChunk} and send to the
+     * Receive JSON string from {@link Source}, convert to {@link ComplexEventChunk} and send to the
      * {@link OutputCallback}.
      *
      * @param eventObject the JSON string
@@ -144,7 +149,7 @@ public class JsonInputMapper implements InputMapper {
 
         // Validate the event
         if (eventObject == null) {
-            throw new ExecutionPlanRuntimeException("Null object received from the InputTransport to JsonInputMapper");
+            throw new ExecutionPlanRuntimeException("Null object received from the Source to JsonSourcemapper");
         }
 
         if (!(eventObject instanceof String)) {

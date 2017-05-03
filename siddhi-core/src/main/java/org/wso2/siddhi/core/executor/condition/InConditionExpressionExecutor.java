@@ -22,7 +22,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.FinderStateEvent;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 
@@ -31,17 +31,18 @@ public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
     private final int streamEventSize;
     private final boolean isMatchingEventAStateEvent;
     private final int matchingStreamIndex;
+    private Table table;
     private final CompiledCondition compiledCondition;
     private EventTable eventTable;
     private FinderStateEvent finderStateEvent;
 
-    public InConditionExpressionExecutor(EventTable eventTable, CompiledCondition compiledCondition, int
+    public InConditionExpressionExecutor(Table table, CompiledCondition compiledCondition, int
             streamEventSize, boolean isMatchingEventAStateEvent, int matchingStreamIndex) {
         this.streamEventSize = streamEventSize;
         this.isMatchingEventAStateEvent = isMatchingEventAStateEvent;
         this.matchingStreamIndex = matchingStreamIndex;
         this.finderStateEvent = new FinderStateEvent(streamEventSize, 0);
-        this.eventTable = eventTable;
+        this.table = table;
         this.compiledCondition = compiledCondition;
     }
 
@@ -52,7 +53,7 @@ public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
             } else {
                 finderStateEvent.setEvent(matchingStreamIndex, (StreamEvent) event);
             }
-            return eventTable.contains(finderStateEvent, compiledCondition);
+            return table.contains(finderStateEvent, compiledCondition);
         } finally {
             if (isMatchingEventAStateEvent) {
                 finderStateEvent.setEvent(null);
@@ -64,7 +65,7 @@ public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new InConditionExpressionExecutor(eventTable, compiledCondition.cloneCompiledCondition(key),
+        return new InConditionExpressionExecutor(table, compiledCondition.cloneCompiledCondition(key),
                 streamEventSize, isMatchingEventAStateEvent, matchingStreamIndex);
     }
 

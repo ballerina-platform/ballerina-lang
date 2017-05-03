@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
 
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -36,10 +36,10 @@ import javax.xml.bind.DatatypeConverter;
 
 @Extension(
         name = "http",
-        namespace = "outputtransport",
+        namespace = "sink",
         description = ""
 )
-public class HttpOutputTransport extends OutputTransport {
+public class HttpSink extends Sink {
     public static final String ADAPTER_TYPE_HTTP = "http";
     public static final String ADAPTER_MESSAGE_URL = "http.url";
     public static final String ADAPTER_MESSAGE_URL_HINT = "http.url.hint";
@@ -72,7 +72,7 @@ public class HttpOutputTransport extends OutputTransport {
     public static final String MAX_TOTAL_CONNECTIONS = "maxTotalConnections";
     public static final int DEFAULT_MAX_TOTAL_CONNECTIONS = 20;
 
-    private static final Logger log = Logger.getLogger(HttpOutputTransport.class);
+    private static final Logger log = Logger.getLogger(HttpSink.class);
     private static ExecutorService executorService;
     private static HttpConnectionManager connectionManager;
     private String contentType;
@@ -163,7 +163,7 @@ public class HttpOutputTransport extends OutputTransport {
         if (httpClient != null) {
             return;
         }
-        synchronized (HttpOutputTransport.class) {
+        synchronized (HttpSink.class) {
             if (this.httpClient != null) {
                 return;
             }

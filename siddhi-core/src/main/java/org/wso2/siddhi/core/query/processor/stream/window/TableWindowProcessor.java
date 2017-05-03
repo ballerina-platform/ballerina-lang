@@ -26,9 +26,10 @@ import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
@@ -36,17 +37,19 @@ import java.util.Map;
 
 public class TableWindowProcessor extends WindowProcessor implements FindableProcessor {
 
-    private EventTable eventTable;
+    private Table table;
     private boolean outputExpectsExpiredEvents;
+    private ConfigReader configReader;
 
-    public TableWindowProcessor(EventTable eventTable) {
-        this.eventTable = eventTable;
+    public TableWindowProcessor(Table table) {
+        this.table = table;
     }
 
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        // nothing to be done
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        boolean outputExpectsExpiredEvents, ExecutionPlanContext executionPlanContext) {
+        this.configReader = configReader;
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
     }
 
@@ -58,16 +61,16 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
 
     @Override
     public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
-        return eventTable.find(matchingEvent, compiledCondition);
+        return table.find(matchingEvent, compiledCondition);
     }
 
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, EventTable> eventTableMap, String queryName) {
-        return eventTable.compileCondition(expression, matchingMetaInfoHolder, executionPlanContext,
-                variableExpressionExecutors, eventTableMap, queryName);
+                                              Map<String, Table> tableMap, String queryName) {
+        return table.compileCondition(expression, matchingMetaInfoHolder, executionPlanContext,
+                variableExpressionExecutors, tableMap, queryName);
     }
 
     @Override
@@ -83,7 +86,7 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
     @Override
     public Processor cloneProcessor(String key) {
         try {
-            TableWindowProcessor streamProcessor = new TableWindowProcessor(eventTable);
+            TableWindowProcessor streamProcessor = new TableWindowProcessor(table);
             streamProcessor.inputDefinition = inputDefinition;
             ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[attributeExpressionLength];
             ExpressionExecutor[] attributeExpressionExecutors1 = this.attributeExpressionExecutors;
@@ -94,7 +97,7 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
             streamProcessor.attributeExpressionLength = attributeExpressionLength;
             streamProcessor.additionalAttributes = additionalAttributes;
             streamProcessor.complexEventPopulater = complexEventPopulater;
-            streamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext,
+            streamProcessor.init(inputDefinition, attributeExpressionExecutors, configReader, executionPlanContext,
                     outputExpectsExpiredEvents);
             streamProcessor.start();
             return streamProcessor;

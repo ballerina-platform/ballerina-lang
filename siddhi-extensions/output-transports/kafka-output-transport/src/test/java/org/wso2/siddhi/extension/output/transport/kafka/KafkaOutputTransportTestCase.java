@@ -23,17 +23,17 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.extension.output.mapper.text.TextOutputMapper;
+import org.wso2.siddhi.extension.output.mapper.text.TextSinkMapper;
 
-public class KafkaOutputTransportTestCase {
-    static final Logger log = Logger.getLogger(KafkaOutputTransportTestCase.class);
+public class KafkaSinkTestCase {
+    static final Logger log = Logger.getLogger(KafkaSinkTestCase.class);
 
     //    @Test
     public void testPublisherWithKafkaTransport() throws InterruptedException {
         log.info("Creating test for publishing events for static topic with a partition");
         try {
             SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("outputmapper:text", TextOutputMapper.class);
+            siddhiManager.setExtension("sinkmapper:text", TextSinkMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
                             "define stream FooStream (symbol string, price float, volume long); " +
@@ -60,7 +60,7 @@ public class KafkaOutputTransportTestCase {
         log.info("Creating test for publishing events for dynamic topic without partition");
         try {
             SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("outputmapper:text", TextOutputMapper.class);
+            siddhiManager.setExtension("sinkmapper:text", TextSinkMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
                             "define stream FooStream (symbol string, price float, volume long); " +

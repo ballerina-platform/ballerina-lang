@@ -30,13 +30,13 @@ import org.wso2.siddhi.core.query.output.callback.InsertIntoWindowCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
-import org.wso2.siddhi.core.stream.input.source.InputTransport;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.stream.input.source.Source;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
-import org.wso2.siddhi.core.window.EventWindow;
+import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -63,13 +63,13 @@ public class ExecutionPlanRuntimeBuilder {
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>()
             ; //contains stream junctions
-    private ConcurrentMap<String, List<InputTransport>> eventSourceMap = new ConcurrentHashMap<String,
-            List<InputTransport>>(); //contains event sources
-    private ConcurrentMap<String, List<OutputTransport>> eventSinkMap = new ConcurrentHashMap<String,
-            List<OutputTransport>>(); //contains event sinks
-    private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //contains
+    private ConcurrentMap<String, List<Source>> eventSourceMap = new ConcurrentHashMap<String,
+            List<Source>>(); //contains event sources
+    private ConcurrentMap<String, List<Sink>> eventSinkMap = new ConcurrentHashMap<String,
+            List<Sink>>(); //contains event sinks
+    private ConcurrentMap<String, Table> tableMap = new ConcurrentHashMap<String, Table>(); //contains
     // event tables
-    private ConcurrentMap<String, EventWindow> eventWindowMap = new ConcurrentHashMap<String, EventWindow>();
+    private ConcurrentMap<String, Window> eventWindowMap = new ConcurrentHashMap<String, Window>();
     //contains event tables
     private ConcurrentMap<String, EventTrigger> eventTriggerMap = new ConcurrentHashMap<String, EventTrigger>();
     //contains event tables
@@ -102,7 +102,7 @@ public class ExecutionPlanRuntimeBuilder {
         if (!tableDefinitionMap.containsKey(tableDefinition.getId())) {
             tableDefinitionMap.putIfAbsent(tableDefinition.getId(), tableDefinition);
         }
-        DefinitionParserHelper.addEventTable(tableDefinition, eventTableMap, executionPlanContext);
+        DefinitionParserHelper.addTable(tableDefinition, tableMap, executionPlanContext);
     }
 
     public void defineWindow(WindowDefinition windowDefinition) {
@@ -173,7 +173,7 @@ public class ExecutionPlanRuntimeBuilder {
                         executionPlanContext.getBufferSize(), executionPlanContext);
                 streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
             }
-            insertIntoWindowCallback.getEventWindow().setPublisher(streamJunctionMap.get(insertIntoWindowCallback
+            insertIntoWindowCallback.getWindow().setPublisher(streamJunctionMap.get(insertIntoWindowCallback
                     .getOutputStreamDefinition().getId()).constructPublisher());
         }
 
@@ -192,11 +192,11 @@ public class ExecutionPlanRuntimeBuilder {
         return streamJunctionMap;
     }
 
-    public ConcurrentMap<String, EventTable> getEventTableMap() {
-        return eventTableMap;
+    public ConcurrentMap<String, Table> getTableMap() {
+        return tableMap;
     }
 
-    public ConcurrentMap<String, EventWindow> getEventWindowMap() {
+    public ConcurrentMap<String, Window> getEventWindowMap() {
         return eventWindowMap;
     }
 
@@ -208,11 +208,11 @@ public class ExecutionPlanRuntimeBuilder {
         return tableDefinitionMap;
     }
 
-    public ConcurrentMap<String, List<InputTransport>> getEventSourceMap() {
+    public ConcurrentMap<String, List<Source>> getEventSourceMap() {
         return eventSourceMap;
     }
 
-    public ConcurrentMap<String, List<OutputTransport>> getEventSinkMap() {
+    public ConcurrentMap<String, List<Sink>> getEventSinkMap() {
         return eventSinkMap;
     }
 
@@ -226,7 +226,7 @@ public class ExecutionPlanRuntimeBuilder {
 
     public ExecutionPlanRuntime build() {
         return new ExecutionPlanRuntime(streamDefinitionMap, tableDefinitionMap, inputManager, queryProcessorMap,
-                streamJunctionMap, eventTableMap, eventSourceMap, eventSinkMap, partitionMap, executionPlanContext,
+                streamJunctionMap, tableMap, eventSourceMap, eventSinkMap, partitionMap, executionPlanContext,
                 executionPlanRuntimeMap);
     }
 

@@ -25,8 +25,8 @@ import org.wso2.carbon.databridge.commons.Event;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.output.sink.InMemoryOutputTransport;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
+import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -40,8 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class WSO2EventOutputMapperTestCase {
-    static final Logger log = Logger.getLogger(WSO2EventOutputMapperTestCase.class);
+public class WSO2EventSinkmapperTestCase {
+    static final Logger log = Logger.getLogger(WSO2EventSinkmapperTestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
@@ -56,7 +56,7 @@ public class WSO2EventOutputMapperTestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map wso2event
     @Test
-    public void testMapOutputMapperWithQueryAPI() throws InterruptedException {
+    public void testMapSinkmapperWithQueryAPI() throws InterruptedException {
         log.info("Test wso2event mapping with Siddhi Query API");
         List<Object> onMessageList = new ArrayList<Object>();
 
@@ -116,7 +116,7 @@ public class WSO2EventOutputMapperTestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(outputDefinition);
@@ -145,7 +145,7 @@ public class WSO2EventOutputMapperTestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map wso2event with options
     @Test
-    public void testMapOutputMapperWithSiddhiQL() throws InterruptedException {
+    public void testMapSinkmapperWithSiddhiQL() throws InterruptedException {
         List<Event> onMessageList = new ArrayList<Event>();
         log.info("Test wso2event mapping with SiddhiQL using options");
 
@@ -191,7 +191,7 @@ public class WSO2EventOutputMapperTestCase {
                 "insert into BarStream";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 

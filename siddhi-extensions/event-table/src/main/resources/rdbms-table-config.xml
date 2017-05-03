@@ -34,7 +34,7 @@
  $CONDITION - id = ?
 -->
 
-<eventTableConfiguration>
+<tableConfiguration>
     <mappings>
         <mapping>
             <elements>
@@ -104,4 +104,4 @@
             </elements>
         </mapping>
     </mappings>
-</eventTableConfiguration>
+</tableConfiguration>
