@@ -36,8 +36,7 @@ class StructDefinitionDimensionCalculatorVisitor {
         log.info('visit StructDefinitionDimensionCalc');
     }
 
-    _calculateChildrenHeight(children = []) {
-        // return children.length * 20;
+    _calculateChildrenDimensions(children = []) {
         const dimensions = children.map( () => {
             const childDimensions = new SimpleBBox();
             childDimensions.h = DesignerDefaults.structDefinitionStatement.height;
@@ -56,7 +55,7 @@ class StructDefinitionDimensionCalculatorVisitor {
         components['heading'].h = DesignerDefaults.panel.heading.height;
 
         components['body'] = new SimpleBBox();
-        components['statements'] = this._calculateChildrenHeight(node.getChildren());
+        components['statements'] = this._calculateChildrenDimensions(node.getChildren());
         if(node.viewState.collapsed) {
             components['body'].h = 0;
         } else {

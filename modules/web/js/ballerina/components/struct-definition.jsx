@@ -30,13 +30,37 @@ class StructDefinition extends React.Component {
     }
 
     render() {
-
-				const {bBox} = this.props.model.getViewState();
+        const { model } = this.props;
+				const { bBox, components: {statements} } = model.getViewState();
+        const children = model.getChildren();
+        const title = model.getStructName();
 				return (
-					<PanelDecorator icon="tool-icons/struct" title="Struct Definition" bBox={bBox} model={this.props.model}>
-						<g> </g>
+					<PanelDecorator icon="tool-icons/struct" title={title} bBox={bBox} model={model}>
+              <g>
+                {
+                    children.map( (child, i) => {
+                        return (<g key={i}>
+                          <rect x={statements[i].x } y={statements[i].y} width={statements[i].w/3} height={statements[i].h} stroke="black" fill="white"/>
+                          <text x={statements[i].x } y={statements[i].y + statements[i].h / 2}>
+                            {child.children[0].children[0].getTypeName()}
+                          </text>
+
+                          <rect x={statements[i].x + statements[i].w/3} y={statements[i].y} width={statements[i].w/3} height={statements[i].h} stroke="black" fill="white"/>
+                          <text x={statements[i].x + statements[i].w/3} y={statements[i].y + statements[i].h / 2}>
+                              {child.children[0].children[0].getName()}
+                          </text>
+
+                          <rect x={statements[i].x + (2 * statements[i].w/3)} y={statements[i].y} width={statements[i].w/3} height={statements[i].h} stroke="black" fill="white"/>
+                          <text x={statements[i].x + (2 * statements[i].w/3)} y={statements[i].y + statements[i].h / 2}>
+                              {child.children[1]._basicLiteralValue}
+                          </text>
+                          </g>
+                        )
+                    })
+                }
+              </g>
 					</PanelDecorator>
-				)
+				);
     }
 }
 
