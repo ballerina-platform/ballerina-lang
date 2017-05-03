@@ -2,6 +2,10 @@
     fill-opacity: 0.2;
 }
 
+.statement-container .drop-zone.active.block {
+    fill: red;
+}
+
 .statement-container .drop-zone {
     fill: green;
     fill-opacity: 0;
