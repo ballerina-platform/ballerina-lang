@@ -46,23 +46,25 @@ class BallerinaASTRootDimensionCalculatorVisitor {
         // height = sum of all the children height ( this is only for now it might change if we
         // have same level items in the future )
         // width = maximum with of the containing children. 
-        children.forEach(function(element) {
+        //@todo filter out children
+        children.forEach(function(element, index) {
             let childViewState = element.getViewState();
-            viewState.bBox.h = viewState.bBox.h + childViewState.bBox.h + panel.wrapper.gutter.h;
+            viewState.bBox.h = viewState.bBox.h + childViewState.bBox.h;
+
+            // add an extra gutter if there are more than one child. 
+            if(index != 0){
+                viewState.bBox.h = viewState.bBox.h + panel.wrapper.gutter.h;
+            }
+
+            // if we find a child with a wider width we will assign that as the canvas width.
             if(viewState.bBox.w < childViewState.bBox.w){
                 viewState.bBox.w = childViewState.bBox.w;
             }
         }, this);
 
-        //@todo check with guys if we are adding a canvous padding. 
-        //then lets add canvous margins for view viewState
-        //viewState.bBox.h = viewState.bBox.h + canvas.body.padding.top + canvas.body.padding.bottom;
-        //viewState.bBox.w = viewState.bBox.w + canvas.body.padding.left + canvas.body.padding.right;
-
-        // as a tmp thing I will add panel wraper gutter 
-        // add bottom gutter to bBox
-        //viewState.bBox.h = viewState.bBox.h + panel.wrapper.gutter.h;
-        viewState.bBox.w = viewState.bBox.w + panel.wrapper.gutter.w * 2;
+        // add canvas padding to the bBox
+        viewState.bBox.h = viewState.bBox.h + canvas.padding.top + canvas.padding.bottom;
+        viewState.bBox.w = viewState.bBox.w + canvas.padding.right + canvas.padding.left;
     }
 }
 

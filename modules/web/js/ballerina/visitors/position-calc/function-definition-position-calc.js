@@ -40,7 +40,6 @@ class FunctionDefinitionPositionCalcVisitor {
         let body = viewSate.components.body;
         let currentFunctionIndex = _.findIndex(panelChildren, node);
         let statementContainer = viewSate.components.statementContainer;
-        let defaultWorker = viewSate.components.defaultWorker;
         let x, y, headerX, headerY, bodyX, bodyY;
         if (currentFunctionIndex === 0) {
             headerX = DesignerDefaults.panel.wrapper.gutter.h;

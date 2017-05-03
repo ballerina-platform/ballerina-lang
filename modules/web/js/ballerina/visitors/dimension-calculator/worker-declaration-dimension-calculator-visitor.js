@@ -42,7 +42,7 @@ class WorkerDeclarationDimensionCalculatorVisitor {
 
         components['statementContainer'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementWidth = 0;
+        var statementWidth = DesignerDefaults.lifeLine.width;
         var statementHeight = 0;
 
         _.forEach(statementChildren, function(child) {

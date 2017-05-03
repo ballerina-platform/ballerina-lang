@@ -34,6 +34,14 @@ class BallerinaASTRootPositionCalcVisitor {
                 viewState.bBox.w = minWidth;
             }
         }, this);
+
+        //lets adjest the canvous width and height
+        if(node.getViewState().container.width > node.viewState.bBox.w){
+            node.viewState.bBox.w = node.getViewState().container.width;
+        }
+        if(node.getViewState().container.height > node.viewState.bBox.h){
+            node.viewState.bBox.h = node.getViewState().container.height;
+        }        
     }
 
     visit(node) {

@@ -150,6 +150,7 @@ import Backbone from 'backbone';
         clearActivatedDropTarget: function () {
                 this.set('activatedDropTarget', undefined);
                 this.set('validateDropSourceCallback', undefined);
+                this.set('getDroppedNodeIndexCallBack', undefined);
                 this.trigger('drop-target-changed', undefined);
         },
 

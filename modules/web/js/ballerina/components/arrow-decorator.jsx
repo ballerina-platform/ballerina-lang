@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 import React from "react";
 import PropTypes from 'prop-types';
 
@@ -50,12 +50,12 @@ class Arrow extends React.Component {
 
 Arrow.propTypes = {
 	start: PropTypes.shape({
-		x: React.PropTypes.number.isRequired,
-		y: React.PropTypes.number.isRequired,
+		x: PropTypes.number.isRequired,
+		y: PropTypes.number.isRequired,
 	}),
   end: PropTypes.shape({
-    x: React.PropTypes.number.isRequired,
-    y: React.PropTypes.number.isRequired,
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
   })
 }
 

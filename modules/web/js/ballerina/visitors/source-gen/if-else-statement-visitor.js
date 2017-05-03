@@ -41,24 +41,6 @@ class IfElseStatementVisitor extends AbstractStatementSourceGenVisitor {
     canVisitElseStatement(statement) {
         return true;
     }
-
-    visitIfStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
-    }
-
-    visitElseStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
-    }
-
-    visitElseIfStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
-    }
 }
 
 export default IfElseStatementVisitor;
