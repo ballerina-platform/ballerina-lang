@@ -132,3 +132,15 @@ export const statementContainer = {
     width: 120,
     height: 400
 };
+
+export const packageDefinition = {
+    header: {
+        height: 50,
+        padding: {
+            top: 0,
+            right: 50,
+            bottom: 0,
+            left: 50
+        }
+    }
+}

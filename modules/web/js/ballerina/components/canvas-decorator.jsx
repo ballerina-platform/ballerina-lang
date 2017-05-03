@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import './canvas-decorator.css';
+import {setCanvasOverlay, getCanvasOverlay} from '../configs/app-context';
 
 class CanvasDecorator extends React.Component {
     constructor(props) {
@@ -32,13 +33,20 @@ class CanvasDecorator extends React.Component {
         const { bBox = {} } = this.props;
         const dropZoneActivated = this.state.dropZoneActivated;
         const canvasClassName = "svg-container" + (dropZoneActivated ? " drop-zone active" : "");
-        return (<svg className={canvasClassName} width={ this.props.bBox.w } height={ this.props.bBox.h }>
+        return (
+            <div>
+                <div ref={x => {setCanvasOverlay(x);}}>
+                    {/*This space is used to render html elements over svg*/ }
+                </div>
+                <svg className={canvasClassName} width={ this.props.bBox.w } height={ this.props.bBox.h }>
                     <rect x="0" y="0"width="100%" height="100%"
                         className={(!dropZoneActivated) ? "drop-zone" : "drop-zone active"}
                         onMouseOver={(e) => this.onDropZoneActivate(e)}
                         onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
-                  {this.props.children}
-              </svg>);
+                    {this.props.children}
+                </svg>
+            </div>
+        );
     }
 
     onDropZoneActivate (e) {

@@ -59,8 +59,6 @@ class Diagram extends React.Component {
         let otherNodes = [];
         this.props.model.children.forEach((child) => {
             switch (child.constructor.name) {
-                case 'PackageDefinition':
-                    break;
                 case 'ImportDeclaration':
                     break;
                 case 'ConstantDefinition':
