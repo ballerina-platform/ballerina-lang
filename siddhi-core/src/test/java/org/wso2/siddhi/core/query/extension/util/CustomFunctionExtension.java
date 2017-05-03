@@ -25,6 +25,7 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.Map;
@@ -47,7 +48,7 @@ public class CustomFunctionExtension extends FunctionExecutor {
     private Attribute.Type returnType;
 
     @Override
-    public void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    public void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
             Attribute.Type attributeType = expressionExecutor.getReturnType();
             if (attributeType == Attribute.Type.DOUBLE) {

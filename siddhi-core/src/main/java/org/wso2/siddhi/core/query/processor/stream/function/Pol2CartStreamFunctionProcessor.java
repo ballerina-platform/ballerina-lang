@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.query.processor.stream.function;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -52,34 +53,41 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
      * @return the additional output attributes introduced by the function
      */
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
+            attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         inputExecutorLength = attributeExpressionExecutors.length;
 
         if (inputExecutorLength < 2 || inputExecutorLength > 3) {
-            throw new ExecutionPlanValidationException("Input parameters for poleCart can either be 'theta,rho' or 'theta,rho,z', but " +
+            throw new ExecutionPlanValidationException("Input parameters for poleCart can either be 'theta,rho' or " +
+                    "'theta,rho,z', but " +
                     attributeExpressionExecutors.length + " attributes found");
         }
         for (int i = 0; i < inputExecutorLength; i++) {
             ExpressionExecutor expressionExecutor = attributeExpressionExecutors[i];
             if (expressionExecutor.getReturnType() != Attribute.Type.DOUBLE) {
-                throw new ExecutionPlanValidationException("Input attribute " + i + " is expected to return Double, but its returning " + expressionExecutor.getReturnType());
+                throw new ExecutionPlanValidationException("Input attribute " + i + " is expected to return Double, " +
+                        "but its returning " + expressionExecutor.getReturnType());
             }
 
         }
         if (attributeExpressionExecutors.length == 2) {
             for (Attribute attribute : inputDefinition.getAttributeList()) {
                 if (attribute.getName().equals("x") || attribute.getName().equals("y")) {
-                    throw new ExecutionPlanValidationException("Input stream " + inputDefinition.getId() + " should not contain attributes with name 'x' or 'y', but found " + attribute);
+                    throw new ExecutionPlanValidationException("Input stream " + inputDefinition.getId() + " should " +
+                            "not contain attributes with name 'x' or 'y', but found " + attribute);
                 }
             }
             return Arrays.asList(new Attribute("x", Attribute.Type.DOUBLE), new Attribute("y", Attribute.Type.DOUBLE));
         } else {
             for (Attribute attribute : inputDefinition.getAttributeList()) {
-                if (attribute.getName().equals("x") || attribute.getName().equals("y") || attribute.getName().equals("z")) {
-                    throw new ExecutionPlanValidationException("Input stream " + inputDefinition.getId() + " should not contain attributes with name 'x' or 'y' or 'z', but found " + attribute);
+                if (attribute.getName().equals("x") || attribute.getName().equals("y") || attribute.getName().equals
+                        ("z")) {
+                    throw new ExecutionPlanValidationException("Input stream " + inputDefinition.getId() + " should " +
+                            "not contain attributes with name 'x' or 'y' or 'z', but found " + attribute);
                 }
             }
-            return Arrays.asList(new Attribute("x", Attribute.Type.DOUBLE), new Attribute("y", Attribute.Type.DOUBLE), new Attribute("z", Attribute.Type.DOUBLE));
+            return Arrays.asList(new Attribute("x", Attribute.Type.DOUBLE), new Attribute("y", Attribute.Type.DOUBLE)
+                    , new Attribute("z", Attribute.Type.DOUBLE));
         }
     }
 

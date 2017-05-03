@@ -27,14 +27,14 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.NoSuchAttributeException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.stream.output.sink.InMemoryOutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class JSONOutputMapperWithSiddhiQLTestCase {
-    static final Logger log = Logger.getLogger(JSONOutputMapperWithSiddhiQueryAPITestCase.class);
+public class JSONSinkmapperWithSiddhiQLTestCase {
+    static final Logger log = Logger.getLogger(JSONSinkmapperWithSiddhiQueryAPITestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
@@ -49,7 +49,7 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map json
     @Test
-    public void testJSONOutputMapperDefaultMappingWithSiddhiQL() throws InterruptedException {
+    public void testJSONSinkmapperDefaultMappingWithSiddhiQL() throws InterruptedException {
         log.info("Test default json mapping with SiddhiQL");
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
@@ -92,7 +92,7 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -168,7 +168,7 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -254,7 +254,7 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -308,7 +308,7 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 

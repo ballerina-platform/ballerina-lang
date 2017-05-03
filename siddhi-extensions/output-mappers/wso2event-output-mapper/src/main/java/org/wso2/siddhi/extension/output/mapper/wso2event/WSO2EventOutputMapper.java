@@ -3,8 +3,8 @@ package org.wso2.siddhi.extension.output.mapper.wso2event;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransportCallback;
+import org.wso2.siddhi.core.stream.output.sink.Sinkmapper;
+import org.wso2.siddhi.core.stream.output.sink.SinkCallback;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -15,10 +15,10 @@ import java.util.Map;
 
 @Extension(
         name = "wso2event",
-        namespace = "outputmapper",
+        namespace = "sinkMapper",
         description = "Event to WSO2Event output mapper."
 )
-public class WSO2EventOutputMapper extends OutputMapper {
+public class WSO2EventSinkmapper extends Sinkmapper {
     private StreamDefinition streamDefinition;
     private OptionHolder optionHolder;
     private static final String PROPERTY_META_PREFIX = "meta_";
@@ -42,17 +42,17 @@ public class WSO2EventOutputMapper extends OutputMapper {
      * Map and publish the given {@link Event} array
      *
      * @param events                  Event object array
-     * @param outputTransportCallback output transport callback
+     * @param sinkCallback output transport callback
      * @param optionHolder            option holder containing static and dynamic options
      * @param payloadTemplateBuilder  Unmapped payload for reference
      */
     @Override
-    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback,
+    public void mapAndSend(Event[] events, SinkCallback sinkCallback,
                            OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder)
             throws ConnectionUnavailableException {
         //TODO add support to publish multiple events
         for (Event event : events) {
-            outputTransportCallback.publish(constructDefaultMapping(event), event);
+            sinkCallback.publish(constructDefaultMapping(event), event);
         }
     }
 

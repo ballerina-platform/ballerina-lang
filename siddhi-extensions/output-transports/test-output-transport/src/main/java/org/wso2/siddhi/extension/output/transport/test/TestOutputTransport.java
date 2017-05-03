@@ -23,7 +23,7 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 
 import java.util.ArrayList;
@@ -32,11 +32,11 @@ import java.util.Map;
 
 @Extension(
         name = "test",
-        namespace = "outputtransport",
+        namespace = "sink",
         description = ""
 )
-public class TestOutputTransport extends OutputTransport {
-    private static final Logger log = Logger.getLogger(TestOutputTransport.class);
+public class TestSink extends Sink {
+    private static final Logger log = Logger.getLogger(TestSink.class);
     private static final String TOPIC_KEY = "topic";
 
     @Override
@@ -52,30 +52,30 @@ public class TestOutputTransport extends OutputTransport {
 
     @Override
     public void testConnect() throws TestConnectionNotSupportedException, ConnectionUnavailableException {
-        log.info("TestOutputTransport:testConnect()");
+        log.info("TestSink:testConnect()");
     }
 
     @Override
     public void connect() throws ConnectionUnavailableException {
-        log.info("TestOutputTransport:connect()");
+        log.info("TestSink:connect()");
     }
 
     @Override
     public void publish(Object event, Map<String, String> dynamicTransportOptions)
             throws ConnectionUnavailableException {
-        log.info("TestOutputTransport:publish() | dynamicTransportOptions : " +
+        log.info("TestSink:publish() | dynamicTransportOptions : " +
                 dynamicTransportOptions.toString() + " | event : " + event.toString());
         InMemoryBroker.publish(dynamicTransportOptions.get(TOPIC_KEY), event);
     }
 
     @Override
     public void disconnect() {
-        log.info("TestOutputTransport:disconnect()");
+        log.info("TestSink:disconnect()");
     }
 
     @Override
     public void destroy() {
-        log.info("TestOutputTransport:destroy()");
+        log.info("TestSink:destroy()");
     }
 
     @Override

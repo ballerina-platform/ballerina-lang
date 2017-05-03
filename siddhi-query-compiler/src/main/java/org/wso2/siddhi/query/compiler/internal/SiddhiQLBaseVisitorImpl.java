@@ -287,7 +287,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
         Source source = (Source) visit(ctx.source());
         if (source.isInnerStream) {
-            throw newSiddhiParserException(ctx, "'#' cannot be used, because EventTables can't be defined as InnerStream!");
+            throw newSiddhiParserException(ctx, "'#' cannot be used, because Tables can't be defined as InnerStream!");
         }
         TableDefinition tableDefinition = TableDefinition.id(source.streamId);
         List<SiddhiQLParser.Attribute_nameContext> attribute_names = ctx.attribute_name();
@@ -1173,7 +1173,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             Source source = (Source) visit(ctx.target());
             if (ctx.UPDATE() != null && ctx.OR() != null) {
                 if (source.isInnerStream) {
-                    throw newSiddhiParserException(ctx, "UPDATE OR INTO INSERT be only used with EventTables!");
+                    throw newSiddhiParserException(ctx, "UPDATE OR INTO INSERT be only used with Tables!");
                 }
                 if (ctx.output_event_type() != null) {
                     return new UpdateOrInsertStream(source.streamId,
@@ -1193,7 +1193,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         } else if (ctx.DELETE() != null) {
             Source source = (Source) visit(ctx.target());
             if (source.isInnerStream) {
-                throw newSiddhiParserException(ctx, "DELETE can be only used with EventTables!");
+                throw newSiddhiParserException(ctx, "DELETE can be only used with Tables!");
             }
             if (ctx.output_event_type() != null) {
                 return new DeleteStream(source.streamId,
@@ -1205,7 +1205,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         } else if (ctx.UPDATE() != null) {
             Source source = (Source) visit(ctx.target());
             if (source.isInnerStream) {
-                throw newSiddhiParserException(ctx, "DELETE can be only used with EventTables!");
+                throw newSiddhiParserException(ctx, "DELETE can be only used with Tables!");
             }
             if (ctx.output_event_type() != null) {
                 return new UpdateStream(source.streamId,

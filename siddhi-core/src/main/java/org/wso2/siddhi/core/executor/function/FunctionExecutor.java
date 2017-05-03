@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 
@@ -34,8 +35,11 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
     protected String elementId;
     private int attributeSize;
     protected String queryName;
+    private ConfigReader configReader;
 
-    public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, String queryName) {
+    public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+            executionPlanContext, String queryName, ConfigReader configReader) {
+        this.configReader = configReader;
         try {
             this.executionPlanContext = executionPlanContext;
             this.attributeExpressionExecutors = attributeExpressionExecutors;
@@ -46,7 +50,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
                 elementId = "FunctionExecutor-" + executionPlanContext.getElementIdGenerator().createNewId();
             }
             executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
-            init(attributeExpressionExecutors, executionPlanContext);
+            init(attributeExpressionExecutors,configReader, executionPlanContext);
         } catch (Throwable t) {
             throw new ExecutionPlanCreationException(t);
         }
@@ -61,7 +65,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
                 innerExpressionExecutors[i] = attributeExpressionExecutors[i].cloneExecutor(key);
             }
             functionExecutor.elementId = elementId + "-" + key;
-            functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext, queryName);
+            functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext, queryName, configReader);
             functionExecutor.start();
             return functionExecutor;
         } catch (Exception e) {
@@ -71,11 +75,12 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
 
     /**
      * The initialization method for FunctionExecutor, this method will be called before the other methods
-     *
-     * @param attributeExpressionExecutors are the executors of each function parameters
+     *  @param attributeExpressionExecutors are the executors of each function parameters
+     * @param configReader
      * @param executionPlanContext         the context of the execution plan
      */
-    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
+    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                                 ExecutionPlanContext executionPlanContext);
 
 
     /**
@@ -100,7 +105,8 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
                     return execute(data);
             }
         } catch (Exception e) {
-            log.error("Exception on execution plan '" + executionPlanContext.getName() + "' on class '" + this.getClass().getName() + "', " + e.getMessage(), e);
+            log.error("Exception on execution plan '" + executionPlanContext.getName() + "' on class '" + this
+                    .getClass().getName() + "', " + e.getMessage(), e);
             return null;
         }
     }

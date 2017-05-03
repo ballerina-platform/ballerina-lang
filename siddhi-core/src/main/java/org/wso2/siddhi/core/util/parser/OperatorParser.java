@@ -24,18 +24,23 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import org.wso2.siddhi.core.util.collection.executor.CollectionExecutor;
+import org.wso2.siddhi.core.util.collection.expression.AttributeCollectionExpression;
 import org.wso2.siddhi.core.util.collection.expression.CollectionExpression;
+import org.wso2.siddhi.core.util.collection.expression.CompareCollectionExpression;
 import org.wso2.siddhi.core.util.collection.operator.*;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.INDEXED_RESULT_SET;
 
 public class OperatorParser {
 
@@ -43,24 +48,35 @@ public class OperatorParser {
                                              MatchingMetaInfoHolder matchingMetaInfoHolder,
                                              ExecutionPlanContext executionPlanContext,
                                              List<VariableExpressionExecutor> variableExpressionExecutors,
-                                             Map<String, EventTable> eventTableMap, String queryName) {
+                                             Map<String, Table> tableMap, String queryName) {
         if (storeEvents instanceof IndexedEventHolder) {
             CollectionExpression collectionExpression = CollectionExpressionParser.parseCollectionExpression(expression,
                     matchingMetaInfoHolder, (IndexedEventHolder) storeEvents);
             CollectionExecutor collectionExecutor = CollectionExpressionParser.buildCollectionExecutor(collectionExpression,
-                    matchingMetaInfoHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, true, queryName);
-            return new IndexOperator(collectionExecutor);
+                    matchingMetaInfoHolder, variableExpressionExecutors, tableMap, executionPlanContext, true, queryName);
+            if (collectionExpression instanceof CompareCollectionExpression &&
+                    ((CompareCollectionExpression) collectionExpression).getOperator() == Compare.Operator.EQUAL &&
+                    collectionExpression.getCollectionScope() == INDEXED_RESULT_SET &&
+                    ((IndexedEventHolder) storeEvents).getPrimaryKeyAttribute() != null &&
+                    ((IndexedEventHolder) storeEvents).getPrimaryKeyAttribute().equals(
+                            ((AttributeCollectionExpression) ((CompareCollectionExpression) collectionExpression)
+                                    .getAttributeCollectionExpression()).getAttribute())) {
+                return new OverwriteTableIndexOperator(collectionExecutor, queryName);
+            } else {
+                return new IndexOperator(collectionExecutor, queryName);
+
+            }
         } else if (storeEvents instanceof ComplexEventChunk) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new EventChunkOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else if (storeEvents instanceof Map) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new MapOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else if (storeEvents instanceof Collection) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new CollectionOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else {
             throw new OperationNotSupportedException(storeEvents.getClass() + " is not supported by OperatorParser!");

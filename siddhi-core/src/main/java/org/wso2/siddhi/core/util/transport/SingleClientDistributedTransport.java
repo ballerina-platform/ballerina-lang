@@ -20,14 +20,16 @@ package org.wso2.siddhi.core.util.transport;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.extension.holder.OutputTransportExecutorExtensionHolder;
+import org.wso2.siddhi.core.util.config.ConfigReader;
+import org.wso2.siddhi.core.util.extension.holder.SinkExecutorExtensionHolder;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.HashSet;
 import java.util.List;
@@ -35,15 +37,15 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class implements a the distributed transport that could publish to multiple destination using a single
+ * This class implements a the distributed sink that could publish to multiple destination using a single
  * client/publisher. Following are some examples,
- *      - In a case where there are multiple partitions in a single topic in Kafka, the same kafka client can be used
- *      to send events to all the partitions within the topic.
- *      - The same email client can send email to different addresses.
+ * - In a case where there are multiple partitions in a single topic in Kafka, the same kafka client can be used
+ * to send events to all the partitions within the topic.
+ * - The same email client can send email to different addresses.
  */
 public class SingleClientDistributedTransport extends DistributedTransport {
 
-    private OutputTransport transport;
+    private Sink sink;
     private int destinationCount = 0;
 
     @Override
@@ -51,28 +53,29 @@ public class SingleClientDistributedTransport extends DistributedTransport {
             throws ConnectionUnavailableException {
         try {
             transportOptions.setVariableOptionIndex(destinationId);
-            transport.publish(payload, transportOptions);
-        } catch (ConnectionUnavailableException e){
+            sink.publish(payload, transportOptions);
+        } catch (ConnectionUnavailableException e) {
             strategy.destinationFailed(destinationId);
             throw e;
         }
     }
 
     @Override
-    public void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders, Annotation
-            sinkAnnotation, ExecutionPlanContext executionPlanContext) {
+    public void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders,
+                              Annotation sinkAnnotation, ConfigReader sinkConfigReader,
+                              ExecutionPlanContext executionPlanContext) {
         final String transportType = sinkOptionHolder.validateAndGetStaticValue(SiddhiConstants
                 .ANNOTATION_ELEMENT_TYPE);
-        org.wso2.siddhi.query.api.extension.Extension sink = DefinitionParserHelper.constructExtension
-                (streamDefinition, SiddhiConstants.ANNOTATION_SINK, transportType,sinkAnnotation, SiddhiConstants
-                        .NAMESPACE_OUTPUT_TRANSPORT);
+        Extension sinkExtension = DefinitionParserHelper.constructExtension
+                (streamDefinition, SiddhiConstants.ANNOTATION_SINK, transportType, sinkAnnotation, SiddhiConstants
+                        .NAMESPACE_SINK);
 
         Set<String> allDynamicOptionKeys = findAllDynamicOptions(destinationOptionHolders);
         destinationOptionHolders.forEach(optionHolder -> {
             optionHolder.merge(sinkOptionHolder);
             allDynamicOptionKeys.forEach(optionKey -> {
                 String optionValue = optionHolder.getOrCreateOption(optionKey, null).getValue();
-                if (optionValue == null || optionValue.isEmpty()){
+                if (optionValue == null || optionValue.isEmpty()) {
                     throw new ExecutionPlanValidationException("Destination properties can only contain " +
                             "non-empty static values.");
                 }
@@ -83,10 +86,9 @@ public class SingleClientDistributedTransport extends DistributedTransport {
             });
         });
 
-        OutputTransport outputTransport = (OutputTransport)SiddhiClassLoader.loadExtensionImplementation(
-                sink, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
-        transport = outputTransport;
-        transport.initOnlyTransport(streamDefinition, sinkOptionHolder, executionPlanContext);
+        this.sink = (Sink) SiddhiClassLoader.loadExtensionImplementation(
+                sinkExtension, SinkExecutorExtensionHolder.getInstance(executionPlanContext));
+        this.sink.initOnlyTransport(streamDefinition, sinkOptionHolder,sinkConfigReader, executionPlanContext);
     }
 
     /**
@@ -96,8 +98,8 @@ public class SingleClientDistributedTransport extends DistributedTransport {
      */
     @Override
     public void connect() throws ConnectionUnavailableException {
-        transport.connect();
-        for (int i = 0; i < destinationCount; i++){
+        sink.connect();
+        for (int i = 0; i < destinationCount; i++) {
             strategy.destinationAvailable(i);
         }
     }
@@ -107,7 +109,7 @@ public class SingleClientDistributedTransport extends DistributedTransport {
      */
     @Override
     public void disconnect() {
-        transport.disconnect();
+        sink.disconnect();
     }
 
     /**
@@ -115,7 +117,7 @@ public class SingleClientDistributedTransport extends DistributedTransport {
      */
     @Override
     public void destroy() {
-        transport.destroy();
+        sink.destroy();
     }
 
     /**
@@ -126,7 +128,7 @@ public class SingleClientDistributedTransport extends DistributedTransport {
      */
     @Override
     public Map<String, Object> currentState() {
-        return transport.currentState();
+        return sink.currentState();
     }
 
     /**
@@ -138,12 +140,12 @@ public class SingleClientDistributedTransport extends DistributedTransport {
      */
     @Override
     public void restoreState(Map<String, Object> state) {
-        transport.restoreState(state);
+        sink.restoreState(state);
     }
 
-    private Set<String> findAllDynamicOptions(List<OptionHolder> destinationOptionHolders){
+    private Set<String> findAllDynamicOptions(List<OptionHolder> destinationOptionHolders) {
         Set<String> dynamicOptions = new HashSet<>();
-        destinationOptionHolders.forEach(destinationOptionHolder ->{
+        destinationOptionHolders.forEach(destinationOptionHolder -> {
             destinationOptionHolder.getDynamicOptionsKeys().forEach(dynamicOptions::add);
             destinationOptionHolder.getStaticOptionsKeys().forEach(dynamicOptions::add);
         });

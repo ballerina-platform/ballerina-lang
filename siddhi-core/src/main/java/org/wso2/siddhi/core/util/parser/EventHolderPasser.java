@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.util.parser;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.table.holder.EventHolder;
 import org.wso2.siddhi.core.table.holder.IndexEventHolder;
@@ -54,11 +55,12 @@ public class EventHolderPasser {
             if (primaryKeyAnnotation.getElements().size() > 1) {
                 throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation contains " +
                         primaryKeyAnnotation.getElements().size() +
-                        " elements, Siddhi in-memory table only supports indexing based on a single attribute");
+                        " elements, Siddhi in-memory table only supports indexing based on a single attribute, " +
+                        "at '" + tableDefinition.getId() + "'");
             }
             if (primaryKeyAnnotation.getElements().size() == 0) {
                 throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation contains "
-                        + primaryKeyAnnotation.getElements().size() + " element");
+                        + primaryKeyAnnotation.getElements().size() + " element, at '" + tableDefinition.getId() + "'");
             }
             primaryKeyAttribute = primaryKeyAnnotation.getElements().get(0).getValue().trim();
             primaryKeyPosition = tableDefinition.getAttributePosition(primaryKeyAttribute);
@@ -74,30 +76,20 @@ public class EventHolderPasser {
                         + indexAnnotation.getElements().size() + " element");
             }
             for (Element element : indexAnnotation.getElements()) {
-                indexMetaData.put(element.getValue().trim(), tableDefinition.getAttributePosition(element.getValue().trim()));
+                Integer previousValue = indexMetaData.put(element.getValue().trim(), tableDefinition.getAttributePosition(element.getValue().trim()));
+                if (previousValue != null) {
+                    throw new ExecutionPlanCreationException("Multiple " + SiddhiConstants.ANNOTATION_INDEX + " annotations defined with same attribute '" + element.getValue().trim() + "', at '" + tableDefinition.getId() + "'");
+                }
             }
         }
 
-        // deprecated indexBy.
+        // not support indexBy.
         Annotation indexByAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY,
                 tableDefinition.getAnnotations());
         if (indexByAnnotation != null) {
-            if (primaryKeyAttribute != null) {
-                log.info("Ignoring '@" + SiddhiConstants.ANNOTATION_INDEX_BY + "' as @" + SiddhiConstants.ANNOTATION_PRIMARY_KEY + "' is already defined for event table " + tableDefinition.getId());
-            } else {
-                if (indexByAnnotation.getElements().size() > 1) {
-                    throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " +
-                            indexByAnnotation.getElements().size() +
-                            " elements, Siddhi in-memory table only supports indexing based on a single attribute");
-                }
-                if (indexByAnnotation.getElements().size() == 0) {
-                    throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains "
-                            + indexByAnnotation.getElements().size() + " element");
-                }
-
-                primaryKeyAttribute = indexByAnnotation.getElements().get(0).getValue().trim();
-                primaryKeyPosition = tableDefinition.getAttributePosition(primaryKeyAttribute);
-            }
+            throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation is not " +
+                    "supported anymore, please use @PrimaryKey or @Index annotations instead," +
+                    " at '" + tableDefinition.getId() + "'");
         }
 
         if (primaryKeyAttribute != null || indexMetaData.size() > 0) {

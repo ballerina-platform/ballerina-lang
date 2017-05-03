@@ -31,6 +31,7 @@ import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
@@ -42,7 +43,8 @@ import java.util.Properties;
 public class JMSClient {
     private Log log = LogFactory.getLog(JMSClient.class);
 
-    public void sendJMSEvents(String filePath, String topicName, String queueName, String format, String broker) {
+    public void sendJMSEvents(String filePath, String topicName, String queueName, String format,
+                              String broker, String providerURL) {
         if (format == null || "map".equals(format)) {
             format = "csv";
         }
@@ -61,6 +63,10 @@ public class JMSClient {
                 TopicConnectionFactory connFactory = null;
                 if ("activemq".equalsIgnoreCase(broker)) {
                     properties.load(ClassLoader.getSystemClassLoader().getResourceAsStream("activemq.properties"));
+                    // to provide custom provider urls
+                    if (providerURL != null) {
+                        properties.put(Context.PROVIDER_URL, providerURL);
+                    }
                     Context context = new InitialContext(properties);
                     connFactory = (TopicConnectionFactory) context.lookup("ConnectionFactory");
                 } else if ("mb".equalsIgnoreCase(broker)) {
