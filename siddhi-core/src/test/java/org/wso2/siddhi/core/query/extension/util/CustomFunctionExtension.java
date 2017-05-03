@@ -36,8 +36,8 @@ import java.util.Map;
         description = "Return the sum of the given input values.",
         parameters = {
                 @Parameter(name = "arg",
-                        description = "The value that need to be sum.",
-                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                           description = "The value that need to be sum.",
+                           type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the calculated sum value as a double or float.",
@@ -48,7 +48,9 @@ public class CustomFunctionExtension extends FunctionExecutor {
     private Attribute.Type returnType;
 
     @Override
-    public void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    public void init(ExpressionExecutor[] attributeExpressionExecutors,
+                     ConfigReader configReader,
+                     ExecutionPlanContext executionPlanContext) {
         for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
             Attribute.Type attributeType = expressionExecutor.getReturnType();
             if (attributeType == Attribute.Type.DOUBLE) {
