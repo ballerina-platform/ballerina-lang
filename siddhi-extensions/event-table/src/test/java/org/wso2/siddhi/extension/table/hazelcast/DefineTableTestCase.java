@@ -92,8 +92,8 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         TableDefinition tableDefinition = TableDefinition
                 .id("cseEventStream")
-                .annotation(Annotation.annotation("from")
-                        .element("table", "hazelcast"))
+                .annotation(Annotation.annotation("store")
+                        .element("type", "hazelcast"))
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -121,7 +121,7 @@ public class DefineTableTestCase {
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition
                 .id("StockTable")
-                .annotation(Annotation.annotation("from").element("table", "hazelcast"))
+                .annotation(Annotation.annotation("store").element("type", "hazelcast"))
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         Query query = Query.query();
@@ -563,8 +563,8 @@ public class DefineTableTestCase {
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition.id("StockTable")
-                .annotation(Annotation.annotation("from")
-                        .element("table", "hazelcast")
+                .annotation(Annotation.annotation("store")
+                        .element("type", "hazelcast")
                         .element("cluster.name", clusterName)
                         .element("cluster.password", clusterPassword)
                         .element("collection.name", collectionName)
@@ -618,8 +618,8 @@ public class DefineTableTestCase {
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition.id("StockTable")
-                .annotation(Annotation.annotation("from")
-                        .element("table", "hazelcast"))
+                .annotation(Annotation.annotation("store")
+                        .element("type", "hazelcast"))
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         Query query = Query.query();
@@ -678,8 +678,8 @@ public class DefineTableTestCase {
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition.id("StockTable")
-                .annotation(Annotation.annotation("from")
-                        .element("table", "hazelcast")
+                .annotation(Annotation.annotation("store")
+                        .element("type", "hazelcast")
                         .element("cluster.name", clusterName)
                         .element("cluster.password", clusterPassword)
                         .element("collection.name", collectionName)

@@ -148,12 +148,12 @@ public class DefinitionParserHelper {
                     tableStreamEventPool);
 
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_STORE,
-                    tableDefinition.getAnnotations()); //// TODO: 12/5/16 this must be removed
+                    tableDefinition.getAnnotations());
 
             Table table;
             ConfigReader configReader = null;
             if (annotation != null) {
-                final String evenTableType = annotation.getElement(SiddhiConstants.NAMESPACE_STORE);
+                final String tableType = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                 Extension extension = new Extension() {
                     @Override
                     public String getNamespace() {
@@ -162,7 +162,7 @@ public class DefinitionParserHelper {
 
                     @Override
                     public String getName() {
-                        return evenTableType;
+                        return tableType;
                     }
                 };
                 table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension, TableExtensionHolder.getInstance(executionPlanContext));configReader = executionPlanContext.getSiddhiContext().getConfigManager()

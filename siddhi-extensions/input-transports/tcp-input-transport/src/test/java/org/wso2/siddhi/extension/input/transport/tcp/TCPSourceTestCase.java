@@ -94,7 +94,7 @@ public class TCPSourceTestCase {
         executionPlanRuntime.start();
 
         TCPNettyClient TCPNettyClient = new TCPNettyClient();
-        TCPNettyClient.connect("localhost", 8080);
+        TCPNettyClient.connect("localhost", 9892);
         ArrayList<Event> arrayList = new ArrayList<Event>(3);
 
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -156,7 +156,7 @@ public class TCPSourceTestCase {
         executionPlanRuntime.start();
 
         TCPNettyClient TCPNettyClient = new TCPNettyClient();
-        TCPNettyClient.connect("localhost", 8080);
+        TCPNettyClient.connect("localhost", 9892);
         ArrayList<Event> arrayList = new ArrayList<Event>(3);
 
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -200,7 +200,7 @@ public class TCPSourceTestCase {
         executionPlanRuntime.start();
 
         TCPNettyClient TCPNettyClient = new TCPNettyClient();
-        TCPNettyClient.connect("localhost", 8080);
+        TCPNettyClient.connect("localhost", 9892);
         ArrayList<Event> arrayList = new ArrayList<Event>(3);
 
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
