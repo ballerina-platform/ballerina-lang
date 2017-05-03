@@ -15,26 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import log from 'log';
-import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
-import {util} from './../sizing-utils';
+import {util} from './../sizing-utils'
 
-class FunctionDefinitionDimensionCalculatorVisitor {
+class ConnectorActionDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.info('can visit FunctionDefinitionDimensionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.info('begin visit FunctionDefinitionDimensionCalc');
     }
 
     visit(node) {
-        log.info('visit FunctionDefinitionDimensionCalc');
     }
 
     endVisit(node) {
@@ -42,4 +39,4 @@ class FunctionDefinitionDimensionCalculatorVisitor {
     }
 }
 
-export default FunctionDefinitionDimensionCalculatorVisitor;
+export default ConnectorActionDimensionCalculatorVisitor;
