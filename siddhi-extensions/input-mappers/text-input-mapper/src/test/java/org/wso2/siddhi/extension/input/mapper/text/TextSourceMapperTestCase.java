@@ -47,7 +47,7 @@ public class TextSourceMapperTestCase {
      */
     @Test
     public void testTextSourcemapper1() throws InterruptedException {
-        log.info("test TextSourcemapper1");
+        log.info("test TextsourceMapper1");
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +

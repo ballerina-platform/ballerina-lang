@@ -149,7 +149,7 @@ public class JsonSourcemapper implements Sourcemapper {
 
         // Validate the event
         if (eventObject == null) {
-            throw new ExecutionPlanRuntimeException("Null object received from the Source to JsonSourcemapper");
+            throw new ExecutionPlanRuntimeException("Null object received from the Source to JsonsourceMapper");
         }
 
         if (!(eventObject instanceof String)) {

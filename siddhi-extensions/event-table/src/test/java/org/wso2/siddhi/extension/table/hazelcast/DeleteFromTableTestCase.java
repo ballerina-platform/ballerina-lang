@@ -61,7 +61,7 @@ public class DeleteFromTableTestCase {
                 "@Plan:name('DeleteFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(table = 'hazelcast')" +
+                "@store(type = 'hazelcast')" +
                 "define table StockTableT011 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -98,7 +98,7 @@ public class DeleteFromTableTestCase {
                 "@Plan:name('DeleteFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(table = 'hazelcast')" +
+                "@store(type = 'hazelcast')" +
                 "define table StockTableT021 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -136,7 +136,7 @@ public class DeleteFromTableTestCase {
                 "@Plan:name('DeleteFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(table = 'hazelcast')" +
+                "@store(type = 'hazelcast')" +
                 "define table StockTableT031 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -174,7 +174,7 @@ public class DeleteFromTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(table = 'hazelcast')" +
+                "@store(type = 'hazelcast')" +
                 "define table StockTableT041 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -248,7 +248,7 @@ public class DeleteFromTableTestCase {
                 "define stream StockStream (symbol string, price float, vol long); " +
                 "define stream DeleteStockStream (symbol string, price float, vol long); " +
                 "define stream CountStockStream (symbol string); " +
-                "@from(table = 'hazelcast')" +
+                "@store(type = 'hazelcast')" +
                 "define table StockTableT051 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +

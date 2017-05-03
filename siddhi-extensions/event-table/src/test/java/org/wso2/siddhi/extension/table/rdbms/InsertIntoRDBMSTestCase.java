@@ -45,7 +45,7 @@ public class InsertIntoRDBMSTestCase {
                         .TABLE_NAME);
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
-                        "@from(table = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        "@store(type = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
                         " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
