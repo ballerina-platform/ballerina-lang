@@ -65,11 +65,10 @@ class FunctionDefinitionDimensionCalculatorVisitor {
            This will prevent last statement touching bottom box of the life line.*/
         statementHeight += DesignerDefaults.lifeLine.gutter.v;
 
-        // If the lifeline is two short we will set a minimum height.
-        if(statementHeight < DesignerDefaults.lifeLine.line.height){
-            statementHeight = DesignerDefaults.lifeLine.line.height;
+        // If the statement container is two short we will set a minimum height.
+        if(statementHeight < DesignerDefaults.statementContainer.height){
+            statementHeight = DesignerDefaults.statementContainer.height;
         }
-
 
         components['statementContainer'].h = statementHeight;
         components['statementContainer'].w = statementWidth;

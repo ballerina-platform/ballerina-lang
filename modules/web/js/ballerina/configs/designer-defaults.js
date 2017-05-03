@@ -59,6 +59,7 @@ export const innerPanel = {
         }
     },
     body: {
+        height: 300,
         padding: {
             top: 50,
             right: 50,
@@ -130,5 +131,6 @@ export const canvas = {
 
 export const statementContainer = {
     width: 120,
-    height: 400
+    // Default statement container height is the height of two simple statements
+    height: 135
 };

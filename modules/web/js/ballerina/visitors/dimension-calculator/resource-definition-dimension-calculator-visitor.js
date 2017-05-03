@@ -47,7 +47,7 @@ class ResourceDefinitionDimensionCalculatorVisitor {
 
         components['statementContainer'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementWidth = 0;
+        var statementWidth = DesignerDefaults.statementContainer.width;
         var statementHeight = 0;
 
         _.forEach(statementChildren, function(child) {
@@ -78,7 +78,6 @@ class ResourceDefinitionDimensionCalculatorVisitor {
 
         const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
         const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
-        const highestLifeLineHeight = highestStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;
 
         var lifeLineWidth = 0;
         _.forEach(workerChildren.concat(connectorChildren), function(child) {
@@ -104,9 +103,10 @@ class ResourceDefinitionDimensionCalculatorVisitor {
 
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
             DesignerDefaults.panel.body.padding.left + lifeLineWidth;
+        components['heading'].w = components['body'].w;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
-        viewState.bBox.w = components['heading'].w + components['body'].w;
+        viewState.bBox.w = components['body'].w;
 
         viewState.components = components;
     }

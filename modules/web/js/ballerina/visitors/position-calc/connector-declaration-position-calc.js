@@ -43,24 +43,10 @@ class ConnectorDeclarationPositionCalcVisitor {
         let connectorIndex = _.findIndex(connectors, node);
         let x, y;
 
-        /**
-         * Always the first connector should place after the last worker or the default worker
-         */
-        if (connectorIndex === 0) {
-
-            if (workers.length > 0) {
-                x = workers[workers.length - 1].getViewState().components.statementContainer.getRight() +
-                    DesignerDefaults.lifeLine.gutter.h;
-            } else {
-                x = parentViewState.components.statementContainer.getRight() +
-                    DesignerDefaults.lifeLine.gutter.h;
-            }
-        } else if (connectorIndex > 0) {
-            const previousConnector = workers[connectorIndex - 1];
-            const previousStatementContainer = previousConnector.getViewState().components.statementContainer;
-            x = previousStatementContainer.getRight() + DesignerDefaults.innerPanel.body.padding.left;
+        if (ASTFactory.isServiceDefinition(parent) || ASTFactory.isConnectorDefinition(parent)) {
+            x = positionPanelLevelConnectors(connectors, connectorIndex, parent);
         } else {
-            throw "Invalid index found for Connector Declaration";
+            x = positionInnerPanelLevelConnectors(connectors, connectorIndex, workers, parent);
         }
 
         y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
@@ -79,6 +65,47 @@ class ConnectorDeclarationPositionCalcVisitor {
     endVisit(node) {
         log.debug('end visit ConnectorDeclarationPositionCalcVisitor');
     }
+}
+
+function positionPanelLevelConnectors(connectors, connectorIndex, parentNode) {
+    let xPosition;
+    const innerPanelNodes = parentNode.filterChildren(function (child) {
+        return ASTFactory.isResourceDefinition(child) || ASTFactory.isConnectorAction(child);
+    });
+
+    if (connectorIndex === 0) {
+        if (innerPanelNodes.length === 0) {
+            xPosition = parentNode.getViewState().bBox.getLeft() + DesignerDefaults.lifeLine.gutter.h;
+        } else {
+            xPosition = parentNode.getViewState().bBox.getLeft() + innerPanelNodes[0].getViewState().bBox.w +
+                DesignerDefaults.lifeLine.gutter.h + DesignerDefaults.panel.body.padding.left
+        }
+    } else {
+        xPosition = connectors[connectorIndex - 1].getViewState().components.statementContainer.getRight() +
+            DesignerDefaults.lifeLine.gutter.h;
+    }
+
+    return xPosition;
+}
+
+function positionInnerPanelLevelConnectors(connectors, connectorIndex, workers, parentNode) {
+    const parentViewState = parentNode.getViewState();
+    let xPosition;
+    if (connectorIndex === 0) {
+        if (workers.length > 0) {
+            xPosition = workers[workers.length - 1].getViewState().components.statementContainer.getRight() +
+                DesignerDefaults.lifeLine.gutter.h;
+        } else {
+            xPosition = parentViewState.components.statementContainer.getRight() +
+                DesignerDefaults.lifeLine.gutter.h;
+        }
+    } else if (connectorIndex > 0) {
+        const previousConnector = connectors[connectorIndex - 1];
+        const previousStatementContainer = previousConnector.getViewState().components.statementContainer;
+        xPosition = previousStatementContainer.getRight() + DesignerDefaults.innerPanel.body.padding.left;
+    }
+
+    return xPosition;
 }
 
 export default ConnectorDeclarationPositionCalcVisitor;
