@@ -56,7 +56,7 @@ public class UpdateOrInsertTableTestCase {
                 "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                "@from(table = 'hazelcast') " +
+                "@store(type = 'hazelcast') " +
                 "define table StockTableT011 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -92,7 +92,7 @@ public class UpdateOrInsertTableTestCase {
         String streams = "" +
                 "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@from(table = 'hazelcast') " +
+                "@store(type = 'hazelcast') " +
                 "define table StockTableT021 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query2') " +
@@ -125,7 +125,7 @@ public class UpdateOrInsertTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                "@from(table = 'hazelcast') " +
+                "@store(type = 'hazelcast') " +
                 "define table StockTableT031 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -205,7 +205,7 @@ public class UpdateOrInsertTableTestCase {
                 "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
-                "@from(table = 'hazelcast') " +
+                "@store(type = 'hazelcast') " +
                 "define table StockTableT041 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query2') " +
@@ -281,7 +281,7 @@ public class UpdateOrInsertTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(table = 'hazelcast') " +
+                "@store(type = 'hazelcast') " +
                 "define table StockTableT051 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -336,7 +336,7 @@ public class UpdateOrInsertTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(table = 'hazelcast') " +
+                "@store(type = 'hazelcast') " +
                 "define table StockTableT061 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -421,7 +421,7 @@ public class UpdateOrInsertTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(table = 'hazelcast') " +
+                "@store(type = 'hazelcast') " +
                 "define table StockTableT071 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -499,7 +499,7 @@ public class UpdateOrInsertTableTestCase {
                 "@Plan:name('UpdateOrInsertTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
-                "@from(table = 'hazelcast') " +
+                "@store(type = 'hazelcast') " +
                 "define table StockTableT081 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query2') " +
@@ -573,7 +573,7 @@ public class UpdateOrInsertTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(table = 'hazelcast') " +
+                "@store(type = 'hazelcast') " +
                 "define table StockTableT091 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -653,7 +653,7 @@ public class UpdateOrInsertTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(table = 'hazelcast') " +
+                "@store(type = 'hazelcast') " +
                 "define table StockTableT101 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
