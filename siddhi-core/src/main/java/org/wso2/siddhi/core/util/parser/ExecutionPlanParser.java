@@ -33,7 +33,7 @@ import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
 import org.wso2.siddhi.core.util.timestamp.SystemCurrentTimeMillisTimestampGenerator;
-import org.wso2.siddhi.core.window.EventWindow;
+import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
@@ -181,14 +181,14 @@ public class ExecutionPlanParser {
         defineTableDefinitions(executionPlanRuntimeBuilder, executionPlan.getTableDefinitionMap());
         defineWindowDefinitions(executionPlanRuntimeBuilder, executionPlan.getWindowDefinitionMap());
         defineFunctionDefinitions(executionPlanRuntimeBuilder, executionPlan.getFunctionDefinitionMap());
-        for (EventWindow eventWindow : executionPlanRuntimeBuilder.getEventWindowMap().values()) {
+        for (Window window : executionPlanRuntimeBuilder.getEventWindowMap().values()) {
             String metricName =
                     executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
                             SiddhiConstants.METRIC_DELIMITER + executionPlanContext.getName() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_WINDOWS +
-                            SiddhiConstants.METRIC_DELIMITER + eventWindow.getWindowDefinition().getId();
+                            SiddhiConstants.METRIC_DELIMITER + window.getWindowDefinition().getId();
             LatencyTracker latencyTracker = null;
             if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
                 latencyTracker = executionPlanContext.getSiddhiContext()
@@ -196,7 +196,7 @@ public class ExecutionPlanParser {
                         .getFactory()
                         .createLatencyTracker(metricName, executionPlanContext.getStatisticsManager());
             }
-            eventWindow.init(executionPlanRuntimeBuilder.getEventTableMap(), executionPlanRuntimeBuilder.getEventWindowMap(), latencyTracker, eventWindow.getWindowDefinition().getId());
+            window.init(executionPlanRuntimeBuilder.getTableMap(), executionPlanRuntimeBuilder.getEventWindowMap(), latencyTracker, window.getWindowDefinition().getId());
         }
         try {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {
@@ -205,7 +205,7 @@ public class ExecutionPlanParser {
                             executionPlanRuntimeBuilder.getStreamDefinitionMap(),
                             executionPlanRuntimeBuilder.getTableDefinitionMap(),
                             executionPlanRuntimeBuilder.getWindowDefinitionMap(),
-                            executionPlanRuntimeBuilder.getEventTableMap(),
+                            executionPlanRuntimeBuilder.getTableMap(),
                             executionPlanRuntimeBuilder.getEventWindowMap(),
                             executionPlanRuntimeBuilder.getEventSourceMap(),
                             executionPlanRuntimeBuilder.getEventSinkMap(),

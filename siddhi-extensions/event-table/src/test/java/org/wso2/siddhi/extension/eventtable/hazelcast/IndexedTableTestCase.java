@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.eventtable.hazelcast;
+package org.wso2.siddhi.extension.table.hazelcast;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -28,7 +28,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.extension.eventtable.test.util.SiddhiTestHelper;
+import org.wso2.siddhi.extension.table.test.util.SiddhiTestHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +60,7 @@ public class IndexedTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "@IndexBy('symbol') " +
                 "define table StockTableT011 (symbol string, price float, volume long); ";
         String query = "" +
@@ -138,7 +138,7 @@ public class IndexedTableTestCase {
                 "@Plan:name('IndexedTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "@IndexBy('symbol') " +
                 "define table StockTableT021 (symbol string, price float, volume long); ";
         String query = "" +
@@ -202,7 +202,7 @@ public class IndexedTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream DeleteStockStream (symbol string); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "@IndexBy('symbol') " +
                 "define table StockTableT031 (symbol string, price float, volume long); ";
         String query = "" +
@@ -274,7 +274,7 @@ public class IndexedTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream DeleteStockStream (symbol string); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "@IndexBy('symbol') " +
                 "define table StockTableT041 (symbol string, price float, volume long); ";
         String query = "" +
@@ -343,7 +343,7 @@ public class IndexedTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream DeleteStockStream (symbol string); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "@IndexBy('symbol') " +
                 "define table StockTableT051 (symbol string, price float, volume long); ";
         String query = "" +
@@ -415,7 +415,7 @@ public class IndexedTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
+                "@from(table = 'hazelcast', instance.name = 'siddhi_instance') " +
                 "@IndexBy('symbol') " +
                 "define table StockTableT061 (symbol string, price float, volume long); ";
         String query = "" +
@@ -496,7 +496,7 @@ public class IndexedTableTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
+                "@from(table = 'hazelcast', instance.name = 'siddhi_instance') " +
                 "@IndexBy('symbol') " +
                 "define table StockTableT071 (symbol string, price float, volume long); ";
         String query = "" +

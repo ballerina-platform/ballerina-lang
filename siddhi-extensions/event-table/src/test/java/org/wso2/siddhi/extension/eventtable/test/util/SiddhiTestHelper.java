@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.eventtable.test.util;
+package org.wso2.siddhi.extension.table.test.util;
 
 import java.util.Arrays;
 import java.util.Collection;

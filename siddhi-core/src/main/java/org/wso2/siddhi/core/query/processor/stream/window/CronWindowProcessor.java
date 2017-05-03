@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +61,8 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
 
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, boolean
+            outputExpectsExpiredEvents, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
         if (attributeExpressionExecutors != null) {
             cronString = (String) (((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue());

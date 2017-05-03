@@ -147,7 +147,7 @@ public class TableQueryTestCase {
                                                 Expression.compare(Expression.value(9.5),
                                                         Compare.Operator.GREATER_THAN,
                                                         Expression.variable("price")),
-                                                "eventTable"
+                                                "table"
                                         )
                                 )
                         ).window("lengthBatch", Expression.value(50))

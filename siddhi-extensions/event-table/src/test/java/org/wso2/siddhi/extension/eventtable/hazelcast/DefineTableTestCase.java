@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.eventtable.hazelcast;
+package org.wso2.siddhi.extension.table.hazelcast;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.extension.eventtable.test.util.SiddhiTestHelper;
+import org.wso2.siddhi.extension.table.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -85,7 +85,7 @@ public class DefineTableTestCase {
         TableDefinition tableDefinition = TableDefinition
                 .id("cseEventStream")
                 .annotation(Annotation.annotation("from")
-                        .element("eventtable", "hazelcast"))
+                        .element("table", "hazelcast"))
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
@@ -96,7 +96,7 @@ public class DefineTableTestCase {
             for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
                 hciNames.add(hci.getName());
             }
-            Assert.assertTrue(hciNames.contains(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+            Assert.assertTrue(hciNames.contains(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
                     executionPlanRuntime.getName()));
         } finally {
             executionPlanRuntime.shutdown();
@@ -113,7 +113,7 @@ public class DefineTableTestCase {
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition
                 .id("StockTable")
-                .annotation(Annotation.annotation("from").element("eventtable", "hazelcast"))
+                .annotation(Annotation.annotation("from").element("table", "hazelcast"))
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         Query query = Query.query();
@@ -134,12 +134,12 @@ public class DefineTableTestCase {
             for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
                 instanceMap.put(hci.getName(), hci);
             }
-            Assert.assertTrue(instanceMap.containsKey(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+            Assert.assertTrue(instanceMap.containsKey(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
                     executionPlanRuntime.getName()));
-            HazelcastInstance instance = instanceMap.get(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+            HazelcastInstance instance = instanceMap.get(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
                     executionPlanRuntime.getName());
             List<StreamEvent> streamEvents = instance.getList(
-                    HazelcastEventTableConstants.HAZELCAST_COLLECTION_PREFIX +
+                    HazelcastTableConstants.HAZELCAST_COLLECTION_PREFIX +
                             executionPlanRuntime.getName() + '.' + tableDefinition.getId());
 
             SiddhiTestHelper.waitForEvents(100, 2, streamEvents, 60000);
@@ -161,15 +161,15 @@ public class DefineTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String tables = "" +
-                "@from(eventtable = 'hazelcast')" +
-                "define table EventTable(symbol string, price int, volume float) ";
+                "@from(table = 'hazelcast')" +
+                "define table Table(symbol string, price int, volume float) ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
         try {
             List<String> hciNames = new ArrayList<String>();
             for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
                 hciNames.add(hci.getName());
             }
-            Assert.assertTrue(hciNames.contains(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+            Assert.assertTrue(hciNames.contains(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
                     executionPlanRuntime.getName()));
         } finally {
             executionPlanRuntime.shutdown();
@@ -182,10 +182,10 @@ public class DefineTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String tables = "" +
-                "@from(eventtable = 'hazelcast')" +
-                "define table TestEventTable(symbol string, price int, volume float); " +
-                "@from(eventtable = 'hazelcast')" +
-                "define table TestEventTable(symbols string, price int, volume float); ";
+                "@from(table = 'hazelcast')" +
+                "define table TestTable(symbol string, price int, volume float); " +
+                "@from(table = 'hazelcast')" +
+                "define table TestTable(symbols string, price int, volume float); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
         executionPlanRuntime.shutdown();
     }
@@ -196,10 +196,10 @@ public class DefineTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String tables = "" +
-                "@from(eventtable = 'hazelcast')" +
-                "define table TestEventTable(symbol string, volume float); " +
-                "@from(eventtable = 'hazelcast')" +
-                "define table TestEventTable(symbols string, price int, volume float); ";
+                "@from(table = 'hazelcast')" +
+                "define table TestTable(symbol string, volume float); " +
+                "@from(table = 'hazelcast')" +
+                "define table TestTable(symbols string, price int, volume float); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
         executionPlanRuntime.shutdown();
     }
@@ -210,17 +210,17 @@ public class DefineTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String tables = "" +
-                "@from(eventtable = 'hazelcast')" +
-                "define table TestEventTable(symbol string, price int, volume float); " +
-                "@from(eventtable = 'hazelcast')" +
-                "define table TestEventTable(symbol string, price int, volume float); ";
+                "@from(table = 'hazelcast')" +
+                "define table TestTable(symbol string, price int, volume float); " +
+                "@from(table = 'hazelcast')" +
+                "define table TestTable(symbol string, price int, volume float); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
         try {
             List<String> hciNames = new ArrayList<String>();
             for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
                 hciNames.add(hci.getName());
             }
-            Assert.assertTrue(hciNames.contains(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+            Assert.assertTrue(hciNames.contains(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
                     executionPlanRuntime.getName()));
         } finally {
             executionPlanRuntime.shutdown();
@@ -233,9 +233,9 @@ public class DefineTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String definitions = "" +
-                "define stream TestEventTable(symbol string, price int, volume float); " +
-                "@from(eventtable = 'hazelcast')" +
-                "define table TestEventTable(symbol string, price int, volume float); ";
+                "define stream TestTable(symbol string, price int, volume float); " +
+                "@from(table = 'hazelcast')" +
+                "define table TestTable(symbol string, price int, volume float); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(definitions);
         executionPlanRuntime.shutdown();
     }
@@ -246,9 +246,9 @@ public class DefineTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String definitions = "" +
-                "@from(eventtable = 'hazelcast')" +
-                "define table TestEventTable(symbol string, price int, volume float); " +
-                "define stream TestEventTable(symbol string, price int, volume float); ";
+                "@from(table = 'hazelcast')" +
+                "define table TestTable(symbol string, price int, volume float); " +
+                "define stream TestTable(symbol string, price int, volume float); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(definitions);
         executionPlanRuntime.shutdown();
     }
@@ -265,7 +265,7 @@ public class DefineTableTestCase {
                 "select symbol, price, volume " +
                 "insert into OutputStream;" +
                 "" +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table OutputStream (symbol string, price float, volume long); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.shutdown();
@@ -279,7 +279,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table OutputStream (symbol string, price float, volume long); " +
                 "" +
                 "from StockStream " +
@@ -296,7 +296,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "define stream StockStream(symbol string, price int, volume float); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table OutputStream (symbol string, price float, volume long);" +
                 "" +
                 "from StockStream " +
@@ -313,7 +313,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume float); " +
                 "" +
                 "from StockStream " +
@@ -330,7 +330,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume float); " +
                 "" +
                 "from StockStream " +
@@ -347,7 +347,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume float, time long); " +
                 "" +
                 "from StockStream " +
@@ -364,7 +364,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume int); " +
                 "" +
                 "from StockStream " +
@@ -381,7 +381,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(table = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume float); " +
                 "" +
                 "from OutputStream " +
@@ -398,18 +398,18 @@ public class DefineTableTestCase {
         String clusterName = "siddhi_cluster_t17";
         SiddhiManager siddhiManager = new SiddhiManager();
         String tables = "" +
-                "@from(eventtable = 'hazelcast', cluster.name = '" + clusterName + "')" +
-                "define table EventTable(symbol string, price int, volume float) ";
+                "@from(table = 'hazelcast', cluster.name = '" + clusterName + "')" +
+                "define table Table(symbol string, price int, volume float) ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
         try {
             Map<String, HazelcastInstance> instanceMap = new HashMap<String, HazelcastInstance>();
             for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
                 instanceMap.put(hci.getName(), hci);
             }
-            Assert.assertTrue(instanceMap.containsKey(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+            Assert.assertTrue(instanceMap.containsKey(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
                     executionPlanRuntime.getName()));
 
-            HazelcastInstance instance = instanceMap.get(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+            HazelcastInstance instance = instanceMap.get(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
                     executionPlanRuntime.getName());
             Assert.assertEquals(clusterName, instance.getConfig().getGroupConfig().getName());
         } finally {
@@ -425,19 +425,19 @@ public class DefineTableTestCase {
         String clusterPassword = "cluster_pw";
         SiddhiManager siddhiManager = new SiddhiManager();
         String tables = "" +
-                "@from(eventtable = 'hazelcast', cluster.name = '" + clusterName +
+                "@from(table = 'hazelcast', cluster.name = '" + clusterName +
                 "', cluster.password = '" + clusterPassword + "')" +
-                "define table EventTable(symbol string, price int, volume float) ";
+                "define table Table(symbol string, price int, volume float) ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
         try {
             Map<String, HazelcastInstance> instanceMap = new HashMap<String, HazelcastInstance>();
             for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
                 instanceMap.put(hci.getName(), hci);
             }
-            Assert.assertTrue(instanceMap.containsKey(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+            Assert.assertTrue(instanceMap.containsKey(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
                     executionPlanRuntime.getName()));
 
-            HazelcastInstance instance = instanceMap.get(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+            HazelcastInstance instance = instanceMap.get(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
                     executionPlanRuntime.getName());
             Assert.assertEquals(clusterName, instance.getConfig().getGroupConfig().getName());
             Assert.assertEquals(clusterPassword, instance.getConfig().getGroupConfig().getPassword());
@@ -454,7 +454,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager1 = new SiddhiManager();
         String ep1 = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast', well.known.addresses = 'localhost', collection.name = 'stock')" +
+                "@from(table = 'hazelcast', well.known.addresses = 'localhost', collection.name = 'stock')" +
                 "@IndexBy('symbol') " +
                 "define table StockTable (symbol string, price float, volume long); " +
                 "" +
@@ -466,7 +466,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager2 = new SiddhiManager();
         String ep2 = "" +
                 "define stream StockCheckStream (symbol string); " +
-                "@from(eventtable = 'hazelcast', well.known.addresses = 'localhost', collection.name = 'stock')" +
+                "@from(table = 'hazelcast', well.known.addresses = 'localhost', collection.name = 'stock')" +
                 "@IndexBy('symbol') " +
                 "define table StockTable (symbol string, price float, volume long); " +
                 "" +
@@ -556,7 +556,7 @@ public class DefineTableTestCase {
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition.id("StockTable")
                 .annotation(Annotation.annotation("from")
-                        .element("eventtable", "hazelcast")
+                        .element("table", "hazelcast")
                         .element("cluster.name", clusterName)
                         .element("cluster.password", clusterPassword)
                         .element("collection.name", collectionName)
@@ -611,7 +611,7 @@ public class DefineTableTestCase {
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition.id("StockTable")
                 .annotation(Annotation.annotation("from")
-                        .element("eventtable", "hazelcast"))
+                        .element("table", "hazelcast"))
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         Query query = Query.query();
@@ -632,7 +632,7 @@ public class DefineTableTestCase {
             cfg.setProperty("hazelcast.logging.type", "log4j");
             HazelcastInstance hci = Hazelcast.getOrCreateHazelcastInstance(cfg);
             List<StreamEvent> streamEvents = hci.getList(
-                    HazelcastEventTableConstants.HAZELCAST_COLLECTION_PREFIX +
+                    HazelcastTableConstants.HAZELCAST_COLLECTION_PREFIX +
                             executionPlanRuntime.getName() + '.' + tableDefinition.getId());
 
             SiddhiTestHelper.waitForEvents(100, 2, streamEvents, 60000);
@@ -671,7 +671,7 @@ public class DefineTableTestCase {
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition.id("StockTable")
                 .annotation(Annotation.annotation("from")
-                        .element("eventtable", "hazelcast")
+                        .element("table", "hazelcast")
                         .element("cluster.name", clusterName)
                         .element("cluster.password", clusterPassword)
                         .element("collection.name", collectionName)

@@ -39,16 +39,16 @@ import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompare
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorFloat;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
-import org.wso2.siddhi.core.stream.input.source.InputTransport;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
+import org.wso2.siddhi.core.stream.input.source.Source;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.parser.QueryParser;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
-import org.wso2.siddhi.core.window.EventWindow;
+import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -253,10 +253,10 @@ public class EventTestCase {
         query.insertInto("outputStream");
         Map<String, AbstractDefinition> tableDefinitionMap = new HashMap<String, AbstractDefinition>();
         Map<String, AbstractDefinition> windowDefinitionMap = new HashMap<String, AbstractDefinition>();
-        Map<String, EventTable> eventTableMap = new HashMap<String, EventTable>();
-        Map<String, EventWindow> eventWindowMap = new HashMap<String, EventWindow>();
-        Map<String, List<InputTransport>> eventSourceMap = new HashMap<String, List<InputTransport>>();
-        Map<String, List<OutputTransport>> eventSinkMap = new HashMap<String, List<OutputTransport>>();
+        Map<String, Table> tableMap = new HashMap<String, Table>();
+        Map<String, Window> eventWindowMap = new HashMap<String, Window>();
+        Map<String, List<Source>> eventSourceMap = new HashMap<String, List<Source>>();
+        Map<String, List<Sink>> eventSinkMap = new HashMap<String, List<Sink>>();
         Map<String, AbstractDefinition> streamDefinitionMap = new HashMap<String, AbstractDefinition>();
         LockSynchronizer lockSynchronizer = new LockSynchronizer();
         streamDefinitionMap.put("cseEventStream", streamDefinition);
@@ -267,7 +267,7 @@ public class EventTestCase {
         context.setElementIdGenerator(new ElementIdGenerator(context.getName()));
         context.setSnapshotService(new SnapshotService(context));
         QueryRuntime runtime = QueryParser.parse(query, context, streamDefinitionMap, tableDefinitionMap,
-                windowDefinitionMap, eventTableMap, eventWindowMap, eventSourceMap, eventSinkMap, lockSynchronizer);
+                windowDefinitionMap, tableMap, eventWindowMap, eventSourceMap, eventSinkMap, lockSynchronizer);
         Assert.assertNotNull(runtime);
         Assert.assertTrue(runtime.getStreamRuntime() instanceof SingleStreamRuntime);
         Assert.assertNotNull(runtime.getSelector());

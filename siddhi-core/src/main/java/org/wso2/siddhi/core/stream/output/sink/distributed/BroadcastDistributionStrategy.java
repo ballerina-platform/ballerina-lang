@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -33,17 +34,17 @@ import java.util.List;
         namespace = "distributionstrategy",
         description = ""
 )
-public class BroadcastDistributionStrategy extends PublishingStrategy{
+public class BroadcastDistributionStrategy extends DistributionStrategy {
     /**
      * Initialize the Distribution strategy with the information it will require to make decisions.
-     *
-     * @param streamDefinition         The stream attached to the sink this PublishingStrategy is used in
-     * @param transportOptionHolder    Sink options of the sink which uses this PublishingStrategy
+     *  @param streamDefinition         The stream attached to the sink this DistributionStrategy is used in
+     * @param transportOptionHolder    Sink options of the sink which uses this DistributionStrategy
      * @param distributionOptionHolder
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
+     * @param configReader
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders) {
+    public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders, ConfigReader configReader) {
 
     }
 

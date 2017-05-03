@@ -26,17 +26,22 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-public abstract class AbstractRecordTable implements EventTable {
+public abstract class AbstractRecordTable implements Table {
 
 
     private TableDefinition tableDefinition;
@@ -46,20 +51,22 @@ public abstract class AbstractRecordTable implements EventTable {
 
     @Override
     public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
-                     StreamEventCloner storeEventCloner, ExecutionPlanContext executionPlanContext) {
+                     StreamEventCloner storeEventCloner, ConfigReader configReader, ExecutionPlanContext
+                                 executionPlanContext) {
         this.tableDefinition = tableDefinition;
         this.storeEventPool = storeEventPool;
         this.storeEventCloner = storeEventCloner;
         this.executionPlanContext = executionPlanContext;
-        init(tableDefinition);
+        init(tableDefinition, configReader);
     }
 
     /**
      * Initializing the Record Table
      *
      * @param tableDefinition definintion of the table with annotations if any
+     * @param configReader
      */
-    protected abstract void init(TableDefinition tableDefinition);
+    protected abstract void init(TableDefinition tableDefinition, ConfigReader configReader);
 
     @Override
     public TableDefinition getTableDefinition() {
@@ -91,7 +98,8 @@ public abstract class AbstractRecordTable implements EventTable {
         RecordStoreCompiledCondition recordStoreCompiledCondition = ((RecordStoreCompiledCondition) compiledCondition);
 
         Map<String, Object> findConditionParameterMap = new HashMap<>();
-        for (Map.Entry<String, ExpressionExecutor> entry : recordStoreCompiledCondition.variableExpressionExecutorMap.entrySet()) {
+        for (Map.Entry<String, ExpressionExecutor> entry : recordStoreCompiledCondition.variableExpressionExecutorMap
+                .entrySet()) {
             findConditionParameterMap.put(entry.getKey(), entry.getValue().execute(matchingEvent));
         }
 
@@ -111,13 +119,14 @@ public abstract class AbstractRecordTable implements EventTable {
     /**
      * Find records matching the compiled condition
      *
-     * @param findConditionParameterMap map of matching StreamVariable Ids and their values corresponding to the compiled
+     * @param findConditionParameterMap map of matching StreamVariable Ids and their values corresponding to the
+     *                                  compiled
      *                                  condition
      * @param compiledCondition         the compiledCondition against which records should be matched
      * @return RecordIterator of matching records
      */
     protected abstract RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
-                                               CompiledCondition compiledCondition);
+                                                     CompiledCondition compiledCondition);
 
     @Override
     public boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition) {
@@ -261,9 +270,9 @@ public abstract class AbstractRecordTable implements EventTable {
                                               MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, EventTable> eventTableMap, String queryName) {
+                                              Map<String, Table> tableMap, String queryName) {
         ConditionBuilder conditionBuilder = new ConditionBuilder(expression, matchingMetaInfoHolder,
-                executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
+                executionPlanContext, variableExpressionExecutors, tableMap, queryName);
         CompiledCondition compiledCondition = compileCondition(conditionBuilder);
         Map<String, ExpressionExecutor> expressionExecutorMap = conditionBuilder.getVariableExpressionExecutorMap();
         return new RecordStoreCompiledCondition(expressionExecutorMap, compiledCondition);

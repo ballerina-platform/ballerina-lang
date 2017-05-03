@@ -20,12 +20,12 @@ package org.wso2.siddhi.core.util;
 
 public final class SiddhiConstants {
 
-    public static final String NAMESPACE_EVENT_TABLE = "eventtable";
-    public static final String NAMESPACE_INPUT_TRANSPORT = "inputtransport";
-    public static final String NAMESPACE_INPUT_MAPPER = "inputmapper";
+    public static final String NAMESPACE_STORE = "store";
+    public static final String NAMESPACE_INPUT_TRANSPORT = "transport.input";
+    public static final String NAMESPACE_INPUT_MAPPER = "input.mapper";
 
     public static final String NAMESPACE_OUTPUT_TRANSPORT = "outputtransport";
-    public static final String NAMESPACE_OUTPUT_MAPPER = "outputmapper";
+    public static final String NAMESPACE_OUTPUT_MAPPER = "output-mapper";
 
     public static final String NAMESPACE_DISTRIBUTED_PUBLISHING_STRATEGY = "distributionstrategy";
     public static final String DISTRIBUTION_STRATEGY_PARTITIONED = "partitioned";

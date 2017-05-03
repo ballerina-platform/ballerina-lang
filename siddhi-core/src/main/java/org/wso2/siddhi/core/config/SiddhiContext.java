@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.config;
 import com.lmax.disruptor.ExceptionHandler;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
+import org.wso2.siddhi.core.util.config.ConfigManager;
 import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 import org.wso2.siddhi.core.util.statistics.metrics.SiddhiMetricsFactory;
@@ -40,6 +41,7 @@ public class SiddhiContext {
     private ConcurrentHashMap<String, DataSource> siddhiDataSources;
     private StatisticsConfiguration statisticsConfiguration;
     private ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap;
+    private ConfigManager configManager = null;
 
     public SiddhiContext() {
         SiddhiExtensionLoader.loadSiddhiExtensions(siddhiExtensions);
@@ -74,6 +76,14 @@ public class SiddhiContext {
 
     public void setPersistenceStore(PersistenceStore persistenceStore) {
         this.persistenceStore = persistenceStore;
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        this.configManager = configManager;
+    }
+
+    public ConfigManager getConfigManager() {
+        return configManager;
     }
 
     public DataSource getSiddhiDataSource(String dataSourceName) {

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.eventtable.rdbms;
+package org.wso2.siddhi.extension.table.rdbms;
 
 import org.apache.log4j.Logger;
 
