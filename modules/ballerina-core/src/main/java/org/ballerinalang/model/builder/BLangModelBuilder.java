@@ -181,19 +181,6 @@ public class BLangModelBuilder {
     }
 
     public BallerinaFile build() {
-        importPkgMap.values()
-                .stream()
-                .filter(importPkg -> !importPkg.isUsed())
-                .forEach(importPkg -> {
-                    NodeLocation location = importPkg.getNodeLocation();
-                    String pkgPathStr = "\"" + importPkg.getPath() + "\"";
-                    String importPkgErrStr = (importPkg.getAsName() == null) ? pkgPathStr : pkgPathStr + " as '" +
-                            importPkg.getAsName() + "'";
-
-                    errorMsgs.add(BLangExceptionHelper
-                            .constructSemanticError(location, SemanticErrors.UNUSED_IMPORT_PACKAGE, importPkgErrStr));
-                });
-
         if (errorMsgs.size() > 0) {
             throw new SemanticException(errorMsgs.get(0));
         }
