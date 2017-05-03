@@ -24,17 +24,13 @@ import {util} from './../sizing-utils'
 class ConnectorDefinitionDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('can visit ConnectorDefinitionDimensionCalc');
         return true;
     }
 
     beginVisit(node) {
-
-        log.debug('begin visit ConnectorDefinitionDimensionCalc');
     }
 
     visit(node) {
-        log.debug('visit ConnectorDefinitionDimensionCalc');
     }
 
     endVisit(node) {

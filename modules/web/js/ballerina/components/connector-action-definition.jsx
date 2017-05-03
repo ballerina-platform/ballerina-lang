@@ -35,17 +35,17 @@ class ConnectorAction extends React.Component {
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
 
         //lets calculate function worker lifeline bounding box.
-        let resource_worker_bBox = {};
-        resource_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
-        resource_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
-        resource_worker_bBox.w = lifeLine.width;
-        resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
+        let action_worker_bBox = {};
+        action_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
+        action_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
+        action_worker_bBox.w = lifeLine.width;
+        action_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<PanelDecorator icon="resource" title={name} bBox={bBox} model={this.props.model}>
+        return (<PanelDecorator icon="tool-icons/action" title={name} bBox={bBox} model={this.props.model}>
             <g>
                 <StatementContainer bBox={statementContainerBBox} />
-                <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox} />
+                <LifeLineDecorator title="ActionWorker" bBox={action_worker_bBox} />
                 {children}
             </g>
         </PanelDecorator>);
