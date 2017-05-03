@@ -205,7 +205,7 @@ class ResourceParameterView extends BallerinaView {
 
         // Updating parameter type upon change,
         $(parameterTypeDropDown).change(function () {
-            self.getModel().setType($(this).val());
+            self.getModel().setBType($(this).val());
         });
 
         // Text input for the new identifier.

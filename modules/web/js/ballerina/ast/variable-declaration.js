@@ -22,7 +22,7 @@ import ASTNode from './node';
 class VariableDeclaration extends ASTNode {
     constructor(args) {
         super(_.get(args, "type", "VariableDeclaration"));
-        this._type = _.get(args, "bType");
+        this._bType = _.get(args, "bType");
         this._identifier = _.get(args, "identifier");
 
         // Validating the identifier.
@@ -34,9 +34,9 @@ class VariableDeclaration extends ASTNode {
         }
     }
 
-    setType(type, options) {
+    setBType(type, options) {
         if (!_.isUndefined(type)) {
-            this.setAttribute('_type', type, options);
+            this.setAttribute('_bType', type, options);
         } else {
             var exceptionString = "A variable requires a type.";
             log.error(exceptionString);
@@ -44,8 +44,8 @@ class VariableDeclaration extends ASTNode {
         }
     }
 
-    getType() {
-        return this._type;
+    getBType() {
+        return this._bType;
     }
 
     setIdentifier(identifier, options) {
@@ -68,7 +68,7 @@ class VariableDeclaration extends ASTNode {
      * @return {string} - Variable declaration as string.
      */
     getVariableDeclarationAsString() {
-      return this._type + " " + this._identifier + ";";
+        return this._bType + " " + this._identifier + ";";
     }
 
     /**
@@ -78,7 +78,7 @@ class VariableDeclaration extends ASTNode {
      * @param {string} jsonNode.variable_name - The identifier of the variable.
      */
     initFromJson(jsonNode) {
-        this.setType(jsonNode.variable_type, {doSilently: true});
+        this.setBType(jsonNode.variable_type, {doSilently: true});
         this.setIdentifier(jsonNode.variable_name, {doSilently: true});
     }
 }
