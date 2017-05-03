@@ -45,15 +45,6 @@ class StructDefinitionDimensionCalculatorVisitor {
             return childDimensions;
         });
         return dimensions;
-        // const dimensions = children.map( child => {
-        //     const name = child.children[0].children[0].getName();
-        //     const type = child.children[0].children[0].getTypeName();
-        //     const value = child.children[1]._basicLiteralValue;
-        //
-        //     console.log(name, type, value);
-        //     return child;
-        // });
-        // return dimensions;
     }
 
     endVisit(node) {

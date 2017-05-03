@@ -37,7 +37,6 @@ class StructDefinition extends React.Component {
 						<g> </g>
 					</PanelDecorator>
 				)
-
     }
 }
 
