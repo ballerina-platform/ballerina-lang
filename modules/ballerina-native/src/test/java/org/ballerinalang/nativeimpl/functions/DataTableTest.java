@@ -290,6 +290,30 @@ public class DataTableTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), timestamp);
     }
 
+    @Test(description = "Check toJson methods with null values.")
+    public void testJsonWithNull() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonWithNull");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"INT_TYPE\":0,\"LONG_TYPE\":0,\"FLOAT_TYPE\":0.0,\"DOUBLE_TYPE\":0.0,\"BOOLEAN_TYPE\":false,"
+                        + "\"STRING_TYPE\":null}]");
+    }
+
+    @Test(description = "Check toXml method with null values.")
+    public void testXmlWithNull() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testXmlWithNull");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<types><type><INT_TYPE>0</INT_TYPE><LONG_TYPE>0</LONG_TYPE><FLOAT_TYPE>0.0</FLOAT_TYPE>"
+                        + "<DOUBLE_TYPE>0.0</DOUBLE_TYPE><BOOLEAN_TYPE>false</BOOLEAN_TYPE>"
+                        + "<STRING_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                        + "</type></types>");
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
