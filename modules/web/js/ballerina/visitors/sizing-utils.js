@@ -36,7 +36,7 @@ class SizingUtil {
     }
 
     getTextWidth(text){
-        this.textElement.innerHTML = text;
+        this.textElement.innerHTML = _.escape(text);
         let width = statement.padding.left + this.textElement.getComputedTextLength() + statement.padding.right;
         // if the width is more then max width crop the text
         if(width <= statement.width){
