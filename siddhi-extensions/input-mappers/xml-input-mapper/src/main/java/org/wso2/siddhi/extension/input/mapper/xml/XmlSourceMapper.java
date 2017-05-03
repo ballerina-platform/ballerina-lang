@@ -95,21 +95,14 @@ public class XmlSourceMapper extends SourceMapper {
         attributeList = streamDefinition.getAttributeList();
         attributeTypeMap = new HashMap<>(attributeList.size());
         attributePositionMap = new HashMap<>(attributeList.size());
+        namespaceMap = new HashMap<>();
         for (Attribute attribute : attributeList) {
             attributeTypeMap.put(attribute.getName(), attribute.getType());
             attributePositionMap.put(attribute.getName(), streamDefinition.getAttributePosition(attribute.getName()));
         }
         failOnUnknownAttribute = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(FAIL_ON_UNKNOWN_ATTRIBUTE,
                 "true"));
-        enclosingElementSelectorXPath = optionHolder.validateAndGetStaticValue(PARENT_SELECTOR_XPATH, null);
-        if (enclosingElementSelectorXPath != null) {
-            try {
-                enclosingElementSelectorPath = new AXIOMXPath(enclosingElementSelectorXPath);
-            } catch (JaxenException e) {
-                throw new ExecutionPlanRuntimeException("Could not get XPath from expression: " +
-                        enclosingElementSelectorXPath, e);
-            }
-        }
+
         if (attributeMappingList != null && attributeMappingList.size() > 0) {
             isCustomMappingEnabled = true;
             if (streamDefinition.getAttributeList().size() < attributeMappingList.size()) {
@@ -124,23 +117,47 @@ public class XmlSourceMapper extends SourceMapper {
             }
 
             for (AttributeMapping attributeMapping : attributeMappingList) {
-                AXIOMXPath axiomxPath;
-                try {
-                    axiomxPath = new AXIOMXPath(attributeMapping.getMapping());
-                } catch (JaxenException e) {
-                    throw new ExecutionPlanValidationException("Error occurred when building XPath from: " +
-                            attributeMapping.getMapping() + ", mapped to attribute: " + attributeMapping.getRename());
-                }
-                for (Map.Entry<String, String> entry : namespaceMap.entrySet()) {
+                if (attributeTypeMap.containsKey(attributeMapping.getRename())) {
+                    AXIOMXPath axiomxPath;
                     try {
-                        axiomxPath.addNamespace(entry.getKey(), entry.getValue());
+                        axiomxPath = new AXIOMXPath(attributeMapping.getMapping());
                     } catch (JaxenException e) {
-                        throw new ExecutionPlanValidationException("Error occurred when adding namespace: " + entry.getKey()
-                                + ":" + entry.getValue() + " to XPath element: " + attributeMapping.getMapping());
+                        throw new ExecutionPlanValidationException("Error occurred when building XPath from: " +
+                                attributeMapping.getMapping() + ", mapped to attribute: " + attributeMapping.getRename());
                     }
+                    for (Map.Entry<String, String> entry : namespaceMap.entrySet()) {
+                        try {
+                            axiomxPath.addNamespace(entry.getKey(), entry.getValue());
+                        } catch (JaxenException e) {
+                            throw new ExecutionPlanValidationException("Error occurred when adding namespace: " + entry.getKey()
+                                    + ":" + entry.getValue() + " to XPath element: " + attributeMapping.getMapping());
+                        }
+                    }
+                    xPathMap.put(attributeMapping.getRename(), axiomxPath);
+                } else {
+                    throw new ExecutionPlanValidationException("No attribute with name " + attributeMapping.getRename()
+                            + " available in stream. Hence halting Execution plan deployment");
                 }
-                xPathMap.put(attributeMapping.getRename(), axiomxPath);
             }
+            enclosingElementSelectorXPath = optionHolder.validateAndGetStaticValue(PARENT_SELECTOR_XPATH, null);
+            if (enclosingElementSelectorXPath != null) {
+                try {
+                    enclosingElementSelectorPath = new AXIOMXPath(enclosingElementSelectorXPath);
+                    for (Map.Entry<String, String> entry : namespaceMap.entrySet()) {
+                        try {
+                            enclosingElementSelectorPath.addNamespace(entry.getKey(), entry.getValue());
+                        } catch (JaxenException e) {
+                            throw new ExecutionPlanValidationException("Error occurred when adding namespace: " + entry.getKey()
+                                    + ":" + entry.getValue() + " to XPath element:" + enclosingElementSelectorXPath.toString());
+                        }
+                    }
+                } catch (JaxenException e) {
+                    throw new ExecutionPlanRuntimeException("Could not get XPath from expression: " +
+                            enclosingElementSelectorXPath, e);
+                }
+            }
+
+
         }
     }
 
@@ -159,7 +176,7 @@ public class XmlSourceMapper extends SourceMapper {
             if (result.length > 0) {
                 inputHandler.send(result);
             }
-        } catch (Throwable t) {
+        } catch (Throwable t) { //stringToOM does not throw the exception immediately due to streaming. Hence need this.
             log.error("Exception occurred when converting XML message to Siddhi Event", t);
         }
 
@@ -178,8 +195,8 @@ public class XmlSourceMapper extends SourceMapper {
             try {
                 rootOMElement = AXIOMUtil.stringToOM((String) eventObject);
             } catch (XMLStreamException | DeferredParsingException e) {
-                log.warn("Error parsing incoming XML event : " + eventObject
-                        + ". Reason: " + e.getMessage() + ". Hence dropping message chunk");
+                log.warn("Error parsing incoming XML event : " + eventObject + ". Reason: " + e.getMessage() +
+                        ". Hence dropping message chunk");
                 return new Event[0];
             }
         } else if (eventObject instanceof OMElement) {
@@ -194,6 +211,11 @@ public class XmlSourceMapper extends SourceMapper {
                 List enclosingNodeList;
                 try {
                     enclosingNodeList = enclosingElementSelectorPath.selectNodes(rootOMElement);
+                    if (enclosingNodeList.size() == 0) {
+                        log.warn("Provided enclosing element did not match any xml node. Hence dropping the event :" +
+                                rootOMElement.toString());
+                        return new Event[0];
+                    }
                 } catch (JaxenException e) {
                     throw new ExecutionPlanRuntimeException("Error occurred when selecting nodes from XPath: "
                             + enclosingElementSelectorPath.toString(), e);
@@ -265,7 +287,6 @@ public class XmlSourceMapper extends SourceMapper {
     }
 
     private void buildNamespaceMap(String namespace) {
-        namespaceMap = new HashMap<>();
         String[] namespaces = namespace.split(",");
         for (String ns : namespaces) {
             String[] splits = ns.split("=");
@@ -291,7 +312,6 @@ public class XmlSourceMapper extends SourceMapper {
                                 "event : " + eventOMElement.toString());
                         return null;
                     } else {
-                        data[i] = null;
                         continue;
                     }
                 }
@@ -313,9 +333,11 @@ public class XmlSourceMapper extends SourceMapper {
                         try {
                             data[i] = attributeConverter.getPropertyValue(attributeValue, attribute.getType());
                         } catch (ExecutionPlanRuntimeException | NumberFormatException e) {
-                            log.warn("Error occurred when extracting attribute value. Cause: " + e.getMessage() +
-                                    ". Hence dropping the event: " + eventOMElement.toString());
-                            return null;
+                            if (failOnUnknownAttribute) {
+                                log.warn("Error occurred when extracting attribute value. Cause: " + e.getMessage() +
+                                        ". Hence dropping the event: " + eventOMElement.toString());
+                                return null;
+                            }
                         }
                     }
                 } else if (elementObj instanceof OMAttribute) {

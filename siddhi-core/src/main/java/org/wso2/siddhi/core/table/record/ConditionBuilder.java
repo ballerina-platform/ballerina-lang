@@ -249,12 +249,12 @@ public class ConditionBuilder {
             String attributeName = variable.getAttributeName();
             AbstractDefinition definition;
             Attribute.Type type = null;
-            int streamEventChainIndex = UNKNOWN_STATE;
+            int streamEventChainIndex = matchingMetaInfoHolder.getCurrentState();
 
             if (variable.getStreamId() == null) {
                 MetaStreamEvent[] metaStreamEvents = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents();
 
-                if (matchingMetaInfoHolder.getCurrentState() == UNKNOWN_STATE) {
+                if (streamEventChainIndex == UNKNOWN_STATE) {
                     String firstInput = null;
                     for (int i = 0; i < metaStreamEvents.length; i++) {
                         MetaStreamEvent metaStreamEvent = metaStreamEvents[i];
@@ -348,7 +348,7 @@ public class ConditionBuilder {
         }
         conditionVisitor.beginVisitStreamVariable(id, variable.getStreamId(), variable.getAttributeName(), type);
         if (!variableExpressionExecutorMap.containsKey(id)) {
-            ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(expression,
+            ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(variable,
                     matchingMetaInfoHolder.getMetaStateEvent(), streamEventChainIndex, tableMap,
                     variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             variableExpressionExecutorMap.put(id, variableExpressionExecutor);
