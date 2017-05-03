@@ -18,7 +18,6 @@
 package org.wso2.siddhi.extension.table.rdbms;
 
 import org.wso2.siddhi.core.table.record.BaseConditionVisitor;
-import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.exception.RDBMSTableException;
 import org.wso2.siddhi.extension.table.rdbms.util.Constant;
 import org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants;
@@ -26,7 +25,6 @@ import org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableUtils;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -35,7 +33,6 @@ import java.util.TreeMap;
 public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     private static final String WHITESPACE = " ";
-
     private static final String SQL_AND = "AND";
     private static final String SQL_OR = "OR";
     private static final String SQL_NOT = "NOT";
@@ -55,7 +52,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     private StringBuilder condition;
     private String finalCompiledCondition;
-    private RDBMSQueryConfigurationEntry queryConfig;
+    private String tableName;
 
     private Map<String, Object> placeholders;
     private SortedMap<Integer, Object> parameters;
@@ -63,17 +60,17 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
     private int streamVarCount;
     private int constantCount;
 
-    private RDBMSConditionVisitor() throws IOException {
-        //preventing initialization
-    }
-
-    public RDBMSConditionVisitor(RDBMSQueryConfigurationEntry entry) {
+    public RDBMSConditionVisitor(String tableName) {
+        this.tableName = tableName;
         this.condition = new StringBuilder();
-        this.queryConfig = entry;
         this.streamVarCount = 0;
         this.constantCount = 0;
         this.placeholders = new HashMap<>();
         this.parameters = new TreeMap<>();
+    }
+
+    private RDBMSConditionVisitor() {
+        //preventing initialization
     }
 
     public String returnCondition() {
@@ -301,12 +298,12 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitParameterAttributeFunction(int index) {
-        //TODO
+        //Not applicable
     }
 
     @Override
     public void endVisitParameterAttributeFunction(int index) {
-        //TODO
+        //Not applicable
     }
 
     @Override
@@ -323,7 +320,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     @Override
     public void beginVisitStoreVariable(String storeId, String attributeName, Attribute.Type type) {
-        condition.append(RDBMSTableConstants.PLACEHOLDER_TABLE_NAME).append(".").append(attributeName).append(WHITESPACE);
+        condition.append(this.tableName).append(".").append(attributeName).append(WHITESPACE);
     }
 
     @Override
@@ -334,7 +331,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
     private void parametrizeCondition() {
         String query = this.condition.toString();
         String[] tokens = query.split("\\[");
-        int ordinal = 0;
+        int ordinal = 1;
         for (String token : tokens) {
             if (token.contains("]")) {
                 String candidate = token.substring(0, token.indexOf("]"));
@@ -345,7 +342,7 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
             }
         }
         for (String placeholder : this.placeholders.keySet()) {
-            query = query.replace(placeholder, "?");
+            query = query.replace("[" + placeholder + "]", "?");
         }
         this.finalCompiledCondition = query;
     }

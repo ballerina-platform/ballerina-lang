@@ -8,7 +8,6 @@
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</recordInsertQuery>
         <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
-        <recordMergeQuery>MERGE INTO {{TABLE_NAME}} ({{COLUMN}}) KEY ({{KEYS}}) VALUES ({{Q}}) {{CONDITION}}</recordMergeQuery>
         <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <stringSize>254</stringSize>
         <typeMapping>
@@ -24,13 +23,14 @@
     <database name="mysql">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
-        <tableTruncateQuery>TRUNCATE TABLE {{TABLE_NAME}}</tableTruncateQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
+        <recordExistsQuery>SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
+        <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</recordInsertQuery>
-        <recordMergeQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}}) ON DUPLICATE KEY UPDATE {{COLUMN=VALUES(COLUMN) -
-            KEY}}
-        </recordMergeQuery>
+        <recordUpdateQuery>UPDATE {{TABLE_NAME}} SET {{COLUMNS_AND_VALUES}} {{CONDITION}}</recordUpdateQuery>
+        <recordDeleteQuery>DELETE FROM {{TABLE_NAME}} {{CONDITION}}</recordDeleteQuery>
         <quoteMark>`</quoteMark>
+        <stringSize>254</stringSize>
         <typeMapping>
             <binaryType>BLOB</binaryType>
             <booleanType>TINYINT(1)</booleanType>
@@ -38,7 +38,7 @@
             <floatType>FLOAT</floatType>
             <integerType>INTEGER</integerType>
             <longType>BIGINT</longType>
-            <stringType>VARCHAR(254)</stringType>
+            <stringType>VARCHAR</stringType>
         </typeMapping>
     </database>
     <database name="oracle">
@@ -47,10 +47,6 @@
         <tableTruncateQuery>TRUNCATE TABLE {{TABLE_NAME}}</tableTruncateQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</recordInsertQuery>
-        <recordMergeQuery>MERGE INTO {{TABLE_NAME}} dest USING( SELECT {{Q COLUMN}} FROM dual) src ON({{D.KEY=S.KEY}})
-            WHEN NOT MATCHED THEN INSERT({{COLUMN}}) VALUES({{S.COLUMN}}) WHEN MATCHED THEN UPDATE SET
-            {{D.COLUMN=S.COLUMN - KEY}}
-        </recordMergeQuery>
         <typeMapping>
             <binaryType>BLOB</binaryType>
             <booleanType>NUMBER(1)</booleanType>
@@ -68,10 +64,6 @@
         <indexCreateQuery>CREATE CLUSTERED INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})
         </indexCreateQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</recordInsertQuery>
-        <recordMergeQuery>MERGE {{TABLE_NAME}} AS dest USING (SELECT {{Q}}) AS src ({{COLUMN}}) ON ({{D.KEY=S.KEY}})
-            WHEN MATCHED THEN UPDATE SET {{COLUMN=S.COLUMN}} WHEN NOT MATCHED THEN INSERT({{COLUMN}}) VALUES
-            ({{S.COLUMN}});
-        </recordMergeQuery>
         <typeMapping>
             <binaryType>VARBINARY(max)</binaryType>
             <booleanType>BIT</booleanType>
@@ -88,9 +80,6 @@
         <tableTruncateQuery>TRUNCATE TABLE {{TABLE_NAME}}</tableTruncateQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</recordInsertQuery>
-        <recordMergeQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMN}}) VALUES ({{Q}}) ON CONFLICT ({{KEYS}}) DO UPDATE SET
-            {{COLUMN=EXCLUDED.COLUMN - KEY}}
-        </recordMergeQuery>
         <typeMapping>
             <binaryType>BYTEA</binaryType>
             <booleanType>BOOLEAN</booleanType>
@@ -107,10 +96,6 @@
         <tableTruncateQuery>TRUNCATE TABLE {{TABLE_NAME}} IMMEDIATE</tableTruncateQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
         <recordInsertQuery>INSERT INTO {{TABLE_NAME}} VALUES ({{Q}})</recordInsertQuery>
-        <recordMergeQuery>MERGE INTO {{TABLE_NAME}} AS dest USING (VALUES({{Q}})) AS src ({{COLUMN}}) ON {{D.KEY=S.KEY}}
-            WHEN MATCHED THEN UPDATE SET {{D.COLUMN=S.COLUMN - KEY}} WHEN NOT MATCHED THEN INSERT ({{COLUMN}}) VALUES
-            ({{S.COLUMN}})
-        </recordMergeQuery>
         <keyExplicitNotNull>true</keyExplicitNotNull>
         <typeMapping>
             <binaryType>BLOB(64000)</binaryType>

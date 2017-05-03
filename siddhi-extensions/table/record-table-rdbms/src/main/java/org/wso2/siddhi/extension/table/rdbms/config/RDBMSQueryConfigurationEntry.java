@@ -39,7 +39,6 @@ public class RDBMSQueryConfigurationEntry {
     private String recordExistsQuery;
     private String recordInsertQuery;
     private String recordUpdateQuery;
-    private String recordMergeQuery;
     private String recordDeleteQuery;
     private String quoteMark = "";
     private boolean keyExplicitNotNull = false;
@@ -82,7 +81,7 @@ public class RDBMSQueryConfigurationEntry {
         this.category = category;
     }
 
-    @XmlAttribute(required = true)
+    @XmlElement(required = true)
     public String getTableCheckQuery() {
         return tableCheckQuery;
     }
@@ -91,7 +90,7 @@ public class RDBMSQueryConfigurationEntry {
         this.tableCheckQuery = tableCheckQuery;
     }
 
-    @XmlAttribute(required = true)
+    @XmlElement(required = true)
     public String getTableCreateQuery() {
         return tableCreateQuery;
     }
@@ -100,7 +99,7 @@ public class RDBMSQueryConfigurationEntry {
         this.tableCreateQuery = tableCreateQuery;
     }
 
-    @XmlAttribute(required = true)
+    @XmlElement(required = true)
     public String getIndexCreateQuery() {
         return indexCreateQuery;
     }
@@ -109,7 +108,7 @@ public class RDBMSQueryConfigurationEntry {
         this.indexCreateQuery = indexCreateQuery;
     }
 
-    @XmlAttribute(required = true)
+    @XmlElement(required = true)
     public String getRecordInsertQuery() {
         return recordInsertQuery;
     }
@@ -118,7 +117,7 @@ public class RDBMSQueryConfigurationEntry {
         this.recordInsertQuery = recordInsertQuery;
     }
 
-    @XmlAttribute(required = true)
+    @XmlElement(required = true)
     public String getRecordUpdateQuery() {
         return recordUpdateQuery;
     }
@@ -127,15 +126,7 @@ public class RDBMSQueryConfigurationEntry {
         this.recordUpdateQuery = recordUpdateQuery;
     }
 
-    public String getRecordMergeQuery() {
-        return recordMergeQuery;
-    }
-
-    public void setRecordMergeQuery(String recordMergeQuery) {
-        this.recordMergeQuery = recordMergeQuery;
-    }
-
-    @XmlAttribute(required = true)
+    @XmlElement(required = true)
     public String getRecordSelectQuery() {
         return recordSelectQuery;
     }
@@ -144,7 +135,7 @@ public class RDBMSQueryConfigurationEntry {
         this.recordSelectQuery = recordSelectQuery;
     }
 
-    @XmlAttribute(required = true)
+    @XmlElement(required = true)
     public String getRecordExistsQuery() {
         return recordExistsQuery;
     }
@@ -153,7 +144,7 @@ public class RDBMSQueryConfigurationEntry {
         this.recordExistsQuery = recordExistsQuery;
     }
 
-    @XmlAttribute(required = true)
+    @XmlElement(required = true)
     public String getRecordDeleteQuery() {
         return recordDeleteQuery;
     }

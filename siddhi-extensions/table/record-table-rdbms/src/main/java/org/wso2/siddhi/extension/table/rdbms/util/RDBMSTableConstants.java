@@ -24,13 +24,13 @@ public class RDBMSTableConstants {
 
     //Placeholder strings needed for processing the query configuration file
     public static final String RDBMS_QUERY_CONFIG_FILE = "rdbms-table-config.xml";
-    public static final String PLACEHOLDER_TABLE_NAME = "{{TABLE_NAME}}";
+
     public static final String PLACEHOLDER_COLUMNS = "{{COLUMNS, PRIMARY_KEYS}}";
     public static final String PLACEHOLDER_CONDITION = "{{CONDITION}}";
     public static final String PLACEHOLDER_COLUMNS_VALUES = "{{COLUMNS_AND_VALUES}}";
-    public static final String TABLE_NAME_PLACEHOLDER = "{{TABLE_NAME}}";
-    public static final String INDEX_PLACEHOLDER = "{{INDEX_COLUMNS}}";
-    public static final String Q_PLACEHOLDER = "{{Q}}";
+    public static final String PLACEHOLDER_TABLE_NAME = "{{TABLE_NAME}}";
+    public static final String PLACEHOLDER_INDEX = "{{INDEX_COLUMNS}}";
+    public static final String PLACEHOLDER_Q = "{{Q}}";
 
     public static final String WHITESPACE = " ";
     public static final String SEPARATOR = ", ";
@@ -38,13 +38,11 @@ public class RDBMSTableConstants {
     public static final String QUESTION_MARK = "?";
     public static final String OPEN_PARENTHESIS = "(";
     public static final String CLOSE_PARENTHESIS = ")";
-    public static final String PRIMARY_KEY_DEF = "PRIMARY KEY";
+    public static final String SQL_PRIMARY_KEY_DEF = "PRIMARY KEY";
     public static final String SQL_WHERE = "WHERE";
 
     //Annotation field names
     public static final String ANNOTATION_STORE = "store";
-    public static final String ANNOTATION_PRIMARY_KEY = "PrimaryKey";
-    public static final String ANNOTATION_INDEX = "IndexBy";
     public static final String ANNOTATION_ELEMENT_URL = "jdbc.url";
     public static final String ANNOTATION_ELEMENT_USERNAME = "username";
     public static final String ANNOTATION_ELEMENT_PASSWORD = "password";

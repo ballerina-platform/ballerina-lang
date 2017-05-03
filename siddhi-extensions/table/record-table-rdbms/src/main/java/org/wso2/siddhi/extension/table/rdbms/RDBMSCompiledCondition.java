@@ -24,12 +24,10 @@ import java.util.SortedMap;
 public class RDBMSCompiledCondition implements CompiledCondition {
 
     private String compiledQuery;
-    private String tableName;
     private SortedMap<Integer, Object> parameters;
 
 
-    public RDBMSCompiledCondition(String tableName, String compiledQuery, SortedMap<Integer, Object> parameters) {
-        this.tableName = tableName;
+    public RDBMSCompiledCondition(String compiledQuery, SortedMap<Integer, Object> parameters) {
         this.compiledQuery = compiledQuery;
         this.parameters = parameters;
     }

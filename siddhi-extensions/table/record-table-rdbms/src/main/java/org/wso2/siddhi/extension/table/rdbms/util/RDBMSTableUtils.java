@@ -18,8 +18,6 @@
 package org.wso2.siddhi.extension.table.rdbms.util;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
 import org.wso2.siddhi.extension.table.rdbms.RDBMSCompiledCondition;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfiguration;
@@ -50,8 +48,6 @@ import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
 
 public class RDBMSTableUtils {
 
-
-    private static final Log log = LogFactory.getLog(RDBMSTableUtils.class);
     private static RDBMSConfigurationMapper mapper;
 
     private RDBMSTableUtils() {
@@ -99,16 +95,6 @@ public class RDBMSTableUtils {
         return new RDBMSTableConfigLoader().loadConfiguration();
     }
 
-    private static void validateRDBMSQueryConfiguration(RDBMSQueryConfiguration conf) throws CannotLoadConfigurationException {
-        for (RDBMSQueryConfigurationEntry entry : conf.getDatabases()) {
-            if (isEmpty(entry.getRecordMergeQuery()) && (isEmpty(entry.getRecordInsertQuery()) ||
-                    isEmpty(entry.getRecordUpdateQuery()))) {
-                throw new CannotLoadConfigurationException("RDBMS configuration database entry: " +
-                        entry.getDatabaseName() + ", either record merge query or both insert/update queries must be provided");
-            }
-        }
-    }
-
     public static boolean isEmpty(String field) {
         return (field == null || field.trim().length() == 0);
     }
@@ -136,28 +122,6 @@ public class RDBMSTableUtils {
             try {
                 conn.rollback();
             } catch (SQLException ignore) { /* ignore */ }
-        }
-    }
-
-    public static void executeAllUpdateQueries(Connection conn, List<String> queries) {
-        StringBuilder messages = new StringBuilder();
-        PreparedStatement stmt = null;
-        for (String entry : queries) {
-            try {
-                stmt = conn.prepareStatement(entry);
-                stmt.execute();
-            } catch (SQLException e) {
-                messages.append(e.getMessage()).append("\n");
-            } finally {
-                RDBMSTableUtils.cleanupConnection(null, stmt, null);
-            }
-        }
-        String exs = messages.toString();
-        if (exs.length() > 0) {
-            if (log.isDebugEnabled()) {
-                log.debug("executeAllUpdateQueries exceptions: [" + exs + "]");
-            }
-            throw new RDBMSTableException("Error in executing SQL queries: " + exs);
         }
     }
 
@@ -208,7 +172,7 @@ public class RDBMSTableUtils {
     public static String flattenAnnotatedElements(List<Element> elements) {
         StringBuilder sb = new StringBuilder();
         elements.forEach(elem -> {
-            sb.append(elem.getKey());
+            sb.append(elem.getValue());
             if (elements.indexOf(elem) != elements.size() - 1) {
                 sb.append(RDBMSTableConstants.SEPARATOR);
             }
@@ -259,9 +223,7 @@ public class RDBMSTableUtils {
                 if (inputStream == null) {
                     throw new CannotLoadConfigurationException(RDBMS_QUERY_CONFIG_FILE + " is not found in the classpath");
                 }
-                RDBMSQueryConfiguration conf = (RDBMSQueryConfiguration) unmarshaller.unmarshal(inputStream);
-                RDBMSTableUtils.validateRDBMSQueryConfiguration(conf);
-                return conf;
+                return (RDBMSQueryConfiguration) unmarshaller.unmarshal(inputStream);
             } catch (JAXBException e) {
                 throw new CannotLoadConfigurationException(
                         "Error in processing RDBMS query configuration: " + e.getMessage(), e);

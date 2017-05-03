@@ -19,10 +19,16 @@ package org.wso2.siddhi.extension.table.rdbms;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
 import org.wso2.siddhi.core.table.record.ConditionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSTypeMapping;
@@ -49,23 +55,57 @@ import javax.sql.DataSource;
 
 import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
 
+@Extension(
+        name = "rdbms",
+        namespace = "type",
+        description = "Using this extension the data source or the connection instructions can be " +
+                "assigned to the event table.",
+        parameters = {
+                @Parameter(name = "jdbc.url",
+                        description = "The JDBC URL for the RDBMS data store.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "username",
+                        description = "The username for accessing the data store.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "password",
+                        description = "The password for accessing the data store.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "pool.properties",
+                        description = "Any pool properties for the DB connection, specified as key-value pairs.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "jndi.resource",
+                        description = "Optional. The name of the JNDI resource (if any). If found, the connection " +
+                                "parameters are not taken into account, and the connection will be attempted through " +
+                                "JNDI lookup instead.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "table.name",
+                        description = "Optional. The name of the table in the store this Event Table should be " +
+                                "persisted as. If not specified, the table name will be the same as the Siddhi table.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "field.length",
+                        description = "Optional. The length of any String fields the table definition contains. If not " +
+                                "specified, the vendor-specific DB default will be chosen.",
+                        type = {DataType.STRING}),
+        }
+)
 public class RDBMSEventTable extends AbstractRecordTable {
 
+    private static final Log log = LogFactory.getLog(RDBMSTableUtils.class);
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
     private DataSource dataSource;
     private String tableName;
-
     private List<Attribute> attributes;
 
     @Override
     protected void init(TableDefinition tableDefinition) {
         this.attributes = tableDefinition.getAttributeList();
         Annotation storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
-        Annotation primaryKeys = AnnotationHelper.getAnnotation(ANNOTATION_PRIMARY_KEY,
+        Annotation primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
-        Annotation indices = AnnotationHelper.getAnnotation(ANNOTATION_INDEX, tableDefinition.getAnnotations());
+        Annotation indices = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX,
+                tableDefinition.getAnnotations());
         String jndiResourceName = storeAnnotation.getElement(ANNOTATION_ELEMENT_JNDI_RESOURCE);
-        if (RDBMSTableUtils.isEmpty(jndiResourceName)) {
+        if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
             try {
                 this.lookupDatasource(jndiResourceName);
             } catch (NamingException e) {
@@ -76,11 +116,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             this.initializeDatasource(storeAnnotation);
         }
         String tableName = storeAnnotation.getElement(ANNOTATION_ELEMENT_TABLE_NAME);
-        if (RDBMSTableUtils.isEmpty(tableName)) {
-            this.tableName = tableName;
-        } else {
-            this.tableName = tableDefinition.getId();
-        }
+        this.tableName = RDBMSTableUtils.isEmpty(tableName) ? tableDefinition.getId() : tableName;
         try {
             if (this.queryConfigurationEntry == null) {
                 this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource);
@@ -105,34 +141,18 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
     }
 
-    private String composeInsertQuery() {
-        String insertQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordInsertQuery());
-        StringBuilder params = new StringBuilder();
-        int fieldsLeft = this.attributes.size();
-        while (fieldsLeft > 0) {
-            params.append(QUESTION_MARK);
-            if (fieldsLeft > 1) {
-                params.append(SEPARATOR);
-            }
-            fieldsLeft = fieldsLeft - 1;
-        }
-        return insertQuery.replace(Q_PLACEHOLDER, params.toString());
-    }
-
     @Override
     protected RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
                                             CompiledCondition compiledCondition) {
-        String readQuery = this.queryConfigurationEntry.getRecordSelectQuery();
+        String selectQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordSelectQuery());
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            if (RDBMSTableUtils.isEmpty(condition)) {
-                stmt = conn.prepareStatement(readQuery.replace(PLACEHOLDER_CONDITION, ""));
-            } else {
-                stmt = conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(readQuery, condition));
-            }
+            stmt = RDBMSTableUtils.isEmpty(condition) ?
+                    conn.prepareStatement(selectQuery.replace(PLACEHOLDER_CONDITION, "")) :
+                    conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(selectQuery, condition));
             RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, findConditionParameterMap, 0);
             rs = stmt.executeQuery();
             //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
@@ -153,11 +173,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            if (RDBMSTableUtils.isEmpty(condition)) {
-                stmt = conn.prepareStatement(containsQuery.replace(PLACEHOLDER_CONDITION, ""));
-            } else {
-                stmt = conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(containsQuery, condition));
-            }
+            stmt = RDBMSTableUtils.isEmpty(condition) ?
+                    conn.prepareStatement(containsQuery.replace(PLACEHOLDER_CONDITION, "")) :
+                    conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(containsQuery, condition));
             RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, containsConditionParameterMap, 0);
             rs = stmt.executeQuery();
             return !rs.isBeforeFirst();
@@ -171,23 +189,21 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     protected void delete(List<Map<String, Object>> deleteConditionParameterMaps, CompiledCondition compiledCondition) {
-        String deleteQuery = this.queryConfigurationEntry.getRecordDeleteQuery();
+        String deleteQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordDeleteQuery());
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         try {
-            if (RDBMSTableUtils.isEmpty(condition)) {
-                stmt = conn.prepareStatement(deleteQuery.replace(PLACEHOLDER_CONDITION, ""));
-            } else {
-                stmt = conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(deleteQuery, condition));
-            }
+            stmt = RDBMSTableUtils.isEmpty(condition) ?
+                    conn.prepareStatement(deleteQuery.replace(PLACEHOLDER_CONDITION, "")) :
+                    conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(deleteQuery, condition));
             for (Map<String, Object> deleteConditionParameterMap : deleteConditionParameterMaps) {
                 RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, deleteConditionParameterMap, 0);
                 stmt.addBatch();
             }
             stmt.executeBatch();
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing a contains check on table '" + this.tableName
+            throw new RDBMSTableException("Error performing record deletion on table '" + this.tableName
                     + "': " + e.getMessage(), e);
         } finally {
             RDBMSTableUtils.cleanupConnection(null, stmt, conn);
@@ -197,18 +213,57 @@ public class RDBMSEventTable extends AbstractRecordTable {
     @Override
     protected void update(List<Map<String, Object>> updateConditionParameterMaps, CompiledCondition compiledCondition,
                           List<Map<String, Object>> updateValues) {
-
         String sql = this.composeUpdateQuery(compiledCondition);
         try {
-            this.batchProcessUpdateOrMerge(sql, updateConditionParameterMaps, compiledCondition, updateValues);
+            this.batchProcessUpdates(sql, updateConditionParameterMaps, compiledCondition, updateValues);
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing update operation on table '" + this.tableName
+            throw new RDBMSTableException("Error performing record update operations on table '" + this.tableName
                     + "': " + e.getMessage(), e);
         }
     }
 
+    @Override
+    protected void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
+                               CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
+                               List<Object[]> addingRecords) {
+        String sql = this.composeUpdateQuery(compiledCondition);
+        try {
+            this.batchProcessUpdates(sql, updateConditionParameterMaps, compiledCondition, updateValues);
+        } catch (SQLException e) {
+            //Batch update operations have failed, maybe because one (or more) constraint violations.
+            //Now, let us try to sequentially update/insert records.
+            this.UpdateOrInsertRecords(updateConditionParameterMaps, compiledCondition, updateValues, addingRecords);
+        }
+    }
+
+    @Override
+    protected CompiledCondition compileCondition(ConditionBuilder conditionBuilder) {
+        RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
+        conditionBuilder.build(visitor);
+        return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters());
+    }
+
+    private void lookupDatasource(String resourceName) throws NamingException {
+        this.dataSource = InitialContext.doLookup(resourceName);
+    }
+
+    private String composeInsertQuery() {
+        String insertQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordInsertQuery());
+        StringBuilder params = new StringBuilder();
+        int fieldsLeft = this.attributes.size();
+        while (fieldsLeft > 0) {
+            params.append(QUESTION_MARK);
+            if (fieldsLeft > 1) {
+                params.append(SEPARATOR);
+            }
+            fieldsLeft = fieldsLeft - 1;
+        }
+        return insertQuery.replace(PLACEHOLDER_Q, params.toString());
+    }
+
+
     private String composeUpdateQuery(CompiledCondition compiledCondition) {
-        String sql = this.queryConfigurationEntry.getRecordUpdateQuery();
+        String sql = this.resolveTableName(this.queryConfigurationEntry.getRecordUpdateQuery());
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         StringBuilder columnsValues = new StringBuilder();
         this.attributes.forEach(attribute -> {
@@ -218,18 +273,14 @@ public class RDBMSEventTable extends AbstractRecordTable {
             }
         });
         sql = sql.replace(PLACEHOLDER_COLUMNS_VALUES, columnsValues.toString());
-        if (RDBMSTableUtils.isEmpty(condition)) {
-            sql = sql.replace(PLACEHOLDER_CONDITION, "");
-        } else {
-            sql = RDBMSTableUtils.formatQueryWithCondition(sql, condition);
-        }
-
+        sql = RDBMSTableUtils.isEmpty(condition) ? sql.replace(PLACEHOLDER_CONDITION, "") :
+                RDBMSTableUtils.formatQueryWithCondition(sql, condition);
         return sql;
     }
 
-    private void batchProcessUpdateOrMerge(String sql, List<Map<String, Object>> updateConditionParameterMaps,
-                                           CompiledCondition compiledCondition,
-                                           List<Map<String, Object>> updateValues) throws SQLException {
+    private void batchProcessUpdates(String sql, List<Map<String, Object>> updateConditionParameterMaps,
+                                     CompiledCondition compiledCondition,
+                                     List<Map<String, Object>> updateValues) throws SQLException {
         final int seed = this.attributes.size();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
@@ -255,40 +306,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
     }
 
-    @Override
-    protected void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
-                               CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
-                               List<Object[]> addingRecords) {
-        String mergeSQL = this.queryConfigurationEntry.getRecordMergeQuery();
-        if (mergeSQL != null) {
-            try {
-                this.mergeRecords(mergeSQL, updateConditionParameterMaps, compiledCondition, updateValues);
-            } catch (SQLException e) {
-                //Merge operations have failed, maybe because one (or more) constraint violations.
-                //Now, let us try to sequentially update/insert records.
-                this.UpdateOrInsertRecords(updateConditionParameterMaps, compiledCondition, updateValues, addingRecords);
-            }
-        } else {
-            this.UpdateOrInsertRecords(updateConditionParameterMaps, compiledCondition, updateValues, addingRecords);
-        }
-    }
-
-    /**
-     * Attempts to use SQL MERGE queries to try and insert/update records.
-     * Can fail due to one or more constraint violations in the supplied list of records.
-     *
-     * @param updateConditionParameterMaps
-     * @param compiledCondition
-     * @param updateValues
-     * @throws SQLException if one or more batch MERGE operations fail.
-     */
-    private void mergeRecords(String sql, List<Map<String, Object>> updateConditionParameterMaps,
-                              CompiledCondition compiledCondition, List<Map<String, Object>> updateValues)
-            throws SQLException {
-        String mergeSQL = this.composeMergeQuery(sql, compiledCondition);
-        this.batchProcessUpdateOrMerge(mergeSQL, updateConditionParameterMaps, compiledCondition, updateValues);
-    }
-
     private void UpdateOrInsertRecords(List<Map<String, Object>> updateConditionParameterMaps,
                                        CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
                                        List<Object[]> addingRecords) {
@@ -298,7 +315,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
         PreparedStatement updateStmt = null;
         PreparedStatement insertStmt = null;
         try {
-            //TODO discuss order. Try insert -> update or vice versa?
             updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition));
             insertStmt = conn.prepareStatement(this.composeInsertQuery());
             while (counter < updateValues.size()) {
@@ -343,24 +359,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
     }
 
-    private String composeMergeQuery(String sql, CompiledCondition compiledCondition) {
-        //TODO
-        return null;
-    }
-
-    @Override
-    protected CompiledCondition compileCondition(ConditionBuilder conditionBuilder) {
-        //TODO verify
-        RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.queryConfigurationEntry);
-        conditionBuilder.build(visitor);
-        return new RDBMSCompiledCondition(this.tableName, this.resolveTableName(visitor.returnCondition()),
-                visitor.getParameters());
-    }
-
-    private void lookupDatasource(String resourceName) throws NamingException {
-        this.dataSource = InitialContext.doLookup(resourceName);
-    }
-
     private void initializeDatasource(Annotation storeAnnotation) {
         Properties connectionProperties = new Properties();
         String poolPropertyString = storeAnnotation.getElement(
@@ -375,7 +373,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
             List<String[]> poolProps = RDBMSTableUtils.processKeyValuePairs(poolPropertyString);
             poolProps.forEach(pair -> connectionProperties.setProperty(pair[0], pair[1]));
         }
-
         HikariConfig config = new HikariConfig(connectionProperties);
         this.dataSource = new HikariDataSource(config);
     }
@@ -399,15 +396,15 @@ public class RDBMSEventTable extends AbstractRecordTable {
         if (statement == null) {
             return null;
         }
-        return statement.replace(TABLE_NAME_PLACEHOLDER, this.tableName);
+        return statement.replace(PLACEHOLDER_TABLE_NAME, this.tableName);
     }
 
     private void createTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices) {
         //TODO once-over
         RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRDBMSTypeMapping();
         StringBuilder builder = new StringBuilder();
-        List<Element> primaryKeyMap = primaryKeys.getElements();
-        List<Element> indexMap = indices.getElements();
+        List<Element> primaryKeyMap = (primaryKeys == null) ? new ArrayList<>() : primaryKeys.getElements();
+        List<Element> indexMap = (indices == null) ? new ArrayList<>() : indices.getElements();
         List<String> queries = new ArrayList<>();
         String createQuery = this.resolveTableName(this.queryConfigurationEntry.getTableCreateQuery());
         String indexQuery = this.resolveTableName(this.queryConfigurationEntry.getIndexCreateQuery());
@@ -447,19 +444,19 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     }
                     break;
             }
-            if (this.attributes.indexOf(attribute) != this.attributes.size() - 1 || primaryKeyMap != null) {
+            if (this.attributes.indexOf(attribute) != this.attributes.size() - 1 || !primaryKeyMap.isEmpty()) {
                 builder.append(SEPARATOR);
             }
-            if (primaryKeyMap != null) {
-                builder.append(PRIMARY_KEY_DEF)
-                        .append(OPEN_PARENTHESIS)
-                        .append(RDBMSTableUtils.flattenAnnotatedElements(primaryKeyMap))
-                        .append(CLOSE_PARENTHESIS);
-            }
         });
+        if (!primaryKeyMap.isEmpty()) {
+            builder.append(SQL_PRIMARY_KEY_DEF)
+                    .append(OPEN_PARENTHESIS)
+                    .append(RDBMSTableUtils.flattenAnnotatedElements(primaryKeyMap))
+                    .append(CLOSE_PARENTHESIS);
+        }
         queries.add(createQuery.replace(PLACEHOLDER_COLUMNS, builder.toString()));
         if (indexMap != null && !indexMap.isEmpty()) {
-            queries.add(indexQuery.replace(INDEX_PLACEHOLDER, RDBMSTableUtils.flattenAnnotatedElements(indexMap)));
+            queries.add(indexQuery.replace(PLACEHOLDER_INDEX, RDBMSTableUtils.flattenAnnotatedElements(indexMap)));
         }
         try {
             this.executeDDQueries(queries, false);
@@ -511,7 +508,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 committed = true;
             }
         } catch (SQLException e) {
-            //TODO log the error
+            if (log.isDebugEnabled()) {
+                log.debug("Attempted execution of query [" + query + "] produced an exception: " + e.getMessage());
+            }
             RDBMSTableUtils.rollbackConnection(conn);
             throw e;
         } finally {
@@ -532,8 +531,10 @@ public class RDBMSEventTable extends AbstractRecordTable {
             rs = stmt.executeQuery();
             return true;
         } catch (SQLException e) {
-            //TODO log the error
-            RDBMSTableUtils.rollbackConnection(conn);
+            if (log.isDebugEnabled()) {
+                log.debug("Table '" + this.tableName + "' assumed to not exist since its existence check resulted " +
+                        "in exception " + e.getMessage());
+            }
             return false;
         } finally {
             RDBMSTableUtils.cleanupConnection(rs, stmt, conn);
