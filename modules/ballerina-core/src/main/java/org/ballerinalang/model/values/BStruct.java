@@ -24,10 +24,16 @@ import org.ballerinalang.model.types.BType;
  *
  * @since 1.0.0
  */
-public final class BStruct implements BRefType<StructDef> {
+public final class BStruct implements BRefType<StructDef>, StructureType {
 
     private StructDef structDef;
     private BValue[] structMemBlock;
+
+    private long[] longFields;
+    private double[] doubleFields;
+    private String[] stringFields;
+    private int[] intFields;
+    private BRefType[] refFields;
 
     /**
      * Creates a struct with a single memory block.
@@ -38,9 +44,9 @@ public final class BStruct implements BRefType<StructDef> {
 
     /**
      * Creates a struct with the given size of memory block.
-     * 
-     * @param structDef            {@link StructDef} who's values will be stored by this {@code BStruct}
-     * @param structMemBlock    Array of memory blocks to store values.
+     *
+     * @param structDef      {@link StructDef} who's values will be stored by this {@code BStruct}
+     * @param structMemBlock Array of memory blocks to store values.
      */
     public BStruct(StructDef structDef, BValue[] structMemBlock) {
         this.structDef = structDef;
@@ -49,9 +55,9 @@ public final class BStruct implements BRefType<StructDef> {
 
     /**
      * Get a value from a memory location, stored inside this struct.
-     * 
-     * @param offset    Offset of the memory location
-     * @return          Value stored in the given memory location of this struct.
+     *
+     * @param offset Offset of the memory location
+     * @return Value stored in the given memory location of this struct.
      */
     public BValue getValue(int offset) {
         return structMemBlock[offset];
@@ -59,9 +65,9 @@ public final class BStruct implements BRefType<StructDef> {
 
     /**
      * Set a value to a memory location of this struct.
-     * 
-     * @param offset    Offset of the memory location
-     * @param bValue    Value to be stored in the given memory location of this struct.
+     *
+     * @param offset Offset of the memory location
+     * @param bValue Value to be stored in the given memory location of this struct.
      */
     public void setValue(int offset, BValue bValue) {
         this.structMemBlock[offset] = bValue;
@@ -86,5 +92,64 @@ public final class BStruct implements BRefType<StructDef> {
     @Override
     public BType getType() {
         return null; //todo
+    }
+
+    @Override
+    public void init(int[] fieldIndexes) {
+        longFields = new long[fieldIndexes[0]];
+        doubleFields = new double[fieldIndexes[1]];
+        stringFields = new String[fieldIndexes[2]];
+        intFields = new int[fieldIndexes[3]];
+        refFields = new BRefType[fieldIndexes[4]];
+    }
+
+    @Override
+    public long getIntField(int index) {
+        return longFields[index];
+    }
+
+    @Override
+    public void setIntField(int index, long value) {
+        longFields[index] = value;
+    }
+
+    @Override
+    public double getFloatField(int index) {
+        return doubleFields[index];
+    }
+
+    @Override
+    public void setFloatField(int index, double value) {
+        doubleFields[index] = value;
+    }
+
+    @Override
+    public String getStringField(int index) {
+        return stringFields[index];
+    }
+
+    @Override
+    public void setStringField(int index, String value) {
+        stringFields[index] = value;
+    }
+
+    @Override
+    public int getBooleanField(int index) {
+        return intFields[index];
+    }
+
+    @Override
+    public void setBooleanField(int index, int value) {
+        intFields[index] = value;
+    }
+
+    @Override
+    public BRefType getRefField(int index) {
+        return refFields[index];
+    }
+
+    @Override
+    public void setRefField(int index, BRefType value) {
+        refFields[index] = value;
     }
 }

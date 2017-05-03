@@ -38,7 +38,8 @@ public interface ConstantPoolEntry {
         CP_ENTRY_PACKAGE((byte) 11),
         CP_ENTRY_FUNCTION_REF((byte) 12),
         CP_ENTRY_FUNCTION_CALL_ARGS((byte) 13),
-        CP_ENTRY_FUNCTION_RET((byte) 14);
+        CP_ENTRY_FUNCTION_RET((byte) 14),
+        CP_ENTRY_STRUCT((byte) 15);
 
         byte value;
 
