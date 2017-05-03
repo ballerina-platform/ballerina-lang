@@ -31,7 +31,8 @@ class CanvasDecorator extends React.Component {
     render() {
         const { bBox = {} } = this.props;
         const dropZoneActivated = this.state.dropZoneActivated;
-        return (<svg className="svg-container" width={ this.props.bBox.w } height={ this.props.bBox.h }>
+        const canvasClassName = "svg-container" + (dropZoneActivated ? " drop-zone active" : "");
+        return (<svg className={canvasClassName} width={ this.props.bBox.w } height={ this.props.bBox.h }>
                     <rect x="0" y="0"width="100%" height="100%"
                         className={(!dropZoneActivated) ? "drop-zone" : "drop-zone active"}
                         onMouseOver={(e) => this.onDropZoneActivate(e)}
