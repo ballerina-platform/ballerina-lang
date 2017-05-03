@@ -38,7 +38,7 @@ class ResourceDefinition extends React.Component {
         resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<PanelDecorator icon="resource" title={name} bBox={bBox} model={this.props.model}>
+        return (<PanelDecorator icon="tool-icons/resource" title={name} bBox={bBox} model={this.props.model}>
             <g>
                 <StatementContainer bBox={statementContainerBBox}/>
                 <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox}/>
