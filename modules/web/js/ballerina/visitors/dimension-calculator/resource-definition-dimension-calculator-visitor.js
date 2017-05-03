@@ -74,7 +74,7 @@ class ResourceDefinitionDimensionCalculatorVisitor {
                                + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         }
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right + DesignerDefaults.panel.body.padding.left;
-
+]
         viewState.bBox.h = components['heading'].h + components['body'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;
 

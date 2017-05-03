@@ -16,33 +16,20 @@
  * under the License.
  */
 import React from "react";
-import StatementDecorator from "./statement-decorator";
 import PropTypes from 'prop-types';
+import {statement} from './../configs/designer-defaults';
+import {lifeLine} from './../configs/designer-defaults';
 
-/**
- * Break statement decorator.
- * */
-class BreakStatement extends React.Component {
-    /**
-     * Render function for the break statement.
-     * */
-    render() {
-        let model = this.props.model,
-            expression = model.expression;
-        return (<StatementDecorator viewState={model.viewState} expression={expression}/>);
-    }
+const text_offset = 50;
+
+class StartDecorator extends React.Component {
+
+	render() {
+		debugger;
+		return (<g>
+            <rect width={statement.width} height={statement.height} rx="0" ry="0"></rect><text textAnchor="middle" alignmentBaseline="central" dominantBaseline="central">Start</text>
+		</g>);
+	}
 }
 
-BreakStatement.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired
-    }),
-    expression: PropTypes.shape({
-        expression: PropTypes.string
-    })
-};
-
-export default BreakStatement;
+export default StartDecorator;

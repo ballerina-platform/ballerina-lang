@@ -17,29 +17,25 @@
  */
 import React from "react";
 import StatementDecorator from "./statement-decorator";
-import PropTypes from "prop-types"
+import PropTypes from 'prop-types';
 
-/**
- * Variable Definition Statement Decorator.
- * */
-class VariableDefinitionStatement extends React.Component {
-    /**
-     * Render Function for the variable statement.
-     * */
+class WorkerInvocationStatement extends React.Component {
+
     render() {
-        let model = this.props.model,
+        let model = this.props.model, 
             expression = model.viewState.expression;
-        return (<StatementDecorator viewState={model.viewState} expression={expression}/>);
+        return (<StatementDecorator viewState={model.viewState} expression={expression} />);
     }
 }
 
-VariableDefinitionStatement.propTypes = {
+WorkerInvocationStatement.propTypes = {
     bBox: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired
+        h: PropTypes.number.isRequired,
     })
-};
+}
 
-export default VariableDefinitionStatement;
+
+export default WorkerInvocationStatement;

@@ -18,6 +18,8 @@
 
 import {statement} from './../configs/designer-defaults';
 import _ from 'lodash';
+import SimpleBBox from './../ast/simple-bounding-box';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 class SizingUtil {
     constructor(){
@@ -63,8 +65,13 @@ class SizingUtil {
 
     populateSimpleStatementBBox(expression, viewState){
         var textViewState = util.getTextWidth(expression);
+        let dropZoneHeight = statement.gutter.v;
+        viewState.components['drop-zone'] = new SimpleBBox();
+        viewState.components['drop-zone'].h = dropZoneHeight;
+
         viewState.bBox.w = textViewState.w;
-        viewState.bBox.h = statement.height + statement.gutter.v;
+        viewState.bBox.h = statement.height + viewState.components['drop-zone'].h;
+
         viewState.expression = textViewState.text;
         return viewState;
     }
@@ -74,6 +81,20 @@ class SizingUtil {
             return worker.viewState.components.statementContainer.h;
         });
         return sortedWorkers.length > 0 ? sortedWorkers[0].getViewState().components.statementContainer.h : -1;
+    }
+
+    getStatementHeightBefore(statement) {
+        var parent = statement.getParent();
+        var statements = parent.filterChildren(BallerinaASTFactory.isStatement);
+        var currentStatementIndex = _.indexOf(statements, statement);
+        var statementsBefore = _.slice(statements, 0, currentStatementIndex);
+
+        var height = 0;
+        _.forEach(statementsBefore, function(stmt) {
+            height += stmt.getViewState().bBox.h;
+        });
+
+        return height;
     }
 }
 

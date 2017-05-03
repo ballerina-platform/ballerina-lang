@@ -25,15 +25,17 @@ const text_offset = 50;
 class StatementView extends React.Component {
 
 	render() {
-		const { bBox, expression } = this.props;
+		const { viewState, expression } = this.props;
+		let bBox = viewState.bBox;
+		let innerZoneHeight = viewState.components['drop-zone'].h;
 		// we need to draw a drop box above and a statement box
-		let statement_h = bBox.h - statement.gutter.v;
-		let statement_y = bBox.y + statement.gutter.v;
+		let statement_h = bBox.h - innerZoneHeight;
+		let statement_y = bBox.y + innerZoneHeight;
 		const text_x = bBox.x + (bBox.w / 2);
 		const text_y = statement_y + (statement_h / 2);
 		let drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
 		return (<g>
-			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v} className="inner-drop-zone" />
+			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight} className="inner-drop-zone" />
 			<rect x={bBox.x} y={statement_y} width={bBox.w} height={statement_h} className="statement-rect" />
 			<g className="statement-body">
 				<text x={text_x} y={text_y} className="statement-text">{expression}</text>
