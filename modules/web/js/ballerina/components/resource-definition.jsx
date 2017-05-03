@@ -38,13 +38,25 @@ class ResourceDefinition extends React.Component {
         resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<PanelDecorator icon="tool-icons/resource" title={name} bBox={bBox} model={this.props.model}>
+        return (<PanelDecorator icon="tool-icons/resource" title={name} bBox={bBox}
+                        model={this.props.model}
+                        dropTarget={this.props.model}
+                        dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}>
             <g>
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}/>
                 <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox}/>
                 {children}
             </g>
         </PanelDecorator>);
+    }
+
+    canDropToPanelBody (nodeBeingDragged) {
+          let nodeFactory = this.props.model.getFactory();
+          // IMPORTANT: override default validation logic
+          // Panel's drop zone is for worker and connector declarations only.
+          // Statements should only be allowed on top of resource worker's dropzone.
+          return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
+              || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
     }
 }
 
