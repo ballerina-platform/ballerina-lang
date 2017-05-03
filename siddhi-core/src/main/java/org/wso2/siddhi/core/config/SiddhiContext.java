@@ -22,6 +22,7 @@ import com.lmax.disruptor.ExceptionHandler;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
 import org.wso2.siddhi.core.util.config.ConfigManager;
+import org.wso2.siddhi.core.util.config.InMemoryConfigManager;
 import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 import org.wso2.siddhi.core.util.statistics.metrics.SiddhiMetricsFactory;
@@ -48,6 +49,7 @@ public class SiddhiContext {
         siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
         statisticsConfiguration = new StatisticsConfiguration(new SiddhiMetricsFactory());
         extensionHolderMap = new ConcurrentHashMap<Class, AbstractExtensionHolder>();
+        configManager= new InMemoryConfigManager();
         defaultDisrupterExceptionHandler = new ExceptionHandler<Object>() {
             @Override
             public void handleEventException(Throwable throwable, long l, Object event) {

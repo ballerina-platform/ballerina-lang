@@ -24,8 +24,18 @@ import java.util.Map;
 /**
  * In-memory Siddhi Configuration Manager
  */
-public class InMenoryConfigManager implements ConfigManager {
+public class InMemoryConfigManager implements ConfigManager {
     private Map<String, String> masterConfigs = new HashMap<>();
+
+    public InMemoryConfigManager(Map<String, String> masterConfigs) {
+        if (masterConfigs != null) {
+            this.masterConfigs = masterConfigs;
+        }
+    }
+
+    public InMemoryConfigManager() {
+
+    }
 
     public ConfigReader generateConfigReader(String namespace, String name) {
         String keyPrefix = namespace + "." + name;

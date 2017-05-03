@@ -33,15 +33,16 @@ import java.util.Map;
 * Accept Type(s): STRING. There should be at least two arguments.
 * Return Type(s): STRING
 * */
-public class ConcatFunctionExtension extends FunctionExecutor{
+public class ConcatFunctionExtension extends FunctionExecutor {
 
     private Attribute.Type returnType = Attribute.Type.STRING;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length < 2) {
             throw new ExecutionPlanValidationException("str:concat() function requires at least two arguments, " +
-                                                       "but found only " + attributeExpressionExecutors.length);
+                    "but found only " + attributeExpressionExecutors.length);
         }
     }
 
@@ -49,7 +50,7 @@ public class ConcatFunctionExtension extends FunctionExecutor{
     protected Object execute(Object[] data) {
         StringBuilder sb = new StringBuilder();
         for (Object aData : data) {
-            if(aData != null){
+            if (aData != null) {
                 sb.append(aData);
             }
         }
