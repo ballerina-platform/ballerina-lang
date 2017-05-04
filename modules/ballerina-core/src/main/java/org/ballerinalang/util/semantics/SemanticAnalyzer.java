@@ -249,22 +249,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
             annotationAttachment.accept(this);
         }
-        
-        SimpleTypeName typeName = constDef.getTypeName();
-        BType bType = BTypes.resolveType(typeName, currentScope, constDef.getNodeLocation());
-        constDef.setType(bType);
-        if (!BTypes.isValueType(bType)) {
-            BLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.INVALID_TYPE, typeName);
-        }
-
-        // Set memory location
-        ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
-        constDef.setMemoryLocation(memLocation);
-
-        // TODO Figure out how to evaluate constant values properly
-        // TODO This should be done properly in the RuntimeEnvironment
-        BasicLiteral basicLiteral = (BasicLiteral) constDef.getRhsExpr();
-        constDef.setValue(basicLiteral.getBValue());
     }
 
     @Override
@@ -2757,6 +2741,22 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             // Define the variableRef symbol in the current scope
             currentScope.define(symbolName, constDef);
+
+            SimpleTypeName typeName = constDef.getTypeName();
+            BType bType = BTypes.resolveType(typeName, currentScope, constDef.getNodeLocation());
+            constDef.setType(bType);
+            if (!BTypes.isValueType(bType)) {
+                BLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.INVALID_TYPE, typeName);
+            }
+
+            // Set memory location
+            ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
+            constDef.setMemoryLocation(memLocation);
+
+            // TODO Figure out how to evaluate constant values properly
+            // TODO This should be done properly in the RuntimeEnvironment
+            BasicLiteral basicLiteral = (BasicLiteral) constDef.getRhsExpr();
+            constDef.setValue(basicLiteral.getBValue());
         }
     }
 
