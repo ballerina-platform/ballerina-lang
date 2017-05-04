@@ -31,10 +31,6 @@ class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
         return returnStatement instanceof ReturnStatement;
     }
 
-    canVisitExpression(expression) {
-        return true;
-    }
-
     beginVisitReturnStatement(returnStatement) {
         /**
          * set the configuration start for the reply statement definition language construct

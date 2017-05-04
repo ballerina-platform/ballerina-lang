@@ -29,6 +29,23 @@ class AbstractSourceGenVisitor extends ASTVisitor {
         super();
         this._generatedSource = '';
         this.parent = parent;
+        this.indentCount = 0;
+    }
+
+    indent() {
+        this.indentCount++;
+    }
+
+    outdent() {
+        this.indentCount--;
+    }
+
+    getIndentation() {
+        let indentation = '';
+        for(let i=0; i < this.indentCount; i++) {
+            indentation += '    ';
+        }
+        return indentation;
     }
 
     getGeneratedSource() {

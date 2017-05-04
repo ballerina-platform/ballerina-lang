@@ -60,7 +60,7 @@ class ResourceParameter extends Argument {
         var paramAsString = !_.isUndefined(this.getAnnotationType()) ? this.getAnnotationType() : "";
         paramAsString += !_.isUndefined(this.getAnnotationText()) && !_.isEmpty(this.getAnnotationText()) ?
         "{value:\"" + this.getAnnotationText() + "\"} " : "";
-        paramAsString += " " + this.getType() + " ";
+        paramAsString += "" + this.getType() + " ";
         paramAsString += this.getIdentifier();
 
         return paramAsString;
@@ -93,5 +93,3 @@ class ResourceParameter extends Argument {
 }
 
 export default ResourceParameter;
-
-

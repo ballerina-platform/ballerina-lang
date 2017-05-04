@@ -37,26 +37,6 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
-    canVisitCommentStatement(commentStatement) {
-        return true;
-    }
-
-    canVisitStatement(statement) {
-        return true;
-    }
-
-    canVisitConnectorDeclaration(statement) {
-        return true;
-    }
-
-    canVisitVariableDeclaration(statement) {
-        return true;
-    }
-
-    canVisitWorkerDeclaration(statement) {
-        return true;
-    }
-
     beginVisitFunctionDefinition(functionDefinition) {
         /**
          * set the configuration start for the function definition language construct
