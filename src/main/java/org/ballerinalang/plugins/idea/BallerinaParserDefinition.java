@@ -44,6 +44,7 @@ import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
@@ -80,6 +81,7 @@ import org.ballerinalang.plugins.idea.psi.TypeMapperBodyNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
 
@@ -89,15 +91,13 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.*;
 
 public class BallerinaParserDefinition implements ParserDefinition {
 
-    public static final IFileElementType FILE =
-            new IFileElementType(BallerinaLanguage.INSTANCE);
+    private static final IFileElementType FILE = new IFileElementType(BallerinaLanguage.INSTANCE);
 
     public static TokenIElementType ID;
 
     static {
         PSIElementTypeFactory.defineLanguageIElementTypes(BallerinaLanguage.INSTANCE,
-                BallerinaParser.tokenNames,
-                BallerinaParser.ruleNames);
+                BallerinaParser.tokenNames, BallerinaParser.ruleNames);
         List<TokenIElementType> tokenIElementTypes =
                 PSIElementTypeFactory.getTokenIElementTypes(BallerinaLanguage.INSTANCE);
         ID = tokenIElementTypes.get(BallerinaLexer.Identifier);
@@ -106,7 +106,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet COMMENTS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             LINE_COMMENT);
 
-    public static final TokenSet WHITESPACE = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE, WS);
+    private static final TokenSet WHITESPACE = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE, WS);
 
     public static final TokenSet STRING_LITERALS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             QuotedStringLiteral, BacktickStringLiteral);
@@ -136,11 +136,9 @@ public class BallerinaParserDefinition implements ParserDefinition {
         return new ANTLRParserAdaptor(BallerinaLanguage.INSTANCE, parser) {
             @Override
             protected ParseTree parse(Parser parser, IElementType root) {
-                //Todo - Need to add more start rules?
-                // start rule depends on root passed in; sometimes we want to create an ID node etc...
-                //                if ( root instanceof IFileElementType ) {
+                // Start rule depends on root passed in; sometimes we want to create an ID node etc...
+                // Eg: if (root instanceof IFileElementType) { }
                 return ((BallerinaParser) parser).compilationUnit();
-                //                }
             }
         };
     }
@@ -269,6 +267,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new DefinitionNode(node);
             case BallerinaParser.RULE_ifElseStatement:
                 return new IfElseStatementNode(node);
+            case BallerinaParser.RULE_assignmentStatement:
+                return new AssignmentStatementNode(node);
+            case BallerinaParser.RULE_variableReferenceList:
+                return new VariableReferenceListNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
