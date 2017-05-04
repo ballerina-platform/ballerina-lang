@@ -23,7 +23,8 @@ import org.wso2.carbon.transport.jms.utils.JMSConstants;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -37,14 +38,14 @@ import java.util.concurrent.ExecutorService;
 
 @Extension(
         name = "jms",
-        namespace = "outputtransport",
+        namespace = "sink",
         description = "JMS Output Transport"
 )
 /**
  * JMS output transport class.
  * Dynamic options: destination
  */
-public class JMSOutputTransport extends OutputTransport {
+public class JMSSink extends Sink {
     private OptionHolder optionHolder;
     private JMSClientConnector clientConnector;
     private Option destination;
@@ -52,7 +53,8 @@ public class JMSOutputTransport extends OutputTransport {
     private ExecutorService executorService;
 
     @Override
-    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
+                        ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext) {
         this.optionHolder = optionHolder;
         this.destination = optionHolder.getOrCreateOption(JMSConstants.DESTINATION_PARAM_NAME, null);
         this.jmsStaticProperties = initJMSProperties();
