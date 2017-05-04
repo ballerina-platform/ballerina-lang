@@ -26,6 +26,7 @@ const text_offset = 50;
 class StartArrowConnection extends React.Component {
 
 	render() {
+		debugger;
 		const { start, end} = this.props;
 
 		let arrowStart = {x : 0, y : 0};
@@ -36,7 +37,7 @@ class StartArrowConnection extends React.Component {
 			arrowStart.x = start.bBox.x + start.bBox.w;
 			arrowStart.y = start.bBox.y + start.components['drop-zone'].h + (start.bBox.h - start.components['drop-zone'].h)/2;
 
-			arrowEnd.x = end.bBox.x;
+			arrowEnd.x = (end.bBox.x + end.bBox.w/2) - statement.width/2;
 			arrowEnd.y = arrowStart.y;
 		} else { 
 			//start statement is on the left
@@ -44,14 +45,14 @@ class StartArrowConnection extends React.Component {
 			arrowStart.x = start.bBox.x;
 			arrowStart.y = start.bBox.y + start.components['drop-zone'].h + (start.bBox.h - start.components['drop-zone'].h)/2;
 
-			arrowEnd.x = end.bBox.x + end.bBox.w;
+			arrowEnd.x = (end.bBox.x + end.bBox.w/2) + statement.width/2;
 			arrowEnd.y = arrowStart.y;
 		}
 
 		return (<g>
 		           <ArrowDecorator start={arrowStart} end={arrowEnd} />
 				   <rect x={arrowEnd.x} y={arrowEnd.y - statement.height/2} width={statement.width} height={statement.height} className="statement-rect" />
-		           <text x={arrowEnd.x + (end.bBox.w/2)} y={arrowEnd.y} textAnchor="middle" alignmentBaseline="central" dominantBaseline="central">Start</text>
+		           <text x={end.bBox.x + end.bBox.w/2} y={arrowStart.y} textAnchor="middle" alignmentBaseline="central" dominantBaseline="central">Start</text>
 				</g>);
 	}
 }
