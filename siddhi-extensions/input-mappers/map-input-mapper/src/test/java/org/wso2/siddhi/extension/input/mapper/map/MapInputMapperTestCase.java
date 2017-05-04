@@ -52,7 +52,7 @@ public class MapSourcemapperTestCase {
 
     @Test
     public void subscriptionTest12() throws InterruptedException {
-        log.info("Subscription Test 12: Test an in memory transport with default hashmap mapping");
+        log.info("Subscription Test 12: Test an in memory source with default hashmap mapping");
 
         Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
         subscription.map(Mapping.format("map"));
@@ -84,7 +84,7 @@ public class MapSourcemapperTestCase {
 
     @Test
     public void subscriptionTest13() throws InterruptedException {
-        log.info("Subscription Test 13: Test an in memory transport with custom positional hashmap mapping");
+        log.info("Subscription Test 13: Test an in memory source with custom positional hashmap mapping");
 
         Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
         subscription.map(Mapping.format("map").map("symbol").map("price").map("volume"));
@@ -116,7 +116,7 @@ public class MapSourcemapperTestCase {
 
     @Test
     public void subscriptionTest14() throws InterruptedException {
-        log.info("Subscription Test 14:  Test an in memory transport with custom named hashmap mapping");
+        log.info("Subscription Test 14:  Test an in memory source with custom named hashmap mapping");
 
         Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
         subscription.map(Mapping.format("map").map("output_symbol","symbol").map("output_price","price").map("output_volume","volume"));

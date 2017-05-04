@@ -63,7 +63,7 @@ public class TestSink extends Sink {
     @Override
     public void publish(Object event, Map<String, String> dynamicTransportOptions)
             throws ConnectionUnavailableException {
-        log.info("TestSink:publish() | dynamicTransportOptions : " +
+        log.info("TestSink:publish() | dynamicSinkOptions : " +
                 dynamicTransportOptions.toString() + " | event : " + event.toString());
         InMemoryBroker.publish(dynamicTransportOptions.get(TOPIC_KEY), event);
     }

@@ -36,7 +36,7 @@ import java.util.Map;
 @Extension(
         name = "inMemory",
         namespace = "sink",
-        description = "In-memory transport that can communicate with other in-memory transports within the same JVM, it" +
+        description = "In-memory sink that can communicate with other in-memory sources within the same JVM, it" +
                 "is assumed that the publisher and subscriber of a topic uses same event schema (stream definition).",
         parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Event will be delivered to all" +
                 "the subscribers of the same topic")

@@ -43,7 +43,7 @@ import java.util.Set;
  * to send events to all the partitions within the topic.
  * - The same email client can send email to different addresses.
  */
-public class SingleClientDistributedTransport extends DistributedTransport {
+public class SingleClientDistributedSink extends DistributedTransport {
 
     private Sink sink;
     private int destinationCount = 0;

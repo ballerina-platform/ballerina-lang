@@ -81,7 +81,7 @@ public class JMSSourceTestCase {
         List<String> expected = new ArrayList<>(2);
         expected.add("\nJohn");
         expected.add("\nMike");
-        Assert.assertEquals("JMS Input Transport expected input not received", expected, receivedEventNameList);
+        Assert.assertEquals("JMS Source expected input not received", expected, receivedEventNameList);
     }
 
     private void publishEvents(String topicName, String queueName, String broker, String format, String filePath)

@@ -9,9 +9,9 @@ import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
 @Extension(
         name = "testInMemory",
         namespace = "sink",
-        description = "In-memory transport for testing distributed transport in multi client mode. This dummy " +
-                "transport simply overrides getSupportedDynamicOptions return nothing so that when distributed " +
-                "transport will identify it as a multi-client transport as there are no dynamic options",
+        description = "In-memory sink for testing distributed sink in multi client mode. This dummy " +
+                "sink simply overrides getSupportedDynamicOptions return nothing so that when distributed " +
+                "sink will identify it as a multi-client sink as there are no dynamic options",
         parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Event will be delivered to all" +
                 "the subscribers of the same topic")
 )

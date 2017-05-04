@@ -39,7 +39,7 @@ import java.util.Map;
 @Extension(
         name = "jms",
         namespace = "source",
-        description = "JMS Input Transport"
+        description = "JMS Source"
 )
 public class JMSSource extends Source {
     private static final Logger log = Logger.getLogger(JMSSource.class);

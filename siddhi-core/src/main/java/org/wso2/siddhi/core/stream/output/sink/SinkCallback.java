@@ -48,7 +48,7 @@ public class SinkCallback extends StreamCallback {
                 try {
                     sink.getMapper().mapAndSend(event, sink);
                 } catch (ConnectionUnavailableException e) {
-                    log.error("Cannot publish to via Output Transport '" + sink.getType() +
+                    log.error("Cannot publish to via Output Sink '" + sink.getType() +
                             "' due to unavailability of connection.", e);
                 }
             }
@@ -62,7 +62,7 @@ public class SinkCallback extends StreamCallback {
                 try {
                     sink.getMapper().mapAndSend(events, sink);
                 } catch (ConnectionUnavailableException e) {
-                    log.error("Cannot publish to via Output Transport '" + sink.getType() +
+                    log.error("Cannot publish to via Output Sink '" + sink.getType() +
                             "' due to unavailability of connection.", e);
                 }
             }

@@ -41,8 +41,8 @@ import java.util.Map;
  * will be a separate independent {@link Sink} instance connecting to each destination. This class interacts
  * with Sink interface and it does not make any assumptions on the underlying transport implementation.
  */
-public class MultiClientDistributedTransport extends DistributedTransport {
-    private static final Logger log = Logger.getLogger(MultiClientDistributedTransport.class);
+public class MultiClientDistributedSink extends DistributedTransport {
+    private static final Logger log = Logger.getLogger(MultiClientDistributedSink.class);
 
     private List<Sink> transports = new ArrayList<>();
 

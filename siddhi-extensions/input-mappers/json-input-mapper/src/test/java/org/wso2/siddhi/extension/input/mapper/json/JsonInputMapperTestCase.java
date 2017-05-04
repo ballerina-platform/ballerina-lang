@@ -45,7 +45,7 @@ public class JsonSourcemapperTestCase {
      */
     @Test
     public void subscriptionTest1() throws InterruptedException {
-        log.info("Subscription Test 1: Test an in memory transport with default json mapping");
+        log.info("Subscription Test 1: Test an in memory source with default json mapping");
 
         Subscription subscription = SiddhiCompiler.parseSubscription(
                 "subscribe inMemory options (topic 'stock') " +
@@ -78,7 +78,7 @@ public class JsonSourcemapperTestCase {
 
     @Test(expected = ExecutionPlanValidationException.class)
     public void subscriptionTest2() throws InterruptedException {
-        log.info("Subscription Test 2: Test an in memory transport with named and positional json mapping - expect " +
+        log.info("Subscription Test 2: Test an in memory source with named and positional json mapping - expect " +
                 "exception");
 
         Subscription subscription = SiddhiCompiler.parseSubscription(
@@ -111,7 +111,7 @@ public class JsonSourcemapperTestCase {
      */
     @Test
     public void subscriptionTest3() throws InterruptedException {
-        log.info("Subscription Test 3: Test an in memory transport with custom positional json mapping");
+        log.info("Subscription Test 3: Test an in memory sourcesource with custom positional json mapping");
 
         Subscription subscription = SiddhiCompiler.parseSubscription(
                 "subscribe inMemory options(topic 'stock') " +
@@ -148,7 +148,7 @@ public class JsonSourcemapperTestCase {
      */
     @Test
     public void subscriptionTest4() throws InterruptedException {
-        log.info("Subscription Test 4: Test an in memory transport with custom named json mapping");
+        log.info("Subscription Test 4: Test an in memory source with custom named json mapping");
 
         Subscription subscription = SiddhiCompiler.parseSubscription(
                 "subscribe inMemory options(topic 'stock') " +
