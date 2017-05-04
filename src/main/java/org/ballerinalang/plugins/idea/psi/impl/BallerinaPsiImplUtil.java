@@ -409,11 +409,15 @@ public class BallerinaPsiImplUtil {
 
                 PsiElement packagePathNode = packagePathNodes.iterator().next();
                 PsiElement lastChild = packagePathNode.getLastChild();
-                filteredPackages.add(lastChild);
+                if (lastChild != null) {
+                    filteredPackages.add(lastChild);
+                }
             } else {
                 PsiElement aliasNode = aliasNodes.iterator().next();
                 PsiElement firstChild = aliasNode.getFirstChild();
-                filteredPackages.add(firstChild);
+                if (firstChild != null) {
+                    filteredPackages.add(firstChild);
+                }
             }
         }
         return filteredPackages;
