@@ -49,10 +49,10 @@ class ConstantDefinition extends VariableDeclaration {
     }
 
     getConstantDefinitionAsString() {
-        if (this._type === "string") {
-            return "const " + this._type + " " + this._identifier + " = \"" + this._value + "\"";
+        if (this._bType === "string") {
+            return "const " + this._bType + " " + this._identifier + " = \"" + this._value + "\"";
         } else {
-            return "const " + this._type + " " + this._identifier + " = " + this._value;
+            return "const " + this._bType + " " + this._identifier + " = " + this._value;
         }
     }
 
@@ -64,7 +64,7 @@ class ConstantDefinition extends VariableDeclaration {
      * @param {string} jsonNode.constant_definition_value - The value of the constant.
      */
     initFromJson(jsonNode) {
-        this.setType(jsonNode.constant_definition_btype, {doSilently: true});
+        this.setBType(jsonNode.constant_definition_btype, {doSilently: true});
         this.setIdentifier(jsonNode.constant_definition_identifier, {doSilently: true});
         this.setValue(jsonNode.constant_definition_value, {doSilently: true});
     }

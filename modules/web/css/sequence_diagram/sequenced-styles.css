@@ -570,3 +570,70 @@ text-anchor: start;
     fill: #dcdcdc;
     stroke-width: 0;
 }
+
+.parameter-wrapper {
+    fill: #FFFFFF;
+    stroke-width: 1;
+    stroke: #909090;
+    shape-rendering: crispEdges;
+}
+
+.parameter-text-wrapper {
+    fill: #90CAF9;
+    stroke-width: 1;
+    stroke: #909090;
+    shape-rendering: crispEdges;
+}
+
+.parameter-delete-icon-wrapper {
+    fill: #90CAF9;
+    stroke-width: 1;
+    stroke: #909090;
+    shape-rendering: crispEdges;
+}
+
+.parameter-delete-icon {
+    opacity: 0.4;
+    cursor: pointer;
+}
+
+.parameter-delete-icon:hover {
+    opacity: 1;
+}
+
+.parameters-prefix-wrapper {
+    fill: #64B5F6;
+    stroke-width: 1;
+    stroke: #909090;
+    shape-rendering: crispEdges;
+}
+
+.return-types-prefix-wrapper {
+    fill: #26A69A;
+    stroke-width: 1;
+    stroke: #909090;
+    shape-rendering: crispEdges;
+}
+
+.return-type-text-wrapper {
+    fill: #80CBC4;
+    stroke-width: 1;
+    stroke: #909090;
+    shape-rendering: crispEdges;
+}
+
+.return-type-delete-icon-wrapper {
+    fill: #80CBC4;
+    stroke-width: 1;
+    stroke: #909090;
+    shape-rendering: crispEdges;
+}
+
+.return-type-delete-icon {
+    opacity: 0.4;
+    cursor: pointer;
+}
+
+.return-type-delete-icon:hover {
+    opacity: 1;
+}

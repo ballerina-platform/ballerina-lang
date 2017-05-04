@@ -60,10 +60,10 @@ class ResourceParameter extends Argument {
         var paramAsString = !_.isUndefined(this.getAnnotationType()) ? this.getAnnotationType() : "";
         paramAsString += !_.isUndefined(this.getAnnotationText()) && !_.isEmpty(this.getAnnotationText()) ?
         "{value:\"" + this.getAnnotationText() + "\"} " : "";
-        paramAsString += " " + this.getType() + " ";
+        paramAsString += "" + this.getBType() + " ";
         paramAsString += this.getIdentifier();
 
-        return paramAsString;
+        return paramAsString.trim();
     }
 
     /**
@@ -80,7 +80,7 @@ class ResourceParameter extends Argument {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        this.setType(jsonNode.parameter_type, {doSilently: true});
+        this.setBType(jsonNode.parameter_type, {doSilently: true});
         this.setIdentifier(jsonNode.parameter_name, {doSilently: true});
 
         // As of now we only support one annotation.
@@ -93,5 +93,3 @@ class ResourceParameter extends Argument {
 }
 
 export default ResourceParameter;
-
-

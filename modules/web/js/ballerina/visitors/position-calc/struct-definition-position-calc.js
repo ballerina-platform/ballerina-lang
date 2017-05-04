@@ -37,7 +37,8 @@ class StructDefinitionPositionCalcVisitor {
             return ASTFactory.isFunctionDefinition(child) ||
                 ASTFactory.isServiceDefinition(child) ||
                 ASTFactory.isConnectorDefinition(child) ||
-                ASTFactory.isStructDefinition(child);
+                ASTFactory.isStructDefinition(child) ||
+                ASTFactory.isAnnotationDefinition(child);
         });
         let heading = viewSate.components.heading;
         let body = viewSate.components.body;

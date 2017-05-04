@@ -56,16 +56,20 @@ class TextBox extends React.Component {
             position: 'absolute',
             top: this.props.bBox.y,
             left: this.props.bBox.x,
+            width: this.props.bBox.w,
+            height: this.props.bBox.h
         };
 
-        if(this.state.display === false) {
+        if (this.state.display === false) {
             inputStyle.display = 'none';
         }
 
         return (
             <input
                 className='text-input'
-                ref={i => {this.textInput = i}}
+                ref={i => {
+                    this.textInput = i
+                }}
                 style={inputStyle}
                 onChange={this.onChange}
                 onBlur={this.onBlur}

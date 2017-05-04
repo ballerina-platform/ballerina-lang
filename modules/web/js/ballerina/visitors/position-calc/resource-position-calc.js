@@ -21,6 +21,8 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import AST from './../../ast/module';
 import ASTFactory from './../../ast/ballerina-ast-factory';
+import * as PositioningUtils from './utils';
+import { util } from './../sizing-utils';
 
 class ResourceDefinitionPositionCalcVisitor {
 
@@ -30,58 +32,24 @@ class ResourceDefinitionPositionCalcVisitor {
     }
 
     beginVisit(node) {
-        let parent = node.getParent();
+        PositioningUtils.populateInnerPanelDecoratorBBoxPosition(node);
+        // Setting positions of resource parameters.
         let viewSate = node.getViewState();
-        let parentViewState = parent.getViewState();
-        var parentBBox = parentViewState.bBox;
-        let bBox = viewSate.bBox;
-        let statementContainerBBox = viewSate.components.statementContainer;
-        let headerBBox = viewSate.components.heading;
-        let bodyBBox = viewSate.components.body;
-        let resources = _.filter(parent.getChildren(), function (child) {
-            return child instanceof AST.ResourceDefinition;
-        });
-        let x, y, headerX, headerY, bodyX, bodyY;
-        var currentResourceIndex = _.findIndex(resources, node);
+        viewSate.components['parametersPrefixContainer'].x = viewSate.bBox.x + viewSate.titleWidth;
+        let nextXPositionOfParameter = node.getViewState().components['parametersPrefixContainer'].x + 
+            viewSate.components['parametersPrefixContainer'].w;
+        if (node.getParameters().length > 0) {
+            for (let i = 0; i < node.getParameters().length; i++) {
+                let resourceParameter = node.getParameters()[i];
+                let viewState = resourceParameter.getViewState();
+                if (i !== 0) {
+                    nextXPositionOfParameter = nextXPositionOfParameter + 14;
+                }
 
-        headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
-
-        if (currentResourceIndex === 0) {
-            /**
-             * If there are service level connectors, then we need to drop the first resource further down,
-             * in order to maintain a gap between the connector heading and the resource heading
-             */
-            const parentLevelConnectors = node.getParent().filterChildren(function (child) {
-                return ASTFactory.isConnectorDeclaration(child);
-            });
-            if (parentLevelConnectors.length > 0) {
-                headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top +
-                    DesignerDefaults.lifeLine.head.height + DesignerDefaults.panel.wrapper.gutter.v;
-            } else {
-                headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
+                viewState.x = nextXPositionOfParameter;
+                nextXPositionOfParameter += util.getTextWidth(resourceParameter.getParameterAsString()).w;
             }
-        } else if (currentResourceIndex > 0) {
-            let previousResourceBBox = resources[currentResourceIndex - 1].getViewState().bBox;
-            headerY = previousResourceBBox.y + previousResourceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
-        } else {
-            throw 'Invalid Index for Resource Definition';
         }
-
-        x = headerX;
-        y = headerY;
-        bodyX = headerX;
-        bodyY = headerY + headerBBox.h;
-
-        statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
-        statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
-            DesignerDefaults.lifeLine.head.height;
-
-        bBox.x = x;
-        bBox.y = y;
-        headerBBox.x = headerX;
-        headerBBox.y = headerY;
-        bodyBBox.x = bodyX;
-        bodyBBox.y = bodyY;
     }
 
     visit(node) {

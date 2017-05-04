@@ -35,25 +35,25 @@ requireAll(require.context('ace', false, /theme-/));
 var mode = ace.require('ace/mode/ballerina');
 var langTools = ace.require("ace/ext/language_tools");
 
-
 class ExpressionEditor{
 
-    constructor(editorWrapper, wrapperClass, property, packageScope , callback) {
-        this._property = property;
-        this.default_with = $(editorWrapper).width();
-        var propertyWrapper = $("<div/>", {
-            "class": wrapperClass
-        }).appendTo(editorWrapper);
+    constructor( bBox, container , callback , options) {
+        
+        var expression = _.isNil(options.expression) ? "" : options.expression;
+        this.expressionEditor = $("<div class='expression_editor'>");
+        this.expressionEditor.width(bBox.w + 2);
+        this.expressionEditor.height(bBox.h + 2);
+        this.expressionEditor.offset({ top: bBox.y-1 , left: bBox.x-1 });
+        this.expressionEditor.css('border', '2px solid #333333');
+        this.expressionEditor.css('padding-top', '6px');
+        this.expressionEditor.css('background', 'white');      
+        this.expressionEditor.css('position', 'absolute');
+        this.expressionEditor.css('min-width', bBox.w + 2);
+        container.append(this.expressionEditor);
 
-        var propertyValue = _.isNil(property.getterMethod.call(property.model)) ? "" : property.getterMethod.call(property.model);
-        var propertyInputValue = $("<div class='expression_editor'>").appendTo(propertyWrapper);
-        var editorContainer = $("<div class='expression_editor_container'>").appendTo(propertyInputValue);
-        $(propertyInputValue).css('border', '2px solid #333333');
-        $(propertyInputValue).css('padding-top', '6px');
-        $(propertyInputValue).css('background', 'white');
+        var editorContainer = $("<div class='expression_editor_container'>").appendTo(this.expressionEditor);
         $(editorContainer).css('height', '22px');
-        $(editorContainer).text(propertyValue);
-
+        $(editorContainer).text(expression);
         this._editor =  ace.edit(editorContainer[0]);
 
         var mode = ace.require("ace/mode/ballerina").Mode;
@@ -70,11 +70,11 @@ class ExpressionEditor{
         }else{
             this._editor.setFontSize("12pt");
         }
-
+        /*
         let completers = completerFactory.getCompleters(property.key, packageScope);
         if(completers){
             langTools.setCompleters(completers);
-        }
+        }*/
 
         this._editor.setOptions({
             enableBasicAutocompletion:true,
@@ -86,13 +86,13 @@ class ExpressionEditor{
         this._editor.focus();
 
         //we need to place the cursor at the end of the text
-        this._editor.gotoLine(1, propertyValue.length);
+        this._editor.gotoLine(1, expression.length);
 
         // resize the editor to the text width.
-        $(propertyInputValue).css("width", this.getNecessaryWidth(propertyValue));
-        $(propertyInputValue).focus();
+        this.expressionEditor.css("width", this.getNecessaryWidth(expression));
+        this.expressionEditor.focus();
         this._editor.resize();
-
+        
         //bind auto complete to key press
         this._editor.commands.on('afterExec', (event) =>  {
             if (event.command.name === 'insertstring'&&/^[\w.]$/.test(event.args)) {
@@ -118,8 +118,12 @@ class ExpressionEditor{
         // When the user is typing text we will resize the editor.
         this._editor.on('change', (event) => {
             var text = this._editor.getSession().getValue();
-            $(propertyInputValue).css("width" , this.getNecessaryWidth(text));
+            $(this.expressionEditor).css("width" , this.getNecessaryWidth(text));
             this._editor.resize();
+        });
+
+        this._editor.on('blur', (event) => {
+            this.expressionEditor.remove();
         });
 
         // following snipet is to handle adding ";" at the end of statement.

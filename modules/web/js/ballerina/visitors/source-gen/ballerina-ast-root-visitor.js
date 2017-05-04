@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import ServiceDefinitionVisitor from './service-definition-visitor';
 import AnnotationDefinitionVisitor from './annotation-definition-visitor';
@@ -36,54 +34,6 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
 
     canVisitBallerinaASTRoot(astRoot) {
         return true;
-    }
-
-    canVisitServiceDefinition(serviceDefinition) {
-        return true;
-    }
-
-    canVisitAnnotationDefinition(annotationDefinition) {
-        return true;
-    }
-
-    canVisitConnectorDefinition(connectionDefinition) {
-        return true;
-    }
-
-    canVisitFunctionDefinition(functionDefinition) {
-        return true;
-    }
-
-    canVisitStructDefinition(structDefinition) {
-        return true;
-    }
-
-    canVisitTypeMapperDefinition(typeMapperDefinition) {
-        return true;
-    }
-
-    canVisitPackageDefinition(packageDefinition) {
-        return true;
-    }
-
-    canVisitImportDeclaration(importDeclaration) {
-        return true;
-    }
-
-    canVisitConstantDefinition(constantDefinition) {
-        return true;
-    }
-
-    beginVisitBallerinaASTRoot(serviceDefinition) {
-        log.debug('Begin Visit BallerinaASTRoot');
-    }
-
-    visitBallerinaASTRoot(serviceDefinition) {
-        log.debug('Visit BallerinaASTRoot');
-    }
-
-    endVisitBallerinaASTRoot(serviceDefinition) {
-        log.debug('End Visit BallerinaASTRoot');
     }
 
     visitServiceDefinition(serviceDefinition) {
