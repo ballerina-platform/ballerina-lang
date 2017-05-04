@@ -47,6 +47,18 @@ public class BallerinaRecursiveCallMarkerTest extends LightPlatformCodeInsightFi
         doTest(true);
     }
 
+    public void testFunction6() {
+        doTest(false);
+    }
+
+    public void testFunction7() {
+        doTest(false);
+    }
+
+    public void testFunction8() {
+        doTest(true);
+    }
+
     private void doTest(boolean shouldBeEmpty) {
         myFixture.configureByFile(getTestName(false) + ".bal");
         List<GutterMark> guttersAtCaret = myFixture.findGuttersAtCaret();
