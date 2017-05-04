@@ -22,10 +22,9 @@ import PropTypes from 'prop-types';
 class FunctionInvocationStatement extends React.Component {
 
 	render() {
-		let model = this.props.model;
-		let bBox = model.viewState.bBox;
-		let expression = model.viewState.expression;
-		return (<StatementDecorator bBox={bBox} model={model} expression={expression} />);
+		let model = this.props.model,
+		    expression = model.viewState.expression;
+		return (<StatementDecorator viewState={model.viewState} expression={expression} />);
     }
 }
 

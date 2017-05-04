@@ -33,10 +33,12 @@ class StatementView extends React.Component {
 	}
 
 	render() {
-		const { bBox, expression, model} = this.props;
+		const { viewState, expression } = this.props;
+		let bBox = viewState.bBox;
+		let innerZoneHeight = viewState.components['drop-zone'].h;
 		// we need to draw a drop box above and a statement box
-		let statement_h = bBox.h - statement.gutter.v;
-		let statement_y = bBox.y + statement.gutter.v;
+		let statement_h = bBox.h - innerZoneHeight;
+		let statement_y = bBox.y + innerZoneHeight;
 		const text_x = bBox.x + (bBox.w / 2);
 		const text_y = statement_y + (statement_h / 2);
 		const drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
@@ -45,7 +47,7 @@ class StatementView extends React.Component {
 		const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
 											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 		return (<g className="statement" >
-			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
+			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
 					className={dropZoneClassName}
 			 		onMouseOver={(e) => this.onDropZoneActivate(e)}
 					onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
