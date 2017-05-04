@@ -144,7 +144,7 @@ class ResourceDefinition extends ASTNode {
         _.forEach(params, function(parameter, index){
             paramsAsString += parameter.getParameterAsString();
             if (params.length - 1 != index) {
-                paramsAsString += ",";
+                paramsAsString += ", ";
             }
         });
 
@@ -457,4 +457,3 @@ class ResourceDefinition extends ASTNode {
 }
 
 export default ResourceDefinition;
-

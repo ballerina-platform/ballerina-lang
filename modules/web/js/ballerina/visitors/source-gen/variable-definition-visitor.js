@@ -34,16 +34,14 @@ class VariableDefinitionVisitor extends AbstractSourceGenVisitor {
         if (variableDefinition.getType()) {
             this.appendSource(variableDefinition.getTypeName() + ' ');
         }
-        log.debug('Begin Visit Variable Definition');
     }
 
     visitVariableDefinition(variableDefinition) {
-        log.debug('Visit Variable Definition');
     }
 
     endVisitVariableDefinition(variableDefinition) {
-        this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Variable Definition');
+        this.getParent().appendSource(this.getParent().getIndentation() +
+                            this.getGeneratedSource());
     }
 }
 

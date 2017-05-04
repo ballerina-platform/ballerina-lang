@@ -212,7 +212,7 @@ class BallerinaASTRoot extends ASTNode {
         } else {
             // Creating new constant definition.
             var newConstantDefinition = this.getFactory().createConstantDefinition();
-            newConstantDefinition.setType(bType);
+            newConstantDefinition.setBType(bType);
             newConstantDefinition.setIdentifier(identifier);
             newConstantDefinition.setValue(value);
 

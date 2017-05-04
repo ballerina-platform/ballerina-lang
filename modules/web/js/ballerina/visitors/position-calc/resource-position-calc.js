@@ -21,6 +21,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import AST from './../../ast/module';
 import ASTFactory from './../../ast/ballerina-ast-factory';
+import { util } from './../sizing-utils';
 
 class ResourceDefinitionPositionCalcVisitor {
 
@@ -44,12 +45,24 @@ class ResourceDefinitionPositionCalcVisitor {
         let x, y, headerX, headerY, bodyX, bodyY;
         var currentResourceIndex = _.findIndex(resources, node);
 
+        headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
+
         if (currentResourceIndex === 0) {
-            headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
-            headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
+            /**
+             * If there are service level connectors, then we need to drop the first resource further down,
+             * in order to maintain a gap between the connector heading and the resource heading
+             */
+            const parentLevelConnectors = node.getParent().filterChildren(function (child) {
+                return ASTFactory.isConnectorDeclaration(child);
+            });
+            if (parentLevelConnectors.length > 0) {
+                headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top +
+                    DesignerDefaults.lifeLine.head.height + DesignerDefaults.panel.wrapper.gutter.v;
+            } else {
+                headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
+            }
         } else if (currentResourceIndex > 0) {
             let previousResourceBBox = resources[currentResourceIndex - 1].getViewState().bBox;
-            headerX = DesignerDefaults.panel.wrapper.gutter.h;
             headerY = previousResourceBBox.y + previousResourceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
         } else {
             throw 'Invalid Index for Resource Definition';
@@ -70,6 +83,23 @@ class ResourceDefinitionPositionCalcVisitor {
         headerBBox.y = headerY;
         bodyBBox.x = bodyX;
         bodyBBox.y = bodyY;
+
+        // Setting positions of resource parameters.
+        viewSate.components['parametersPrefixContainer'].x = viewSate.bBox.x + viewSate.titleWidth;
+        let nextXPositionOfParameter = node.getViewState().components['parametersPrefixContainer'].x + 
+            viewSate.components['parametersPrefixContainer'].w;
+        if (node.getParameters().length > 0) {
+            for (let i = 0; i < node.getParameters().length; i++) {
+                let resourceParameter = node.getParameters()[i];
+                let viewState = resourceParameter.getViewState();
+                if (i !== 0) {
+                    nextXPositionOfParameter = nextXPositionOfParameter + 14;
+                }
+
+                viewState.x = nextXPositionOfParameter;
+                nextXPositionOfParameter += util.getTextWidth(resourceParameter.getParameterAsString()).w;
+            }
+        }
     }
 
     visit(node) {

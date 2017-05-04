@@ -35,10 +35,6 @@ class TypeMapperDefinitionVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
-    canVisitBlockStatementView(blockStatementView) {
-        return true;
-    }
-
     beginVisitTypeMapperDefinition(typeMapperDefinition) {
         /**
          * set the configuration start for the type mapper definition language construct
@@ -70,4 +66,3 @@ class TypeMapperDefinitionVisitor extends AbstractSourceGenVisitor {
 }
 
 export default TypeMapperDefinitionVisitor;
-    

@@ -315,7 +315,7 @@ class ConnectorAction extends ASTNode {
     addArgument(type, identifier) {
         //creating argument
         var newArgument = this.getFactory().createArgument();
-        newArgument.setType(type);
+        newArgument.setBType(type);
         newArgument.setIdentifier(identifier);
 
         var self = this;

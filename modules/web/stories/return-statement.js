@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 import React from 'react';
 import {storiesOf, action, linkTo} from '@kadira/storybook';
 import CanvasDecorator from '../js/ballerina/components/canvas-decorator';

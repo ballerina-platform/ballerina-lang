@@ -36,3 +36,11 @@
     fill: green;
     fill-opacity: 0;
 }
+
+
+.svg-container.drop-zone.active .panel-body .panel-body-rect.drop-zone,
+.panel-body.drop-zone.active .panel-body .panel-body-rect.drop-zone
+ {
+    fill: white;
+    fill-opacity: 1;
+}

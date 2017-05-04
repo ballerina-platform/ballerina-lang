@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import ExpressionVisitorFactory from './expression-visitor-factory';
@@ -35,26 +34,6 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     canVisitResourceDefinition(resourceDefinition) {
-        return true;
-    }
-
-    canVisitStatement(statement) {
-        return true;
-    }
-
-    canVisitExpression(expression) {
-        return true;
-    }
-
-    canVisitConnectorDeclaration(connectorDeclaration) {
-        return true;
-    }
-
-    canVisitVariableDeclaration(variableDeclaration) {
-        return true;
-    }
-
-    canVisitWorkerDeclaration(workerDeclaration) {
         return true;
     }
 
@@ -85,28 +64,20 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
                         });
                     }
                     else if (_.isEqual(annotation.key, "http:Path")) {
-                        constructedPathAnnotation = '@http:Path {value:"' + annotation.value +'"}';
+                        constructedPathAnnotation = '@http:Path { value : "' + annotation.value +'" }';
                     }
                 }
-                self.appendSource(constructedPathAnnotation);
+                self.appendSource(self.getParent().getIndentation() + constructedPathAnnotation);
             }
         });
 
         var constructedSourceSegment = 'resource ' + resourceDefinition.getResourceName() + '(';
 
         constructedSourceSegment += resourceDefinition.getParametersAsString() + ') {';
-        this.appendSource(constructedSourceSegment);
-        log.debug('Begin Visit ResourceDefinition');
+        this.appendSource(this.getParent().getIndentation() + constructedSourceSegment);
     }
 
     visitResourceDefinition(resourceDefinition) {
-        log.debug('Visit ResourceDefinition');
-    }
-
-    endVisitResourceDefinition(resourceDefinition) {
-        this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit ResourceDefinition');
     }
 
     visitStatement(statement) {
@@ -115,25 +86,19 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
         statement.accept(statementVisitor);
     }
 
-    visitExpression(expression) {
-        var expressionViewFactory = new ExpressionVisitorFactory();
-        var expressionView = expressionViewFactory.getExpressionView({model:expression, parent:this});
-        expression.accept(expressionView);
-    }
-
     visitConnectorDeclaration(connectorDeclaration) {
         var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 
-    visitVariableDeclaration(variableDeclaration) {
-        var varialeDeclarationVisitor = new VariableDeclarationVisitor(this);
-        variableDeclaration.accept(varialeDeclarationVisitor);
-    }
-
     visitWorkerDeclaration(workerDeclaration) {
         var workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
         workerDeclaration.accept(workerDeclarationVisitor);
+    }
+
+    endVisitResourceDefinition(resourceDefinition) {
+        this.appendSource(this.getParent().getIndentation() + "}\n");
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

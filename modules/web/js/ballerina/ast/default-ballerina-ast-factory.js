@@ -43,7 +43,7 @@ import BallerinaASTFactory from './ballerina-ast-factory';
     DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
         var resourceDef = BallerinaASTFactory.createResourceDefinition(args);
         var resourceArg = BallerinaASTFactory.createResourceParameter();
-        resourceArg.setType("message");
+        resourceArg.setBType("message");
         resourceArg.setIdentifier("m");
         resourceDef.addChild(resourceArg);
         return resourceDef;
@@ -57,7 +57,7 @@ import BallerinaASTFactory from './ballerina-ast-factory';
         var connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
         var actionDef = DefaultBallerinaASTFactory.createConnectorAction(args);
         var connectorArg = BallerinaASTFactory.createResourceParameter();
-        connectorArg.setType("message");
+        connectorArg.setBType("message");
         connectorArg.setIdentifier("m");
         connectorDef.addChild(actionDef);
         connectorDef.addChild(connectorArg);
@@ -71,7 +71,7 @@ import BallerinaASTFactory from './ballerina-ast-factory';
     DefaultBallerinaASTFactory.createConnectorAction = function (args) {
         var actionDef = BallerinaASTFactory.createConnectorAction(args);
         var actionArg = BallerinaASTFactory.createResourceParameter();
-        actionArg.setType("message");
+        actionArg.setBType("message");
         actionArg.setIdentifier("m");
         actionDef.addChild(actionArg);
         return actionDef;
