@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -35,11 +36,11 @@ import java.util.Map;
         namespace = "",
         description = "Converts the first input parameter according to the convertedTo parameter.",
         parameters = {
-                @Parameter(name = "toBeConverted",
+                @Parameter(name = "to.be.converted",
                         description = "This specifies the value to be converted.",
                         type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING,
                                 DataType.BOOL}),
-                @Parameter(name = "convertedTo",
+                @Parameter(name = "converted.to",
                         description = "A string constant parameter to which type the attribute need to be converted " +
                                 " using one of the following strings values: 'int', 'long', 'float', 'double', " +
                                 "'string', 'bool'.",
@@ -47,7 +48,18 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Based on the given convertedTo parameter.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING, DataType.BOOL})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING, DataType.BOOL}),
+        examples = {
+                @Example(
+                        value = "convert('123', 'double') returns 123.0"
+                ),
+                @Example(
+                        value = "convert(45.9, 'int') returns 46"
+                ),
+                @Example(
+                        value = "convert(true, 'string') returns true"
+                )
+        }
 )
 public class ConvertFunctionExecutor extends FunctionExecutor {
 

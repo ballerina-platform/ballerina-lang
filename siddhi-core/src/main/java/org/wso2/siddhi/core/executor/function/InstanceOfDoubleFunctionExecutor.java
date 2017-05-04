@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -43,7 +44,18 @@ import java.util.Map;
         returnAttributes = @ReturnAttribute(
                 description = "Returned type will be boolean and true if and only if the input " +
                         "is a instance of Double.",
-                type = {DataType.BOOL})
+                type = {DataType.BOOL}),
+        examples = {
+                @Example(
+                        value = "instanceOfDouble(123) returns false"
+                ),
+                @Example(
+                        value = "instanceOfDouble(56.45) returns true"
+                ),
+                @Example(
+                        value = "instanceOfDouble(false) returns false"
+                )
+        }
 )
 public class InstanceOfDoubleFunctionExecutor extends FunctionExecutor {
 

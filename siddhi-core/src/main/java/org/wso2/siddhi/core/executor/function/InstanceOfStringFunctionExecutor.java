@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -43,7 +44,18 @@ import java.util.Map;
         returnAttributes = @ReturnAttribute(
                 description = "Returned type will be boolean and true if and only if the input is " +
                         "a instance of String.",
-                type = {DataType.BOOL})
+                type = {DataType.BOOL}),
+        examples = {
+                @Example(
+                        value = "instanceOfString('test') returns true."
+                ),
+                @Example(
+                        value = "instanceOfString('5667') returns true."
+                ),
+                @Example(
+                        value = "instanceOfString(56.67) returns false. "
+                )
+        }
 )
 public class InstanceOfStringFunctionExecutor extends FunctionExecutor {
 

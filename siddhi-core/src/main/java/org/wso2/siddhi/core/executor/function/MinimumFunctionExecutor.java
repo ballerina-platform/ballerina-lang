@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.executor.function;
 
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -44,7 +45,15 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "This will be the same as the type of the first input parameter.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
+        examples = {
+                @Example(
+                        value = "minimum(37.88, 38.12, 37.62) returns 37.62."
+                ),
+                @Example(
+                        value = "minimum(15, 30, 25, 57 ) returns 15."
+                )
+        }
 )
 public class MinimumFunctionExecutor extends FunctionExecutor {
 

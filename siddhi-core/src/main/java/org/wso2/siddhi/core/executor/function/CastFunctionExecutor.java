@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -39,11 +40,11 @@ import java.util.Map;
                 "attributes of the object type. You can use this function to cast the object to an accurate and " +
                 "concrete type.",
         parameters = {
-                @Parameter(name = "toBeCaster",
+                @Parameter(name = "to.be.caster",
                         description = "This specifies the attribute to be casted.",
                         type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
                                 DataType.STRING, DataType.BOOL, DataType.OBJECT}),
-                @Parameter(name = "castTo",
+                @Parameter(name = "cast.to",
                         description = "A string constant parameter expressing the cast to type using one of the " +
                                 "following strings values: int, long, float, double, string, bool.",
                         type = {DataType.STRING})
@@ -51,7 +52,15 @@ import java.util.Map;
         returnAttributes = @ReturnAttribute(
                 description = "Returned type will be defined by the castTo string constant value.",
                 type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                        DataType.STRING, DataType.BOOL, DataType.OBJECT})
+                        DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+        examples = {
+                @Example(
+                        value = "cast(100.3, 'double') returns 100.3d"),
+                @Example(
+                        value = "cast(true, 'double') returns true"),
+                @Example(
+                        value = "cast(null, 'double') returns null")
+        }
 )
 public class CastFunctionExecutor extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.OBJECT;

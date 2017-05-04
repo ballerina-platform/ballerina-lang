@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -43,7 +44,11 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "This will be the same as the type of the first input parameter.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
+        examples = @Example(
+                value = "maxForever(temp) returns the maximum temp value recorded for all the events throughout " +
+                        "the lifetime of the query."
+        )
 )
 public class MaximumFunctionExecutor extends FunctionExecutor {
 
