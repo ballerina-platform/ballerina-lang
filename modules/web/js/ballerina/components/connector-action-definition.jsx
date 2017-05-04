@@ -35,20 +35,32 @@ class ConnectorAction extends React.Component {
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
 
         //lets calculate function worker lifeline bounding box.
-        let action_worker_bBox = {};
-        action_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
-        action_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
-        action_worker_bBox.w = lifeLine.width;
-        action_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
+        let resource_worker_bBox = {};
+        resource_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
+        resource_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
+        resource_worker_bBox.w = lifeLine.width;
+        resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<PanelDecorator icon="tool-icons/action" title={name} bBox={bBox} model={this.props.model}>
+        return (<PanelDecorator icon="tool-icons/resource" title={name} bBox={bBox}
+            model={this.props.model}
+            dropTarget={this.props.model}
+            dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}>
             <g>
-                <StatementContainer bBox={statementContainerBBox} />
-                <LifeLineDecorator title="ActionWorker" bBox={action_worker_bBox} />
+                <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox} />
+                <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox} />
                 {children}
             </g>
         </PanelDecorator>);
+    }
+
+    canDropToPanelBody(nodeBeingDragged) {
+        let nodeFactory = this.props.model.getFactory();
+        // IMPORTANT: override default validation logic
+        // Panel's drop zone is for worker and connector declarations only.
+        // Statements should only be allowed on top of resource worker's dropzone.
+        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
+            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
     }
 }
 

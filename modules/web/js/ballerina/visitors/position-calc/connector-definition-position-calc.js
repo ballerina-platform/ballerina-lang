@@ -17,26 +17,27 @@
  */
 
 import log from 'log';
+import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
-import {util} from './../sizing-utils'
+import ASTFactory from './../../ast/ballerina-ast-factory';
+import { panel } from './../../configs/designer-defaults';
+import * as PositioningUtils from './utils';
 
-class ConnectorActionDimensionCalculatorVisitor {
+class ConnectorDefinitionPositionCalcVisitor {
 
     canVisit(node) {
         return true;
     }
 
     beginVisit(node) {
+        PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
     }
 
     visit(node) {
     }
 
     endVisit(node) {
-        util.populatePanelDecoratorBBox(node, node.getActionName());
     }
 }
 
-export default ConnectorActionDimensionCalculatorVisitor;
+export default ConnectorDefinitionPositionCalcVisitor;

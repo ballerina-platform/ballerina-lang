@@ -121,7 +121,7 @@ class SizingUtil {
         viewState.components = components;
     }
 
-    populatePanelDecoratorBBox(node){
+    populatePanelDecoratorBBox(node, name){
         var viewState = node.getViewState();
         var components = {};
 
@@ -130,33 +130,25 @@ class SizingUtil {
 
         components['statementContainer'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementWidth = 0;
+        var statementWidth = DesignerDefaults.statementContainer.width;
         var statementHeight = 0;
 
         _.forEach(statementChildren, function(child) {
-            statementHeight += child.viewState.bBox.h;
+            statementHeight += child.viewState.bBox.h + DesignerDefaults.statement.gutter.v;
             if(child.viewState.bBox.w > statementWidth){
                 statementWidth = child.viewState.bBox.w;
             }
         });
 
-        //if statement width is 0 set default
-        if(statementWidth == 0){
-            statementWidth = DesignerDefaults.statement.width;
-        }
-
-        /* Lets add an extra gap to the bottom of the lifeline. 
-           This will prevent last statement touching bottom box of the life line.*/
-        statementHeight += DesignerDefaults.lifeLine.gutter.v;
-
-        // If the lifeline is two short we will set a minimum height.
-        if(statementHeight < DesignerDefaults.lifeLine.line.height){
-            statementHeight = DesignerDefaults.lifeLine.line.height;
-        }
-
+        /**
+         * We add an extra gap to the statement container height, in order to maintain the gap between the
+         * last statement's bottom margin and the default worker bottom rect's top margin
+         */
+        statementHeight += DesignerDefaults.statement.gutter.v;
 
         components['statementContainer'].h = statementHeight;
         components['statementContainer'].w = statementWidth;
+
         components['body'] = new SimpleBBox();
 
         let workerChildren = node.filterChildren(function (child) {
@@ -169,7 +161,6 @@ class SizingUtil {
 
         const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
         const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
-        const highestLifeLineHeight = highestStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;
 
         var lifeLineWidth = 0;
         _.forEach(workerChildren.concat(connectorChildren), function(child) {
@@ -180,13 +171,13 @@ class SizingUtil {
                 highestStatementContainerHeight]);
         });
 
-        //following is to handle node collapsed for panels.
         if(node.viewState.collapsed) {
             components['body'].h = 0;
         } else {
-            components['body'].h = _.max([workerLifeLineHeight, highestLifeLineHeight])
-                                   + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+            components['body'].h = ((DesignerDefaults.panel.body.height < workerLifeLineHeight)? workerLifeLineHeight:DesignerDefaults.panel.body.height)
+                               + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         }
+
         /**
          * If the current default worker's statement container height is less than the highest worker's statement container
          * we set the default statement container height to the highest statement container's height
@@ -195,9 +186,15 @@ class SizingUtil {
 
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
             DesignerDefaults.panel.body.padding.left + lifeLineWidth;
+        components['heading'].w = components['body'].w;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
-        viewState.bBox.w = components['heading'].w + components['body'].w;
+        viewState.bBox.w = components['body'].w;
+
+        viewState.titleWidth = util.getTextWidth(name).w;
+
+        components['parametersPrefixContainer'] = {};
+        components['parametersPrefixContainer'].w = util.getTextWidth('Parameters: ').w;
 
         viewState.components = components;
     }
