@@ -35,6 +35,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+/**
+ * EventHolder implementation where events will be indexed and stored. This will offer faster access compared to
+ * other EventHolder implementations. User can only add unique events based on a given primary key.
+ */
 public class IndexEventHolder implements IndexedEventHolder {
 
     private static final Logger log = Logger.getLogger(IndexEventHolder.class);
@@ -100,8 +104,8 @@ public class IndexEventHolder implements IndexedEventHolder {
             existingValue = primaryKeyData.putIfAbsent(streamEvent.getOutputData()[primaryKeyPosition], streamEvent);
             if (existingValue != null) {
                 log.error("Drooping event :" + streamEvent + ", as there is already an event stored with primary key " +
-                        "'" +
-                        streamEvent.getOutputData()[primaryKeyPosition] + "'");
+                                  "'" +
+                                  streamEvent.getOutputData()[primaryKeyPosition] + "'");
             }
         }
 

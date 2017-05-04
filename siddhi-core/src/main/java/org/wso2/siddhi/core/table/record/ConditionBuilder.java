@@ -60,6 +60,9 @@ import java.util.Map;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
+/**
+ * Parse and build Siddhi Condition objects from @{link {@link Expression}s.
+ */
 public class ConditionBuilder {
     private final Map<String, ExpressionExecutor> variableExpressionExecutorMap;
     private final MatchingMetaInfoHolder matchingMetaInfoHolder;
@@ -69,7 +72,10 @@ public class ConditionBuilder {
     private final String queryName;
     private Expression expression;
 
-    ConditionBuilder(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap, String queryName) {
+    ConditionBuilder(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                     ExecutionPlanContext executionPlanContext,
+                     List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap,
+                     String queryName) {
         this.expression = expression;
         this.matchingMetaInfoHolder = matchingMetaInfoHolder;
         this.executionPlanContext = executionPlanContext;
@@ -243,7 +249,7 @@ public class ConditionBuilder {
                 conditionVisitor.endVisitConstant(((LongConstant) expression).getValue(), Attribute.Type.LONG);
             } else {
                 throw new OperationNotSupportedException("No constant exist with type " +
-                        expression.getClass().getName());
+                                                                 expression.getClass().getName());
             }
         } else if (expression instanceof AttributeFunction) {
             conditionVisitor.beginVisitAttributeFunction(
@@ -287,10 +293,11 @@ public class ConditionBuilder {
                             try {
                                 definition.getAttributeType(attributeName);
                                 throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " +
-                                        definition.getId() + " with " +
-                                        "reference: " + metaStreamEvent.getInputReferenceId() + " contains attribute " +
-                                        "with same" +
-                                        " name '" + attributeName + "'");
+                                                                                   definition.getId() + " with " +
+                                                                                   "reference: " + metaStreamEvent
+                                        .getInputReferenceId() + " contains attribute " +
+                                                                                   "with same" +
+                                                                                   " name '" + attributeName + "'");
                             } catch (AttributeNotExistException e) {
                                 //do nothing as its expected
                             }
@@ -313,7 +320,7 @@ public class ConditionBuilder {
                         type = definition.getAttributeType(attributeName);
                     } catch (AttributeNotExistException e) {
                         throw new ExecutionPlanValidationException(e.getMessage() + " Input Stream: " +
-                                definition.getId() + " with " + "reference: " + metaStreamEvent.getInputReferenceId());
+                                                                           definition.getId() + " with " + "reference: " + metaStreamEvent.getInputReferenceId());
                     }
 
                     if (matchingMetaInfoHolder.getCurrentState() == matchingMetaInfoHolder
@@ -371,8 +378,8 @@ public class ConditionBuilder {
         conditionVisitor.beginVisitStreamVariable(id, variable.getStreamId(), variable.getAttributeName(), type);
         if (!variableExpressionExecutorMap.containsKey(id)) {
             ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(variable,
-                    matchingMetaInfoHolder.getMetaStateEvent(), streamEventChainIndex, tableMap,
-                    variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                                                                                             matchingMetaInfoHolder.getMetaStateEvent(), streamEventChainIndex, tableMap,
+                                                                                             variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             variableExpressionExecutorMap.put(id, variableExpressionExecutor);
         }
         conditionVisitor.endVisitStreamVariable(id, variable.getStreamId(), variable.getAttributeName(), type);

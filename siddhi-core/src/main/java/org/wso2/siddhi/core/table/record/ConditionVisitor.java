@@ -22,6 +22,9 @@ package org.wso2.siddhi.core.table.record;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
+/**
+ * Antlr Visitor interface for Siddhi conditions.
+ */
 public interface ConditionVisitor {
 
     /*And*/
@@ -115,6 +118,9 @@ public interface ConditionVisitor {
 
     void endVisitStoreVariable(String storeId, String attributeName, Attribute.Type type);
 
+    /**
+     * Math operator enums.
+     */
     enum MathOperator {
         ADD,
         DIVIDE,
