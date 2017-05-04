@@ -25,7 +25,8 @@ function getSimpleStatementPosition(node) {
     let bBox = viewState.bBox;
     const parent = node.getParent();
     const parentViewState = parent.getViewState();
-    const parentStatementContainer = parentViewState.components.statementContainer;
+    const parentStatementContainer = parentViewState.components.statementContainer || {};
+
     let parentStatements = parent.filterChildren(function (child) {
         return ASTFactory.isStatement(child) || ASTFactory.isExpression(child);
     });
@@ -78,4 +79,3 @@ function getCompoundStatementChildPosition(node) {
 }
 
 export {getSimpleStatementPosition, getCompoundStatementChildPosition};
-

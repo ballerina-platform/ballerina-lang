@@ -64,16 +64,26 @@ class ServiceDefinitionPositionCalcVisitor {
         body.x = bodyX;
         body.y = bodyY;
 
-        // here we need to re adjest resource width to match the service width.
-        let children = node.getChildren();
+        // here we need to re adjust resource width to match the service width.
+        let resources = node.filterChildren(function (child) {
+            return ASTFactory.isResourceDefinition(child);
+        });
         // make sure you substract the panel padding to calculate the min width of a resource.
         let minWidth = node.getViewState().bBox.w - ( panel.body.padding.left + panel.body.padding.right );
-        children.forEach(function(element) {
-            //@todo take connectors in to account.
+        let connectorWidthTotal = 0;
+        let connectors = node.filterChildren(function (child) {
+            return ASTFactory.isConnectorDeclaration(child);
+        });
+
+        _.forEach(connectors, function (connector) {
+            connectorWidthTotal += connector.getViewState().bBox.w + DesignerDefaults.lifeLine.gutter.h;
+        });
+
+        resources.forEach(function(element) {
             let viewState = element.getViewState();
-            // if the service width is wider than resource width we will readjest. 
-            if(viewState.bBox.w < minWidth){
-                viewState.bBox.w = minWidth;
+            // if the service width is wider than resource width we will readjust.
+            if(viewState.bBox.w + connectorWidthTotal < minWidth){
+                viewState.bBox.w = minWidth - connectorWidthTotal;
             }
         }, this);       
     }

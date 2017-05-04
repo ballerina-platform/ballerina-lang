@@ -17,8 +17,10 @@
  */
 
 import log from 'log';
+import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
+import ASTFactory from './../../ast/ballerina-ast-factory';
 
 class ServiceDefinitionDimensionCalculatorVisitor {
 
@@ -37,34 +39,80 @@ class ServiceDefinitionDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        var viewState = node.getViewState();
-        var components = {};
+        let viewState = node.getViewState();
+        let components = {};
+        let totalResourceHeight = 0;
+        let connectorStatementContainerHeight = 0;
+        let resources = node.filterChildren(function (child) {
+            return ASTFactory.isResourceDefinition(child);
+        });
+        let connectors = node.filterChildren(function (child) {
+            return ASTFactory.isConnectorDeclaration(child)
+        });
+        let maxResourceWidth = 0;
+        //Initial statement height include panel heading and panel padding.
+        let bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+        // Set the width initial value to the padding left and right
+        var bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
 
-        components['heading'] = new SimpleBBox();
-        components['heading'].h = DesignerDefaults.panel.heading.height;
-
-        //Initial statement height include panel heading and pannel padding.
-        var bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
-        // Set the width to 0 dont add the padding now since we do a comparison.
-        var bodyWidth = 0;
-
-        node.children.forEach(function(child,index) {
-            bodyHeight += child.viewState.bBox.h ;
-            // If there is only one child no need to add gutter
-            if(index == 1){
-                bodyHeight = bodyHeight + DesignerDefaults.innerPanel.wrapper.gutter.v;
-            }
-            if(child.viewState.bBox.w > bodyWidth){
-                bodyWidth = child.viewState.bBox.w;
+        /**
+         * If there are service level connectors, their height depends on the heights of the resources
+         */
+        _.forEach(resources, function (resource) {
+            totalResourceHeight += resource.getViewState().bBox.h;
+            if (maxResourceWidth < resource.getViewState().bBox.w) {
+                maxResourceWidth = resource.getViewState().bBox.w;
             }
         });
 
+        /**
+         * Set the max resource width to the resources
+         */
+        _.forEach(resources, function (resource) {
+            resource.getViewState().bBox.w = maxResourceWidth;
+            resource.getViewState().components.body.w = maxResourceWidth;
+            resource.getViewState().components.heading.w = maxResourceWidth;
+        });
 
-        // now add the padding for width
-        bodyWidth = bodyWidth + DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
+        // Add the max resource width to the body width
+        bodyWidth += maxResourceWidth;
 
+        /**
+         * Set the connector statement container height and the connectors' height accordingly only if there are service
+         * level connectors
+         */
+        if (connectors.length > 0) {
+            if (totalResourceHeight <= 0) {
+                // There are no resources in the service
+                connectorStatementContainerHeight = DesignerDefaults.statementContainer.height;
+            } else {
+                // Here we add additional gutter height to balance the gaps from top and bottom
+                connectorStatementContainerHeight = totalResourceHeight +
+                    DesignerDefaults.panel.wrapper.gutter.v * (resources.length + 1);
+            }
+            /**
+             * Adjust the height of the connectors and adjust the service's body width with the connector widths
+             */
+            _.forEach(connectors, function (connector) {
+                connector.getViewState().bBox.h = connectorStatementContainerHeight +
+                    DesignerDefaults.lifeLine.head.height * 2;
+                connector.getViewState().components.statementContainer.h = connectorStatementContainerHeight;
+                bodyWidth += (connector.getViewState().components.statementContainer.w + DesignerDefaults.lifeLine.gutter.h);
+            });
+
+            bodyHeight = connectorStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2 +
+                DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+        } else if (totalResourceHeight > 0) {
+            bodyHeight = totalResourceHeight + DesignerDefaults.panel.body.padding.top +
+                DesignerDefaults.panel.body.padding.bottom + DesignerDefaults.panel.wrapper.gutter.v * (resources.length - 1);
+        } else {
+            // There are no connectors as well as resources, since we set the default height
+            bodyHeight = DesignerDefaults.innerPanel.body.height;
+        }
+
+        components['heading'] = new SimpleBBox();
         components['body'] = new SimpleBBox();
-
+        components['heading'].h = DesignerDefaults.panel.heading.height;
         if(node.viewState.collapsed) {
             components['body'].h = 0;
         } else {
