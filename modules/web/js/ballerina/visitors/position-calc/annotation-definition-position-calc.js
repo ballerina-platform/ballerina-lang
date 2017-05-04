@@ -70,13 +70,6 @@ class AnnotationPositionCalcVisitor {
 
         let children = node.getChildren();
         let minWidth = node.getViewState().bBox.w - ( panel.body.padding.left + panel.body.padding.right);
-
-        children.forEach(function (element) {
-            let viewState = element.getViewState();
-            if (viewState.bBox.w < minWidth) {
-                viewState.bBox.w = minWidth;
-            }
-        }, this);
     }
 
     visit(node) {

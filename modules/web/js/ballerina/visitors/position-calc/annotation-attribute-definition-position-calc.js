@@ -48,7 +48,7 @@ class AnnotationAttributePositionCalcVisitor {
         } else if (currentAttributeIndex > 0) {
             let previousAttributeBBox = attributes[currentAttributeIndex - 1].getViewState().bBox;
             x = parentBBox.x + 50;
-            y = parentBBox.x + 50 + 40 + previousAttributeBBox.h
+            y = parentBBox.y + 50 + 40 + previousAttributeBBox.h
         }
 
         bBox.x = x;

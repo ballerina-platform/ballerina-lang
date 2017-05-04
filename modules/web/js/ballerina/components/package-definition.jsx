@@ -31,7 +31,6 @@ class PackageDefinition extends React.Component {
     }
 
     handlePackageNameInput(input) {
-        //debugger;
         this.props.model.setPackageName(input);
     }
 
@@ -43,7 +42,7 @@ class PackageDefinition extends React.Component {
         const textBoxBBox = {
             x: bBox.x + headerPadding.left + 75,
             y: bBox.y + 15
-        }
+        };
 
         renderTextBox(textBoxBBox, this.handlePackageNameInput, model.getPackageName());
     }

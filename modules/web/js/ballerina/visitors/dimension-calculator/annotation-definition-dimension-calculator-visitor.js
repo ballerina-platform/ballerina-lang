@@ -45,13 +45,13 @@ class AnnotationDimensionCalculatorVisitor {
         // Set the width to 0 dont add the padding now since we do a comparison.
         var bodyWidth = 0;
 
-        node.children.forEach(function(child,index) {
-            bodyHeight += child.viewState.bBox.h ;
+        node.children.forEach(function (child, index) {
+            bodyHeight += child.viewState.bBox.h;
             // If there is only one child no need to add gutter
-            if(index == 1){
+            if (index == 1) {
                 bodyHeight = bodyHeight + DesignerDefaults.innerPanel.wrapper.gutter.v;
             }
-            if(child.viewState.bBox.w > bodyWidth){
+            if (child.viewState.bBox.w > bodyWidth) {
                 bodyWidth = child.viewState.bBox.w;
             }
         });
@@ -60,7 +60,7 @@ class AnnotationDimensionCalculatorVisitor {
 
         components['body'] = new SimpleBBox();
 
-        if(node.viewState.collapsed) {
+        if (node.viewState.collapsed) {
             components['body'].h = 0;
         } else {
             components['body'].h = bodyHeight;

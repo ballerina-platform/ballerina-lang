@@ -36,7 +36,6 @@ class AnnotationAttributeDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        debugger;
         let viewState = node.getViewState();
         let components = {};
 

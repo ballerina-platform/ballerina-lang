@@ -27,16 +27,20 @@ class AnnotationAttributeDefinition extends React.Component {
         this.bBox = this.props.model.viewState.bBox;
     }
 
+    deleteAttribute() {
+        this.model.remove();
+    }
+
     render() {
         return (
             <g className="attribute-content-operations-wrapper">
                 <rect x={this.bBox.x} y={this.bBox.y} width={this.bBox.w} height={this.bBox.h}
                       className="attribute-content-operations-wrapper"/>
-                <rect x={this.bBox.x + 350 + 10} y={this.bBox.y} width={30} height={30} className=""/>
-                <text x={this.bBox.x + 60} y={this.bBox.y + 70} width={300}
-                      height={30}>{this.model.getAttributeStatementString()}</text>
-                <image x={this.bBox.x + 350 + 15} y={this.bBox.y + 55} width={20} height={20}
-                       xlinkHref={ImageUtil.getSVGIconString('delete')}/>
+                <rect x={this.bBox.x + this.bBox.w + 10} y={this.bBox.y} width={30} height={30} className=""/>
+                <text x={this.bBox.x + 10} y={this.bBox.y + 20} width={this.bBox.w}
+                      height={this.bBox.h}>{this.model.getAttributeStatementString()}</text>
+                <image x={this.bBox.x + this.bBox.w + 15} y={this.bBox.y + 5} width={20} height={20}
+                       xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={()=>this.deleteAttribute()}/>
             </g>
         );
     }
