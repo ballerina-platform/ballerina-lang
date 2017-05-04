@@ -18,8 +18,9 @@
 
 import React from 'react';
 import './annotation-attribute-decorator.css';
-
 import ImageUtil from './image-util';
+import {renderTextBox} from './text-input';
+import Alerts from 'alerts';
 /**
  * Annotation Attribute Decorator
  * */
@@ -27,6 +28,7 @@ class AnnotationAttributeDecorator extends React.Component {
     constructor(props) {
         super(props);
         this.state = {isEdit: false};
+        this.inputValue = "Enter Variable";
     }
 
     /**
@@ -45,45 +47,90 @@ class AnnotationAttributeDecorator extends React.Component {
         }
     }
 
+    onClickVaribaleTextBox() {
+        let model = this.props.model;
+        let bBox = model.viewState.bBox;
+
+        let textBoxBBox = {
+            x: bBox.x + 50,
+            y: bBox.y + 50,
+            w: 300,
+            h: 30
+        };
+
+        renderTextBox(textBoxBBox, this.setAnnotationAttributeFromInputBox, "");
+    }
+
+    setAnnotationAttributeFromInputBox(input) {
+        this.inputValue = input;
+    }
+
     /**
      * Add Annotation Attribute to annotation definition.
      * */
     addAnnotationAttribute() {
         let model = this.props.model;
-        model.addAnnotationAttributeDefinition("int", "a", "0");
+        try {
+            // var bType = typeDropdown.select2('data')[0].text;
+            var variableDeclaration = $(identifierTextBox).val().trim();
+            var splitedExpression = variableDeclaration.split("=");
+            var leftHandSideExpression = splitedExpression[0].trim();
+            var rightHandSideExpression;
+            if (splitedExpression.length > 1) {
+                rightHandSideExpression = splitedExpression[1].trim();
+            }
+
+            if (leftHandSideExpression.split(" ").length <= 1) {
+                let errorString = "Invalid variable declaration: " + variableDeclaration;
+                Alerts.error(errorString);
+                e.stopPropagation();
+                return false;
+            }
+
+            var bType = leftHandSideExpression.split(" ")[0];
+            if (!self._validateType(bType)) {
+                let errorString = "Invalid type for a variable: " + bType;
+                Alerts.error(errorString);
+                e.stopPropagation();
+                return false;
+            }
+
+            var identifier = leftHandSideExpression.split(" ")[1];
+            self.getModel().setAttributeName(identifier);
+
+            var defaultValue = "";
+            if (rightHandSideExpression) {
+                defaultValue = rightHandSideExpression;
+            }
+
+            self.getModel().setAttributeType(bType);
+            self.getModel().setAttributeValue(defaultValue);
+
+            model.addAnnotationAttributeDefinition("int", "a", "0");
+        } catch (e) {
+            Alerts.error(e);
+        }
+
+
     }
 
     render() {
         let bBox = this.props.bBox;
-        if (this.state.isEdit) {
-            return (
-                <g className="attribute-content-operations-wrapper">
-                    <rect x={bBox.x + 50} y={bBox.y + 50} width={300} height={30}
-                          className="attribute-content-operations-wrapper"/>
-                    <rect x={bBox.x + 350 + 10} y={bBox.y + 50} width={30} height={30} className=""
-                          onClick={() => this.addAnnotationAttribute()}/>
+        return (
+            <g className="attribute-content-operations-wrapper">
+                <rect x={bBox.x + 50} y={bBox.y + 50} width={300} height={30}
+                      className="attribute-content-operations-wrapper"/>
+                <rect x={bBox.x + 350 + 10} y={bBox.y + 50} width={30} height={30} className=""
+                      onClick={() => this.addAnnotationAttribute()}/>
 
-                    <image x={bBox.x + 350 + 15} y={bBox.y + 55} width={20} height={20}
-                           xlinkHref={ImageUtil.getSVGIconString('add')}/>
-                </g>
-            );
-        } else {
-            return (
-                <g className="attribute-content-operations-wrapper">
-                    <rect x={bBox.x + 50} y={bBox.y + 50} width={300} height={30}
-                          className="attribute-content-operations-wrapper"/>
-                    <rect x={bBox.x + 350 + 10} y={bBox.y + 50} width={30} height={30} className=""
-                          onClick={() => this.addAnnotationAttribute()}/>
-
-                    <text x={bBox.x + 60} y={bBox.y + 70} width={300} height={30} onClick={() => this.editState()}>
-                        Enter
-                        Variable
-                    </text>
-                    <image x={bBox.x + 350 + 15} y={bBox.y + 55} width={20} height={20}
-                           xlinkHref={ImageUtil.getSVGIconString('add')}/>
-                </g>
-            );
-        }
+                <text x={bBox.x + 60} y={bBox.y + 70} width={300} height={30}
+                      onClick={() => this.onClickVaribaleTextBox()}>
+                    {this.inputValue}
+                </text>
+                <image x={bBox.x + 350 + 15} y={bBox.y + 55} width={20} height={20}
+                       xlinkHref={ImageUtil.getSVGIconString('add')}/>
+            </g>
+        );
     }
 }
 
