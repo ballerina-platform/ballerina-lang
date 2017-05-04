@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.services.dispatchers.ws;
+package org.ballerinalang.services.dispatchers.websocket;
 
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.services.dispatchers.http.HTTPServiceDispatcher;
@@ -32,6 +32,8 @@ import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * Service Dispatcher for WebSocket Endpoint.
+ *
+ * @since 0.8.0
  */
 public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
 
@@ -108,9 +110,11 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         if (uri.startsWith("\"")) {
             uri = uri.substring(1, uri.length() - 1);
         }
+
         if (!uri.startsWith("/")) {
             uri = "/".concat(uri);
         }
+
         if (uri.endsWith("/")) {
             uri = uri.substring(0, uri.length() - 1);
         }
