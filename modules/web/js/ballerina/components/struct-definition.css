@@ -19,3 +19,10 @@ struct-variable-definition-value-text*/
     font-size: 25px;
     cursor: pointer;
 }
+
+.struct-variable-definition-type-text,
+.struct-variable-definition-identifier-text,
+.struct-variable-definition-value-text,
+.struct-statement-delete{
+    dominant-baseline: central;
+}

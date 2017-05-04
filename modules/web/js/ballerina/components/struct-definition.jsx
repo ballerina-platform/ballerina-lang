@@ -23,6 +23,7 @@ import PanelDecorator from './panel-decorator';
 import {getComponentForNodeArray} from './utils';
 import {lifeLine} from './../configs/designer-defaults';
 import './struct-definition.css';
+import {renderTextBox} from './text-input';
 
 class StructDefinition extends React.Component {
 
@@ -30,8 +31,13 @@ class StructDefinition extends React.Component {
         super(props);
     }
 
-    deleteStatement(statement) {
-        statement.remove();
+    deleteStatement(node) {
+        node.remove();
+    }
+
+    handleStatementClick(node, bBox) {
+        console.log(bBox);
+        renderTextBox(bBox, () => { console.log('adadadad')}, "adadad");
     }
 
     render() {
@@ -54,8 +60,8 @@ class StructDefinition extends React.Component {
                               <rect x={statements[i].x } y={statements[i].y} width={statements[i].w/3} height={statements[i].h}
                                   className="struct-variable-definition-type-rect"
                                />
-                              <text x={statements[i].x } y={statements[i].y + statements[i].h / 2} className="struct-variable-definition-type-text">
-                                {type}
+                              <text x={statements[i].x } y={statements[i].y + statements[i].h / 2} className="struct-variable-definition-type-text" onClick={ ()=> this.handleStatementClick(child, statements[i]) }>
+                                  {type}
                               </text>
                           </g>
 
@@ -63,7 +69,7 @@ class StructDefinition extends React.Component {
                               <rect x={statements[i].x + statements[i].w/3} y={statements[i].y} width={statements[i].w/3} height={statements[i].h}
                                   className="struct-variable-definition-identifier-rect"
                               />
-                              <text x={statements[i].x + statements[i].w/3} y={statements[i].y + statements[i].h / 2} className="struct-variable-definition-identifier-text">
+                              <text x={statements[i].x + statements[i].w/3} y={statements[i].y + statements[i].h / 2} className="struct-variable-definition-identifier-text" onClick={ ()=> this.handleStatementClick(child, statements[i]) }>
                                   {identifier}
                               </text>
                           </g>
@@ -72,7 +78,7 @@ class StructDefinition extends React.Component {
                               <rect x={statements[i].x + (2 * statements[i].w/3)} y={statements[i].y} width={statements[i].w/3} height={statements[i].h}
                                   className="struct-variable-definition-value-rect"
                               />
-                              <text x={statements[i].x + (2 * statements[i].w/3)} y={statements[i].y + statements[i].h / 2} className="struct-variable-definition-value-text">
+                              <text x={statements[i].x + (2 * statements[i].w/3)} y={statements[i].y + statements[i].h / 2} className="struct-variable-definition-value-text" onClick={ ()=> this.handleStatementClick(child, statements[i]) }>
                                   {value}
                               </text>
 

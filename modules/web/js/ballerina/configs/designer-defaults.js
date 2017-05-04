@@ -157,7 +157,7 @@ export const structDefinition = {
 };
 
 export const structDefinitionStatement = {
-    width: 450,
+    width: 600,
     height: 30,
     padding: {
         bottom: 2
