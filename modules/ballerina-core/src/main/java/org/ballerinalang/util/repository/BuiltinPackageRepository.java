@@ -111,7 +111,7 @@ public class BuiltinPackageRepository extends PackageRepository {
                 reader = new BufferedReader(new InputStreamReader(fileNamesStream));
                 String fileName;
                 while ((fileName = reader.readLine()) != null) {
-                    if (skipNatives && fileName.endsWith(NATIVE_BAL_FILE)) {
+                    if ((skipNatives && fileName.endsWith(NATIVE_BAL_FILE)) || !fileName.endsWith(BAL_FILE_EXT)) {
                         continue;
                     }
                     fileNames.add(fileName);
