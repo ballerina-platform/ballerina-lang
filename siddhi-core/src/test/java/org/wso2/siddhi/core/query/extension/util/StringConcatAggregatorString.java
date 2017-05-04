@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.extension.util;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -36,13 +37,16 @@ import java.util.Map;
         namespace = "custom",
         description = "Return the concatenations of the given input values.",
         parameters = {
-                @Parameter(name = "arg",
-                        description = "The value that need to be concat.",
+                @Parameter(name = "args",
+                        description = "The values that need to be concat.",
                         type = {DataType.STRING})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the concatenated value as a string.",
-                type = {DataType.STRING})
+                type = {DataType.STRING}),
+        examples = @Example(
+                value = "custom:getAll(\"hello\",\"_\",\"world\") will return 'hello world'."
+        )
 )
 public class StringConcatAggregatorString extends AttributeAggregator {
     private static final long serialVersionUID = 1358667438272544590L;
