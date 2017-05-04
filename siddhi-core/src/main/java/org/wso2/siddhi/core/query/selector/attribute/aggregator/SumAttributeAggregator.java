@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -43,7 +44,16 @@ import java.util.Map;
         returnAttributes = @ReturnAttribute(
                 description = "Returns long if the input parameter type is int or long, and returns double if the " +
                         "input parameter type is float or double.",
-                type = {DataType.LONG, DataType.DOUBLE})
+                type = {DataType.LONG, DataType.DOUBLE}),
+        examples = {
+                @Example(
+                        value = "sum(20) returns the sum of 20s as a long value for each event arrival and expiry."
+                ),
+                @Example(
+                        value = "sum(temp) returns the sum of all temp attributes based on each event arrival " +
+                                "and expiry."
+                )
+        }
 )
 public class SumAttributeAggregator extends AttributeAggregator {
 
