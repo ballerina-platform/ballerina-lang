@@ -59,13 +59,11 @@ public class AnonymousInputStream extends SingleInputStream {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
 
         AnonymousInputStream that = (AnonymousInputStream) o;
 
-        return query != null ? query.equals(that.query) : that.query == null;
+        return (query != null ? query.equals(that.query) : that.query == null) || super.equals(o);
+
     }
 
     @Override
