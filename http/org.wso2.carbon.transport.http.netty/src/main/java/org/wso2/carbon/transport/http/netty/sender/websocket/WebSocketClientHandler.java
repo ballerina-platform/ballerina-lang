@@ -113,7 +113,8 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             cMsg = new BinaryCarbonMessage(binaryFrame.content().nioBuffer(), binaryFrame.isFinalFragment());
         } else if (frame instanceof PongWebSocketFrame) {
             PongWebSocketFrame pongFrame = (PongWebSocketFrame) frame;
-            cMsg = new ControlCarbonMessage(pongFrame.content().nioBuffer(), true);
+            cMsg = new ControlCarbonMessage(org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_HEARTBEAT,
+                                            pongFrame.content().nioBuffer(), true);
         } else if (frame instanceof PingWebSocketFrame) {
             PingWebSocketFrame pingFrame = (PingWebSocketFrame) frame;
             ctx.channel().writeAndFlush(new PongWebSocketFrame(pingFrame.content()));
