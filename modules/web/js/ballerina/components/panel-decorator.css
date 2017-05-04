@@ -1,0 +1,46 @@
+.panel-slide-enter {
+  opacity: 0.01;
+}
+
+.panel-slide-enter.panel-slide-enter-active {
+  opacity: 1;
+  transition: opacity 300ms ease-in;
+}
+
+.panel-slide-leave {
+  opacity: 1;
+}
+
+.panel-slide-leave.panel-slide-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
+.panel-body-rect {
+    fill: #008000;
+    fill-opacity: 0;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+    stroke: #909090;
+}
+
+.panel-body-rect.drop-zone.active {
+    fill-opacity: 0.2;
+}
+
+.panel-body-rect.drop-zone.active.block {
+    fill: red;
+}
+
+.panel-body-rect.drop-zone {
+    fill: green;
+    fill-opacity: 0;
+}
+
+
+.svg-container.drop-zone.active .panel-body .panel-body-rect.drop-zone,
+.panel-body.drop-zone.active .panel-body .panel-body-rect.drop-zone
+ {
+    fill: white;
+    fill-opacity: 1;
+}

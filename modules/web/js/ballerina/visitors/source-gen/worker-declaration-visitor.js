@@ -38,6 +38,14 @@ class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
         return workerDeclaration instanceof WorkerDeclaration && !workerDeclaration.isDefaultWorker();
     }
 
+    canVisitStatement(statement) {
+        return true;
+    }
+
+    canVisitVariableDeclaration(variableDeclaration) {
+        return true;
+    }
+
     beginVisitWorkerDeclaration(workerDeclaration) {
         var constructedSourceSegment = 'worker ' + workerDeclaration.getWorkerDeclarationStatement() + ' {';
         this.appendSource(constructedSourceSegment);
@@ -67,4 +75,3 @@ class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
 }
 
 export default WorkerDeclarationVisitor;
-    

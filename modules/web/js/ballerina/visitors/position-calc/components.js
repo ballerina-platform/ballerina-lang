@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,9 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import ASTVisitor from './ast-visitor';
 
-class SourceGenVisitor extends ASTVisitor {}
+// require all dimension calculator visitors
+function requireAll(requireContext) {
+    let components = {};
+    requireContext.keys().map((item, index) => {
+        var module = requireContext(item);
+        if (module.default) {
+            components[module.default.name] = module.default;
+        }
+    });
+    return components;
+}
 
+export default requireAll(require.context('./', true, /\.js$/));

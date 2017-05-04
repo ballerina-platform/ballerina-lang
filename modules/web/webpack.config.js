@@ -18,7 +18,7 @@ var config = {
             {
               loader: 'babel-loader',
               query: {
-                  presets: ['es2015']
+                  presets: ['es2015', 'react']
               }
             }
           ]
@@ -36,6 +36,18 @@ var config = {
         {
             test: /\.(png|jpg|svg|cur|gif)$/,
             use: [ 'url-loader' ]
+        },
+        {
+            test: /\.jsx$/,
+            exclude: /(node_modules|modules\/web\/lib)/,
+            use: [
+              {
+                loader: 'babel-loader',
+                query: {
+                    presets: ['es2015', 'react']
+                }
+              }
+            ]
         }
       ]
     },
@@ -46,6 +58,7 @@ var config = {
     node: { module: "empty", net: "empty", fs: "empty" },
     devtool: 'source-map',
     resolve: {
+        extensions: [".js", ".json", ".jsx"],
         modules: [path.resolve('./lib'), path.resolve('./js'), path.resolve('./node_modules'), path.resolve(__dirname)],
         alias: {
             /////////////////////////
@@ -63,6 +76,7 @@ var config = {
             // hence dagre is added to libs
             // https://github.com/cpettitt/graphlib/issues/58
             dagre : "dagre-0.7.4/dagre.min.js",
+
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -102,6 +116,15 @@ if (process.env.NODE_ENV === 'production') {
   // uglyfying slows down webpack build so we avoid in when in development
   config.plugins.push(new webpack.optimize.UglifyJsPlugin({
     sourceMap: true
+  }));
+
+  config.plugins.push(new webpack.DefinePlugin({
+    PRODUCTION: JSON.stringify(true)
+  }));
+
+}else{
+  config.plugins.push(new webpack.DefinePlugin({
+    PRODUCTION: JSON.stringify(false)
   }));
 }
 

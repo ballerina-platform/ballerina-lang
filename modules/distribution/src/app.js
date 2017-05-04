@@ -1,38 +1,34 @@
-const url = require("url");
-const path = require("path");
-const {app, BrowserWindow, Menu} = require("electron");
-const registerMenuLoader = require("./menu.js");
+const {BrowserWindow} = require('electron');
+const registerMenuLoader = require('./menu.js');
+const setupNativeWizards = require('./workspace.js');
 
 let win;
 
 function createWindow () {
-  // Create the browser window.
-  win = new BrowserWindow({width: 1024, height: 768, frame: true});
+    // Create the browser window.
+    win = new BrowserWindow({width: 1024, height: 768, frame: true});
 
-  // maximize the window
-  win.maximize();
+    // maximize the window
+    win.maximize();
 
-  registerMenuLoader();
+    registerMenuLoader();
+    setupNativeWizards(win);
 
-  let windowUrl = url.format({
-    pathname: path.join(__dirname, "..", "resources", "composer", "web", "index.html"),
-    protocol: "file:",
-    slashes: true
-  });
+    let windowUrl = 'http://localhost:9091';
 
-  if (process.env.NODE_ENV === 'electron-dev') {
-      windowUrl = 'http://localhost:8080'
-  }
+    if (process.env.NODE_ENV === 'electron-dev') {
+        windowUrl = 'http://localhost:8080';
+    }
 
-  win.loadURL(windowUrl);
+    win.loadURL(windowUrl);
 
-  if (process.env.NODE_ENV === 'electron-dev') {
-      win.webContents.openDevTools();
-  }
+    if (process.env.NODE_ENV === 'electron-dev') {
+        win.webContents.openDevTools();
+    }
 
-  return win;
+    return win;
 }
 
 module.exports = {
     createWindow,
-}
+};

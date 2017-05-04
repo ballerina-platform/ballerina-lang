@@ -33,6 +33,18 @@ class TypeMapperRightOperandExpressionVisitor extends AbstractStatementSourceGen
         return true;
     }
 
+    canVisitFuncInvocationStatement(functionInvocationVisitor) {
+        return true;
+    }
+
+    canVisitExpression(expression) {
+        return true;
+    }
+
+    canVisitFuncInvocationExpression(expression) {
+        return true;
+    }
+
     beginVisitRightOperandExpression(rightOperandExpression) {
         this.appendSource(" = ");
         log.debug('Begin Visit Type Mapper Right Operand Expression');

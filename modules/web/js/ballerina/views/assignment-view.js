@@ -126,4 +126,3 @@ class AssignmentStatementView extends SimpleStatementView {
 }
 
 export default AssignmentStatementView;
-    

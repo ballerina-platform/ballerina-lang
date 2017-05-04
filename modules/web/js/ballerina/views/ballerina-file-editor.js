@@ -19,9 +19,6 @@ import _ from 'lodash';
 import $ from 'jquery';
 import log from 'log';
 import BallerinaView from './ballerina-view';
-import ServiceDefinitionView from './service-definition-view';
-import AnnotationDefinitionView from './annotation-definition-view';
-import FunctionDefinitionView from './function-definition-view';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import SourceView from './source-view';
@@ -32,18 +29,20 @@ import ToolPalette from './../tool-palette/tool-palette';
 import UndoManager from './../undo-manager/undo-manager';
 import Backend from './backend';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
-import ConnectorDefinitionView from './connector-definition-view';
-import StructDefinitionView from './struct-definition-view';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvironment from './../env/environment';
 import ConstantsDefinitionsPaneView from './constant-definitions-pane-view';
 import ToolPaletteItemProvider from './../item-provider/tool-palette-item-provider';
-import PackageDefinitionView from './package-definition-pane-view';
-import ImportDeclarationView from './import-declaration-view';
-import TypeMapperDefinitionView from './type-mapper-definition-view';
 import alerts from 'alerts';
-import ConstantDefinitionView from './constant-definition-view';
 import 'typeahead.js';
+import FindBreakpointsVisitor from './../visitors/find-breakpoints-visitor';
+import DimensionCalculatorVisitor from './../visitors/dimension-calculator-visitor';
+import PositionCalculatorVisitor from './../visitors/position-calculator-visitor';
+import DebugManager from './../../debugger/debug-manager';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import BallerinaDiagram from './../components/diagram';
+
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
  * @class BallerinaFileEditor
@@ -60,7 +59,6 @@ class BallerinaFileEditor extends BallerinaView {
     constructor(args) {
         super(args);
         this._parseFailed = _.get(args, 'parseFailed');
-        this._canvasList = _.get(args, 'canvasList', []);
         this._debugger = _.get(args, 'debugger');
         this._file = _.get(args, 'file');
         this._id = _.get(args, 'id', 'Ballerina Composer');
@@ -80,6 +78,7 @@ class BallerinaFileEditor extends BallerinaView {
         this._isvInSwaggerView = false;
         this._constantDefinitionsPane = undefined;
         this.deserializer = BallerinaASTDeserializer;
+        this._currentBreakpoints = [];
         this.init();
     }
 
@@ -124,10 +123,6 @@ class BallerinaFileEditor extends BallerinaView {
         if ((!_.isUndefined(model) && !_.isNil(model) && model instanceof BallerinaASTRoot)) {
             this._model = model;
             var self = this;
-            //Registering event listeners
-            this._model.on('child-added', function(child){
-                this.visit(child);
-            }, this);
             // make undo-manager capture all tree modifications after initial rendering
             this._model.on('tree-modified', function(event){
                 if(this.getUndoManager().hasUndo()){
@@ -161,15 +156,6 @@ class BallerinaFileEditor extends BallerinaView {
         }
     }
 
-    setCanvasList(canvases) {
-        if (!_.isNil(canvases)) {
-            this._canvasList = canvases;
-        } else {
-            log.error('Canvas list cannot be undefined or empty.' + canvases);
-            throw 'Canvas list cannot be undefined or empty.' + canvases;
-        }
-    }
-
     setId(id) {
         this._id = id;
     }
@@ -182,10 +168,6 @@ class BallerinaFileEditor extends BallerinaView {
         return this._model;
     }
 
-    getCanvasList() {
-        return this._canvasList;
-    }
-
     getId() {
         return this._id;
     }
@@ -194,172 +176,8 @@ class BallerinaFileEditor extends BallerinaView {
         return this._viewOptions;
     }
 
-    canVisitBallerinaASTRoot() {
-        return true;
-    }
-
-    visitBallerinaASTRoot() {
-
-    }
-
-    canVisitServiceDefinition() {
-        return false;
-    }
-
-    canVisitFunctionDefinition() {
-        return false;
-    }
-
-    canVisitPackageDefinition() {
-        return false;
-    }
-
-    canVisitAnnotationDefinition(){
-        return false;
-    }
-
     /**
-     * Creates a packge definition view for a package definition model and calls it's render.
-     * @param packageDefinition
-     */
-    visitPackageDefinition(packageDefinition) {
-        var packageDefinitionView = new PackageDefinitionView({
-            viewOptions: this._viewOptions,
-            container: this._$canvasContainer,
-            model: packageDefinition,
-            parentView: this,
-            toolPalette: this.toolPalette
-        });
-        this.diagramRenderingContext.getViewModelMap()[packageDefinition.id] = packageDefinitionView;
-        packageDefinitionView.render(this.diagramRenderingContext);
-    }
-
-    visitImportDeclaration(importDeclaration) {
-        var importDeclarationView = new ImportDeclarationView({
-            viewOptions: this._viewOptions,
-            container: this._$canvasContainer,
-            model: importDeclaration,
-            parentView: this,
-            toolPalette: this.toolPalette
-        });
-        this.diagramRenderingContext.getViewModelMap()[importDeclaration.id] = importDeclarationView;
-        importDeclarationView.render(this.diagramRenderingContext);
-    }
-
-    visitConstantDefinition(constantDefinition) {
-        var container = this._constantDefinitionsPane.getConstantDefViewsContainer();
-
-        var constantDefinitionView = new ConstantDefinitionView({
-            parent: this._model,
-            model: constantDefinition,
-            container: container,
-            toolPalette: this.getToolPalette(),
-            messageManager: this.getMessageManager(),
-            parentView: this
-        });
-
-        this.getDiagramRenderingContext().getViewModelMap()[constantDefinition.id] = constantDefinitionView;
-
-        constantDefinitionView.render(this.getDiagramRenderingContext());
-    }
-
-    /**
-     * Creates a service definition view for a service definition model and calls it's render.
-     * @param serviceDefinition
-     */
-    visitServiceDefinition(serviceDefinition) {
-        var serviceDefinitionView = new ServiceDefinitionView({
-            viewOptions: this._viewOptions,
-            container: this._$canvasContainer,
-            model: serviceDefinition,
-            parentView: this,
-            toolPalette: this.toolPalette
-        });
-        this.diagramRenderingContext.getViewModelMap()[serviceDefinition.id] = serviceDefinitionView;
-        serviceDefinitionView.render(this.diagramRenderingContext);
-
-    }
-
-    /**
-     * Creates an annotation definition for annotation definition.
-     * @param annotationDefinition
-     * */
-    visitAnnotationDefinition(annotationDefinition){
-        var annotationDefinitionView = new AnnotationDefinitionView({
-            viewOptions: this._viewOptions,
-            container: this._$canvasContainer,
-            model: annotationDefinition,
-            parentView: this,
-            toolPalette: this.toolPalette
-        });
-
-        this.diagramRenderingContext.getViewModelMap()[annotationDefinition.id] = annotationDefinitionView;
-        annotationDefinitionView.render(this.diagramRenderingContext);
-    }
-
-    /**
-     * Creates a connector definition view for a connector definition model and calls it's render.
-     * @param connectorDefinition
-     */
-    visitConnectorDefinition(connectorDefinition) {
-        var connectorDefinitionView = new ConnectorDefinitionView({
-            viewOptions: this._viewOptions,
-            container: this._$canvasContainer,
-            model: connectorDefinition,
-            parentView: this,
-            toolPalette: this.toolPalette
-        });
-        this.diagramRenderingContext.getViewModelMap()[connectorDefinition.id] = connectorDefinitionView;
-        connectorDefinitionView.render(this.diagramRenderingContext);
-    }
-
-    /**
-     * Visits FunctionDefinition
-     * @param functionDefinition
-     */
-    visitFunctionDefinition(functionDefinition) {
-        var functionDefinitionView = new FunctionDefinitionView({
-            viewOptions: this._viewOptions,
-            container: this._$canvasContainer,
-            model: functionDefinition,
-            parentView: this,
-            toolPalette: this.toolPalette
-        });
-        this.diagramRenderingContext.getViewModelMap()[functionDefinition.id] = functionDefinitionView;
-        functionDefinitionView.render(this.diagramRenderingContext);
-    }
-
-    visitStructDefinition(structDefinition) {
-        var structDefinitionView = new StructDefinitionView({
-            viewOptions: this._viewOptions,
-            container: this._$canvasContainer,
-            model: structDefinition,
-            parentView: this,
-            toolPalette: this.toolPalette
-        });
-        this.diagramRenderingContext.getViewModelMap()[structDefinition.id] = structDefinitionView;
-        structDefinitionView.render(this.diagramRenderingContext);
-    }
-
-    /**
-     * Creates a TypeMapperDefinition view for a TypeMapper Definition model and calls it's render.
-     * @param typeMapperDefinition
-     */
-    visitTypeMapperDefinition(typeMapperDefinition) {
-        var typeMapperDefinitionView = new TypeMapperDefinitionView({
-            viewOptions: this._viewOptions,
-            container: this._$canvasContainer,
-            model: typeMapperDefinition,
-            parentView: this,
-            toolPalette: this.toolPalette
-        });
-        typeMapperDefinitionView.render(this.diagramRenderingContext);
-        this.diagramRenderingContext.getViewModelMap()[typeMapperDefinition.id] = typeMapperDefinitionView;
-    }
-
-    /**
-     * Adds the service definitions, function definitions and connector definitions to
-     * {@link BallerinaFileEditor#_canvasList} and calls {@link BallerinaFileEditor#render}.
+     *
      */
     init() {
         var viewOptions = this._viewOptions;
@@ -426,12 +244,22 @@ class BallerinaFileEditor extends BallerinaView {
         }
 
         var importDeclarations = [];
-        if(!this._parseFailed){
-            // Creating the constants view.
-            this._createConstantDefinitionsView(this._$canvasContainer);
-            this._model.accept(this);
-            this.getUndoManager().reset();
-            importDeclarations = this._model.getImportDeclarations();
+        if(!this._parseFailed) {
+            //pass the container width and height to root view state.
+            let viewState = this._model.getViewState();
+            viewState.container = {
+                width : this._$canvasContainer.width(),
+                height : this._$canvasContainer.height()
+            };
+            //create Rect component for diagram
+            let root = React.createElement(BallerinaDiagram, {
+                model: this._model,
+                dragDropManager: this.toolPalette.dragDropManager
+            }, null);
+            ReactDOM.render(
+              root,
+              this._$canvasContainer[0]
+            );
         }
 
         // render tool palette
@@ -455,20 +283,6 @@ class BallerinaFileEditor extends BallerinaView {
         _.set(sourceViewOpts, 'storage', this._file._storage);
         this._sourceView = new SourceView(sourceViewOpts);
 
-        this.on('reset-breakpoints', function(newBreakpoints) {
-            self._sourceView.trigger('reset-breakpoints', newBreakpoints);
-            _.forEach(this._currentBreakpoints, function(breakpoint) {
-                self._hideBreakpoint(breakpoint);
-            });
-            _.forEach(newBreakpoints, function(breakpoint) {
-                self._showBreakpoint(breakpoint);
-            });
-        });
-
-        this._sourceView.on('add-breakpoint', function (row) {
-            self.trigger('add-breakpoint', row);
-        });
-
         this._sourceView.on('modified', function (changeEvent) {
             if(self.getUndoManager().hasUndo()){
                 // clear undo stack from design view
@@ -490,8 +304,12 @@ class BallerinaFileEditor extends BallerinaView {
             self.trigger('content-modified');
         });
 
-        this._sourceView.on('remove-breakpoint', function (row) {
-            self.trigger('remove-breakpoint', row);
+        this._sourceView.on('breakpoints-updated', () => {
+            this.publishBreakPoints();
+        });
+
+        this.on('breakpoints-updated', () => {
+            this.publishBreakPoints();
         });
 
         this._sourceView.on('dispatch-command', function (id) {
@@ -515,26 +333,26 @@ class BallerinaFileEditor extends BallerinaView {
         this._swaggerView.render();
 
         var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
-        sourceViewBtn.click(function () {
-            lastRenderedTimestamp = self._file.getLastPersisted();
-            self.toolPalette.hide();
+        sourceViewBtn.click(() => {
+            lastRenderedTimestamp = this._file.getLastPersisted();
+            this.toolPalette.hide();
             // If the file has changed we will add the generated source to source view
             // If not we will display the content as it is in the file.
-            if(self._file.isDirty()){
-                var generatedSource = self.generateSource();
-                self._sourceView.setContent(generatedSource);
-                self._sourceView.format(true);
+            const generatedSource = this.generateSource();
+            if(this._file.isDirty()){
+                this._sourceView.setContent(generatedSource);
+                this._sourceView.format(true);
             } else {
-                self._sourceView.setContent(self._file.getContent());
+                this._sourceView.setContent(this._file.getContent());
             }
 
             sourceViewContainer.show();
             swaggerViewContainer.hide();
-            self._$designViewContainer.hide();
+            this._$designViewContainer.hide();
             designViewBtn.show();
             swaggerViewBtn.show();
             sourceViewBtn.hide();
-            self.setActiveView('source');
+            this.setActiveView('source');
         });
 
         var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
@@ -568,7 +386,6 @@ class BallerinaFileEditor extends BallerinaView {
                     var root = self.deserializer.getASTModel(response);
                     self.setModel(root);
                     self._sourceView.markClean();
-                    self._createConstantDefinitionsView(self._$canvasContainer);
                     self.addCurrentPackageToToolPalette();
                 }
 
@@ -640,7 +457,6 @@ class BallerinaFileEditor extends BallerinaView {
                 self.setModel(root);
                 // reset source editor delta stack
                 self._sourceView.markClean();
-                self._createConstantDefinitionsView(self._$canvasContainer);
             } else if (isSwaggerChanged) {
                 self.setModel(self._swaggerView.getContent());
                 // reset source editor delta stack
@@ -657,12 +473,9 @@ class BallerinaFileEditor extends BallerinaView {
             if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
                 self._environment.resetCurrentPackage();
                 self.rerenderCurrentPackageTool();
-                self.reDraw();
             }
             $('.outer-box').mCustomScrollbar('scrollTo', 'left');
         });
-
-        this.initDropTarget();
 
         if(this._parseFailed){
             this._swaggerView.hide();
@@ -709,45 +522,6 @@ class BallerinaFileEditor extends BallerinaView {
             collapsed: false
         };
         provider.addImportToolGroup(currentPackage, options);
-    }
-
-    initDropTarget() {
-        var self = this,
-            dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
-
-        // on hover over canvas area
-        this._$canvasContainer
-            .mouseover(function(event){
-
-            //if someone is dragging a tool from tool-palette
-                if(self.toolPalette.dragDropManager.isOnDrag()){
-
-                    if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
-                        return;
-                    }
-
-                // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
-                // tool view will use this to provide feedback on impossible drop zones
-                    self.toolPalette.dragDropManager.setActivatedDropTarget(self._model);
-
-                // indicate drop area
-                    self._$canvasContainer.addClass(dropActiveClass);
-
-                // reset ui feed back on drop target change
-                    self.toolPalette.dragDropManager.once('drop-target-changed', function(){
-                        self._$canvasContainer.removeClass(dropActiveClass);
-                    });
-                }
-                event.stopPropagation();
-            }).mouseout(function(event){
-            // reset ui feed back on hover out
-                if(self.toolPalette.dragDropManager.isOnDrag()){
-                    if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
-                        self.toolPalette.dragDropManager.clearActivatedDropTarget();
-                    }
-                }
-                event.stopPropagation();
-            });
     }
 
     /**
@@ -962,77 +736,12 @@ class BallerinaFileEditor extends BallerinaView {
         });
     }
 
-    reDraw() {
-        var self = this;
-        var viewOptions = this._viewOptions;
-        if (!_.has(this._viewOptions, 'design_view.container')) {
-            var errMsg = 'unable to find configuration for container';
-            log.error(errMsg);
-            throw errMsg;
-        }
-        // this._viewOptions.container is the root div for tab content
-        var container = $(this._container).find(_.get(this._viewOptions, 'design_view.container'));
-        //remove the old canves before creating a new one.
-        var canvas = container.find('div.canvas-container');
-        canvas.remove();
-
-        this._$designViewContainer = container;
-        var canvasContainer = $('<div></div>');
-        canvasContainer.addClass(_.get(viewOptions, 'cssClass.canvas_container'));
-        var canvasTopControlsContainer = $('<div></div>')
-            .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_package_define')))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_packages_import')))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_constants_define')));
-        canvasContainer.append(canvasTopControlsContainer);
-        this._$designViewContainer.append(canvasContainer);
-        this._$canvasContainer = canvasContainer;
-        // check whether container element exists in dom
-        if (!container.length > 0) {
-            errMsg = 'unable to find container for file composer with selector: ' + _.get(this._viewOptions, 'design_view.container');
-            log.error(errMsg);
-            throw errMsg;
-        }
-        this._createImportDeclarationPane(this._$canvasContainer);
-        // Creating the constants view.
-        this._createConstantDefinitionsView(this._$canvasContainer);
-
-        // this._createPackageDeclarationPane(this._$canvasContainer);
-
-        this._model.accept(this);
-
-        // adding declared import packages to tool palette
-        _.forEach(this._model.getImportDeclarations(), function (importDeclaration) {
-            var pckg = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-            self.toolPalette.getItemProvider().addImportToolGroup(pckg[0]);
-        });
-
-        this.initDropTarget();
-        this.trigger('redraw');
-    }
-
     getUndoManager() {
         return this._undoManager;
     }
 
     getSourceView() {
         return this._sourceView;
-    }
-
-    _createConstantDefinitionsView(canvasContainer) {
-
-        var costantDefinitionWrapper = _.get(this._viewOptions, 'cssClass.canvas_top_control_constants_define');
-        var constantsWrapper = canvasContainer.find('.' +costantDefinitionWrapper);
-
-        var constantsDefinitionPaneProperties = {
-            model: this.getModel(),
-            paneAppendElement: constantsWrapper,
-            view: this
-        };
-
-        this._constantDefinitionsPane = new ConstantsDefinitionsPaneView(constantsDefinitionPaneProperties);
-
-        this._constantDefinitionsPane.createConstantDefinitionPane();
     }
 
     highlightExecutionPoint() {
@@ -1070,26 +779,76 @@ class BallerinaFileEditor extends BallerinaView {
         this._sourceView.clearExistingDebugHit();
     }
 
-    _showBreakpoint(newBreakpoint) {
-        var modelMap = this.diagramRenderingContext.getViewModelMap();
-        var self = this;
-        this._currentBreakpoints = this._currentBreakpoints || [];
+     /**
+      * highlights breakpoints in designview
+     */
+    _showDesignViewBreakpoints(breakpoints = []) {
+        const findBreakpointsVisitor = new FindBreakpointsVisitor(this._model);
+        findBreakpointsVisitor.setBreakpoints(breakpoints);
 
-        _.each(modelMap, function(aView) {
-            if(!_.isNil(aView.getModel)) {
-                var lineNumber = aView.getModel().getLineNumber();
-                if(newBreakpoint === lineNumber && !_.isNil(aView.showDebugIndicator)) {
-                    aView.showDebugIndicator();
-                    self._currentBreakpoints.push(aView);
-                }
+        var generatedSource = this.getContent();
+        var model = this.getModelFromSource(generatedSource);
+        const modelMap = this.diagramRenderingContext.getViewModelMap();
+        model.accept(findBreakpointsVisitor);
+        const breakpointNodes = findBreakpointsVisitor.getBreakpointNodes();
+
+        // hide previous breakpoints first
+        this.hideCurrentBreakpoints();
+
+        breakpointNodes.forEach( breakpointNode => {
+            const nodeView = modelMap[breakpointNode.id];
+            if(!nodeView) {
+                return;
             }
+            nodeView.showDebugIndicator = nodeView.showDebugIndicator || function() {};
+            nodeView.showDebugIndicator();
+            const pathVector = [];
+            this.getPathToNode(breakpointNode, pathVector);
+            this._currentBreakpoints.push(JSON.stringify(pathVector));
         });
     }
 
-    _hideBreakpoint() {
+    _showSourceViewBreakPoints() {
+        const pathVectors = this.getCurrentBreakpoints() || [];
+        const breakpoints = [];
+        pathVectors.forEach(pathVectorStr => {
+            const pathVector = JSON.parse(pathVectorStr);
+            const node = this.getNodeByVector(this._model, pathVector);
+            const lineNumber = node.getLineNumber();
+            breakpoints.push(lineNumber);
+        });
+        this._sourceView.setBreakpoints(breakpoints);
+    }
+
+    hideCurrentBreakpoints() {
         this._currentBreakpoints = this._currentBreakpoints || [];
-        _.each(this._currentBreakpoints, function(aView) {
+        this._currentBreakpoints.forEach( pathVectorStr => {
+            const pathVector = JSON.parse(pathVectorStr);
+            const node = this.getNodeByVector(this._model, pathVector);
+            const modelMap = this.diagramRenderingContext.getViewModelMap();
+            const aView = modelMap[node.id] || {};
+            aView.hideDebugIndicator = aView.hideDebugIndicator || function() {};
             aView.hideDebugIndicator();
+        });
+        this._currentBreakpoints = [];
+    }
+
+    getCurrentBreakpoints() {
+        return this._currentBreakpoints;
+    }
+
+    addBreakPoint(viewNode) {
+        const pathVector = [];
+        this.getPathToNode(viewNode.getModel(), pathVector);
+        return this._currentBreakpoints.push(JSON.stringify(pathVector));
+    }
+
+    removeBreakPoint(viewNodeToDel) {
+        viewNodeToDel._model.isBreakPoint = false;
+        this._currentBreakpoints = this._currentBreakpoints.filter( pathVectorStr => {
+            const pathVector = JSON.parse(pathVectorStr);
+            const node = this.getNodeByVector(this._model, pathVector);
+            return  viewNodeToDel.getModel().id !==  node.id;
         });
     }
 
@@ -1118,6 +877,34 @@ class BallerinaFileEditor extends BallerinaView {
             returnNode = returnNode.getChildren()[index];
         });
         return returnNode;
+    }
+
+    publishBreakPoints() {
+        const fileName = this._file.getName();
+        let breakpoints = [];
+        if(this.isInSourceView()) {
+            breakpoints = this._sourceView.getBreakpoints();
+        } else if(this.isInDesignView()) {
+            breakpoints = this.getBreakpoints();
+        }
+        DebugManager.removeAllBreakpoints(fileName);
+        breakpoints.forEach( lineNumber => {
+            DebugManager.addBreakPoint(lineNumber, fileName);
+        });
+        return breakpoints;
+    }
+
+    getBreakpoints() {
+        const breakpoints = [];
+
+        this._currentBreakpoints.forEach( pathVectorStr => {
+            const pathVector = JSON.parse(pathVectorStr);
+            const node = this.getNodeByVector(this._model, pathVector) || {};
+            node.getLineNumber = node.getLineNumber || function() {};
+            breakpoints.push(node.getLineNumber());
+        });
+
+        return breakpoints;
     }
 }
 

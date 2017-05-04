@@ -30,6 +30,11 @@ class TypeMapperVariableReferenceExpressionVisitor extends AbstractExpressionSou
         return true;
     }
 
+    canVisitVariableDefinition(variableDefinition) {
+        return true;
+    }
+
+
     beginVisitVariableReferenceExpression(expression) {
        log.debug('Begin Visit Type Mapper Variable Reference Expression');
     }

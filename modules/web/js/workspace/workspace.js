@@ -159,32 +159,66 @@ class WorkspaceManager {
     }
 
     openFileSaveDialog (options) {
-        if(_.isNil(this._saveFileDialog)){
-            this._saveFileDialog = new Dialogs.save_to_file_dialog(this.app);
-        }
-        this._saveFileDialog.render();
+        if(this.app.isElectronMode()) {
+            this.openNativeFileSaveDialog(options);
+        } else {
+            if(_.isNil(this._saveFileDialog)){
+                this._saveFileDialog = new Dialogs.save_to_file_dialog(this.app);
+            }
+            this._saveFileDialog.render();
 
-        if(!_.isNil(options) && _.isFunction(options.callback)){
-            var isSaved = false;
-            this._saveFileDialog.once('save-completed', function(success){
-                isSaved = success;
-            }, this);
-            this._saveFileDialog.once('unloaded', function(){
-                options.callback(isSaved);
-            }, this);
-        }
-
-        this._saveFileDialog.show();
-        var activeTab = this.app.tabController.getActiveTab();
-        if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)){
-            var activeFile = activeTab.getFile();
-            if(activeFile.isPersisted()){
-                this._saveFileDialog.once('loaded', function(){
-                    this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
+            if(!_.isNil(options) && _.isFunction(options.callback)){
+                var isSaved = false;
+                this._saveFileDialog.once('save-completed', function(success){
+                    isSaved = success;
+                }, this);
+                this._saveFileDialog.once('unloaded', function(){
+                    options.callback(isSaved);
                 }, this);
             }
-        }
 
+            this._saveFileDialog.show();
+            var activeTab = this.app.tabController.getActiveTab();
+            if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)){
+                var activeFile = activeTab.getFile();
+                if(activeFile.isPersisted()){
+                    this._saveFileDialog.once('loaded', function(){
+                        this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
+                    }, this);
+                }
+            }
+        }
+    }
+
+    openNativeFileSaveDialog (options) {
+        let renderer = this.app.getNativeRenderProcess(),
+            fileSavedCallback = (!_.isNil(options)) ? options.callback : undefined;
+        renderer.send('show-file-save-dialog');
+        renderer.once('file-save-path-selected', (event, path) => {
+            let activeTab = this.app.tabController.getActiveTab();
+            if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)) {
+                let activeFile = activeTab.getFile(),
+                    folderPath = path.substring(0, path.lastIndexOf(this.app.getPathSeperator())),
+                    fileName = path.substring(path.lastIndexOf(this.app.getPathSeperator()) + 1),
+                    config = activeTab.getBallerinaFileEditor().getContent();
+
+                activeFile.setPath(folderPath)
+                          .setName(fileName)
+                          .setContent(config);
+
+                let result = this._serviceClient.writeFile(activeFile);
+                if(!_.isNil(fileSavedCallback) && _.isFunction(fileSavedCallback)) {
+                    if (_.isNil(result) || result.error) {
+                        fileSavedCallback(false);
+                        if(!_.isNil(result.message)) {
+                            alerts.error(result.message);
+                        }
+                    } else {
+                        fileSavedCallback(true);
+                    }
+                }
+            }
+        });
     }
 
     openSettingsDialog(){
@@ -200,21 +234,45 @@ class WorkspaceManager {
     }
 
     showFolderOpenDialog () {
-        if(_.isNil(this._folderOpenDialog)){
-            var opts = _.cloneDeep(_.get(this.app.config, 'open_folder_dialog'));
-            _.set(opts, 'application', this.app);
-            this._folderOpenDialog = new Dialogs.FolderOpenDialog(opts);
+        if(this.app.isElectronMode()) {
+            this.openNativeFolderOpenDialog();
+        } else {
+            if(_.isNil(this._folderOpenDialog)){
+                var opts = _.cloneDeep(_.get(this.app.config, 'open_folder_dialog'));
+                _.set(opts, 'application', this.app);
+                this._folderOpenDialog = new Dialogs.FolderOpenDialog(opts);
+            }
+            this._folderOpenDialog.render();
+            this._folderOpenDialog.show();
         }
-        this._folderOpenDialog.render();
-        this._folderOpenDialog.show();
+    }
+
+    openNativeFolderOpenDialog () {
+        let renderer = this.app.getNativeRenderProcess();
+        renderer.send('show-folder-open-dialog');
+        renderer.once('folder-opened', (event, path) => {
+            this.app.commandManager.dispatch('open-folder', path);
+        });
     }
 
     openFileOpenDialog () {
-        if(_.isNil(this._openFileDialog)){
-            this._openFileDialog = new Dialogs.open_file_dialog(this.app);
+        if(this.app.isElectronMode()) {
+            this.openNativeFileOpenDialog();
+        } else {
+            if(_.isNil(this._openFileDialog)){
+                this._openFileDialog = new Dialogs.open_file_dialog(this.app);
+            }
+            this._openFileDialog.render();
+            this._openFileDialog.show();
         }
-        this._openFileDialog.render();
-        this._openFileDialog.show();
+    }
+
+    openNativeFileOpenDialog () {
+        let renderer = this.app.getNativeRenderProcess();
+        renderer.send('show-file-open-dialog');
+        renderer.once('file-opened', (event, path) => {
+            this.app.commandManager.dispatch('open-file', path);
+        });
     }
 
     openCloseFileConfirmDialog (options) {

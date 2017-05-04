@@ -19,6 +19,7 @@ import log from 'log';
 import EventChannel from 'event_channel';
 import _ from 'lodash';
 import BallerinaAstFactory from './ballerina-ast-factory';
+import SimpleBBox from './simple-bounding-box';
 
 /**
  * Constructor for the ASTNode
@@ -48,6 +49,19 @@ class ASTNode extends EventChannel {
 
         this._generateUniqueIdentifiers = undefined;
         this._whitespaceTokens = [];
+
+        this.viewState = {
+            bBox: new SimpleBBox(),
+            components: {}
+        }
+    }
+
+    /**
+     * Get the node's view state
+     * @return {{bBox: BBox}} node's view state
+     */
+    getViewState(){
+        return this.viewState;
     }
 
     getParent() {
@@ -179,12 +193,9 @@ class ASTNode extends EventChannel {
     accept(visitor) {
         if(visitor.canVisit(this)) {
             visitor.beginVisit(this);
-            var self = this;
+            visitor.visit(this);
             _.forEach(this.children, function (child) {
                 if(child){
-                    // visit current child
-                    visitor.visit(child);
-                    self.trigger("child-visited", child);
                     // forward visitor down the hierarchy to visit children of current child
                     // if visitor doesn't support visiting children of current child, it will break
                     child.accept(visitor);
@@ -239,7 +250,7 @@ class ASTNode extends EventChannel {
     filterChildren(predicateFunction) {
         return _.filter(this.getChildren(), predicateFunction);
     }
-    
+
     /**
      * Find matching child from the predicate function+
      * @param predicateFunction a function returning a boolean to match find condition from children
