@@ -2,6 +2,10 @@
     fill-opacity: 0.2;
 }
 
+.svg-container .drop-zone.active.blocked {
+    fill: red;
+}
+
 .svg-container .drop-zone {
     fill: green;
     fill-opacity: 0;

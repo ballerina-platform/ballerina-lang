@@ -134,3 +134,15 @@ export const statementContainer = {
     // Default statement container height is the height of two simple statements
     height: 135
 };
+
+export const packageDefinition = {
+    header: {
+        height: 50,
+        padding: {
+            top: 0,
+            right: 50,
+            bottom: 0,
+            left: 50
+        }
+    }
+}

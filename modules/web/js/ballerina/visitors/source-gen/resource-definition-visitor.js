@@ -42,10 +42,6 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
-    canVisitExpression(expression) {
-        return true;
-    }
-
     canVisitConnectorDeclaration(connectorDeclaration) {
         return true;
     }

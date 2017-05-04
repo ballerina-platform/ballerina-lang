@@ -29,7 +29,7 @@ class PanelDecorator extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {dropZoneActivated: false};
+        this.state = {dropZoneActivated: false, dropZoneDropNotAllowed: false};
     }
 
     onCollapseClick() {
@@ -46,6 +46,10 @@ class PanelDecorator extends React.Component {
         const iconSize = 14;
         const collapsed = this.props.model.viewState.collapsed|| false;
         const dropZoneActivated = this.state.dropZoneActivated;
+        const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
+        const dropZoneClassName = ((!dropZoneActivated) ? "panel-body-rect drop-zone" : "panel-body-rect drop-zone active")
+                          + ((dropZoneDropNotAllowed) ? " block" : "");
+        const panelBodyClassName = "panel-body" + ((dropZoneActivated) ? " drop-zone active" : "");
         return ( <g className="panel">
                      <g className="panel-header">
                          <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleHeight } rx="0" ry="0" className="headingRect" data-original-title="" title=""></rect>
@@ -60,7 +64,7 @@ class PanelDecorator extends React.Component {
                              <line x1={ bBox.x + bBox.w - 25} y1={ bBox.y + 5} x2={ bBox.x + bBox.w - 25} y2={ bBox.y + 20} className="operations-separator"></line>
                          </g>
                      </g>
-                     <g className="panel-body">
+                     <g className={panelBodyClassName}>
                         <CSSTransitionGroup
                            component="g"
                            transitionName="panel-slide"
@@ -69,7 +73,7 @@ class PanelDecorator extends React.Component {
                               { !collapsed &&
                                    <rect x={ bBox.x } y={ bBox.y + titleHeight} width={ bBox.w } height={ bBox.h - titleHeight }
                                       rx="0" ry="0" fill="#fff"
-                                      className={(!dropZoneActivated) ? "panel-body-rect drop-zone" : "panel-body-rect drop-zone active"}
+                                      className={dropZoneClassName}
                                       onMouseOver={(e) => this.onDropZoneActivate(e)}
                                       onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
                               }
@@ -92,9 +96,10 @@ class PanelDecorator extends React.Component {
             } else if (_.isFunction(dropSourceValidateCB)) {
                 dragDropManager.setActivatedDropTarget(dropTarget, dropSourceValidateCB);
             }
-            this.setState({dropZoneActivated: true});
+            this.setState({dropZoneActivated: true,
+                      dropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()});
             dragDropManager.once('drop-target-changed', () => {
-                this.setState({dropZoneActivated: false});
+                this.setState({dropZoneActivated: false, dropZoneDropNotAllowed: false});
             });
         }
         e.stopPropagation();
@@ -106,7 +111,7 @@ class PanelDecorator extends React.Component {
         if(!_.isNil(dropTarget) && dragDropManager.isOnDrag()){
             if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
                 dragDropManager.clearActivatedDropTarget();
-                this.setState({dropZoneActivated: false});
+                this.setState({dropZoneActivated: false, dropZoneDropNotAllowed: false});
             }
         }
         e.stopPropagation();

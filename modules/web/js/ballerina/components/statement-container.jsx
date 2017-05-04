@@ -26,15 +26,18 @@ class StatementContainer extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {statementDropZoneActivated: false}
+        this.state = {statementDropZoneActivated: false, dropZoneDropNotAllowed: false}
     }
 
     render() {
         const bBox = this.props.bBox;
         const dropZoneActivated = this.state.statementDropZoneActivated;
+        const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
+        const dropZoneClassName = ((!dropZoneActivated) ? "drop-zone" : "drop-zone active")
+              + ((dropZoneDropNotAllowed) ? " block" : "");
         return (<g className="statement-container">
             <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h }
-                className={(!dropZoneActivated) ? "drop-zone" : "drop-zone active"}
+                className={dropZoneClassName}
                 onMouseOver={(e) => this.onDropZoneActivate(e)}
                 onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
             {this.props.children}
@@ -56,9 +59,10 @@ class StatementContainer extends React.Component {
   									return dropTarget.getFactory().isStatement(nodeBeingDragged);
   							}
             );
-  					this.setState({statementDropZoneActivated: true});
+  					this.setState({statementDropZoneActivated: true,
+                  dropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()});
   					dragDropManager.once('drop-target-changed', () => {
-  							this.setState({statementDropZoneActivated: false});
+  							this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
   					});
   			}
         e.stopPropagation();
@@ -70,7 +74,7 @@ class StatementContainer extends React.Component {
   			if(dragDropManager.isOnDrag()){
   					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
   							dragDropManager.clearActivatedDropTarget();
-  							this.setState({statementDropZoneActivated: false});
+  							this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
   					}
   			}
         e.stopPropagation();
