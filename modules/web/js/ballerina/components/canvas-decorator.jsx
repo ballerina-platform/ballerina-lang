@@ -15,17 +15,71 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 import React from 'react';
 import PropTypes from 'prop-types';
+import ASTNode from '../ast/node';
+import DragDropManager from '../tool-palette/drag-drop-manager';
+import './canvas-decorator.css';
+import {setCanvasOverlay, getCanvasOverlay} from '../configs/app-context';
 
 class CanvasDecorator extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {dropZoneActivated: false, dropZoneDropNotAllowed: false};
+    }
 
     render() {
         const { bBox = {} } = this.props;
-        return (<svg className="svg-container" width={ this.props.bBox.w } height={ this.props.bBox.h }>
-                  {this.props.children}
-              </svg>);
+        const dropZoneActivated = this.state.dropZoneActivated;
+        const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
+        const canvasClassName = "svg-container" + (dropZoneActivated ? " drop-zone active" : "");
+
+        const dropZoneClassName = (dropZoneActivated ? "drop-zone active" : "drop-zone ")
+                        + (dropZoneDropNotAllowed ? " blocked" : "");
+        return (
+            <div>
+                <div ref={x => {setCanvasOverlay(x);}}>
+                    {/*This space is used to render html elements over svg*/ }
+                </div>
+                <svg className={canvasClassName} width={ this.props.bBox.w } height={ this.props.bBox.h }>
+                    <rect x="0" y="0"width="100%" height="100%"
+                        className={dropZoneClassName}
+                        onMouseOver={(e) => this.onDropZoneActivate(e)}
+                        onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
+                    {this.props.children}
+                </svg>
+            </div>
+        );
+    }
+
+    onDropZoneActivate (e) {
+        const dragDropManager = this.context.dragDropManager,
+              dropTarget = this.props.dropTarget;
+        if(dragDropManager.isOnDrag()) {
+            if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+                return;
+            }
+            dragDropManager.setActivatedDropTarget(dropTarget);
+            this.setState({dropZoneActivated: true,
+                  dropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()});
+            dragDropManager.once('drop-target-changed', () => {
+                this.setState({dropZoneActivated: false, dropZoneDropNotAllowed: false});
+            });
+        }
+        e.stopPropagation();
+    }
+
+    onDropZoneDeactivate (e) {
+        const dragDropManager = this.context.dragDropManager,
+              dropTarget = this.props.dropTarget;
+        if(dragDropManager.isOnDrag()){
+            if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+                dragDropManager.clearActivatedDropTarget();
+                this.setState({dropZoneActivated: false, dropZoneDropNotAllowed: false});
+            }
+        }
+        e.stopPropagation();
     }
 }
 
@@ -34,8 +88,12 @@ CanvasDecorator.propTypes = {
         h: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
     }).isRequired,
-    children: PropTypes.node.isRequired
+    children: PropTypes.node.isRequired,
+    dropTarget: PropTypes.instanceOf(ASTNode).isRequired
 }
 
+CanvasDecorator.contextTypes = {
+	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
+};
 
 export default CanvasDecorator;

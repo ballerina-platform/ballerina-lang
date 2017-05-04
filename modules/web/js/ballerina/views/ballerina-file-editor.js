@@ -252,8 +252,9 @@ class BallerinaFileEditor extends BallerinaView {
                 height : this._$canvasContainer.height()
             };
             //create Rect component for diagram
-            let root = React.createElement(BallerinaDiagram, { 
-                model: this._model
+            let root = React.createElement(BallerinaDiagram, {
+                model: this._model,
+                dragDropManager: this.toolPalette.dragDropManager
             }, null);
             ReactDOM.render(
               root,
@@ -472,12 +473,9 @@ class BallerinaFileEditor extends BallerinaView {
             if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
                 self._environment.resetCurrentPackage();
                 self.rerenderCurrentPackageTool();
-                self.reDraw();
             }
             $('.outer-box').mCustomScrollbar('scrollTo', 'left');
         });
-
-        this.initDropTarget();
 
         if(this._parseFailed){
             this._swaggerView.hide();
@@ -524,45 +522,6 @@ class BallerinaFileEditor extends BallerinaView {
             collapsed: false
         };
         provider.addImportToolGroup(currentPackage, options);
-    }
-
-    initDropTarget() {
-        var self = this,
-            dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
-
-        // on hover over canvas area
-        this._$canvasContainer
-            .mouseover(function(event){
-
-            //if someone is dragging a tool from tool-palette
-                if(self.toolPalette.dragDropManager.isOnDrag()){
-
-                    if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
-                        return;
-                    }
-
-                // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
-                // tool view will use this to provide feedback on impossible drop zones
-                    self.toolPalette.dragDropManager.setActivatedDropTarget(self._model);
-
-                // indicate drop area
-                    self._$canvasContainer.addClass(dropActiveClass);
-
-                // reset ui feed back on drop target change
-                    self.toolPalette.dragDropManager.once('drop-target-changed', function(){
-                        self._$canvasContainer.removeClass(dropActiveClass);
-                    });
-                }
-                event.stopPropagation();
-            }).mouseout(function(event){
-            // reset ui feed back on hover out
-                if(self.toolPalette.dragDropManager.isOnDrag()){
-                    if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
-                        self.toolPalette.dragDropManager.clearActivatedDropTarget();
-                    }
-                }
-                event.stopPropagation();
-            });
     }
 
     /**
@@ -777,55 +736,6 @@ class BallerinaFileEditor extends BallerinaView {
         });
     }
 
-    reDraw() {
-        // var self = this;
-        // var viewOptions = this._viewOptions;
-        // if (!_.has(this._viewOptions, 'design_view.container')) {
-        //     var errMsg = 'unable to find configuration for container';
-        //     log.error(errMsg);
-        //     throw errMsg;
-        // }
-        // // this._viewOptions.container is the root div for tab content
-        // var container = $(this._container).find(_.get(this._viewOptions, 'design_view.container'));
-        // //remove the old canves before creating a new one.
-        // var canvas = container.find('div.canvas-container');
-        // canvas.remove();
-        //
-        // this._$designViewContainer = container;
-        // var canvasContainer = $('<div></div>');
-        // canvasContainer.addClass(_.get(viewOptions, 'cssClass.canvas_container'));
-        // var canvasTopControlsContainer = $('<div></div>')
-        //     .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'))
-        //     .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_package_define')))
-        //     .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_packages_import')))
-        //     .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_constants_define')));
-        // canvasContainer.append(canvasTopControlsContainer);
-        // this._$designViewContainer.append(canvasContainer);
-        // this._$canvasContainer = canvasContainer;
-        // // check whether container element exists in dom
-        // if (!container.length > 0) {
-        //     errMsg = 'unable to find container for file composer with selector: ' + _.get(this._viewOptions, 'design_view.container');
-        //     log.error(errMsg);
-        //     throw errMsg;
-        // }
-        // this._createImportDeclarationPane(this._$canvasContainer);
-        // // Creating the constants view.
-        // this._createConstantDefinitionsView(this._$canvasContainer);
-        //
-        // // this._createPackageDeclarationPane(this._$canvasContainer);
-        //
-        // //this._model.accept(this);
-        //
-        // // adding declared import packages to tool palette
-        // _.forEach(this._model.getImportDeclarations(), function (importDeclaration) {
-        //     var pckg = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-        //     self.toolPalette.getItemProvider().addImportToolGroup(pckg[0]);
-        // });
-        //
-        // this.initDropTarget();
-        // this.trigger('redraw');
-    }
-
     getUndoManager() {
         return this._undoManager;
     }
@@ -878,8 +788,6 @@ class BallerinaFileEditor extends BallerinaView {
 
         var generatedSource = this.getContent();
         var model = this.getModelFromSource(generatedSource);
-        //this.setModel(model);
-        //this.reDraw();
         const modelMap = this.diagramRenderingContext.getViewModelMap();
         model.accept(findBreakpointsVisitor);
         const breakpointNodes = findBreakpointsVisitor.getBreakpointNodes();

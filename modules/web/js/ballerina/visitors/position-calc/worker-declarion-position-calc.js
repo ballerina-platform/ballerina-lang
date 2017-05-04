@@ -24,11 +24,12 @@ import * as DesignerDefaults from './../../configs/designer-defaults';
 class WorkerDeclarationPositionCalcVisitor {
 
     canVisit(node) {
-        log.debug('can visit ServiceDefinitionPositionCalc');
+        log.debug('can visit WorkerDeclarationPositionCalcVisitor');
         return true;
     }
 
     beginVisit(node) {
+        log.debug('begin visit WorkerDeclarationPositionCalcVisitor');
         let viewState = node.getViewState();
         let bBox = viewState.bBox;
         let parent = node.getParent();
@@ -53,7 +54,7 @@ class WorkerDeclarationPositionCalcVisitor {
         } else if (workerIndex > 0) {
             const previousWorker = workers[workerIndex - 1];
             const previousStatementContainer = previousWorker.getViewState().components.statementContainer;
-            x = previousStatementContainer.getRight() + DesignerDefaults.innerPanel.body.padding.left;
+            x = previousStatementContainer.getRight() + DesignerDefaults.lifeLine.gutter.h;
         } else {
             throw "Invalid index found for Worker Declaration";
         }
@@ -66,9 +67,11 @@ class WorkerDeclarationPositionCalcVisitor {
     }
 
     visit(node) {
+        log.debug('visit WorkerDeclarationPositionCalcVisitor');
     }
 
     endVisit(node) {
+        log.debug('end visit WorkerDeclarationPositionCalcVisitor');
     }
 }
 

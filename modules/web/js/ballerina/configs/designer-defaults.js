@@ -77,7 +77,8 @@ export const lifeLine = {
         height: 30
     },
     line: {
-        height: 320
+        // set the default line height as two time of a statement
+        height: 135
     },
     gutter: {
         v: 50,
@@ -102,29 +103,28 @@ export const statement = {
 };
 
 export const blockStatement = {
+    width: statement.width,
     heading : {
         width: 50,
         height: statement.height
     },
     body: {
         padding: {
-            top: 50,
-            right: 50,
-            bottom: 50,
-            left: 50
+            top: 25,
+            right: 25,
+            bottom: 25,
+            left: 25
         },
-        height: 200
+        height: 100
     }
 };
 
 export const canvas = {
-    body: {
-        padding: {
-            top: 50,
-            right: 50,
-            bottom: 50,
-            left: 50
-        },
+    padding: {
+        top: 50,
+        right: 50,
+        bottom: 50,
+        left: 50
     }
 };
 
@@ -132,3 +132,15 @@ export const statementContainer = {
     width: 120,
     height: 400
 };
+
+export const packageDefinition = {
+    header: {
+        height: 50,
+        padding: {
+            top: 0,
+            right: 50,
+            bottom: 0,
+            left: 50
+        }
+    }
+}
