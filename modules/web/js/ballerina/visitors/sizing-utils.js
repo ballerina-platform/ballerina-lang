@@ -215,6 +215,10 @@ class SizingUtil {
 
         return height;
     }
+
+    getDefaultStatementHeight() {
+        return statement.height + statement.gutter.v;
+    }
 }
 
 

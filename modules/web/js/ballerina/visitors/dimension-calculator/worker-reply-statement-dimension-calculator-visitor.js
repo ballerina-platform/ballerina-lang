@@ -47,7 +47,8 @@ class WorkerReplyStatementDimensionCalculatorVisitor {
                     workerReplyStatement.getViewState().components['drop-zone'].h += heightDiff;
                     workerReplyStatement.getViewState().bBox.h += heightDiff;
                 } else {
-
+                    node.getViewState().components['drop-zone'].h += (-heightDiff);
+                    node.getViewState().bBox.h += (-heightDiff);
                 }
             }
         }

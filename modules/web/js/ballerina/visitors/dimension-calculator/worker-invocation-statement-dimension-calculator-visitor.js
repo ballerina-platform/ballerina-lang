@@ -39,8 +39,8 @@ class WorkerInvocationStatementDimensionCalculatorVisitor {
         if(!_.isUndefined(workerDeclaration)) {
             let heightFromTop = util.getStatementHeightBefore(node);
             let workerFirstStatement = workerDeclaration.findChild(BallerinaASTFactory.isStatement);
-            workerFirstStatement.getViewState().components['drop-zone'].h += heightFromTop ;
-            workerFirstStatement.getViewState().bBox.h += heightFromTop;
+            workerFirstStatement.getViewState().components['drop-zone'].h += (heightFromTop + util.getDefaultStatementHeight());
+            workerFirstStatement.getViewState().bBox.h += (heightFromTop + util.getDefaultStatementHeight());
         }
     }
 }

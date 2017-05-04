@@ -17,6 +17,7 @@
  */
 import React from "react";
 import StatementDecorator from "./statement-decorator";
+import StartArrowConnection from "./start-arrow-connection";
 import PropTypes from 'prop-types';
 
 class WorkerInvocationStatement extends React.Component {
@@ -24,7 +25,14 @@ class WorkerInvocationStatement extends React.Component {
     render() {
         let model = this.props.model, 
             expression = model.viewState.expression;
-        return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+        if (!_.isUndefined(model.getDestination())) {
+            return (<g>
+                      <StatementDecorator viewState={model.viewState} expression={expression} />);
+                      <StartArrowConnection start={model.viewState} end={model.getDestination().viewState} />
+                    </g>);
+        } else {
+            return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+        }
     }
 }
 

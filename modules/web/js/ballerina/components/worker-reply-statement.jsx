@@ -17,14 +17,28 @@
  */
 import React from "react";
 import StatementDecorator from "./statement-decorator";
+import StatementArrowConnection from './statement-arrow-connection';
 import PropTypes from 'prop-types';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 class WorkerReplyStatement extends React.Component {
 
     render() {
         let model = this.props.model, 
             expression = model.viewState.expression;
-        return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+        if (!_.isUndefined(model.getDestination())) {
+            let workerReplyStatement = model.getDestination().findChild(BallerinaASTFactory.isReplyStatement);
+            if (!_.isUndefined(workerReplyStatement)) {
+                    return (<g>
+                      <StatementDecorator viewState={model.viewState} expression={expression} />);
+                      <StatementArrowConnection start={workerReplyStatement.viewState} end={model.viewState} />
+                    </g>);
+            } else {
+                return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+            }
+        } else {
+            return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+        }
     }
 }
 
