@@ -51,7 +51,8 @@ public class StringConcatAggregatorString extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param configReader
      * @param executionPlanContext         SiddhiContext
      */
@@ -70,9 +71,9 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     @Override
     public Object processAdd(Object data) {
         aggregatedStringValue = aggregatedStringValue + data;
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
 
@@ -83,9 +84,9 @@ public class StringConcatAggregatorString extends AttributeAggregator {
         for (Object aData : data) {
             aggregatedStringValue = aggregatedStringValue + aData;
         }
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
     }
@@ -94,9 +95,9 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     @Override
     public Object processRemove(Object data) {
         aggregatedStringValue = aggregatedStringValue.replaceFirst(data.toString(), "");
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
     }
@@ -106,9 +107,9 @@ public class StringConcatAggregatorString extends AttributeAggregator {
         for (Object aData : data) {
             aggregatedStringValue = aggregatedStringValue.replaceFirst(aData.toString(), "");
         }
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
     }

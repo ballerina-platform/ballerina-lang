@@ -42,22 +42,16 @@ public abstract class Sink implements SinkListener, Snapshotable {
     private String elementId;
     private AtomicBoolean isConnected = new AtomicBoolean(false);
 
-    public void init(StreamDefinition streamDefinition,
-                     String type,
-                     OptionHolder transportOptionHolder,
-                     ConfigReader sinkConfigReader,
-                     SinkMapper sinkMapper,
-                     String mapType,
-                     OptionHolder mapOptionHolder,
-                     String payload,
-                     ConfigReader mapperConfigReader,
+    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
+                     ConfigReader sinkConfigReader, SinkMapper sinkMapper, String mapType,
+                     OptionHolder mapOptionHolder, String payload, ConfigReader mapperConfigReader,
                      ExecutionPlanContext executionPlanContext) {
         this.type = type;
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
         init(streamDefinition, transportOptionHolder, sinkConfigReader, executionPlanContext);
         if (sinkMapper != null) {
             sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, mapperConfigReader,
-                    executionPlanContext);
+                            executionPlanContext);
             this.mapper = sinkMapper;
         }
 

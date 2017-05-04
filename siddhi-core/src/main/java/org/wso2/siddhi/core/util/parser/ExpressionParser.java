@@ -265,19 +265,18 @@ public class ExpressionParser {
      * @param expression              Expression to be parsed
      * @param metaEvent               Meta Event
      * @param currentState            Current state number
-     * @param tableMap           Event Table Map
+     * @param tableMap                Event Table Map
      * @param executorList            List to hold VariableExpressionExecutors to update after query parsing  @return
      * @param executionPlanContext    ExecutionPlanContext
      * @param groupBy                 is for groupBy expression
      * @param defaultStreamEventIndex Default StreamEvent Index
      * @return ExpressionExecutor
      */
-    public static ExpressionExecutor parseExpression(Expression expression, MetaComplexEvent metaEvent, int
-            currentState,
-                                                     Map<String, Table> tableMap,
+    public static ExpressionExecutor parseExpression(Expression expression, MetaComplexEvent metaEvent,
+                                                     int currentState, Map<String, Table> tableMap,
                                                      List<VariableExpressionExecutor> executorList,
-                                                     ExecutionPlanContext executionPlanContext, boolean groupBy, int
-                                                             defaultStreamEventIndex, String queryName) {
+                                                     ExecutionPlanContext executionPlanContext, boolean groupBy,
+                                                     int defaultStreamEventIndex, String queryName) {
         if (expression instanceof And) {
             return new AndConditionExpressionExecutor(
                     parseExpression(((And) expression).getLeftExpression(), metaEvent, currentState, tableMap,
