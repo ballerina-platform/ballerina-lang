@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
@@ -39,7 +40,13 @@ import java.util.Map;
         description = "In-memory sink that can communicate with other in-memory sources within the same JVM, it" +
                 "is assumed that the publisher and subscriber of a topic uses same event schema (stream definition).",
         parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Event will be delivered to all" +
-                "the subscribers of the same topic")
+                "the subscribers of the same topic"),
+        examples = @Example(
+                value = "In the following example BarStream uses inMemory transport which emit the Siddhi " +
+                        "events internally without using external transport and transformation.\n" +
+                        "@sink(type='inMemory', @map(type='passThrough'),\n" +
+                        "define stream BarStream (symbol string, price float, volume long)"
+        )
 )
 public class InMemorySink extends Sink {
     private static final Logger log = Logger.getLogger(InMemorySink.class);

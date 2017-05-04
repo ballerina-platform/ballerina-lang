@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
@@ -27,12 +28,20 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import java.util.List;
 
 /**
- * Publishing strategy to broad case message to all destinations
+ * Publishing strategy to broad cast message to all destinations
  * */
 @Extension(
         name = "broadcast",
         namespace = "distributionStrategy",
-        description = ""
+        description = "Publishing strategy to broad cast message to all destinations",
+        examples = @Example(
+                value = "In the following example BarStream sink will act as broadcast strategy to 'topic1' and " +
+                        "'topic2' destinations.\n @sink(type='tcp', @map(type='text'),\n" +
+                        "@distribution(strategy='broadcast',\n" +
+                        "@destination(topic = 'topic1'),\n" +
+                        "@destination(topic = 'topic2')))\n" +
+                        "define stream BarStream (symbol string, price float, volume long);"
+        )
 )
 public class BroadcastDistributionStrategy extends DistributionStrategy {
     /**

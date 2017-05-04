@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
@@ -34,7 +35,15 @@ import java.util.List;
 @Extension(
         name = "roundRobin",
         namespace = "distributionStrategy",
-        description = ""
+        description = "Publishing strategy to implement messages in a round robin manner to multiple destinations.",
+        examples = @Example(
+                value = "In the following example BarStream sink will act as round robin strategy to 'topic1' and " +
+                        "'topic2' destinations.\n @sink(type='tcp', @map(type='text'),\n" +
+                        "@distribution(strategy='roundRobin',\n" +
+                        "@destination(topic = 'topic1'),\n" +
+                        "@destination(topic = 'topic2')))\n" +
+                        "define stream BarStream (symbol string, price float, volume long);"
+        )
 )
 public class RoundRobinDistributionStrategy extends DistributionStrategy {
     private int count = 0;
