@@ -93,6 +93,8 @@ public class Constants {
     public static final String ANNOTATION_NAME_ON_PONG_MESSAGE = "OnPongMessage";
     public static final String ANNOTATION_NAME_ON_CLOSE = "OnClose";
     public static final String ANNOTATION_NAME_ON_ERROR = "OnError";
+    public static final String IS_WEBSOCKET_SERVER = "IS_WEBSOCKET_SERVER";
+    public static final String WEBSOCKET_CLIENT_ID = "WEBSOCKET_CLIENT_ID";
 
     public static final String CONNECTION = "Connection";
     public static final String UPGRADE = "Upgrade";

@@ -29,4 +29,7 @@ public class Constants {
     // WebSocket constants
     public static final String PROTOCOL_WEBSOCKET = "ws";
     public static final String WEBSOCKET_CLIENT_ID = "WEBSOCKET_CLIENT_ID";
+
+    public static final String WEBSOCKET_CLOSE_CODE = "WEBSOCKET_CLOSE_CODE";
+    public static final String WEBSOCKET_CLOSE_REASON = "WEBSOCKET_CLOSE_REASON";
 }
