@@ -18,7 +18,10 @@
 
 package org.wso2.siddhi.core.query.processor.stream;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -38,13 +41,41 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Input attributes to log is (priority (String), logMessage (String), isEventLogged (Bool))
+ * Input attributes to log is (priority (String), log.message (String), is.event.logged (Bool))
  */
 @Extension(
         name = "log",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "The logger stream processor logs the message with or without event for the given log priority.",
+        parameters = {
+                @Parameter(name = "priority",
+                        description = "The priority/type of this log message.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "log.message",
+                        description = "This submit the log message.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "is.event.logged",
+                        description = "Use this command to enable the logging of one or more events.",
+                        type = {DataType.BOOL})
+        },
+        examples = {
+                @Example(
+                        value = "fooStream#log(\"INFO\", \"Sample Event :\", true), will log as INFO with the " +
+                                "message \"Sample Event :\" + fooStream:events."
+                ),
+                @Example(
+                        value = "fooStream#log(\"Sample Event :\", true), default log level taken as INFO."
+                ),
+                @Example(
+                        value = "fooStream#log(\"Sample Event :\", fasle), will only log message."
+                ),
+                @Example(
+                        value = "fooStream#log(true), will only log fooStream:events."
+                ),
+                @Example(
+                        value = "fooStream#log(\"Sample Event :\"), will log message and fooStream:events."
+                )
+        }
 )
 public class LogStreamProcessor extends StreamProcessor {
 

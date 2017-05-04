@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -53,13 +54,16 @@ import java.util.Map;
                 "windowTime period from the external timestamp, and gets updated on every monotonically " +
                 "increasing timestamp.",
         parameters = {
-                @Parameter(name = "windowTime",
+                @Parameter(name = "window.time",
                         description = "The sliding time period for which the window should hold events.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME}),
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = @Example(
+                value = "externalTime(eventTime,20) for processing events arrived within the last 20 milliseconds " +
+                        "from the eventTime\n" +
+                        "externalTime(eventTimestamp, 2 min) for processing events arrived within the last 2 minutes " +
+                        "from the eventTimestamp"
+        )
 )
 public class ExternalTimeWindowProcessor extends WindowProcessor implements FindableProcessor {
     static final Logger log = Logger.getLogger(ExternalTimeWindowProcessor.class);

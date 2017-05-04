@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -59,10 +60,10 @@ import java.util.Map;
                         description = "The time which the window determines as current time and will act upon. " +
                                 "The value of this parameter should be monotonically increasing.",
                         type = {DataType.LONG}),
-                @Parameter(name = "windowTime",
+                @Parameter(name = "window.time",
                         description = "The batch time period for which the window should hold events.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME}),
-                @Parameter(name = "startTime",
+                @Parameter(name = "start.time",
                         description = "User defined start time. This could either be a constant (of type int, " +
                                 "long or time) or an attribute of the corresponding stream (of type long). " +
                                 "If an attribute is provided, initial value of attribute would be considered as " +
@@ -78,9 +79,18 @@ import java.util.Map;
                         type = {DataType.INT, DataType.LONG, DataType.TIME},
                         optional = true)
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = @Example(
+                value = "externalTimeBatch(eventTime,20) for processing events that arrive every 20 milliseconds " +
+                        "from the eventTime.\n" +
+                        "externalTimeBatch(eventTimestamp, 2 min) for processing events that arrive every 2 minutes " +
+                        "from the eventTimestamp.\n" +
+                        "externalTimeBatch(eventTimestamp, 2 sec, 0) for processing events that arrive every " +
+                        "2 seconds from the eventTimestamp. Starts on 0th millisecond of an hour.\n" +
+                        "externalTimeBatch(eventTimestamp, 2 sec, eventTimestamp, 100) for processing events " +
+                        "that arrive every 2 seconds from the eventTimestamp. Considers the first event's " +
+                        "eventTimestamp value as startTime. Waits 100 milliseconds for the arrival of a new " +
+                        "event before flushing current batch. "
+        )
 )
 public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);

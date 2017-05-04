@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -52,13 +53,18 @@ import java.util.Map;
                 "The window is updated each time a batch of events that equals the number " +
                 "specified as the windowLength arrives.",
         parameters = {
-                @Parameter(name = "windowLength",
+                @Parameter(name = "window.length",
                         description = "The number of events the window should tumble.",
                         type = {DataType.INT}),
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = {
+                @Example(
+                        value = "lengthBatch(10) for processing 10 events as a batch."
+                ),
+                @Example(
+                        value = "lengthBatch(200) for processing 200 events as a batch."
+                )
+        }
 )
 public class LengthBatchWindowProcessor extends WindowProcessor implements FindableProcessor {
 

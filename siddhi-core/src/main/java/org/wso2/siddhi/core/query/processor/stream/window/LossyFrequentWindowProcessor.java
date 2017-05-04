@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -51,10 +52,10 @@ import java.util.concurrent.ConcurrentHashMap;
         description = "This window identifies and returns all the events of which the current frequency exceeds " +
                 "the value specified for the supportThreshold parameter.",
         parameters = {
-                @Parameter(name = "supportThreshold",
+                @Parameter(name = "support.threshold",
                         description = "The support threshold value.",
                         type = {DataType.DOUBLE}),
-                @Parameter(name = "errorBound",
+                @Parameter(name = "error.bound",
                         description = "The error bound value.",
                         type = {DataType.DOUBLE}),
                 @Parameter(name = "attribute",
@@ -63,9 +64,16 @@ import java.util.concurrent.ConcurrentHashMap;
                         type = {DataType.STRING},
                         optional = true)
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = {
+                @Example(
+                        value = "lossyFrequent(0.1, 0.01) returns all the events of which the current frequency " +
+                                "exceeds 0.1, with an error bound of 0.01."
+                ),
+                @Example(
+                        value = "lossyFrequent(0.3, 0.05, cardNo) returns all the events of which the cardNo " +
+                                "attributes frequency exceeds 0.3, with an error bound of 0.05."
+                )
+        }
 )
 public class LossyFrequentWindowProcessor extends WindowProcessor implements FindableProcessor {
 

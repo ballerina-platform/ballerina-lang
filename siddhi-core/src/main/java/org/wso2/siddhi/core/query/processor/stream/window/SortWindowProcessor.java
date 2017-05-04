@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -59,7 +60,7 @@ import java.util.*;
         description = "This window holds a batch of events that equal the number specified as the windowLength " +
                 "and sorts them in the given order.",
         parameters = {
-                @Parameter(name = "windowLength",
+                @Parameter(name = "window.length",
                         description = "The size of the window length.",
                         type = {DataType.INT}),
                 @Parameter(name = "attribute",
@@ -71,9 +72,10 @@ import java.util.*;
                         type = {DataType.STRING},
                         optional = true)
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = @Example(
+                value = "sort(5, price, 'asc') keeps the events sorted by price in the ascending order. Therefore, " +
+                        "at any given time, the window contains the 5 lowest prices."
+        )
 )
 public class SortWindowProcessor extends WindowProcessor implements FindableProcessor {
     private static final String ASC = "asc";

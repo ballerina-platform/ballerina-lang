@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -52,13 +53,18 @@ import java.util.Map;
         description = "A sliding time window that holds events that arrived during the last windowTime period " +
                 "at a given time, and gets updated for each event arrival and expiry.",
         parameters = {
-                @Parameter(name = "windowTime",
+                @Parameter(name = "window.time",
                         description = "The sliding time period for which the window should hold events.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME})
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = {
+                @Example(
+                        value = "time(20) for processing events that arrived within the last 20 milliseconds."
+                ),
+                @Example(
+                        value = "time(2 min) for processing events that arrived within the last 2 minutes."
+                )
+        }
 )
 public class TimeWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 

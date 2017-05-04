@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -50,20 +51,25 @@ import java.util.Map;
 @Extension(
         name = "timeBatch",
         namespace = "",
-        description = "A batch (tumbling) time window that holds events that arrive during windowTime periods, " +
-                "and gets updated for each windowTime.",
+        description = "A batch (tumbling) time window that holds events that arrive during window.time periods, " +
+                "and gets updated for each window.time.",
         parameters = {
-                @Parameter(name = "windowTime",
+                @Parameter(name = "window.time",
                         description = "The batch time period for which the window should hold events.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME}),
-                @Parameter(name = "startTime",
+                @Parameter(name = "start.time",
                         description = "This specifies an offset in milliseconds in order to start the " +
                                 "window at a time different to the standard time.",
                         type = {DataType.INT})
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = {
+                @Example(
+                        value = "timeBatch(20) for processing events arrived every 20 milliseconds."
+                ),
+                @Example(
+                        value = "timeBatch(2 min) for processing events arrived every 2 minutes."
+                )
+        }
 )
 public class TimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 
