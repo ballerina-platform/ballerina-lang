@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import _ from 'lodash';
 import './annotation-attribute-decorator.css';
 import ImageUtil from './image-util';
 import {renderTextBox} from './text-input';
@@ -25,29 +26,15 @@ import Alerts from 'alerts';
  * Annotation Attribute Decorator
  * */
 class AnnotationAttributeDecorator extends React.Component {
+
     constructor(props) {
         super(props);
-        this.state = {isEdit: false};
-        this.inputValue = "Enter Variable";
+        this.model = this.props.model;
+        this.state = {inputValue: "Enter Variable"};
+        this.setAnnotationAttributeFromInputBox = this.setAnnotationAttributeFromInputBox.bind(this);
     }
 
-    /**
-     * if isEdit is false: Change the state to show the edit text box.
-     * if isEdit is true: Change the state to hide the edit text box.
-     * */
-    editState() {
-        if (this.state.isEdit) {
-            this.setState({
-                isEdit: false
-            });
-        } else {
-            this.setState({
-                isEdit: true
-            });
-        }
-    }
-
-    onClickVaribaleTextBox() {
+    onClickVariableTextBox() {
         let model = this.props.model;
         let bBox = model.viewState.bBox;
 
@@ -62,7 +49,7 @@ class AnnotationAttributeDecorator extends React.Component {
     }
 
     setAnnotationAttributeFromInputBox(input) {
-        this.inputValue = input;
+        this.setState({inputValue: input});
     }
 
     /**
@@ -71,11 +58,10 @@ class AnnotationAttributeDecorator extends React.Component {
     addAnnotationAttribute() {
         let model = this.props.model;
         try {
-            // var bType = typeDropdown.select2('data')[0].text;
-            var variableDeclaration = $(identifierTextBox).val().trim();
-            var splitedExpression = variableDeclaration.split("=");
-            var leftHandSideExpression = splitedExpression[0].trim();
-            var rightHandSideExpression;
+            let variableDeclaration = this.state.inputValue.trim();
+            let splitedExpression = variableDeclaration.split("=");
+            let leftHandSideExpression = splitedExpression[0].trim();
+            let rightHandSideExpression;
             if (splitedExpression.length > 1) {
                 rightHandSideExpression = splitedExpression[1].trim();
             }
@@ -87,31 +73,26 @@ class AnnotationAttributeDecorator extends React.Component {
                 return false;
             }
 
-            var bType = leftHandSideExpression.split(" ")[0];
-            if (!self._validateType(bType)) {
+            let bType = leftHandSideExpression.split(" ")[0];
+            if (!this.validateType(bType)) {
                 let errorString = "Invalid type for a variable: " + bType;
                 Alerts.error(errorString);
                 e.stopPropagation();
                 return false;
             }
 
-            var identifier = leftHandSideExpression.split(" ")[1];
-            self.getModel().setAttributeName(identifier);
+            let identifier = leftHandSideExpression.split(" ")[1];
 
-            var defaultValue = "";
+            let defaultValue = "";
             if (rightHandSideExpression) {
                 defaultValue = rightHandSideExpression;
             }
 
-            self.getModel().setAttributeType(bType);
-            self.getModel().setAttributeValue(defaultValue);
-
-            model.addAnnotationAttributeDefinition("int", "a", "0");
+            model.addAnnotationAttributeDefinition(bType, identifier, defaultValue);
+            this.setState({inputValue: "Enter Variable"});
         } catch (e) {
             Alerts.error(e);
         }
-
-
     }
 
     render() {
@@ -124,13 +105,48 @@ class AnnotationAttributeDecorator extends React.Component {
                       onClick={() => this.addAnnotationAttribute()}/>
 
                 <text x={bBox.x + 60} y={bBox.y + 70} width={300} height={30}
-                      onClick={() => this.onClickVaribaleTextBox()}>
-                    {this.inputValue}
+                      onClick={() => this.onClickVariableTextBox()}>
+                    {this.state.inputValue}
                 </text>
                 <image x={bBox.x + 350 + 15} y={bBox.y + 55} width={20} height={20}
                        xlinkHref={ImageUtil.getSVGIconString('add')}/>
             </g>
         );
+    }
+
+    /**
+     * Get types of ballerina to which can be applied when declaring variables.
+     * */
+    getTypeDropdownValues() {
+        let dropdownData = [];
+        // Adding items to the type dropdown.
+        // TODO: Add types to diagram context
+        let bTypes = ["int", "string"];
+        _.forEach(bTypes, function (bType) {
+            dropdownData.push({id: bType, text: bType});
+        });
+
+        var structTypes = [];
+        _.forEach(structTypes, function (sType) {
+            dropdownData.push({id: sType.getAnnotationName(), text: sType.getAnnotationName()});
+        });
+
+        return dropdownData;
+    }
+
+    /**
+     * Validate type.
+     * */
+    validateType(bType) {
+        let isValid = false;
+        let typeList = this.getTypeDropdownValues();
+        let filteredTypeList = _.filter(typeList, function (type) {
+            return type.id === bType;
+        });
+        if (filteredTypeList.length > 0) {
+            isValid = true;
+        }
+        return isValid;
     }
 }
 
