@@ -620,17 +620,23 @@ public class BallerinaPsiImplUtil {
         // Get all variables from the context.
         Collection<? extends PsiElement> variableDefinitions =
                 XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement/Identifier");
+        // Iterate through each definition.
         for (PsiElement variableDefinition : variableDefinitions) {
+            // If the variable definition or parent contains the PLACEHOLDER_STRING, then continue because that is
+            // the node which we are currently editing.
             if (variableDefinition.getText().contains(PLACEHOLDER_STRING) ||
                     variableDefinition.getParent().getText().contains(PLACEHOLDER_STRING)) {
                 continue;
             }
+            // Get the variable definition node from the element which we are editing.
             VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(element,
                     VariableDefinitionNode.class);
             if (variableDefinitionNode == null) {
                 StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
                 if (statementNode == null) {
-                    results.add(variableDefinition);
+                    if (variableDefinition.getParent().getTextOffset() < element.getTextOffset()) {
+                        results.add(variableDefinition);
+                    }
                 } else if (!PLACEHOLDER_STRING.equals(statementNode.getText())) {
                     PsiElement prevSibling = statementNode.getPrevSibling();
                     if (prevSibling != null && prevSibling.getText().isEmpty()) {
@@ -650,8 +656,11 @@ public class BallerinaPsiImplUtil {
                     }
                 }
             } else {
-                if (variableDefinition.getParent().getTextOffset() < variableDefinitionNode.getTextOffset()) {
-                    results.add(variableDefinition);
+                StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
+                if (statementNode != null) {
+                    if (statementNode.getTextOffset() > variableDefinitionNode.getTextOffset()) {
+                        results.add(variableDefinition);
+                    }
                 }
             }
         }
