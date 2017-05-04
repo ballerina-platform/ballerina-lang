@@ -21,7 +21,8 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
-import {util} from './../sizing-utils'
+import {util} from './../sizing-utils';
+import ResourceParameterDimensionCalculatorVisitor from './resource-parameter-dimension-calculator-visitor';
 
 class ResourceDefinitionDimensionCalculatorVisitor {
 
@@ -107,6 +108,11 @@ class ResourceDefinitionDimensionCalculatorVisitor {
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
         viewState.bBox.w = components['body'].w;
+
+        viewState.titleWidth = util.getTextWidth(node.getResourceName()).w;
+
+        components['parametersPrefixContainer'] = {};
+        components['parametersPrefixContainer'].w = util.getTextWidth('Parameters: ').w;
 
         viewState.components = components;
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,20 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
+
 import log from 'log';
-import EventChannel from 'event_channel';
-import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
-import StatementVisitorFactory from './statement-visitor-factory';
+import _ from 'lodash';
+import { util } from './../sizing-utils';
 
-class TryCatchStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
+class ReturnTypeDimensionCalculatorVisitor {
 
-    canVisitStatement(statement) {
+    canVisit(node) {
+        log.debug('can visit ArgumentDimensionCalculatorVisitor');
         return true;
     }
+
+    beginVisit(node) {
+        log.debug('begin visit ArgumentDimensionCalculatorVisitor');
+    }
+
+    visit(node) {
+        log.debug('visit ArgumentDimensionCalculatorVisitor');
+    }
+
+    endVisit(node) {
+        log.debug('end visit ArgumentDimensionCalculatorVisitor');
+    }
+
 }
 
-export default TryCatchStatementVisitor;
+export default ReturnTypeDimensionCalculatorVisitor;

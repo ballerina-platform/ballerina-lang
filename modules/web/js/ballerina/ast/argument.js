@@ -30,49 +30,45 @@ import ASTNode from './node';
  */
 class Argument extends ASTNode {
     constructor(args) {
-        super("Argument");
-        this.type = _.get(args, "type","ArgumentType");
-        this.identifier = _.get(args, "identifier");
+        super('Argument');
+        this.bType = _.get(args, 'type', 'ArgumentType');
+        this.identifier = _.get(args, 'identifier');
 
         // Validating the argument.
         if (!_.isUndefined(this.identifier) && !ASTNode.isValidIdentifier(this.identifier)) {
-            var exceptionString = "Invalid identifier: \'" + this.identifier + "\'. An identifier must match the regex " +
-                "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
+            var exceptionString = 'Invalid identifier: \'' + this.identifier + '\'. An identifier must match the regex ' +
+                '^[a-zA-Z$_][a-zA-Z0-9$_]*$';
             log.error(exceptionString);
             throw exceptionString;
         }
     }
 
-    setType(type, options) {
+    setBType(type, options) {
         if (!_.isNil(type)) {
-            this.setAttribute('type', type, options);
+            this.setAttribute('bType', type, options);
         }
     }
 
-    getType() {
-        return this.type;
+    getBType() {
+        return this.bType;
     }
 
     getArgumentAsString() {
-        var argAsString = "";
-        argAsString += this.type;
-        argAsString += !_.isUndefined(this.identifier) ? " " + this.identifier : "";
-        return argAsString;
+        var argAsString = '';
+        argAsString += this.bType;
+        argAsString += !_.isUndefined(this.identifier) ? ' ' + this.identifier : '';
+        return argAsString.trim();
     }
 
     setIdentifier(identifier, options) {
         if (_.isNil(identifier) || ASTNode.isValidIdentifier(identifier)) {
             this.setAttribute('identifier', identifier, options);
         } else {
-            var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
-                "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
+            var exceptionString = 'Invalid identifier: \'' + identifier + '\'. An identifier must match the regex ' +
+                '^[a-zA-Z$_][a-zA-Z0-9$_]*$';
             log.error(exceptionString);
             throw exceptionString;
         }
-    }
-
-    getType() {
-        return this.type;
     }
 
     getIdentifier() {
@@ -86,7 +82,7 @@ class Argument extends ASTNode {
      * @param {string} jsonNode.parameter_name - Identifier of the argument
      */
     initFromJson(jsonNode) {
-        this.setType(jsonNode.parameter_type, {doSilently: true});
+        this.setBType(jsonNode.parameter_type, {doSilently: true});
         this.setIdentifier(jsonNode.parameter_name, {doSilently: true});
     }
 

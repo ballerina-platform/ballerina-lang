@@ -37,10 +37,6 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
-    canVisitConnectorAction(connectorAction){
-        return true;
-    }
-
     /**
      * Begin the visit and generate the source
      * @param {ConnectorDefinition} connectorDefinition - Connector Definition
@@ -133,4 +129,3 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
 }
 
 export default ConnectorDefinitionVisitor;
-    
