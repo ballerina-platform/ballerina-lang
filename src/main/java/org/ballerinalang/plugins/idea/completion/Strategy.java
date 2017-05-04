@@ -16,8 +16,16 @@
 
 package org.ballerinalang.plugins.idea.completion;
 
+/**
+ * Interface which is used to pass methods to {@link BallerinaCompletionUtils#checkPrevNodeAndHandle} method. These
+ * passed methods will contain the logic which is executed to add lookup elements.
+ *
+ * @param <T> A {@link com.intellij.codeInsight.completion.CompletionParameters} object
+ * @param <U> A {@link com.intellij.codeInsight.completion.CompletionResultSet} object
+ * @param <V> A {@link com.intellij.psi.PsiElement} object which represents the element which we are editing
+ */
 @FunctionalInterface
-public interface CompletionInterface<T, U, V> {
+public interface Strategy<T, U, V> {
 
-    void call(T t, U u, V v);
+    void execute(T t, U u, V v);
 }

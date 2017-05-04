@@ -25,6 +25,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
@@ -38,20 +40,20 @@ import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BallerinaCompletionUtils {
+class BallerinaCompletionUtils {
 
-    public static final int KEYWORD_PRIORITY = 20;
-    public static final int CONTEXT_KEYWORD_PRIORITY = 25;
-    public static final int VALUE_TYPE_PRIORITY = 30;
-    public static final int REFERENCE_TYPE_PRIORITY = 30;
-    public static final int PACKAGE_PRIORITY = 35;
-    public static final int CONNECTOR_PRIORITY = 35;
-    public static final int ANNOTATION_PRIORITY = 35;
-    public static final int FUNCTION_PRIORITY = 40;
-    public static final int STRUCT_PRIORITY = 35;
-    public static final int VARIABLE_PRIORITY = 35;
-    public static final int ACTION_PRIORITY = 40;
-    public static final int FIELD_PRIORITY = 40;
+    static final int KEYWORD_PRIORITY = 20;
+    static final int CONTEXT_KEYWORD_PRIORITY = 25;
+    static final int VALUE_TYPE_PRIORITY = 30;
+    static final int REFERENCE_TYPE_PRIORITY = 30;
+    static final int PACKAGE_PRIORITY = 35;
+    static final int CONNECTOR_PRIORITY = 35;
+    static final int ANNOTATION_PRIORITY = 35;
+    static final int FUNCTION_PRIORITY = 40;
+    static final int STRUCT_PRIORITY = 35;
+    static final int VARIABLE_PRIORITY = 35;
+    static final int ACTION_PRIORITY = 40;
+    static final int FIELD_PRIORITY = 40;
 
     private BallerinaCompletionUtils() {
 
@@ -65,8 +67,8 @@ public class BallerinaCompletionUtils {
      * @return {@link LookupElementBuilder} which will be used to create the lookup element.
      */
     @NotNull
-    static LookupElementBuilder createLookupElement(@NotNull String name,
-                                                    @Nullable InsertHandler<LookupElement> insertHandler) {
+    private static LookupElementBuilder createLookupElement(@NotNull String name,
+                                                            @Nullable InsertHandler<LookupElement> insertHandler) {
         return LookupElementBuilder.create(name).withBoldness(true).withInsertHandler(insertHandler);
     }
 
@@ -79,8 +81,7 @@ public class BallerinaCompletionUtils {
      */
     @NotNull
     static LookupElementBuilder createKeywordLookupElement(@NotNull String name,
-                                                           @Nullable InsertHandler<LookupElement>
-                                                                   insertHandler) {
+                                                           @Nullable InsertHandler<LookupElement> insertHandler) {
         return createLookupElement(name, insertHandler);
     }
 
@@ -93,8 +94,7 @@ public class BallerinaCompletionUtils {
      */
     @NotNull
     static LookupElementBuilder createSimpleTypeLookupElement(@NotNull String name,
-                                                              @Nullable InsertHandler<LookupElement>
-                                                                      insertHandler) {
+                                                              @Nullable InsertHandler<LookupElement> insertHandler) {
         return createLookupElement(name, insertHandler).withTypeText("Simple Type", true);
     }
 
@@ -107,8 +107,7 @@ public class BallerinaCompletionUtils {
      */
     @NotNull
     static LookupElementBuilder createReferenceTypeLookupElement(@NotNull String name,
-                                                                 @Nullable InsertHandler<LookupElement>
-                                                                         insertHandler) {
+                                                                 @Nullable InsertHandler<LookupElement> insertHandler) {
         return createLookupElement(name, insertHandler).withTypeText("Reference Type", true);
     }
 
@@ -146,28 +145,27 @@ public class BallerinaCompletionUtils {
      * Handles situations where we want to consider previous node content before adding lookup elements to the
      * current node.
      *
-     * @param parameters parameters which passed to completion contributor
-     * @param resultSet  result list which is used to add lookups
-     * @param offset     offset of  the current element
-     * @param iNode      lookup element adding strategy if the previous element is an identifier node
-     * @param lNode      lookup element adding strategy if the previous element is a leaf node
-     * @param oNode      lookup element adding strategy if the previous element is not an identifier or leaf node
+     * @param parameters    parameters which passed to completion contributor
+     * @param resultSet     result list which is used to add lookups
+     * @param offset        offset of  the current element
+     * @param iNodeStrategy lookup element adding strategy if the previous element is an identifier node
+     * @param lNodeStrategy lookup element adding strategy if the previous element is a leaf node
+     * @param oNodeStrategy lookup element adding strategy if the previous element is not an identifier or leaf node
      */
     static void checkPrevNodeAndHandle(@NotNull CompletionParameters parameters,
                                        @NotNull CompletionResultSet resultSet, int offset,
-                                       CompletionInterface<CompletionParameters, CompletionResultSet, PsiElement> iNode,
-                                       CompletionInterface<CompletionParameters, CompletionResultSet, PsiElement> lNode,
-                                       CompletionInterface<CompletionParameters, CompletionResultSet, PsiElement>
-                                               oNode) {
+                                       Strategy<CompletionParameters, CompletionResultSet, PsiElement> iNodeStrategy,
+                                       Strategy<CompletionParameters, CompletionResultSet, PsiElement> lNodeStrategy,
+                                       Strategy<CompletionParameters, CompletionResultSet, PsiElement> oNodeStrategy) {
         PsiFile originalFile = parameters.getOriginalFile();
         PsiElement prevElement = getPreviousNonEmptyElement(originalFile, offset);
-        if (prevElement instanceof IdentifierPSINode && iNode != null) {
-            iNode.call(parameters, resultSet, prevElement);
-        } else if (prevElement instanceof LeafPsiElement && lNode != null) {
-            lNode.call(parameters, resultSet, prevElement);
+        if (prevElement instanceof IdentifierPSINode && iNodeStrategy != null) {
+            iNodeStrategy.execute(parameters, resultSet, prevElement);
+        } else if (prevElement instanceof LeafPsiElement && lNodeStrategy != null) {
+            lNodeStrategy.execute(parameters, resultSet, prevElement);
         } else {
-            if (oNode != null) {
-                oNode.call(parameters, resultSet, prevElement);
+            if (oNodeStrategy != null) {
+                oNodeStrategy.execute(parameters, resultSet, prevElement);
             }
         }
     }
@@ -187,5 +185,101 @@ public class BallerinaCompletionUtils {
             prevElement = originalFile.findElementAt(offset - count++);
         }
         return prevElement;
+    }
+
+    /**
+     * Identifies whether the given element type is an expression separator element type.
+     * <p>
+     * Eg: +, -, /, *, <, >, >=, <=, ==, !=, &&, ||, =
+     *
+     * @param elementType element type to be checked
+     * @return {@code true} if the provided element type is an expression separator element type, {@code false}
+     * otherwise.
+     */
+    static boolean isExpressionSeparator(IElementType elementType) {
+        return isArithmeticOperator(elementType) || isRelationalOperator(elementType)
+                || isLogicalOperator(elementType) || isAssignmentOperator(elementType);
+    }
+
+    /**
+     * Identifies whether the given element type is an arithmetic operator type.
+     *
+     * @param elementType element type to be checked
+     * @return {@code true} if the provided element type is an arithmetic operator type, {@code false} otherwise.
+     */
+    private static boolean isArithmeticOperator(IElementType elementType) {
+        return isAdditiveOperator(elementType) || isMultiplicativeOperator(elementType);
+    }
+
+    /**
+     * Identifies whether the given element type is an additive operator type.
+     *
+     * @param elementType element type to be checked
+     * @return {@code true} if the provided element type is an additive operator type, {@code false} otherwise.
+     */
+    private static boolean isAdditiveOperator(IElementType elementType) {
+        return elementType == BallerinaTypes.ADD || elementType == BallerinaTypes.SUB;
+    }
+
+    /**
+     * Identifies whether the given element type is a multiplicative operator type.
+     *
+     * @param elementType element type to be checked
+     * @return {@code true} if the provided element type is a multiplicative operator type, {@code false} otherwise.
+     */
+    private static boolean isMultiplicativeOperator(IElementType elementType) {
+        return elementType == BallerinaTypes.MUL || elementType == BallerinaTypes.DIV ||
+                elementType == BallerinaTypes.MOD;
+    }
+
+    /**
+     * Identifies whether the given element type is a relational operator type.
+     *
+     * @param elementType element type to be checked
+     * @return {@code true} if the provided element type is a relational operator type, {@code false} otherwise.
+     */
+    private static boolean isRelationalOperator(IElementType elementType) {
+        return isComparisonOperator(elementType) || isEqualityOperator(elementType);
+    }
+
+    /**
+     * Identifies whether the given element type is a comparison operator type.
+     *
+     * @param elementType element type to be checked
+     * @return {@code true} if the provided element type is a comparison operator type, {@code false} otherwise.
+     */
+    private static boolean isComparisonOperator(IElementType elementType) {
+        return elementType == BallerinaTypes.LE || elementType == BallerinaTypes.GE ||
+                elementType == BallerinaTypes.GT || elementType == BallerinaTypes.LT;
+    }
+
+    /**
+     * Identifies whether the given element type is an equality operator type.
+     *
+     * @param elementType element type to be checked
+     * @return {@code true} if the provided element type is an equality operator type, {@code false} otherwise.
+     */
+    private static boolean isEqualityOperator(IElementType elementType) {
+        return elementType == BallerinaTypes.EQUAL || elementType == BallerinaTypes.NOTEQUAL;
+    }
+
+    /**
+     * Identifies whether the given element type is a logical operator type.
+     *
+     * @param elementType element type to be checked
+     * @return {@code true} if the provided element type is a logical operator type, {@code false} otherwise.
+     */
+    private static boolean isLogicalOperator(IElementType elementType) {
+        return elementType == BallerinaTypes.AND || elementType == BallerinaTypes.OR;
+    }
+
+    /**
+     * Identifies whether the given element type is an assignment operator type.
+     *
+     * @param elementType element type to be checked
+     * @return {@code true} if the provided element type is an assignment operator type, {@code false} otherwise.
+     */
+    private static boolean isAssignmentOperator(IElementType elementType) {
+        return elementType == BallerinaTypes.ASSIGN;
     }
 }
