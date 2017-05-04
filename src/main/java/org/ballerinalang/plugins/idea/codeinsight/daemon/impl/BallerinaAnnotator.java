@@ -47,6 +47,8 @@ public class BallerinaAnnotator implements Annotator {
 
     private static final String VALID_ESCAPE_CHARACTERS = "\\\\[btnfr\"'\\\\]";
     private static final Pattern VALID_ESCAPE_CHAR_PATTERN = Pattern.compile(VALID_ESCAPE_CHARACTERS);
+    private static final String INVALID_ESCAPE_CHARACTERS = "((\\\\\\\\)+|(\\\\[^btnfr\"'\\\\]))|(\\\\(?!.))";
+    private static final Pattern INVALID_ESCAPE_CHAR_PATTERN = Pattern.compile(INVALID_ESCAPE_CHARACTERS);
 
     @Override
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
@@ -97,6 +99,23 @@ public class BallerinaAnnotator implements Annotator {
                 // Create the annotation.
                 Annotation annotation = holder.createInfoAnnotation(range, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.VALID_STRING_ESCAPE);
+            }
+
+            matcher = INVALID_ESCAPE_CHAR_PATTERN.matcher(text);
+            // Get the start offset of the element.
+            startOffset = ((LeafPsiElement) element).getStartOffset();
+            // Iterate through each match.
+            while (matcher.find()) {
+                // Get the matching group.
+                String group = matcher.group(3);
+                if (group != null) {
+                    // Calculate the start and end offsets and create the range.
+                    TextRange range = new TextRange(startOffset + matcher.start(),
+                            startOffset + matcher.start() + group.length());
+                    // Create the annotation.
+                    Annotation annotation = holder.createInfoAnnotation(range, "Invalid string escape");
+                    annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.INVALID_STRING_ESCAPE);
+                }
             }
         }
     }
