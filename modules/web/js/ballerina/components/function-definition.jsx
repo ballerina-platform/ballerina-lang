@@ -20,6 +20,8 @@ import React from 'react';
 import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
+import ParameterView from './parameter-view';
+import ReturnTypeView from './return-type-view';
 import {getComponentForNodeArray} from './utils';
 import {lifeLine} from './../configs/designer-defaults';
 
@@ -49,10 +51,28 @@ class FunctionDefinition extends React.Component {
             icons = "tool-icons/main-function";
         }
 
+        let titleComponentData = [
+            {
+                component: ParameterView,
+                title: 'Parameters: ',
+                prefixView: this.props.model.getViewState().components.parametersPrefixContainer,
+                prefixViewClassName: 'parameters-prefix-wrapper',
+                models: this.props.model.getArguments()
+            },
+            {
+                component: ReturnTypeView,
+                title: 'Return Types: ',
+                prefixView: this.props.model.getViewState().components.returnTypesPrefixContainer,
+                prefixViewClassName: 'return-types-prefix-wrapper',
+                models: this.props.model.getReturnTypes()
+            } 
+        ];
+
         return (<PanelDecorator icon={icons} title={name} bBox={bBox}
                         model={this.props.model}
                         dropTarget={this.props.model}
-                        dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}>
+                        dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
+                        titleComponentData={titleComponentData}>
                     <StatementContainer  dropTarget={this.props.model}
                       title="StatementContainer" bBox={statementContainerBBox}/>
                     <LifeLine title="FunctionWorker" bBox={function_worker_bBox}/>

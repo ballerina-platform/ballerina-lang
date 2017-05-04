@@ -116,7 +116,7 @@ class ReturnTypeView extends BallerinaView {
 
         // Setting a default value for @PathParam and updating model when changed.
         $(returnTypeDropdown).change(function () {
-            self.getModel().setType($(this).val());
+            self.getModel().setBType($(this).val());
         });
 
         if (!_.isUndefined(this.getModel().getIdentifier())) {

@@ -50,11 +50,13 @@ class PanelDecorator extends React.Component {
         const dropZoneClassName = ((!dropZoneActivated) ? "panel-body-rect drop-zone" : "panel-body-rect drop-zone active")
                           + ((dropZoneDropNotAllowed) ? " block" : "");
         const panelBodyClassName = "panel-body" + ((dropZoneActivated) ? " drop-zone active" : "");
+        let titleComponents = this.getTitleComponents(this.props.titleComponentData, bBox.y, bBox.y + titleHeight / 2 + 5, titleHeight);
         return ( <g className="panel">
                      <g className="panel-header">
                          <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleHeight } rx="0" ry="0" className="headingRect" data-original-title="" title=""></rect>
                          <text x={ bBox.x + titleHeight } y={ bBox.y + titleHeight / 2 + 5 }>{this.props.title}</text>
                          <image x={bBox.x + 5} y={bBox.y + 5} width={iconSize} height={iconSize} xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}/>
+                         {titleComponents}
                          <g className="panel-header-controls">
                              <image x={ bBox.x + bBox.w - 44.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize } className="control"
                                   xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}/>
@@ -115,6 +117,31 @@ class PanelDecorator extends React.Component {
             }
         }
         e.stopPropagation();
+    }
+
+    getTitleComponents(titleComponentData, rectY, textY, h) {
+        let components = [];
+        if (!_.isUndefined(titleComponentData)) {
+            for (let componentData of titleComponentData) {
+                let modelComponents = [];
+                for (let model of componentData.models) {
+                    modelComponents.push(React.createElement(componentData.component, {
+                        model: model,
+                        rectY: rectY,
+                        textY: textY,
+                        h: h,
+                        key: model.getID()
+                    }, null));
+                }
+
+                components.push(<g key={componentData.title}>
+                    <rect x={componentData.prefixView.x} y={rectY} width={componentData.prefixView.w} height={h} className={componentData.prefixViewClassName}></rect>
+                    <text x={componentData.prefixView.x + 5} y={textY}>{componentData.title}</text>
+                    {modelComponents}
+                    </g>);
+            }
+        }
+        return components;
     }
 }
 

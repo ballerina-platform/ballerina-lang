@@ -20,6 +20,7 @@ import log from 'log';
 import _ from 'lodash';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 import * as DesignerDefaults from './../../configs/designer-defaults';
+import { util } from './../sizing-utils';
 
 class FunctionDefinitionPositionCalcVisitor {
 
@@ -71,6 +72,45 @@ class FunctionDefinitionPositionCalcVisitor {
 
         //defaultWorker.x = statementContainer.x + (statementContainer.w - defaultWorker.w)/2;
         //defaultWorker.y = statementContainer.y - DesignerDefaults.lifeLine.head.height;
+
+        // Setting positions of parameters.
+        let lastParameterEndXPosition = node.getViewState().bBox.x + viewSate.titleWidth;
+        node.getViewState().components['parametersPrefixContainer'].x = node.getViewState().bBox.x + viewSate.titleWidth;
+        let nextXPositionOfParameter = node.getViewState().components['parametersPrefixContainer'].x +
+            node.getViewState().components['parametersPrefixContainer'].w;
+        if (node.getArguments().length > 0) {
+            for (let i = 0; i < node.getArguments().length; i++) {
+                let resourceParameter = node.getArguments()[i];
+                let viewState = resourceParameter.getViewState();
+                if (i !== 0) {
+                    nextXPositionOfParameter = nextXPositionOfParameter + 14;
+                }
+
+                viewState.x = nextXPositionOfParameter;
+                nextXPositionOfParameter += util.getTextWidth(resourceParameter.getParameterAsString()).w;
+
+                if (i === node.getArguments().length - 1) {
+                    lastParameterEndXPosition = viewState.x + util.getTextWidth(resourceParameter.getParameterAsString()).w;
+                }
+            }
+        }
+
+        // Setting positions of return types.
+        node.getViewState().components['returnTypesPrefixContainer'].x = lastParameterEndXPosition + node.getViewState().bBox.x + viewSate.titleWidth;
+        let nextXPositionOfReturnType = node.getViewState().components['returnTypesPrefixContainer'].x +
+            node.getViewState().components['returnTypesPrefixContainer'].w;
+        if (node.getReturnTypes().length > 0) {
+            for (let i = 0; i < node.getReturnTypes().length; i++) {
+                let returnType = node.getReturnTypes()[i];
+                let viewState = returnType.getViewState();
+                if (i !== 0) {
+                    nextXPositionOfReturnType = nextXPositionOfReturnType + 14;
+                }
+
+                viewState.x = nextXPositionOfReturnType;
+                nextXPositionOfReturnType += util.getTextWidth(returnType.getArgumentAsString()).w;
+            }
+        }
 
         log.debug('begin visit FunctionDefinitionPositionCalc');
     }

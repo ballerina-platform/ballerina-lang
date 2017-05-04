@@ -36,14 +36,14 @@ class SizingUtil {
         document.body.appendChild(svg); 
     }
 
-    getTextWidth(text){
+    getTextWidth(text, statementMinWidth = statement.width){
         this.textElement.innerHTML = _.escape(text);
         let width = statement.padding.left + this.textElement.getComputedTextLength() + statement.padding.right;
         // if the width is more then max width crop the text
-        if(width <= statement.width){
+        if (width <= statementMinWidth){
             //set the width to minimam width
-            width = statement.width;        
-        }else if(width > statement.width && width <= statement.maxWidth){
+            width = statementMinWidth;        
+        } else if (width > statementMinWidth && width <= statement.maxWidth){
             // do nothing
         }else {
             // We need to truncate displayText and show an ellipses at the end.
@@ -63,7 +63,7 @@ class SizingUtil {
         return {
             w: width,
             text :text
-        }        
+        };       
     }
 
     populateSimpleStatementBBox(expression, viewState){

@@ -28,6 +28,13 @@ class ReturnType extends Argument {
     }
 
     /**
+     * Gets the return type as a string.
+     */
+    getReturnTypeAsString() {
+        return super.getArgumentAsString();
+    }
+
+    /**
      * initialize from json
      * @param jsonNode
      */
