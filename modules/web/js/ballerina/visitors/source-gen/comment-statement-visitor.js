@@ -39,7 +39,7 @@ class CommentStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitCommentStatement(commentStatement) {
         this.appendSource(commentStatement.getCommentString() + ";\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Comment Statement Definition');
     }
 }

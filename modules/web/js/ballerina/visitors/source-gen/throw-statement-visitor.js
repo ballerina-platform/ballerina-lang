@@ -40,7 +40,7 @@ class ThrowStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitThrowStatement(throwStatement) {
         this.appendSource(throwStatement.getChildren()[0].getExpression() + ";\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Throw Statement Definition');
     }
 }

@@ -43,9 +43,10 @@ class TypeMapperDefinitionVisitor extends AbstractSourceGenVisitor {
          */
 
         var constructedSourceSegment = 'typemapper ' + typeMapperDefinition.getTypeMapperName() +
-            ' (' + typeMapperDefinition.getInputParamAndIdentifier() + ' )(' + typeMapperDefinition.getReturnType() +
-            ' ) {';
+            ' (' + typeMapperDefinition.getInputParamAndIdentifier() + ' ) (' + typeMapperDefinition.getReturnType() +
+            ' ) {\n';
         this.appendSource(constructedSourceSegment);
+        this.indent();
         log.debug('Begin Visit TypeMapperDefinition');
     }
 
@@ -54,8 +55,9 @@ class TypeMapperDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitTypeMapperDefinition(typeMapperDefinition) {
-        this.appendSource("} \n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.outdent();
+        this.appendSource("}\n");
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit TypeMapperDefinition');
     }
 

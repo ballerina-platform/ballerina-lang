@@ -35,6 +35,23 @@ class AbstractStatementSourceGenVisitor extends StatementVisitor {
         super();
         this._generatedSource = '';
         this.parent = parent;
+        this.indentCount = (parent) ? parent.indentCount : 0;
+    }
+
+    indent() {
+        this.indentCount++;
+    }
+
+    outdent() {
+        this.indentCount--;
+    }
+
+    getIndentation() {
+        let indentation = '';
+        for(let i=0; i < this.indentCount; i++) {
+            indentation += '    ';
+        }
+        return indentation;
     }
 
     getGeneratedSource() {

@@ -39,8 +39,9 @@ class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitWorkerDeclaration(workerDeclaration) {
-        var constructedSourceSegment = 'worker ' + workerDeclaration.getWorkerDeclarationStatement() + ' {';
+        var constructedSourceSegment = 'worker ' + workerDeclaration.getWorkerDeclarationStatement() + ' {\n';
         this.appendSource(constructedSourceSegment);
+        this.indent();
         log.debug('Begin Visit Worker Declaration');
     }
 
@@ -49,8 +50,9 @@ class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitWorkerDeclaration(workerDeclaration) {
+        this.outdent();
         this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Worker Declaration');
     }
 

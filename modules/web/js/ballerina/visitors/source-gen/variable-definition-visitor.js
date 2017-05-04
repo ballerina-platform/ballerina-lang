@@ -40,7 +40,7 @@ class VariableDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitVariableDefinition(variableDefinition) {
-        this.getParent().appendSource(this.getParent().getIndentation() +
+        this.getParent().appendSource(this.getIndentation() +
                             this.getGeneratedSource());
     }
 }

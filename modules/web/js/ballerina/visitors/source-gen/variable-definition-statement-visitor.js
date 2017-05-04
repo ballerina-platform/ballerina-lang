@@ -33,7 +33,7 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
     }
 
     endVisitVariableDefinitionStatement(variableDefinitionStatement) {
-        this.getParent().appendSource(this.getParent().getIndentation() + this.getGeneratedSource() + ";\n");
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ";\n");
     }
 }
 
