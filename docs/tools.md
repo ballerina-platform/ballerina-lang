@@ -14,7 +14,7 @@ As you work in one view, the diagrams and code are updated in the other views, a
 
 ## IDE plug-ins
 
-You can use plug-ins to write Ballerina code in your favorite IDE. The following plug-ins are available in Github:
+You can use plug-ins to write Ballerina code in your favorite IDE. There are several plug-ins available in Github. Click one of the following links to learn how to use that IDE's plug-in. 
 
 * [Atom](https://github.com/ballerinalang/plugin-atom)
 * [IntelliJ IDEA](https://github.com/ballerinalang/plugin-intellij)

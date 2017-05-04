@@ -77,4 +77,6 @@ Also notice the **Source View** and **Swagger View** buttons in the lower right 
 
 1. Click **Design View** to return to the visual editor. 
 
+1. Click the "x" to the right of "untitled" in the tab title to close this sample, and click **Don't Save** when prompted.
+
 Now that you've had a look around, it's time to take the leap and [write your first Ballerina program](tutorials/first-program.md).
