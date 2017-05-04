@@ -69,7 +69,8 @@ class StructDefinitionPositionCalcVisitor {
 
         const { statements } = viewSate.components;
         statements.forEach( (statement, i) => {
-            statement.y = bodyY + DesignerDefaults.structDefinition.padding.top  + statement.h * i;
+            const paddingOffset = i * DesignerDefaults.structDefinitionStatement.padding.bottom;
+            statement.y = bodyY + DesignerDefaults.structDefinition.padding.top  + statement.h * i + paddingOffset;
             statement.x = bodyX + DesignerDefaults.structDefinition.padding.left;
         });
         log.debug('begin visit StructDefinitionPositionCalc');

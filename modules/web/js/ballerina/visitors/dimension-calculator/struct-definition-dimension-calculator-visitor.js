@@ -18,7 +18,6 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 import { util } from './../sizing-utils';
 
 class StructDefinitionDimensionCalculatorVisitor {

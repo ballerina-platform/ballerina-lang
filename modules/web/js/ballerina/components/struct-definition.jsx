@@ -22,11 +22,16 @@ import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
 import {getComponentForNodeArray} from './utils';
 import {lifeLine} from './../configs/designer-defaults';
+import './struct-definition.css';
 
 class StructDefinition extends React.Component {
 
     constructor(props) {
         super(props);
+    }
+
+    deleteStatement(statement) {
+        statement.remove();
     }
 
     render() {
@@ -39,21 +44,40 @@ class StructDefinition extends React.Component {
               <g>
                 {
                     children.map( (child, i) => {
-                        return (<g key={i}>
-                          <rect x={statements[i].x } y={statements[i].y} width={statements[i].w/3} height={statements[i].h} stroke="black" fill="white"/>
-                          <text x={statements[i].x } y={statements[i].y + statements[i].h / 2}>
-                            {child.children[0].children[0].getTypeName()}
-                          </text>
+                        const type = child.getBType();
+                        const identifier = child.getIdentifier();
+                        const value = child.getValue();
 
-                          <rect x={statements[i].x + statements[i].w/3} y={statements[i].y} width={statements[i].w/3} height={statements[i].h} stroke="black" fill="white"/>
-                          <text x={statements[i].x + statements[i].w/3} y={statements[i].y + statements[i].h / 2}>
-                              {child.children[0].children[0].getName()}
-                          </text>
+                        return (<g key={i} className="struct-definition-statement">
 
-                          <rect x={statements[i].x + (2 * statements[i].w/3)} y={statements[i].y} width={statements[i].w/3} height={statements[i].h} stroke="black" fill="white"/>
-                          <text x={statements[i].x + (2 * statements[i].w/3)} y={statements[i].y + statements[i].h / 2}>
-                              {child.children[1]._basicLiteralValue}
-                          </text>
+                          <g className="struct-variable-definition-type">
+                              <rect x={statements[i].x } y={statements[i].y} width={statements[i].w/3} height={statements[i].h}
+                                  className="struct-variable-definition-type-rect"
+                               />
+                              <text x={statements[i].x } y={statements[i].y + statements[i].h / 2} className="struct-variable-definition-type-text">
+                                {type}
+                              </text>
+                          </g>
+
+                          <g className="struct-variable-definition-identifier">
+                              <rect x={statements[i].x + statements[i].w/3} y={statements[i].y} width={statements[i].w/3} height={statements[i].h}
+                                  className="struct-variable-definition-identifier-rect"
+                              />
+                              <text x={statements[i].x + statements[i].w/3} y={statements[i].y + statements[i].h / 2} className="struct-variable-definition-identifier-text">
+                                  {identifier}
+                              </text>
+                          </g>
+
+                          <g className="struct-variable-definition-value">
+                              <rect x={statements[i].x + (2 * statements[i].w/3)} y={statements[i].y} width={statements[i].w/3} height={statements[i].h}
+                                  className="struct-variable-definition-value-rect"
+                              />
+                              <text x={statements[i].x + (2 * statements[i].w/3)} y={statements[i].y + statements[i].h / 2} className="struct-variable-definition-value-text">
+                                  {value}
+                              </text>
+
+                          </g>
+                          <text x={statements[i].x + statements[i].w - 20} y={statements[i].y + statements[i].h / 2} onClick={ ()=> this.deleteStatement(child) } className="struct-statement-delete">×</text>
                           </g>
                         )
                     })

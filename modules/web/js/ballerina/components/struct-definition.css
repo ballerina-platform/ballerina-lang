@@ -1,0 +1,21 @@
+/*struct-variable-definition-type-rect
+struct-variable-definition-type-text
+struct-variable-definition-identifier-rect
+struct-variable-definition-identifier-text
+struct-variable-definition-value-rect
+struct-variable-definition-value-text*/
+
+.struct-variable-definition-type-rect, .struct-variable-definition-identifier-rect, .struct-variable-definition-value-rect{
+    fill: #FFFFFF;
+    stroke-width: 1;
+    stroke: #CCC;
+    shape-rendering: crispEdges;
+}
+.struct-definition-statement:hover{
+    font-weight: 400;
+}
+
+.struct-statement-delete {
+    font-size: 25px;
+    cursor: pointer;
+}
