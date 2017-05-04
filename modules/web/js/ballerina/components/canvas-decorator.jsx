@@ -35,7 +35,7 @@ CanvasDecorator.propTypes = {
         w: PropTypes.number.isRequired,
     }).isRequired,
     children: PropTypes.node.isRequired
-};
+}
 
 
 export default CanvasDecorator;
