@@ -225,14 +225,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
                                CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
                                List<Object[]> addingRecords) {
-        String sql = this.composeUpdateQuery(compiledCondition);
-        try {
-            this.batchProcessUpdates(sql, updateConditionParameterMaps, compiledCondition, updateValues);
-        } catch (SQLException e) {
-            //Batch update operations have failed, maybe because one (or more) constraint violations.
-            //Now, let us try to sequentially update/insert records.
-            this.UpdateOrInsertRecords(updateConditionParameterMaps, compiledCondition, updateValues, addingRecords);
-        }
+        this.UpdateOrInsertRecords(updateConditionParameterMaps, compiledCondition, updateValues, addingRecords);
     }
 
     @Override
@@ -259,7 +252,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
         return insertQuery.replace(PLACEHOLDER_Q, params.toString());
     }
-
 
     private String composeUpdateQuery(CompiledCondition compiledCondition) {
         String sql = this.resolveTableName(this.queryConfigurationEntry.getRecordUpdateQuery());
@@ -317,6 +309,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition));
             insertStmt = conn.prepareStatement(this.composeInsertQuery());
             while (counter < updateValues.size()) {
+                int rowsChanged;
                 Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
                 Map<String, Object> values = updateValues.get(counter);
                 //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
@@ -327,27 +320,21 @@ public class RDBMSEventTable extends AbstractRecordTable {
                             this.attributes.indexOf(attribute) + 1, attribute.getType(),
                             values.get(attribute.getName()));
                 }
-                // Using a sub try-block to ensure that only exceptions in performing UPDATE DB operations are caught.
-                // Other exceptions point to a larger problem and must be handled separately outside.
-                try {
-                    updateStmt.executeUpdate();
-                    conn.commit();
-                    counter++;
-                } catch (SQLException e) {
-                    RDBMSTableUtils.rollbackConnection(conn);
+                rowsChanged = updateStmt.executeUpdate();
+                conn.commit();
+                if (rowsChanged < 1) {
                     Object[] record = addingRecords.get(counter);
                     try {
                         this.populateStatement(record, insertStmt);
                         insertStmt.executeUpdate();
                         conn.commit();
-                        counter++;
                     } catch (SQLException e2) {
-                        //TODO log warn?
                         RDBMSTableUtils.rollbackConnection(conn);
                         throw new RDBMSTableException("Error performing update/insert operation (insert) on table '"
-                                + this.tableName + "': " + e.getMessage(), e);
+                                + this.tableName + "': " + e2.getMessage(), e2);
                     }
                 }
+                counter++;
             }
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing update/insert operation (update) on table '" + this.tableName
@@ -399,7 +386,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
     }
 
     private void createTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices) {
-        //TODO once-over
         RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRDBMSTypeMapping();
         StringBuilder builder = new StringBuilder();
         List<Element> primaryKeyList = (primaryKeys == null) ? new ArrayList<>() : primaryKeys.getElements();
@@ -479,7 +465,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 committed = true;
             }
         } catch (SQLException e) {
-            RDBMSTableUtils.rollbackConnection(conn);
+            if (!autocommit) {
+                RDBMSTableUtils.rollbackConnection(conn);
+            }
             throw e;
         } finally {
             if (!committed) {
@@ -510,7 +498,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
             if (log.isDebugEnabled()) {
                 log.debug("Attempted execution of query [" + query + "] produced an exception: " + e.getMessage());
             }
-            RDBMSTableUtils.rollbackConnection(conn);
+            if (!autocommit) {
+                RDBMSTableUtils.rollbackConnection(conn);
+            }
             throw e;
         } finally {
             if (!committed) {
