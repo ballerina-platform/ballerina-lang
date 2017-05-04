@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.NoSuchAttributeException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.output.sink.PassThroughOutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.PassThroughSinkmapper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -35,8 +35,8 @@ import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-public class HttpOutputTransportTestCase {
-    static final Logger log = Logger.getLogger(HttpOutputTransportTestCase.class);
+public class HttpSinkTestCase {
+    static final Logger log = Logger.getLogger(HttpSinkTestCase.class);
 
     //    from FooStream
     //    publish inMemory options (topic "foo", symbol "{{symbol}}")
@@ -76,7 +76,7 @@ public class HttpOutputTransportTestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputmapper:text", PassThroughOutputMapper.class);
+        siddhiManager.setExtension("sinkMapper:text", PassThroughSinkmapper.class);
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);

@@ -217,7 +217,7 @@ public class SingleClientDistributedTransportTestCases {
                 "@Plan:name('TestExecutionPlan')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', @map(type='passThrough'), " +
-                "   @distribution(strategy='boradcast'," +
+                "   @distribution(strategy='broadcast'," +
                 "       @destination(topic = 'topic1'), " +
                 "       @destination(topic = 'topic2'))) " +
                 "define stream BarStream (symbol string, price float, volume long); ";

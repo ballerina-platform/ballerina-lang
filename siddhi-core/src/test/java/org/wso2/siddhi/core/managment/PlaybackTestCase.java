@@ -166,7 +166,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idleTime = '100 millisecond', increment = '2 sec') " +
+                "@Plan:playback(idle.time = '100 millisecond', increment = '2 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -221,7 +221,7 @@ public class PlaybackTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:playback(idleTime = '100 millisecond', increment = '1 sec') " +
+                "@Plan:playback(idle.time = '100 millisecond', increment = '1 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, company string); ";
         String query = "" +
@@ -320,7 +320,7 @@ public class PlaybackTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@Plan:playback(idleTime = '100 millisecond', increment = '4 sec') define stream cseEventStream (symbol string, price float, volume int);";
+        String cseEventStream = "@Plan:playback(idle.time = '100 millisecond', increment = '4 sec') define stream cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream#window.timeLength(4 sec,10) select symbol,price," +
                 "volume insert all events into outputStream ;";
 
@@ -415,7 +415,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idleTime = '100 millisecond', increment = '2 sec') " +
+                "@Plan:playback(idle.time = '100 millisecond', increment = '2 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -462,7 +462,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idleTime = '100 millisecond', increment = '2') " +
+                "@Plan:playback(idle.time = '100 millisecond', increment = '2') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -475,12 +475,12 @@ public class PlaybackTestCase {
 
     @Test(expected = SiddhiParserException.class)
     public void playbackTest10() throws InterruptedException {
-        log.info("Playback Test 10: Testing playback with invalid idleTime time constant");
+        log.info("Playback Test 10: Testing playback with invalid idle.time time constant");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idleTime = '', increment = '2 sec') " +
+                "@Plan:playback(idle.time = '', increment = '2 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -498,7 +498,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idleTime = '100 millisecond', increment = '1 sec') " +
+                "@Plan:playback(idle.time = '100 millisecond', increment = '1 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -550,7 +550,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idleTime = '100 millisecond', increment = '1 sec') " +
+                "@Plan:playback(idle.time = '100 millisecond', increment = '1 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -602,7 +602,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idleTime = '100 millisecond', increment = '1 sec') " +
+                "@Plan:playback(idle.time = '100 millisecond', increment = '1 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +

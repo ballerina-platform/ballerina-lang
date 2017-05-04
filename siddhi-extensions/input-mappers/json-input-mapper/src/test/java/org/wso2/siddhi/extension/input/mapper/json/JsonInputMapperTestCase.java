@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.stream.input.source.InMemoryInputTransport;
+import org.wso2.siddhi.core.stream.input.source.InMemorySource;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -36,8 +36,8 @@ import org.wso2.siddhi.query.api.execution.io.Transport;
 import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
-public class JsonInputMapperTestCase {
-    static final Logger log = Logger.getLogger(JsonInputMapperTestCase.class);
+public class JsonSourcemapperTestCase {
+    static final Logger log = Logger.getLogger(JsonSourcemapperTestCase.class);
 
     /**
      * Expected input format:
@@ -45,7 +45,7 @@ public class JsonInputMapperTestCase {
      */
     @Test
     public void subscriptionTest1() throws InterruptedException {
-        log.info("Subscription Test 1: Test an in memory transport with default json mapping");
+        log.info("Subscription Test 1: Test an in memory source with default json mapping");
 
         Subscription subscription = SiddhiCompiler.parseSubscription(
                 "subscribe inMemory options (topic 'stock') " +
@@ -60,7 +60,7 @@ public class JsonInputMapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
+        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
@@ -78,7 +78,7 @@ public class JsonInputMapperTestCase {
 
     @Test(expected = ExecutionPlanValidationException.class)
     public void subscriptionTest2() throws InterruptedException {
-        log.info("Subscription Test 2: Test an in memory transport with named and positional json mapping - expect " +
+        log.info("Subscription Test 2: Test an in memory source with named and positional json mapping - expect " +
                 "exception");
 
         Subscription subscription = SiddhiCompiler.parseSubscription(
@@ -95,7 +95,7 @@ public class JsonInputMapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
+        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
         executionPlanRuntime.start();
@@ -111,7 +111,7 @@ public class JsonInputMapperTestCase {
      */
     @Test
     public void subscriptionTest3() throws InterruptedException {
-        log.info("Subscription Test 3: Test an in memory transport with custom positional json mapping");
+        log.info("Subscription Test 3: Test an in memory sourcesource with custom positional json mapping");
 
         Subscription subscription = SiddhiCompiler.parseSubscription(
                 "subscribe inMemory options(topic 'stock') " +
@@ -126,7 +126,7 @@ public class JsonInputMapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
+        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
@@ -148,7 +148,7 @@ public class JsonInputMapperTestCase {
      */
     @Test
     public void subscriptionTest4() throws InterruptedException {
-        log.info("Subscription Test 4: Test an in memory transport with custom named json mapping");
+        log.info("Subscription Test 4: Test an in memory source with custom named json mapping");
 
         Subscription subscription = SiddhiCompiler.parseSubscription(
                 "subscribe inMemory options(topic 'stock') " +
@@ -163,7 +163,7 @@ public class JsonInputMapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
+        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
@@ -192,7 +192,7 @@ public class JsonInputMapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
+        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
         executionPlanRuntime.start();
@@ -215,7 +215,7 @@ public class JsonInputMapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
+        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override

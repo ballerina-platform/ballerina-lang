@@ -29,10 +29,10 @@ import java.util.List;
 public class SinkCallback extends StreamCallback {
     private static final Logger log = Logger.getLogger(SinkCallback.class);
     private AbstractDefinition outputStreamDefinition;
-    private List<OutputTransport> outputTransports;
+    private List<Sink> sinks;
 
-    public SinkCallback(List<OutputTransport> outputTransports, AbstractDefinition outputStreamDefinition) {
-        this.outputTransports = outputTransports;
+    public SinkCallback(List<Sink> sinks, AbstractDefinition outputStreamDefinition) {
+        this.sinks = sinks;
         this.outputStreamDefinition = outputStreamDefinition;
     }
 
@@ -44,11 +44,11 @@ public class SinkCallback extends StreamCallback {
     @Override
     public void receive(Event event) {
         if (event != null) {
-            for (OutputTransport outputTransport : outputTransports) {
+            for (Sink sink : sinks) {
                 try {
-                    outputTransport.getMapper().mapAndSend(event, outputTransport);
+                    sink.getMapper().mapAndSend(event, sink);
                 } catch (ConnectionUnavailableException e) {
-                    log.error("Cannot publish to via Output Transport '" + outputTransport.getType() +
+                    log.error("Cannot publish to via Output Sink '" + sink.getType() +
                             "' due to unavailability of connection.", e);
                 }
             }
@@ -58,11 +58,11 @@ public class SinkCallback extends StreamCallback {
     @Override
     public void receive(Event[] events) {
         if (events != null) {
-            for (OutputTransport outputTransport : outputTransports) {
+            for (Sink sink : sinks) {
                 try {
-                    outputTransport.getMapper().mapAndSend(events, outputTransport);
+                    sink.getMapper().mapAndSend(events, sink);
                 } catch (ConnectionUnavailableException e) {
-                    log.error("Cannot publish to via Output Transport '" + outputTransport.getType() +
+                    log.error("Cannot publish to via Output Sink '" + sink.getType() +
                             "' due to unavailability of connection.", e);
                 }
             }

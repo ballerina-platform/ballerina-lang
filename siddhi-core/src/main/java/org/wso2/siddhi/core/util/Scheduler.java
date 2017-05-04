@@ -41,13 +41,13 @@ public abstract class Scheduler implements Snapshotable {
     protected final BlockingQueue<Long> toNotifyQueue = new LinkedBlockingQueue<Long>();
     private final ThreadBarrier threadBarrier;
     private final Schedulable singleThreadEntryValve;
-    private StreamEventPool streamEventPool;
-    private ComplexEventChunk<StreamEvent> streamEventChunk;
     protected ExecutionPlanContext executionPlanContext;
     protected String elementId;
+    protected String queryName;
+    private StreamEventPool streamEventPool;
+    private ComplexEventChunk<StreamEvent> streamEventChunk;
     private LatencyTracker latencyTracker;
     private LockWrapper lockWrapper;
-    protected String queryName;
 
 
     public Scheduler(Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {

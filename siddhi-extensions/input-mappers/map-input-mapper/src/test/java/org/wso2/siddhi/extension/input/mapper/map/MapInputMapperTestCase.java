@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.stream.input.source.InMemoryInputTransport;
+import org.wso2.siddhi.core.stream.input.source.InMemorySource;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -37,8 +37,8 @@ import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 
 import java.util.HashMap;
 
-public class MapInputMapperTestCase {
-    static final Logger log = Logger.getLogger(MapInputMapperTestCase.class);
+public class MapSourcemapperTestCase {
+    static final Logger log = Logger.getLogger(MapSourcemapperTestCase.class);
     private HashMap<String,Object> hashMap = new HashMap<>();
 
     @Before
@@ -52,7 +52,7 @@ public class MapInputMapperTestCase {
 
     @Test
     public void subscriptionTest12() throws InterruptedException {
-        log.info("Subscription Test 12: Test an in memory transport with default hashmap mapping");
+        log.info("Subscription Test 12: Test an in memory source with default hashmap mapping");
 
         Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
         subscription.map(Mapping.format("map"));
@@ -66,7 +66,7 @@ public class MapInputMapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
+        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
@@ -84,7 +84,7 @@ public class MapInputMapperTestCase {
 
     @Test
     public void subscriptionTest13() throws InterruptedException {
-        log.info("Subscription Test 13: Test an in memory transport with custom positional hashmap mapping");
+        log.info("Subscription Test 13: Test an in memory source with custom positional hashmap mapping");
 
         Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
         subscription.map(Mapping.format("map").map("symbol").map("price").map("volume"));
@@ -98,7 +98,7 @@ public class MapInputMapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
+        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
@@ -116,7 +116,7 @@ public class MapInputMapperTestCase {
 
     @Test
     public void subscriptionTest14() throws InterruptedException {
-        log.info("Subscription Test 14:  Test an in memory transport with custom named hashmap mapping");
+        log.info("Subscription Test 14:  Test an in memory source with custom named hashmap mapping");
 
         Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
         subscription.map(Mapping.format("map").map("output_symbol","symbol").map("output_price","price").map("output_volume","volume"));
@@ -130,7 +130,7 @@ public class MapInputMapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
+        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override

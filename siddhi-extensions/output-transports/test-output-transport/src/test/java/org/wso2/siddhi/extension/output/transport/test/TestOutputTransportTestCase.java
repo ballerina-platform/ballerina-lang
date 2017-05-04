@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.stream.output.sink.PassThroughOutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.PassThroughSinkmapper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -38,8 +38,8 @@ import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TestOutputTransportTestCase {
-    static final Logger log = Logger.getLogger(TestOutputTransportTestCase.class);
+public class TestSinkTestCase {
+    static final Logger log = Logger.getLogger(TestSinkTestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
@@ -104,7 +104,7 @@ public class TestOutputTransportTestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputmapper:text", PassThroughOutputMapper.class);
+        siddhiManager.setExtension("sinkMapper:text", PassThroughSinkmapper.class);
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(inputDefinition);
@@ -154,7 +154,7 @@ public class TestOutputTransportTestCase {
         });
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputmapper:text", PassThroughOutputMapper.class);
+        siddhiManager.setExtension("sinkMapper:text", PassThroughSinkmapper.class);
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
