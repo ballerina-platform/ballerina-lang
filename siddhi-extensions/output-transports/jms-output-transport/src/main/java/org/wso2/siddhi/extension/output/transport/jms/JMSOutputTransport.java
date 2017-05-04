@@ -27,9 +27,9 @@ import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.extension.output.transport.jms.util.JMSOptionsMapper;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,16 +99,17 @@ public class JMSOutputTransport extends OutputTransport {
      * Initializing JMS properties.
      * The properties in the required options list are mandatory.
      * Other JMS options can be passed in as key value pairs, key being in the JMS spec or the broker spec.
+     *
      * @return all the options map.
      */
     private Map<String, String> initJMSProperties() {
-        List<String> requiredOptions = Arrays.asList(
-                JMSConstants.CONNECTION_FACTORY_JNDI_PARAM_NAME, JMSConstants.NAMING_FACTORY_INITIAL_PARAM_NAME,
-                JMSConstants.PROVIDER_URL_PARAM_NAME, JMSConstants.CONNECTION_FACTORY_TYPE_PARAM_NAME);
+        List<String> requiredOptions = JMSOptionsMapper.getRequiredOptions();
+        Map<String, String> customPropertyMapping = JMSOptionsMapper.getCustomPropertyMapping();
         // getting the required values
         Map<String, String> transportProperties = new HashMap<>();
         requiredOptions.forEach(requiredOption ->
-                transportProperties.put(requiredOption, optionHolder.validateAndGetStaticValue(requiredOption)));
+                transportProperties.put(customPropertyMapping.get(requiredOption),
+                        optionHolder.validateAndGetStaticValue(requiredOption)));
         // getting optional values
         optionHolder.getStaticOptionsKeys().stream()
                 .filter(option -> !requiredOptions.contains(option) && !option.equals("type")).forEach(option ->

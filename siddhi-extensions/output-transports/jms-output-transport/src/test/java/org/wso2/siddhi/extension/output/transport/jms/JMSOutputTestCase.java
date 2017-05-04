@@ -29,14 +29,11 @@ import org.wso2.siddhi.extension.output.transport.jms.util.JMSClient;
 public class JMSOutputTestCase {
 
     private static final String TOPIC_NAME = "DAS_JMS_OUTPUT_TEST";
-//    private static final String PROVIDER_URL = "vm://localhost?broker.persistent=false";
-    private static final String PROVIDER_URL = "tcp://localhost:61616";
-
+    private static final String PROVIDER_URL = "vm://localhost?broker.persistent=false";
 
     @BeforeClass
     public static void setup() throws InterruptedException {
-        // starting the ActiveMQ broker
-        //ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(PROVIDER_URL);
+        // starting the ActiveMQ consumer
         Thread listenerThread = new Thread(new JMSClient("activemq", "", "DAS_JMS_OUTPUT_TEST"));
         listenerThread.start();
         Thread.sleep(5000);
@@ -48,11 +45,11 @@ public class JMSOutputTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@sink(type='jms', @map(type='text'), "
-                + "factoryInitial='org.apache.activemq.jndi.ActiveMQInitialContextFactory', "
-                + "providerUrl='vm://localhost',"
+                + "factory.initial='org.apache.activemq.jndi.ActiveMQInitialContextFactory', "
+                + "provider.url='vm://localhost',"
                 + "destination='DAS_JMS_OUTPUT_TEST', "
-                + "connectionFactoryType='queue',"
-                + "connectionFactoryJNDIName='QueueConnectionFactory'"
+                + "connection.factory.type='queue',"
+                + "connection.factory.jndi.name='QueueConnectionFactory'"
                 +")" +
                 "define stream inputStream (name string, age int, country string);";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.
@@ -61,7 +58,8 @@ public class JMSOutputTestCase {
         executionPlanRuntime.start();
         inputStream.send(new Object[]{"JAMES", 23, "USA"});
         inputStream.send(new Object[]{"MIKE", 23, "Germany"});
-        Thread.sleep(60000);
+        Thread.sleep(10000);
         executionPlanRuntime.shutdown();
+        //todo: add a log assertion here
     }
 }

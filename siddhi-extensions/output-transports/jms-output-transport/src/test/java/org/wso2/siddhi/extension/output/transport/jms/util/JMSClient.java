@@ -39,7 +39,7 @@ public class JMSClient implements Runnable{
         this.queue = queue;
     }
 
-    public void listen(String broker, String topic, String queue) throws InterruptedException {
+    public void listen() throws InterruptedException {
         Properties properties = new Properties();
         try {
             boolean validBroker = true;
@@ -96,7 +96,7 @@ public class JMSClient implements Runnable{
     @Override
     public void run() {
         try {
-            listen(broker, topic, queue);
+            listen();
         } catch (InterruptedException e) {
             log.error("Error starting the JMS consumer: ", e);
         }
