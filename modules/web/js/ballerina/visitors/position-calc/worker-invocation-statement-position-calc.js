@@ -15,27 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import StatementDecorator from "./statement-decorator";
-import PropTypes from 'prop-types';
 
-class ReplyStatement extends React.Component {
+import log from 'log';
+import * as PositioningUtils from './utils';
 
-    render() {
-        let model = this.props.model,
-            expression = model.viewState.expression;
-        return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+class WorkerInvocationStatementPositionCalcVisitor {
+
+    canVisit(node) {
+        return true;
+    }
+
+    beginVisit(node) {
+        PositioningUtils.getSimpleStatementPosition(node);
+    }
+
+    visit(node) {
+    }
+
+    endVisit(node) {
     }
 }
 
-ReplyStatement.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    })
-}
-
-
-export default ReplyStatement;
+export default WorkerInvocationStatementPositionCalcVisitor;

@@ -18,6 +18,7 @@
 
 import React from "react";
 import PropTypes from 'prop-types';
+import './arrow-decorator.css';
 
 class Arrow extends React.Component {
 	getArrowAngle() {
@@ -37,14 +38,14 @@ class Arrow extends React.Component {
 			className = "action-arrow action-dash-line";
 		}
 		return (<g >
+				<line x1={start.x} x2={end.x} y1={start.y} y2={end.y} className={className} />
 				<polygon
-						points={`0,-${arrowSize} ${arrowSize},0 0,${arrowSize}`}
+						points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
 						transform={`translate(${end.x}, ${end.y})
 						rotate(${this.getArrowAngle()}, 0, 0)`}
 						className="action-arrow-head"
 				/>
-       	<line x1={start.x} x2={end.x} y1={start.y} y2={end.y} className={className} />
-		</g>);
+				</g>);
   }
 }
 

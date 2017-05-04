@@ -17,18 +17,32 @@
  */
 import React from "react";
 import StatementDecorator from "./statement-decorator";
+import StatementArrowConnection from './statement-arrow-connection';
 import PropTypes from 'prop-types';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
-class ReplyStatement extends React.Component {
+class WorkerReplyStatement extends React.Component {
 
     render() {
-        let model = this.props.model,
+        let model = this.props.model, 
             expression = model.viewState.expression;
-        return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+        if (!_.isUndefined(model.getDestination())) {
+            let workerReplyStatement = model.getDestination().findChild(BallerinaASTFactory.isReplyStatement);
+            if (!_.isUndefined(workerReplyStatement)) {
+                    return (<g>
+                      <StatementDecorator viewState={model.viewState} expression={expression} />);
+                      <StatementArrowConnection start={workerReplyStatement.viewState} end={model.viewState} />
+                    </g>);
+            } else {
+                return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+            }
+        } else {
+            return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+        }
     }
 }
 
-ReplyStatement.propTypes = {
+WorkerReplyStatement.propTypes = {
     bBox: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
@@ -38,4 +52,4 @@ ReplyStatement.propTypes = {
 }
 
 
-export default ReplyStatement;
+export default WorkerReplyStatement;
