@@ -21,6 +21,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import AST from './../../ast/module';
 import ASTFactory from './../../ast/ballerina-ast-factory';
+import * as PositioningUtils from './utils';
 
 class ConnectorActionPositionCalcVisitor {
 
@@ -29,46 +30,7 @@ class ConnectorActionPositionCalcVisitor {
     }
 
     beginVisit(node) {
-        let parent = node.getParent();
-        let viewSate = node.getViewState();
-        let parentViewState = parent.getViewState();
-        var parentBBox = parentViewState.bBox;
-        let bBox = viewSate.bBox;
-        let statementContainerBBox = viewSate.components.statementContainer;
-        let headerBBox = viewSate.components.heading;
-        let bodyBBox = viewSate.components.body;
-        let actions = _.filter(parent.getChildren(), function (child) {
-            return child instanceof AST.ConnectorAction;
-        });
-        let x, y, headerX, headerY, bodyX, bodyY;
-        var currentActionIndex = _.findIndex(actions, node);
-
-        if (currentActionIndex === 0) {
-            headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
-            headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
-        } else if (currentActionIndex > 0) {
-            let previousActionBBox = actions[currentActionIndex - 1].getViewState().bBox;
-            headerX = DesignerDefaults.panel.wrapper.gutter.h;
-            headerY = previousActionBBox.y + previousActionBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
-        } else {
-            throw 'Invalid Index for Connector Action Definition';
-        }
-
-        x = headerX;
-        y = headerY;
-        bodyX = headerX;
-        bodyY = headerY + headerBBox.h;
-
-        statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
-        statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
-            DesignerDefaults.lifeLine.head.height;
-
-        bBox.x = x;
-        bBox.y = y;
-        headerBBox.x = headerX;
-        headerBBox.y = headerY;
-        bodyBBox.x = bodyX;
-        bodyBBox.y = bodyY;
+        PositioningUtils.populateInnerPanelDecoratorBBoxPosition(node);
     }
 
     visit(node) {
