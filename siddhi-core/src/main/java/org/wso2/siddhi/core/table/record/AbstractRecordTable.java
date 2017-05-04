@@ -34,7 +34,11 @@ import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractRecordTable implements EventTable {
 
@@ -117,7 +121,7 @@ public abstract class AbstractRecordTable implements EventTable {
      * @return RecordIterator of matching records
      */
     protected abstract RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
-                                               CompiledCondition compiledCondition);
+                                                     CompiledCondition compiledCondition);
 
     @Override
     public boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition) {
@@ -235,7 +239,7 @@ public abstract class AbstractRecordTable implements EventTable {
                         updateAttributeMapper.getUpdateEventOutputData(stateEvent));
             }
             updateValues.add(valueMap);
-            addingRecords.add(stateEvent.getOutputData());
+            addingRecords.add(stateEvent.getStreamEvent(0).getOutputData());
         }
         updateOrAdd(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition, updateValues,
                 addingRecords);
