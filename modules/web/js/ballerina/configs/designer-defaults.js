@@ -144,3 +144,17 @@ export const packageDefinition = {
         }
     }
 }
+
+export const structDefinition = {
+    padding: {
+        top: 50,
+        right: 50,
+        bottom: 50,
+        left: 50
+    }
+};
+
+export const structDefinitionStatement = {
+    width: 450,
+    height: 25,
+};
