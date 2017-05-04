@@ -192,13 +192,6 @@ class BallerinaFileEditor extends BallerinaView {
         this._$designViewContainer = container;
         var canvasContainer = $('<div></div>');
         canvasContainer.addClass(_.get(viewOptions, 'cssClass.canvas_container'));
-        var canvasTopControlsContainer = $('<div></div>')
-            .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_package_define')))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_packages_import')))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_constants_define')));
-        canvasContainer.append(canvasTopControlsContainer);
-
         this._$designViewContainer.append(canvasContainer);
         this._$canvasContainer = canvasContainer;
         // check whether container element exists in dom
@@ -218,7 +211,7 @@ class BallerinaFileEditor extends BallerinaView {
         toolPaletteOpts.ballerinaFileEditor = this;
         this.toolPalette = new ToolPalette(toolPaletteOpts);
 
-        this._createImportDeclarationPane(canvasContainer);
+        //this._createImportDeclarationPane(canvasContainer);
 
         // init undo manager
         this._undoManager = new UndoManager();
@@ -251,14 +244,18 @@ class BallerinaFileEditor extends BallerinaView {
                 width : this._$canvasContainer.width(),
                 height : this._$canvasContainer.height()
             };
+            // attach a wrapper to the react diagram so we can attach expression editor to the container.
+            let diagramRoot = $('<div class="diagram root" ></div>');
+            this._$canvasContainer.append(diagramRoot);
             //create Rect component for diagram
             let root = React.createElement(BallerinaDiagram, {
                 model: this._model,
-                dragDropManager: this.toolPalette.dragDropManager
+                dragDropManager: this.toolPalette.dragDropManager,
+                container: this._$canvasContainer
             }, null);
             ReactDOM.render(
               root,
-              this._$canvasContainer[0]
+              diagramRoot[0]
             );
         }
 
