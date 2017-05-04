@@ -18,7 +18,10 @@
 
 package org.wso2.siddhi.core.query.processor.stream.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -36,8 +39,30 @@ import java.util.Map;
 @Extension(
         name = "pol2Cart",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "The pol2Cart function calculating the cartesian coordinates x & y for the given theta, rho " +
+                "coordinates and adding them as new attributes to the existing events.",
+        parameters = {
+                @Parameter(name = "theta",
+                        description = "The theta value of the coordinates.",
+                        type = {DataType.DOUBLE}),
+                @Parameter(name = "rho",
+                        description = "The rho value of the coordinates.",
+                        type = {DataType.DOUBLE}),
+                @Parameter(name = "z",
+                        description = "z value of the cartesian coordinates.",
+                        type = {DataType.DOUBLE},
+                        optional = true)
+        },
+        examples = {
+                @Example(
+                        value = "from PolarStream#pol2Cart(theta, rho)\n" +
+                                "select x, y \ninsert into outputStream ; will return cartesian coordinates " +
+                                "(4.99953024681082, 0.06853693328228748) for theta: 0.7854 and rho: 5."),
+                @Example(
+                        value = "from PolarStream#pol2Cart(theta, rho, 3.4)\n" +
+                                "select x, y, z \ninsert into outputStream ; will return cartesian coordinates " +
+                                "(4.99953024681082, 0.06853693328228748, 3.4)for theta: 0.7854 and rho: 5 and z: 3.4.")
+        }
 )
 public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
 
