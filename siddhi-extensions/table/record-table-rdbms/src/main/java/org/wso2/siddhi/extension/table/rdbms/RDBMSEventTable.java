@@ -90,7 +90,7 @@ import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
 )
 public class RDBMSEventTable extends AbstractRecordTable {
 
-    private static final Log log = LogFactory.getLog(RDBMSTableUtils.class);
+    private static final Log log = LogFactory.getLog(RDBMSEventTable.class);
     private RDBMSQueryConfigurationEntry queryConfigurationEntry;
     private DataSource dataSource;
     private String tableName;
@@ -158,10 +158,9 @@ public class RDBMSEventTable extends AbstractRecordTable {
             //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
             return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
         } catch (SQLException e) {
+            RDBMSTableUtils.cleanupConnection(rs, stmt, conn);
             throw new RDBMSTableException("Error retrieving records from table '" + this.tableName + "': "
                     + e.getMessage(), e);
-        } finally {
-            RDBMSTableUtils.cleanupConnection(rs, stmt, conn);
         }
     }
 
@@ -403,8 +402,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
         //TODO once-over
         RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRDBMSTypeMapping();
         StringBuilder builder = new StringBuilder();
-        List<Element> primaryKeyMap = (primaryKeys == null) ? new ArrayList<>() : primaryKeys.getElements();
-        List<Element> indexMap = (indices == null) ? new ArrayList<>() : indices.getElements();
+        List<Element> primaryKeyList = (primaryKeys == null) ? new ArrayList<>() : primaryKeys.getElements();
+        List<Element> indexElementList = (indices == null) ? new ArrayList<>() : indices.getElements();
         List<String> queries = new ArrayList<>();
         String createQuery = this.resolveTableName(this.queryConfigurationEntry.getTableCreateQuery());
         String indexQuery = this.resolveTableName(this.queryConfigurationEntry.getIndexCreateQuery());
@@ -444,19 +443,19 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     }
                     break;
             }
-            if (this.attributes.indexOf(attribute) != this.attributes.size() - 1 || !primaryKeyMap.isEmpty()) {
+            if (this.attributes.indexOf(attribute) != this.attributes.size() - 1 || !primaryKeyList.isEmpty()) {
                 builder.append(SEPARATOR);
             }
         });
-        if (!primaryKeyMap.isEmpty()) {
+        if (primaryKeyList != null && !primaryKeyList.isEmpty()) {
             builder.append(SQL_PRIMARY_KEY_DEF)
                     .append(OPEN_PARENTHESIS)
-                    .append(RDBMSTableUtils.flattenAnnotatedElements(primaryKeyMap))
+                    .append(RDBMSTableUtils.flattenAnnotatedElements(primaryKeyList))
                     .append(CLOSE_PARENTHESIS);
         }
         queries.add(createQuery.replace(PLACEHOLDER_COLUMNS, builder.toString()));
-        if (indexMap != null && !indexMap.isEmpty()) {
-            queries.add(indexQuery.replace(PLACEHOLDER_INDEX, RDBMSTableUtils.flattenAnnotatedElements(indexMap)));
+        if (indexElementList != null && !indexElementList.isEmpty()) {
+            queries.add(indexQuery.replace(PLACEHOLDER_INDEX, RDBMSTableUtils.flattenAnnotatedElements(indexElementList)));
         }
         try {
             this.executeDDQueries(queries, false);
