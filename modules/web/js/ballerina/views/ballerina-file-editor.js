@@ -78,7 +78,7 @@ class BallerinaFileEditor extends BallerinaView {
         this.parserBackend = new Backend({url: _.get(args, 'backendEndpointsOptions.parser.endpoint', {})});
         this.validatorBackend = new Backend({url: _.get(args, 'backendEndpointsOptions.validator.endpoint', {})});
         this._isInSourceView = false;
-        this._isvInSwaggerView = false;
+        this._isInSwaggerView = false;
         this._constantDefinitionsPane = undefined;
         this.deserializer = BallerinaASTDeserializer;
         this._currentBreakpoints = [];
@@ -337,7 +337,7 @@ class BallerinaFileEditor extends BallerinaView {
         _.set(swaggerViewOpts, 'container', swaggerViewContainer);
         _.set(swaggerViewOpts, 'content', '');
         _.set(swaggerViewOpts, 'backend', new Backend({url : _.get(this._backendEndpointsOptions, 'swagger.endpoint')}));
-        _.set(swaggerViewOpts, 'swaggerEditorId', this.getModel().getID() + '-swagger-editor');
+        _.set(swaggerViewOpts, 'swaggerEditorId', this.id + '-swagger-editor');
         _.set(swaggerViewOpts, 'swaggerEditorTheme', this._file._storage.get('pref:sourceViewTheme') ||
             _.get(this.getViewOptions().source_view, 'theme'));
         _.set(swaggerViewOpts, 'swaggerEditorFontSize', this._file._storage.get('pref:sourceViewFontSize') ||
