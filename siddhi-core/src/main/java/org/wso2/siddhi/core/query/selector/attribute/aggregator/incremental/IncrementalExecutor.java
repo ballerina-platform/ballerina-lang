@@ -5,7 +5,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
@@ -36,16 +36,16 @@ public class IncrementalExecutor {
 
     private IncrementalExecutor(TimePeriod.Duration duration, IncrementalExecutor child,
                                 List<AttributeFunction> functionAttributes, MetaComplexEvent metaEvent,
-                                int currentState, Map<String, EventTable> eventTableMap,
+                                int currentState, Map<String, Table> tableMap,
                                 List<VariableExpressionExecutor> executorList,
                                 ExecutionPlanContext executionPlanContext, boolean groupBy,
                                 int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
         this.duration = duration;
         this.child = child;
         this.compositeAggregators = createIncrementalAggregators(functionAttributes);
-        this.basicExecutorDetails = basicFunctionExecutors(metaEvent, currentState, eventTableMap, executorList,
+        this.basicExecutorDetails = basicFunctionExecutors(metaEvent, currentState, tableMap, executorList,
                 executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
-        this.groupByExecutor = generateGroupByExecutor(groupByVariable, metaEvent, currentState, eventTableMap,
+        this.groupByExecutor = generateGroupByExecutor(groupByVariable, metaEvent, currentState, tableMap,
                 executorList, executionPlanContext, defaultStreamEventIndex, queryName);
         storeAggregatorFunctions = new ConcurrentHashMap<>();
         this.executionPlanContext = executionPlanContext;
@@ -90,7 +90,7 @@ public class IncrementalExecutor {
      * @param groupByClause
      * @param metaEvent
      * @param currentState
-     * @param eventTableMap
+     * @param tableMap
      * @param executorList
      * @param executionPlanContext
      * @param defaultStreamEventIndex
@@ -98,13 +98,13 @@ public class IncrementalExecutor {
      * @return
      */
     private ExpressionExecutor generateGroupByExecutor(Variable groupByClause, MetaComplexEvent metaEvent,
-                                                       int currentState, Map<String, EventTable> eventTableMap,
+                                                       int currentState, Map<String, Table> tableMap,
                                                        List<VariableExpressionExecutor> executorList,
                                                        ExecutionPlanContext executionPlanContext,
                                                        int defaultStreamEventIndex, String queryName) {
 
         ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(groupByClause, metaEvent,
-                currentState, eventTableMap, executorList, executionPlanContext, true,
+                currentState, tableMap, executorList, executionPlanContext, true,
                 defaultStreamEventIndex, queryName);
         return variableExpressionExecutor;
     }
@@ -114,7 +114,7 @@ public class IncrementalExecutor {
      *
      * @param metaEvent
      * @param currentState
-     * @param eventTableMap
+     * @param tableMap
      * @param executorList
      * @param executionPlanContext
      * @param groupBy
@@ -123,7 +123,7 @@ public class IncrementalExecutor {
      * @return
      */
     private List<ExpressionExecutorDetails> basicFunctionExecutors(MetaComplexEvent metaEvent,
-                                                                   int currentState, Map<String, EventTable> eventTableMap,
+                                                                   int currentState, Map<String, Table> tableMap,
                                                                    List<VariableExpressionExecutor> executorList,
                                                                    ExecutionPlanContext executionPlanContext, boolean groupBy,
                                                                    int defaultStreamEventIndex, String queryName) {
@@ -140,7 +140,7 @@ public class IncrementalExecutor {
         for (BaseExpressionDetails baseAggregator : baseAggregators) {
 
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(baseAggregator.getBaseExpression(), metaEvent,
-                    currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                    currentState, tableMap, executorList, executionPlanContext, groupBy,
                     defaultStreamEventIndex, queryName);
             String executorUniqueKey = ((AttributeFunction) baseAggregator.getBaseExpression()).getName() + baseAggregator.getAttribute();
             ExpressionExecutorDetails executorDetails = new ExpressionExecutorDetails(expressionExecutor, executorUniqueKey);
@@ -195,87 +195,87 @@ public class IncrementalExecutor {
 
     public static IncrementalExecutor second(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
                                              MetaComplexEvent metaEvent,
-                                             int currentState, Map<String, EventTable> eventTableMap,
+                                             int currentState, Map<String, Table> tableMap,
                                              List<VariableExpressionExecutor> executorList,
                                              ExecutionPlanContext executionPlanContext, boolean groupBy,
                                              int defaultStreamEventIndex, String queryName,
                                              Variable groupByVariable) {
         IncrementalExecutor second = new IncrementalExecutor(TimePeriod.Duration.SECONDS, child, functionAttributes,
-                metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+                metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
         return second;
     }
 
     public static IncrementalExecutor minute(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
                                              MetaComplexEvent metaEvent,
-                                             int currentState, Map<String, EventTable> eventTableMap,
+                                             int currentState, Map<String, Table> tableMap,
                                              List<VariableExpressionExecutor> executorList,
                                              ExecutionPlanContext executionPlanContext, boolean groupBy,
                                              int defaultStreamEventIndex, String queryName,
                                              Variable groupByVariable) {
         IncrementalExecutor minute = new IncrementalExecutor(TimePeriod.Duration.MINUTES, child, functionAttributes,
-                metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
         return minute;
     }
 
     public static IncrementalExecutor hour(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
                                            MetaComplexEvent metaEvent,
-                                           int currentState, Map<String, EventTable> eventTableMap,
+                                           int currentState, Map<String, Table> tableMap,
                                            List<VariableExpressionExecutor> executorList,
                                            ExecutionPlanContext executionPlanContext, boolean groupBy,
                                            int defaultStreamEventIndex, String queryName,
                                            Variable groupByVariable) {
         IncrementalExecutor hour = new IncrementalExecutor(TimePeriod.Duration.HOURS, child, functionAttributes,
-                metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
         return hour;
     }
 
     public static IncrementalExecutor day(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
                                           MetaComplexEvent metaEvent,
-                                          int currentState, Map<String, EventTable> eventTableMap,
+                                          int currentState, Map<String, Table> tableMap,
                                           List<VariableExpressionExecutor> executorList,
                                           ExecutionPlanContext executionPlanContext, boolean groupBy,
                                           int defaultStreamEventIndex, String queryName,
                                           Variable groupByVariable) {
         IncrementalExecutor day = new IncrementalExecutor(TimePeriod.Duration.DAYS, child, functionAttributes,
-                metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
         return day;
     }
 
     public static IncrementalExecutor week(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
                                            MetaComplexEvent metaEvent,
-                                           int currentState, Map<String, EventTable> eventTableMap,
+                                           int currentState, Map<String, Table> tableMap,
                                            List<VariableExpressionExecutor> executorList,
                                            ExecutionPlanContext executionPlanContext, boolean groupBy,
                                            int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
         IncrementalExecutor week = new IncrementalExecutor(TimePeriod.Duration.WEEKS, child, functionAttributes,
-                metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
         return week;
     }
 
     public static IncrementalExecutor month(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
                                             MetaComplexEvent metaEvent,
-                                            int currentState, Map<String, EventTable> eventTableMap,
+                                            int currentState, Map<String, Table> tableMap,
                                             List<VariableExpressionExecutor> executorList,
                                             ExecutionPlanContext executionPlanContext, boolean groupBy,
                                             int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
         IncrementalExecutor month = new IncrementalExecutor(TimePeriod.Duration.MONTHS, child, functionAttributes,
-                metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
         return month;
     }
 
     public static IncrementalExecutor year(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
                                            MetaComplexEvent metaEvent,
-                                           int currentState, Map<String, EventTable> eventTableMap,
+                                           int currentState, Map<String, Table> tableMap,
                                            List<VariableExpressionExecutor> executorList,
                                            ExecutionPlanContext executionPlanContext, boolean groupBy,
                                            int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
         IncrementalExecutor year = new IncrementalExecutor(TimePeriod.Duration.YEARS, child, functionAttributes,
-                metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy,
+                metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
         return year;
     }

@@ -6,14 +6,14 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
-import org.wso2.siddhi.core.stream.input.source.InputTransport;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.stream.input.source.Source;
+import org.wso2.siddhi.core.stream.output.sink.Sink;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.window.EventWindow;
+import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -34,10 +34,10 @@ public class AggregationParser {
                                            Map<String, AbstractDefinition> streamDefinitionMap,
                                            Map<String, AbstractDefinition> tableDefinitionMap,
                                            Map<String, AbstractDefinition> windowDefinitionMap,
-                                           Map<String, EventTable> eventTableMap,
-                                           Map<String, EventWindow> eventWindowMap,
-                                           Map<String, List<InputTransport>> eventSourceMap,
-                                           Map<String, List<OutputTransport>> eventSinkMap,
+                                           Map<String, Table> tableMap,
+                                           Map<String, Window> windowMap,
+                                           Map<String, List<Source>> eventSourceMap,
+                                           Map<String, List<Sink>> eventSinkMap,
                                            LockSynchronizer lockSynchronizer) {
 
         // Read group by attribute
@@ -90,7 +90,7 @@ public class AggregationParser {
 
             InputStream inputStream = definition.getInputStream();
             StreamRuntime streamRuntime = InputStreamParser.parse(inputStream, executionPlanContext,
-                    streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, eventTableMap, eventWindowMap,
+                    streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap,
                     executors, latencyTracker, false, queryName);
             MetaComplexEvent metaComplexEvent = streamRuntime.getMetaComplexEvent();
 
@@ -106,12 +106,12 @@ public class AggregationParser {
             Variable groupByVar = getGroupByAttribute(definition.getSelector());
 
             IncrementalExecutor child = build(functionsAttributes, incrementalDurations.get(incrementalDurations.size() - 1), null,
-                    metaComplexEvent, 0, eventTableMap, executors, executionPlanContext,
+                    metaComplexEvent, 0, tableMap, executors, executionPlanContext,
                     true, 0, queryName, groupByVar);
             IncrementalExecutor root = child;
             for (int i = incrementalDurations.size() - 2; i >= 0; i--) {
                 root = build(functionsAttributes, incrementalDurations.get(i), child, metaComplexEvent, 0,
-                        eventTableMap, executors, executionPlanContext, true, 0,
+                        tableMap, executors, executionPlanContext, true, 0,
                         queryName, groupByVar);
                 child = root;
             }
@@ -127,16 +127,16 @@ public class AggregationParser {
 
     private static IncrementalExecutor build(List<AttributeFunction> functionsAttributes,
                                              TimePeriod.Duration duration, IncrementalExecutor child, MetaComplexEvent metaEvent,
-                                             int currentState, Map<String, EventTable> eventTableMap,
+                                             int currentState, Map<String, Table> tableMap,
                                              List<VariableExpressionExecutor> executorList,
                                              ExecutionPlanContext executionPlanContext, boolean groupBy,
                                              int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
         switch (duration) {
             case SECONDS:
-                return IncrementalExecutor.second(functionsAttributes, child, metaEvent, currentState, eventTableMap,
+                return IncrementalExecutor.second(functionsAttributes, child, metaEvent, currentState, tableMap,
                         executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
             case MINUTES:
-                return IncrementalExecutor.minute(functionsAttributes, child, metaEvent, currentState, eventTableMap,
+                return IncrementalExecutor.minute(functionsAttributes, child, metaEvent, currentState, tableMap,
                         executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
             default:
                 // TODO: 3/15/17 Throws an exception
