@@ -202,7 +202,6 @@ class StatementDecorator extends React.Component {
 	}
 
 	onUpdate(text){
-		console.log(text);
 	}
 
 }

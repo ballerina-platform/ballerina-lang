@@ -23,13 +23,25 @@ import PropTypes from 'prop-types';
  * Return statement decorator.
  * */
 class ReturnStatement extends React.Component {
+
+	constructor(props){
+		super(props);
+		this.editorOptions = {
+            propertyType: "text",
+            key: "Expression",
+            model: this.props.model,
+            getterMethod: this.props.model.getExpression,
+            setterMethod: this.props.model.setExpression
+        };
+	}    
+
     /**
      * Render function for the return statement.
      * */
     render() {
         let model = this.props.model,
             expression = model.viewState.expression;
-        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression}/>);
+        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} editorOptions={this.editorOptions} />);
     }
 }
 
