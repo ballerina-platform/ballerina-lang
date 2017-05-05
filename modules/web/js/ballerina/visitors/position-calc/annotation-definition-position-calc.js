@@ -22,7 +22,7 @@ import * as DesignerDefaults from './../../configs/designer-defaults';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 import {panel} from './../../configs/designer-defaults';
 
-class AnnotationPositionCalcVisitor {
+class AnnotationDefinitionPositionCalcVisitor {
     /**
      * Check whether annotation definition position calc visitor can be visited.
      * @param {object} node.
@@ -81,4 +81,4 @@ class AnnotationPositionCalcVisitor {
     }
 }
 
-export default AnnotationPositionCalcVisitor;
+export default AnnotationDefinitionPositionCalcVisitor;
