@@ -30,7 +30,7 @@ class IfStatement extends React.Component {
         let model = this.props.model,
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<BlockStatementDecorator bBox={bBox} title={"If"}>
+        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"If"}>
             {children}
         </BlockStatementDecorator>);
     }
