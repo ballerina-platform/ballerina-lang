@@ -21,7 +21,10 @@ import _ from 'lodash';
 import {statement} from './../configs/designer-defaults';
 import {lifeLine} from './../configs/designer-defaults';
 import ASTNode from '../ast/node';
+import ActionBox from './action-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
+import SimpleBBox from './../ast/simple-bounding-box';
+import * as DesignerDefaults from './../configs/designer-defaults';
 import MessageManager from './../visitors/message-manager';
 import ASTFactory from './../ast/ballerina-ast-factory';
 import './statement-decorator.css';
@@ -33,9 +36,28 @@ const text_offset = 50;
 
 class StatementDecorator extends React.Component {
 
-	constructor(props) {
-		super(props);
-		this.state = {innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false, drawInvocationFlag: -1};
+	constructor(props, context) {
+		super(props, context);
+        const {dragDropManager} = context;
+        dragDropManager.on('drag-start', this.startDropZones.bind(this));
+        dragDropManager.on('drag-stop', this.stopDragZones.bind(this));
+
+		this.state = {innerDropZoneActivated: false,
+                      innerDropZoneDropNotAllowed: false,
+                      innerDropZoneExist: false,
+                      showActions: false };
+	}
+
+	startDropZones() {
+        this.setState({innerDropZoneExist: true});
+    }
+
+	stopDragZones() {
+        this.setState({innerDropZoneExist: false});
+    }
+
+    onDelete() {
+        this.props.model.remove();
 	}
 
 	render() {
@@ -59,7 +81,6 @@ class StatementDecorator extends React.Component {
 		let arrowEnd = { x: 0, y: 0 };
 		let backArrowStart = { x: 0, y: 0 };
 		let backArrowEnd = { x: 0, y: 0 };
-
 		const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
 											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 
@@ -90,9 +111,18 @@ class StatementDecorator extends React.Component {
 				backArrowEnd.y = backArrowStart.y;
 			}
 		}
-		return (<g className="statement" >
+		const actionBbox = new SimpleBBox();
+        const fill = this.state.innerDropZoneExist ? {} : {fill:'none'};  
+		actionBbox.w = DesignerDefaults.actionBox.width;
+		actionBbox.h = DesignerDefaults.actionBox.height;
+		actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
+		actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
+		return (
+          <g className="statement" 
+                onMouseOut={ this.setActionVisibility.bind(this,false) } 
+                onMouseOver={ this.setActionVisibility.bind(this,true) }  >
 			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
-					className={dropZoneClassName}
+                className={dropZoneClassName} {...fill}
 			 		onMouseOver={(e) => this.onDropZoneActivate(e)}
 					onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
 			<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className="statement-rect"
@@ -100,6 +130,7 @@ class StatementDecorator extends React.Component {
 			<g className="statement-body">
 				<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
 			</g>
+                        <ActionBox bBox={ actionBbox } show={ this.state.showActions } onDelete={this.onDelete.bind(this)}/>
 			{isActionInvocation &&
 				<g>
 					<circle cx={arrowStartPointX}
@@ -117,6 +148,11 @@ class StatementDecorator extends React.Component {
 			}
 		</g>);
 	}
+
+    setActionVisibility (show, e) {
+        this.setState({showActions: show})
+    }
+
 
 	onDropZoneActivate (e) {
 			const dragDropManager = this.context.dragDropManager,
