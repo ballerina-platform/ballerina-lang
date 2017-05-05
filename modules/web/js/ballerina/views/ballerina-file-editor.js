@@ -42,6 +42,7 @@ import DebugManager from './../../debugger/debug-manager';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import BallerinaDiagram from './../components/diagram';
+import MessageManager from './../visitors/message-manager';
 import Renderer from '../components/renderer'
 
 /**
@@ -215,6 +216,7 @@ class BallerinaFileEditor extends BallerinaView {
         toolPaletteOpts.container = toolPaletteContainer;
         toolPaletteOpts.ballerinaFileEditor = this;
         this.toolPalette = new ToolPalette(toolPaletteOpts);
+        this.messageManager = new MessageManager();
 
         //this._createImportDeclarationPane(canvasContainer);
 
@@ -259,6 +261,7 @@ class BallerinaFileEditor extends BallerinaView {
             let root = React.createElement(BallerinaDiagram, {
                 model: this._model,
                 dragDropManager: this.toolPalette.dragDropManager,
+                messageManager: this.messageManager,
                 container: this._$canvasContainer,
                 renderer
             }, null);
