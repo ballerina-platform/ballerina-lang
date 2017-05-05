@@ -61,7 +61,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
             statementWidth = DesignerDefaults.statement.width;
         }
 
-        /* Lets add an extra gap to the bottom of the lifeline. 
+        /* Lets add an extra gap to the bottom of the lifeline.
            This will prevent last statement touching bottom box of the life line.*/
         statementHeight += DesignerDefaults.lifeLine.gutter.v;
 
@@ -113,6 +113,14 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;
+
+        viewState.titleWidth = util.getTextWidth(node.getFunctionName()).w;
+
+        components['parametersPrefixContainer'] = {};
+        components['parametersPrefixContainer'].w = util.getTextWidth('Parameters: ').w;
+
+        components['returnTypesPrefixContainer'] = {};
+        components['returnTypesPrefixContainer'].w = util.getTextWidth('Return Types: ').w;
 
         viewState.components = components;
     }

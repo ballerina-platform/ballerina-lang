@@ -15,9 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import VariableDefinitionStatement from '../../ast/statements/variable-definition-statement';
 
@@ -33,12 +30,10 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
     beginVisitVariableDefinitionStatement(variableDefinitionStatement) {
         var constructedSource = variableDefinitionStatement.getStatementString();
         this.appendSource(constructedSource);
-        log.debug('Begin Visit Variable Definition Statement');
     }
 
     endVisitVariableDefinitionStatement(variableDefinitionStatement) {
-        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
-        log.debug('End Visit Variable Definition Statement');
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ";\n");
     }
 }
 

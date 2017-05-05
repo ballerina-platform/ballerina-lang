@@ -37,7 +37,8 @@ class StructDefinitionPositionCalcVisitor {
             return ASTFactory.isFunctionDefinition(child) ||
                 ASTFactory.isServiceDefinition(child) ||
                 ASTFactory.isConnectorDefinition(child) ||
-                ASTFactory.isStructDefinition(child);
+                ASTFactory.isStructDefinition(child) ||
+                ASTFactory.isAnnotationDefinition(child);
         });
         let heading = viewSate.components.heading;
         let body = viewSate.components.body;
@@ -67,9 +68,9 @@ class StructDefinitionPositionCalcVisitor {
         body.x = bodyX;
         body.y = bodyY;
 
-        const { statements } = viewSate.components;
-        statements.forEach( (statement, i) => {
-            statement.y = bodyY + DesignerDefaults.structDefinition.padding.top  + statement.h * i;
+        const {statements} = viewSate.components;
+        statements.forEach((statement, i) => {
+            statement.y = bodyY + DesignerDefaults.structDefinition.padding.top + statement.h * i;
             statement.x = bodyX + DesignerDefaults.structDefinition.padding.left;
         });
         log.debug('begin visit StructDefinitionPositionCalc');

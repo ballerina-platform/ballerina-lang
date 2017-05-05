@@ -23,14 +23,26 @@ import PropTypes from "prop-types"
  * Assignment statement decorator.
  * */
 class AssignmentStatement extends React.Component {
+
+	constructor(props){
+		super(props);
+		this.editorOptions = {
+            propertyType: 'text',
+            key: 'Assignment',
+            model: props.model,
+            getterMethod: props.model.getStatementString,
+            setterMethod: props.model.setStatementString
+        };
+	}
+
     /**
      * Render Function for the assignment statement.
      * */
     render() {
         let model = this.props.model,
-            bBox = model.viewState.bBox,
             expression = model.viewState.expression;
-        return (<StatementDecorator bBox={bBox} expression={expression} model={model} />);
+        return (<StatementDecorator viewState={model.viewState} expression={expression}
+                    editorOptions={this.editorOptions} model={model} />);
     }
 }
 

@@ -30,17 +30,13 @@ class FunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
         return true;
     }
 
-    canVisitFuncInvocationExpression(functionInvocation) {
-        return true;
-    }
-
     visitFuncInvocationExpression(functionInvocation) {
         this.appendSource(functionInvocation.getFunctionalExpression());
     }
 
     endVisitFuncInvocationStatement(functionInvocation) {
         this.appendSource(";\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Function Invocation Statement');
     }
 }

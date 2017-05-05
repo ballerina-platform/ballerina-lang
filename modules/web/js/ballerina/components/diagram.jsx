@@ -26,6 +26,7 @@ import {getComponentForNodeArray} from './utils';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
 import ASTRoot from '../ast/ballerina-ast-root';
+import Renderer from './renderer';
 
 class Diagram extends React.Component {
 
@@ -78,7 +79,12 @@ class Diagram extends React.Component {
     }
 
     getChildContext() {
-       return { dragDropManager: this.props.dragDropManager, messageManager: this.props.messageManager};
+        return {
+            dragDropManager: this.props.dragDropManager ,
+            messageManager: this.props.messageManager,
+            container : this.props.container,
+            renderer: this.props.renderer
+        };
     }
 }
 
@@ -91,12 +97,15 @@ Diagram.propTypes = {
 	}),
   model: PropTypes.instanceOf(ASTRoot).isRequired,
   dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-  messageManager: PropTypes.instanceOf(MessageManager).isRequired
-};
+    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
+  renderer: PropTypes.instanceOf(Renderer).isRequired
+}
 
 Diagram.childContextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-    messageManager: PropTypes.instanceOf(MessageManager).isRequired
+    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
+    container: PropTypes.instanceOf(Object).isRequired,
+    renderer: PropTypes.instanceOf(Renderer).isRequired
 };
 
 export default Diagram;

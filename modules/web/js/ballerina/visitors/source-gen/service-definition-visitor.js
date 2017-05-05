@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import ResourceDefinitionVisitor from './resource-definition-visitor';
 import VariableDeclarationVisitor from './variable-declaration-visitor';
@@ -37,22 +36,6 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
-    canVisitStatement(statement) {
-        return true;
-    }
-
-    canVisitConnectorDeclaration(connectorDeclaration) {
-        return true;
-    }
-
-    canVisitResourceDefinition(resourceDefinition) {
-        return true;
-    }
-
-    canVisitVariableDeclaration(variableDeclaration) {
-        return true;
-    }
-
     beginVisitServiceDefinition(serviceDefinition) {
         /**
          * set the configuration start for the service definition language construct
@@ -65,7 +48,7 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
                 var constructedPathAnnotation = '';
                 if (annotation.key.indexOf(':') !== -1) {
                     constructedPathAnnotation = '@' + annotation.key.split(':')[0] + ':'
-                        + annotation.key.split(':')[1] + '{value:"' + annotation.value + '"}\n';
+                        + annotation.key.split(':')[1] + '{value: "' + annotation.value + '"}\n';
                 }
                 self.appendSource(constructedPathAnnotation);
             }
@@ -73,17 +56,13 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
 
         var constructedSourceSegment = 'service ' + serviceDefinition.getServiceName() + ' {\n';
         this.appendSource(constructedSourceSegment);
-        log.debug('Begin Visit Service Definition');
-    }
-
-    visitServiceDefinition(serviceDefinition) {
-        log.debug('Visit Service Definition');
+        this.indent();
     }
 
     endVisitServiceDefinition(serviceDefinition) {
+        this.outdent();
         this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Service Definition');
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
     }
 
     visitStatement(statement) {
@@ -100,11 +79,6 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
     visitConnectorDeclaration(connectorDeclaration) {
         var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
-    }
-
-    visitVariableDeclaration(variableDeclaration) {
-        var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
-        variableDeclaration.accept(variableDeclarationVisitor);
     }
 }
 

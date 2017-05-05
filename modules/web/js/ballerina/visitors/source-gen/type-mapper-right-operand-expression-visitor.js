@@ -33,14 +33,6 @@ class TypeMapperRightOperandExpressionVisitor extends AbstractStatementSourceGen
         return true;
     }
 
-    canVisitFuncInvocationStatement(functionInvocationVisitor) {
-        return true;
-    }
-
-    canVisitExpression(expression) {
-        return true;
-    }
-
     canVisitFuncInvocationExpression(expression) {
         return true;
     }

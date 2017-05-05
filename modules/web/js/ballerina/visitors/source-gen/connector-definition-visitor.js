@@ -37,10 +37,6 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
-    canVisitConnectorAction(connectorAction){
-        return true;
-    }
-
     /**
      * Begin the visit and generate the source
      * @param {ConnectorDefinition} connectorDefinition - Connector Definition
@@ -77,6 +73,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
         var constructedSourceSegment = 'connector ' + connectorDefinition.getConnectorName() +
             ' (' + argumentsSrc + ')' + ' {\n';
         this.appendSource(constructedSourceSegment);
+        this.indent();
         log.debug('Begin Visit Connector Definition');
     }
 
@@ -89,8 +86,9 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {ConnectorDefinition} connectorDefinition - Connector Definition
      */
     endVisitConnectorDefinition(connectorDefinition) {
+        this.outdent();
         this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Connector Definition');
     }
 
@@ -133,4 +131,3 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
 }
 
 export default ConnectorDefinitionVisitor;
-    

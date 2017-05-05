@@ -103,7 +103,7 @@ CanvasDecorator.propTypes = {
 }
 
 CanvasDecorator.contextTypes = {
-	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
+	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
 };
 
 export default CanvasDecorator;

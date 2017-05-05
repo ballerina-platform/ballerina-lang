@@ -176,7 +176,7 @@ class SourceView extends EventChannel {
         if(doSilently){
             this._inSilentMode = true;
         }
-        this._fomatter.beautify(this._editor.getSession());
+        //this._fomatter.beautify(this._editor.getSession()); TODO: removing tokenizer based formatting temperaly
         if(doSilently){
             this._inSilentMode = false;
             this.markClean();

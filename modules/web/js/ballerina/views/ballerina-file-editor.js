@@ -43,6 +43,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import BallerinaDiagram from './../components/diagram';
 import MessageManager from './../visitors/message-manager';
+import Renderer from '../components/renderer'
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -195,9 +196,6 @@ class BallerinaFileEditor extends BallerinaView {
         canvasContainer.addClass(_.get(viewOptions, 'cssClass.canvas_container'));
         var canvasTopControlsContainer = $('<div></div>')
             .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_package_define')))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_packages_import')))
-            .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_constants_define')));
         canvasContainer.append(canvasTopControlsContainer);
 
         this._$designViewContainer.append(canvasContainer);
@@ -220,7 +218,7 @@ class BallerinaFileEditor extends BallerinaView {
         this.toolPalette = new ToolPalette(toolPaletteOpts);
         this.messageManager = new MessageManager();
 
-        this._createImportDeclarationPane(canvasContainer);
+        //this._createImportDeclarationPane(canvasContainer);
 
         // init undo manager
         this._undoManager = new UndoManager();
@@ -253,15 +251,23 @@ class BallerinaFileEditor extends BallerinaView {
                 width : this._$canvasContainer.width(),
                 height : this._$canvasContainer.height()
             };
+            // attach a wrapper to the react diagram so we can attach expression editor to the container.
+            let diagramRoot = $('<div class="diagram root" ></div>');
+            let overlay = $('<div class="html-overlay" ></div>');
+            var renderer = new Renderer(overlay[0]);
+            this._$canvasContainer.append(diagramRoot);
+            this._$canvasContainer.append(overlay);
             //create Rect component for diagram
             let root = React.createElement(BallerinaDiagram, {
                 model: this._model,
                 dragDropManager: this.toolPalette.dragDropManager,
-                messageManager: this.messageManager
+                messageManager: this.messageManager,
+                container: this._$canvasContainer,
+                renderer
             }, null);
             ReactDOM.render(
               root,
-              this._$canvasContainer[0]
+              diagramRoot[0]
             );
         }
 
