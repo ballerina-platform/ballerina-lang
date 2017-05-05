@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea.highlighter;
 
+import com.intellij.ide.highlighter.JavaHighlightingColors;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -27,7 +28,7 @@ public class BallerinaSyntaxHighlightingColors {
     public static final TextAttributesKey LINE_COMMENT = createTextAttributesKey("BALLERINA_LINE_COMMENT",
             DefaultLanguageHighlighterColors.LINE_COMMENT);
     public static final TextAttributesKey KEYWORD = createTextAttributesKey("BALLERINA_KEYWORD",
-            DefaultLanguageHighlighterColors.KEYWORD);
+            JavaHighlightingColors.KEYWORD);
     public static final TextAttributesKey STRING = createTextAttributesKey("BALLERINA_STRING",
             DefaultLanguageHighlighterColors.STRING);
     public static final TextAttributesKey NUMBER = createTextAttributesKey("BALLERINA_NUMBER",
@@ -44,6 +45,10 @@ public class BallerinaSyntaxHighlightingColors {
             DefaultLanguageHighlighterColors.CONSTANT);
     public static final TextAttributesKey VALID_STRING_ESCAPE = createTextAttributesKey("BALLERINA_VALID_STRING_ESCAPE",
             DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE);
+    public static final TextAttributesKey INVALID_STRING_ESCAPE = createTextAttributesKey(
+            "BALLERINA_INVALID_STRING_ESCAPE", DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE);
+    public static final TextAttributesKey PACKAGE = createTextAttributesKey("BALLERINA_PACKAGE",
+            DefaultLanguageHighlighterColors.FUNCTION_DECLARATION);
 
     private BallerinaSyntaxHighlightingColors() {
     }
