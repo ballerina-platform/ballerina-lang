@@ -131,7 +131,7 @@ class FunctionDefinition extends CallableDefinition {
         var argsAsString = "";
         var args = this.getArguments();
         _.forEach(args, function(argument, index){
-            argsAsString += argument.type + " ";
+            argsAsString += argument.bType + " ";
             argsAsString += argument.identifier;
             if (args.length - 1 != index) {
                 argsAsString += ", ";
@@ -149,7 +149,7 @@ class FunctionDefinition extends CallableDefinition {
     addArgument(type, identifier) {
         //creating resource argument
         var newArgument = this.BallerinaASTFactory.createArgument();
-        newArgument.setType(type);
+        newArgument.setBType(type);
         newArgument.setIdentifier(identifier);
 
         var self = this;

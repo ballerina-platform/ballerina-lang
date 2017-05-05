@@ -32,6 +32,7 @@ class BlockStatementVisitor extends AbstractSourceGenVisitor {
     }
 
     beginBlockStatement(blockStatement) {
+        this.indent();
         log.debug('Begin Visit Block Statement Definition');
     }
 
@@ -40,7 +41,8 @@ class BlockStatementVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitBlockStatement(blockStatement) {
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.outdent();
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Block Statement Definition');
     }
 
@@ -52,4 +54,3 @@ class BlockStatementVisitor extends AbstractSourceGenVisitor {
 }
 
 export default BlockStatementVisitor;
-    

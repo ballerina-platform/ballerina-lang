@@ -34,8 +34,9 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
             constructedSourceSegment += ' attach '+ _.join(annotationDefinition.getAttachmentPoints(), ', ');
         }
         constructedSourceSegment +=' {\n';
+        this.indent();
         _.each(annotationDefinition.getAnnotationAttributeDefinitions(), function (attrDefinition, count) {
-            constructedSourceSegment += attrDefinition.getAttributeStatementString() + ' ;';
+            constructedSourceSegment += (this.getIndentation() + attrDefinition.getAttributeStatementString() + ';');
             if(count < annotationDefinition.getAnnotationAttributeDefinitions().length){
                 constructedSourceSegment+= '\n';
             }
@@ -50,8 +51,9 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitAnnotationDefinition(annotationDefinition) {
+        this.outdent();
         this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Annotation Definition');
     }
 }

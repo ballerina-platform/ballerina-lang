@@ -21,11 +21,22 @@ import PropTypes from 'prop-types';
 
 class FunctionInvocationStatement extends React.Component {
 
+	constructor(props){
+		super(props);
+		this.editorOptions = {
+            propertyType: 'text',
+            key: 'Function',
+            model: props.model.children[0],
+            getterMethod: props.model.children[0].getFunctionalExpression,
+            setterMethod: props.model.children[0].setFunctionalExpression
+        };
+	}
+
 	render() {
-		let model = this.props.model;
-		let bBox = model.viewState.bBox;
-		let expression = model.viewState.expression;
-		return (<StatementDecorator bBox={bBox} model={model} expression={expression} />);
+		let model = this.props.model,
+		    expression = model.viewState.expression;
+		return (<StatementDecorator viewState={model.viewState} expression={expression} 
+					editorOptions={this.editorOptions} model={model} />);
     }
 }
 

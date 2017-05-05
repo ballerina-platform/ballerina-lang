@@ -19,6 +19,9 @@
 import _ from 'lodash';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 import * as DesignerDefaults from './../../configs/designer-defaults';
+import {panel} from './../../configs/designer-defaults';
+import AST from './../../ast/module';
+import { util } from './../sizing-utils';
 
 function getSimpleStatementPosition(node) {
     let viewState = node.getViewState();
@@ -78,4 +81,124 @@ function getCompoundStatementChildPosition(node) {
     viewState.components.statementContainer.y = statementContainerY;
 }
 
-export {getSimpleStatementPosition, getCompoundStatementChildPosition};
+
+
+ function populateInnerPanelDecoratorBBoxPosition(node){
+        let parent = node.getParent();
+        let viewSate = node.getViewState();
+        let parentViewState = parent.getViewState();
+        var parentBBox = parentViewState.bBox;
+        let bBox = viewSate.bBox;
+        let statementContainerBBox = viewSate.components.statementContainer;
+        let headerBBox = viewSate.components.heading;
+        let bodyBBox = viewSate.components.body;
+        let resources = _.filter(parent.getChildren(), function (child) {
+            return child instanceof AST.ResourceDefinition || 
+                   child instanceof AST.ConnectorAction;
+        });
+        let x, y, headerX, headerY, bodyX, bodyY;
+        var currentResourceIndex = _.findIndex(resources, node);
+
+        headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
+
+        if (currentResourceIndex === 0) {
+            /**
+             * If there are service level connectors, then we need to drop the first resource further down,
+             * in order to maintain a gap between the connector heading and the resource heading
+             */
+            const parentLevelConnectors = node.getParent().filterChildren(function (child) {
+                return ASTFactory.isConnectorDeclaration(child);
+            });
+            if (parentLevelConnectors.length > 0) {
+                headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top +
+                    DesignerDefaults.lifeLine.head.height + DesignerDefaults.panel.wrapper.gutter.v;
+            } else {
+                headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
+            }
+        } else if (currentResourceIndex > 0) {
+            let previousResourceBBox = resources[currentResourceIndex - 1].getViewState().bBox;
+            headerY = previousResourceBBox.y + previousResourceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
+        } else {
+            throw 'Invalid Index for Resource Definition';
+        }
+
+        x = headerX;
+        y = headerY;
+        bodyX = headerX;
+        bodyY = headerY + headerBBox.h;
+
+        statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
+        statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
+            DesignerDefaults.lifeLine.head.height;
+
+        bBox.x = x;
+        bBox.y = y;
+        headerBBox.x = headerX;
+        headerBBox.y = headerY;
+        bodyBBox.x = bodyX;
+        bodyBBox.y = bodyY;
+ }
+
+    function populateOuterPanelDecoratorBBoxPosition(node){
+        let viewSate = node.getViewState();
+        let bBox = viewSate.bBox;
+        let parent = node.getParent();
+        let panelChildren = parent.filterChildren(function (child) {
+            return ASTFactory.isFunctionDefinition(child) ||
+                ASTFactory.isServiceDefinition(child) ||
+                ASTFactory.isConnectorDefinition(child) ||
+                ASTFactory.isAnnotationDefinition(child);
+        });
+        let heading = viewSate.components.heading;
+        let body = viewSate.components.body;
+        let currentServiceIndex = _.findIndex(panelChildren, node);
+        let x, y, headerX, headerY, bodyX, bodyY;
+        if (currentServiceIndex === 0) {
+            headerX = DesignerDefaults.panel.wrapper.gutter.h;
+            headerY = DesignerDefaults.panel.wrapper.gutter.v;
+        } else if (currentServiceIndex > 0) {
+            let previousServiceBBox = panelChildren[currentServiceIndex - 1].getViewState().bBox;
+            headerX = DesignerDefaults.panel.wrapper.gutter.h;
+            headerY = previousServiceBBox.y + previousServiceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
+        } else {
+            throw 'Invalid Index for Service Definition';
+        }
+
+        x = headerX;
+        y = headerY;
+        bodyX = headerX;
+        bodyY = headerY + heading.h;
+
+        bBox.x = x;
+        bBox.y = y;
+        heading.x = headerX;
+        heading.y = headerY;
+        body.x = bodyX;
+        body.y = bodyY;
+
+        // here we need to re adjust resource width to match the service width.
+        let resources = node.filterChildren(function (child) {
+            return ASTFactory.isResourceDefinition(child) ||
+                   ASTFactory.isConnectorAction(child);
+        });
+        // make sure you substract the panel padding to calculate the min width of a resource.
+        let minWidth = node.getViewState().bBox.w - ( panel.body.padding.left + panel.body.padding.right );
+        let connectorWidthTotal = 0;
+        let connectors = node.filterChildren(function (child) {
+            return ASTFactory.isConnectorDeclaration(child);
+        });
+
+        _.forEach(connectors, function (connector) {
+            connectorWidthTotal += connector.getViewState().bBox.w + DesignerDefaults.lifeLine.gutter.h;
+        });
+
+        resources.forEach(function(element) {
+            let viewState = element.getViewState();
+            // if the service width is wider than resource width we will readjust.
+            if(viewState.bBox.w + connectorWidthTotal < minWidth){
+                viewState.bBox.w = minWidth - connectorWidthTotal;
+            }
+        }, this);  
+    }
+
+export {getSimpleStatementPosition, getCompoundStatementChildPosition, populateOuterPanelDecoratorBBoxPosition, populateInnerPanelDecoratorBBoxPosition};

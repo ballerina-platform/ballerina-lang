@@ -36,7 +36,7 @@ class ElseStatementVisitor extends AbstractStatementSourceGenVisitor {
         * If we need to add additional parameters which are dynamically added to the configuration start
         * that particular source generation has to be constructed here
         */
-        this.appendSource('else {');
+        this.appendSource('else {\n');
         log.debug('Begin visit Else Statement Definition');
     }
 
@@ -46,7 +46,7 @@ class ElseStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitElseStatement(elseStatement) {
         this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Else Statement Definition');
     }
 }

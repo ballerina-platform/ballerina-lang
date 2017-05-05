@@ -36,7 +36,7 @@ class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        this.appendSource('catch('+ catchStatement.getParameter() + '){');
+        this.appendSource('catch('+ catchStatement.getParameter() + ') {\n');
         log.debug('Begin Visit Catch Statement');
     }
 
@@ -46,7 +46,7 @@ class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitCatchStatement(catchStatement) {
         this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Catch Statement');
     }
 }

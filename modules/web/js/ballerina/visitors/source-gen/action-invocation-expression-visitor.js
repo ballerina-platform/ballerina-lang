@@ -44,9 +44,8 @@ class ActionInvocationExpressionVisitor extends AbstractStatementSourceGenVisito
     }
 
     endVisitActionInvocationExpression() {
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
     }
 }
 
 export default FunctionInvocationExpressionVisitor;
-    

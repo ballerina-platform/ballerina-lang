@@ -35,7 +35,7 @@ class ConnectorActionDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populatePanelDecoratorBBox(node);
+        util.populatePanelDecoratorBBox(node, node.getActionName());
     }
 }
 

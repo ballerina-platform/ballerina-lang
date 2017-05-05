@@ -21,6 +21,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 import {panel} from './../../configs/designer-defaults';
+import * as PositioningUtils from './utils';
 
 class ServiceDefinitionPositionCalcVisitor {
 
@@ -30,62 +31,7 @@ class ServiceDefinitionPositionCalcVisitor {
     }
 
     beginVisit(node) {
-        let viewSate = node.getViewState();
-        let bBox = viewSate.bBox;
-        let parent = node.getParent();
-        let panelChildren = parent.filterChildren(function (child) {
-            return ASTFactory.isFunctionDefinition(child) ||
-                ASTFactory.isServiceDefinition(child) || ASTFactory.isConnectorDefinition(child);
-        });
-        let heading = viewSate.components.heading;
-        let body = viewSate.components.body;
-        let currentServiceIndex = _.findIndex(panelChildren, node);
-        let x, y, headerX, headerY, bodyX, bodyY;
-        if (currentServiceIndex === 0) {
-            headerX = DesignerDefaults.panel.wrapper.gutter.h;
-            headerY = DesignerDefaults.panel.wrapper.gutter.v;
-        } else if (currentServiceIndex > 0) {
-            let previousServiceBBox = panelChildren[currentServiceIndex - 1].getViewState().bBox;
-            headerX = DesignerDefaults.panel.wrapper.gutter.h;
-            headerY = previousServiceBBox.y + previousServiceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
-        } else {
-            throw 'Invalid Index for Service Definition';
-        }
-
-        x = headerX;
-        y = headerY;
-        bodyX = headerX;
-        bodyY = headerY + heading.h;
-
-        bBox.x = x;
-        bBox.y = y;
-        heading.x = headerX;
-        heading.y = headerY;
-        body.x = bodyX;
-        body.y = bodyY;
-
-        // here we need to re adjust resource width to match the service width.
-        let resources = node.filterChildren(function (child) {
-            return ASTFactory.isResourceDefinition(child);
-        });
-        // make sure you substract the panel padding to calculate the min width of a resource.
-        let minWidth = node.getViewState().bBox.w - ( panel.body.padding.left + panel.body.padding.right );
-        let connectorWidthTotal = 0;
-        let connectors = node.filterChildren(function (child) {
-            return ASTFactory.isConnectorDeclaration(child);
-        });
-
-        _.forEach(connectors, function (connector) {
-            connectorWidthTotal += connector.getViewState().bBox.w + DesignerDefaults.lifeLine.gutter.h;
-        });
-
-        resources.forEach(function(element) {
-            let viewState = element.getViewState();
-            // if the service width is wider than resource width we will readjust.
-            if(viewState.bBox.w + connectorWidthTotal < minWidth){
-                viewState.bBox.w = minWidth - connectorWidthTotal;
-            }
-        }, this);       
+        PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
     }
 
     visit(node) {

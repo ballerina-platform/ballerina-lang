@@ -39,7 +39,7 @@ class TypeMapperBlockStatementVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitBlockStatement(blockStatement) {
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Type Mapper Block Statement Definition');
     }
 

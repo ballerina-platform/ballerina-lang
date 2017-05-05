@@ -19,7 +19,7 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
-import {util} from './../sizing-utils'
+import {util} from './../sizing-utils';
 
 class ConnectorDefinitionDimensionCalculatorVisitor {
 
@@ -34,7 +34,7 @@ class ConnectorDefinitionDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populatePanelDecoratorBBox(node);
+        util.populateOuterPanelDecoratorBBox(node);
     }
 }
 

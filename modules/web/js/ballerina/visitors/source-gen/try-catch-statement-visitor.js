@@ -29,14 +29,6 @@ class TryCatchStatementVisitor extends AbstractStatementSourceGenVisitor {
     canVisitStatement(statement) {
         return true;
     }
-
-    canVisitTryStatement(statement) {
-        return true;
-    }
-
-    canVisitCatchStatement(statement) {
-        return true;
-    }
 }
 
 export default TryCatchStatementVisitor;

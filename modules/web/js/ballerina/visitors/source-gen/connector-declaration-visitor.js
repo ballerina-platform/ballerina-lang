@@ -56,10 +56,9 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
 
     endVisitConnectorDeclaration(connectorDeclaration) {
         this.appendSource(";\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Connector Declaration');
     }
 }
 
 export default ConnectorDeclarationVisitor;
-    

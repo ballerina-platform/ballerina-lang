@@ -37,26 +37,6 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
-    canVisitCommentStatement(commentStatement) {
-        return true;
-    }
-
-    canVisitStatement(statement) {
-        return true;
-    }
-
-    canVisitConnectorDeclaration(statement) {
-        return true;
-    }
-
-    canVisitVariableDeclaration(statement) {
-        return true;
-    }
-
-    canVisitWorkerDeclaration(statement) {
-        return true;
-    }
-
     beginVisitFunctionDefinition(functionDefinition) {
         /**
          * set the configuration start for the function definition language construct
@@ -70,8 +50,9 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         }
 
         var constructedSourceSegment = 'function ' + functionDefinition.getFunctionName() + '(' +
-            functionDefinition.getArgumentsAsString() + ') ' + functionReturnTypesSource + '{';
+            functionDefinition.getArgumentsAsString() + ') ' + functionReturnTypesSource + '{\n';
         this.appendSource(constructedSourceSegment);
+        this.indent();
         log.debug('Begin Visit FunctionDefinition');
     }
 
@@ -80,8 +61,9 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitFunctionDefinition(functionDefinition) {
-        this.appendSource("} \n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.outdent();
+        this.appendSource("}\n");
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit FunctionDefinition');
     }
 

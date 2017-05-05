@@ -32,9 +32,21 @@ class ConnectorDefinition extends React.Component {
         let title = model.getConnectorName();
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<PanelDecorator icon="tool-icons/connector" title={title} bBox={bBox} model={model}>
+
+        return (<PanelDecorator icon="tool-icons/connector" title={title} bBox={bBox}
+            model={model}
+            dropTarget={this.props.model}
+            dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}>
             {children}
         </PanelDecorator>);
+    }
+
+    canDropToPanelBody(nodeBeingDragged) {
+        let nodeFactory = this.props.model.getFactory();
+        // IMPORTANT: override default validation logic
+        // Panel's drop zone is for resource defs and connector declarations only.
+        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
+            || nodeFactory.isConnectorAction(nodeBeingDragged);
     }
 }
 
