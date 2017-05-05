@@ -263,6 +263,7 @@ class BallerinaFileEditor extends BallerinaView {
                 dragDropManager: this.toolPalette.dragDropManager,
                 messageManager: this.messageManager,
                 container: this._$canvasContainer,
+                renderingContext: this.diagramRenderingContext,
                 renderer
             }, null);
             ReactDOM.render(
