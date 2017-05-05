@@ -19,6 +19,9 @@ package org.wso2.siddhi.core.executor.condition.compare.equal;
 
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
+/**
+ * Executor class for String-String Equal condition. Condition evaluation logic is implemented within executor.
+ */
 public class EqualCompareConditionExpressionExecutorStringString extends EqualCompareConditionExpressionExecutor {
     public EqualCompareConditionExpressionExecutorStringString(ExpressionExecutor leftExpressionExecutor,
                                                                ExpressionExecutor rightExpressionExecutor) {

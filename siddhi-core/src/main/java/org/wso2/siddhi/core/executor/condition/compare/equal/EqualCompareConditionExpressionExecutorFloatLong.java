@@ -19,6 +19,9 @@ package org.wso2.siddhi.core.executor.condition.compare.equal;
 
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
+/**
+ * Executor class for Float-Long Equal condition. Condition evaluation logic is implemented within executor.
+ */
 public class EqualCompareConditionExpressionExecutorFloatLong extends
         EqualCompareConditionExpressionExecutor {
 

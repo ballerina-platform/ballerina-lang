@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.core.exception;
 
+/**
+ * Exception class to be used when non-existence attribute is requested.
+ */
 public class NoSuchAttributeException extends RuntimeException {
     public NoSuchAttributeException() {
         super();

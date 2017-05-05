@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Executor class for Or condition. Condition evaluation logic is implemented within executor.
+ */
 public class OrConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     protected ExpressionExecutor leftConditionExecutor;
@@ -39,18 +42,18 @@ public class OrConditionExpressionExecutor extends ConditionExpressionExecutor {
             if (!leftConditionExecutor.getReturnType().equals(Attribute.Type.BOOL)) {
                 throw new OperationNotSupportedException("Return type of condition executor " + leftConditionExecutor
                         .toString() + " should be of type BOOL. " +
-                        "Actual Type: " + leftConditionExecutor.getReturnType().toString());
+                                                                 "Actual Type: " + leftConditionExecutor.getReturnType().toString());
             } else if (!rightConditionExecutor.getReturnType().equals(Attribute.Type.BOOL)) {
                 throw new OperationNotSupportedException("Return type of condition executor " +
-                        rightConditionExecutor.toString() + " should be of type BOOL. " +
-                        "Actual Type: " + rightConditionExecutor.getReturnType().toString());
+                                                                 rightConditionExecutor.toString() + " should be of type BOOL. " +
+                                                                 "Actual Type: " + rightConditionExecutor.getReturnType().toString());
             } else {
                 throw new OperationNotSupportedException("Return type of condition executor " + leftConditionExecutor
                         .toString() +
-                        " and condition executor" + rightConditionExecutor.toString() + "should be of type BOOL. Left" +
-                        " executor: " +
-                        leftConditionExecutor.getReturnType().toString() + " Right executor: " +
-                        rightConditionExecutor.getReturnType().toString());
+                                                                 " and condition executor" + rightConditionExecutor.toString() + "should be of type BOOL. Left" +
+                                                                 " executor: " +
+                                                                 leftConditionExecutor.getReturnType().toString() + " Right executor: " +
+                                                                 rightConditionExecutor.getReturnType().toString());
             }
         }
     }

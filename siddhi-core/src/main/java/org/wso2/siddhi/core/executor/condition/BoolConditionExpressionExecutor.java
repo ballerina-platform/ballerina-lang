@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Executor class for Boolean condition. Condition evaluation logic is implemented within executor.
+ */
 public class BoolConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     protected ExpressionExecutor conditionExecutor;

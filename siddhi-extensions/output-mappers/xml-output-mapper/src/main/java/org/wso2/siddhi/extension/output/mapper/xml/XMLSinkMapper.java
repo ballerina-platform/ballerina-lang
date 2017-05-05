@@ -22,8 +22,8 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.stream.output.sink.SinkListener;
+import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.Option;
@@ -38,16 +38,16 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-@Extension(
-        name = "xml",
-        namespace = "sinkMapper",
-        description = "Event to XML output mapper"
-)
 /**
  * Mapper class to convert a Siddhi message to a XML message. User can provide a XML template or else we will be
  * using a predefined XML message format. In case of null elements xsi:nil="true" will be used. In some instances
  * coding best practices have been compensated for performance concerns.
  */
+@Extension(
+        name = "xml",
+        namespace = "sinkMapper",
+        description = "Event to XML output mapper"
+)
 public class XMLSinkMapper extends SinkMapper {
     private static final Logger log = Logger.getLogger(XMLSinkMapper.class);
 
@@ -118,11 +118,11 @@ public class XMLSinkMapper extends SinkMapper {
                     builder.parse(new ByteArrayInputStream(sb.toString().getBytes()));
                 } catch (SAXException e) {
                     log.error("Parse error occurred when validating output XML event. " +
-                            "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
+                                      "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
                     return;
                 } catch (IOException e) {
                     log.error("IO error occurred when validating output XML event. " +
-                            "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
+                                      "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
                     return;
                 } finally {
                     builder.reset();
@@ -170,7 +170,7 @@ public class XMLSinkMapper extends SinkMapper {
                     builder.parse(new ByteArrayInputStream(sb.toString().getBytes()));
                 } catch (SAXException | IOException e) {
                     log.error("Error occurred when validating output XML event. " +
-                            "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
+                                      "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
                     return;
                 } finally {
                     builder.reset();

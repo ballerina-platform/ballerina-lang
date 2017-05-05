@@ -275,7 +275,8 @@ public abstract class AbstractRecordTable implements Table {
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
         ConditionBuilder conditionBuilder = new ConditionBuilder(expression, matchingMetaInfoHolder,
-                                                                 executionPlanContext, variableExpressionExecutors, tableMap, queryName);
+                                                                 executionPlanContext, variableExpressionExecutors,
+                                                                 tableMap, queryName);
         CompiledCondition compiledCondition = compileCondition(conditionBuilder);
         Map<String, ExpressionExecutor> expressionExecutorMap = conditionBuilder.getVariableExpressionExecutorMap();
         return new RecordStoreCompiledCondition(expressionExecutorMap, compiledCondition);

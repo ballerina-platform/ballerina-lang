@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Executor class for Not condition. Condition evaluation logic is implemented within executor.
+ */
 public class NotConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     protected ExpressionExecutor conditionExecutor;
@@ -33,7 +36,7 @@ public class NotConditionExpressionExecutor extends ConditionExpressionExecutor 
         } else {
             throw new OperationNotSupportedException("Return type of condition executor " + conditionExecutor
                     .toString() + " should be of type BOOL. " +
-                    "Actual Type: " + conditionExecutor.getReturnType().toString());
+                                                             "Actual Type: " + conditionExecutor.getReturnType().toString());
         }
     }
 

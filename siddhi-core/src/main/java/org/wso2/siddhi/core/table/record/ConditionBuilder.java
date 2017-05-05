@@ -320,7 +320,8 @@ public class ConditionBuilder {
                         type = definition.getAttributeType(attributeName);
                     } catch (AttributeNotExistException e) {
                         throw new ExecutionPlanValidationException(e.getMessage() + " Input Stream: " +
-                                                                           definition.getId() + " with " + "reference: " + metaStreamEvent.getInputReferenceId());
+                                                                           definition.getId() + " with " + "reference: "
+                                                                           + metaStreamEvent.getInputReferenceId());
                     }
 
                     if (matchingMetaInfoHolder.getCurrentState() == matchingMetaInfoHolder
@@ -378,8 +379,13 @@ public class ConditionBuilder {
         conditionVisitor.beginVisitStreamVariable(id, variable.getStreamId(), variable.getAttributeName(), type);
         if (!variableExpressionExecutorMap.containsKey(id)) {
             ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(variable,
-                                                                                             matchingMetaInfoHolder.getMetaStateEvent(), streamEventChainIndex, tableMap,
-                                                                                             variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                                                                                             matchingMetaInfoHolder
+                                                                                                     .getMetaStateEvent(),
+                                                                                             streamEventChainIndex,
+                                                                                             tableMap,
+                                                                                             variableExpressionExecutors,
+                                                                                             executionPlanContext,
+                                                                                             false, 0, queryName);
             variableExpressionExecutorMap.put(id, variableExpressionExecutor);
         }
         conditionVisitor.endVisitStreamVariable(id, variable.getStreamId(), variable.getAttributeName(), type);

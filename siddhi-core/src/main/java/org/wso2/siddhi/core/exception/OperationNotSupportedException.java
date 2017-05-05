@@ -18,6 +18,9 @@
 
 package org.wso2.siddhi.core.exception;
 
+/**
+ * Exception class to be used when user provided operation is not supported by Siddhi.
+ */
 public class OperationNotSupportedException extends RuntimeException {
     public OperationNotSupportedException() {
         super();

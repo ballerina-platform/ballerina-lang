@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.executor.condition.compare.equal;
 
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
+/**
+ * Executor class for Double-Float Equal condition. Condition evaluation logic is implemented within executor.
+ */
 public class EqualCompareConditionExpressionExecutorDoubleFloat extends
         EqualCompareConditionExpressionExecutor {
 
