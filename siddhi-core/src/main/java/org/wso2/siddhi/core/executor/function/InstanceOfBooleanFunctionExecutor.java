@@ -46,7 +46,7 @@ import java.util.Map;
                 type = {DataType.BOOL}),
         examples = {
                 @Example(
-                        value = "instanceOfBoolean(123) returns."
+                        value = "instanceOfBoolean(123) returns false."
                 ),
                 @Example(
                         value = "instanceOfBoolean(true) returns true."
