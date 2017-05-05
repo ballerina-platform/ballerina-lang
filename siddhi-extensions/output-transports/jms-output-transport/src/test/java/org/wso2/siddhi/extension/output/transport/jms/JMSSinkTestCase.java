@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.extension.output.transport.jms.util.JMSClient;
 
-public class JMSOutputTestCase {
+public class JMSSinkTestCase {
 
     private static final String TOPIC_NAME = "DAS_JMS_OUTPUT_TEST";
     private static final String PROVIDER_URL = "vm://localhost?broker.persistent=false";
