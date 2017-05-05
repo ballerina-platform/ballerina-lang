@@ -59,7 +59,7 @@ class PanelDecorator extends React.Component {
 
         const annotationBodyClassName = "annotation-body";
         const annotationBodyHeight = this.props.model.viewState.components.annotation.h;
-        let titleComponents = this.getTitleComponents(this.props.titleComponentData, bBox.y + annotationBodyHeight, bBox.y + titleHeight / 2 + 5 + annotationBodyHeight, titleHeight);
+        let titleComponents = this.getTitleComponents(this.props.titleComponentData);
         let annotationString = this.getAnnotationsString();
 
         return (<g className="panel">
@@ -142,26 +142,25 @@ class PanelDecorator extends React.Component {
         e.stopPropagation();
     }
 
-    getTitleComponents(titleComponentData, rectY, textY, h) {
+    getTitleComponents(titleComponentData) {
+        let model = this.props.model;
         let components = [];
         if (!_.isUndefined(titleComponentData)) {
             for (let componentData of titleComponentData) {
                 let modelComponents = [];
                 for (let model of componentData.models) {
-                    modelComponents.push(React.createElement(componentData.component, {
+                    modelComponents.push(React.createElement(componentData.rComponent, {
                         model: model,
-                        rectY: rectY,
-                        textY: textY,
-                        h: h,
                         key: model.getID()
                     }, null));
                 }
 
                 components.push(<g key={componentData.title}>
-                    <rect x={componentData.prefixView.x} y={rectY} width={componentData.prefixView.w} height={h} className={componentData.prefixViewClassName}></rect>
-                    <text x={componentData.prefixView.x + 5} y={textY}>{componentData.title}</text>
+                    <text x={componentData.components.openingBracket.x} y={componentData.components.openingBracket.y + 3} className={componentData.openingBracketClassName}>(</text>
+                    <text x={componentData.components.titleText.x} y={componentData.components.titleText.y + 3} className={componentData.prefixTextClassName}>{componentData.title}</text>
                     {modelComponents}
-                </g>);
+                    <text x={componentData.components.closingBracket.x + 10} y={componentData.components.closingBracket.y + 3} className={componentData.closingBracketClassName}>)</text>
+                    </g>);
             }
         }
         return components;

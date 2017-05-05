@@ -137,15 +137,37 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;
 
+        viewState.components = components;
+
         viewState.titleWidth = util.getTextWidth(node.getFunctionName()).w;
 
-        components['parametersPrefixContainer'] = {};
-        components['parametersPrefixContainer'].w = util.getTextWidth('Parameters: ').w;
+        //// Creating components for parameters of the function
+        // Creating component for openning bracket of the parameters view.
+        viewState.components.openingParameter = {};
+        viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
 
-        components['returnTypesPrefixContainer'] = {};
-        components['returnTypesPrefixContainer'].w = util.getTextWidth('Return Types: ').w;
+        // Creating component for the Parameters text.
+        viewState.components.parametersText = {};
+        viewState.components.parametersText.w = util.getTextWidth('Parameters:', 0).w;
 
-        viewState.components = components;
+        // Creating component for closing bracket of the parameters view. 
+        viewState.components.closingParameter = {};
+        viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
+
+
+        //// Creating components for return types of the function
+        // Creating component for openning bracket of the return types view.
+        viewState.components.openingReturnType = {};
+        viewState.components.openingReturnType.w = util.getTextWidth('(', 0).w;
+
+        // Creating component for the Return type text.
+        viewState.components.returnTypesText = {};
+        viewState.components.returnTypesText.w = util.getTextWidth('Return Types:', 0).w;
+
+        // Creating component for closing bracket of the return types view. 
+        viewState.components.closingReturnType = {};
+        viewState.components.closingReturnType.w = util.getTextWidth(')', 0).w;
+
     }
 }
 

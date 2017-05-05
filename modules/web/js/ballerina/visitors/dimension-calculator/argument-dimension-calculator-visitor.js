@@ -18,7 +18,8 @@
 
 import log from 'log';
 import _ from 'lodash';
-import { util } from '../sizing-utils';
+import * as DesignerDefaults from './../../configs/designer-defaults';
+import { util } from './../sizing-utils';
 
 class ArgumentDimensionCalculatorVisitor {
 
@@ -37,7 +38,15 @@ class ArgumentDimensionCalculatorVisitor {
 
     endVisit(node) {
         var viewState = node.getViewState();
-        viewState.textLength = util.getTextWidth(node.getArgumentAsString()).w;
+
+        // Creating component for text.
+        viewState.w = util.getTextWidth(node.getArgumentAsString(), 0).w;
+        viewState.h = DesignerDefaults.panelHeading.heading.height - 7;
+
+        // Creating component for delete icon.
+        viewState.components.deleteIcon = {};
+        viewState.components.deleteIcon.w = DesignerDefaults.panelHeading.heading.height - 7;
+        viewState.components.deleteIcon.h = DesignerDefaults.panelHeading.heading.height - 7;
     }
 
 }
