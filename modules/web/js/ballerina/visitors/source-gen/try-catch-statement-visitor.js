@@ -26,8 +26,24 @@ class TryCatchStatementVisitor extends AbstractStatementSourceGenVisitor {
         super(parent);
     }
 
-    canVisitStatement(statement) {
+    canVisitTryCatchStatement(statement) {
         return true;
+    }
+
+    visitTryStatement(statement) {
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
+
+    visitCatchStatement(statement) {
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
+
+    endVisitTryCatchStatement(statement) {
+        this.getParent().appendSource(this.getGeneratedSource() + '\n');
     }
 }
 

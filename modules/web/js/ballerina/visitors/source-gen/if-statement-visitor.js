@@ -31,7 +31,8 @@ class IfStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitIfStatement(ifStatement) {
-        this.appendSource('if (' + ifStatement.getCondition() + ') {\n');
+        this.appendSource(this.getIndentation() + 'if (' + ifStatement.getCondition() + ') {\n');
+        this.indent();
         log.debug('Begin Visit If Statement Definition');
     }
 
@@ -40,8 +41,9 @@ class IfStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitIfStatement(ifStatement) {
-        this.appendSource("}\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.outdent();
+        this.appendSource(this.getIndentation() + "}");
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit If Statement Definition');
     }
 }

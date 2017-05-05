@@ -24,20 +24,20 @@ import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 class WorkerReplyStatement extends React.Component {
 
     render() {
-        let model = this.props.model, 
+        let model = this.props.model,
             expression = model.viewState.expression;
         if (!_.isUndefined(model.getDestination())) {
             let workerReplyStatement = model.getDestination().findChild(BallerinaASTFactory.isReplyStatement);
             if (!_.isUndefined(workerReplyStatement)) {
                     return (<g>
-                      <StatementDecorator viewState={model.viewState} expression={expression} />);
+                      <StatementDecorator model={model} viewState={model.viewState} expression={expression} />);
                       <StatementArrowConnection start={workerReplyStatement.viewState} end={model.viewState} />
                     </g>);
             } else {
-                return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+                return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} />);
             }
         } else {
-            return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+            return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} />);
         }
     }
 }

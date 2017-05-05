@@ -19,18 +19,73 @@ import React from "react";
 import PropTypes from 'prop-types';
 import {statement} from './../configs/designer-defaults';
 import {lifeLine} from './../configs/designer-defaults';
+import ASTNode from '../ast/node';
+import DragDropManager from '../tool-palette/drag-drop-manager';
+import './compound-statement-decorator.css';
 
 class CompoundStatementDecorator extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false};
+    }
 
     render() {
         const { bBox } = this.props;
         // we need to draw a drop box above the statement
         let drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
-        return (<g>
-            <rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v} className="inner-drop-zone" />
+        const innerDropZoneActivated = this.state.innerDropZoneActivated;
+    		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
+    		const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
+    											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
+
+        return (<g className="compound-statement">
+            <rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
+                  className={dropZoneClassName}
+                  onMouseOver={(e) => this.onDropZoneActivate(e)}
+                  onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
             {this.props.children}
         </g>);
     }
+
+    onDropZoneActivate (e) {
+  			const dragDropManager = this.context.dragDropManager,
+  						dropTarget = this.props.model.getParent(),
+  						model = this.props.model;
+  			if(dragDropManager.isOnDrag()) {
+  					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+  							return;
+  					}
+  					dragDropManager.setActivatedDropTarget(dropTarget,
+  							(nodeBeingDragged) => {
+  									// IMPORTANT: override node's default validation logic
+  									// This drop zone is for statements only.
+  									// Statements should only be allowed here.
+  									return model.getFactory().isStatement(nodeBeingDragged);
+  							},
+  							() => {
+  									return dropTarget.getIndexOfChild(model);
+  							}
+  					);
+  					this.setState({innerDropZoneActivated: true,
+  							innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()
+  					});
+  					dragDropManager.once('drop-target-changed', function(){
+  							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
+  					}, this);
+  			}
+  	}
+
+  	onDropZoneDeactivate (e) {
+  			const dragDropManager = this.context.dragDropManager,
+  						dropTarget = this.props.model.getParent();
+  			if(dragDropManager.isOnDrag()){
+  					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+  							dragDropManager.clearActivatedDropTarget();
+  							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
+  					}
+  			}
+  	}
 }
 
 CompoundStatementDecorator.propTypes = {
@@ -39,8 +94,12 @@ CompoundStatementDecorator.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    })
+    }),
+    model: PropTypes.instanceOf(ASTNode).isRequired
 };
 
+CompoundStatementDecorator.contextTypes = {
+	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
+};
 
 export default CompoundStatementDecorator;

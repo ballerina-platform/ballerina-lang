@@ -30,7 +30,7 @@ import ExpressionEditor from 'expression_editor_utils';
 
 const text_offset = 50;
 
-class StatementView extends React.Component {
+class StatementDecorator extends React.Component {
 
 	constructor(props) {
 		super(props);
@@ -199,7 +199,7 @@ class StatementView extends React.Component {
 
 }
 
-StatementView.propTypes = {
+StatementDecorator.propTypes = {
 	bBox: PropTypes.shape({
 		x: PropTypes.number.isRequired,
 		y: PropTypes.number.isRequired,
@@ -210,11 +210,11 @@ StatementView.propTypes = {
 	expression: PropTypes.string.isRequired,
 };
 
-StatementView.contextTypes = {
+StatementDecorator.contextTypes = {
 	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
 	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 	 container: PropTypes.instanceOf(Object).isRequired
 };
 
 
-export default StatementView;
+export default StatementDecorator;
