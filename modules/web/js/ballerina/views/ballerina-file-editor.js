@@ -42,6 +42,7 @@ import DebugManager from './../../debugger/debug-manager';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import BallerinaDiagram from './../components/diagram';
+import Renderer from '../components/renderer'
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -192,6 +193,10 @@ class BallerinaFileEditor extends BallerinaView {
         this._$designViewContainer = container;
         var canvasContainer = $('<div></div>');
         canvasContainer.addClass(_.get(viewOptions, 'cssClass.canvas_container'));
+        var canvasTopControlsContainer = $('<div></div>')
+            .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'))
+        canvasContainer.append(canvasTopControlsContainer);
+
         this._$designViewContainer.append(canvasContainer);
         this._$canvasContainer = canvasContainer;
         // check whether container element exists in dom
@@ -246,12 +251,16 @@ class BallerinaFileEditor extends BallerinaView {
             };
             // attach a wrapper to the react diagram so we can attach expression editor to the container.
             let diagramRoot = $('<div class="diagram root" ></div>');
+            let overlay = $('<div class="html-overlay" ></div>');
+            var renderer = new Renderer(overlay[0]);
             this._$canvasContainer.append(diagramRoot);
+            this._$canvasContainer.append(overlay);
             //create Rect component for diagram
             let root = React.createElement(BallerinaDiagram, {
                 model: this._model,
                 dragDropManager: this.toolPalette.dragDropManager,
-                container: this._$canvasContainer
+                container: this._$canvasContainer,
+                renderer
             }, null);
             ReactDOM.render(
               root,
