@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaConnector;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.services.dispatchers.ws.WebSocketClientServicesRegistry;
+import org.ballerinalang.services.dispatchers.ws.WebSocketClientsRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.ClientConnector;
@@ -112,7 +112,7 @@ public class WebSocketClientConnector extends AbstractNativeConnector {
         if (clientConnector == null) {
             throw new BallerinaException("Cannot initiate the connection since not found the connector support for WS");
         }
-        WebSocketClientServicesRegistry.getInstance().mapClientIdToServiceName(clientID, serviceName);
+        WebSocketClientsRegistry.getInstance().mapClientIdToServiceName(clientID, serviceName);
         ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
                 org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN);
         controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientID);

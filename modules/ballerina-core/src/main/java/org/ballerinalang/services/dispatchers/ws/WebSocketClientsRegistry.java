@@ -27,19 +27,19 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Registry for WebSocket Client Services.
  */
-public class WebSocketClientServicesRegistry {
+public class WebSocketClientsRegistry {
 
-    private static final WebSocketClientServicesRegistry clientServicesRegistry = new WebSocketClientServicesRegistry();
+    private static final WebSocketClientsRegistry clientServicesRegistry = new WebSocketClientsRegistry();
 
     // Map <serviceName, service>
     private final Map<String, Service> serviceMap = new ConcurrentHashMap<>();
     // Map <clientID, serviceName>
     private final Map<String, String> clientIDMap = new ConcurrentHashMap<>();
 
-    private WebSocketClientServicesRegistry() {
+    private WebSocketClientsRegistry() {
     }
 
-    public static WebSocketClientServicesRegistry getInstance() {
+    public static WebSocketClientsRegistry getInstance() {
         return clientServicesRegistry;
     }
     /**
