@@ -25,7 +25,7 @@ class Arrow extends React.Component {
 	constructor(props, context) {
 		super(props);
 		this.state = {enable: true, drawOnMouseMoveFlag: -1};
-		if (this.props.move) {
+		if (this.props.moveWithMessageManager) {
 			context.messageManager.setArrowDecorator(this);
 		}
 	}

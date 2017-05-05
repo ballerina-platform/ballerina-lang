@@ -58,7 +58,7 @@ class CanvasDecorator extends React.Component {
                         onMouseOver={(e) => this.onDropZoneActivate(e)}
                         onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
                     {this.props.children}
-                    <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true} move={true}/>
+                    <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true} moveWithMessageManager={true}/>
                 </svg>
             </div>
         );
