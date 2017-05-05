@@ -24,7 +24,10 @@ import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.log4j.Logger;
 import org.jaxen.JaxenException;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
@@ -40,22 +43,85 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
- * This mapper converts XML string input to {@link ComplexEventChunk}. This extension accepts optional xpath expressions to
- * select specific attributes from the stream.
+ * This mapper converts XML string input to {@link ComplexEventChunk}. This extension accepts optional xpath expressions
+ * to select specific attributes from the stream.
  */
 @Extension(
         name = "xml",
         namespace = "sourceMapper",
-        description = "XML to Event input mapper"
+        description = "XML to Event input mapper. Transports which accepts XML messages can utilize this extension"
+                + "to convert the incoming XML message to Siddhi event. Users can either send a pre-defined XML "
+                + "format where event conversion will happen without any configs or can use xpath to map from a "
+                + "custom XML message.",
+        parameters = {
+                @Parameter(name = "namespaces",
+                           description =
+                                   "Used to provide namespaces used in the incoming XML message beforehand to "
+                                           + "configure "
+                                           + "xpath expressions. User can provide a comma separated list. If these "
+                                           + "are not provided "
+                                           + "xpath evaluations will fail",
+                           type = {DataType.STRING}),
+                @Parameter(name = "enclosing.element",
+                           description =
+                                   "Used to specify the enclosing element in case of sending multiple events in same "
+                                           + "XML message. WSO2 DAS will treat the child element of given enclosing "
+                                           + "element as events"
+                                           + " and execute xpath expressions on child elements. If enclosing.element "
+                                           + "is not provided "
+                                           + "multiple event scenario is disregarded and xpaths will be evaluated "
+                                           + "with respect to "
+                                           + "root element.",
+                           type = {DataType.STRING}),
+                @Parameter(name = "fail.on.unknown.attribute",
+                           description = "This can either have value true or false. By default it will be true. This "
+                                   + "attribute allows user to handle unknown attributes. By default if an xpath "
+                                   + "execution "
+                                   + "fails or returns null DAS will drop that message. However setting this property"
+                                   + " to "
+                                   + "false will prompt DAS to send and event with null value to Siddhi where user "
+                                   + "can handle"
+                                   + " it accordingly(ie. Assign a default value)",
+                           type = {DataType.BOOL})
+        },
+        examples = {
+                @Example(
+                        value = "@source(type='inMemory', topic='stock', @map(type='xml'))\n"
+                                + "define stream FooStream (symbol string, price float, volume long);\n"
+                                + "Above configuration will do a default XML input mapping. Expected input will"
+                                + "look like below."
+                                + "<events>\n"
+                                + "    <event>\n"
+                                + "        <symbol>WSO2</symbol>\n"
+                                + "        <price>55.6</price>\n"
+                                + "        <volume>100</volume>\n"
+                                + "    </event>\n"
+                                + "</events>\n"),
+                @Example(
+                        value = "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = "
+                                + "\"dt=urn:schemas-microsoft-com:datatypes\", enclosing.element=\"//portfolio\", "
+                                + "@attributes(symbol = \"company/symbol\", price = \"price\", volume = \"volume\")))"
+                                + "Above configuration will perform a custom XML mapping. Expected input will look "
+                                + "like below."
+                                + "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">\n"
+                                + "    <stock exchange=\"nasdaq\">\n"
+                                + "        <volume>100</volume>\n"
+                                + "        <company>\n"
+                                + "           <symbol>WSO2</symbol>\n"
+                                + "        </company>\n"
+                                + "        <price dt:type=\"number\">55.6</price>\n"
+                                + "    </stock>\n"
+                                + "</portfolio>")
+        }
 )
 public class XmlSourceMapper extends SourceMapper {
 
