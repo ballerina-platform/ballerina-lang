@@ -33,8 +33,6 @@ class MessageManager {
     constructor(args) {
         log.debug('Initialising Message Manager');
         this._typeBeingDragged = undefined;
-        this._messageSource = undefined;
-        this._messageTarget = undefined;
         this._isOnDrag = false;
         this._source = undefined;
         this._destination = undefined;
@@ -48,45 +46,6 @@ class MessageManager {
         };
         this._arrowDecorator = undefined;
         this._container = undefined;
-    }
-
-    setMessageSource(source) {
-        if (!_.isUndefined(source)) {
-            this._messageSource = source;
-        }
-    }
-
-
-    getMessageSource() {
-        return this._messageSource;
-    }
-
-    setMessageTarget(destination) {
-        if (!_.isUndefined(destination)) {
-            this._messageTarget = destination;
-        }
-    }
-
-    getMessageTarget() {
-        return this._messageTarget;
-    }
-
-    setActivatedTarget(target) {
-        this._activatedDropTarget = target;
-    }
-
-    getActivatedTarget() {
-        return this._activatedDropTarget;
-    }
-
-    setValidateCallBack(callBackMethod) {
-        if (!_.isUndefined(callBackMethod)) {
-            this.validateCallBack = callBackMethod;
-        }
-    }
-
-    getValidateCallBack() {
-        return this.validateCallBack;
     }
 
     /**
@@ -164,13 +123,13 @@ class MessageManager {
          * @event MessageManager#drag-stop
          * @type {ASTNode}
          */
-        this.setMessageSource(undefined);
-        this.setValidateCallBack( undefined);
-        this.setActivatedDropTarget(undefined);
-        this._typeBeingDragged = undefined;
+        this.setSource(undefined);
+        this.setDestination(undefined);
+        this.getArrowDecorator().setState({drawOnMouseMoveFlag: -1});
+        this.setIsOnDrag(false);
     }
 
-    startDrawMessage() {
+    startDrawMessage(mouseUpCallback) {
 
         var self = this,
             container = d3.select('.svg-container');
@@ -182,16 +141,15 @@ class MessageManager {
             self.getArrowDecorator().setState({drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1)});
         });
 
-        // container.on('mouseup', function () {
-        //     // unbind current listeners
-        //     container.on('mousemove', null);
-        //     container.on('mouseup', null);
-        //     var startPoint = new Point(tempLine.attr('x1'),tempLine.attr('y1'));
-        //
-        //     tempLine.remove();
-        //     arrowPoint.remove();
-        //     self.reset();
-        // });
+        container.on('mouseup', function () {
+            // unbind current listeners
+            container.on('mousemove', null);
+            container.on('mouseup', null);
+            const messageSource= self.getSource();
+            const messageDestination = self.getDestination();
+            self.reset();
+            mouseUpCallback(messageSource, messageDestination);
+        });
     }
 }
 

@@ -38,7 +38,7 @@ class Arrow extends React.Component {
 	}
 	render() {
 		const { start, end, dashed, arrowSize } = this.props;
-		const enable = this.state.enable;
+		const enable = this.props.enable;
 		const drawOnMouseMove = this.state.drawOnMouseMoveFlag;
 		const messageManager = this.context.messageManager;
 		let arrowStart, arrowEnd;
@@ -58,7 +58,7 @@ class Arrow extends React.Component {
 		return (<g >
 			{enable &&
 			<polygon
-				points={`0,-${arrowSize} ${arrowSize},0 0,${arrowSize}`}
+				points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
 				transform={`translate(${arrowEnd.x}, ${arrowEnd.y})
 						rotate(${this.getArrowAngle()}, 0, 0)`}
 				className="action-arrow-head"/>

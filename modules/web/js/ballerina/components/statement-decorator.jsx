@@ -54,8 +54,6 @@ class StatementView extends React.Component {
 		const drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
 		const innerDropZoneActivated = this.state.innerDropZoneActivated;
 		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
-		const drawInvocationFlag = this.state.drawInvocationFlag;
-		const messageManager = this.context.messageManager;
 		let arrowStart = { x: 0, y: 0 };
 		let arrowEnd = { x: 0, y: 0 };
 
@@ -63,21 +61,27 @@ class StatementView extends React.Component {
 											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 
 		const arrowStartPointX = bBox.getRight();
-		const arrowStartPointY = statement_y + statement_h/2;
+		const arrowStartPointY = this.statementBox.y + this.statementBox.h/2;
 		const radius = 10;
 
 		let actionInvocation;
 		let isActionInvocation = false;
+		let connector;
 		if (ASTFactory.isAssignmentStatement(model)) {
 			actionInvocation = model.getChildren()[1].getChildren()[0];
-			isActionInvocation = !_.isNil(actionInvocation) && ASTFactory.isActionInvocationExpression(actionInvocation);
+		} else if (ASTFactory.isVariableDefinitionStatement(model)) {
+			actionInvocation = model.getChildren()[1];
 		}
 
-		if (drawInvocationFlag > -1) {
-			arrowStart.x = arrowStartPointX;
-			arrowStart.y = arrowStartPointY;
-			arrowEnd.x = messageManager.getMessageEnd().x;
-			arrowEnd.y = messageManager.getMessageEnd().y;
+		if (actionInvocation) {
+			isActionInvocation = !_.isNil(actionInvocation) && ASTFactory.isActionInvocationExpression(actionInvocation);
+			if (!_.isNil(actionInvocation._connector)) {
+				connector = actionInvocation._connector;
+				arrowStart.x = this.statementBox.x + this.statementBox.w;
+				arrowStart.y = this.statementBox.y + this.statementBox.h/2;
+				arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w/2;
+				arrowEnd.y = arrowStart.y;
+			}
 		}
 		return (<g className="statement" >
 			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
@@ -100,7 +104,7 @@ class StatementView extends React.Component {
 					onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
 					onMouseDown={(e) => this.onMouseDown(e)}
 					onMouseUp={(e) => this.onMouseUp(e)}/>
-					{drawInvocationFlag > -1 && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={enable}/>}
+					{connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
 				</g>
 			}
 		</g>);
@@ -160,13 +164,21 @@ class StatementView extends React.Component {
 		const messageManager = this.context.messageManager;
 		const model = this.props.model;
 		const bBox = model.getViewState().bBox;
-		const statement_h = bBox.h - statement.gutter.v;
+		const statement_h = this.statementBox.h;
 		const messageStartX = bBox.x +  bBox.w;
-		const messageStartY = bBox.y +  statement_h/2;
-		messageManager.setSource(this.props.model);
+		const messageStartY = this.statementBox.y +  statement_h/2;
+		let actionInvocation;
+		if (ASTFactory.isAssignmentStatement(model)) {
+			actionInvocation = model.getChildren()[1].getChildren()[0];
+		} else if (ASTFactory.isVariableDefinitionStatement(model)) {
+			actionInvocation = model.getChildren()[1];
+		}
+		messageManager.setSource(actionInvocation);
 		messageManager.setIsOnDrag(true);
 		messageManager.setMessageStart(messageStartX, messageStartY);
-		messageManager.startDrawMessage();
+		messageManager.startDrawMessage(function (source, destination) {
+			source.setAttribute('_connector', destination)
+		});
 	}
 
 	onMouseUp (e) {

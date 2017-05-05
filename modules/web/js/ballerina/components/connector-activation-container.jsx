@@ -37,7 +37,8 @@ class ConnectorActivationContainer extends React.Component {
             <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h }
                   className={dropZoneClassName}
                   onMouseOver={(e) => this.onOverActivationZone(e)}
-                  onMouseOut={(e) => this.onOutActivationZone(e)}/>
+                  onMouseOut={(e) => this.onOutActivationZone(e)}
+                  onMouseUp={(e) => this.onMouseUp(e)}/>
             {this.props.children}
         </g>);
     }
@@ -46,7 +47,7 @@ class ConnectorActivationContainer extends React.Component {
             let messageManager = this.context.messageManager;
             let activationTarget = this.props.activationTarget;
         if(messageManager.isOnDrag()) {
-            messageManager.setActivatedTarget(activationTarget);
+            messageManager.setDestination(activationTarget);
             this.setState({activationZoneActivated: true});
         }
         e.stopPropagation();
@@ -55,10 +56,14 @@ class ConnectorActivationContainer extends React.Component {
     onOutActivationZone (e) {
         const messageManager = this.context.messageManager;
         if (messageManager.isOnDrag()) {
-        //     messageManager.setActivatedTarget(undefined);
+            messageManager.setDestination(undefined);
             this.setState({activationZoneActivated: false});
         }
         e.stopPropagation();
+    }
+
+    onMouseUp (e) {
+        this.setState({activationZoneActivated: false});
     }
 }
 
