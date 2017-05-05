@@ -40,7 +40,7 @@ import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class BallerinaCompletionUtils {
+public class BallerinaCompletionUtils {
 
     static final int KEYWORD_PRIORITY = 20;
     static final int CONTEXT_KEYWORD_PRIORITY = 25;
@@ -178,7 +178,7 @@ class BallerinaCompletionUtils {
      * @return {@code null} if there is no previous non empty node. Otherwise returns the corresponding
      * {@link PsiElement} node.
      */
-    static PsiElement getPreviousNonEmptyElement(PsiFile originalFile, int offset) {
+    public static PsiElement getPreviousNonEmptyElement(PsiFile originalFile, int offset) {
         int count = 1;
         PsiElement prevElement = originalFile.findElementAt(offset - count++);
         while (prevElement instanceof PsiWhiteSpace) {
@@ -196,7 +196,7 @@ class BallerinaCompletionUtils {
      * @return {@code true} if the provided element type is an expression separator element type, {@code false}
      * otherwise.
      */
-    static boolean isExpressionSeparator(IElementType elementType) {
+    public static boolean isExpressionSeparator(IElementType elementType) {
         return isArithmeticOperator(elementType) || isRelationalOperator(elementType)
                 || isLogicalOperator(elementType) || isAssignmentOperator(elementType);
     }

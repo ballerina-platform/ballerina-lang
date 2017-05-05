@@ -29,12 +29,16 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.ResolveResult;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
@@ -628,41 +632,8 @@ public class BallerinaPsiImplUtil {
                     variableDefinition.getParent().getText().contains(PLACEHOLDER_STRING)) {
                 continue;
             }
-            // Get the variable definition node from the element which we are editing.
-            VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(element,
-                    VariableDefinitionNode.class);
-            if (variableDefinitionNode == null) {
-                StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
-                if (statementNode == null) {
-                    if (variableDefinition.getParent().getTextOffset() < element.getTextOffset()) {
-                        results.add(variableDefinition);
-                    }
-                } else if (!PLACEHOLDER_STRING.equals(statementNode.getText())) {
-                    PsiElement prevSibling = statementNode.getPrevSibling();
-                    if (prevSibling != null && prevSibling.getText().isEmpty()) {
-                        PsiElement prevPrevSibling = PsiTreeUtil.skipSiblingsBackward(prevSibling,
-                                PsiWhiteSpace.class);
-                        if (prevPrevSibling == null) {
-                            if (variableDefinition.getParent().getTextOffset() < prevSibling.getTextOffset()) {
-                                results.add(variableDefinition);
-                            }
-                        } else {
-                            if (variableDefinition.getParent().getTextOffset() < prevPrevSibling.getTextOffset()) {
-                                results.add(variableDefinition);
-                            }
-                        }
-                    } else {
-                        results.add(variableDefinition);
-                    }
-                }
-            } else {
-                StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
-                if (statementNode != null) {
-                    if (statementNode.getTextOffset() > variableDefinitionNode.getTextOffset()) {
-                        results.add(variableDefinition);
-                    }
-                }
-            }
+            // Add variables.
+            checkAndAddVariable(element, results, variableDefinition);
         }
         // Get all parameters from the context.
         Collection<? extends PsiElement> parameterDefinitions =
@@ -687,6 +658,72 @@ public class BallerinaPsiImplUtil {
             }
         }
         return results;
+    }
+
+    private static void checkAndAddVariable(PsiElement element, List<PsiElement> results,
+                                            PsiElement variableDefinition) {
+        // Get the variable definition node from the element which we are editing.
+        VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                VariableDefinitionNode.class);
+        if (variableDefinitionNode == null) {
+            handleVariableDefinition(element, results, variableDefinition);
+        } else {
+            StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
+            if (statementNode != null) {
+                PsiElement prevSibling = statementNode.getPrevSibling();
+                if (prevSibling == null) {
+                    return;
+                }
+                if (!prevSibling.getText().equals(variableDefinition.getParent().getText())) {
+                    if (statementNode.getTextOffset() > variableDefinition.getParent().getTextOffset()) {
+                        results.add(variableDefinition);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void handleVariableDefinition(PsiElement element, List<PsiElement> results, PsiElement
+            variableDefinition) {
+        StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
+        if (statementNode == null) {
+            PsiElement prevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
+                    element.getTextOffset() - 1);
+            if (prevSibling != null) {
+                if (prevSibling instanceof LeafPsiElement) {
+                    IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+                    boolean isValidLocation = (variableDefinition.getParent().getTextOffset() <
+                            prevSibling.getParent().getTextOffset())
+                            || ((variableDefinition.getParent().getTextOffset() < element.getTextOffset())
+                            && elementType != BallerinaTypes.ASSIGN);
+                    if (isValidLocation) {
+                        results.add(variableDefinition);
+                    }
+                }
+            }
+        } else if (!PLACEHOLDER_STRING.equals(statementNode.getText())) {
+            handleStatementNode(results, variableDefinition, statementNode);
+        }
+    }
+
+    private static void handleStatementNode(List<PsiElement> results, PsiElement variableDefinition,
+                                            StatementNode statementNode) {
+        PsiElement prevSibling = statementNode.getPrevSibling();
+        if (prevSibling != null && prevSibling.getText().isEmpty()) {
+            PsiElement prevPrevSibling = PsiTreeUtil.skipSiblingsBackward(prevSibling,
+                    PsiWhiteSpace.class);
+            if (prevPrevSibling == null) {
+                if (variableDefinition.getParent().getTextOffset() < prevSibling.getTextOffset()) {
+                    results.add(variableDefinition);
+                }
+            } else {
+                if (variableDefinition.getParent().getTextOffset() <= prevPrevSibling.getTextOffset()) {
+                    results.add(variableDefinition);
+                }
+            }
+        } else {
+            results.add(variableDefinition);
+        }
     }
 
     @Nullable

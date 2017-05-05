@@ -56,6 +56,7 @@ import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.MapStructLiteralNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
@@ -206,7 +207,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             handleImportDeclarationNode(parameters, resultSet);
         } else if (parent instanceof ConstantDefinitionNode) {
             handleConstantDefinitionNode(parameters, resultSet);
-        } else if (parent instanceof TypeNameNode || parent instanceof NameReferenceNode) {
+        } else if (parent instanceof TypeNameNode || parent instanceof NameReferenceNode
+                || parent instanceof ActionDefinitionNode) {
             handleNameReferenceNode(parameters, resultSet);
         } else if (parent instanceof StatementNode) {
             handleStatementNode(parameters, resultSet);
@@ -222,8 +224,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             identifyAndAddSuggestions(parameters, resultSet);
         } else if (parent instanceof ConnectorInitExpressionNode) {
             //            identifyAndAddSuggestions(parameters, resultSet);
-        } else if (parent instanceof ActionDefinitionNode) {
-            handleNameReferenceNode(parameters, resultSet);
         } else {
             // If we are currently at an identifier node or a comment node, no need to suggest.
             if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
@@ -417,14 +417,12 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     if (elementType == BallerinaTypes.ASSIGN) {
                         // Eg: function test(){ string s = <caret> + " world"; }
                         addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
-
                         addFunctionsAsLookups(resultSet, element, originalFile);
                         addConnectorsAsLookups(resultSet, element, originalFile);
                         addStructsAsLookups(resultSet, originalFile);
                         addAllImportedPackagesAsLookups(resultSet, originalFile);
                         addVariablesAsLookups(resultSet, element);
                         addConstantsAsLookups(resultSet, originalFile);
-
                     } else if (elementType == BallerinaTypes.COLON) {
                         // This will be called instead of handle statement node if there are codes after the caret.
                         // Eg: function test(){ test:te<caret> \n some_other_codes}
@@ -434,15 +432,14 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     } else if (elementType == BallerinaTypes.DOT) {
                         // Eg: person.n<caret>
                         PsiElement structReference = originalFile.findElementAt(token.getTextOffset() - 2);
-                        addStructFields(parameters, resultSet, structReference, null, false);
+                        addStructFields(parameters, resultSet, structReference, null, false, false);
                     } else if (elementType == BallerinaTypes.AT) {
                         // Eg: annotation TEST attach action {} connector C(){ @T<caret> action A()(message) {} }
                         String attachmentType = getAttachmentType(parameters);
-                        if (attachmentType == null) {
-                            return;
+                        if (attachmentType != null) {
+                            suggestAnnotationsFromAPackage(parameters, resultSet, null, attachmentType);
                         }
-                        suggestAnnotationsFromAPackage(parameters, resultSet, null, attachmentType);
-                    }else {
+                    } else {
                         // Eg: function test(){t<caret>}
                         addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
                         addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
@@ -490,7 +487,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         } else if (elementType == BallerinaTypes.DOT) {
             // Eg: person.<caret>
             PsiElement structReference = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-            addStructFields(parameters, resultSet, structReference, null, false);
+            addStructFields(parameters, resultSet, structReference, null, false, false);
         } else if (elementType == BallerinaTypes.CREATE) {
             // Eg: test:Connector c = create <caret>
             addAllImportedPackagesAsLookups(resultSet, originalFile);
@@ -499,10 +496,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         } else if (elementType == BallerinaTypes.AT) {
             addAllImportedPackagesAsLookups(resultSet, originalFile);
             String attachmentType = getAttachmentType(parameters);
-            if (attachmentType == null) {
-                return;
+            if (attachmentType != null) {
+                suggestAnnotationsFromAPackage(parameters, resultSet, null, attachmentType);
             }
-            suggestAnnotationsFromAPackage(parameters, resultSet, null, attachmentType);
         } else {
             // Eg: function test(){ <caret> \n OTHER_CODES }
             addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
@@ -521,13 +517,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                                    @NotNull CompletionResultSet resultSet) {
         PsiFile originalFile = parameters.getOriginalFile();
 
-        String type = getAttachmentType(parameters);
-        if (type == null) {
+        final String attachmentType = getAttachmentType(parameters);
+        if (attachmentType == null) {
             return false;
         }
-
-        final String attachmentType = type;
-
         checkPrevNodeAndHandle(parameters, resultSet, parameters.getOffset(),
                 (p, r, prev) -> {
                     PsiElement token = getPreviousNonEmptyElement(originalFile, prev.getTextOffset());
@@ -548,8 +541,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 (p, r, prev) -> {
                     IElementType elementType = ((LeafPsiElement) prev).getElementType();
                     // Cannot use a switch statement since the types are not constants and declaring them final does
-                    // not fix
-                    // the issue as well.
+                    // not fix the issue as well.
                     if (elementType == BallerinaTypes.COLON) {
                         PsiElement packageNode = originalFile.findElementAt(prev.getTextOffset() - 2);
                         suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, attachmentType);
@@ -563,6 +555,12 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         return true;
     }
 
+    /**
+     * Returns the attachment type by checking the nodes.
+     *
+     * @param parameters parameters which passed to completion contributor
+     * @return attachment type.
+     */
     @Nullable
     private String getAttachmentType(@NotNull CompletionParameters parameters) {
         PsiElement element = parameters.getPosition();
@@ -584,7 +582,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 PsiElement definitionNode = children[0];
                 type = getAnnotationAttachmentType(definitionNode);
             }
-
         } else if (nextSibling.getParent() instanceof ResourceDefinitionNode) {
             type = "resource";
         } else if (nextSibling.getParent() instanceof ActionDefinitionNode || parent instanceof ActionDefinitionNode) {
@@ -610,13 +607,12 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             IElementType elementType = ((LeafPsiElement) token).getElementType();
             if (elementType == BallerinaTypes.COLON) {
                 PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                //                suggestElementsFromAPackage(parameters, resultSet, packageNode, prevElement, false,
-                // true, true, false);
-
-                PsiElement atToken = getPreviousNonEmptyElement(originalFile, packageNode.getTextOffset());
-                if (atToken != null && atToken instanceof LeafPsiElement) {
-
-                    IElementType tokenElementType = ((LeafPsiElement) atToken).getElementType();
+                if (packageNode == null) {
+                    return;
+                }
+                PsiElement prevToken = getPreviousNonEmptyElement(originalFile, packageNode.getTextOffset());
+                if (prevToken != null && prevToken instanceof LeafPsiElement) {
+                    IElementType tokenElementType = ((LeafPsiElement) prevToken).getElementType();
                     if (tokenElementType == BallerinaTypes.AT) {
                         String attachmentType = getAttachmentType(parameters);
                         if (attachmentType == null) {
@@ -624,12 +620,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         }
                         suggestAnnotationsFromAPackage(parameters, resultSet, packageNode, attachmentType);
                     }
-
                 } else {
                     suggestElementsFromAPackage(parameters, resultSet, packageNode, prevElement, false, true, true,
                             false);
                 }
-
             } else {
                 // Eg: function test(s<caret>){ }
                 addAllImportedPackagesAsLookups(resultSet, originalFile);
@@ -638,7 +632,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addStructsAsLookups(resultSet, originalFile);
                 addConnectorsAsLookups(resultSet, originalFile);
             }
-
             if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
                 addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
                 addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
@@ -664,14 +657,12 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         // the issue as well.
         if (elementType == BallerinaTypes.COLON) {
             PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-
             if (packageNode == null) {
                 return;
             }
-            PsiElement atToken = getPreviousNonEmptyElement(originalFile, packageNode.getTextOffset());
-            if (atToken != null && atToken instanceof LeafPsiElement) {
-
-                IElementType tokenElementType = ((LeafPsiElement) atToken).getElementType();
+            PsiElement prevToken = getPreviousNonEmptyElement(originalFile, packageNode.getTextOffset());
+            if (prevToken != null && prevToken instanceof LeafPsiElement) {
+                IElementType tokenElementType = ((LeafPsiElement) prevToken).getElementType();
                 if (tokenElementType == BallerinaTypes.AT) {
                     String attachmentType = getAttachmentType(parameters);
                     if (attachmentType == null) {
@@ -682,7 +673,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             } else {
                 suggestElementsFromAPackage(parameters, resultSet, packageNode, null, false, true, true, false);
             }
-
         } else if (elementType == BallerinaTypes.LPAREN || elementType == BallerinaTypes.COMMA) {
             // Eg: function test(<caret>) { }
             addAllImportedPackagesAsLookups(resultSet, originalFile);
@@ -755,16 +745,15 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
         // Previous sibling will most probably contain the package. Eg: "package:<caret>". Check whether previous
         // element text matches the pattern.
-        if (!prevSibling.getText().matches(".+:")) {
-            return;
+        if (prevSibling.getText().matches(".+:")) {
+            // In the previous sibling node, IdentifierPSINode will contain the package name.
+            IdentifierPSINode packageName = PsiTreeUtil.findElementOfClassAtOffset(prevSibling.getContainingFile(),
+                    prevSibling.getTextOffset() + prevSibling.getTextLength() - 2, IdentifierPSINode.class, false);
+            if (packageName == null) {
+                return;
+            }
+            suggestElementsFromAPackage(parameters, resultSet, packageName, null, true, true, true, true);
         }
-        // In the previous sibling node, IdentifierPSINode will contain the package name.
-        IdentifierPSINode packageName = PsiTreeUtil.findElementOfClassAtOffset(prevSibling.getContainingFile(),
-                prevSibling.getTextOffset() + prevSibling.getTextLength() - 2, IdentifierPSINode.class, false);
-        if (packageName == null) {
-            return;
-        }
-        suggestElementsFromAPackage(parameters, resultSet, packageName, null, true, true, true, true);
     }
 
     private void handleVariableReferenceNode(@NotNull CompletionParameters parameters,
@@ -780,18 +769,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(element, ExpressionNode.class);
             if (expressionNode == null) {
 
-                addStructFields(parameters, resultSet, null, variableDefinitionNode, true);
-                return;
-            }
-        }
-
-        AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(element,
-                AssignmentStatementNode.class);
-        if (assignmentStatementNode != null) {
-            VariableReferenceNode variableReferenceNode = PsiTreeUtil.findChildOfType(assignmentStatementNode,
-                    VariableReferenceNode.class);
-            if (variableReferenceNode != null) {
-                addStructFields(parameters, resultSet, variableReferenceNode.getNameIdentifier(), null, true);
+                addStructFields(parameters, resultSet, null, variableDefinitionNode, true, true);
                 return;
             }
         }
@@ -807,13 +785,27 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         if (elementType == BallerinaTypes.DOT) {
                             PsiElement structReferenceNode = getPreviousNonEmptyElement(originalFile, prev
                                     .getTextOffset() - 2);
-                            addStructFields(parameters, resultSet, structReferenceNode, null, false);
+                            addStructFields(parameters, resultSet, structReferenceNode, null, false, false);
+                        } else if (elementType == BallerinaTypes.COLON) {
+                            // Eg: Person p = {name:n<caret>}
+                            addVariablesAsLookups(resultSet, prev);
+                            addFunctionsAsLookups(resultSet, originalFile);
                         } else {
-                            addVariablesAsLookups(resultSet, element);
-                            addConstantsAsLookups(resultSet, originalFile);
-                            addFunctionsAsLookups(resultSet, element, originalFile);
-                            addAllImportedPackagesAsLookups(resultSet, originalFile);
-                            addStructsAsLookups(resultSet, originalFile);
+                            MapStructLiteralNode mapStructLiteralNode = PsiTreeUtil.getParentOfType(prev,
+                                    MapStructLiteralNode.class);
+                            if (mapStructLiteralNode != null) {
+                                VariableDefinitionNode structDefinitionNode = PsiTreeUtil.getParentOfType(prev,
+                                        VariableDefinitionNode.class);
+                                if (structDefinitionNode != null) {
+                                    addStructFields(parameters, resultSet, null, structDefinitionNode, true, true);
+                                }
+                            } else {
+                                addVariablesAsLookups(resultSet, element);
+                                addConstantsAsLookups(resultSet, originalFile);
+                                addFunctionsAsLookups(resultSet, element, originalFile);
+                                addAllImportedPackagesAsLookups(resultSet, originalFile);
+                                addStructsAsLookups(resultSet, originalFile);
+                            }
                         }
                     } else {
                         addVariablesAsLookups(resultSet, element);
@@ -830,14 +822,39 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     } else if (elementType == BallerinaTypes.DOT) {
                         // Eg: system:println(person.<caret>)
                         PsiElement structReferenceNode = getPreviousNonEmptyElement(originalFile, prev.getTextOffset());
-                        addStructFields(parameters, resultSet, structReferenceNode, null, false);
+                        addStructFields(parameters, resultSet, structReferenceNode, null, false, false);
+                    } else if (elementType == BallerinaTypes.COLON) {
+                        // Eg: Person p = {name:<caret>}
+                        addVariablesAsLookups(resultSet, prev);
+                        addFunctionsAsLookups(resultSet, originalFile);
                     } else {
-                        addVariablesAsLookups(resultSet, element);
-                        addConstantsAsLookups(resultSet, originalFile);
-                        addFunctionsAsLookups(resultSet, element, originalFile);
-                        addAllImportedPackagesAsLookups(resultSet, originalFile);
+                        MapStructLiteralNode mapStructLiteralNode = PsiTreeUtil.getParentOfType(prev,
+                                MapStructLiteralNode.class);
+                        if (mapStructLiteralNode != null) {
+                            VariableDefinitionNode structDefinitionNode = PsiTreeUtil.getParentOfType(prev,
+                                    VariableDefinitionNode.class);
+                            if (structDefinitionNode != null) {
+                                addStructFields(parameters, resultSet, null, structDefinitionNode, true, true);
+                            }
+                        } else {
+                            addVariablesAsLookups(resultSet, element);
+                            addConstantsAsLookups(resultSet, originalFile);
+                            addFunctionsAsLookups(resultSet, element, originalFile);
+                            addAllImportedPackagesAsLookups(resultSet, originalFile);
+                        }
                     }
                 }, null);
+
+        AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(element,
+                AssignmentStatementNode.class);
+        if (assignmentStatementNode != null) {
+            VariableReferenceNode variableReferenceNode = PsiTreeUtil.findChildOfType(assignmentStatementNode,
+                    VariableReferenceNode.class);
+            if (variableReferenceNode != null) {
+                addStructFields(parameters, resultSet, variableReferenceNode.getNameIdentifier(), null, true, true);
+            }
+        }
+
     }
 
     /**
@@ -868,21 +885,28 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         true, true);
             } else if (elementType == BallerinaTypes.DOT) {
                 PsiElement element = getPreviousNonEmptyElement(originalFile, token.getTextOffset());
-                addStructFields(parameters, resultSet, element, null, true);
-            } else {
+                addStructFields(parameters, resultSet, element, null, true, true);
+            } else if (elementType == BallerinaTypes.ASSIGN) {
+                PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
                 addFunctionsAsLookups(resultSet, prevElement, originalFile);
                 addAllImportedPackagesAsLookups(resultSet, originalFile);
-                addVariablesAsLookups(resultSet, prevElement);
+                addVariablesAsLookups(resultSet, currentElement);
                 addConstantsAsLookups(resultSet, originalFile);
+                addStructsAsLookups(resultSet, originalFile);
+                addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
+            } else {
+                PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
+                addFunctionsAsLookups(resultSet, prevElement, originalFile);
+                addAllImportedPackagesAsLookups(resultSet, originalFile);
+                addVariablesAsLookups(resultSet, currentElement);
+                addConstantsAsLookups(resultSet, originalFile);
+                addStructsAsLookups(resultSet, originalFile);
 
                 addFunctionSpecificKeywords(parameters, resultSet, originalFile);
                 addResourceSpecificKeywords(parameters, resultSet, originalFile);
                 addActionSpecificKeywords(parameters, resultSet, originalFile);
 
                 addOtherCommonKeywords(resultSet);
-                if (elementType == BallerinaTypes.ASSIGN) {
-                    addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
-                }
             }
 
             if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
@@ -902,6 +926,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         PsiFile originalFile = parameters.getOriginalFile();
         IElementType elementType = ((LeafPsiElement) prevElement).getElementType();
 
+        PsiElement element = getPreviousNonEmptyElement(originalFile, parameters.getOffset());
         // Cannot use a switch statement since the types are not constants and declaring them final does not fix
         // the issue as well.
         if (elementType == BallerinaTypes.COLON) {
@@ -910,23 +935,29 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         } else if (isExpressionSeparator(elementType)) {
             addFunctionsAsLookups(resultSet, prevElement, originalFile);
             addAllImportedPackagesAsLookups(resultSet, originalFile);
-            addVariablesAsLookups(resultSet, prevElement);
+            addVariablesAsLookups(resultSet, element);
             addConstantsAsLookups(resultSet, originalFile);
 
             if (elementType == BallerinaTypes.ASSIGN) {
                 addKeywordAsLookup(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
             }
         } else if (elementType == BallerinaTypes.DOT) {
-            PsiElement element = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
-            addStructFields(parameters, resultSet, element, null, false);
+
+            element = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
+            if (!(element instanceof IdentifierPSINode)) {
+                element = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset() - 1);
+            }
+            addStructFields(parameters, resultSet, element, null, false, false);
         } else {
+            PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
             addValueTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
             addReferenceTypesAsLookups(resultSet, CONTEXT_KEYWORD_PRIORITY);
 
             addFunctionsAsLookups(resultSet, prevElement, originalFile);
             addAllImportedPackagesAsLookups(resultSet, originalFile);
-            addVariablesAsLookups(resultSet, prevElement);
+            addVariablesAsLookups(resultSet, currentElement);
             addConstantsAsLookups(resultSet, originalFile);
+            addStructsAsLookups(resultSet, originalFile);
 
             addFunctionSpecificKeywords(parameters, resultSet, originalFile);
             addResourceSpecificKeywords(parameters, resultSet, originalFile);
@@ -1019,7 +1050,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      */
     private void addStructFields(@NotNull CompletionParameters parameters,
                                  @NotNull CompletionResultSet resultSet, @Nullable PsiElement prevElement,
-                                 @Nullable PsiElement resolvedVariableDefElement, boolean withInsertHandler) {
+                                 @Nullable PsiElement resolvedVariableDefElement, boolean withInsertHandler,
+                                 boolean autoComplete) {
         if (resolvedVariableDefElement == null) {
             resolvedVariableDefElement = resolveStructReferenceToDefinition(parameters, prevElement);
             if (resolvedVariableDefElement == null) {
@@ -1050,7 +1082,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     .withTypeText(typeName.getText()).withIcon(BallerinaIcons.FIELD)
                     .withTailText(" -> " + structDefinitionNode.getText(), true);
             if (withInsertHandler) {
-                builder = builder.withInsertHandler(PackageCompletionInsertHandler.INSTANCE);
+                if (autoComplete) {
+                    builder = builder.withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                } else {
+                    builder = builder.withInsertHandler(PackageCompletionInsertHandler.INSTANCE);
+                }
             }
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FIELD_PRIORITY));
         }
