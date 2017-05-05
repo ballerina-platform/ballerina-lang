@@ -22,11 +22,16 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -77,7 +82,7 @@ public class StatementReference extends BallerinaElementReference {
         // First we get all the definitions in the callable unit body.
         Collection<VariableDefinitionNode> variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(bodyNode,
                 VariableDefinitionNode.class);
-        // Check and add each matching element as lookups.
+        // Check and add each result.
         for (VariableDefinitionNode variableDefinitionNode : variableDefinitionNodes) {
             PsiElement nameIdentifier = variableDefinitionNode.getNameIdentifier();
             if (nameIdentifier == null) {
@@ -85,6 +90,22 @@ public class StatementReference extends BallerinaElementReference {
             }
             if (myElement.getText().equals(nameIdentifier.getText())) {
                 results.add(new PsiElementResolveResult(variableDefinitionNode));
+            }
+        }
+
+        // We need to check parameters for matches as well. So we need to first get the enclosing definition node.
+        IdentifierDefSubtree definitionNode = PsiTreeUtil.getParentOfType(getElement(), FunctionNode.class,
+                ResourceDefinitionNode.class, ConnectorNode.class, ActionDefinitionNode.class);
+        // Get all parameter nodes.
+        Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(definitionNode, ParameterNode.class);
+        // Check and add each result.
+        for (ParameterNode parameterNode : parameterNodes) {
+            PsiElement nameIdentifier = parameterNode.getNameIdentifier();
+            if (nameIdentifier == null) {
+                continue;
+            }
+            if (myElement.getText().equals(nameIdentifier.getText())) {
+                results.add(new PsiElementResolveResult(parameterNode));
             }
         }
         return results.toArray(new ResolveResult[results.size()]);
