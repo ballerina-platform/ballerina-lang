@@ -92,11 +92,12 @@
         </context>
     </template>
 
-    <template name="res" value='$ANNOTATION$&#10;resource $NAME$ (message m) {&#10;    $END$&#10;}'
+    <template name="res" value='$ANNOTATION$&#10;resource $NAME$ (message m$ARGS$) {&#10;    $END$&#10;}'
               description="Resource Template" toReformat="false"
               toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ANNOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_SERVICE" value="true"/>
         </context>
