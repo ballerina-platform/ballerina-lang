@@ -37,9 +37,12 @@ var langTools = ace.require("ace/ext/language_tools");
 
 class ExpressionEditor{
 
-    constructor( bBox, container , callback , options) {
-        
-        var expression = _.isNil(options.expression) ? "" : options.expression;
+    constructor( bBox, container , callback , props) {
+        this.props = props;
+        let expression = _.isNil(props.getterMethod.call(props.model)) ? "" : props.getterMethod.call(props.model);
+        // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
+        this.removed = false;
+
         this.expressionEditor = $("<div class='expression_editor'>");
         this.expressionEditor.width(bBox.w + 2);
         this.expressionEditor.height(bBox.h + 2);
@@ -71,7 +74,7 @@ class ExpressionEditor{
             this._editor.setFontSize("12pt");
         }
         /*
-        let completers = completerFactory.getCompleters(property.key, packageScope);
+        let completers = completerFactory.getCompleters(props.key, packageScope);
         if(completers){
             langTools.setCompleters(completers);
         }*/
@@ -108,10 +111,12 @@ class ExpressionEditor{
         // when enter is pressed we will commit the change.
         this._editor.commands.bindKey("Enter|Shift-Enter", (e)=>{
             let text = this._editor.getSession().getValue();
-            property.model.trigger('update-property-text', text , property.key);
-            property.model.trigger('focus-out');
+            props.setterMethod.call(props.model, text);
+            props.model.trigger('update-property-text', text , props.key);
+            props.model.trigger('focus-out');
+            this.distroy();
             if(_.isFunction(callback)){
-                callback();
+                callback(text);
             }
         });
 
@@ -122,8 +127,10 @@ class ExpressionEditor{
             this._editor.resize();
         });
 
-        this._editor.on('blur', (event) => {
-            this.expressionEditor.remove();
+        this._editor.on('blur', (event) => {  
+            if(!this.removed){         
+                this.distroy();
+            }
         });
 
         // following snipet is to handle adding ";" at the end of statement.
@@ -138,8 +145,9 @@ class ExpressionEditor{
                 if(this.end_check.exec(text)){
                     //close the expression editor
                     if(_.isFunction(callback)){
-                        callback();
+                        callback(text);
                     }
+                    this.distroy();
                 }else{
                     this._editor.insert(";");
                 }
@@ -149,11 +157,15 @@ class ExpressionEditor{
     }
 
     distroy(){
-        //commit if there are any changes
-        let text = this._editor.getSession().getValue();
-        this._property.model.trigger('update-property-text', text , this._property.key);
-        //distroy the editor
-        //this._editor.distroy();
+        if(!this.removed){
+            this.removed = true;
+            //commit if there are any changes
+            let text = this._editor.getSession().getValue();
+            this.props.model.trigger('update-property-text', text , this.props.key);
+            //distroy the editor
+            //this._editor.distroy();
+            this.expressionEditor.remove();
+        }
     }
 
     getNecessaryWidth(text) {
