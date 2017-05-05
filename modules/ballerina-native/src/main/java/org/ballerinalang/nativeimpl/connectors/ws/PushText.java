@@ -26,7 +26,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.services.dispatchers.http.Constants;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 
 /**

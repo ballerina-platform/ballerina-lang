@@ -52,8 +52,7 @@ public class Close extends AbstractWebSocketAction {
                 org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_CLOSE);
         controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_CODE, 1000);
         controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_REASON, "Normal closure");
-        controlCarbonMessage.setProperty(
-                org.ballerinalang.services.dispatchers.http.Constants.WEBSOCKET_CLIENT_ID,
+        controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID,
                 getClientID(context, bconnector));
         pushMessage(controlCarbonMessage);
         return null;
