@@ -58,7 +58,8 @@ public class JMSWorkerThread implements Runnable {
                 }
                 sourceEventListener.onEvent(event);
             } else {
-                throw new JMSInputAdaptorRuntimeException("The message type of the JMS message is not supported!");
+                throw new JMSInputAdaptorRuntimeException("The message type of the JMS message" +
+                        carbonMessage.getClass() + " is not supported!");
             }
             // ACK only if the event is processed i.e: no exceptions thrown from the onEvent method.
             if (carbonCallback != null) {

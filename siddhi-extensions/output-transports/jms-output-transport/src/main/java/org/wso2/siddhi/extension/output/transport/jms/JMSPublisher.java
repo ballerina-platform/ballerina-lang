@@ -29,6 +29,9 @@ import org.wso2.carbon.transport.jms.utils.JMSConstants;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * JMS publisher which creates the message and sends to JMS.
+ */
 public class JMSPublisher implements Runnable {
     private static final Logger log = Logger.getLogger(JMSPublisher.class);
 
@@ -55,7 +58,7 @@ public class JMSPublisher implements Runnable {
         try {
             jmsClientConnector.send(message, null, jmsProperties);
         } catch (ClientConnectorException e) {
-            log.error("Error sending the JMS message: ", e);
+            log.error("Error sending JMS message: ", e);
         }
     }
 

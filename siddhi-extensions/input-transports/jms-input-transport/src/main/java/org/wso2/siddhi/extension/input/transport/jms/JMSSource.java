@@ -40,6 +40,9 @@ import java.util.Map;
         namespace = "source",
         description = "JMS Source"
 )
+/**
+ * JMS Source implementation.
+ */
 public class JMSSource extends Source {
     private static final Logger log = Logger.getLogger(JMSSource.class);
 

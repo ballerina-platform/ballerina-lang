@@ -32,6 +32,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Consumes JMS topic messages.
+ */
 public class TopicConsumer implements Runnable {
     private TopicConnectionFactory topicConnectionFactory;
     private String topicName;
