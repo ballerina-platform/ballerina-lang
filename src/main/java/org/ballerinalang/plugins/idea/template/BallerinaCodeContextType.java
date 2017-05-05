@@ -22,6 +22,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtilCore;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlighter;
@@ -120,23 +121,15 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element.getParent() instanceof PsiErrorElement) {
-                if (element.getParent().getParent() instanceof ConnectorBodyNode) {
-                    return true;
-                }
-            } else if (element instanceof ConnectorBodyNode || element.getParent() instanceof ConnectorNode) {
+            ActionDefinitionNode actionDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                    ActionDefinitionNode.class);
+            if (actionDefinitionNode != null) {
+                return false;
+            }
+
+            ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getParentOfType(element, ConnectorBodyNode.class);
+            if (connectorBodyNode != null) {
                 return true;
-            } else {
-                PsiElement parent = element.getParent();
-                if (parent instanceof ActionDefinitionNode) {
-                    return false;
-                }
-                while (parent != null && !(parent instanceof PsiFile)) {
-                    if (parent instanceof ConnectorBodyNode) {
-                        return true;
-                    }
-                    parent = parent.getParent();
-                }
             }
             return false;
         }
