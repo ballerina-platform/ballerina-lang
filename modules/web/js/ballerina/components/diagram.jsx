@@ -24,6 +24,7 @@ import PositionCalcVisitor from '../visitors/position-calculator-visitor';
 import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor';
 import {getComponentForNodeArray} from './utils';
 import DragDropManager from '../tool-palette/drag-drop-manager';
+import MessageManager from './../visitors/message-manager';
 import ASTRoot from '../ast/ballerina-ast-root';
 
 class Diagram extends React.Component {
@@ -77,7 +78,7 @@ class Diagram extends React.Component {
     }
 
     getChildContext() {
-       return { dragDropManager: this.props.dragDropManager };
+       return { dragDropManager: this.props.dragDropManager, messageManager: this.props.messageManager};
     }
 }
 
@@ -89,11 +90,13 @@ Diagram.propTypes = {
 		h: PropTypes.number.isRequired,
 	}),
   model: PropTypes.instanceOf(ASTRoot).isRequired,
-  dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
-}
+  dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+  messageManager: PropTypes.instanceOf(MessageManager).isRequired
+};
 
 Diagram.childContextTypes = {
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
+    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    messageManager: PropTypes.instanceOf(MessageManager).isRequired
 };
 
 export default Diagram;

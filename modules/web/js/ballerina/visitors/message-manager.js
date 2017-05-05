@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,55 +18,65 @@
 import log from 'log';
 import _ from 'lodash';
 import * as d3 from 'd3';
-import Point from './point';
-import EventChannel from 'event_channel';
+import $ from 'jquery';
 
 /**
- * View for MessageManager
+ * Handle Message drawing by Message manager
  * @class MessageManager
- * @extends EventChannel
  */
-class MessageManager extends EventChannel {
+class MessageManager {
     /**
      * Constructor for MessageManager
      * @param {args} args for constructor
      * @constructor
      */
     constructor(args) {
-        super();
         log.debug('Initialising Message Manager');
-        this.typeBeingDragged = undefined;
-        this._canvas = _.get(args, 'canvas');
+        this._typeBeingDragged = undefined;
+        this._messageSource = undefined;
+        this._messageTarget = undefined;
+        this._isOnDrag = false;
+        this._source = undefined;
+        this._destination = undefined;
+        this._messageEnd = {
+            x: 0,
+            y: 0
+        };
+        this._messageStart = {
+            x: 0,
+            y: 0
+        };
+        this._arrowDecorator = undefined;
+        this._container = undefined;
     }
 
     setMessageSource(source) {
         if (!_.isUndefined(source)) {
-            this.messageSource = source;
+            this._messageSource = source;
         }
     }
 
+
     getMessageSource() {
-        return this.messageSource;
+        return this._messageSource;
     }
 
     setMessageTarget(destination) {
         if (!_.isUndefined(destination)) {
-            this.messageTarget = destination;
+            this._messageTarget = destination;
         }
     }
 
     getMessageTarget() {
-        return this.messageTarget;
+        return this._messageTarget;
     }
 
-    setActivatedDropTarget(dropTarget) {
-        if (!_.isUndefined(dropTarget)) {
-            this.activatedDropTarget = dropTarget;
-        }
+    setActivatedTarget(target) {
+        this._activatedDropTarget = target;
     }
 
-    getActivatedDropTarget() {
-        return this.activatedDropTarget;
+    getActivatedTarget() {
+        return this._activatedDropTarget;
     }
 
     setValidateCallBack(callBackMethod) {
@@ -79,36 +89,24 @@ class MessageManager extends EventChannel {
         return this.validateCallBack;
     }
 
-    // TODO: This method has been duplicated since we need to check whether which is the correct
-    // setActivatedDropTarget(activatedDropTarget, validateCallBack) {
-    //     if (!_.isUndefined(activatedDropTarget)) {
-    //         if (!_.isEqual(activatedDropTarget, this.getActivatedDropTarget())){
-    //             /**
-    //              * @eventMessageManager#drop-target-changed
-    //              * @type ASTNode
-    //              */
-    //             // this.trigger('drop-target-changed', activatedDropTarget);
-    //         }
-    //         this.activatedDropTarget = activatedDropTarget;
-    //     }
-    //     if (!_.isUndefined(validateCallBack)) {
-    //         this.setValidateCallBack(validateCallBack);
-    //     }
-    // }
-
     /**
      * Set the type being dragged at a given moment.
-     * @param type being dragged
-     * @param validateDropTargetCallback {DragDropManager~validateDropTargetCallback} - call back to do additional validations on drop target
-     *
+     * @param source being dragged
      */
-    setTypeBeingDragged(type, validateDropTargetCallback) {
-        if (!_.isUndefined(type)) {
-            this.typeBeingDragged = type;
-        }
-        if (!_.isUndefined(validateDropTargetCallback)) {
-            this.validateDropTargetCallback = validateDropTargetCallback;
-        }
+    setSource(source) {
+        this._source = source;
+    }
+
+    getSource() {
+        return this._source;
+    }
+
+    setDestination(destination) {
+        this._destination = destination;
+    }
+
+    getDestination() {
+        return this._destination;
     }
 
     /**
@@ -116,11 +114,49 @@ class MessageManager extends EventChannel {
      * @return type
      */
     getTypeBeingDragged() {
-        return this.typeBeingDragged;
+        return this._typeBeingDragged;
     }
 
     isOnDrag() {
-        return !_.isNil(this.typeBeingDragged);
+        return this._isOnDrag;
+    }
+
+    setIsOnDrag(status) {
+        this._isOnDrag = status;
+    }
+
+    setMessageEnd(x, y) {
+        this._messageEnd.x = x;
+        this._messageEnd.y = y;
+    }
+
+    getMessageEnd() {
+        return this._messageEnd;
+    }
+
+    setMessageStart(x, y) {
+        this._messageStart.x = x;
+        this._messageStart.y = y;
+    }
+
+    getMessageStart() {
+        return this._messageStart;
+    }
+
+    setArrowDecorator(arrowDecorator) {
+        this._arrowDecorator = arrowDecorator;
+    }
+
+    getArrowDecorator() {
+        return this._arrowDecorator;
+    }
+
+    setContainer(container) {
+        this._container = container;
+    }
+
+    getContainer() {
+        return this._container;
     }
 
     reset() {
@@ -131,60 +167,31 @@ class MessageManager extends EventChannel {
         this.setMessageSource(undefined);
         this.setValidateCallBack( undefined);
         this.setActivatedDropTarget(undefined);
-        this.typeBeingDragged = undefined;
+        this._typeBeingDragged = undefined;
     }
 
-    startDrawMessage(source, actionInvocationModel, sourcePoint, connectorPoint) {
-        var connectorStartPoint,
-            connectorEndPoint;
-
-        if(connectorPoint){
-            connectorStartPoint = connectorPoint.x();
-            connectorEndPoint = connectorPoint.y();
-        }
-        else{
-            connectorStartPoint = sourcePoint.x();
-            connectorEndPoint = sourcePoint.y();
-        }
-
-        this.setMessageSource(source);
+    startDrawMessage() {
 
         var self = this,
-            container = d3.select(this._canvas.getSVG().get(0));
+            container = d3.select('.svg-container');
 
-        var tempLine = container.append('line')
-            .attr('x1',connectorStartPoint )
-            .attr('y1',connectorEndPoint )
-            .attr('x2',sourcePoint.x() )
-            .attr('y2',sourcePoint.y() )
-            .attr('stroke','#9d9d9d');
-        var points = '' +  sourcePoint.x() + ',' + (sourcePoint.y() - 5) + ' ' + ( sourcePoint.x() + 5) + ','
-            + (sourcePoint.y()) + ' ' + sourcePoint.x() + ',' + (sourcePoint.y() + 5);
-        var arrowPoint = container.append('polyline')
-            .attr('points', points);
-
-        container.on('mousemove', function () {
+        container.on('mousemove', function (e) {
             var m = d3.mouse(this);
-            //setting an offset of 5 to avoid the mouse pointer overlapping with the arrow
-            tempLine.attr('x2', m[0] - 5);
-            tempLine.attr('y2', sourcePoint.y());
-            var newPoints = '' +  (m[0] - 5) + ',' + (sourcePoint.y() - 5) + ' ' + ( m[0]) + ','
-                + (sourcePoint.y()) + ' ' +  (m[0]- 5) + ',' + ( sourcePoint.y() + 5);
-            arrowPoint.attr('points', newPoints);
+            self.setMessageEnd(m[0] - 5, self.getMessageStart().y);
+            const currentDrawOnMouseMoveFlag = self.getArrowDecorator().state.drawOnMouseMoveFlag;
+            self.getArrowDecorator().setState({drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1)});
         });
 
-        container.on('mouseup', function () {
-            // unbind current listeners
-            container.on('mousemove', null);
-            container.on('mouseup', null);
-            var startPoint = new Point(tempLine.attr('x1'),tempLine.attr('y1'));
-
-            tempLine.remove();
-            arrowPoint.remove();
-            self.getMessageSource().getModel().trigger('drawConnectionForAction', startPoint, container);
-            self.trigger('drop-target-changed', undefined);
-            self.reset();
-        });
+        // container.on('mouseup', function () {
+        //     // unbind current listeners
+        //     container.on('mousemove', null);
+        //     container.on('mouseup', null);
+        //     var startPoint = new Point(tempLine.attr('x1'),tempLine.attr('y1'));
+        //
+        //     tempLine.remove();
+        //     arrowPoint.remove();
+        //     self.reset();
+        // });
     }
 }
 

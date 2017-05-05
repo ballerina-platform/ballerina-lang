@@ -22,6 +22,7 @@ import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import './canvas-decorator.css';
 import {setCanvasOverlay, getCanvasOverlay} from '../configs/app-context';
+import ArrowDecorator from './arrow-decorator';
 
 class CanvasDecorator extends React.Component {
     constructor(props) {
@@ -34,6 +35,14 @@ class CanvasDecorator extends React.Component {
         const dropZoneActivated = this.state.dropZoneActivated;
         const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
         const canvasClassName = "svg-container" + (dropZoneActivated ? " drop-zone active" : "");
+        const arrowStart = {
+            x: 0,
+            y: 0
+        };
+        const arrowEnd = {
+            x: 0,
+            y: 0
+        };
 
         const dropZoneClassName = (dropZoneActivated ? "drop-zone active" : "drop-zone ")
                         + (dropZoneDropNotAllowed ? " blocked" : "");
@@ -48,6 +57,7 @@ class CanvasDecorator extends React.Component {
                         onMouseOver={(e) => this.onDropZoneActivate(e)}
                         onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
                     {this.props.children}
+                    <ArrowDecorator start={arrowStart} end={arrowEnd}/>
                 </svg>
             </div>
         );
