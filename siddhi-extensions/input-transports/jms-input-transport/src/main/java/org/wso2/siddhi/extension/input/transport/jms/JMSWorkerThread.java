@@ -46,15 +46,16 @@ public class JMSWorkerThread implements Runnable {
     @Override
     public void run() {
         try {
-            if (carbonMessage instanceof TextCarbonMessage) {
+            if (carbonMessage.getClass() == TextCarbonMessage.class) {
                 String event = ((TextCarbonMessage) carbonMessage).getText();
                 sourceEventListener.onEvent(event);
-            } else if (carbonMessage instanceof MapCarbonMessage) {
+            } else if (carbonMessage.getClass() == MapCarbonMessage.class) {
                 Map<String, String> event = new HashMap<>();
-                Enumeration<String> mapNames = ((MapCarbonMessage) carbonMessage).getMapNames();
+                MapCarbonMessage mapCarbonMessage = (MapCarbonMessage) carbonMessage;
+                Enumeration<String> mapNames = mapCarbonMessage.getMapNames();
                 while (mapNames.hasMoreElements()) {
                     String key = mapNames.nextElement();
-                    event.put(key, ((MapCarbonMessage) carbonMessage).getValue(key));
+                    event.put(key, mapCarbonMessage.getValue(key));
                 }
                 sourceEventListener.onEvent(event);
             } else {
