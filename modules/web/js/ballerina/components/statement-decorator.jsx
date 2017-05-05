@@ -26,6 +26,7 @@ import MessageManager from './../visitors/message-manager';
 import ASTFactory from './../ast/ballerina-ast-factory';
 import './statement-decorator.css';
 import ArrowDecorator from './arrow-decorator';
+import BackwardArrowDecorator from './bacward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
 
 const text_offset = 50;
@@ -56,6 +57,8 @@ class StatementDecorator extends React.Component {
 		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
 		let arrowStart = { x: 0, y: 0 };
 		let arrowEnd = { x: 0, y: 0 };
+		let backArrowStart = { x: 0, y: 0 };
+		let backArrowEnd = { x: 0, y: 0 };
 
 		const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
 											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
@@ -78,9 +81,13 @@ class StatementDecorator extends React.Component {
 			if (!_.isNil(actionInvocation._connector)) {
 				connector = actionInvocation._connector;
 				arrowStart.x = this.statementBox.x + this.statementBox.w;
-				arrowStart.y = this.statementBox.y + this.statementBox.h/2;
+				arrowStart.y = this.statementBox.y + this.statementBox.h/3;
 				arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w/2;
 				arrowEnd.y = arrowStart.y;
+				backArrowStart.x = arrowEnd.x;
+				backArrowStart.y = this.statementBox.y + (2 * this.statementBox.h/3);
+				backArrowEnd.x = arrowStart.x;
+				backArrowEnd.y = backArrowStart.y;
 			}
 		}
 		return (<g className="statement" >
@@ -105,6 +112,7 @@ class StatementDecorator extends React.Component {
 					onMouseDown={(e) => this.onMouseDown(e)}
 					onMouseUp={(e) => this.onMouseUp(e)}/>
 					{connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
+					{connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
 				</g>
 			}
 		</g>);
