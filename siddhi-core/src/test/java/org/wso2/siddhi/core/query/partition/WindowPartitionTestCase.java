@@ -145,7 +145,7 @@ public class WindowPartitionTestCase {
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec)  " +
-                "select symbol, sum(price) as price,volume " +
+                "select symbol, default( sum(price), 0.0) as price, volume " +
                 "insert all events into OutStockStream ;  " +
                 "end ";
 
