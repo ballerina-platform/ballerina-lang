@@ -637,8 +637,67 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     public void testConnectorCreationCreateKeyword() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
+        // todo - remove c
         doTest("import org.test; function A(){ test:TestConnector c = <caret> test:TestConnector() }",
-                "create", "A", "test");
+                "create", "A", "c", "test");
+    }
+
+    public void testVariablesNoVarsAvailable() {
+        doTest("function A(){ string s1 = <caret> }",
+                "A", "create");
+    }
+
+    public void testVariablesWhenSingleVariableAvailable() {
+        doTest("function A(){ string s1 = \"Test\"; string s2 = <caret> }",
+                "s1", "A", "create");
+    }
+
+    public void testVariablesWhenSingleVariableAvailableWithPartialIdentifier() {
+        doCheckResult("test.bal", "function A(){ string s1 = \"Test\"; string s2 = s<caret> }",
+                "function A(){ string s1 = \"Test\"; string s2 = s1 }", null);
+    }
+
+    public void testVariablesWhenMultipleVariablesAvailable() {
+        doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = <caret> }",
+                "s1", "s2", "A", "create");
+    }
+
+    public void testVariablesWhenMultipleVariablesAvailableAfterLeafElement() {
+        doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = s1 + <caret> }",
+                "s1", "s2", "A");
+    }
+
+    public void testVariablesWhenMultipleVariablesAvailableBeforeLeafElement() {
+        doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = <caret> + s2; }",
+                "s1", "s2", "A");
+    }
+
+    public void testVariablesInNewLineWhenMultipleVariablesAvailable() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("s1");
+        expectedLookups.add("s2");
+        expectedLookups.add("A");
+
+        doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> }",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testVariablesInNewLineWhenMultipleVariablesAvailableWithVariablesAfter() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("s1");
+        expectedLookups.add("s2");
+        expectedLookups.add("A");
+
+        doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> \nstring s4 = \"\";}",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     /**
