@@ -32,7 +32,7 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitWhileStatement(whileStatement) {
-        this.appendSource('while(' + whileStatement.getCondition() + '){');
+        this.appendSource('while (' + whileStatement.getCondition() + ') {\n');
         log.debug('Begin Visit If Statement Definition');
     }
 
@@ -42,7 +42,7 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitWhileStatement(whileStatement) {
         this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit If Statement Definition');
     }
 }

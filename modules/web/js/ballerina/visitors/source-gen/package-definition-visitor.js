@@ -52,8 +52,8 @@ class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitPackageDefinition(packageDefinition) {
         if (!_.isNil(packageDefinition.getPackageName()) && packageDefinition.getPackageName() !== "") {
-            this.appendSource(";\n");
-            this.getParent().appendSource(this.getGeneratedSource());
+            this.appendSource(";\n\n");
+            this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         }
         log.debug('End Visit PackageDefinition');
     }

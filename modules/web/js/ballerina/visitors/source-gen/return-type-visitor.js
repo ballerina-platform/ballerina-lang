@@ -42,10 +42,9 @@ class ReturnTypeVisitor extends AbstractSourceGenVisitor {
 
     endVisitReturnType(returnType) {
        this.appendSource(' )');
-       this.getParent().appendSource(this.getGeneratedSource());
+       this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
        log.debug('End Visit Return Type');
     }
 }
 
 export default ReturnTypeVisitor;
-    

@@ -58,7 +58,8 @@ class StatementView extends React.Component {
 					className={dropZoneClassName}
 			 		onMouseOver={(e) => this.onDropZoneActivate(e)}
 					onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
-			<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className="statement-rect" />
+			<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className="statement-rect"
+				  onClick={(e) => this.openExpressionEditor(e)} />
 			<g className="statement-body">
 				<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
 			</g>
@@ -105,9 +106,10 @@ class StatementView extends React.Component {
 	}
 
 	openExpressionEditor(e){
-		let options = { };
-		options.expression = this.props.expression;
-		new ExpressionEditor( this.statementBox , this.context.container , (text) => this.onUpdate(text), options );
+		let options = this.props.editorOptions;
+		if(options){
+			new ExpressionEditor( this.statementBox , this.context.container , (text) => this.onUpdate(text), options );
+		}
 	}
 
 	onUpdate(text){
@@ -123,7 +125,6 @@ StatementView.propTypes = {
 		w: PropTypes.number.isRequired,
 		h: PropTypes.number.isRequired,
 	}),
-	displayText: PropTypes.string.isRequired,
 	model: PropTypes.instanceOf(ASTNode).isRequired,
 	expression: PropTypes.string.isRequired,
 };

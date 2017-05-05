@@ -178,7 +178,8 @@ function getCompoundStatementChildPosition(node) {
 
         // here we need to re adjust resource width to match the service width.
         let resources = node.filterChildren(function (child) {
-            return ASTFactory.isResourceDefinition(child);
+            return ASTFactory.isResourceDefinition(child) ||
+                   ASTFactory.isConnectorAction(child);
         });
         // make sure you substract the panel padding to calculate the min width of a resource.
         let minWidth = node.getViewState().bBox.w - ( panel.body.padding.left + panel.body.padding.right );

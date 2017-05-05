@@ -31,7 +31,8 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitElseIfStatement(elseIfStatement) {
-        this.appendSource('elseIf(' + elseIfStatement.getCondition() + '){');
+        this.appendSource(' elseIf (' + elseIfStatement.getCondition() + ') {\n');
+        this.indent();
         log.debug('Begin Visit Else If Statement Definition');
     }
 
@@ -40,8 +41,9 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitElseIfStatement(elseIfStatement) {
+        this.outdent();
         this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Else If Statement Definition');
     }
 

@@ -35,9 +35,11 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitStructDefinition(structDefinition) {
-        var constructedSourceSegment = 'struct ' + structDefinition.getStructName() + "{ \n";
+        var constructedSourceSegment = 'struct ' + structDefinition.getStructName() + "{\n";
+        this.indent();
         _.forEach(structDefinition.getVariableDefinitionStatements(), function (variableDefStatement) {
-            constructedSourceSegment = constructedSourceSegment + variableDefStatement.getStatementString() + ";\n";
+            constructedSourceSegment = constructedSourceSegment + this.getIndentation()
+                          + variableDefStatement.getStatementString() + ";\n";
         });
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit FunctionDefinition');
@@ -48,11 +50,10 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitStructDefinition(structDefinition) {
-        this.appendSource("} \n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.appendSource("}\n");
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit FunctionDefinition');
     }
 }
 
 export default StructDefinitionVisitor;
-    

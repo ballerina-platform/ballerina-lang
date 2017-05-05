@@ -71,10 +71,11 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
-        var constructedSourceSegment = 'resource ' + resourceDefinition.getResourceName() + '(';
+        var constructedSourceSegment = 'resource ' + resourceDefinition.getResourceName() + ' (';
 
-        constructedSourceSegment += resourceDefinition.getParametersAsString() + ') {';
-        this.appendSource(this.getParent().getIndentation() + constructedSourceSegment);
+        constructedSourceSegment += resourceDefinition.getParametersAsString() + ') {\n';
+        this.appendSource(this.getIndentation() + constructedSourceSegment);
+        this.indent();
     }
 
     visitResourceDefinition(resourceDefinition) {
@@ -97,7 +98,8 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitResourceDefinition(resourceDefinition) {
-        this.appendSource(this.getParent().getIndentation() + "}\n");
+        this.outdent();
+        this.appendSource(this.getIndentation() + "}\n");
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

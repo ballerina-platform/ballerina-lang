@@ -48,7 +48,7 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
                 var constructedPathAnnotation = '';
                 if (annotation.key.indexOf(':') !== -1) {
                     constructedPathAnnotation = '@' + annotation.key.split(':')[0] + ':'
-                        + annotation.key.split(':')[1] + '{ value : "' + annotation.value + '" }\n';
+                        + annotation.key.split(':')[1] + '{value: "' + annotation.value + '"}\n';
                 }
                 self.appendSource(constructedPathAnnotation);
             }
@@ -62,7 +62,7 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
     endVisitServiceDefinition(serviceDefinition) {
         this.outdent();
         this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
     }
 
     visitStatement(statement) {
