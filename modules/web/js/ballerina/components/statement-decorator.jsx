@@ -29,7 +29,7 @@ import MessageManager from './../visitors/message-manager';
 import ASTFactory from './../ast/ballerina-ast-factory';
 import './statement-decorator.css';
 import ArrowDecorator from './arrow-decorator';
-import BackwardArrowDecorator from './bacward-arrow-decorator';
+import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
 
 const text_offset = 50;
@@ -130,7 +130,7 @@ class StatementDecorator extends React.Component {
 			<g className="statement-body">
 				<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
 			</g>
-                        <ActionBox bBox={ actionBbox } show={ this.state.showActions } onDelete={this.onDelete.bind(this)}/>
+			  <ActionBox bBox={ actionBbox } show={ !this.state.innerDropZoneExist && this.state.showActions } onDelete={this.onDelete.bind(this)}/>
 			{isActionInvocation &&
 				<g>
 					<circle cx={arrowStartPointX}
