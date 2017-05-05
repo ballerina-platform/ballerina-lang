@@ -109,6 +109,8 @@ ballerina build service <pkg1> [<pkg2> <pkg3> ...] [-o filename]
 
 For example, to archive the StockQuoteService described at the top of this page as a file called `StockQuoteService.bsz`, you would navigate to the C:\ directory and type: `ballerina build service myProgram/services -o StockQuoteService.bsz`
 
+For a tutorial on creating archives, see [Create an Archive of your Program](../tutorials/create-archive.md).
+
 
 ## Running a Ballerina program
 
