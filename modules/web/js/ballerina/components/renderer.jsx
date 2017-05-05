@@ -31,6 +31,14 @@ class TextBox extends React.Component {
         this.onBlur = this.onBlur.bind(this);
     }
 
+    componentDidMount() {
+        this.textInput.focus();
+    }
+
+    componentDidUpdate() {
+        this.textInput.focus();
+    }
+
     componentWillReceiveProps(nextProps) {
         this.setState({
             value: nextProps.initialValue,
@@ -79,8 +87,14 @@ class TextBox extends React.Component {
     }
 }
 
-export function renderTextBox(bBox, onChange, initialValue) {
-    ReactDOM.render(
-        <TextBox bBox={bBox} onChange={onChange} initialValue={initialValue} display={true}/>,
-        getCanvasOverlay());
+export default class Renderer {
+    constructor(overlay) {
+        this.overlay = overlay;
+    }
+
+    renderTextBox(options) {
+        ReactDOM.render(
+            <TextBox {...options}/>,
+            this.overlay);
+    }
 }

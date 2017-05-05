@@ -17,11 +17,11 @@
  */
 
 import React from 'react';
-
+import PropTypes from 'prop-types';
+import Renderer from './renderer';
 import {packageDefinition} from '../configs/designer-defaults';
 import './package-definition.css';
 import {getCanvasOverlay} from '../configs/app-context';
-import {renderTextBox} from './text-input';
 
 class PackageDefinition extends React.Component {
 
@@ -44,7 +44,13 @@ class PackageDefinition extends React.Component {
             y: bBox.y + 15
         };
 
-        renderTextBox(textBoxBBox, this.handlePackageNameInput, model.getPackageName());
+        const options = {
+            bBox: textBoxBBox,
+            onChange: this.handlePackageNameInput,
+            initialValue: model.getPackageName()
+        }
+
+        this.context.renderer.renderTextBox(options);
     }
 
     render() {
@@ -68,5 +74,9 @@ class PackageDefinition extends React.Component {
         );
     }
 }
+
+PackageDefinition.contextTypes = {
+    renderer: PropTypes.instanceOf(Renderer).isRequired,
+};
 
 export default PackageDefinition;
