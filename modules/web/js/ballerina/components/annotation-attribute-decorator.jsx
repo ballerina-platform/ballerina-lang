@@ -20,8 +20,10 @@ import React from 'react';
 import _ from 'lodash';
 import './annotation-attribute-decorator.css';
 import ImageUtil from './image-util';
-import {renderTextBox} from './text-input';
 import Alerts from 'alerts';
+import Renderer from './renderer';
+import PropTypes from 'prop-types';
+
 /**
  * Annotation Attribute Decorator
  * */
@@ -45,7 +47,13 @@ class AnnotationAttributeDecorator extends React.Component {
             h: 30
         };
 
-        renderTextBox(textBoxBBox, this.setAnnotationAttributeFromInputBox, "");
+        const options = {
+            bBox: textBoxBBox,
+            onChange: this.setAnnotationAttributeFromInputBox,
+            initialValue: ""
+        }
+
+        this.context.renderer.renderTextBox(options);
     }
 
     setAnnotationAttributeFromInputBox(input) {
@@ -149,5 +157,9 @@ class AnnotationAttributeDecorator extends React.Component {
         return isValid;
     }
 }
+
+AnnotationAttributeDecorator.contextTypes = {
+    renderer: PropTypes.instanceOf(Renderer).isRequired,
+};
 
 export default AnnotationAttributeDecorator;
