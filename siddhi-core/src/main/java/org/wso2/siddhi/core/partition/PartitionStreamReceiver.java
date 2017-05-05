@@ -36,6 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Specific {@link StreamJunction.Receiver} implementation to pump events into partitions. This will send the event
+ * to the matching partition.
+ */
 public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     private final StreamEventPool eventPool;
@@ -267,7 +271,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
                 if ((streamRuntime.getSingleStreamRuntimes().get(i)).getProcessStreamReceiver().getStreamId().equals
                         (streamId + key)) {
                     streamJunction.subscribe((streamRuntime.getSingleStreamRuntimes().get(i))
-                            .getProcessStreamReceiver());
+                                                     .getProcessStreamReceiver());
                 }
             }
         }
@@ -275,7 +279,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     private StreamJunction createStreamJunction() {
         return new StreamJunction(streamDefinition, executionPlanContext.getExecutorService(),
-                executionPlanContext.getBufferSize(), executionPlanContext);
+                                  executionPlanContext.getBufferSize(), executionPlanContext);
     }
 
 }

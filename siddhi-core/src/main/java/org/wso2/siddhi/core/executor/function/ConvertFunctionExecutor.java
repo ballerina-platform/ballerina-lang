@@ -30,20 +30,23 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
+/**
+ * Executor class for convert function. Function execution logic is implemented in execute here.
+ */
 @Extension(
         name = "convert",
         namespace = "",
         description = "Converts the first input parameter according to the convertedTo parameter.",
         parameters = {
                 @Parameter(name = "toBeConverted",
-                        description = "This specifies the value to be converted.",
-                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING,
-                                DataType.BOOL}),
+                           description = "This specifies the value to be converted.",
+                           type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING,
+                                   DataType.BOOL}),
                 @Parameter(name = "convertedTo",
-                        description = "A string constant parameter to which type the attribute need to be converted " +
-                                " using one of the following strings values: 'int', 'long', 'float', 'double', " +
-                                "'string', 'bool'.",
-                        type = DataType.STRING)
+                           description = "A string constant parameter to which type the attribute need to be converted " +
+                                   " using one of the following strings values: 'int', 'long', 'float', 'double', " +
+                                   "'string', 'bool'.",
+                           type = DataType.STRING)
         },
         returnAttributes = @ReturnAttribute(
                 description = "Based on the given convertedTo parameter.",
@@ -58,22 +61,23 @@ public class ConvertFunctionExecutor extends FunctionExecutor {
     public void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 2) {
             throw new ExecutionPlanValidationException("convert() must have at 2 parameters, attribute and to be " +
-                    "converted type");
+                                                               "converted type");
         }
         inputType = attributeExpressionExecutors[0].getReturnType();
         if (inputType == Attribute.Type.OBJECT) {
             throw new ExecutionPlanValidationException("1st parameter of convert() cannot be 'object' as " +
-                    "it's not supported, it has to be either of (STRING, INT, LONG, FLOAT, DOUBLE, BOOL), " +
-                    "but found " + attributeExpressionExecutors[0].getReturnType());
+                                                               "it's not supported, it has to be either of (STRING, INT, LONG, FLOAT, DOUBLE, BOOL), " +
+                                                               "but found " + attributeExpressionExecutors[0].getReturnType());
         }
         if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
             throw new ExecutionPlanValidationException("2nd parameter of convert() must be 'string' have constant " +
-                    "value either of (STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found " +
-                    attributeExpressionExecutors[0].getReturnType());
+                                                               "value either of (STRING, INT, LONG, FLOAT, DOUBLE, "
+                                                               + "BOOL), but found " +
+                                                               attributeExpressionExecutors[0].getReturnType());
         }
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
             throw new ExecutionPlanValidationException("2nd parameter of convert() must have constant value either " +
-                    "of (STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found a variable expression");
+                                                               "of (STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found a variable expression");
         }
         String type = (String) attributeExpressionExecutors[1].execute(null);
         if (Attribute.Type.STRING.toString().equalsIgnoreCase(type)) {
@@ -90,7 +94,7 @@ public class ConvertFunctionExecutor extends FunctionExecutor {
             returnType = Attribute.Type.LONG;
         } else {
             throw new ExecutionPlanValidationException("2nd parameter of convert() must have value either of " +
-                    "(STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found '" + type + "'");
+                                                               "(STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found '" + type + "'");
         }
     }
 

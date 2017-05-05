@@ -57,6 +57,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Runtime class to handle partitioning. It will hold all information regarding current partiotns and wil create
+ * partition dynamically during runtime.
+ */
 public class PartitionRuntime implements Snapshotable {
 
 
@@ -115,8 +119,8 @@ public class PartitionRuntime implements Snapshotable {
 
                 if (outputStreamJunction == null) {
                     outputStreamJunction = new StreamJunction(streamDefinition,
-                            executionPlanContext.getExecutorService(),
-                            executionPlanContext.getBufferSize(), executionPlanContext);
+                                                              executionPlanContext.getExecutorService(),
+                                                              executionPlanContext.getBufferSize(), executionPlanContext);
                     localStreamJunctionMap.putIfAbsent(id, outputStreamJunction);
                 }
                 insertIntoStreamCallback.init(localStreamJunctionMap.get(id));
@@ -127,8 +131,8 @@ public class PartitionRuntime implements Snapshotable {
 
                 if (outputStreamJunction == null) {
                     outputStreamJunction = new StreamJunction(streamDefinition,
-                            executionPlanContext.getExecutorService(),
-                            executionPlanContext.getBufferSize(), executionPlanContext);
+                                                              executionPlanContext.getExecutorService(),
+                                                              executionPlanContext.getBufferSize(), executionPlanContext);
                     streamJunctionMap.putIfAbsent(id, outputStreamJunction);
                 }
                 insertIntoStreamCallback.init(streamJunctionMap.get(id));
@@ -143,8 +147,8 @@ public class PartitionRuntime implements Snapshotable {
                                      MetaStateEvent metaEvent) {
         Query query = queryRuntime.getQuery();
         List<List<PartitionExecutor>> partitionExecutors = new StreamPartitioner(query.getInputStream(), partition,
-                metaEvent,
-                executors, executionPlanContext, null).getPartitionExecutorLists();
+                                                                                 metaEvent,
+                                                                                 executors, executionPlanContext, null).getPartitionExecutorLists();
         if (queryRuntime.getStreamRuntime() instanceof SingleStreamRuntime) {
             SingleInputStream singleInputStream = (SingleInputStream) query.getInputStream();
             addPartitionReceiver(singleInputStream.getStreamId(), singleInputStream.isInnerStream(), metaEvent
@@ -153,11 +157,11 @@ public class PartitionRuntime implements Snapshotable {
             SingleInputStream leftSingleInputStream = (SingleInputStream) ((JoinInputStream) query.getInputStream())
                     .getLeftInputStream();
             addPartitionReceiver(leftSingleInputStream.getStreamId(), leftSingleInputStream.isInnerStream(),
-                    metaEvent.getMetaStreamEvent(0), partitionExecutors.get(0));
+                                 metaEvent.getMetaStreamEvent(0), partitionExecutors.get(0));
             SingleInputStream rightSingleInputStream = (SingleInputStream) ((JoinInputStream) query.getInputStream())
                     .getRightInputStream();
             addPartitionReceiver(rightSingleInputStream.getStreamId(), rightSingleInputStream.isInnerStream(),
-                    metaEvent.getMetaStreamEvent(1), partitionExecutors.get(1));
+                                 metaEvent.getMetaStreamEvent(1), partitionExecutors.get(1));
         } else if (queryRuntime.getStreamRuntime() instanceof StateStreamRuntime) {
             StateElement stateElement = ((StateInputStream) query.getInputStream()).getStateElement();
             addPartitionReceiverForStateElement(stateElement, metaEvent, partitionExecutors, 0);
@@ -169,20 +173,20 @@ public class PartitionRuntime implements Snapshotable {
                                                             executorIndex) {
         if (stateElement instanceof EveryStateElement) {
             return addPartitionReceiverForStateElement(((EveryStateElement) stateElement).getStateElement(),
-                    metaEvent, partitionExecutors, executorIndex);
+                                                       metaEvent, partitionExecutors, executorIndex);
         } else if (stateElement instanceof NextStateElement) {
             executorIndex = addPartitionReceiverForStateElement(((NextStateElement) stateElement).getStateElement(),
-                    metaEvent, partitionExecutors, executorIndex);
+                                                                metaEvent, partitionExecutors, executorIndex);
             return addPartitionReceiverForStateElement(((NextStateElement) stateElement).getNextStateElement(),
-                    metaEvent, partitionExecutors, executorIndex);
+                                                       metaEvent, partitionExecutors, executorIndex);
         } else if (stateElement instanceof CountStateElement) {
             return addPartitionReceiverForStateElement(((CountStateElement) stateElement).getStreamStateElement(),
-                    metaEvent, partitionExecutors, executorIndex);
+                                                       metaEvent, partitionExecutors, executorIndex);
         } else if (stateElement instanceof LogicalStateElement) {
             executorIndex = addPartitionReceiverForStateElement(((LogicalStateElement) stateElement)
-                    .getStreamStateElement1(), metaEvent, partitionExecutors, executorIndex);
+                                                                        .getStreamStateElement1(), metaEvent, partitionExecutors, executorIndex);
             return addPartitionReceiverForStateElement(((LogicalStateElement) stateElement).getStreamStateElement2(),
-                    metaEvent, partitionExecutors, executorIndex);
+                                                       metaEvent, partitionExecutors, executorIndex);
         } else {  //if stateElement is an instanceof StreamStateElement
             SingleInputStream singleInputStream = ((StreamStateElement) stateElement).getBasicSingleInputStream();
             addPartitionReceiver(singleInputStream.getStreamId(), singleInputStream.isInnerStream(), metaEvent
@@ -196,8 +200,8 @@ public class PartitionRuntime implements Snapshotable {
         if (!partitionStreamReceivers.containsKey(streamId) && !isInnerStream && !metaStreamEvent.isTableEvent() &&
                 !metaStreamEvent.isWindowEvent()) {
             PartitionStreamReceiver partitionStreamReceiver = new PartitionStreamReceiver(executionPlanContext,
-                    metaStreamEvent,
-                    (StreamDefinition) streamDefinitionMap.get(streamId), partitionExecutors, this);
+                                                                                          metaStreamEvent,
+                                                                                          (StreamDefinition) streamDefinitionMap.get(streamId), partitionExecutors, this);
             partitionStreamReceivers.put(partitionStreamReceiver.getStreamId(), partitionStreamReceiver);
             streamJunctionMap.get(partitionStreamReceiver.getStreamId()).subscribe(partitionStreamReceiver);
         }
@@ -241,7 +245,7 @@ public class PartitionRuntime implements Snapshotable {
                         if (streamJunction == null) {
                             streamJunction = new StreamJunction(streamDefinition, executionPlanContext
                                     .getExecutorService(),
-                                    executionPlanContext.getBufferSize(), executionPlanContext);
+                                                                executionPlanContext.getBufferSize(), executionPlanContext);
                             localStreamJunctionMap.put(streamId + key, streamJunction);
                         }
                         streamJunction.subscribe(clonedQueryRuntime.getStreamRuntime().getSingleStreamRuntimes().get

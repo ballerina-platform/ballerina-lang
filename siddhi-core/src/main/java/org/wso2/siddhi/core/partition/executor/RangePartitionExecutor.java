@@ -21,6 +21,10 @@ package org.wso2.siddhi.core.partition.executor;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 
+/**
+ * Range partition executor will compute whether a given {@link ComplexEvent} belongs to a pre-defined range and
+ * returns respective range key.
+ */
 public class RangePartitionExecutor implements PartitionExecutor {
 
     private ConditionExpressionExecutor conditionExecutor;

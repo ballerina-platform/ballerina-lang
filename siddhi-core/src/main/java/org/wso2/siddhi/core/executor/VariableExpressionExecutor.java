@@ -25,6 +25,10 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_EVENT_CHAIN_INDEX
 import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_EVENT_INDEX_IN_CHAIN;
 import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
+/**
+ * Executor class for Siddhi event attributes. This executor is used to extract attribute value from
+ * {@link ComplexEvent}.
+ */
 public class VariableExpressionExecutor implements ExpressionExecutor {
     private Attribute attribute;
     private int[] position = new int[]{UNKNOWN_STATE, UNKNOWN_STATE, UNKNOWN_STATE, UNKNOWN_STATE};

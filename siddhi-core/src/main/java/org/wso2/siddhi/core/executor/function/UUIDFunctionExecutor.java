@@ -29,6 +29,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Executor class for UUID function. Function execution logic is implemented in execute here.
+ */
 @Extension(
         name = "UUID",
         namespace = "",

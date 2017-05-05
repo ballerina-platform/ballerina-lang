@@ -27,6 +27,10 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 
+/**
+ * Parent abstract class for Function Executors. Function executor will have one or more input parameters and single
+ * return value.
+ */
 public abstract class FunctionExecutor implements ExpressionExecutor, EternalReferencedHolder, Snapshotable {
 
     private static final Logger log = Logger.getLogger(FunctionExecutor.class);
@@ -81,7 +85,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                  ExecutionPlanContext
-            executionPlanContext);
+                                         executionPlanContext);
 
 
     /**

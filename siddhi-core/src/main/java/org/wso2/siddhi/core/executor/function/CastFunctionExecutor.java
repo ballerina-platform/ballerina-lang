@@ -31,6 +31,10 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
+/**
+ * Executor class for Siddhi cast function. Converts the given parameter according to the castTo parameter.
+ * Incompatible arguments cause {@link ClassCastException} if further processed.
+ */
 @Extension(
         name = "cast",
         namespace = "",
@@ -40,13 +44,13 @@ import java.util.Map;
                 "concrete type.",
         parameters = {
                 @Parameter(name = "toBeCaster",
-                        description = "This specifies the attribute to be casted.",
-                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                                DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+                           description = "This specifies the attribute to be casted.",
+                           type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                                   DataType.STRING, DataType.BOOL, DataType.OBJECT}),
                 @Parameter(name = "castTo",
-                        description = "A string constant parameter expressing the cast to type using one of the " +
-                                "following strings values: int, long, float, double, string, bool.",
-                        type = {DataType.STRING})
+                           description = "A string constant parameter expressing the cast to type using one of the " +
+                                   "following strings values: int, long, float, double, string, bool.",
+                           type = {DataType.STRING})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returned type will be defined by the castTo string constant value.",
@@ -60,11 +64,11 @@ public class CastFunctionExecutor extends FunctionExecutor {
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 2) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to common:cast() function, " +
-                    "required 2 parameters, but found " + attributeExpressionExecutors.length);
+                                                               "required 2 parameters, but found " + attributeExpressionExecutors.length);
         }
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
             throw new ExecutionPlanValidationException("The second argument has to be a string constant specifying " +
-                    "one of the supported data types (int, long, float, double, string, bool)");
+                                                               "one of the supported data types (int, long, float, double, string, bool)");
         } else {
             String type = attributeExpressionExecutors[1].execute(null).toString();
             if (type.toLowerCase().equals("int")) {
@@ -81,7 +85,7 @@ public class CastFunctionExecutor extends FunctionExecutor {
                 returnType = Attribute.Type.STRING;
             } else {
                 throw new ExecutionPlanValidationException("Type must be one of int, long, float, double, bool, " +
-                        "string");
+                                                                   "string");
             }
         }
     }

@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.partition.executor;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
+/**
+ * Value partition executor computes the partition key based on value of given {@link ComplexEvent} attribute/s.
+ */
 public class ValuePartitionExecutor implements PartitionExecutor {
 
     private ExpressionExecutor expressionExecutor;

@@ -31,6 +31,9 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
+/**
+ * Executor class for Minimum function. Function execution logic is implemented in execute here.
+ */
 @Extension(
         name = "minimum",
         namespace = "",

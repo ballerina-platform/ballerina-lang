@@ -27,6 +27,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.Map;
 
+/**
+ * Executor class for Script function. Function execution logic is implemented in execute here.
+ */
 public class ScriptFunctionExecutor extends FunctionExecutor {
 
     static final Logger log = Logger.getLogger(ScriptFunctionExecutor.class);
