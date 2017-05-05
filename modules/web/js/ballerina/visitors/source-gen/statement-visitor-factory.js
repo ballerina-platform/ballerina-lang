@@ -48,9 +48,9 @@ class StatementVisitorFactor {
         if (statement instanceof AST.TryCatchStatement) {
             return new TryCatchStatementVisitor(parent);
         } else if (statement instanceof AST.TryStatement) {
-            return new TryStatementVisitor(parent.getParent());
+            return new TryStatementVisitor(parent);
         } else if (statement instanceof AST.CatchStatement) {
-            return new CatchStatementVisitor(parent.getParent());
+            return new CatchStatementVisitor(parent);
         } else if (statement instanceof AST.IfElseStatement) {
             return new IfElseStatementVisitor(parent);
         } else if (statement instanceof AST.IfStatement) {
