@@ -31,13 +31,18 @@ class IfStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitIfStatement(ifStatement) {
+        this.node = ifStatement;
         this.appendSource(this.getIndentation() + 'if (' + ifStatement.getCondition() + ') {\n');
         this.indent();
         log.debug('Begin Visit If Statement Definition');
     }
 
-    visitIfStatement(ifStatement) {
-        log.debug('Visit If Statement Definition');
+    visitStatement(statement) {
+        if(!_.isEqual(this.node, statement)) {
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        }
     }
 
     endVisitIfStatement(ifStatement) {

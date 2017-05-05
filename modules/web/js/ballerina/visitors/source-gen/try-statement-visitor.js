@@ -31,6 +31,7 @@ class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitTryStatement(tryStatement) {
+        this.node = tryStatement;
         /**
          * set the configuration start for the try statement
          * If we need to add additional parameters which are dynamically added to the configuration start
@@ -41,8 +42,12 @@ class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
         log.debug('Begin Visit Try Statement');
     }
 
-    visitTryStatement(tryStatement) {
-        log.debug('Visit Try Statement');
+    visitStatement(statement) {
+        if(!_.isEqual(this.node, statement)) {
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        }
     }
 
     endVisitTryStatement(tryStatement) {
