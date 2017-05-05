@@ -29,7 +29,7 @@ class BreakStatement extends React.Component {
     render() {
         let model = this.props.model,
             expression = model.expression;
-        return (<StatementDecorator viewState={model.viewState} expression={expression}/>);
+        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression}/>);
     }
 }
 

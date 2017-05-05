@@ -28,8 +28,8 @@ class ReturnStatement extends React.Component {
      * */
     render() {
         let model = this.props.model,
-            expression = model.expression;
-        return (<StatementDecorator viewState={model.viewState} expression={expression}/>);
+            expression = model.viewState.expression;
+        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression}/>);
     }
 }
 

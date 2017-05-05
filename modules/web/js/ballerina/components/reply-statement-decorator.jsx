@@ -25,7 +25,7 @@ class ReplyStatement extends React.Component {
         let model = this.props.model,
             expression = model.expression,
             bBox = model.viewState.bBox;
-        return (<StatementDecorator bBox={bBox} expression={expression} />);
+        return (<StatementDecorator model={model} bBox={bBox} expression={expression} />);
     }
 }
 
