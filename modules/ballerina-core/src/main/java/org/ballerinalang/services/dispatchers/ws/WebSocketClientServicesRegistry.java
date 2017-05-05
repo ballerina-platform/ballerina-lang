@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.services.dispatchers.websocket;
+package org.ballerinalang.services.dispatchers.ws;
 
 import org.ballerinalang.model.Service;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;

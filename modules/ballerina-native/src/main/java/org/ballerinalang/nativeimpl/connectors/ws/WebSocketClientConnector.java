@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaConnector;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.services.dispatchers.websocket.WebSocketClientServicesRegistry;
+import org.ballerinalang.services.dispatchers.ws.WebSocketClientServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.ClientConnector;
@@ -35,6 +35,7 @@ import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.util.UUID;
+import javax.websocket.Session;
 
 /**
  * Client connector for WebSocket Client.
@@ -43,7 +44,7 @@ import java.util.UUID;
         packageName = WebSocketClientConnector.CONNECTOR_PACKAGE,
         connectorName = WebSocketClientConnector.CONNECTOR_NAME,
         args = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING),
+                @Argument(name = "remoteServerUrl", type = TypeEnum.STRING),
                 @Argument(name = "serviceName", type = TypeEnum.STRING)
         })
 @Component(
@@ -52,7 +53,7 @@ import java.util.UUID;
         service = AbstractNativeConnector.class)
 @BallerinaAnnotation(annotationName = "Description", attributes = {
         @Attribute(name = "value", value = "Native HTTP Client Connector")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "serviceUri",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "remoteServerUrl",
                                                                         value = "Url of the service") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "serviceName",
                                                                         value = "Name of the referred service") })
@@ -61,26 +62,19 @@ public class WebSocketClientConnector extends AbstractNativeConnector {
     public static final String CONNECTOR_PACKAGE = "ballerina.net.ws";
     public static final String CONNECTOR_NAME = "ClientConnector";
 
-    private final String connectorID;
-    private String serviceUri;
+    private String remoteServerUrl;
     private String serviceName;
 
     public WebSocketClientConnector(SymbolScope enclosingScope) {
         super(enclosingScope);
-        // Generate a random unique ID since it is needed for WebSocket Client Connector.
-        this.connectorID = UUID.randomUUID().toString();
+
     }
 
     @Override
     public boolean init(BValue[] bValueRefs) {
         if (bValueRefs != null && bValueRefs.length == 2) {
-            serviceUri = bValueRefs[0].stringValue();
+            remoteServerUrl = bValueRefs[0].stringValue();
             serviceName = bValueRefs[1].stringValue();
-        }
-        try {
-            initiateConnection(serviceUri, connectorID);
-        } catch (ClientConnectorException e) {
-            throw new BallerinaException("Could not create a WebSocket Client connector for url: " + serviceUri);
         }
         return true;
     }
@@ -91,11 +85,24 @@ public class WebSocketClientConnector extends AbstractNativeConnector {
     }
 
     /**
-     * Retrieve the ID of the client.
+     * Retrieve the ID of the client if it has or else create a new connection and return the ID.
      *
      * @return the client unique id of this connector.
      */
-    public String getConnectorID() {
+    public String getConnectorID(Session session) {
+        ConnectorManager connectorManager = ConnectorManager.getInstance();
+        String connectorID = connectorManager.getConnectorID(session.getId());
+        if (connectorID == null) {
+            // Generate a random unique ID since it is needed for WebSocket Client Connector.
+            connectorID = UUID.randomUUID().toString();
+            try {
+                initiateConnection(remoteServerUrl, connectorID);
+                connectorManager.storeConnector(session, connectorID);
+            } catch (ClientConnectorException e) {
+                throw new BallerinaException("Could not create a WebSocket Client connector for url: " +
+                                                     remoteServerUrl);
+            }
+        }
         return connectorID;
     }
 
