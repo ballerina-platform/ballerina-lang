@@ -34,10 +34,12 @@ public class Constants {
     // Ballerina version system property name
     public static final String BALLERINA_VERSION = "ballerina.version";
 
+    // Ballerina home system property name
+    public static final String BALLERINA_HOME = "ballerina.home";
+
     // logger names.
     public static final String BAL_LINKED_INTERPRETER_LOGGER = "BLinkedInterpreter";
 
     // Name of the system property to hold the debug port
     public static final String SYSTEM_PROP_BAL_DEBUG = "ballerina.debug";
-
 }
