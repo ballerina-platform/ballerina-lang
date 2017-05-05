@@ -141,8 +141,9 @@ class ExpressionEditor{
                 // get the value and append ';' to get the end result of the key action
                 let curser = this._editor.selection.getCursor().column;
                 let text = this._editor.getSession().getValue();
-                text = [text.slice(0, curser), ";" , text.slice(curser)].join('');
-                if(this.end_check.exec(text)){
+                let textWithSemicolon = [text.slice(0, curser), ";" , text.slice(curser)].join('');
+                if(this.end_check.exec(textWithSemicolon)){
+                    props.setterMethod.call(props.model, text);
                     //close the expression editor
                     if(_.isFunction(callback)){
                         callback(text);

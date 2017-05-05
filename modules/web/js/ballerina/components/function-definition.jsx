@@ -43,7 +43,12 @@ class FunctionDefinition extends React.Component {
         function_worker_bBox.w = lifeLine.width;
         function_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
-        var children = getComponentForNodeArray(this.props.model.getChildren());
+        // filter children nodes and create components
+        var children = getComponentForNodeArray(this.props.model.getChildren().filter(function(element){
+            if (element.constructor.name == "ResourceParameter" ||
+                element.constructor.name == "ReturnType")
+                return false;
+        }));
 
         // change icon for main function
         let icons = "tool-icons/function";
