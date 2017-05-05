@@ -87,6 +87,7 @@ public class Constants {
     public static final String PROTOCOL_WEBSOCKET = "ws";
     public static final String PROTOCOL_PACKAGE_WEBSOCKET = "ballerina.net.ws";
     public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "WebSocketUpgradePath";
+    public static final String ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE = "ClientService";
     public static final String ANNOTATION_NAME_ON_OPEN = "OnOpen";
     public static final String ANNOTATION_NAME_ON_TEXT_MESSAGE = "OnTextMessage";
     public static final String ANNOTATION_NAME_ON_BINARY_MESSAGE = "OnBinaryMessage";

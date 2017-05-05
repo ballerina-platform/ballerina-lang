@@ -54,7 +54,7 @@ public class Close extends AbstractWebSocketAction {
         controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_REASON, "Normal closure");
         controlCarbonMessage.setProperty(
                 org.ballerinalang.services.dispatchers.http.Constants.WEBSOCKET_CLIENT_ID,
-                getClientID(bconnector));
+                getClientID(context, bconnector));
         pushMessage(controlCarbonMessage);
         return null;
     }

@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.services.dispatchers.websocket;
+package org.ballerinalang.services.dispatchers.ws;
 
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.services.dispatchers.http.HTTPServiceDispatcher;
@@ -104,6 +104,17 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
             }
         }
         return null;
+    }
+
+    private boolean isWebSocketClientService(Service service) {
+        AnnotationAttachment[] annotations = service.getAnnotations();
+        for (AnnotationAttachment annotation: annotations) {
+            if (annotation.getPkgName().equals(Constants.PROTOCOL_WEBSOCKET) &&
+                    annotation.getName().equals(Constants.ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String refactorUri(String uri) {

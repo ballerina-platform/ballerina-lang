@@ -123,6 +123,7 @@ public class MessageUtils {
                                                               String path) {
         carbonMessage.setProperty(Constants.PROTOCOL, Constants.PROTOCOL_WEBSOCKET);
         carbonMessage.setProperty(Constants.TO, path);
+        carbonMessage.setProperty(Constants.IS_WEBSOCKET_SERVER, true);
         carbonMessage.setProperty(Constants.WEBSOCKET_SESSION, session);
         return carbonMessage;
     }

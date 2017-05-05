@@ -18,6 +18,7 @@
 
 package org.ballerinalang.nativeimpl.connectors.ws;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
@@ -26,14 +27,17 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
+import javax.websocket.Session;
+
 /**
  * Abstract class for WebSocket native actions.
  */
 public abstract class AbstractWebSocketAction extends AbstractNativeAction {
 
-    protected String getClientID(BConnector bconnector) {
+    protected String getClientID(Context context, BConnector bconnector) {
         WebSocketClientConnector connector = (WebSocketClientConnector) bconnector.value();
-        return connector.getConnectorID();
+        Session session = (Session) context.getCarbonMessage().getProperty(Constants.WEBSOCKET_SESSION);
+        return connector.getConnectorID(session);
     }
 
     protected void pushMessage(CarbonMessage carbonMessage) {

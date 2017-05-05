@@ -54,7 +54,7 @@ public class PushText extends AbstractWebSocketAction {
         BConnector bconnector = (BConnector) getArgument(context, 0);
         String text = getArgument(context, 1).stringValue();
         TextCarbonMessage textCarbonMessage = new TextCarbonMessage(text);
-        textCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, getClientID(bconnector));
+        textCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, getClientID(context, bconnector));
         pushMessage(textCarbonMessage);
         return null;
     }

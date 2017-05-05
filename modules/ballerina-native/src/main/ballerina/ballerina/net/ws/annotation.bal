@@ -12,3 +12,6 @@ annotation OnTextMessage attach resource {
 
 annotation OnClose attach resource {
 }
+
+annotation ClientService attach service {
+}
