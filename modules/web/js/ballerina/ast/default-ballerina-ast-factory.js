@@ -33,7 +33,7 @@ DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
 
     // Creating the ServiceInfo annotation.
     let serviceInfoAnnotation = BallerinaASTFactory.createAnnotation({
-        fullPackageName: 'ballerina.net.swagger',
+        fullPackageName: 'ballerina.net.http.swagger',
         packageName: 'swagger',
         identifier: 'ServiceInfo'
     });
@@ -45,7 +45,7 @@ DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
 
     // Creating the Swagger annotation
     let swaggerAnnotation = BallerinaASTFactory.createAnnotation({
-        fullPackageName: 'ballerina.net.swagger',
+        fullPackageName: 'ballerina.net.http.swagger',
         packageName: 'swagger',
         identifier: 'Swagger'
     });
@@ -100,7 +100,7 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
     resourceDef.addChild(resourceArg);
 
     let responsesAnnotation = BallerinaASTFactory.createAnnotation({
-        fullPackageName: 'ballerina.net.swagger',
+        fullPackageName: 'ballerina.net.http.swagger',
         packageName: 'swagger',
         identifier: 'Responses'
     });
@@ -112,7 +112,7 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
 
     // Creating default response
     let responseAnnotation = BallerinaASTFactory.createAnnotation({
-        fullPackageName: 'ballerina.net.swagger',
+        fullPackageName: 'ballerina.net.http.swagger',
         packageName: 'swagger',
         identifier: 'Response'
     });
