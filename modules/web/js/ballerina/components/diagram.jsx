@@ -83,7 +83,8 @@ class Diagram extends React.Component {
             dragDropManager: this.props.dragDropManager ,
             messageManager: this.props.messageManager,
             container : this.props.container,
-            renderer: this.props.renderer
+            renderer: this.props.renderer,
+            renderingContext: this.props.renderingContext
         };
     }
 }
@@ -105,7 +106,8 @@ Diagram.childContextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
     container: PropTypes.instanceOf(Object).isRequired,
-    renderer: PropTypes.instanceOf(Renderer).isRequired
+    renderer: PropTypes.instanceOf(Renderer).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired
 };
 
 export default Diagram;
