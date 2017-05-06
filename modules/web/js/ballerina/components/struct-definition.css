@@ -15,8 +15,17 @@ struct-variable-definition-value-text*/
     font-weight: 400;
 }
 
+.struct-definition-statement:hover .struct-statement-delete{
+    font-weight: 400;
+    visibility: visible;
+}
+
 .struct-statement-delete {
-    font-size: 25px;
+    visibility: hidden;
+}
+
+.struct-statement-delete {
+    font-size: 22px;
     cursor: pointer;
 }
 
