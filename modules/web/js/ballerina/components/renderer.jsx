@@ -18,7 +18,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {getCanvasOverlay} from '../configs/app-context';
-import './text-input.css'
+import './text-input.css';
+import CreateStruct from './create-struct';
 
 class TextBox extends React.Component {
     constructor(props) {
@@ -95,6 +96,11 @@ export default class Renderer {
     renderTextBox(options) {
         ReactDOM.render(
             <TextBox {...options}/>,
+            this.overlay);
+    }
+    renderStructOperations(options) {
+        ReactDOM.render(
+            <CreateStruct {...options}/>,
             this.overlay);
     }
 }

@@ -24,7 +24,7 @@ import {getComponentForNodeArray} from './utils';
 import {lifeLine} from './../configs/designer-defaults';
 import './struct-definition.css';
 import PropTypes from 'prop-types';
-// import {renderTextBox} from './text-input';
+import Renderer from './renderer';
 
 class StructDefinition extends React.Component {
 
@@ -38,24 +38,36 @@ class StructDefinition extends React.Component {
 
     handleStatementClick(node, bBox) {
         console.log(bBox);
-        // renderTextBox(bBox, () => { console.log('adadadad')}, "");
+    }
+
+    renderStructOperations() {
+        const { model } = this.props;
+        const { components: {contentOperations} } = model.getViewState();
+        const { renderingContext } = this.context;
+
+        this.context.renderer.renderStructOperations({
+          bBox: contentOperations,
+          renderingContext: this.context.renderingContext,
+          types: renderingContext.environment.getTypes()
+        });
+    }
+
+    componentDidUpdate() {
+        this.renderStructOperations();
+    }
+
+    componentDidMount() {
+        this.renderStructOperations();
     }
 
     render() {
+
         const { model } = this.props;
 				const { bBox, components: {statements, contentOperations} } = model.getViewState();
         const children = model.getChildren();
         const title = model.getStructName();
 				return (
 					<PanelDecorator icon="tool-icons/struct" title={title} bBox={bBox} model={model}>
-              <g>
-                  <rect
-                      x={contentOperations.x}
-                      y={contentOperations.y}
-                      width={contentOperations.w}
-                      height={contentOperations.h}
-                   />
-              </g>
               <g>
                 {
                     children.map( (child, i) => {
@@ -132,5 +144,10 @@ class StructDefinition extends React.Component {
 				);
     }
 }
+
+StructDefinition.contextTypes = {
+    renderer: PropTypes.instanceOf(Renderer).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired
+};
 
 export default StructDefinition;

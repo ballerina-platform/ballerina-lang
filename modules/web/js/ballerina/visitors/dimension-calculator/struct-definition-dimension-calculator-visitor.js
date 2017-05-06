@@ -79,7 +79,7 @@ class StructDefinitionDimensionCalculatorVisitor {
         components.body = new SimpleBBox();
         components.statements = this._calculateChildrenDimensions(node.getChildren(), components);
         components.contentOperations = new SimpleBBox();
-        components.contentOperations.w = DesignerDefaults.contentOperations.width;
+        components.contentOperations.w = DesignerDefaults.contentOperations.width + 1;
         components.contentOperations.h = DesignerDefaults.contentOperations.height;
 
         if(node.viewState.collapsed) {
