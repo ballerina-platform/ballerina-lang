@@ -23,13 +23,27 @@ import PropTypes from "prop-types"
  * Variable Definition Statement Decorator.
  * */
 class VariableDefinitionStatement extends React.Component {
+
+
+	constructor(props){
+		super(props);
+		this.editorOptions = {
+            propertyType: 'text',
+            key: 'VariableDefinition',
+            model: this.props.model,
+            getterMethod: this.props.model.getStatementString,
+            setterMethod: this.props.model.setStatementString
+        };
+	}
+
     /**
      * Render Function for the variable statement.
      * */
     render() {
         let model = this.props.model,
             expression = model.viewState.expression;
-        return (<StatementDecorator viewState={model.viewState} expression={expression}/>);
+        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression}
+                    editorOptions={this.editorOptions} />);
     }
 }
 

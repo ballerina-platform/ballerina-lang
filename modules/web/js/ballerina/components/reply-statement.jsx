@@ -21,10 +21,21 @@ import PropTypes from 'prop-types';
 
 class ReplyStatement extends React.Component {
 
+	constructor(props){
+		super(props);
+		this.editorOptions = {
+            propertyType: "text",
+            key: "Response Message",
+            model: this.props.model,
+            getterMethod: this.props.model.getReplyMessage,
+            setterMethod: this.props.model.setReplyMessage
+        };
+	}    
+
     render() {
         let model = this.props.model,
             expression = model.viewState.expression;
-        return (<StatementDecorator viewState={model.viewState} expression={expression} />);
+        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} editorOptions={this.editorOptions} />);
     }
 }
 

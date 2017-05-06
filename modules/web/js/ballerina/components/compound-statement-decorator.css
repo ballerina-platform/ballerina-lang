@@ -1,0 +1,12 @@
+.compound-statement .drop-zone.active {
+    fill-opacity: 0.2;
+}
+
+.compound-statement .drop-zone.active.block {
+    fill: red;
+}
+
+.compound-statement .drop-zone {
+    fill: green;
+    fill-opacity: 0;
+}

@@ -84,11 +84,21 @@ public class BLangJSONModelConstants {
     public static final String SERVICE_NAME = "service_name";
 
     public static final String RESOURCE_DEFINITION = "resource_definition";
-
+    
     public static final String ANNOTATION_ATTACHMENT = "annotation_attachment";
-
+    
     public static final String ANNOTATION_ATTACHMENTS = "annotation_attachments";
-
+    
+    public static final String ANNOTATION = "annotation";
+    
+    public static final String ANNOTATION_ENTRY = "annotation_entry";
+    
+    public static final String ANNOTATION_ENTRY_ARRAY = "annotation_entry_array";
+    
+    public static final String ANNOTATION_ENTRY_KEY = "annotation_entry_key";
+    
+    public static final String ANNOTATION_ENTRY_VALUE = "annotation_entry_value";
+    
     public static final String ANNOTATION_PACKAGE_NAME = "annotation_package_name";
 
     public static final String ANNOTATION_PACKAGE_PATH = "annotation_package_path";

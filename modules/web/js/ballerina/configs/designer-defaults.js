@@ -87,6 +87,14 @@ export const lifeLine = {
     }
 };
 
+export const actionBox = {
+    width: 66,
+    height: 21,
+    padding: {
+        top: 2
+    }
+}
+
 export const statement = {
     width: 120,
     height: 30,

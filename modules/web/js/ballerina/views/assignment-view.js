@@ -105,8 +105,8 @@ class AssignmentStatementView extends SimpleStatementView {
         var response = ballerinaFileEditor.getModelFromSource(generatedSource);
         var pathVector = [];
         if (this.getModel().getFactory().isBallerinaAstRoot(response)) {
-            ballerinaFileEditor.getPathToNode(this.getModel(), pathVector);
-            var parsedNode = ballerinaFileEditor.getNodeByVector(response, pathVector);
+            this.getModel().getPathToNode(this.getModel(), pathVector);
+            var parsedNode = this.getModel().getNodeByVector(response, pathVector);
             if (!this.getModel().getFactory().isAssignmentStatement(parsedNode)) {
                 this.getSvgRect().classed('statement-rect', false).classed('statement-rect-error', true);
                 alerts.error('Node type expected to be Assignment Statement');
