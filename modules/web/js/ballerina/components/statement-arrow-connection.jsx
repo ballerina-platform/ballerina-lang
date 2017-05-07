@@ -49,7 +49,7 @@ class StatementArrowConnection extends React.Component {
 			arrowEnd.y = arrowStart.y;
 		}
 
-		return (<ArrowDecorator start={arrowStart} end={arrowEnd} />);
+		return (<ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>);
 	}
 }
 
