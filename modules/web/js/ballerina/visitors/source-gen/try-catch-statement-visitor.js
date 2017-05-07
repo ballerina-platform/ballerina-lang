@@ -43,7 +43,7 @@ class TryCatchStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitTryCatchStatement(statement) {
-        this.getParent().appendSource(this.getGeneratedSource() + '\n');
+        this.getParent().appendSource('\n' + this.getGeneratedSource() + '\n');
     }
 }
 

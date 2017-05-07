@@ -29,7 +29,7 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitAnnotationDefinition(annotationDefinition) {
-        var constructedSourceSegment = 'annotation ' + annotationDefinition.getAnnotationName() ;
+        var constructedSourceSegment = '\nannotation ' + annotationDefinition.getAnnotationName() ;
         if (annotationDefinition.getAttachmentPoints().length > 0){
             constructedSourceSegment += ' attach '+ _.join(annotationDefinition.getAttachmentPoints(), ', ');
         }
