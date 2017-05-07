@@ -53,10 +53,10 @@ class Diagram extends React.Component {
         viewState.container = {
             width : this.container.width(),
             height : this.container.height()
-        };        
+        };
         this.model.on('tree-modified', () => {
             this.forceUpdate();
-        });        
+        });
     }
 
     getModel() {
