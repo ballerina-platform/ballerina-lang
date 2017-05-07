@@ -20,6 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
+import MessageManager from './../visitors/message-manager';
 import './canvas-decorator.css';
 import {setCanvasOverlay, getCanvasOverlay} from '../configs/app-context';
 import ArrowDecorator from './arrow-decorator';
@@ -57,7 +58,7 @@ class CanvasDecorator extends React.Component {
                         onMouseOver={(e) => this.onDropZoneActivate(e)}
                         onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
                     {this.props.children}
-                    <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>
+                    <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true} moveWithMessageManager={true}/>
                 </svg>
             </div>
         );
@@ -104,6 +105,7 @@ CanvasDecorator.propTypes = {
 
 CanvasDecorator.contextTypes = {
 	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+	 messageManager: PropTypes.instanceOf(MessageManager).isRequired
 };
 
 export default CanvasDecorator;

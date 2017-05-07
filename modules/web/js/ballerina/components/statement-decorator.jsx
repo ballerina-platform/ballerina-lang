@@ -29,7 +29,7 @@ import MessageManager from './../visitors/message-manager';
 import ASTFactory from './../ast/ballerina-ast-factory';
 import './statement-decorator.css';
 import ArrowDecorator from './arrow-decorator';
-import BackwardArrowDecorator from './bacward-arrow-decorator';
+import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
 
 const text_offset = 50;
