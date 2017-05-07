@@ -244,12 +244,6 @@ class BallerinaFileEditor extends BallerinaView {
 
         var importDeclarations = [];
         if(!this._parseFailed) {
-            //pass the container width and height to root view state.
-            let viewState = this._model.getViewState();
-            viewState.container = {
-                width : this._$canvasContainer.width(),
-                height : this._$canvasContainer.height()
-            };
             // attach a wrapper to the react diagram so we can attach expression editor to the container.
             let diagramRoot = $('<div class="diagram root" ></div>');
             let overlay = $('<div class="html-overlay" ></div>');
@@ -258,7 +252,7 @@ class BallerinaFileEditor extends BallerinaView {
             this._$canvasContainer.append(overlay);
             //create Rect component for diagram
             let root = React.createElement(BallerinaDiagram, {
-                model: this._model,
+                editor: this,
                 dragDropManager: this.toolPalette.dragDropManager,
                 messageManager: this.messageManager,
                 container: this._$canvasContainer,
@@ -504,11 +498,12 @@ class BallerinaFileEditor extends BallerinaView {
             swaggerViewBtn.show();
             designViewBtn.hide();
             self.setActiveView('design');
+            self.trigger("update-diagram");
             if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
                 self._environment.resetCurrentPackage();
                 self.rerenderCurrentPackageTool();
             }
-            $('.outer-box').mCustomScrollbar('scrollTo', 'left');
+            // $('.outer-box').mCustomScrollbar('scrollTo', 'left');
         });
 
         if(this._parseFailed) {

@@ -32,16 +32,31 @@ class Diagram extends React.Component {
 
     constructor(props) {
         super(props);
-        this.model = props.model;
-        this.model.on('tree-modified', () => {
-            this.forceUpdate();
-        });
+        this.editor = props.editor;
+        this.container = props.container;
+
+        this.setModel(this.editor.getModel());
+
         this.dimentionCalc = new DimensionCalcVisitor();
         this.positionCalc = new PositionCalcVisitor();
+
+        this.editor.on("update-diagram",()=>{
+            this.setModel(this.editor.getModel());
+            this.forceUpdate();
+        });
     }
 
     setModel(model) {
         this.model = model;
+        //pass the container width and height to root view state.
+        let viewState = this.model.getViewState();
+        viewState.container = {
+            width : this.container.width(),
+            height : this.container.height()
+        };        
+        this.model.on('tree-modified', () => {
+            this.forceUpdate();
+        });        
     }
 
     getModel() {
@@ -59,7 +74,7 @@ class Diagram extends React.Component {
         // 3. Now we need to create component for each child of root node.
         let [pkgDef, imports, constants, others] = [undefined, [], [], []];
         let otherNodes = [];
-        this.props.model.children.forEach((child) => {
+        this.model.children.forEach((child) => {
             switch (child.constructor.name) {
                 case 'ImportDeclaration':
                     break;
@@ -96,7 +111,7 @@ Diagram.propTypes = {
 		w: PropTypes.number.isRequired,
 		h: PropTypes.number.isRequired,
 	}),
-  model: PropTypes.instanceOf(ASTRoot).isRequired,
+  editor: PropTypes.instanceOf(Object).isRequired,
   dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
   renderer: PropTypes.instanceOf(Renderer).isRequired
