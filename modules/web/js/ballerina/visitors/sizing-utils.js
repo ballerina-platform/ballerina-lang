@@ -147,6 +147,10 @@ class SizingUtil {
          */
         statementHeight += DesignerDefaults.statement.gutter.v;
 
+        if (statementHeight < DesignerDefaults.statementContainer.height) {
+            statementHeight = DesignerDefaults.statementContainer.height;
+        }
+
         components['statementContainer'].h = statementHeight;
         components['statementContainer'].w = statementWidth;
 
