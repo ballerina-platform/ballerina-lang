@@ -18,12 +18,15 @@
 package org.wso2.siddhi.extension.output.mapper.json;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.output.sink.Sinkmapper;
-import org.wso2.siddhi.core.stream.output.sink.SinkCallback;
+import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransportListener;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -32,17 +35,31 @@ import java.util.Map;
 
 @Extension(
         name = "json",
-        namespace = "sinkMapper",
+        namespace = "outputmapper",
         description = "Event to JSON output mapper."
 )
-public class JSONSinkmapper extends Sinkmapper {
-    private static final String GROUP_EVENTS_OPTION = "groupEvents";
-    private static final String EVENTS_PARENT_TAG = "events";
+public class JSONOutputMapper extends OutputMapper {
+    private static final Logger log = Logger.getLogger(JSONOutputMapper.class);
+    private StreamDefinition streamDefinition;
     private static final String EVENT_PARENT_TAG = "event";
-    private static final String EVENT_ARBITRARY_DATA_MAP_TAG = "arbitraryDataMap";
+    private static final String ENCLOSING_ELEMENT_IDENTIFIER = "enclosing.element";
+    private static final String JSON_VALIDATION_IDENTIFIER = "validate.json";
+    private static final String JSON_START_SYMBOL = "{";
+    private static final String JSON_END_SYMBOL = "}";
+    private static final String UNDEFINED = "undefined";
+
+
     //Todo  use group events to group multiple events.
     boolean groupEvents = false;
-    private StreamDefinition streamDefinition;
+    private boolean isCustomMappingEnabled = false;
+    private String enclosingElement = null;
+    private boolean validationEnabled = false;
+
+
+    @Override
+    public String[] getSupportedDynamicOptions() {
+        return new String[0];
+    }
 
     /**
      * Initialize the mapper and the mapping configurations.
@@ -52,41 +69,50 @@ public class JSONSinkmapper extends Sinkmapper {
      * @param payloadTemplateBuilder Unmapped payload for reference
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder
-            payloadTemplateBuilder) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
         this.streamDefinition = streamDefinition;
-        ///TODO 2/3/2017 Fix this to support grouping events
-//        String groupEventsString = optionHolder.getStaticOption(GROUP_EVENTS_OPTION);
-//        if (groupEventsString != null) {
-//            groupEvents = Boolean.parseBoolean(groupEventsString);
-//        }
-    }
-
-    /**
-     * Map and publish the given {@link Event} array
-     *
-     * @param events                  Event object array
-     * @param sinkCallback output transport callback
-     * @param optionHolder            option holder containing static and dynamic options
-     * @param payloadTemplateBuilder  Unmapped payload for reference
-     */
-    @Override
-    public void mapAndSend(Event[] events, SinkCallback sinkCallback,
-                           OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder)
-            throws ConnectionUnavailableException {
-
-        if (payloadTemplateBuilder != null) {
-            for (Event event : events) {
-                sinkCallback.publish(payloadTemplateBuilder.build(event), event);
-            }
-        } else {
-            //TODO add support to publish multiple events
-            for (Event event : events) {
-                sinkCallback.publish(constructDefaultMapping(event), event);
-            }
+        enclosingElement = optionHolder.validateAndGetStaticValue(ENCLOSING_ELEMENT_IDENTIFIER,null);
+        validationEnabled = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(JSON_VALIDATION_IDENTIFIER,"true"));
+        if(enclosingElement != null){
+            isCustomMappingEnabled = true;
         }
     }
 
+    @Override
+    public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+        StringBuilder sb = new StringBuilder();
+        if(payloadTemplateBuilder == null){
+            sb.append(constructJsonForDefaultMapping(events));
+        }else{
+            sb.append(constructJsonForCustomMapping(events, payloadTemplateBuilder));
+        }
+
+        if(validationEnabled && isValidJson(sb.toString())){
+            outputTransportListener.publish(sb.toString(), dynamicOptions);
+        }else if(!validationEnabled){
+            outputTransportListener.publish(sb.toString(), dynamicOptions);
+        }else {
+            log.error("Invalid json string : "+sb.toString());
+        }
+    }
+
+    @Override
+    public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+        StringBuilder sb = new StringBuilder();
+        if(payloadTemplateBuilder == null){
+            sb.append(constructJsonForDefaultMapping(event));
+        }else{
+            sb.append(constructJsonForCustomMapping(event, payloadTemplateBuilder));
+        }
+
+        if(validationEnabled && isValidJson(sb.toString())){
+            outputTransportListener.publish(sb.toString(), dynamicOptions);
+        }else if(!validationEnabled){
+            outputTransportListener.publish(sb.toString(), dynamicOptions);
+        }else {
+            log.error("Invalid json string : "+sb.toString());
+        }
+    }
 
     /**
      * Convert the given {@link Event} to JSON string
@@ -94,8 +120,8 @@ public class JSONSinkmapper extends Sinkmapper {
      * @param event Event object
      * @return the constructed JSON string
      */
-    private Object constructDefaultMapping(Event event) {
-        Object[] data = event.getData();
+    private JsonObject constructSingleEventForDefaultMapping(Event event) {
+        Object[] data = ((Event)event).getData();
         JsonObject jsonEventObject = new JsonObject();
         JsonObject innerParentObject = new JsonObject();
 
@@ -123,25 +149,74 @@ public class JSONSinkmapper extends Sinkmapper {
                 }
             }
         }
-
         jsonEventObject.add(EVENT_PARENT_TAG, innerParentObject);
-
-        String eventText = jsonEventObject.toString();
-
-//        // Get arbitrary data from event
-//        Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();
-//        if (arbitraryDataMap != null && !arbitraryDataMap.isEmpty()) {
-//            // Add arbitrary data map to the default template
-//            Gson gson = new Gson();
-//            JsonParser parser = new JsonParser();
-//            JsonObject jsonObject = parser.parse(eventText).getAsJsonObject();
-//            jsonObject.getAsJsonObject(EVENT_PARENT_TAG).add(EVENT_ARBITRARY_DATA_MAP_TAG, gson.toJsonTree
-// (arbitraryDataMap));
-//            eventText = gson.toJson(jsonObject);
-//        }
-
-        return eventText;
+        return jsonEventObject;
     }
 
+    private String constructJsonForDefaultMapping(Object eventObj){
+        if(eventObj instanceof Event){
+            Event event = (Event) eventObj;
+            JsonObject jsonEvent = constructSingleEventForDefaultMapping(doPartialProcessing(event));
+            return jsonEvent.toString();
+        }
+        else if(eventObj instanceof Event[]){
+            JsonArray eventArray = new JsonArray();
+            for(Event event : (Event[])eventObj){
+                eventArray.add(constructSingleEventForDefaultMapping(doPartialProcessing(event)));
+            }
+            return(JSON_START_SYMBOL + eventArray.toString() +JSON_END_SYMBOL);
+        }
+        return null;
+    }
 
+    private String constructJsonForCustomMapping(Object eventObj, TemplateBuilder payloadTemplateBuilder){
+        StringBuilder sb = new StringBuilder();
+        if(eventObj instanceof  Event){
+            JsonObject jsonObj = new JsonObject();
+            Event event = doPartialProcessing((Event)eventObj);
+            if(enclosingElement != null){
+                jsonObj.addProperty(enclosingElement,payloadTemplateBuilder.build(event));
+                return  jsonObj.toString();
+            }else{
+                return payloadTemplateBuilder.build(event);
+            }
+        }else if(eventObj instanceof Event[]){
+            JsonArray jsonArray = new JsonArray();
+            for(Event event : (Event[])eventObj){
+                jsonArray.add(payloadTemplateBuilder.build(doPartialProcessing(event)));
+            }
+            if(enclosingElement != null){
+                JsonObject jsonObj = new JsonObject();
+                jsonObj.addProperty(enclosingElement,jsonArray.toString());
+                return jsonObj.toString();
+            }else{
+                return jsonArray.toString();
+            }
+        }
+        return null;
+    }
+
+    private JsonObject constructSingleEventForCustomMapping(Event event,TemplateBuilder payloadTemplateBuilder){
+        payloadTemplateBuilder.build(event);
+        return null;
+    }
+
+    private Event doPartialProcessing(Event event){
+        Object[] data = event.getData();
+        for(int i=0; i<data.length; i++){
+            if(data[i] == null){
+                data[i] = UNDEFINED;
+            }
+        }
+        return event;
+    }
+
+    public static boolean isValidJson(String jsonInString) {
+        try {
+            new Gson().fromJson(jsonInString, Object.class);
+            return true;
+        } catch(com.google.gson.JsonSyntaxException ex) {
+            return false;
+        }
+    }
 }

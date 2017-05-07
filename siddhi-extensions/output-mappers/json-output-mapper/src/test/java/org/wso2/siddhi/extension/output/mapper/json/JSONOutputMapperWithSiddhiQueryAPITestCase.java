@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
+import org.wso2.siddhi.core.stream.output.sink.InMemoryOutputTransport;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -40,8 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class JSONSinkmapperWithSiddhiQueryAPITestCase {
-    static final Logger log = Logger.getLogger(JSONSinkmapperWithSiddhiQueryAPITestCase.class);
+public class JSONOutputMapperWithSiddhiQueryAPITestCase {
+    static final Logger log = Logger.getLogger(JSONOutputMapperWithSiddhiQueryAPITestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
@@ -56,7 +56,7 @@ public class JSONSinkmapperWithSiddhiQueryAPITestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map json
     @Test
-    public void testJSONSinkmapperWithDefaultMapping() throws InterruptedException {
+    public void testJSONOutputMapperWithDefaultMapping() throws InterruptedException {
         log.info("Test default json mapping with Siddhi Query API");
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
@@ -114,7 +114,7 @@ public class JSONSinkmapperWithSiddhiQueryAPITestCase {
 
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(outputDefinition);
@@ -143,7 +143,7 @@ public class JSONSinkmapperWithSiddhiQueryAPITestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map json custom
     @Test
-    public void testJSONSinkmapperWithCustomMapping() throws InterruptedException {
+    public void testJSONOutputMapperWithCustomMapping() throws InterruptedException {
         log.info("Test custom json mapping with Siddhi Query API");
         List<Object> onMessageList = new ArrayList<Object>();
 
@@ -209,7 +209,7 @@ public class JSONSinkmapperWithSiddhiQueryAPITestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
+        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(outputDefinition);

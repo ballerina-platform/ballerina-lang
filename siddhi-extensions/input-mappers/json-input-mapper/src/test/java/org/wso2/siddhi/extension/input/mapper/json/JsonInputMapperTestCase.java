@@ -19,67 +19,274 @@
 package org.wso2.siddhi.extension.input.mapper.json;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.input.source.InMemoryInputTransport;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.stream.input.source.InMemorySource;
-import org.wso2.siddhi.query.api.ExecutionPlan;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
-import org.wso2.siddhi.query.api.execution.Subscription;
-import org.wso2.siddhi.query.api.execution.io.Transport;
-import org.wso2.siddhi.query.api.execution.io.map.Mapping;
-import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
-public class JsonSourcemapperTestCase {
-    static final Logger log = Logger.getLogger(JsonSourcemapperTestCase.class);
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class JsonInputMapperTestCase {
+    static final Logger log = Logger.getLogger(JsonInputMapperTestCase.class);
+
+    private AtomicInteger count = new AtomicInteger();
 
     /**
      * Expected input format:
      * {'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}
      */
+    /**
+     * Expected input format:
+     * {'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}
+     */
     @Test
-    public void subscriptionTest1() throws InterruptedException {
-        log.info("Subscription Test 1: Test an in memory source with default json mapping");
+    public void jsonInputMapperTest1() throws InterruptedException {
+        log.info("test TextInputMapper1");
 
-        Subscription subscription = SiddhiCompiler.parseSubscription(
-                "subscribe inMemory options (topic 'stock') " +
-                        "map json " +
-                        "insert into FooStream;");
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "@source(type='inMemory', topic='stock', @map(type='json')) " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "define stream BarStream (symbol string, price float, volume long); ";
 
-        ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
-        executionPlan.defineStream(StreamDefinition.id("FooStream")
-                .attribute("symbol", Attribute.Type.STRING)
-                .attribute("price", Attribute.Type.FLOAT)
-                .attribute("volume", Attribute.Type.INT));
-        executionPlan.addSubscription(subscription);
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1:
+                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            break;
+                        case 2:
+                            junit.framework.Assert.assertEquals(75.6f, event.getData(1));
+                            break;
+                        default:
+                            org.junit.Assert.fail();
+                    }
+                }
             }
         });
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock", "{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
+        InMemoryBroker.publish("stock", "{\"event\":{\"symbol\":\"WSO2\",\"price\":55.6,\"volume\":100}}");
+        InMemoryBroker.publish("stock", "{\"event\":{\"symbol\":\"WSO2\",\"price\":75.6,\"volume\":10}}");
+        Thread.sleep(100);
 
+        //assert event count
+        Assert.assertEquals("Number of events", 2, count.get());
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+
+    /*
+    * default mapping with Fail.on.unknown.attribute : for single event
+    */
+    @Test
+    public void jsonInputMapperTest2() throws InterruptedException {
+        log.info("test TextInputMapper1");
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "@source(type='inMemory', topic='stock', @map(type='json', fail.on.unknown.attribute='true', validate.json='true')) " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1:
+                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            break;
+                        case 2:
+                            junit.framework.Assert.assertEquals(75.6f, event.getData(1));
+                            break;
+                        default:
+                            org.junit.Assert.fail();
+                    }
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+
+        InMemoryBroker.publish("stock", "{\"event\":{\"symbol\":,\"price\":55.6,\"volume\":100}}");
+        InMemoryBroker.publish("stock", "{\"event\":{\"symbol\":\"WSO2\",\"price\":75.6,\"volume\":10}}");
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Number of events", 2, count.get());
+        executionPlanRuntime.shutdown();
+    }
+
+    /*
+    Default mapping : event array
+    */
+    @Test
+    public void jsonInputMapperTest3() throws InterruptedException {
+        log.info("test TextInputMapper2");
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "@source(type='inMemory', topic='stock', @map(type='json')) " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1:
+                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            break;
+                        case 2:
+                            junit.framework.Assert.assertEquals(75.6f, event.getData(1));
+                            break;
+                        default:
+                            org.junit.Assert.fail();
+                    }
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+
+        InMemoryBroker.publish("stock", "[" +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":55.6,\"volume\":100}}," +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":56.6,\"volume\":101}}," +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":57.6,\"volume\":102}}," +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":58.6,\"volume\":103}}," +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":59.6,\"volume\":104}}," +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":60.6,\"volume\":105}}" +
+                "]");
+        //InMemoryBroker.publish("stock", "\"events\":{\"event\":{\"symbol\":\"WSO2\",\"price\":75.6,\"volume\":10}}");
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Number of events", 2, count.get());
+        executionPlanRuntime.shutdown();
+    }
+
+    /*
+    Default mapping : event array
+    */
+    @Test
+    public void jsonInputMapperTest4() throws InterruptedException {
+        log.info("test TextInputMapper2");
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "@source(type='inMemory', topic='stock', @map(type='json', grouping.element='$.events', fail.on.unknown.attribute='true', " +
+                "@attributes(symbol=\"symbol\",price=\"price\",volume=\"volume\")))  " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                count.set(0);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1:
+                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            break;
+                        case 2:
+                            junit.framework.Assert.assertEquals(56.6f, event.getData(1));
+                            break;
+                        case 3:
+                            junit.framework.Assert.assertEquals(57.6f, event.getData(1));
+                            break;
+                        case 4:
+                            junit.framework.Assert.assertEquals(58.6f, event.getData(1));
+                            break;
+                        case 5:
+                            junit.framework.Assert.assertEquals(59.6f, event.getData(1));
+                            break;
+                        case 6:
+                            junit.framework.Assert.assertEquals(60.6f, event.getData(1));
+                            break;
+                        default:
+                            org.junit.Assert.fail();
+                    }
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+
+        InMemoryBroker.publish("stock", "{\"events\":[" +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":55.6,\"volume\":100}}," +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":56.6,\"volume\":101}}," +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":57.6,\"volume\":102}}," +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":58.6,\"volume\":103}}," +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":59.6,\"volume\":104}}," +
+                "{\"event\":{\"symbol\":\"wso2\",\"price\":60.6,\"volume\":105}}" +
+                "]}");
+        InMemoryBroker.publish("stock", "{\"events\":[" +
+                "{\"event\":{\"symbol\":\"IBM\",\"price\":55.6,\"volume\":100}}," +
+                "{\"event\":{\"symbol\":\"IBM\",\"price\":56.6,\"volume\":101}}," +
+                "{\"event\":{\"symbol\":\"IBM\",\"price\":57.6,\"volume\":102}}," +
+                "{\"event\":{\"symbol\":\"IBM\",\"price\":58.6,\"volume\":103}}," +
+                "{\"event\":{\"symbol\":\"IBM\",\"price\":59.6,\"volume\":104}}," +
+                "{\"event\":{\"symbol\":\"IBM\",\"price\":60.6,\"volume\":105}}" +
+                "]}");
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Number of events", 6, count.get());
+        executionPlanRuntime.shutdown();
+    }
+
+    /*@Test(expected = ExecutionPlanValidationException.class)
     public void subscriptionTest2() throws InterruptedException {
-        log.info("Subscription Test 2: Test an in memory source with named and positional json mapping - expect " +
+        log.info("Subscription Test 2: Test an in memory transport with named and positional json mapping - expect " +
                 "exception");
 
         Subscription subscription = SiddhiCompiler.parseSubscription(
@@ -96,23 +303,23 @@ public class JsonSourcemapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
+        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock", "{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
+        InMemoryBroker.publish("stock","{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
 
         executionPlanRuntime.shutdown();
     }
 
-    /**
+    *//**
      * Expected input format:
      * {'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}
-     */
+     *//*
     @Test
     public void subscriptionTest3() throws InterruptedException {
-        log.info("Subscription Test 3: Test an in memory sourcesource with custom positional json mapping");
+        log.info("Subscription Test 3: Test an in memory transport with custom positional json mapping");
 
         Subscription subscription = SiddhiCompiler.parseSubscription(
                 "subscribe inMemory options(topic 'stock') " +
@@ -127,7 +334,7 @@ public class JsonSourcemapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
+        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
@@ -138,18 +345,18 @@ public class JsonSourcemapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock", "{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
+        InMemoryBroker.publish("stock","{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
 
         executionPlanRuntime.shutdown();
     }
 
-    /**
+    *//**
      * Expected input format:
      * {'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}
-     */
+     *//*
     @Test
     public void subscriptionTest4() throws InterruptedException {
-        log.info("Subscription Test 4: Test an in memory source with custom named json mapping");
+        log.info("Subscription Test 4: Test an in memory transport with custom named json mapping");
 
         Subscription subscription = SiddhiCompiler.parseSubscription(
                 "subscribe inMemory options(topic 'stock') " +
@@ -164,7 +371,7 @@ public class JsonSourcemapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
+        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
@@ -175,7 +382,7 @@ public class JsonSourcemapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock", "{'country': 'Sri Lanka', 'symbol': 'WSO2', 'price': 56.75, 'volume': 5}");
+        InMemoryBroker.publish("stock","{'country': 'Sri Lanka', 'symbol': 'WSO2', 'price': 56.75, 'volume': 5}");
 
         executionPlanRuntime.shutdown();
     }
@@ -184,7 +391,7 @@ public class JsonSourcemapperTestCase {
     public void subscriptionTest5() throws InterruptedException {
         log.info("Subscription Test 5: Test infer output stream using json mapping - expect exception");
 
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "stock"));
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
         subscription.map(Mapping.format("json").map("volume", "$.volume").map("symbol", "$.symbol").map("price", "$" +
                 ".price"));
         subscription.insertInto("FooStream");
@@ -193,12 +400,12 @@ public class JsonSourcemapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
+        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock", "{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
+        InMemoryBroker.publish("stock","{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
 
         executionPlanRuntime.shutdown();
     }
@@ -208,7 +415,7 @@ public class JsonSourcemapperTestCase {
         log.info("Subscription Test 6: Test error in infer output stream using json mapping without mapping name" +
                 " - expect exception");
 
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "stock"));
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
         subscription.map(Mapping.format("json").map("$.volume").map("$.symbol").map("$.price"));
         subscription.insertInto("FooStream");
 
@@ -216,7 +423,7 @@ public class JsonSourcemapperTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
+        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
@@ -227,8 +434,8 @@ public class JsonSourcemapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock", "{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
+        InMemoryBroker.publish("stock","{'symbol': 'WSO2', 'price': 56.75, 'volume': 5, 'country': 'Sri Lanka'}");
 
         executionPlanRuntime.shutdown();
-    }
+    }*/
 }
