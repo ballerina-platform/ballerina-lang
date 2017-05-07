@@ -29,6 +29,8 @@ class CreateStruct extends React.Component {
 
     handleSubmit() {
         this.props.onSubmit(this.typeInput.value, this.identifierInput.value, this.valueInput.value);
+        this.identifierInput.value = "";
+        this.valueInput.value = "";
     }
 
     render() {

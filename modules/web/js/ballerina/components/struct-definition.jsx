@@ -18,6 +18,7 @@
 
 import React from 'react';
 import _ from 'lodash';
+import Alerts from 'alerts';
 import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
@@ -27,7 +28,7 @@ import './struct-definition.css';
 import PropTypes from 'prop-types';
 import StructOperationsRenderer from './struct-operations-renderer';
 import Renderer from './renderer';
-import Alerts from 'alerts';
+import ASTNode from './../ast/node';
 
 class StructDefinition extends React.Component {
 
@@ -104,6 +105,13 @@ class StructDefinition extends React.Component {
             Alerts.error(errorString);
             throw errorString;
         }
+
+        if (!ASTNode.isValidIdentifier(identifier)) {
+            const errorString = `Invalid identifier for a variable: ${identifier}`;
+            Alerts.error(errorString);
+            throw errorString;
+        }
+
         const identifierAlreadyExists = _.findIndex(model.getVariableDefinitionStatements(), function (variableDefinitionStatement) {
             return variableDefinitionStatement.getIdentifier() === identifier;
         }) !== -1;
