@@ -257,37 +257,37 @@ class ResourceDefinition extends ASTNode {
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
-    addChild(child, index) {
-        if (_.isUndefined(index)) {
-            let indexNew;
-
-            let lastAnnotationIndex = _.findLastIndex(this.getChildren(), (child) => {
-                return this.BallerinaASTFactory.isAnnotation(child);
-            });
-
-            indexNew = lastAnnotationIndex === -1 ? 0 : lastAnnotationIndex + 1;
-
-            if (!this.BallerinaASTFactory.isAnnotation(child)) {
-                let lastWorkerDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
-                    return this.BallerinaASTFactory.isWorkerDeclaration(child);
-                });
-
-                indexNew = lastWorkerDeclarationIndex === -1 ? indexNew : lastWorkerDeclarationIndex + 1;
-
-                if (!this.BallerinaASTFactory.isWorkerDeclaration(child)) {
-                    let lastConnectorDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
-                        return this.BallerinaASTFactory.isConnectorDeclaration(child);
-                    });
-
-                    indexNew = lastConnectorDeclarationIndex === -1 ? indexNew : lastConnectorDeclarationIndex + 1;
-                }
-            }
-
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
-        } else {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
-        }
-    }
+    // addChild(child, index) {
+    //     if (_.isUndefined(index)) {
+    //         let indexNew;
+    //
+    //         let lastAnnotationIndex = _.findLastIndex(this.getChildren(), (child) => {
+    //             return this.BallerinaASTFactory.isAnnotation(child);
+    //         });
+    //
+    //         indexNew = lastAnnotationIndex === -1 ? 0 : lastAnnotationIndex + 1;
+    //
+    //         if (!this.BallerinaASTFactory.isAnnotation(child)) {
+    //             let lastWorkerDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
+    //                 return this.BallerinaASTFactory.isWorkerDeclaration(child);
+    //             });
+    //
+    //             indexNew = lastWorkerDeclarationIndex === -1 ? indexNew : lastWorkerDeclarationIndex + 1;
+    //
+    //             if (!this.BallerinaASTFactory.isWorkerDeclaration(child)) {
+    //                 let lastConnectorDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
+    //                     return this.BallerinaASTFactory.isConnectorDeclaration(child);
+    //                 });
+    //
+    //                 indexNew = lastConnectorDeclarationIndex === -1 ? indexNew : lastConnectorDeclarationIndex + 1;
+    //             }
+    //         }
+    //
+    //         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
+    //     } else {
+    //         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+    //     }
+    // }
 
     /**
      * @inheritDoc
