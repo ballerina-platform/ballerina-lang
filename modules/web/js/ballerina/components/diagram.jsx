@@ -27,6 +27,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
 import ASTRoot from '../ast/ballerina-ast-root';
 import Renderer from './renderer';
+import StructOperationsRenderer from './struct-operations-renderer';
 
 class Diagram extends React.Component {
 
@@ -53,10 +54,10 @@ class Diagram extends React.Component {
         viewState.container = {
             width : this.container.width(),
             height : this.container.height()
-        };        
+        };
         this.model.on('tree-modified', () => {
             this.forceUpdate();
-        });        
+        });
     }
 
     getModel() {
@@ -99,7 +100,8 @@ class Diagram extends React.Component {
             messageManager: this.props.messageManager,
             container : this.props.container,
             renderer: this.props.renderer,
-            renderingContext: this.props.renderingContext
+            renderingContext: this.props.renderingContext,
+            structOperationsRenderer: this.props.structOperationsRenderer
         };
     }
 }
@@ -122,7 +124,8 @@ Diagram.childContextTypes = {
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
     container: PropTypes.instanceOf(Object).isRequired,
     renderer: PropTypes.instanceOf(Renderer).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    structOperationsRenderer: PropTypes.instanceOf(StructOperationsRenderer).isRequired,
 };
 
 export default Diagram;

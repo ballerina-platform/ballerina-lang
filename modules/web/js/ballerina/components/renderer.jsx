@@ -88,6 +88,82 @@ class TextBox extends React.Component {
     }
 }
 
+
+class Dropdown extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: this.props.initialValue,
+            display: true
+        };
+        this.onChange = this.onChange.bind(this);
+        this.onBlur = this.onBlur.bind(this);
+    }
+
+    componentDidMount() {
+        this.dropDown.focus();
+    }
+
+    componentDidUpdate() {
+        this.dropDown.focus();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            value: nextProps.initialValue,
+            display: nextProps.display
+        });
+    }
+
+    onChange(e) {
+        this.setState({
+            value: this.dropDown.value
+        });
+        this.props.onChange(e.target.value);
+    }
+
+    onBlur(e) {
+        this.setState({
+            display: false
+        });
+    }
+
+    render() {
+        const inputStyle = {
+            position: 'absolute',
+            top: this.props.bBox.y,
+            left: this.props.bBox.x,
+            width: this.props.bBox.w,
+            height: this.props.bBox.h
+        };
+
+        if (this.state.display === false) {
+            inputStyle.display = 'none';
+        }
+
+        const { options = [] } = this.props;
+
+        return (
+            <select
+                style={inputStyle}
+                className='text-input'
+                ref={i => {
+                    this.dropDown = i
+                }}
+                onChange={this.onChange}
+                onBlur={this.onBlur}
+                value={this.state.value}
+                >
+                {
+                    options.map( option =>{
+                        return <option key={option} value={option}>{option}</option>;
+                    })
+                }
+            </select>
+        )
+    }
+}
+
 export default class Renderer {
     constructor(overlay) {
         this.overlay = overlay;
@@ -96,6 +172,11 @@ export default class Renderer {
     renderTextBox(options) {
         ReactDOM.render(
             <TextBox {...options}/>,
+            this.overlay);
+    }
+    renderDropdown(options) {
+        ReactDOM.render(
+            <Dropdown {...options}/>,
             this.overlay);
     }
     renderStructOperations(options) {
