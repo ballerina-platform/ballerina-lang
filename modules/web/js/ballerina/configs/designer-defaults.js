@@ -164,7 +164,19 @@ export const structDefinition = {
     }
 };
 
+export const contentOperations = {
+    height: 45,
+    width: 600,
+};
+
 export const structDefinitionStatement = {
-    width: 450,
-    height: 25,
+    width: 600,
+    height: 30,
+    margin: {
+        bottom: 2
+    },
+    padding: {
+        left: 10
+    },
+    deleteButtonOffset: 20,
 };

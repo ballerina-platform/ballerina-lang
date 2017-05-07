@@ -38,6 +38,7 @@ class ElseStatementVisitor extends AbstractStatementSourceGenVisitor {
         * that particular source generation has to be constructed here
         */
         this.appendSource(' else {\n');
+        this.indent();
         log.debug('Begin visit Else Statement Definition');
     }
 
@@ -50,6 +51,7 @@ class ElseStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitElseStatement(elseStatement) {
+        this.outdent();
         this.appendSource(this.getIndentation() + "}");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Else Statement Definition');

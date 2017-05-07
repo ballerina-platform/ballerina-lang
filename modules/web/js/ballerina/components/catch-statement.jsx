@@ -26,7 +26,7 @@ class CatchStatement extends React.Component {
         let model = this.props.model,
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<BlockStatementDecorator bBox={bBox} title={"Catch"}>
+        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Catch"}>
             {children}
         </BlockStatementDecorator>);
     }
