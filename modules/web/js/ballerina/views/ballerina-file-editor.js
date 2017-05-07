@@ -44,7 +44,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import BallerinaDiagram from './../components/diagram';
 import MessageManager from './../visitors/message-manager';
-import Renderer from '../components/renderer'
+import Renderer from '../components/renderer';
+import StructOperationsRenderer from '../components/struct-operations-renderer';
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -248,8 +249,11 @@ class BallerinaFileEditor extends BallerinaView {
             let diagramRoot = $('<div class="diagram root" ></div>');
             let overlay = $('<div class="html-overlay" ></div>');
             var renderer = new Renderer(overlay[0]);
+            let structOperationsOverlay = $('<div class="struct-operations-html-overlay" ></div>');
+            const structOperationsRenderer = new StructOperationsRenderer(structOperationsOverlay[0]);
             this._$canvasContainer.append(diagramRoot);
             this._$canvasContainer.append(overlay);
+            this._$canvasContainer.append(structOperationsOverlay);
             //create Rect component for diagram
             let root = React.createElement(BallerinaDiagram, {
                 editor: this,
@@ -257,7 +261,8 @@ class BallerinaFileEditor extends BallerinaView {
                 messageManager: this.messageManager,
                 container: this._$canvasContainer,
                 renderingContext: this.diagramRenderingContext,
-                renderer
+                renderer,
+                structOperationsRenderer
             }, null);
             ReactDOM.render(
               root,

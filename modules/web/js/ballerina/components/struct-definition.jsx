@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import _ from 'lodash';
 import LifeLine from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
@@ -24,7 +25,9 @@ import {getComponentForNodeArray} from './utils';
 import {lifeLine} from './../configs/designer-defaults';
 import './struct-definition.css';
 import PropTypes from 'prop-types';
+import StructOperationsRenderer from './struct-operations-renderer';
 import Renderer from './renderer';
+import Alerts from 'alerts';
 
 class StructDefinition extends React.Component {
 
@@ -36,8 +39,49 @@ class StructDefinition extends React.Component {
         node.remove();
     }
 
-    handleStatementClick(node, bBox) {
-        console.log(bBox);
+    renderTextBox(textValue, bBox, callback) {
+        this.context.renderer.renderTextBox({
+          bBox: bBox,
+          display: true,
+          initialValue: textValue || "",
+          onChange(value){
+            callback(value);
+          }
+        });
+    }
+
+    handleIdentifierClick(textValue, bBox, model) {
+        this.renderTextBox(
+            textValue,
+            bBox,
+            (value) => {
+                this.validateIdentifierName(value);
+                model.setIdentifier(value);
+            }
+        );
+    }
+
+    handleValueClick(textValue, bBox, model) {
+        this.renderTextBox(
+            textValue,
+            bBox,
+            (value) => {
+                model.setValue(value);
+            }
+        );
+    }
+
+    handleTypeClick(currentSelection, bBox, model) {
+        const { renderingContext } = this.context;
+        this.context.renderer.renderDropdown({
+          bBox: bBox,
+          display: true,
+          initialValue: currentSelection || "",
+          options: renderingContext.environment.getTypes(),
+          onChange(value){
+              model.setBType(value);
+          }
+        });
     }
 
     renderStructOperations() {
@@ -45,12 +89,35 @@ class StructDefinition extends React.Component {
         const { components: {contentOperations} } = model.getViewState();
         const { renderingContext } = this.context;
 
-        this.context.renderer.renderStructOperations({
-          bBox: contentOperations,
-          renderingContext: this.context.renderingContext,
-          types: renderingContext.environment.getTypes()
+        this.context.structOperationsRenderer.renderOverlay({
+            bBox: contentOperations,
+            types: renderingContext.environment.getTypes(),
+            onSubmit: (bType, identifier, defaultValue) => {
+              return this.addVariableDefinitionStatement(bType, identifier, defaultValue);
+            }
         });
     }
+    validateIdentifierName (identifier) {
+        const {model} = this.props;
+        if (!identifier || !identifier.length) {
+            const errorString = "Identifier cannot be empty";
+            Alerts.error(errorString);
+            throw errorString;
+        }
+        const identifierAlreadyExists = _.findIndex(model.getVariableDefinitionStatements(), function (variableDefinitionStatement) {
+            return variableDefinitionStatement.getIdentifier() === identifier;
+        }) !== -1;
+        if (identifierAlreadyExists) {
+            const errorString = `A variable with identifier ${identifier} already exists.`;
+            Alerts.error(errorString);
+            throw errorString;
+        }
+    }
+    addVariableDefinitionStatement(bType, identifier, defaultValue) {
+        this.validateIdentifierName(identifier);
+        this.props.model.addVariableDefinitionStatement(bType, identifier, defaultValue);
+    }
+
 
     componentDidUpdate() {
         this.renderStructOperations();
@@ -77,7 +144,10 @@ class StructDefinition extends React.Component {
                         const statementDimensions = statements[i];
                         return (<g key={i} className="struct-definition-statement">
 
-                          <g className="struct-variable-definition-type">
+                          <g
+                              className="struct-variable-definition-type"
+                              onClick={ ()=> this.handleTypeClick(type, statementDimensions.typeWrapper, child) }
+                              >
                               <rect
                                   x={statementDimensions.typeWrapper.x }
                                   y={statementDimensions.typeWrapper.y}
@@ -89,12 +159,15 @@ class StructDefinition extends React.Component {
                                   x={statementDimensions.typeText.x }
                                   y={statementDimensions.typeText.y}
                                   className="struct-variable-definition-type-text"
-                                  onClick={ ()=> this.handleStatementClick(child, statementDimensions.identifierText) }>
+                                  >
                                   {type}
                               </text>
                           </g>
 
-                          <g className="struct-variable-definition-identifier">
+                          <g
+                              className="struct-variable-definition-identifier"
+                              onClick={() => this.handleIdentifierClick(identifier, statementDimensions.identifierWrapper, child) }
+                              >
                               <rect
                                   x={statementDimensions.identifierWrapper.x }
                                   y={statementDimensions.identifierWrapper.y}
@@ -106,12 +179,15 @@ class StructDefinition extends React.Component {
                                   x={statementDimensions.identifierText.x}
                                   y={statementDimensions.identifierText.y}
                                   className="struct-variable-definition-identifier-text"
-                                  onClick={ ()=> this.handleStatementClick(child, statementDimensions) }>
+                              >
                                   {identifier}
                               </text>
                           </g>
 
-                          <g className="struct-variable-definition-value">
+                          <g
+                              className="struct-variable-definition-value"
+                              onClick={() => this.handleValueClick(value, statementDimensions.valueWrapper, child) }
+                              >
                               <rect
                                   x={statementDimensions.valueWrapper.x }
                                   y={statementDimensions.valueWrapper.y}
@@ -123,7 +199,7 @@ class StructDefinition extends React.Component {
                                   x={statementDimensions.valueText.x}
                                   y={statementDimensions.valueText.y}
                                   className="struct-variable-definition-value-text"
-                                  onClick={ ()=> this.handleStatementClick(child, statementDimensions) }>
+                              >
                                   {value}
                               </text>
 
@@ -146,8 +222,9 @@ class StructDefinition extends React.Component {
 }
 
 StructDefinition.contextTypes = {
+    structOperationsRenderer: PropTypes.instanceOf(StructOperationsRenderer).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
     renderer: PropTypes.instanceOf(Renderer).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired
 };
 
 export default StructDefinition;
