@@ -152,6 +152,10 @@ export const packageDefinition = {
             bottom: 0,
             left: 50
         }
+    },
+
+    importDeclaration: {
+        itemHeight: 40
     }
 }
 

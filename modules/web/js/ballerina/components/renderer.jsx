@@ -73,6 +73,8 @@ class TextBox extends React.Component {
             inputStyle.display = 'none';
         }
 
+        Object.assign(inputStyle, this.props.styles);
+
         return (
             <input
                 className='text-input'
