@@ -67,7 +67,7 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
             }
         } else {
             newAndEveryStateEventList.add(stateEvent);
-            if (partnerStatePreProcessor != null) {
+            if (partnerStatePreProcessor != null && partnerStatePreProcessor.newAndEveryStateEventList.isEmpty()) {
                 partnerStatePreProcessor.newAndEveryStateEventList.add(stateEvent);
             }
         }
