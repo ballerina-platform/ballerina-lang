@@ -50,7 +50,6 @@ class WorkerDeclaration extends React.Component {
         workerBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
         workerBBox.w = DesignerDefaults.lifeLine.width;
         workerBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
-debugger;
         return (<g>
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}/>
                 <LifeLine title={this.props.model.getWorkerName()} bBox={workerBBox}/>
