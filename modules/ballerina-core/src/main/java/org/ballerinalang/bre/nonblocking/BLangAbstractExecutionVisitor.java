@@ -29,6 +29,7 @@ import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
+import org.ballerinalang.bre.WorkerExecutor;
 import org.ballerinalang.bre.WorkerRunner;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
@@ -338,9 +339,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
 
         executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
-        WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
-        Future<BMessage> future = executor.submit(workerRunner);
-        worker.setResultFuture(future);
+        WorkerExecutor workerRunner = new WorkerExecutor(workerExecutor, workerContext, worker);
+        executor.submit(workerRunner);
+//        Future<BMessage> future = executor.submit(workerRunner);
+//        worker.setResultFuture(future);
     }
 
     @Override

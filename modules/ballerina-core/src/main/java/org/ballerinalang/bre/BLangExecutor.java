@@ -102,7 +102,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -120,7 +119,7 @@ public class BLangExecutor implements NodeExecutor {
     private boolean returnedOrReplied;
     private boolean isForkJoinTimedOut;
     private boolean isBreakCalled;
-    private ExecutorService executor;
+    //private ExecutorService executor;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -1458,10 +1457,11 @@ public class BLangExecutor implements NodeExecutor {
         workerContext.setBalCallback(workerCallback);
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
 
-        executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
-        WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
-        Future<BMessage> future = executor.submit(workerRunner);
-        worker.setResultFuture(future);
+        ExecutorService executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
+        WorkerExecutor workerRunner = new WorkerExecutor(workerExecutor, workerContext, worker);
+        executor.submit(workerRunner);
+//        Future<BMessage> future = executor.submit(workerRunner);
+//        worker.setResultFuture(future);
 
         // Start workers within the worker
         for (Worker worker1 : worker.getWorkers()) {
