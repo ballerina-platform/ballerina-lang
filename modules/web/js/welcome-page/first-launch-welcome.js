@@ -24,7 +24,6 @@ import Ballerina from 'ballerina';
 import alerts from 'alerts';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ReactDOMAppend from 'append-react-dom';
 import WelcomeView from './welcome.jsx';
 import ServicePreviewView from './service-preview.jsx';
 

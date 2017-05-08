@@ -19,7 +19,7 @@
 import React from 'react';
 
 class ServicePreviewView extends React.Component {
-    
+
     render() {
         var previewThumbnails = this.props.sampleConfigs.map(function(config) {
             return (<div className="item active" onClick={config.clickEventCallback}>
