@@ -42,10 +42,12 @@ class StatementDecorator extends React.Component {
         dragDropManager.on('drag-start', this.startDropZones.bind(this));
         dragDropManager.on('drag-stop', this.stopDragZones.bind(this));
 
-		this.state = {innerDropZoneActivated: false,
-                      innerDropZoneDropNotAllowed: false,
-                      innerDropZoneExist: false,
-                      showActions: false };
+		this.state = {
+		    innerDropZoneActivated: false,
+	        innerDropZoneDropNotAllowed: false,
+	        innerDropZoneExist: false,
+	        showActions: false
+		};
 	}
 
 	startDropZones() {
@@ -58,6 +60,15 @@ class StatementDecorator extends React.Component {
 
     onDelete() {
         this.props.model.remove();
+    }
+
+	onJumptoCodeLine() {
+			const {expression} = this.props;
+			const {renderingContext: {ballerinaFileEditor}} = this.context;
+
+			const container = ballerinaFileEditor._container;
+			$(container).find('.view-source-btn').trigger('click');
+			ballerinaFileEditor.getSourceView().jumpToLine({expression});
 	}
 
 	render() {
@@ -134,7 +145,13 @@ class StatementDecorator extends React.Component {
 						<g className="statement-body">
 							<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
 						</g>
-			                        <ActionBox bBox={ actionBbox } show={ this.state.showActions } onDelete={this.onDelete.bind(this)}/>
+						<ActionBox
+							bBox={ actionBbox }
+							show={ this.state.showActions }
+							onDelete={ () => this.onDelete() }
+							onJumptoCodeLine = { () => this.onJumptoCodeLine() }
+						/>
+
 						{isActionInvocation &&
 							<g>
 								<circle cx={arrowStartPointX}
@@ -259,7 +276,8 @@ StatementDecorator.propTypes = {
 StatementDecorator.contextTypes = {
 	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
 	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-	 container: PropTypes.instanceOf(Object).isRequired
+	 container: PropTypes.instanceOf(Object).isRequired,
+	 renderingContext: PropTypes.instanceOf(Object).isRequired,
 };
 
 
