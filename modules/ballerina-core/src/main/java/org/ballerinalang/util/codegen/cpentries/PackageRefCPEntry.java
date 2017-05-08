@@ -17,22 +17,37 @@
 */
 package org.ballerinalang.util.codegen.cpentries;
 
+import org.ballerinalang.util.codegen.PackageInfo;
+
 /**
- * {@code PackageCPEntry} represents a Ballerina package name in the constant pool.
+ * {@code PackageRefCPEntry} represents a Ballerina package name in the constant pool.
  *
  * @since 0.87
  */
-public class PackageCPEntry implements ConstantPoolEntry {
+public class PackageRefCPEntry implements ConstantPoolEntry {
 
-    // Index to UTF8 entry which represents and encoded package name
+    // Index of UTF8 CP entry contains the package path
     private int nameCPIndex;
 
-    public PackageCPEntry(int nameCPIndex) {
+    // Index of CP entry which contains package version
+    private int versionCPIndex;
+
+    private PackageInfo packageInfo;
+
+    public PackageRefCPEntry(int nameCPIndex) {
         this.nameCPIndex = nameCPIndex;
     }
 
     public int getNameCPIndex() {
         return nameCPIndex;
+    }
+
+    public PackageInfo getPackageInfo() {
+        return packageInfo;
+    }
+
+    public void setPackageInfo(PackageInfo packageInfo) {
+        this.packageInfo = packageInfo;
     }
 
     public EntryType getEntryType() {
@@ -46,6 +61,6 @@ public class PackageCPEntry implements ConstantPoolEntry {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof PackageCPEntry && nameCPIndex == ((PackageCPEntry) obj).nameCPIndex;
+        return obj instanceof PackageRefCPEntry && nameCPIndex == ((PackageRefCPEntry) obj).nameCPIndex;
     }
 }

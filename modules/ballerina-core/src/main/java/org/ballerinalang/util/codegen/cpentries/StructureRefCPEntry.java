@@ -17,12 +17,14 @@
 */
 package org.ballerinalang.util.codegen.cpentries;
 
+import org.ballerinalang.util.codegen.StructureTypeInfo;
+
 import java.util.Objects;
 
 /**
  * @since 0.87
  */
-public class StructCPEntry implements ConstantPoolEntry {
+public class StructureRefCPEntry implements ConstantPoolEntry {
 
     // Index to a valid Package entry in the constant pool
     private int packageCPIndex;
@@ -30,19 +32,19 @@ public class StructCPEntry implements ConstantPoolEntry {
     // Index to a valid name index in the constant pool
     private int nameCPIndex;
 
-    private int[] fieldCount;
+    private StructureTypeInfo structureTypeInfo;
 
-    public StructCPEntry(int packageCPIndex, int nameCPIndex) {
+    public StructureRefCPEntry(int packageCPIndex, int nameCPIndex) {
         this.packageCPIndex = packageCPIndex;
         this.nameCPIndex = nameCPIndex;
     }
 
-    public int[] getFieldCount() {
-        return fieldCount;
+    public StructureTypeInfo getStructureTypeInfo() {
+        return structureTypeInfo;
     }
 
-    public void setFieldCount(int[] fieldCount) {
-        this.fieldCount = fieldCount;
+    public void setStructureTypeInfo(StructureTypeInfo structureTypeInfo) {
+        this.structureTypeInfo = structureTypeInfo;
     }
 
     @Override
@@ -57,8 +59,8 @@ public class StructCPEntry implements ConstantPoolEntry {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof StructCPEntry &&
-                packageCPIndex == (((StructCPEntry) obj).packageCPIndex) &&
-                nameCPIndex == ((StructCPEntry) obj).nameCPIndex;
+        return obj instanceof StructureRefCPEntry &&
+                packageCPIndex == (((StructureRefCPEntry) obj).packageCPIndex) &&
+                nameCPIndex == ((StructureRefCPEntry) obj).nameCPIndex;
     }
 }

@@ -17,11 +17,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.util.codegen.cpentries.PackageCPEntry;
-import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -29,85 +24,26 @@ import java.util.Objects;
  *
  * @since 0.87
  */
-public class FunctionInfo {
+public class FunctionInfo extends CallableUnitInfo {
 
-    private String pkgName;
-    private String funcName;
-    private boolean isNative;
-
-    private PackageCPEntry packageCPEntry;
-    private UTF8CPEntry nameCPEntry;
-    private UTF8CPEntry descCPEntry;
-
-    // Index to the PackageCPEntry
-    private int pkgCPEntryIndex;
-
-    // Index to the FunctionCPEntry
-    private int funcCPEntryIndex;
-
-    // Index to the UTF8CPEntry which contains the function descriptor
-    private int descIndex;
-
-    private String[] paramTypeSigs;
-    private String[] retParamTypeSigs;
-
-    CodeAttributeInfo codeAttributeInfo;
-
-    List<AttributeInfo> attributeInfoList = new ArrayList<>();
-
-    public FunctionInfo(int pkgCPEntryIndex, int funcCPEntryIndex, int descIndex) {
-        this.pkgCPEntryIndex = pkgCPEntryIndex;
-        this.funcCPEntryIndex = funcCPEntryIndex;
-        this.descIndex = descIndex;
+    public FunctionInfo(String pkgPath, int pkgCPIndex, String funcName, int funcNameCPIndex) {
+        this.pkgPath = pkgPath;
+        this.pkgCPIndex = pkgCPIndex;
+        this.name = funcName;
+        this.nameCPIndex = funcNameCPIndex;
 
         codeAttributeInfo = new CodeAttributeInfo();
-        attributeInfoList.add(codeAttributeInfo);
-    }
-
-    public int getPackageNameIndex() {
-        return pkgCPEntryIndex;
-    }
-
-    public int getFunctionCPEntryIndex() {
-        return funcCPEntryIndex;
-    }
-
-    public int getDescriptorIndex() {
-        return descIndex;
-    }
-
-    public CodeAttributeInfo getCodeAttributeInfo() {
-        return codeAttributeInfo;
-    }
-
-    public List<AttributeInfo> getAttributeInfoList() {
-        return attributeInfoList;
-    }
-
-    public String[] getParamTypeSigs() {
-        return paramTypeSigs;
-    }
-
-    public void setParamTypeSigs(String[] paramTypeSigs) {
-        this.paramTypeSigs = paramTypeSigs;
-    }
-
-    public String[] getRetParamTypeSigs() {
-        return retParamTypeSigs;
-    }
-
-    public void setRetParamTypeSigs(String[] retParamTypeSigs) {
-        this.retParamTypeSigs = retParamTypeSigs;
+        attributeInfoMap.put(AttributeInfo.CODE_ATTRIBUTE, codeAttributeInfo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pkgCPEntryIndex, funcCPEntryIndex);
+        return Objects.hash(pkgCPIndex, nameCPIndex);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof FunctionInfo && pkgCPEntryIndex == (((FunctionInfo) obj).pkgCPEntryIndex)
-                && funcCPEntryIndex == (((FunctionInfo) obj).funcCPEntryIndex);
+        return obj instanceof FunctionInfo && pkgCPIndex == (((FunctionInfo) obj).pkgCPIndex)
+                && nameCPIndex == (((FunctionInfo) obj).nameCPIndex);
     }
 }

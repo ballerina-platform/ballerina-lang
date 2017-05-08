@@ -18,15 +18,26 @@
 package org.ballerinalang.util.codegen;
 
 /**
- * {@code AttributeInfo} contains metadata of a construct in Ballerina.
- *
- * // TODO Improve this explanation
- *
  * @since 0.87
  */
-public interface AttributeInfo {
+public class StructureTypeInfo {
 
-    String CODE_ATTRIBUTE = "CodeAttribute";
-    String ANNOTATIONS_ATTRIBUTE = "AnnotationsAttribute";
-    String PARAMETER_ANNOTATIONS_ATTRIBUTE = "ParameterAnnotationsAttribute";
+    protected int pkgPathCPIndex;
+
+    protected int nameCPIndex;
+
+    protected int[] fieldCount;
+
+    public StructureTypeInfo(int pkgPathCPIndex, int nameCPIndex) {
+        this.pkgPathCPIndex = pkgPathCPIndex;
+        this.nameCPIndex = nameCPIndex;
+    }
+
+    public int[] getFieldCount() {
+        return fieldCount;
+    }
+
+    public void setFieldCount(int[] fieldCount) {
+        this.fieldCount = fieldCount;
+    }
 }

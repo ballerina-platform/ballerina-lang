@@ -17,16 +17,16 @@
 */
 package org.ballerinalang.util.codegen.cpentries;
 
-import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.ActionInfo;
 
 import java.util.Objects;
 
 /**
- * {@code FunctionReturnCPEntry} represents a Ballerina function in the constant pool.
+ * {@code ActionRefCPEntry} represents a Ballerina action in the constant pool.
  *
  * @since 0.87
  */
-public class FunctionCPEntry implements ConstantPoolEntry {
+public class ActionRefCPEntry implements ConstantPoolEntry {
 
     // Index to a valid Package entry in the constant pool
     private int packageCPIndex;
@@ -34,11 +34,14 @@ public class FunctionCPEntry implements ConstantPoolEntry {
     // Index to a valid name index in the constant pool
     private int nameCPIndex;
 
-    // TODO 
-    private FunctionInfo functionInfo;
+    // Index to a valid connector ref index in the constant pool
+    private int connectorRefCPIndex;
 
-    public FunctionCPEntry(int packageCPIndex, int nameCPIndex) {
+    private ActionInfo actionInfo;
+
+    public ActionRefCPEntry(int packageCPIndex, int connectorRefCPIndex, int nameCPIndex) {
         this.packageCPIndex = packageCPIndex;
+        this.connectorRefCPIndex = connectorRefCPIndex;
         this.nameCPIndex = nameCPIndex;
     }
 
@@ -48,6 +51,18 @@ public class FunctionCPEntry implements ConstantPoolEntry {
 
     public int getNameCPIndex() {
         return nameCPIndex;
+    }
+
+    public int getConnectorRefCPIndex() {
+        return connectorRefCPIndex;
+    }
+
+    public ActionInfo getActionInfo() {
+        return actionInfo;
+    }
+
+    public void setActionInfo(ActionInfo actionInfo) {
+        this.actionInfo = actionInfo;
     }
 
     public EntryType getEntryType() {
@@ -61,7 +76,7 @@ public class FunctionCPEntry implements ConstantPoolEntry {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof FunctionCPEntry && packageCPIndex == (((FunctionCPEntry) obj).packageCPIndex) &&
-                nameCPIndex == ((FunctionCPEntry) obj).nameCPIndex;
+        return obj instanceof ActionRefCPEntry && packageCPIndex == (((ActionRefCPEntry) obj).packageCPIndex) &&
+                nameCPIndex == ((ActionRefCPEntry) obj).nameCPIndex;
     }
 }
