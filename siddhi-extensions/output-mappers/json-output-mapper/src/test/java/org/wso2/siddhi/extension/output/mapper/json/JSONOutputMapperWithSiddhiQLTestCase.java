@@ -233,7 +233,7 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         Object[] ibmData = {"IBM", 74.6f, 10L};
         wso2Event.setData(wso2Data);
         ibmEvent.setData(ibmData);
-        stockStream.send(new Event[]{wso2Event,wso2Event,ibmEvent,wso2Event,ibmEvent});
+        stockStream.send(new Event[]{wso2Event, wso2Event, ibmEvent, wso2Event, ibmEvent});
 
         Thread.sleep(100);
 
@@ -291,7 +291,7 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         Object[] ibmData = {"IBM", null, 10L};
         wso2Event.setData(wso2Data);
         ibmEvent.setData(ibmData);
-        stockStream.send(new Event[]{wso2Event,wso2Event,ibmEvent,wso2Event,ibmEvent});
+        stockStream.send(new Event[]{wso2Event, wso2Event, ibmEvent, wso2Event, ibmEvent});
 
         Thread.sleep(100);
 
@@ -375,19 +375,19 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom json
-        Assert.assertEquals("Mapping incorrect!","{\n" +
+        Assert.assertEquals("Mapping incorrect!", "{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"WSO2\",\n" +
                 "      \"Price\":55.6\n" +
                 "   }\n" +
                 "}", onMessageList.get(0).toString());
-        Assert.assertEquals("Mapping incorrect!","{\n" +
+        Assert.assertEquals("Mapping incorrect!", "{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"IBM\",\n" +
                 "      \"Price\":75.6\n" +
                 "   }\n" +
                 "}", onMessageList.get(1).toString());
-        Assert.assertEquals("Mapping incorrect!","{\n" +
+        Assert.assertEquals("Mapping incorrect!", "{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"WSO2\",\n" +
                 "      \"Price\":57.6\n" +
@@ -563,14 +563,14 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         Event ibmEvnet = new Event();
         wso2Event.setData(new Object[]{"WSO2", 55.6f, 100L});
         ibmEvnet.setData(new Object[]{"IBM", 75.6f, 100L});
-        stockStream.send(new Event[]{wso2Event,ibmEvnet});
+        stockStream.send(new Event[]{wso2Event, ibmEvnet});
         Thread.sleep(100);
 
         //assert event count
         Assert.assertEquals("Incorrect number of events consumed!", 1, wso2Count.get());
 //        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom json
-        Assert.assertEquals("Mapping incorrect!","[{\n" +
+        Assert.assertEquals("Mapping incorrect!", "[{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"WSO2\",\n" +
                 "      \"Price\":55.6\n" +
