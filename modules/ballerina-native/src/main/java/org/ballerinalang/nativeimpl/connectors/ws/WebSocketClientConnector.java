@@ -93,7 +93,7 @@ public class WebSocketClientConnector extends AbstractNativeConnector {
      *
      * @return the client unique id of this connector.
      */
-    public String getConnectionID(Session session) {
+    public String getClientID(Session session) {
         ConnectorController connectorController = ConnectorRegistry.getInstance().getConnectorController(connectorID);
         if (connectorController.clientExists(session)) {
             return connectorController.getClientID(session);
@@ -107,6 +107,15 @@ public class WebSocketClientConnector extends AbstractNativeConnector {
                 throw new BallerinaException("Error occurred in managing connection.");
             }
         }
+    }
+
+    /**
+     * Retrieve connector ID.
+     *
+     * @return connector ID of the connector.
+     */
+    public String getConnectorID() {
+        return connectorID;
     }
 
     /**

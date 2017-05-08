@@ -37,7 +37,7 @@ public abstract class AbstractWebSocketAction extends AbstractNativeAction {
         WebSocketClientConnector connector = (WebSocketClientConnector) bconnector.value();
         Session session = (Session) context.getCarbonMessage().getProperty(
                 org.ballerinalang.services.dispatchers.ws.Constants.WEBSOCKET_SESSION);
-        return connector.getConnectionID(session);
+        return connector.getClientID(session);
     }
 
     protected void pushMessage(CarbonMessage carbonMessage) {
