@@ -1,0 +1,82 @@
+package org.wso2.siddhi.annotation.processor;
+
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.AnnotationValidationException;
+
+import java.text.MessageFormat;
+
+/**
+ * This processor will extend the validation rules for validate Stream Function specific annotation contents.
+ */
+public class StreamFunctionProcessorValidationAnnotationProcessor extends AbstractAnnotationProcessor {
+    public StreamFunctionProcessorValidationAnnotationProcessor(String extensionClassFullName) {
+        super(extensionClassFullName);
+    }
+
+    @Override
+    public void parameterValidation(Parameter[] parameters) throws AnnotationValidationException {
+        for (Parameter parameter : parameters) {
+            String parameterName = parameter.name();
+            //Check if the @Parameter name is empty.
+            if (parameterName.isEmpty()) {
+                throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter ->" +
+                        " name annotated in class {0} is null or empty.", extensionClassFullName));
+            } else if (!parameterNamePattern.matcher(parameterName).find()) {
+                //Check if the @Parameter name is in a correct format 'abc.def.ghi' using regex pattern.
+                throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter ->" +
+                                " name:{0} annotated in class {1} is not in proper format ''abc.def.ghi''.",
+                        parameterName, extensionClassFullName));
+            }
+            //Check if the @Parameter description is empty.
+            if (parameter.description().isEmpty()) {
+                throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter ->" +
+                                " name:{0} -> description annotated in class {1} is null or empty.", parameterName,
+                        extensionClassFullName));
+            }
+            //Check if the @Parameter type is empty.
+            if (parameter.type().length == 0) {
+                throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter ->" +
+                                " name:{0} -> type annotated in class {1} is null or empty.", parameterName,
+                        extensionClassFullName));
+            }
+            //Check if the @Parameter dynamic property false or empty in the classes extending
+            //super classes except the Sink & SinkMapper.
+            if (parameter.dynamic()) {
+                throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter ->" +
+                                " name:{0} -> dynamic property cannot be true annotated in class {1}.", parameterName,
+                        extensionClassFullName));
+            }
+        }
+    }
+
+    @Override
+    public void returnAttributesValidation(ReturnAttribute[] returnAttributes) throws AnnotationValidationException {
+        for (ReturnAttribute returnAttribute : returnAttributes) {
+            String returnAttributeName = returnAttribute.name();
+            //Check if the @ReturnAttributes name is empty.
+            if (returnAttributeName.isEmpty()) {
+                throw new AnnotationValidationException(MessageFormat.format("The @Extension -> " +
+                        "@ReturnAttribute -> name annotated in class {0} is null or empty.", extensionClassFullName));
+            } else if (!camelCasePattern.matcher(returnAttributeName).find()) {
+                //Check if the @Extension -> @ReturnAttribute -> name is in a correct camelCase
+                // format using regex pattern.
+                throw new AnnotationValidationException(MessageFormat.format("The @Extension -> " +
+                                "@ReturnAttribute -> name {0} annotated in class {1} is not in camelCase format.",
+                        returnAttributeName, extensionClassFullName));
+            }
+            //Check if the @ReturnAttributes description is empty.
+            if (returnAttribute.description().isEmpty()) {
+                throw new AnnotationValidationException(MessageFormat.format("The @Extension -> " +
+                                "@ReturnAttribute -> name:{0}  -> description annotated in class {1} is null or empty.",
+                        returnAttributeName, extensionClassFullName));
+            }
+            //Check if the @ReturnAttributes type is empty.
+            if (returnAttribute.type().length == 0) {
+                throw new AnnotationValidationException(MessageFormat.format("The @Extension -> " +
+                                "@ReturnAttribute -> name:{0} -> type annotated in class {1} is null or empty.",
+                        returnAttributeName, extensionClassFullName));
+            }
+        }
+    }
+}
