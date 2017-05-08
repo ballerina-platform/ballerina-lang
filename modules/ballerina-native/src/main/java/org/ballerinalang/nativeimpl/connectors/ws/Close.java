@@ -22,6 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.connectors.ws.connectormanager.ConnectorController;
+import org.ballerinalang.nativeimpl.connectors.ws.connectormanager.ConnectorRegistry;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
@@ -48,13 +50,19 @@ public class Close extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getArgument(context, 0);
-        ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
-                org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_CLOSE);
-        controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_CODE, 1000);
-        controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_REASON, "Normal closure");
-        controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID,
-                getClientID(context, bconnector));
-        pushMessage(controlCarbonMessage);
+        WebSocketClientConnector clientConnector = (WebSocketClientConnector) bconnector.value();
+        ConnectorController  controller =
+                ConnectorRegistry.getInstance().removeConnectorManager(clientConnector.getConnectorID());
+        controller.getAllClientIDs().forEach(
+                clientID -> {
+                    ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
+                            org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_CLOSE);
+                    controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_CODE, 1000);
+                    controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_REASON, "Normal closure");
+                    controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientID);
+                    pushMessage(controlCarbonMessage);
+                }
+        );
         return null;
     }
 }
