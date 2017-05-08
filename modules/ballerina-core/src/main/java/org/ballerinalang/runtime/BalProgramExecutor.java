@@ -24,9 +24,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
-import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
@@ -42,7 +39,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.debugger.DebugManager;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -112,33 +108,8 @@ public class BalProgramExecutor {
 
         StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], cacheValues, resourceInfo);
         balContext.getControlStack().pushFrame(currentStackFrame);
-        if (ModeResolver.getInstance().isDebugEnabled()) {
-            DebugManager debugManager = DebugManager.getInstance();
-            // Only start the debugger if there is an active client (debug session).
-            if (debugManager.isDebugSessionActive()) {
-                BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, balContext);
-                debugManager.setDebugger(debugger);
-                balContext.setExecutor(debugger);
-                debugger.execute(new ResourceInvocationExpr(resource, exprs));
-            } else {
-                // repeated code to make sure debugger have no impact in none debug mode.
-                if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                    BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-                    balContext.setExecutor(executor);
-                    executor.execute(new ResourceInvocationExpr(resource, exprs));
-                } else {
-                    BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
-                    new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
-                }
-            }
-        } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
-            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-            balContext.setExecutor(executor);
-            executor.execute(new ResourceInvocationExpr(resource, exprs));
-        } else {
-            BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
-            new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
-            balContext.getControlStack().popFrame();
-        }
+        BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+        new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+        balContext.getControlStack().popFrame();
     }
 }

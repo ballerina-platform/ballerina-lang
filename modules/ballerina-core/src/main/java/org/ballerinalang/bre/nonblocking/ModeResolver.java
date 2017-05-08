@@ -25,16 +25,10 @@ import org.ballerinalang.runtime.Constants;
  */
 public class ModeResolver {
 
-
     private static final ModeResolver instance = new ModeResolver();
-    private boolean nonblockingEnabled = false;
     private boolean debugEnabled = false;
 
     private ModeResolver() {
-        String property = System.getProperty(Constants.SYS_PROP_ENABLE_NONBLOCKING);
-        if (property != null && property.equalsIgnoreCase("true")) {
-            nonblockingEnabled = true;
-        }
         String debug = System.getProperty(Constants.SYSTEM_PROP_BAL_DEBUG);
         if (debug != null && !debug.isEmpty()) {
             debugEnabled = true;
@@ -43,15 +37,6 @@ public class ModeResolver {
 
     public static ModeResolver getInstance() {
         return instance;
-    }
-
-    public boolean isNonblockingEnabled() {
-        return nonblockingEnabled || debugEnabled;
-    }
-
-    public void setNonblockingEnabled(boolean enabled) {
-        // Testing purpose only.
-        this.nonblockingEnabled = enabled;
     }
 
     public boolean isDebugEnabled() {

@@ -22,18 +22,9 @@ import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
-import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.ParameterDef;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
-import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.FunctionInvocationExpr;
-import org.ballerinalang.model.expressions.VariableRefExpr;
-import org.ballerinalang.model.nodes.StartNode;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
@@ -123,50 +114,13 @@ public class BLangFunctions {
                 function.getNodeLocation());
         RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
 
-        if (ModeResolver.getInstance().isNonblockingEnabled()) {
-            // TODO: Fix this properly.
-            Expression[] exprs = new Expression[args.length];
-            for (int i = 0; i < args.length; i++) {
-                VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(),
-                        new SymbolName("arg" + i));
+        StackFrame stackFrame = new StackFrame(argValues, returnValues, functionInfo);
+        bContext.getControlStack().pushFrame(stackFrame);
 
-                variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
-                StackVarLocation location = new StackVarLocation(i);
-                variableRefExpr.setMemoryLocation(location);
-                exprs[i] = variableRefExpr;
-            }
-
-            // 3) Create a function invocation expression
-            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
-                    function.getNodeLocation(), functionName, null, null, exprs);
-            funcIExpr.setOffset(args.length);
-            funcIExpr.setCallableUnit(function);
-            // Linking.
-            BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
-            funcIExpr.setParent(new StartNode(StartNode.Originator.TEST));
-            funcIExpr.accept(flowBuilder);
-            BValue[] cacheValues = new BValue[100];
-            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
-            bContext.getControlStack().pushFrame(stackFrame);
-
-            // Invoke main function
-            BLangNonBlockingExecutor nonBlockingExecutor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
-            nonBlockingExecutor.execute(funcIExpr);
-            int length = funcIExpr.getCallableUnit().getReturnParameters().length;
-            BValue[] result = new BValue[length];
-            for (int i = 0; i < length; i++) {
-                result[i] = bContext.getControlStack().getCurrentFrame().tempValues[funcIExpr.getTempOffset() + i];
-            }
-            return result;
-        } else {
-            StackFrame stackFrame = new StackFrame(argValues, returnValues, functionInfo);
-            bContext.getControlStack().pushFrame(stackFrame);
-
-            // Invoke main function
-            BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-            function.getCallableUnitBody().execute(executor);
-            return returnValues;
-        }
+        // Invoke main function
+        BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+        function.getCallableUnitBody().execute(executor);
+        return returnValues;
     }
 
     /**

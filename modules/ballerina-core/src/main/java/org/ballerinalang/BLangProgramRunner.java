@@ -22,15 +22,11 @@ import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
-import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
-import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Service;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -38,8 +34,6 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-
-import java.util.AbstractMap;
 
 /**
  * {@code BLangProgramRunner} runs main and service programs.
@@ -55,21 +49,19 @@ public class BLangProgramRunner {
         }
 
         int serviceCount = 0;
-        BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
         for (BLangPackage servicePackage : servicePackages) {
             for (Service service : servicePackage.getServices()) {
                 serviceCount++;
                 service.setBLangProgram(bLangProgram);
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
                         dispatcher.serviceRegistered(service));
-                // Build Flow for Non-Blocking execution.
-                service.accept(flowBuilder);
             }
         }
 
         if (serviceCount == 0) {
             throw new RuntimeException("no service(s) found in '" + bLangProgram.getProgramFilePath() + "'");
         }
+        // TODO : Refactor this.
         if (ModeResolver.getInstance().isDebugEnabled()) {
             DebugManager debugManager = DebugManager.getInstance();
             // This will start the websocket server.
@@ -85,8 +77,6 @@ public class BLangProgramRunner {
         Context bContext = new Context();
         BallerinaFunction mainFunction = bLangProgram.getMainFunction();
 
-        // Build flow for Non-Blocking execution.
-        mainFunction.accept(new BLangExecutionFlowBuilder());
         try {
             BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
             BValue[] cacheValues = new BValue[mainFunction.getTempStackFrameSize()];
@@ -106,25 +96,8 @@ public class BLangProgramRunner {
 
             // Invoke main function
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-            if (ModeResolver.getInstance().isDebugEnabled()) {
-                stackFrame.variables.put(new SymbolName("args"), new AbstractMap.SimpleEntry<>(0, "Arg"));
-                DebugManager debugManager = DebugManager.getInstance();
-                // This will start the websocket server.
-                debugManager.init();
-                debugManager.waitTillClientConnect();
-                BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
-                debugManager.setDebugger(debugger);
-                bContext.setExecutor(debugger);
-                debugger.continueExecution(mainFunction.getCallableUnitBody());
-                debugManager.holdON();
-            } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
-                bContext.setExecutor(executor);
-                executor.continueExecution(mainFunction.getCallableUnitBody());
-            } else {
-                BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-                mainFunction.getCallableUnitBody().execute(executor);
-            }
+            BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+            mainFunction.getCallableUnitBody().execute(executor);
 
             bContext.getControlStack().popFrame();
         } catch (Throwable ex) {

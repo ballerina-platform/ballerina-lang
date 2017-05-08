@@ -19,7 +19,6 @@
 package org.ballerinalang.nativeimpl.connectors;
 
 import org.ballerinalang.bre.SymScope;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
@@ -35,15 +34,12 @@ import org.testng.annotations.Test;
 public class JMSClientTest {
     private SymScope globalScope;
     private BLangProgram bLangProgram;
-    private boolean isNonBlockingEnabled;
 
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("samples/jmsClientConnectorTest.bal");
         globalScope = new SymScope(SymScope.Name.GLOBAL);
         BuiltInNativeConstructLoader.loadConstructs();
-        isNonBlockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
-        ModeResolver.getInstance().setNonblockingEnabled(false);
     }
 
     @Test(description = "Test for jms client connector without valid initial context factory",
@@ -74,6 +70,5 @@ public class JMSClientTest {
 
     @AfterClass
     public void tearDown() {
-        ModeResolver.getInstance().setNonblockingEnabled(isNonBlockingEnabled);
     }
 }

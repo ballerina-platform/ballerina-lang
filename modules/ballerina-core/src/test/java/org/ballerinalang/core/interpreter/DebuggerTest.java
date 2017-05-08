@@ -17,26 +17,12 @@
 */
 package org.ballerinalang.core.interpreter;
 
-import org.ballerinalang.BLangProgramLoader;
-import org.ballerinalang.bre.CallableUnitInfo;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.RuntimeEnvironment;
-import org.ballerinalang.bre.StackFrame;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
-import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
-import org.ballerinalang.model.nodes.StartNode;
-import org.ballerinalang.model.values.BArray;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,9 +30,6 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test Cases for {@link BLangExecutionDebugger}.
@@ -184,50 +167,18 @@ public class DebuggerTest {
         BLangExecutionDebugger debugger;
 
         void setup() {
-            ModeResolver.getInstance().setNonblockingEnabled(true);
-            String sourceFilePath = "samples/debug/testDebug.bal";
-            Path path;
-            
-            try {
-                path = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            } catch (URISyntaxException e) {
-                throw new IllegalArgumentException("error while running test: " + e.getMessage());
-            }
-            
-            bLangProgram = new BLangProgramLoader().loadMain(path, Paths.get(sourceFilePath));
-            // Arguments for main function.
-            BArray<BString> arrayArgs = new BArray<>(BString.class);
-            arrayArgs.add(0, new BString("Hello"));
-            arrayArgs.add(1, new BString("World"));
-
-
-            Context bContext = new Context();
-            BallerinaFunction mainFunction = bLangProgram.getMainFunction();
-
-            mainFunction.accept(new BLangExecutionFlowBuilder());
-
-            BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
-            BValue[] cacheValues = new BValue[mainFunction.getTempStackFrameSize()];
-
-            argValues[0] = arrayArgs;
-
-            CallableUnitInfo functionInfo = new CallableUnitInfo(mainFunction.getName(), mainFunction.getPackagePath(),
-                    mainFunction.getNodeLocation());
-
-            funcIExpr = new FunctionInvocationExpr(
-                    mainFunction.getNodeLocation(), mainFunction.getName(), null, null, new Expression[0]);
-            funcIExpr.setOffset(argValues.length);
-            funcIExpr.setCallableUnit(mainFunction);
-            // Flow Building.
-            BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
-            funcIExpr.setParent(new StartNode(StartNode.Originator.TEST));
-            funcIExpr.accept(flowBuilder);
-
-            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
-            bContext.getControlStack().pushFrame(stackFrame);
-
-            RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-            debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
+//            String sourceFilePath = "samples/debug/testDebug.bal";
+//            Path path;
+//
+//            try {
+//                path = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+//            } catch (URISyntaxException e) {
+//                throw new IllegalArgumentException("error while running test: " + e.getMessage());
+//            }
+//
+//            BArray<BString> arrayArgs = new BArray<>(BString.class);
+//            arrayArgs.add(0, new BString("Hello"));
+//            arrayArgs.add(1, new BString("World"));
         }
 
         public void startDebug() {
