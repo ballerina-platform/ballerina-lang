@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.stream.output.sink.InMemoryOutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -38,8 +38,8 @@ import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class KeyValueOutputMapperTestCase {
-    static final Logger log = Logger.getLogger(KeyValueOutputMapperTestCase.class);
+public class KeyValueSinkmapperTestCase {
+    static final Logger log = Logger.getLogger(KeyValueSinkmapperTestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
@@ -54,7 +54,7 @@ public class KeyValueOutputMapperTestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map map
     @Test
-    public void testMapOutputMapperWithQueryAPI() throws InterruptedException {
+    public void testMapSinkmapperWithQueryAPI() throws InterruptedException {
         log.info("Test default map mapping with Siddhi Query API");
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
@@ -109,7 +109,7 @@ public class KeyValueOutputMapperTestCase {
         query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(outputDefinition);
@@ -138,7 +138,7 @@ public class KeyValueOutputMapperTestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map map
     @Test
-    public void testMapOutputMapperWithSiddhiQL() throws InterruptedException {
+    public void testMapSinkmapperWithSiddhiQL() throws InterruptedException {
         log.info("Test default map mapping with SiddhiQL");
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
@@ -181,7 +181,7 @@ public class KeyValueOutputMapperTestCase {
                 "insert into BarStream";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
+        siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 

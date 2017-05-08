@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -32,8 +33,11 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
     protected ExecutionPlanContext executionPlanContext;
     protected String elementId;
     private int attributeSize;
+    private ConfigReader configReader;
 
-    public void initAggregator(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    public void initAggregator(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+            executionPlanContext, ConfigReader configReader) {
+        this.configReader = configReader;
         try {
             this.executionPlanContext = executionPlanContext;
             this.attributeExpressionExecutors = attributeExpressionExecutors;
@@ -44,7 +48,7 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
             }
             //Not added to Snapshotable as the AggregationAttributeExecutors are added
 //            executionPlanContext.getSnapshotService().addSnapshotable(this);
-            init(attributeExpressionExecutors, executionPlanContext);
+            init(attributeExpressionExecutors, configReader, executionPlanContext);
         } catch (Throwable t) {
             throw new ExecutionPlanCreationException(t);
         }
@@ -58,7 +62,7 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
                 innerExpressionExecutors[i] = attributeExpressionExecutors[i].cloneExecutor(key);
             }
             attributeAggregator.elementId = elementId + "-" + key;
-            attributeAggregator.initAggregator(innerExpressionExecutors, executionPlanContext);
+            attributeAggregator.initAggregator(innerExpressionExecutors, executionPlanContext, configReader);
             attributeAggregator.start();
             return attributeAggregator;
         } catch (Exception e) {
@@ -106,9 +110,11 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
      * The initialization method for FunctionExecutor
      *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param configReader
      * @param executionPlanContext         Execution plan runtime context
      */
-    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
+    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                                 ExecutionPlanContext executionPlanContext);
 
     public abstract Attribute.Type getReturnType();
 

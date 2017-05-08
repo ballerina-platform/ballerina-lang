@@ -16,7 +16,7 @@
 
 package org.wso2.siddhi.core.util.lock;
 
-import org.wso2.siddhi.core.window.EventWindow;
+import org.wso2.siddhi.core.window.Window;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class LockWrapper {
     /**
      * Id of the lock which is supposed to be unique inside EventWindows.
-     * It is recommended to use the {@link EventWindow} id as lock id.
+     * It is recommended to use the {@link Window} id as lock id.
      * For query lock, an empty String can be used as lock id since it will not be used in LockSyn
      */
     private final String lockId;

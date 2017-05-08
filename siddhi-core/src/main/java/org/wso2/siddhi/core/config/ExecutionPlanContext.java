@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.config;
 
 import com.lmax.disruptor.ExceptionHandler;
-import org.wso2.siddhi.core.function.EvalScript;
+import org.wso2.siddhi.core.function.Script;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
@@ -54,13 +54,13 @@ public class ExecutionPlanContext {
     private TimestampGenerator timestampGenerator = null;
     private PersistenceService persistenceService;
     private ElementIdGenerator elementIdGenerator;
-    private Map<String, EvalScript> scriptFunctionMap;
+    private Map<String, Script> scriptFunctionMap;
     private ExceptionHandler<Object> disruptorExceptionHandler;
     private int bufferSize;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new CopyOnWriteArrayList<EternalReferencedHolder>();
-        this.scriptFunctionMap = new HashMap<String, EvalScript>();
+        this.scriptFunctionMap = new HashMap<String, Script>();
     }
 
     public SiddhiContext getSiddhiContext() {
@@ -183,7 +183,7 @@ public class ExecutionPlanContext {
         return elementIdGenerator;
     }
 
-    public EvalScript getEvalScript(String name) {
+    public Script getScript(String name) {
         return scriptFunctionMap.get(name);
     }
 
@@ -191,7 +191,7 @@ public class ExecutionPlanContext {
         return scriptFunctionMap.get(name) != null;
     }
 
-    public Map<String, EvalScript> getScriptFunctionMap() {
+    public Map<String, Script> getScriptFunctionMap() {
         return scriptFunctionMap;
     }
 

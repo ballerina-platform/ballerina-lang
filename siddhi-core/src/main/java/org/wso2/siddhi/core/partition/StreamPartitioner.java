@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.partition.executor.RangePartitionExecutor;
 import org.wso2.siddhi.core.partition.executor.ValuePartitionExecutor;
-import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
@@ -107,7 +107,7 @@ public class StreamPartitioner {
 
     }
 
-    private void createSingleInputStreamExecutors(SingleInputStream inputStream, Partition partition, MetaStreamEvent metaEvent, List<VariableExpressionExecutor> executors, Map<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext, String queryName) {
+    private void createSingleInputStreamExecutors(SingleInputStream inputStream, Partition partition, MetaStreamEvent metaEvent, List<VariableExpressionExecutor> executors, Map<String, Table> tableMap, ExecutionPlanContext executionPlanContext, String queryName) {
         List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
         partitionExecutorLists.add(executorList);
         if (!inputStream.isInnerStream()) {
@@ -115,14 +115,14 @@ public class StreamPartitioner {
                 if (partitionType instanceof ValuePartitionType) {
                     if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                         executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
-                                metaEvent, SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, executionPlanContext, false, 0, queryName)));
+                                metaEvent, SiddhiConstants.UNKNOWN_STATE, tableMap, executors, executionPlanContext, false, 0, queryName)));
                     }
                 } else {
                     for (RangePartitionType.RangePartitionProperty rangePartitionProperty : ((RangePartitionType) partitionType).getRangePartitionProperties()) {
                         if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                             executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
                                     ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), metaEvent,
-                                            SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, executionPlanContext, false, 0, queryName),
+                                            SiddhiConstants.UNKNOWN_STATE, tableMap, executors, executionPlanContext, false, 0, queryName),
                                     rangePartitionProperty.getPartitionKey()));
 
                         }

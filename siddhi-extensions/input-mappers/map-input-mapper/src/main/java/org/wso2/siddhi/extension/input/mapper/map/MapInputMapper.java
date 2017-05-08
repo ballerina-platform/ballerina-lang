@@ -29,8 +29,8 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.stream.input.source.InputMapper;
-import org.wso2.siddhi.core.stream.input.source.InputTransport;
+import org.wso2.siddhi.core.stream.input.source.Sourcemapper;
+import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.util.AttributeConverter;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -45,15 +45,15 @@ import java.util.Map;
  */
 @Extension(
         name = "map",
-        namespace = "inputmapper",
+        namespace = "sourceMapper",
         description = ""
 )
-public class MapInputMapper implements InputMapper {
+public class MapSourcemapper implements Sourcemapper {
 
     /**
      * Logger to log the events.
      */
-    private static final Logger log = Logger.getLogger(MapInputMapper.class);
+    private static final Logger log = Logger.getLogger(MapSourcemapper.class);
 
     /**
      * SinkCallback to which the converted event must be sent.
@@ -139,7 +139,7 @@ public class MapInputMapper implements InputMapper {
     }
 
     /**
-     * Receive {@link Event} or Object[] from {@link InputTransport}, convert to {@link ComplexEventChunk} and send
+     * Receive {@link Event} or Object[] from {@link Source}, convert to {@link ComplexEventChunk} and send
      * to the {@link OutputCallback}.
      *
      * @param eventObject the hashmap
@@ -153,7 +153,7 @@ public class MapInputMapper implements InputMapper {
 
     private Event convertToEvent(Object eventObject) {
         if (eventObject == null) {
-            throw new ExecutionPlanRuntimeException("Null object received from the InputTransport to MapInputMapper");
+            throw new ExecutionPlanRuntimeException("Null object received from the Source to MapsourceMapper");
         } else if (!(eventObject instanceof HashMap)) {
             throw new ExecutionPlanRuntimeException("Invalid Map object received. Expected HashMap, but found " +
                     eventObject.getClass()

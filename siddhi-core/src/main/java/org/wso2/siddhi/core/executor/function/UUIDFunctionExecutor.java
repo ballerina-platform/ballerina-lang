@@ -19,11 +19,11 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.Map;
@@ -44,7 +44,7 @@ public class UUIDFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
-                        ExecutionPlanContext executionPlanContext) {
+                        ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         //Nothing to be done.
     }
 
