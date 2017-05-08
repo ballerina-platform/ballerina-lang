@@ -21,13 +21,15 @@ package org.ballerinalang.nativeimpl.connectors.ws;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.connectors.ws.connectormanager.ConnectorController;
+import org.ballerinalang.nativeimpl.connectors.ws.connectormanager.ConnectorRegistry;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaConnector;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.services.dispatchers.ws.WebSocketClientsRegistry;
+import org.ballerinalang.services.dispatchers.ws.WebSocketClientServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.ClientConnector;
@@ -64,10 +66,12 @@ public class WebSocketClientConnector extends AbstractNativeConnector {
 
     private String remoteServerUrl;
     private String serviceName;
+    private final String connectorID;
 
     public WebSocketClientConnector(SymbolScope enclosingScope) {
         super(enclosingScope);
-
+        connectorID = UUID.randomUUID().toString();
+        ConnectorRegistry.getInstance().addConnectorController(connectorID);
     }
 
     @Override
@@ -89,34 +93,40 @@ public class WebSocketClientConnector extends AbstractNativeConnector {
      *
      * @return the client unique id of this connector.
      */
-    public String getConnectorID(Session session) {
-        ConnectorManager connectorManager = ConnectorManager.getInstance();
-        String connectorID = connectorManager.getConnectorID(session.getId());
-        if (connectorID == null) {
-            // Generate a random unique ID since it is needed for WebSocket Client Connector.
-            connectorID = UUID.randomUUID().toString();
+    public String getConnectionID(Session session) {
+        ConnectorController connectorController = ConnectorRegistry.getInstance().getConnectorController(connectorID);
+        if (connectorController.clientExists(session)) {
+            return connectorController.getClientID(session);
+        } else {
             try {
-                initiateConnection(remoteServerUrl, connectorID);
-                connectorManager.storeConnector(session, connectorID);
+                String clientID = connectorController.addConnection(session);
+                initiateConnection(remoteServerUrl, clientID);
+                return clientID;
             } catch (ClientConnectorException e) {
-                throw new BallerinaException("Could not create a WebSocket Client connector for url: " +
-                                                     remoteServerUrl);
+                connectorController.removeClient(session);
+                throw new BallerinaException("Error occurred in managing connection.");
             }
         }
-        return connectorID;
     }
 
-    private void initiateConnection(String serviceUri, String clientID) throws ClientConnectorException {
+    /**
+     * Initiate the connection with the remote server.
+     *
+     * @param remoteUrl remote url which the connector need to be connected.
+     * @param clientID ID of the WebSocket client for the communication.
+     * @throws ClientConnectorException if the client service cannot be found.
+     */
+    private void initiateConnection(String remoteUrl, String clientID) throws ClientConnectorException {
         ClientConnector clientConnector =
                 BallerinaConnectorManager.getInstance().getClientConnector(Constants.PROTOCOL_WEBSOCKET);
         if (clientConnector == null) {
             throw new BallerinaException("Cannot initiate the connection since not found the connector support for WS");
         }
-        WebSocketClientsRegistry.getInstance().mapClientIdToServiceName(clientID, serviceName);
+        WebSocketClientServicesRegistry.getInstance().mapClientIdToServiceName(clientID, serviceName);
         ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
                 org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN);
         controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientID);
-        controlCarbonMessage.setProperty(Constants.TO, serviceUri);
+        controlCarbonMessage.setProperty(Constants.TO, remoteUrl);
         clientConnector.send(controlCarbonMessage, null);
     }
 }

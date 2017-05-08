@@ -94,8 +94,10 @@ public class MessageUtils {
     public static CarbonMessage generateWebSocketOnOpenMessage(Session session, String path) {
         StatusCarbonMessage statusCarbonMessage = new StatusCarbonMessage(
                 org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
-        statusCarbonMessage.setProperty(Constants.CONNECTION, Constants.UPGRADE);
-        statusCarbonMessage.setProperty(Constants.UPGRADE, Constants.WEBSOCKET_UPGRADE);
+        statusCarbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.CONNECTION, org
+                .ballerinalang.services.dispatchers.ws.Constants.UPGRADE);
+        statusCarbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.UPGRADE, org
+                .ballerinalang.services.dispatchers.ws.Constants.WEBSOCKET_UPGRADE);
         return setWebSocketCommonProperties(statusCarbonMessage, session, path);
     }
 
@@ -103,8 +105,10 @@ public class MessageUtils {
                                                                Map<String, String> headers) {
         StatusCarbonMessage statusCarbonMessage = new StatusCarbonMessage(
                 org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
-        statusCarbonMessage.setProperty(Constants.CONNECTION, Constants.UPGRADE);
-        statusCarbonMessage.setProperty(Constants.UPGRADE, Constants.WEBSOCKET_UPGRADE);
+        statusCarbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.CONNECTION, org
+                .ballerinalang.services.dispatchers.ws.Constants.UPGRADE);
+        statusCarbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.UPGRADE, org
+                .ballerinalang.services.dispatchers.ws.Constants.WEBSOCKET_UPGRADE);
         headers.entrySet().stream().forEach(
                 entry -> {
                     statusCarbonMessage.setHeader(entry.getKey(), entry.getValue());
@@ -121,10 +125,11 @@ public class MessageUtils {
 
     private static CarbonMessage setWebSocketCommonProperties(CarbonMessage carbonMessage, Session session,
                                                               String path) {
-        carbonMessage.setProperty(Constants.PROTOCOL, Constants.PROTOCOL_WEBSOCKET);
+        carbonMessage.setProperty(Constants.PROTOCOL,
+                                  org.ballerinalang.nativeimpl.connectors.ws.Constants.PROTOCOL_WEBSOCKET);
         carbonMessage.setProperty(Constants.TO, path);
-        carbonMessage.setProperty(Constants.IS_WEBSOCKET_SERVER, true);
-        carbonMessage.setProperty(Constants.WEBSOCKET_SESSION, session);
+        carbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.IS_WEBSOCKET_SERVER, true);
+        carbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.WEBSOCKET_SESSION, session);
         return carbonMessage;
     }
 

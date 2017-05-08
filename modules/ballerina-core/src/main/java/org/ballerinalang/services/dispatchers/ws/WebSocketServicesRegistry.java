@@ -64,7 +64,7 @@ public class WebSocketServicesRegistry {
                 throw new BallerinaException(
                         "Cannot define any other service annotation with WebSocket Client service");
             } else {
-                WebSocketClientsRegistry.getInstance().addService(service);
+                WebSocketClientServicesRegistry.getInstance().addService(service);
             }
         }
     }

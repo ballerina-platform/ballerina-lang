@@ -7,8 +7,8 @@ import ballerina.lang.system;
 @ws:WebSocketUpgradePath {value:"/ws"}
 service serverConnector {
 
-    ws:ClientConnector c1 = create ws:ClientConnector("wss://echo.websocket.org", "clientService1");
-    ws:ClientConnector c2 = create ws:ClientConnector("wss://echo.websocket.org", "clientService2");
+    ws:ClientConnector c1 = create ws:ClientConnector("ws://localhost:8080/websocket", "clientService1");
+    ws:ClientConnector c2 = create ws:ClientConnector("ws://localhost:8080/websocket", "clientService2");
 
     @ws:OnTextMessage {}
     resource ontext(message m) {
