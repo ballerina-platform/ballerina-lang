@@ -558,7 +558,7 @@
 
 .struct-identifier-text-input {
     float: left;
-    width: 190px;
+    width: 195px;
     padding-left: 8px;
     padding-right: 8px;
     margin-right: 5px;
@@ -568,7 +568,7 @@
 
 .struct-default-value-text-input {
     float: left;
-    width: 190px;
+    width: 155px;
     padding-left: 8px;
     padding-right: 8px;
     margin-right: 5px;

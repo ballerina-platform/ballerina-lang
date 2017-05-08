@@ -68,10 +68,34 @@ class StructDefinitionPositionCalcVisitor {
         body.x = bodyX;
         body.y = bodyY;
 
-        const {statements} = viewSate.components;
-        statements.forEach((statement, i) => {
-            statement.y = bodyY + DesignerDefaults.structDefinition.padding.top + statement.h * i;
-            statement.x = bodyX + DesignerDefaults.structDefinition.padding.left;
+        const { statements, contentOperations } = viewSate.components;
+
+        contentOperations.x = bodyX + DesignerDefaults.structDefinition.padding.left;
+        contentOperations.y = bodyY +  DesignerDefaults.structDefinition.padding.top;
+
+        statements.forEach( (statement, i) => {
+            const margin = DesignerDefaults.structDefinitionStatement.margin.bottom;
+            statement.typeWrapper.x = contentOperations.x;
+            statement.typeWrapper.y = contentOperations.y + DesignerDefaults.contentOperations.height +  i * (DesignerDefaults.structDefinitionStatement.height + margin);
+
+            statement.typeText.x = statement.typeWrapper.x + DesignerDefaults.structDefinitionStatement.padding.left;
+            statement.typeText.y = statement.typeWrapper.y + DesignerDefaults.structDefinitionStatement.height / 2;
+
+            statement.identifierWrapper.x = statement.typeWrapper.x + statement.typeWrapper.w;
+            statement.identifierWrapper.y = statement.typeWrapper.y;
+
+            statement.identifierText.x = statement.identifierWrapper.x + DesignerDefaults.structDefinitionStatement.padding.left;
+            statement.identifierText.y = statement.typeWrapper.y + DesignerDefaults.structDefinitionStatement.height / 2;
+
+            statement.valueWrapper.x = statement.identifierWrapper.x + statement.identifierWrapper.w;
+            statement.valueWrapper.y = statement.identifierWrapper.y;
+
+            statement.valueText.x = statement.valueWrapper.x + DesignerDefaults.structDefinitionStatement.padding.left;
+            statement.valueText.y = statement.identifierWrapper.y + DesignerDefaults.structDefinitionStatement.height / 2;
+
+            statement.deleteButton.x = statement.typeWrapper.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset;
+            statement.deleteButton.y = statement.typeText.y;
+
         });
         log.debug('begin visit StructDefinitionPositionCalc');
     }

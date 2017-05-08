@@ -45,7 +45,7 @@ class ReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitReplyStatement(replyStatement) {
         this.appendSource(replyStatement.getReplyMessage() + ";\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.getParent().appendSource('\n' + this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Reply Statement Definition');
     }
 }

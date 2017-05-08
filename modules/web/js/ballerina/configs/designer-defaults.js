@@ -87,6 +87,14 @@ export const lifeLine = {
     }
 };
 
+export const actionBox = {
+    width: 66,
+    height: 21,
+    padding: {
+        top: 2
+    }
+}
+
 export const statement = {
     width: 120,
     height: 30,
@@ -144,6 +152,10 @@ export const packageDefinition = {
             bottom: 0,
             left: 50
         }
+    },
+
+    importDeclaration: {
+        itemHeight: 40
     }
 }
 
@@ -156,7 +168,19 @@ export const structDefinition = {
     }
 };
 
+export const contentOperations = {
+    height: 45,
+    width: 600,
+};
+
 export const structDefinitionStatement = {
-    width: 450,
-    height: 25,
+    width: 600,
+    height: 30,
+    margin: {
+        bottom: 2
+    },
+    padding: {
+        left: 10
+    },
+    deleteButtonOffset: 20,
 };

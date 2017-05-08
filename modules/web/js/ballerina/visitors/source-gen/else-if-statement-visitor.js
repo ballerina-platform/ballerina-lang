@@ -31,26 +31,31 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitElseIfStatement(elseIfStatement) {
+        this.node = elseIfStatement;
         this.appendSource(' elseIf (' + elseIfStatement.getCondition() + ') {\n');
         this.indent();
         log.debug('Begin Visit Else If Statement Definition');
-    }
-
-    visitElseIfStatement(elseIfStatement) {
-        log.debug('Visit Else If Statement Definition');
-    }
-
-    endVisitElseIfStatement(elseIfStatement) {
-        this.outdent();
-        this.appendSource("}\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
-        log.debug('End Visit Else If Statement Definition');
     }
 
     visitStatement(statement) {
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
+    }
+
+    endVisitElseIfStatement(elseIfStatement) {
+        this.outdent();
+        this.appendSource("}");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Else If Statement Definition');
+    }
+
+    visitStatement(statement) {
+        if(!_.isEqual(this.node, statement)) {
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        }
     }
 }
 

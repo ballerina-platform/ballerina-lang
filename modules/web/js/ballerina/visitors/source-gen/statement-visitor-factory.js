@@ -48,17 +48,17 @@ class StatementVisitorFactor {
         if (statement instanceof AST.TryCatchStatement) {
             return new TryCatchStatementVisitor(parent);
         } else if (statement instanceof AST.TryStatement) {
-            return new TryStatementVisitor(parent.getParent());
+            return new TryStatementVisitor(parent);
         } else if (statement instanceof AST.CatchStatement) {
-            return new CatchStatementVisitor(parent.getParent());
+            return new CatchStatementVisitor(parent);
         } else if (statement instanceof AST.IfElseStatement) {
             return new IfElseStatementVisitor(parent);
         } else if (statement instanceof AST.IfStatement) {
-            return new IfStatementVisitor(parent.getParent());
+            return new IfStatementVisitor(parent);
         } else if (statement instanceof AST.ElseStatement) {
-            return new ElseStatementVisitor(parent.getParent());
+            return new ElseStatementVisitor(parent);
         } else if (statement instanceof AST.ElseIfStatement) {
-            return new ElseIfStatementVisitor(parent.getParent());
+            return new ElseIfStatementVisitor(parent);
         } else if (statement instanceof AST.WhileStatement) {
             return new WhileStatementVisitor(parent);
         } else if (statement instanceof AST.AssignmentStatement) {
@@ -94,4 +94,3 @@ class StatementVisitorFactor {
 }
 
 export default StatementVisitorFactor;
-

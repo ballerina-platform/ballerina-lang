@@ -24,23 +24,40 @@ import PositionCalcVisitor from '../visitors/position-calculator-visitor';
 import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor';
 import {getComponentForNodeArray} from './utils';
 import DragDropManager from '../tool-palette/drag-drop-manager';
+import MessageManager from './../visitors/message-manager';
 import ASTRoot from '../ast/ballerina-ast-root';
 import Renderer from './renderer';
+import StructOperationsRenderer from './struct-operations-renderer';
 
 class Diagram extends React.Component {
 
     constructor(props) {
         super(props);
-        this.model = props.model;
-        this.model.on('tree-modified', () => {
-            this.forceUpdate();
-        });
+        this.editor = props.editor;
+        this.container = props.container;
+
+        this.setModel(this.editor.getModel());
+
         this.dimentionCalc = new DimensionCalcVisitor();
         this.positionCalc = new PositionCalcVisitor();
+
+        this.editor.on("update-diagram",()=>{
+            this.setModel(this.editor.getModel());
+            this.forceUpdate();
+        });
     }
 
     setModel(model) {
         this.model = model;
+        //pass the container width and height to root view state.
+        let viewState = this.model.getViewState();
+        viewState.container = {
+            width : this.container.width(),
+            height : this.container.height()
+        };
+        this.model.on('tree-modified', () => {
+            this.forceUpdate();
+        });
     }
 
     getModel() {
@@ -58,7 +75,7 @@ class Diagram extends React.Component {
         // 3. Now we need to create component for each child of root node.
         let [pkgDef, imports, constants, others] = [undefined, [], [], []];
         let otherNodes = [];
-        this.props.model.children.forEach((child) => {
+        this.model.children.forEach((child) => {
             switch (child.constructor.name) {
                 case 'ImportDeclaration':
                     break;
@@ -80,8 +97,11 @@ class Diagram extends React.Component {
     getChildContext() {
         return {
             dragDropManager: this.props.dragDropManager ,
+            messageManager: this.props.messageManager,
             container : this.props.container,
-            renderer: this.props.renderer
+            renderer: this.props.renderer,
+            renderingContext: this.props.renderingContext,
+            structOperationsRenderer: this.props.structOperationsRenderer
         };
     }
 }
@@ -93,15 +113,19 @@ Diagram.propTypes = {
 		w: PropTypes.number.isRequired,
 		h: PropTypes.number.isRequired,
 	}),
-  model: PropTypes.instanceOf(ASTRoot).isRequired,
+  editor: PropTypes.instanceOf(Object).isRequired,
   dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
   renderer: PropTypes.instanceOf(Renderer).isRequired
 }
 
 Diagram.childContextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
     container: PropTypes.instanceOf(Object).isRequired,
-    renderer: PropTypes.instanceOf(Renderer).isRequired
+    renderer: PropTypes.instanceOf(Renderer).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    structOperationsRenderer: PropTypes.instanceOf(StructOperationsRenderer).isRequired,
 };
 
 export default Diagram;

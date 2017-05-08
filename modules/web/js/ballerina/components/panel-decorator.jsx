@@ -24,6 +24,7 @@ import ASTNode from '../ast/node';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import './panel-decorator.css';
+import {panel} from '../configs/designer-defaults.js';
 
 class PanelDecorator extends React.Component {
 
@@ -42,7 +43,7 @@ class PanelDecorator extends React.Component {
 
     render() {
         const bBox = this.props.bBox;
-        const titleHeight = 25;
+        const titleHeight = panel.heading.height;
         const iconSize = 14;
         const collapsed = this.props.model.viewState.collapsed|| false;
         const dropZoneActivated = this.state.dropZoneActivated;
