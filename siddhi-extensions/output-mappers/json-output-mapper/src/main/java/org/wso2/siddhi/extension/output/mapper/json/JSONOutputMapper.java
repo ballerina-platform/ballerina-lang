@@ -24,8 +24,9 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransportListener;
+import org.wso2.siddhi.core.stream.output.sink.SinkListener;
+import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
@@ -35,10 +36,10 @@ import java.util.Map;
 
 @Extension(
         name = "json",
-        namespace = "outputmapper",
+        namespace = "sinkMapper",
         description = "Event to JSON output mapper."
 )
-public class JSONOutputMapper extends OutputMapper {
+public class JSONOutputMapper extends SinkMapper {
     private static final Logger log = Logger.getLogger(JSONOutputMapper.class);
     private StreamDefinition streamDefinition;
     private static final String EVENT_PARENT_TAG = "event";
@@ -48,8 +49,6 @@ public class JSONOutputMapper extends OutputMapper {
     private static final String JSON_END_SYMBOL = "}";
     private static final String UNDEFINED = "undefined";
 
-
-    //Todo  use group events to group multiple events.
     boolean groupEvents = false;
     private boolean isCustomMappingEnabled = false;
     private String enclosingElement = null;
@@ -69,7 +68,7 @@ public class JSONOutputMapper extends OutputMapper {
      * @param payloadTemplateBuilder Unmapped payload for reference
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader) {
         this.streamDefinition = streamDefinition;
         enclosingElement = optionHolder.validateAndGetStaticValue(ENCLOSING_ELEMENT_IDENTIFIER,null);
         validationEnabled = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(JSON_VALIDATION_IDENTIFIER,"true"));
@@ -79,25 +78,24 @@ public class JSONOutputMapper extends OutputMapper {
     }
 
     @Override
-    public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+    public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, SinkListener sinkListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
         StringBuilder sb = new StringBuilder();
         if(payloadTemplateBuilder == null){
             sb.append(constructJsonForDefaultMapping(events));
         }else{
             sb.append(constructJsonForCustomMapping(events, payloadTemplateBuilder));
         }
-
         if(validationEnabled && isValidJson(sb.toString())){
-            outputTransportListener.publish(sb.toString(), dynamicOptions);
+            sinkListener.publish(sb.toString(), dynamicOptions);
         }else if(!validationEnabled){
-            outputTransportListener.publish(sb.toString(), dynamicOptions);
+            sinkListener.publish(sb.toString(), dynamicOptions);
         }else {
             log.error("Invalid json string : "+sb.toString());
         }
     }
 
     @Override
-    public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+    public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, SinkListener sinkListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
         StringBuilder sb = new StringBuilder();
         if(payloadTemplateBuilder == null){
             sb.append(constructJsonForDefaultMapping(event));
@@ -106,9 +104,9 @@ public class JSONOutputMapper extends OutputMapper {
         }
 
         if(validationEnabled && isValidJson(sb.toString())){
-            outputTransportListener.publish(sb.toString(), dynamicOptions);
+            sinkListener.publish(sb.toString(), dynamicOptions);
         }else if(!validationEnabled){
-            outputTransportListener.publish(sb.toString(), dynamicOptions);
+            sinkListener.publish(sb.toString(), dynamicOptions);
         }else {
             log.error("Invalid json string : "+sb.toString());
         }
@@ -170,7 +168,6 @@ public class JSONOutputMapper extends OutputMapper {
     }
 
     private String constructJsonForCustomMapping(Object eventObj, TemplateBuilder payloadTemplateBuilder){
-        StringBuilder sb = new StringBuilder();
         if(eventObj instanceof  Event){
             JsonObject jsonObj = new JsonObject();
             Event event = doPartialProcessing((Event)eventObj);
@@ -193,11 +190,6 @@ public class JSONOutputMapper extends OutputMapper {
                 return jsonArray.toString();
             }
         }
-        return null;
-    }
-
-    private JsonObject constructSingleEventForCustomMapping(Event event,TemplateBuilder payloadTemplateBuilder){
-        payloadTemplateBuilder.build(event);
         return null;
     }
 
