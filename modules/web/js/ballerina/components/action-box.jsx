@@ -43,7 +43,11 @@ class ActionBox extends React.Component {
                    <image width={ iconSize } height={ iconSize } className="property-pane-action-button-breakpoint"
                       onClick={this.props.onBreakPoint} xlinkHref={ ImageUtil.getSVGIconString("debug-point") } x={bBox.x + iconSize + horizontalGap * 2} y={y}/>
                    <image width={ iconSize } height={ iconSize } className="property-pane-action-button-jump"
-                      xlinkHref={ ImageUtil.getSVGIconString("code-design") } x={bBox.x + iconSize * 2 + horizontalGap * 3} y={y}/>
+                      xlinkHref={ ImageUtil.getSVGIconString("code-design") }
+                      x={bBox.x + iconSize * 2 + horizontalGap * 3}
+                      y={y}
+                      onClick={this.props.onJumptoCodeLine}
+                  />
                 </g>);
   }
 

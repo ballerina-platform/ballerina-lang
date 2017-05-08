@@ -24,6 +24,7 @@ import ParameterView from './parameter-view';
 import ReturnTypeView from './return-type-view';
 import {getComponentForNodeArray} from './utils';
 import {lifeLine} from './../configs/designer-defaults';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 class FunctionDefinition extends React.Component {
 
@@ -34,6 +35,9 @@ class FunctionDefinition extends React.Component {
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getFunctionName();
+        let annotations = this.props.model.getChildren().filter(function(child){
+             return BallerinaASTFactory.isAnnotation(child);
+        });
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
 
         //lets calculate function worker lifeline bounding box.
@@ -54,22 +58,34 @@ class FunctionDefinition extends React.Component {
 
         let titleComponentData = [
             {
-                component: ParameterView,
+                rComponent: ParameterView,
                 title: 'Parameters: ',
-                prefixView: this.props.model.getViewState().components.parametersPrefixContainer,
-                prefixViewClassName: 'parameters-prefix-wrapper',
+                components: {
+                    openingBracket: this.props.model.getViewState().components.openingParameter,
+                    titleText: this.props.model.getViewState().components.parametersText,
+                    closingBracket: this.props.model.getViewState().components.closingParameter
+                },
+                openingBracketClassName: 'parameter-opening-brack-text',
+                closingBracketClassName: 'parameter-closing-brack-text',
+                prefixTextClassName: 'parameter-prefix-text',
                 models: this.props.model.getArguments()
             },
             {
-                component: ReturnTypeView,
+                rComponent: ReturnTypeView,
                 title: 'Return Types: ',
-                prefixView: this.props.model.getViewState().components.returnTypesPrefixContainer,
-                prefixViewClassName: 'return-types-prefix-wrapper',
+                components: {
+                    openingBracket: this.props.model.getViewState().components.openingReturnType,
+                    titleText: this.props.model.getViewState().components.returnTypesText,
+                    closingBracket: this.props.model.getViewState().components.closingReturnType
+                },
+                openingBracketClassName: 'return-types-opening-brack-text',
+                closingBracketClassName: 'return-types-closing-brack-text',
+                prefixTextClassName: 'return-types-prefix-text',
                 models: this.props.model.getReturnTypes()
             } 
         ];
 
-        return (<PanelDecorator icon={icons} title={name} bBox={bBox}
+        return (<PanelDecorator icon={icons} title={name} annotations={annotations} bBox={bBox}
                         model={this.props.model}
                         dropTarget={this.props.model}
                         dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}

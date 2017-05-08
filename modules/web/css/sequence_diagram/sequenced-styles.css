@@ -36,14 +36,25 @@
 }
 
 .resource > line {
-    stroke: #000000;
+    stroke: #000;
 }
 
 .headingRect {
-    fill: #FFFFFF;
+    fill: #fff;
     stroke-width: 1;
     stroke: #909090;
     shape-rendering: crispEdges;
+}
+
+.annotationRect {
+    fill: #eeeeee;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+    stroke: #7d7d7d;
+}
+
+.annotation-text {
+    fill: #2c2c2c;
 }
 
 .headingRectIcon {
@@ -586,7 +597,7 @@ text-anchor: start;
 }
 
 .parameter-delete-icon-wrapper {
-    fill: #90CAF9;
+    fill: #FFFFFF;
     stroke-width: 1;
     stroke: #909090;
     shape-rendering: crispEdges;
@@ -601,8 +612,12 @@ text-anchor: start;
     opacity: 1;
 }
 
-.parameters-prefix-wrapper {
-    fill: #64B5F6;
+.parameter-opening-brack-text, .parameter-closing-brack-text, .parameter-prefix-text, .parameter-text {
+    dominant-baseline: text-before-edge;    
+}
+
+.return-type-wrapper {
+    fill: #FFFFFF;
     stroke-width: 1;
     stroke: #909090;
     shape-rendering: crispEdges;
@@ -623,7 +638,7 @@ text-anchor: start;
 }
 
 .return-type-delete-icon-wrapper {
-    fill: #80CBC4;
+    fill: #FFFFFF;
     stroke-width: 1;
     stroke: #909090;
     shape-rendering: crispEdges;
@@ -636,4 +651,8 @@ text-anchor: start;
 
 .return-type-delete-icon:hover {
     opacity: 1;
+}
+
+.return-types-opening-brack-text, .return-types-closing-brack-text, .return-types-prefix-text, .return-type-text {
+    dominant-baseline: text-before-edge;    
 }

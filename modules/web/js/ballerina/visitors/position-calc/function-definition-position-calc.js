@@ -30,18 +30,20 @@ class FunctionDefinitionPositionCalcVisitor {
     }
 
     beginVisit(node) {
-        let viewSate = node.getViewState();
-        let bBox = viewSate.bBox;
+        let viewState = node.getViewState();
+        let bBox = viewState.bBox;
+        let annotation = viewState.components.annotation;
         let parent = node.getParent();
         let panelChildren = parent.filterChildren(function (child) {
             return ASTFactory.isFunctionDefinition(child) ||
                 ASTFactory.isServiceDefinition(child) || ASTFactory.isConnectorDefinition(child)
-                || ASTFactory.isAnnotationDefinition(child);
+                || ASTFactory.isAnnotationDefinition(child) ||
+                ASTFactory.isPackageDefinition(child);
         });
-        let heading = viewSate.components.heading;
-        let body = viewSate.components.body;
+        let heading = viewState.components.heading;
+        let body = viewState.components.body;
         let currentFunctionIndex = _.findIndex(panelChildren, node);
-        let statementContainer = viewSate.components.statementContainer;
+        let statementContainer = viewState.components.statementContainer;
         let x, y, headerX, headerY, bodyX, bodyY;
         if (currentFunctionIndex === 0) {
             headerX = DesignerDefaults.panel.wrapper.gutter.h;
@@ -57,7 +59,7 @@ class FunctionDefinitionPositionCalcVisitor {
         x = headerX;
         y = headerY;
         bodyX = headerX;
-        bodyY = headerY + heading.h;
+        bodyY = headerY + heading.h + annotation.h;
 
         bBox.x = x;
         bBox.y = y;
@@ -73,44 +75,51 @@ class FunctionDefinitionPositionCalcVisitor {
         //defaultWorker.x = statementContainer.x + (statementContainer.w - defaultWorker.w)/2;
         //defaultWorker.y = statementContainer.y - DesignerDefaults.lifeLine.head.height;
 
-        // Setting positions of parameters.
-        let lastParameterEndXPosition = node.getViewState().bBox.x + viewSate.titleWidth;
-        node.getViewState().components['parametersPrefixContainer'].x = node.getViewState().bBox.x + viewSate.titleWidth;
-        let nextXPositionOfParameter = node.getViewState().components['parametersPrefixContainer'].x +
-            node.getViewState().components['parametersPrefixContainer'].w;
+        //// Positioning parameters
+        // Setting positions of function parameters.
+        // Positioning the openning bracket component of the parameters.
+        viewState.components.openingParameter.x = viewState.bBox.x + viewState.titleWidth;
+        viewState.components.openingParameter.y = viewState.bBox.y;
+
+        // Positioning the Parameters text component.
+        viewState.components.parametersText.x = viewState.components.openingParameter.x + viewState.components.openingParameter.w;
+        viewState.components.parametersText.y = viewState.bBox.y;
+
+        // Positioning the resource parameters
+        let nextXPositionOfParameter = viewState.components.parametersText.x + viewState.components.parametersText.w;
         if (node.getArguments().length > 0) {
             for (let i = 0; i < node.getArguments().length; i++) {
-                let resourceParameter = node.getArguments()[i];
-                let viewState = resourceParameter.getViewState();
-                if (i !== 0) {
-                    nextXPositionOfParameter = nextXPositionOfParameter + 14;
-                }
-
-                viewState.x = nextXPositionOfParameter;
-                nextXPositionOfParameter += util.getTextWidth(resourceParameter.getParameterAsString()).w;
-
-                if (i === node.getArguments().length - 1) {
-                    lastParameterEndXPosition = viewState.x + util.getTextWidth(resourceParameter.getParameterAsString()).w;
-                }
+                let argument = node.getArguments()[i];
+                nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter, viewState.bBox.y);
             }
         }
 
+        // Positioning the closing brack component of the parameters.
+        viewState.components.closingParameter.x = nextXPositionOfParameter;
+        viewState.components.closingParameter.y = viewState.bBox.y;
+
+        //// Positioning return types
         // Setting positions of return types.
-        node.getViewState().components['returnTypesPrefixContainer'].x = lastParameterEndXPosition + node.getViewState().bBox.x + viewSate.titleWidth;
-        let nextXPositionOfReturnType = node.getViewState().components['returnTypesPrefixContainer'].x +
-            node.getViewState().components['returnTypesPrefixContainer'].w;
+        // Positioning the openning bracket component of the return types.
+        viewState.components.openingReturnType.x = viewState.components.closingParameter.x + viewState.components.closingParameter.w + 20;
+        viewState.components.openingReturnType.y = viewState.bBox.y;
+
+        // Positioning the Parameters text component.
+        viewState.components.returnTypesText.x = viewState.components.openingReturnType.x + viewState.components.openingReturnType.w;
+        viewState.components.returnTypesText.y = viewState.bBox.y;
+
+        // Positioning the resource parameters
+        let nextXPositionOfReturnType = viewState.components.returnTypesText.x + viewState.components.returnTypesText.w;
         if (node.getReturnTypes().length > 0) {
             for (let i = 0; i < node.getReturnTypes().length; i++) {
                 let returnType = node.getReturnTypes()[i];
-                let viewState = returnType.getViewState();
-                if (i !== 0) {
-                    nextXPositionOfReturnType = nextXPositionOfReturnType + 14;
-                }
-
-                viewState.x = nextXPositionOfReturnType;
-                nextXPositionOfReturnType += util.getTextWidth(returnType.getArgumentAsString()).w;
+                nextXPositionOfReturnType = this.createPositionForTitleNode(returnType, nextXPositionOfReturnType, viewState.bBox.y);
             }
         }
+
+        // Positioning the closing brack component of the parameters.
+        viewState.components.closingReturnType.x = nextXPositionOfReturnType;
+        viewState.components.closingReturnType.y = viewState.bBox.y;
 
         log.debug('begin visit FunctionDefinitionPositionCalc');
     }
@@ -121,6 +130,29 @@ class FunctionDefinitionPositionCalcVisitor {
 
     endVisit(node) {
         log.debug('end visit FunctionDefinitionPositionCalc');
+    }
+
+    /**
+     * Sets positioning for a resource parameter.
+     * 
+     * @param {ResourceParameter} parameter The resource parameter node.
+     * @param {number} x The x position
+     * @param {number} y The y position
+     * @returns The x position of the next parameter node.
+     * 
+     * @memberof ResourceDefinitionPositionCalcVisitor
+     */
+    createPositionForTitleNode(parameter, x, y) {
+        let viewState = parameter.getViewState();
+        // Positioning the parameter
+        viewState.x = x;
+        viewState.y = y;
+
+        // Positioning the delete icon
+        viewState.components.deleteIcon.x = x + viewState.w;
+        viewState.components.deleteIcon.y = y;
+
+        return viewState.components.deleteIcon.x + viewState.components.deleteIcon.w;
     }
 }
 

@@ -1458,6 +1458,10 @@ a:hover {
     border: 0;
 }
 
+.annotation-body{
+    padding: 0;
+}
+
 .sidebar-left {
     background: #333;
 }

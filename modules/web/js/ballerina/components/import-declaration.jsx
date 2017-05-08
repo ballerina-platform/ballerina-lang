@@ -18,19 +18,34 @@
 
 import React from 'react';
 import './import-declaration.css'
+import ImageUtil from './image-util';
 
 export default class importDeclaration extends React.Component {
     render() {
         const bBox = this.props.bBox;
-
+        const numberBadgeHeight = 24;
+        const headerHeight = 35;
+        const leftPadding = 15;
+        const iconSize = 20;
+        let text = { };
+        text.x = bBox.x + leftPadding;
+        text.y = bBox.y + headerHeight / 2;
+        let number = {};
+        number.x = text.x + 65;
+        number.y = text.y;
         return (
-            <g className="package-definition-head" onClick={ () => {this.props.onClick();} }>
-                <text x={ bBox.x } y={ bBox.y } rx="0" ry="0">
+            <g className="package-definition-head" onClick={ e => {this.props.onClick(e);} }>
+                <rect x={ bBox.x } y={ bBox.y } width={136} height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
+
+                <text x={ text.x } y={ text.y } rx="0" ry="0">
                     Imports
                 </text>
-                <text x={ bBox.x + 55 } y={ bBox.y } rx="0" ry="0">
+                <rect x={ number.x - 9 } y={ number.y - headerHeight/2 + 5 } width={25} height={25} rx="12.5" ry="12.5" className="import-badge"/>
+                <text x={ number.x } y={ number.y } rx="0" ry="0">
                     {this.props.imports.length}
                 </text>
+                <image width={ iconSize } height={ iconSize } className="property-pane-action-button-delete"
+                    xlinkHref={ ImageUtil.getSVGIconString('view') } x={number.x + 25} y={ number.y - iconSize/2 }/>
             </g>
         );
     }

@@ -1,11 +1,20 @@
 .package-definition-header {
-    fill: #FFFFFF;
+    fill: #eee;
 }
 
 .package-definition-text {
     dominant-baseline: central;
 }
 
-.package-definition-package-name {
+.package-definition-label {
     dominant-baseline: central;
+    fill: #333;
+}
+
+.package-declaration-item rect{
+    fill: #eee;
+}
+
+.pkg-name-Undefined{
+     fill: #999;
 }

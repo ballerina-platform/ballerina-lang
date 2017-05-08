@@ -40,6 +40,11 @@ export const panel = {
             left: 50
         },
         height: 200
+    },
+    annotation: {
+        body: {
+            height: 25
+        }
     }
 };
 
@@ -145,17 +150,20 @@ export const statementContainer = {
 
 export const packageDefinition = {
     header: {
-        height: 50,
+        height: 35,
         padding: {
             top: 0,
-            right: 50,
+            right: 5,
             bottom: 0,
-            left: 50
+            left: 5
         }
     },
 
+    labelWidth: 60,
+    textWidth: 245,
+
     importDeclaration: {
-        itemHeight: 40
+        itemHeight: 30
     }
 }
 
@@ -184,3 +192,32 @@ export const structDefinitionStatement = {
     },
     deleteButtonOffset: 20,
 };
+
+export const panelHeading = {
+    wrapper: {
+        gutter: {
+            v: 50,
+            h: 50
+        }
+    },
+    heading: {
+        padding: {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0
+        },
+        height: 25
+    },
+    body: {
+        padding: {
+            top: 50,
+            right: 50,
+            bottom: 50,
+            left: 50
+        },
+        height: 200
+    }
+};
+
+
