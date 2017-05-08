@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.query.window;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -45,7 +45,7 @@ public class LenghtBatchWindowTestCase {
     }
 
     @Test
-    public void LengthBatchWindowTest1() throws InterruptedException {
+    public void lengthBatchWindowTest1() throws InterruptedException {
         log.info("Testing length batch window with no of events smaller than window size");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -82,7 +82,7 @@ public class LenghtBatchWindowTestCase {
     }
 
     @Test
-    public void LengthBatchWindowTest2() throws InterruptedException {
+    public void lengthBatchWindowTest2() throws InterruptedException {
         log.info("Testing length batch window with no of events greater than window size");
 
         final int length = 4;
@@ -127,7 +127,7 @@ public class LenghtBatchWindowTestCase {
 
 
     @Test
-    public void LengthBatchWindowTest3() throws InterruptedException {
+    public void lengthBatchWindowTest3() throws InterruptedException {
         log.info("Testing length batch window with no of events greater than window size");
 
         final int length = 2;
@@ -184,7 +184,7 @@ public class LenghtBatchWindowTestCase {
     }
 
     @Test
-    public void LengthBatchWindowTest4() throws InterruptedException {
+    public void lengthBatchWindowTest4() throws InterruptedException {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -228,7 +228,7 @@ public class LenghtBatchWindowTestCase {
     }
 
     @Test
-    public void LengthBatchWindowTest5() throws InterruptedException {
+    public void lengthBatchWindowTest5() throws InterruptedException {
 
         final int length = 2;
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -271,7 +271,7 @@ public class LenghtBatchWindowTestCase {
     }
 
     @Test
-    public void LengthBatchWindowTest6() throws InterruptedException {
+    public void lengthBatchWindowTest6() throws InterruptedException {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -320,7 +320,7 @@ public class LenghtBatchWindowTestCase {
     }
 
     @Test
-    public void LengthBatchWindowTest7() throws InterruptedException {
+    public void lengthBatchWindowTest7() throws InterruptedException {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -370,7 +370,7 @@ public class LenghtBatchWindowTestCase {
     }
 
     @Test
-    public void LengthBatchWindowTest8() throws InterruptedException {
+    public void lengthBatchWindowTest8() throws InterruptedException {
         log.info("LengthBatchWindow Test8");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -419,7 +419,7 @@ public class LenghtBatchWindowTestCase {
     }
 
     @Test
-    public void LengthBatchWindowTest9() throws InterruptedException {
+    public void lengthBatchWindowTest9() throws InterruptedException {
         log.info("LengthBatchWindow Test9");
 
         SiddhiManager siddhiManager = new SiddhiManager();

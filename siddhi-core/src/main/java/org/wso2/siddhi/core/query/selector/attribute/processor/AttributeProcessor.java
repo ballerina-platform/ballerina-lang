@@ -21,6 +21,9 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Processor for event attributes.
+ */
 public class AttributeProcessor {
 
     private ExpressionExecutor expressionExecutor;

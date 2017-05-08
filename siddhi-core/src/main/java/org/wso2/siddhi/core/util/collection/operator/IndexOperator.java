@@ -166,7 +166,7 @@ public class IndexOperator implements Operator {
                 while (foundEventChunk.hasNext()) {
                     StreamEvent streamEvent = foundEventChunk.next();
                     foundEventChunk.remove();
-                    streamEvent.setNext(null);// to make the chained state back to normal
+                    streamEvent.setNext(null); // to make the chained state back to normal
                     for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
                         updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
                     }
@@ -176,7 +176,7 @@ public class IndexOperator implements Operator {
             } else {
                 while (foundEventChunk.hasNext()) {
                     StreamEvent streamEvent = foundEventChunk.next();
-                    streamEvent.setNext(null);// to make the chained state back to normal
+                    streamEvent.setNext(null); // to make the chained state back to normal
                     for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
                         updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
                     }

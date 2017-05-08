@@ -88,12 +88,12 @@ public class SiddhiExtensionLoader {
                 if (!siddhiExtensionAnnotation.namespace().isEmpty()) {
                     previousClass = siddhiExtensionsMap.putIfAbsent(siddhiExtensionAnnotation.namespace() +
                                                                             SiddhiConstants.EXTENSION_SEPARATOR +
-                                                                            siddhiExtensionAnnotation.name(), extensionClass);
+                                                                            siddhiExtensionAnnotation.name(),
+                                                                    extensionClass);
                     if (previousClass != null) {
                         log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already " +
-                                         "loaded with the " +
-                                         "same namespace and name '" + siddhiExtensionAnnotation.namespace() + SiddhiConstants
-                                .EXTENSION_SEPARATOR +
+                                         "loaded with the same namespace and name '" +
+                                         siddhiExtensionAnnotation.namespace() + SiddhiConstants.EXTENSION_SEPARATOR +
                                          siddhiExtensionAnnotation.name() + "'");
                     }
                 } else {

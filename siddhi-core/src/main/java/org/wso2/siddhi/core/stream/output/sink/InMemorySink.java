@@ -57,7 +57,8 @@ public class InMemorySink extends Sink {
     }
 
     @Override
-    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ConfigReader sinkConfigReader, ExecutionPlanContext
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
+                        ConfigReader sinkConfigReader, ExecutionPlanContext
             executionPlanContext) {
         topicOption = optionHolder.validateAndGetOption(TOPIC_KEY);
     }

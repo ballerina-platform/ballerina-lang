@@ -24,6 +24,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Factory to construct {@link StreamEventConverter}
+ */
 public class StreamEventConverterFactory {
 
     public static StreamEventConverter constructEventConverter(MetaStreamEvent metaStreamEvent) {

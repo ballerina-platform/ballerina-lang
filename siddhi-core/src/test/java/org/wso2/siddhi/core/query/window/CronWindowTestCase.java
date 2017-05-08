@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.query.window;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -42,7 +42,7 @@ public class CronWindowTestCase {
     }
 
     @Test
-    public void CronWindowTest1() throws InterruptedException {
+    public void cronWindowTest1() throws InterruptedException {
         log.info("Testing cron window for current events");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -89,7 +89,7 @@ public class CronWindowTestCase {
 
 
     @Test
-    public void CronWindowTest2() throws InterruptedException {
+    public void cronWindowTest2() throws InterruptedException {
         log.info("Testing cron window for expired events");
 
         SiddhiManager siddhiManager = new SiddhiManager();

@@ -18,6 +18,9 @@
 
 package org.wso2.siddhi.core.event.state;
 
+/**
+ * Class to clone {@link StateEvent} used when creating {@link org.wso2.siddhi.core.partition.PartitionRuntime}.
+ */
 public class StateEventCloner {
 
     private final int streamEventSize;

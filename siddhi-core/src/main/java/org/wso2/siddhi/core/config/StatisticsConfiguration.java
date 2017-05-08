@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.config;
 
 import org.wso2.siddhi.core.util.statistics.StatisticsTrackerFactory;
 
+/**
+ * Siddhi statistics module related configuration holder
+ */
 public class StatisticsConfiguration {
 
     private String matricPrefix = "org.wso2.siddhi";

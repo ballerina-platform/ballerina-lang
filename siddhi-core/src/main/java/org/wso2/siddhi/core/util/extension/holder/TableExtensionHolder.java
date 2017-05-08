@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Holder to store {@link Table} Extensions.
  */
 public class TableExtensionHolder extends AbstractExtensionHolder {
-    private static Class clazz =Table.class;
+    private static Class clazz = Table.class;
 
     protected TableExtensionHolder(ExecutionPlanContext executionPlanContext) {
         super(clazz, executionPlanContext);

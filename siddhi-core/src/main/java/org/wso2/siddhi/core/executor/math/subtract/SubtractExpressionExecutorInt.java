@@ -15,22 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.executor.math.Subtract;
+package org.wso2.siddhi.core.executor.math.subtract;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 /**
- * Executor class for Float Subtract function. Function execution logic is implemented in execute here.
+ * Executor class for Integer Subtract function. Function execution logic is implemented in execute here.
  */
-public class SubtractExpressionExecutorFloat implements ExpressionExecutor {
+public class SubtractExpressionExecutorInt implements ExpressionExecutor {
     private ExpressionExecutor leftExpressionExecutor;
     private ExpressionExecutor rightExpressionExecutor;
 
 
-    public SubtractExpressionExecutorFloat(ExpressionExecutor leftExpressionExecutor,
-                                           ExpressionExecutor rightExpressionExecutor) {
+    public SubtractExpressionExecutorInt(ExpressionExecutor leftExpressionExecutor,
+                                         ExpressionExecutor rightExpressionExecutor) {
         this.leftExpressionExecutor = leftExpressionExecutor;
         this.rightExpressionExecutor = rightExpressionExecutor;
     }
@@ -42,16 +42,16 @@ public class SubtractExpressionExecutorFloat implements ExpressionExecutor {
         if (leftObject == null || rightObject == null) {
             return null;
         }
-        return ((Number) leftObject).floatValue() - ((Number) rightObject).floatValue();
+        return ((Number) leftObject).intValue() - ((Number) rightObject).intValue();
     }
 
     public Attribute.Type getReturnType() {
-        return Attribute.Type.FLOAT;
+        return Attribute.Type.INT;
     }
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new SubtractExpressionExecutorFloat(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor
+        return new SubtractExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor
                 .cloneExecutor(key));
     }
 

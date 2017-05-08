@@ -45,7 +45,7 @@ public abstract class Source implements Snapshotable {
         init(sourceMapper, transportOptionHolder, configReader, executionPlanContext);
     }
 
-    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,ConfigReader
+    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader
             configReader, ExecutionPlanContext executionPlanContext);
 
     public abstract void connect() throws ConnectionUnavailableException;

@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.aggregator;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -31,7 +31,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 public class MinForeverAggregatorExtensionTestCase {
-    static final Logger log = Logger.getLogger(MinForeverAggregatorExtensionTestCase.class);
+    private static final Logger log = Logger.getLogger(MinForeverAggregatorExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 
@@ -238,13 +238,13 @@ public class MinForeverAggregatorExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36l, event.getData(0));
+                            Assert.assertEquals(36L, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(36l, event.getData(0));
+                            Assert.assertEquals(36L, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(9l, event.getData(0));
+                            Assert.assertEquals(9L, event.getData(0));
                             break;
                         default:
                             org.junit.Assert.fail();
@@ -256,9 +256,9 @@ public class MinForeverAggregatorExtensionTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{36l, 38, 74});
-        inputHandler.send(new Object[]{78l, 38, 37});
-        inputHandler.send(new Object[]{9l, 39, 38});
+        inputHandler.send(new Object[]{36L, 38, 74});
+        inputHandler.send(new Object[]{78L, 38, 37});
+        inputHandler.send(new Object[]{9L, 39, 38});
 
         Thread.sleep(300);
         Assert.assertEquals(3, count);

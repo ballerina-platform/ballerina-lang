@@ -35,8 +35,8 @@ public class NotConditionExpressionExecutor extends ConditionExpressionExecutor 
             this.conditionExecutor = conditionExecutor;
         } else {
             throw new OperationNotSupportedException("Return type of condition executor " + conditionExecutor
-                    .toString() + " should be of type BOOL. " +
-                                                             "Actual Type: " + conditionExecutor.getReturnType().toString());
+                    .toString() + " should be of type BOOL. Actual Type: " + conditionExecutor.getReturnType()
+                    .toString());
         }
     }
 

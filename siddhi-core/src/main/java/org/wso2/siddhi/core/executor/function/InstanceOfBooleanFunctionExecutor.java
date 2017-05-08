@@ -53,7 +53,8 @@ public class InstanceOfBooleanFunctionExecutor extends FunctionExecutor {
     Attribute.Type returnType = Attribute.Type.BOOL;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfBoolean() " +
                     "function, " +
@@ -63,7 +64,7 @@ public class InstanceOfBooleanFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        return null;//Since the instanceOfBoolean function takes in 1 parameter, this method does not get called.
+        return null; //Since the instanceOfBoolean function takes in 1 parameter, this method does not get called.
         // Hence, not implemented.
     }
 

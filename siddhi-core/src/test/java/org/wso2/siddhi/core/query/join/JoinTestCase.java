@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.join;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -592,7 +592,7 @@ public class JoinTestCase {
             executionPlanRuntime.start();
             Thread.sleep(100);
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
-            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
             Assert.assertEquals("Event Arrived", true, eventArrived);
         } finally {
@@ -638,7 +638,7 @@ public class JoinTestCase {
             executionPlanRuntime.start();
             Thread.sleep(100);
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
-            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
             Assert.assertEquals("Event Arrived", true, eventArrived);
         } finally {
@@ -685,7 +685,7 @@ public class JoinTestCase {
             executionPlanRuntime.start();
             Thread.sleep(100);
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
-            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
             Assert.assertEquals("Event Arrived", true, eventArrived);
         } finally {
@@ -730,7 +730,7 @@ public class JoinTestCase {
             executionPlanRuntime.start();
             Thread.sleep(100);
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
-            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
             Assert.assertEquals("Event Arrived", true, eventArrived);
         } finally {

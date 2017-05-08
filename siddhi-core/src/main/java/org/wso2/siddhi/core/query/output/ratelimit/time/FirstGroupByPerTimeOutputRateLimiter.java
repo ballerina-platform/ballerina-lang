@@ -39,7 +39,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * event. This implementation specifically represent GroupBy queries.
  */
 public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
-    static final Logger log = Logger.getLogger(FirstGroupByPerTimeOutputRateLimiter.class);
+    private static final Logger log = Logger.getLogger(FirstGroupByPerTimeOutputRateLimiter.class);
     private final Long value;
     private String id;
     private List<String> groupByKeys = new ArrayList<String>();

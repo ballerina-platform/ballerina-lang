@@ -29,6 +29,9 @@ import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * StreamRuntime implementation to represent Join streams.
+ */
 public class JoinStreamRuntime implements StreamRuntime {
 
     List<SingleStreamRuntime> singleStreamRuntimeList = new ArrayList<SingleStreamRuntime>();

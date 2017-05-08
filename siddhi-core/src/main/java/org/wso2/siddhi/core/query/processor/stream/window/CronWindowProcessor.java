@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.apache.log4j.Logger;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -63,7 +64,7 @@ import java.util.Map;
                 type = {})
 )
 public class CronWindowProcessor extends WindowProcessor implements Job {
-
+    private static final Logger log = Logger.getLogger(CronWindowProcessor.class);
     private final String jobGroup = "CronWindowGroup";
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);

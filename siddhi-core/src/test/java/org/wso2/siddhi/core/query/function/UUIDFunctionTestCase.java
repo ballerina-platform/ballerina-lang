@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.function;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -31,7 +31,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 public class UUIDFunctionTestCase {
 
-    static final Logger log = Logger.getLogger(UUIDFunctionTestCase.class);
+    private static final Logger log = Logger.getLogger(UUIDFunctionTestCase.class);
     private int count;
     private boolean eventArrived;
 
@@ -72,9 +72,9 @@ public class UUIDFunctionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 1.56d, 60l, 6});
+        inputHandler.send(new Object[]{"WSO2", 1.56d, 60L, 6});
         Thread.sleep(200);
-        junit.framework.Assert.assertEquals(1, count);
+        org.junit.Assert.assertEquals(1, count);
         executionPlanRuntime.shutdown();
     }
 }

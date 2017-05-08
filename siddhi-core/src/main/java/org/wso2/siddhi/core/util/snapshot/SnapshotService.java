@@ -73,7 +73,7 @@ public class SnapshotService {
             if (log.isDebugEnabled()) {
                 log.debug("Snapshot serialization started ...");
             }
-            serializedSnapshots = ByteSerializer.OToB(snapshots);
+            serializedSnapshots = ByteSerializer.objectToByte(snapshots);
             if (log.isDebugEnabled()) {
                 log.debug("Snapshot serialization finished.");
             }
@@ -113,8 +113,8 @@ public class SnapshotService {
 
 
     public void restore(byte[] snapshot) {
-        HashMap<String, Map<String, Object>> snapshots = (HashMap<String, Map<String, Object>>) ByteSerializer.BToO
-                (snapshot);
+        Map<String, Map<String, Object>> snapshots = (Map<String, Map<String, Object>>)
+                ByteSerializer.byteToObject(snapshot);
         List<Snapshotable> snapshotableList;
         try {
             this.executionPlanContext.getThreadBarrier().lock();

@@ -71,7 +71,7 @@ public class MultiClientDistributedTransport extends DistributedTransport {
             Sink sink = (Sink) SiddhiClassLoader.loadExtensionImplementation(
                     sinkExtension, SinkExecutorExtensionHolder.getInstance(executionPlanContext));
             destinationOption.merge(sinkOptionHolder);
-            sink.initOnlyTransport(streamDefinition, destinationOption,sinkConfigReader, executionPlanContext);
+            sink.initOnlyTransport(streamDefinition, destinationOption, sinkConfigReader, executionPlanContext);
             transports.add(sink);
         });
     }

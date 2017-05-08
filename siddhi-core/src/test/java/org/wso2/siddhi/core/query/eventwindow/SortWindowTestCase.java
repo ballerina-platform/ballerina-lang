@@ -17,8 +17,8 @@
 package org.wso2.siddhi.core.query.eventwindow;
 
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -80,11 +80,11 @@ public class SortWindowTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 55.6f, 100l});
-        inputHandler.send(new Object[]{"IBM", 75.6f, 300l});
-        inputHandler.send(new Object[]{"WSO2", 57.6f, 200l});
-        inputHandler.send(new Object[]{"WSO2", 55.6f, 20l});
-        inputHandler.send(new Object[]{"WSO2", 57.6f, 40l});
+        inputHandler.send(new Object[]{"WSO2", 55.6f, 100L});
+        inputHandler.send(new Object[]{"IBM", 75.6f, 300L});
+        inputHandler.send(new Object[]{"WSO2", 57.6f, 200L});
+        inputHandler.send(new Object[]{"WSO2", 55.6f, 20L});
+        inputHandler.send(new Object[]{"WSO2", 57.6f, 40L});
         Thread.sleep(1000);
         Assert.assertEquals(5, inEventCount);
         Assert.assertEquals(3, removeEventCount);
@@ -133,11 +133,11 @@ public class SortWindowTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 50, 100l});
-        inputHandler.send(new Object[]{"IBM", 20, 100l});
-        inputHandler.send(new Object[]{"WSO2", 40, 50l});
-        inputHandler.send(new Object[]{"WSO2", 100, 20l});
-        inputHandler.send(new Object[]{"WSO2", 50, 50l});
+        inputHandler.send(new Object[]{"WSO2", 50, 100L});
+        inputHandler.send(new Object[]{"IBM", 20, 100L});
+        inputHandler.send(new Object[]{"WSO2", 40, 50L});
+        inputHandler.send(new Object[]{"WSO2", 100, 20L});
+        inputHandler.send(new Object[]{"WSO2", 50, 50L});
         Thread.sleep(1000);
         Assert.assertEquals(5, inEventCount);
         Assert.assertEquals(3, removeEventCount);

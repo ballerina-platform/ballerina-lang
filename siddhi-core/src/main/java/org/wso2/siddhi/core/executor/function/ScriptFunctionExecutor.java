@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class ScriptFunctionExecutor extends FunctionExecutor {
 
-    static final Logger log = Logger.getLogger(ScriptFunctionExecutor.class);
+    static final Logger LOG = Logger.getLogger(ScriptFunctionExecutor.class);
     Attribute.Type returnType;
     Script script;
     private String functionId;
@@ -47,7 +47,8 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         returnType = executionPlanContext.getScript(functionId).getReturnType();
         script = executionPlanContext.getScript(functionId);
     }

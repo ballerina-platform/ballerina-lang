@@ -59,7 +59,8 @@ public abstract class SinkMapper implements Snapshotable {
         }
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
         init(streamDefinition, mapOptionHolder, payloadTemplateBuilder, mapperConfigReader);
-        executionPlanContext.getSnapshotService().addSnapshotable(streamDefinition.getId()+".sink.mapper", this);
+        executionPlanContext.getSnapshotService().addSnapshotable(streamDefinition.getId() + ".sink.mapper",
+                                                                  this);
     }
 
     /**

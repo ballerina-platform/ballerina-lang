@@ -35,6 +35,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Holder object for context information of {@link org.wso2.siddhi.query.api.ExecutionPlan}.
+ */
 public class ExecutionPlanContext {
 
     private SiddhiContext siddhiContext;

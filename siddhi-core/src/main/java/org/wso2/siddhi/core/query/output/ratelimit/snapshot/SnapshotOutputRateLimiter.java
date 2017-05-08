@@ -36,7 +36,7 @@ import java.util.Map;
  * limiting.
  */
 public abstract class SnapshotOutputRateLimiter implements Schedulable {
-    static final Logger log = Logger.getLogger(SnapshotOutputRateLimiter.class);
+    private static final Logger log = Logger.getLogger(SnapshotOutputRateLimiter.class);
     protected ExecutionPlanContext executionPlanContext;
     protected StreamEventCloner streamEventCloner;
     protected StateEventCloner stateEventCloner;

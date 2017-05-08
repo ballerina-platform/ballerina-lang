@@ -41,18 +41,22 @@ public class OrConditionExpressionExecutor extends ConditionExpressionExecutor {
         } else {
             if (!leftConditionExecutor.getReturnType().equals(Attribute.Type.BOOL)) {
                 throw new OperationNotSupportedException("Return type of condition executor " + leftConditionExecutor
-                        .toString() + " should be of type BOOL. " +
-                                                                 "Actual Type: " + leftConditionExecutor.getReturnType().toString());
+                        .toString() + " should be of type BOOL. Actual Type: " + leftConditionExecutor.getReturnType()
+                        .toString());
             } else if (!rightConditionExecutor.getReturnType().equals(Attribute.Type.BOOL)) {
                 throw new OperationNotSupportedException("Return type of condition executor " +
-                                                                 rightConditionExecutor.toString() + " should be of type BOOL. " +
-                                                                 "Actual Type: " + rightConditionExecutor.getReturnType().toString());
+                                                                 rightConditionExecutor.toString() +
+                                                                 " should be of type BOOL. " +
+                                                                 "Actual Type: " +
+                                                                 rightConditionExecutor.getReturnType().toString());
             } else {
-                throw new OperationNotSupportedException("Return type of condition executor " + leftConditionExecutor
-                        .toString() +
-                                                                 " and condition executor" + rightConditionExecutor.toString() + "should be of type BOOL. Left" +
-                                                                 " executor: " +
-                                                                 leftConditionExecutor.getReturnType().toString() + " Right executor: " +
+                throw new OperationNotSupportedException("Return type of condition executor " +
+                                                                 leftConditionExecutor.toString() +
+                                                                 " and condition executor" +
+                                                                 rightConditionExecutor.toString() +
+                                                                 "should be of type BOOL. Left executor: " +
+                                                                 leftConditionExecutor.getReturnType().toString()
+                                                                 + " Right executor: " +
                                                                  rightConditionExecutor.getReturnType().toString());
             }
         }

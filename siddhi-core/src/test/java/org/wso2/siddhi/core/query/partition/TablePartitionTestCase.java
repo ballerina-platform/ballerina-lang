@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.partition;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class TablePartitionTestCase {
-    static final Logger log = Logger.getLogger(TablePartitionTestCase.class);
+    private static final Logger log = Logger.getLogger(TablePartitionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private int stockStreamEventCount;
     private boolean eventArrived;

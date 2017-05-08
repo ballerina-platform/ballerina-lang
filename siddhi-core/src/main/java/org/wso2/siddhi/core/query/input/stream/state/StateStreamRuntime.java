@@ -31,6 +31,9 @@ import org.wso2.siddhi.core.query.processor.Processor;
 
 import java.util.List;
 
+/**
+ * Stream Runtime implementation to represent {@link org.wso2.siddhi.core.event.state.StateEvent}.
+ */
 public class StateStreamRuntime implements StreamRuntime {
 
     private ExecutionPlanContext executionPlanContext;
@@ -60,7 +63,7 @@ public class StateStreamRuntime implements StreamRuntime {
         }
         ((StreamPreStateProcessor) stateStreamRuntime.innerStateRuntime.getFirstProcessor()).setThisLastProcessor(
                 (StreamPostStateProcessor)
-                stateStreamRuntime.innerStateRuntime.getLastProcessor());
+                        stateStreamRuntime.innerStateRuntime.getLastProcessor());
         return stateStreamRuntime;
     }
 

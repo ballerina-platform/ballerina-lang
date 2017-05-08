@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.function;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -31,7 +31,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 public class MinimumFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(MinimumFunctionExtensionTestCase.class);
+    private static final Logger log = Logger.getLogger(MinimumFunctionExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 
@@ -251,13 +251,13 @@ public class MinimumFunctionExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36l, event.getData(0));
+                            Assert.assertEquals(36L, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(37l, event.getData(0));
+                            Assert.assertEquals(37L, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(9l, event.getData(0));
+                            Assert.assertEquals(9L, event.getData(0));
                             break;
                         default:
                             org.junit.Assert.fail();

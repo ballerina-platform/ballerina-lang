@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class AsyncTestCase {
-    static final Logger log = Logger.getLogger(AsyncTestCase.class);
+    private static final Logger log = Logger.getLogger(AsyncTestCase.class);
     private int count;
     private boolean eventArrived;
     private long firstValue;

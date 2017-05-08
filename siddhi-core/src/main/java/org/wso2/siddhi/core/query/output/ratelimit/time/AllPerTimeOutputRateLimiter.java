@@ -39,7 +39,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
 
-    static final Logger log = Logger.getLogger(AllPerTimeOutputRateLimiter.class);
+    private static final Logger log = Logger.getLogger(AllPerTimeOutputRateLimiter.class);
     private final Long value;
     private String id;
     private ScheduledExecutorService scheduledExecutorService;

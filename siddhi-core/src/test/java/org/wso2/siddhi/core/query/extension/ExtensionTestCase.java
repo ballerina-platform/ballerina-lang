@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.query.extension;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ExtensionTestCase {
-    static final Logger log = Logger.getLogger(ExtensionTestCase.class);
+    private static final Logger log = Logger.getLogger(ExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 
@@ -69,11 +69,11 @@ public class ExtensionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", 700f, 100l});
+        inputHandler.send(new Object[]{"IBM", 700f, 100L});
         Thread.sleep(100);
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
         Thread.sleep(100);
-        inputHandler.send(new Object[]{"ABC", 60.5f, 200l});
+        inputHandler.send(new Object[]{"ABC", 60.5f, 200L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
@@ -100,11 +100,11 @@ public class ExtensionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(800l, inEvent.getData(1));
+                        Assert.assertEquals(800L, inEvent.getData(1));
                     } else if (count == 2) {
-                        Assert.assertEquals(805l, inEvent.getData(1));
+                        Assert.assertEquals(805L, inEvent.getData(1));
                     } else if (count == 3) {
-                        Assert.assertEquals(260l, inEvent.getData(1));
+                        Assert.assertEquals(260L, inEvent.getData(1));
                     }
                 }
                 eventArrived = true;
@@ -114,9 +114,9 @@ public class ExtensionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", 700l, 100l});
-        inputHandler.send(new Object[]{"WSO2", 605l, 200l});
-        inputHandler.send(new Object[]{"ABC", 60l, 200l});
+        inputHandler.send(new Object[]{"IBM", 700L, 100L});
+        inputHandler.send(new Object[]{"WSO2", 605L, 200L});
+        inputHandler.send(new Object[]{"ABC", 60L, 200L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
@@ -156,11 +156,11 @@ public class ExtensionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", 700f, 100l});
+        inputHandler.send(new Object[]{"IBM", 700f, 100L});
         Thread.sleep(100);
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
         Thread.sleep(100);
-        inputHandler.send(new Object[]{"ABC", 60.5f, 200l});
+        inputHandler.send(new Object[]{"ABC", 60.5f, 200L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
@@ -187,11 +187,11 @@ public class ExtensionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(800l, inEvent.getData(0));
+                        Assert.assertEquals(800L, inEvent.getData(0));
                     } else if (count == 2) {
-                        Assert.assertEquals(805l, inEvent.getData(0));
+                        Assert.assertEquals(805L, inEvent.getData(0));
                     } else if (count == 3) {
-                        Assert.assertEquals(260l, inEvent.getData(0));
+                        Assert.assertEquals(260L, inEvent.getData(0));
                     }
                 }
                 eventArrived = true;
@@ -201,9 +201,9 @@ public class ExtensionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{700l, 100l});
-        inputHandler.send(new Object[]{605l, 200l});
-        inputHandler.send(new Object[]{60l, 200l});
+        inputHandler.send(new Object[]{700L, 100L});
+        inputHandler.send(new Object[]{605L, 200L});
+        inputHandler.send(new Object[]{60L, 200L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
@@ -214,8 +214,8 @@ public class ExtensionTestCase {
     public void extensionTest5() throws InterruptedException, ClassNotFoundException {
         log.info("extension test5");
         SiddhiManager siddhiManager = new SiddhiManager();
-        Map<String, String> configMap= new HashMap<>();
-        configMap.put("email.getAllNew.append.abc","true");
+        Map<String, String> configMap = new HashMap<>();
+        configMap.put("email.getAllNew.append.abc", "true");
         siddhiManager.setConfigManager(new InMemoryConfigManager(configMap));
         siddhiManager.setExtension("custom:plus", CustomFunctionExtension.class);
         siddhiManager.setExtension("email:getAllNew", StringConcatAggregatorString.class);
@@ -246,11 +246,11 @@ public class ExtensionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", 700f, 100l});
+        inputHandler.send(new Object[]{"IBM", 700f, 100L});
         Thread.sleep(100);
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
         Thread.sleep(100);
-        inputHandler.send(new Object[]{"ABC", 60.5f, 200l});
+        inputHandler.send(new Object[]{"ABC", 60.5f, 200L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);

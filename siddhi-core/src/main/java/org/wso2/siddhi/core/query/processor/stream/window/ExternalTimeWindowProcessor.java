@@ -65,7 +65,7 @@ import java.util.Map;
                 type = {})
 )
 public class ExternalTimeWindowProcessor extends WindowProcessor implements FindableProcessor {
-    static final Logger log = Logger.getLogger(ExternalTimeWindowProcessor.class);
+    private static final Logger log = Logger.getLogger(ExternalTimeWindowProcessor.class);
     private long timeToKeep;
     private ComplexEventChunk<StreamEvent> expiredEventChunk;
     private VariableExpressionExecutor timeStampVariableExpressionExecutor;

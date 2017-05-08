@@ -60,7 +60,8 @@ public class CoalesceFunctionExecutor extends FunctionExecutor {
     private Attribute.Type returnType;
 
     @Override
-    public void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    public void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                     ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length == 0) {
             throw new ExecutionPlanValidationException("Coalesce must have at least one parameter");
         }

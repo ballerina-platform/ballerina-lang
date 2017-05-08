@@ -50,7 +50,8 @@ public class InMemorySource extends Source {
     private InMemoryBroker.Subscriber subscriber;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader configReader, ExecutionPlanContext
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader configReader,
+                     ExecutionPlanContext
             executionPlanContext) {
         this.sourceEventListener = sourceEventListener;
         String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY, "input inMemory transport");

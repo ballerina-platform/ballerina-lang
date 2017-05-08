@@ -53,7 +53,8 @@ public class InstanceOfDoubleFunctionExecutor extends FunctionExecutor {
     Attribute.Type returnType = Attribute.Type.BOOL;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfDouble() " +
                     "function, required only 1, but found " + attributeExpressionExecutors.length);
@@ -62,7 +63,7 @@ public class InstanceOfDoubleFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        return null;//Since the instanceOfDouble function takes in 1 parameter, this method does not get called.
+        return null; //Since the instanceOfDouble function takes in 1 parameter, this method does not get called.
         // Hence, not implemented.
     }
 

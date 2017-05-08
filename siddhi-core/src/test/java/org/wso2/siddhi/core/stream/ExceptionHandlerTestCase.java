@@ -16,27 +16,11 @@
  * under the License.
  */
 
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.wso2.siddhi.core.stream;
 
 import com.lmax.disruptor.ExceptionHandler;
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -51,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExceptionHandlerTestCase {
 
-    static final Logger log = Logger.getLogger(CallbackTestCase.class);
+    private static final Logger log = Logger.getLogger(CallbackTestCase.class);
     private volatile AtomicInteger count;
     private volatile boolean eventArrived;
     private volatile AtomicInteger failedCount;
@@ -100,13 +84,13 @@ public class ExceptionHandlerTestCase {
      */
     private void sendTestInvalidEvents(InputHandler inputHandler) throws Exception {
         // Send 2 valid events
-        inputHandler.send(new Object[]{"GOOD_0", 700.0f, 100l});
+        inputHandler.send(new Object[]{"GOOD_0", 700.0f, 100L});
         Thread.sleep(100);
-        inputHandler.send(new Object[]{"GOOD_1", 60.5f, 200l});
+        inputHandler.send(new Object[]{"GOOD_1", 60.5f, 200L});
         Thread.sleep(100);
         try {
             // Send 2 invalid event
-            inputHandler.send(new Object[]{"BAD_2", "EBAY", 200l});
+            inputHandler.send(new Object[]{"BAD_2", "EBAY", 200L});
             Thread.sleep(100);
             inputHandler.send(new Object[]{"BAD_3", "WSO2", 700f});
             Thread.sleep(100);
@@ -115,19 +99,19 @@ public class ExceptionHandlerTestCase {
             throw ex;
         }
         // Send 2 valid events
-        inputHandler.send(new Object[]{"GOOD_4", 700.0f, 100l});
+        inputHandler.send(new Object[]{"GOOD_4", 700.0f, 100L});
         Thread.sleep(100);
-        inputHandler.send(new Object[]{"GOOD_5", 60.5f, 200l});
+        inputHandler.send(new Object[]{"GOOD_5", 60.5f, 200L});
         Thread.sleep(100);
     }
 
     private void sendTestValidEvents(InputHandler inputHandler) throws Exception {
-        inputHandler.send(new Object[]{"IBM", 700.0f, 100l});
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
-        inputHandler.send(new Object[]{"IBM", 700.0f, 100l});
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
-        inputHandler.send(new Object[]{"IBM", 700.0f, 100l});
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        inputHandler.send(new Object[]{"IBM", 700.0f, 100L});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
+        inputHandler.send(new Object[]{"IBM", 700.0f, 100L});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
+        inputHandler.send(new Object[]{"IBM", 700.0f, 100L});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
     }
 
     @Test

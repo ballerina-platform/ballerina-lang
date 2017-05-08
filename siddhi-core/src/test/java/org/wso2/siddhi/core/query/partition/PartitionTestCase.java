@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.query.partition;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class PartitionTestCase {
-    static final Logger log = Logger.getLogger(PartitionTestCase.class);
+    private static final Logger log = Logger.getLogger(PartitionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private int stockStreamEventCount;
     private boolean eventArrived;
@@ -784,13 +784,13 @@ public class PartitionTestCase {
                 for (Event event : events) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
-                        Assert.assertEquals(1l, event.getData()[0]);
+                        Assert.assertEquals(1L, event.getData()[0]);
                     } else if (count.get() == 2) {
-                        Assert.assertEquals(1l, event.getData()[0]);
+                        Assert.assertEquals(1L, event.getData()[0]);
                     } else if (count.get() == 3) {
-                        Assert.assertEquals(2l, event.getData()[0]);
+                        Assert.assertEquals(2L, event.getData()[0]);
                     } else if (count.get() == 4) {
-                        Assert.assertEquals(1l, event.getData()[0]);
+                        Assert.assertEquals(1L, event.getData()[0]);
                     }
                     eventArrived = true;
                 }
@@ -964,13 +964,13 @@ public class PartitionTestCase {
                 for (Event event : events) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
-                        Assert.assertEquals(100l, event.getData()[0]);
+                        Assert.assertEquals(100L, event.getData()[0]);
                     } else if (count.get() == 2) {
-                        Assert.assertEquals(600l, event.getData()[0]);
+                        Assert.assertEquals(600L, event.getData()[0]);
                     } else if (count.get() == 3) {
-                        Assert.assertEquals(200l, event.getData()[0]);
+                        Assert.assertEquals(200L, event.getData()[0]);
                     } else if (count.get() == 4) {
-                        Assert.assertEquals(250l, event.getData()[0]);
+                        Assert.assertEquals(250L, event.getData()[0]);
                     }
                     eventArrived = true;
                 }

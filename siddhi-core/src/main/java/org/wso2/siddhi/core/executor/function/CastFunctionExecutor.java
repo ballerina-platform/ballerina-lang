@@ -61,14 +61,17 @@ public class CastFunctionExecutor extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.OBJECT;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 2) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to common:cast() function, " +
-                                                               "required 2 parameters, but found " + attributeExpressionExecutors.length);
+                                                               "required 2 parameters, but found " +
+                                                               attributeExpressionExecutors.length);
         }
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
             throw new ExecutionPlanValidationException("The second argument has to be a string constant specifying " +
-                                                               "one of the supported data types (int, long, float, double, string, bool)");
+                                                               "one of the supported data types "
+                                                               + "(int, long, float, double, string, bool)");
         } else {
             String type = attributeExpressionExecutors[1].execute(null).toString();
             if (type.toLowerCase().equals("int")) {

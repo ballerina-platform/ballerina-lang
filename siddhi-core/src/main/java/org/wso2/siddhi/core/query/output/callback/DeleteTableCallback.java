@@ -57,7 +57,11 @@ public class DeleteTableCallback extends OutputCallback {
         deletingEventChunk.reset();
         if (deletingEventChunk.hasNext()) {
             ComplexEventChunk<StateEvent> deletingStateEventChunk = constructMatchingStateEventChunk(deletingEventChunk,
-                                                                                                     convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
+                                                                                                     convertToStreamEvent,
+                                                                                                     stateEventPool,
+                                                                                                     matchingStreamIndex,
+                                                                                                     streamEventPool,
+                                                                                                     streamEventConvertor);
 
             table.delete(deletingStateEventChunk, compiledCondition);
         }

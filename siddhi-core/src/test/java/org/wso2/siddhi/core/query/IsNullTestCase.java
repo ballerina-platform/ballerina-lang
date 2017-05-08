@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class IsNullTestCase {
-    static final Logger log = Logger.getLogger(IsNullTestCase.class);
+    private static final Logger log = Logger.getLogger(IsNullTestCase.class);
     private int count;
     private boolean eventArrived;
     private int inEventCount;
@@ -46,7 +46,7 @@ public class IsNullTestCase {
 
 
     @Test
-    public void IsNullTest1() throws InterruptedException {
+    public void isNullTest1() throws InterruptedException {
         log.info("isNull test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -81,9 +81,9 @@ public class IsNullTestCase {
 
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        inputHandler.send(new Object[]{null, 60.5f, 200l});
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        inputHandler.send(new Object[]{"IBM", 700f, 100L});
+        inputHandler.send(new Object[]{null, 60.5f, 200L});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
@@ -92,7 +92,7 @@ public class IsNullTestCase {
     }
 
     @Test
-    public void IsNullTest2() throws InterruptedException {
+    public void isNullTest2() throws InterruptedException {
         log.info("isNull test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();

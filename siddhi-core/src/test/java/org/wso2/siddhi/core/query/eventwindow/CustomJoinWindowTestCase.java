@@ -16,8 +16,8 @@
 
 package org.wso2.siddhi.core.query.eventwindow;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -29,8 +29,8 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class CustomJoinWindowTestCase {
     private static final Logger log = Logger.getLogger(CustomJoinWindowTestCase.class);
@@ -87,7 +87,7 @@ public class CustomJoinWindowTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                assertArrayEquals(new Object[]{"WSO2", "WSO2", 100l}, event.getData());
+                                assertArrayEquals(new Object[]{"WSO2", "WSO2", 100L}, event.getData());
                                 break;
                             default:
                                 org.junit.Assert.assertSame(1, inEventCount);
@@ -108,8 +108,8 @@ public class CustomJoinWindowTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 10l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 10L});
         checkStockStream.send(new Object[]{"WSO2"});
 
         Thread.sleep(500);
@@ -402,12 +402,12 @@ public class CustomJoinWindowTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
         Thread.sleep(1100);
-        stockStream.send(new Object[]{"IBM", 65.0f, 100l});
-        stockStream.send(new Object[]{"WSO2", 50.0f, 100l});
+        stockStream.send(new Object[]{"IBM", 65.0f, 100L});
+        stockStream.send(new Object[]{"WSO2", 50.0f, 100L});
         Thread.sleep(1500);
 
         executionPlanRuntime.shutdown();

@@ -74,13 +74,17 @@ public abstract class DistributedTransport extends Sink {
      */
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
                      ConfigReader sinkConfigReader,
-                     SinkMapper sinkMapper, String mapType, OptionHolder mapOptionHolder,String payload,
-                     ConfigReader mapperConfigReader,ExecutionPlanContext executionPlanContext, List<OptionHolder> destinationOptionHolders,
-                     Annotation sinkAnnotation, DistributionStrategy strategy, String[] supportedDynamicOptions) {
+                     SinkMapper sinkMapper, String mapType, OptionHolder mapOptionHolder, String payload,
+                     ConfigReader mapperConfigReader, ExecutionPlanContext executionPlanContext, List<OptionHolder>
+                             destinationOptionHolders, Annotation sinkAnnotation, DistributionStrategy strategy,
+                     String[]
+                             supportedDynamicOptions) {
         this.strategy = strategy;
         this.supportedDynamicOptions = supportedDynamicOptions;
-        init(streamDefinition, type, transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder, payload,mapperConfigReader, executionPlanContext);
-        initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, sinkConfigReader,executionPlanContext);
+        init(streamDefinition, type, transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder,
+             payload, mapperConfigReader, executionPlanContext);
+        initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, sinkConfigReader,
+                      executionPlanContext);
     }
 
     @Override
@@ -123,7 +127,8 @@ public abstract class DistributedTransport extends Sink {
 
 
     public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders,
-            AnnotationsinkAnnotation, ConfigReader sinkConfigReader,ExecutionPlanContext executionPlanContext);
+                                       Annotation sinkAnnotation, ConfigReader sinkConfigReader,
+                                       ExecutionPlanContext executionPlanContext);
 
 
 }

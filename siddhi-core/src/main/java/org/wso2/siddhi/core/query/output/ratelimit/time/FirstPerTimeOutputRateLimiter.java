@@ -37,7 +37,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * event.
  */
 public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
-    static final Logger log = Logger.getLogger(FirstPerTimeOutputRateLimiter.class);
+    private static final Logger log = Logger.getLogger(FirstPerTimeOutputRateLimiter.class);
     private final Long value;
     private String id;
     private ComplexEvent firstEvent = null;

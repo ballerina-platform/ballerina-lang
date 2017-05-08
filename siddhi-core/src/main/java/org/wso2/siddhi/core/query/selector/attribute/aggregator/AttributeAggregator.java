@@ -27,6 +27,10 @@ import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Abstract parent class for attribute aggregators. Attribute aggregators are used to perform aggregate operations
+ * such as count, average, etc.
+ */
 public abstract class AttributeAggregator implements EternalReferencedHolder, Snapshotable {
 
     protected ExpressionExecutor[] attributeExpressionExecutors;
@@ -115,7 +119,7 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                  ExecutionPlanContext
-            executionPlanContext);
+                                         executionPlanContext);
 
     public abstract Attribute.Type getReturnType();
 

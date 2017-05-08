@@ -94,7 +94,8 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
             wrappedSnapshotOutputRateLimiter) {
         return new AllAggregationPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
-                                                              wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+                                                              wrappedSnapshotOutputRateLimiter, executionPlanContext,
+                                                              queryName);
     }
 
     @Override

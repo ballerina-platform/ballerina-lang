@@ -100,15 +100,15 @@ public class PrimaryKeyTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 56.6f, 200l});
-            checkStockStream.send(new Object[]{"IBM", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 56.6f, 200L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -166,13 +166,13 @@ public class PrimaryKeyTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"GOOG", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"GOOG", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"GOOG", "IBM", 100l},
-                    new Object[]{"GOOG", "WSO2", 100l}
+                    new Object[]{"GOOG", "IBM", 100L},
+                    new Object[]{"GOOG", "WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
@@ -643,19 +643,19 @@ public class PrimaryKeyTableTestCase {
             InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"IBM", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            updateStockStream.send(new Object[]{"IBM", 77.6f, 200l});
-            checkStockStream.send(new Object[]{"IBM", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            updateStockStream.send(new Object[]{"IBM", 77.6f, 200L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 100l},
-                    new Object[]{"IBM", 200l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 100L},
+                    new Object[]{"IBM", 200L},
+                    new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -1106,19 +1106,19 @@ public class PrimaryKeyTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 100L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"WSO2", 100l});
+            expected2.add(new Object[]{"WSO2", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
@@ -1184,19 +1184,19 @@ public class PrimaryKeyTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 100L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"IBM", 100l});
+            expected2.add(new Object[]{"IBM", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
@@ -1262,19 +1262,19 @@ public class PrimaryKeyTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 200l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 200L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"IBM", 100l});
+            expected2.add(new Object[]{"IBM", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
@@ -1340,19 +1340,19 @@ public class PrimaryKeyTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 200l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 200L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"IBM", 100l});
+            expected2.add(new Object[]{"IBM", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
@@ -1419,19 +1419,19 @@ public class PrimaryKeyTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 200l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 200L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"WSO2", 200l});
+            expected2.add(new Object[]{"WSO2", 200L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
@@ -1497,21 +1497,21 @@ public class PrimaryKeyTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"BAR", 150l},
-                    new Object[]{"WSO2", 200l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"BAR", 150L},
+                    new Object[]{"WSO2", 200L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"WSO2", 200l});
+            expected2.add(new Object[]{"WSO2", 200L});
 
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
@@ -1569,14 +1569,14 @@ public class PrimaryKeyTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
 
             List<Object[]> expected1 = new ArrayList<Object[]>();
-            expected1.add(new Object[]{"WSO2", 100l});
+            expected1.add(new Object[]{"WSO2", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
@@ -1632,15 +1632,15 @@ public class PrimaryKeyTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"FOO", 100l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"FOO", 100L},
+                    new Object[]{"WSO2", 100L}
             );
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
@@ -1697,15 +1697,15 @@ public class PrimaryKeyTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 170l});
-            checkStockStream.send(new Object[]{"FOO", 500l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 170L});
+            checkStockStream.send(new Object[]{"FOO", 500L});
 
             List<Object[]> expected = new ArrayList<Object[]>();
             expected.add(new Object[]{"FOO", 170L});
-            expected.add(new Object[]{"FOO", 500l});
+            expected.add(new Object[]{"FOO", 500L});
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
@@ -1762,11 +1762,11 @@ public class PrimaryKeyTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 170l});
-            checkStockStream.send(new Object[]{"FOO", 500l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 170L});
+            checkStockStream.send(new Object[]{"FOO", 500L});
 
             List<Object[]> expected = new ArrayList<Object[]>();
             expected.add(new Object[]{"FOO", 170L});
@@ -1825,11 +1825,11 @@ public class PrimaryKeyTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 170l});
-            checkStockStream.send(new Object[]{"FOO", 200l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 170L});
+            checkStockStream.send(new Object[]{"FOO", 200L});
 
             List<Object[]> expected = new ArrayList<Object[]>();
             expected.add(new Object[]{"FOO", 170L});
@@ -1889,11 +1889,11 @@ public class PrimaryKeyTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 170l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 170L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected = new ArrayList<Object[]>();
             expected.add(new Object[]{"FOO", 170L});
@@ -1949,10 +1949,10 @@ public class PrimaryKeyTableTestCase {
                             inEventCount.incrementAndGet();
                             switch (inEventCount.get()) {
                                 case 1:
-                                    Assert.assertArrayEquals(new Object[]{"IBM", 200l, 0f}, event.getData());
+                                    Assert.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
                                     break;
                                 case 2:
-                                    Assert.assertArrayEquals(new Object[]{"WSO2", 300l, 55.6f}, event.getData());
+                                    Assert.assertArrayEquals(new Object[]{"WSO2", 300L, 55.6f}, event.getData());
                                     break;
                                 default:
                                     Assert.assertSame(2, inEventCount.get());
@@ -1972,13 +1972,13 @@ public class PrimaryKeyTableTestCase {
             InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"IBM", 100l, 155.6f});
-            checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
-            updateStockStream.send(new Object[]{"IBM", 200l});
-            updateStockStream.send(new Object[]{"WSO2", 300l});
-            checkStockStream.send(new Object[]{"IBM", 200l, 0f});
-            checkStockStream.send(new Object[]{"WSO2", 300l, 55.6f});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L, 155.6f});
+            checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
+            updateStockStream.send(new Object[]{"IBM", 200L});
+            updateStockStream.send(new Object[]{"WSO2", 300L});
+            checkStockStream.send(new Object[]{"IBM", 200L, 0f});
+            checkStockStream.send(new Object[]{"WSO2", 300L, 55.6f});
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
@@ -2190,11 +2190,11 @@ public class PrimaryKeyTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{1, 55.6f, 100l});
-            checkStockStream.send(new Object[]{1, 100l});
+            stockStream.send(new Object[]{1, 55.6f, 100L});
+            checkStockStream.send(new Object[]{1, 100L});
 
             List<Object[]> expected = new ArrayList<>();
-            expected.add(new Object[]{1, 100l});
+            expected.add(new Object[]{1, 100L});
 
             SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -2261,20 +2261,20 @@ public class PrimaryKeyTableTestCase {
             executionPlanRuntime.start();
 
             long startTime = System.currentTimeMillis();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
             for (int i = 0; i < 1000000; i++) {
-                checkStockStream.send(new Object[]{"IBM", 100l});
-                checkStockStream.send(new Object[]{"WSO2", 100l});
+                checkStockStream.send(new Object[]{"IBM", 100L});
+                checkStockStream.send(new Object[]{"WSO2", 100L});
             }
             long timeDiff = System.currentTimeMillis() - startTime;
 
             long startTime1 = System.currentTimeMillis();
-            stockStream1.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream1.send(new Object[]{"IBM", 55.6f, 100l});
+            stockStream1.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream1.send(new Object[]{"IBM", 55.6f, 100L});
             for (int i = 0; i < 1000000; i++) {
-                checkStockStream1.send(new Object[]{"IBM", 100l});
-                checkStockStream1.send(new Object[]{"WSO2", 100l});
+                checkStockStream1.send(new Object[]{"IBM", 100L});
+                checkStockStream1.send(new Object[]{"WSO2", 100L});
             }
             long timeDiff1 = System.currentTimeMillis() - startTime1;
 
@@ -2350,7 +2350,7 @@ public class PrimaryKeyTableTestCase {
 //                    stockStream.send(new Object[]{"ABC", 5.6f, 70L});
 //                    i++;
 //                }
-//                System.out.println(System.currentTimeMillis() - startTime);
+//                log.info(System.currentTimeMillis() - startTime);
 //            }
 //        } finally {
 //            executionPlanRuntime.shutdown();

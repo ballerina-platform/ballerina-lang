@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.query.window;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -45,7 +45,7 @@ public class LenghtWindowTestCase {
     }
 
     @Test
-    public void LengthWindowTest1() throws InterruptedException {
+    public void lengthWindowTest1() throws InterruptedException {
         log.info("Testing length window with no of events smaller than window size");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -80,7 +80,7 @@ public class LenghtWindowTestCase {
     }
 
     @Test
-    public void LengthWindowTest2() throws InterruptedException {
+    public void lengthWindowTest2() throws InterruptedException {
         log.info("Testing length window with no of events greater than window size");
 
         final int length = 4;
@@ -130,7 +130,7 @@ public class LenghtWindowTestCase {
     }
 
     @Test
-    public void LengthWindowTest3() throws InterruptedException {
+    public void lengthWindowTest3() throws InterruptedException {
         log.info("Testing length window with no of events greater than window size");
 
         final int length = 4;

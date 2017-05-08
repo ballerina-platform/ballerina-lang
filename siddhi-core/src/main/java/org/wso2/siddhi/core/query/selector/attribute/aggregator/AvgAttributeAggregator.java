@@ -31,6 +31,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate average based on an event attribute.
+ */
 @Extension(
         name = "avg",
         namespace = "",
@@ -55,7 +58,8 @@ public class AvgAttributeAggregator extends AttributeAggregator {
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Avg aggregator has to have exactly 1 parameter, currently " +
                     attributeExpressionExecutors.length + " parameters provided");

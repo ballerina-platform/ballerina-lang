@@ -181,10 +181,6 @@ import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareC
 import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorLongLong;
 import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorStringString;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
-import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorDouble;
-import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorFloat;
-import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorInt;
-import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorLong;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorDouble;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorInt;
@@ -201,6 +197,10 @@ import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorDou
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorInt;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorLong;
+import org.wso2.siddhi.core.executor.math.subtract.SubtractExpressionExecutorDouble;
+import org.wso2.siddhi.core.executor.math.subtract.SubtractExpressionExecutorFloat;
+import org.wso2.siddhi.core.executor.math.subtract.SubtractExpressionExecutorInt;
+import org.wso2.siddhi.core.executor.math.subtract.SubtractExpressionExecutorLong;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AbstractAggregationAttributeExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AggregationAttributeExecutor;

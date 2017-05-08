@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.function;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -78,9 +78,9 @@ public class CastFunctionExecutorTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", 100.3, 100l});
-        inputHandler.send(new Object[]{"WSO2", true, 200l});
-        inputHandler.send(new Object[]{"XYZ", 300d, 200l});
+        inputHandler.send(new Object[]{"IBM", 100.3, 100L});
+        inputHandler.send(new Object[]{"WSO2", true, 200L});
+        inputHandler.send(new Object[]{"XYZ", 300d, 200L});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
         Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);

@@ -40,7 +40,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * event. This implementation specifically represent GroupBy queries.
  */
 public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
-    static final Logger log = Logger.getLogger(LastGroupByPerTimeOutputRateLimiter.class);
+    private static final Logger log = Logger.getLogger(LastGroupByPerTimeOutputRateLimiter.class);
     private final Long value;
     private String id;
     private Map<String, ComplexEvent> allGroupByKeyEvents = new LinkedHashMap<String, ComplexEvent>();

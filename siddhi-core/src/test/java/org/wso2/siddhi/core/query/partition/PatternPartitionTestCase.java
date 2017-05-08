@@ -32,7 +32,7 @@ import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PatternPartitionTestCase {
-    static final Logger log = Logger.getLogger(PatternPartitionTestCase.class);
+    private static final Logger log = Logger.getLogger(PatternPartitionTestCase.class);
     private AtomicInteger inEventCount;
     private AtomicInteger removeEventCount;
     private boolean eventArrived;

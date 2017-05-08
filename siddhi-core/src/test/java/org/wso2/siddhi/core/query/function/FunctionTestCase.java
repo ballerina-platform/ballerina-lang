@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.function;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -39,7 +39,7 @@ import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 public class FunctionTestCase {
-    static final Logger log = Logger.getLogger(FunctionTestCase.class);
+    private static final Logger log = Logger.getLogger(FunctionTestCase.class);
     private int count;
     private boolean eventArrived;
 
@@ -145,10 +145,10 @@ public class FunctionTestCase {
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
-        inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
-        inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
-        inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
+        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60L, 6});
+        inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10});
+        inputHandler.send(new Object[]{"WSO2", null, 44f, 200L, 56});
+        inputHandler.send(new Object[]{"WSO2", null, null, 200L, 56});
         Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionPlanRuntime.shutdown();
@@ -188,12 +188,12 @@ public class FunctionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
-        inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
-        inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
-        inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
+        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60L, 6});
+        inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10});
+        inputHandler.send(new Object[]{"WSO2", null, 44f, 200L, 56});
+        inputHandler.send(new Object[]{"WSO2", null, null, 200L, 56});
         Thread.sleep(100);
-        junit.framework.Assert.assertEquals(3, count);
+        org.junit.Assert.assertEquals(3, count);
         executionPlanRuntime.shutdown();
 
     }

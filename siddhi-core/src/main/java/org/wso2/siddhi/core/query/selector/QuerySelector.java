@@ -36,6 +36,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Processor implementation representing selector portion of the Siddhi query.
+ */
 public class QuerySelector implements Processor {
 
 
@@ -113,6 +116,7 @@ public class QuerySelector implements Processor {
                         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
                             attributeProcessor.process(event);
                         }
+                        break;
                     case TIMER:
                         complexEventChunk.remove();
                         break;
@@ -314,7 +318,7 @@ public class QuerySelector implements Processor {
 
     public QuerySelector clone(String key) {
         QuerySelector clonedQuerySelector = new QuerySelector(id + key, selector, currentOn, expiredOn,
-                executionPlanContext);
+                                                              executionPlanContext);
         List<AttributeProcessor> clonedAttributeProcessorList = new ArrayList<AttributeProcessor>();
         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
             clonedAttributeProcessorList.add(attributeProcessor.cloneProcessor(key));

@@ -33,7 +33,7 @@ import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InMemoryTransportTestCase {
-    static final private Logger log = Logger.getLogger(InMemoryTransportTestCase.class);
+    private static final Logger log = Logger.getLogger(InMemoryTransportTestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
@@ -194,10 +194,10 @@ public class InMemoryTransportTestCase {
                 for (Event event : events) {
                     switch (wso2Count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            org.junit.Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(57.6f, event.getData(1));
+                            org.junit.Assert.assertEquals(57.6f, event.getData(1));
                             break;
                         default:
                             org.junit.Assert.fail();
@@ -350,6 +350,4 @@ public class InMemoryTransportTestCase {
         InMemoryBroker.unsubscribe(subscriptionWSO2);
         InMemoryBroker.unsubscribe(subscriptionIBM);
     }
-
-
 }

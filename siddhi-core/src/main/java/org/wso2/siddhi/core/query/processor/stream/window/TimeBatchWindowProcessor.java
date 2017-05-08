@@ -114,11 +114,14 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                             .getValue();
                 } else {
                     throw new ExecutionPlanValidationException("Time window's parameter attribute should be either " +
-                                                                       "int or long, but found " + attributeExpressionExecutors[0].getReturnType());
+                                                                       "int or long, but found " +
+                                                                       attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
                 throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but " +
-                                                                   "found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
+                                                                   "found a dynamic attribute " +
+                                                                   attributeExpressionExecutors[0].getClass().
+                                                                           getCanonicalName());
             }
         } else if (attributeExpressionExecutors.length == 2) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
@@ -131,11 +134,14 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                             .getValue();
                 } else {
                     throw new ExecutionPlanValidationException("Time window's parameter attribute should be either " +
-                                                                       "int or long, but found " + attributeExpressionExecutors[0].getReturnType());
+                                                                       "int or long, but found " +
+                                                                       attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
                 throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but " +
-                                                                   "found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
+                                                                   "found a dynamic attribute " +
+                                                                   attributeExpressionExecutors[0].getClass()
+                                                                           .getCanonicalName());
             }
             // start time
             isStartTimeEnabled = true;
@@ -285,6 +291,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
         return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder,
-                                                executionPlanContext, variableExpressionExecutors, tableMap, this.queryName);
+                                                executionPlanContext, variableExpressionExecutors, tableMap,
+                                                this.queryName);
     }
 }

@@ -34,7 +34,7 @@ import java.util.List;
         namespace = "distributionStrategy",
         description = ""
 )
-public class BroadcastDistributionStrategy extends DistributionStrategy{
+public class BroadcastDistributionStrategy extends DistributionStrategy {
     /**
      * Initialize the Distribution strategy with the information it will require to make decisions.
      *  @param streamDefinition         The stream attached to the sink this DistributionStrategy is used in

@@ -56,7 +56,8 @@ public class PartitionedDistributionStrategy extends DistributionStrategy {
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,
-                     OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders, ConfigReader configReader) {
+                     OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders,
+                     ConfigReader configReader) {
         totalDestinationCount = destinationOptionHolders.size();
         String partitionKey = distributionOptionHolder.validateAndGetStaticValue(SiddhiConstants
                 .PARTITION_KEY_FIELD_KEY);

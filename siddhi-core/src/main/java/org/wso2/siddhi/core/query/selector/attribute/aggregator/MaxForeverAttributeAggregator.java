@@ -32,6 +32,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate max value for life time based on an event attribute.
+ */
 @Extension(
         name = "maxForever",
         namespace = "",
@@ -57,7 +60,8 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("MaxForever aggregator has to have exactly 1 parameter, " +
                     "currently " +

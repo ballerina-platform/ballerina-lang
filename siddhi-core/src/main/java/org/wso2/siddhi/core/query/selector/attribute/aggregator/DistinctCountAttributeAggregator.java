@@ -32,14 +32,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate distinct count based on an event attribute.
+ */
 @Extension(
         name = "distinctCount",
         namespace = "",
         description = "Returns the count of distinct occurrences for a given arg.",
         parameters = {
                 @Parameter(name = "arg",
-                        description = "The value that should be counted.",
-                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING})
+                           description = "The value that should be counted.",
+                           type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the count of distinct occurrences for a given arg.",
@@ -55,10 +58,11 @@ public class DistinctCountAttributeAggregator extends AttributeAggregator {
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Distinct count aggregator has to have exactly 1 parameter, " +
-                    "currently " + attributeExpressionExecutors.length + " parameters provided");
+                                                             "currently " + attributeExpressionExecutors.length + " parameters provided");
         }
     }
 

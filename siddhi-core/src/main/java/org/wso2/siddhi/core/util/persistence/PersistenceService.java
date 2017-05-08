@@ -29,7 +29,7 @@ import org.wso2.siddhi.core.util.snapshot.SnapshotService;
  */
 public class PersistenceService {
 
-    static final Logger log = Logger.getLogger(PersistenceService.class);
+    private static final Logger log = Logger.getLogger(PersistenceService.class);
     private String executionPlanName;
     private PersistenceStore persistenceStore;
     private SnapshotService snapshotService;

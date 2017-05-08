@@ -43,7 +43,7 @@ public class DivideExpressionExecutorLong implements ExpressionExecutor {
             return null;
         }
         long right = ((Number) rightObject).longValue();
-        if (right == 0l) {
+        if (right == 0L) {
             return null;
         }
         return ((Number) leftObject).longValue() / right;

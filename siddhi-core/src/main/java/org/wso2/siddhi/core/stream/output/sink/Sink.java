@@ -49,9 +49,10 @@ public abstract class Sink implements SinkListener, Snapshotable {
                      ExecutionPlanContext executionPlanContext) {
         this.type = type;
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
-        init(streamDefinition, transportOptionHolder, sinkConfigReader,executionPlanContext);
+        init(streamDefinition, transportOptionHolder, sinkConfigReader, executionPlanContext);
         if (sinkMapper != null) {
-            sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, mapperConfigReader, executionPlanContext);
+            sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, mapperConfigReader,
+                            executionPlanContext);
             this.mapper = sinkMapper;
         }
 
@@ -79,7 +80,8 @@ public abstract class Sink implements SinkListener, Snapshotable {
      * @param sinkConfigReader
      * @param executionPlanContext
      */
-    protected abstract void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext);
+    protected abstract void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
+                                 ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext);
 
     /**
      * Will be called to connect to the backend before events are published

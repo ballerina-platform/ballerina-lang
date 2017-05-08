@@ -37,8 +37,8 @@ import java.util.Map;
         description = "Return the concatenations of the given input values.",
         parameters = {
                 @Parameter(name = "arg",
-                        description = "The value that need to be concat.",
-                        type = {DataType.STRING})
+                           description = "The value that need to be concat.",
+                           type = {DataType.STRING})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the concatenated value as a string.",
@@ -51,12 +51,14 @@ public class StringConcatAggregatorString extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param configReader
      * @param executionPlanContext         SiddhiContext
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         appendAbc = Boolean.parseBoolean(configReader.readConfig("append.abc", "false"));
 
     }
@@ -70,12 +72,11 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     @Override
     public Object processAdd(Object data) {
         aggregatedStringValue = aggregatedStringValue + data;
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
-
     }
 
     @Override
@@ -83,9 +84,9 @@ public class StringConcatAggregatorString extends AttributeAggregator {
         for (Object aData : data) {
             aggregatedStringValue = aggregatedStringValue + aData;
         }
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
     }
@@ -94,9 +95,9 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     @Override
     public Object processRemove(Object data) {
         aggregatedStringValue = aggregatedStringValue.replaceFirst(data.toString(), "");
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
     }
@@ -106,9 +107,9 @@ public class StringConcatAggregatorString extends AttributeAggregator {
         for (Object aData : data) {
             aggregatedStringValue = aggregatedStringValue.replaceFirst(aData.toString(), "");
         }
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
     }
@@ -141,5 +142,4 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     public void restoreState(Map<String, Object> state) {
         aggregatedStringValue = (String) state.get("AggregatedStringValue");
     }
-
 }

@@ -58,7 +58,8 @@ public class PassThroughSourceMapper extends SourceMapper {
                 inputHandler.send((Object[]) eventObject);
             } else {
                 throw new ExecutionPlanRuntimeException("Event object must be either Event[], Event or Object[] " +
-                                                                "but found " + eventObject.getClass().getCanonicalName());
+                                                                "but found " + eventObject.getClass()
+                        .getCanonicalName());
             }
         }
     }

@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class PersistenceTestCase {
-    static final Logger log = Logger.getLogger(PersistenceTestCase.class);
+    private static final Logger log = Logger.getLogger(PersistenceTestCase.class);
     private int count;
     private boolean eventArrived;
     private long firstValue;
@@ -539,10 +539,10 @@ public class PersistenceTestCase {
                     count++;
                     Assert.assertTrue("IBM".equals(inEvent.getData(0)) || "WSO2".equals(inEvent.getData(0)));
                     if (count == 5) {
-                        Assert.assertEquals(300l, inEvent.getData(2));
+                        Assert.assertEquals(300L, inEvent.getData(2));
                     }
                     if (count == 6) {
-                        Assert.assertEquals(100l, inEvent.getData(2));
+                        Assert.assertEquals(100L, inEvent.getData(2));
                     }
                 }
             }

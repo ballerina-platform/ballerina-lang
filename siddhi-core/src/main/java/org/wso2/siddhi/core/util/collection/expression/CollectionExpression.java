@@ -28,6 +28,9 @@ public interface CollectionExpression {
 
     CollectionScope getCollectionScope();
 
+    /**
+     * Enums to hold collection expression scopes.
+     */
     enum CollectionScope {
         NON,
         INDEXED_ATTRIBUTE,

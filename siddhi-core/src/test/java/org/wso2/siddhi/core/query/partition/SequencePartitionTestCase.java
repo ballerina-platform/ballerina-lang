@@ -278,6 +278,7 @@ public class SequencePartitionTestCase {
                                 break;
                             case 2:
                                 Assert.assertArrayEquals(new Object[]{65.6f, 75.7f, 87.6f}, event.getData());
+                                break;
                             default:
                                 Assert.assertSame(2, inEventCount);
                         }

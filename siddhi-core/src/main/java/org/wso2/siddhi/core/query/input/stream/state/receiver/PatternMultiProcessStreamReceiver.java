@@ -24,6 +24,10 @@ import org.wso2.siddhi.core.query.input.StateMultiProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
+/**
+ * {@link org.wso2.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events into pattern queries
+ * with multiple streams.
+ */
 public class PatternMultiProcessStreamReceiver extends StateMultiProcessStreamReceiver {
 
     public PatternMultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker, String

@@ -35,7 +35,7 @@ public class ByteSerializer {
     private ByteSerializer() {
     }
 
-    public static byte[] OToB(Object obj) {
+    public static byte[] objectToByte(Object obj) {
         long start = System.currentTimeMillis();
         byte[] out = null;
         if (obj != null) {
@@ -56,7 +56,7 @@ public class ByteSerializer {
         return out;
     }
 
-    public static Object BToO(byte[] bytes) {
+    public static Object byteToObject(byte[] bytes) {
         long start = System.currentTimeMillis();
         Object out = null;
         if (bytes != null) {

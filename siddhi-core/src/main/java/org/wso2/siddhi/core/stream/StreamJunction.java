@@ -238,7 +238,8 @@ public class StreamJunction {
                 if (constructor.getParameterTypes().length == 5) {      // If new disruptor classes available
                     ProducerType producerType = ProducerType.MULTI;
                     disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
-                                                     bufferSize, executorService, producerType, new BlockingWaitStrategy());
+                                                     bufferSize, executorService, producerType,
+                                                     new BlockingWaitStrategy());
                     disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
                     break;
                 }
@@ -295,6 +296,9 @@ public class StreamJunction {
         return streamDefinition;
     }
 
+    /**
+     * Interface to be implemented by all receivers who need to subscribe to Stream Junction and receive events.
+     */
     public interface Receiver {
 
         String getStreamId();
@@ -310,6 +314,9 @@ public class StreamJunction {
         void receive(Event[] events);
     }
 
+    /**
+     * Interface to be implemented to receive events via handlers.
+     */
     public class StreamHandler implements EventHandler<Event> {
 
         private Receiver receiver;
@@ -324,6 +331,9 @@ public class StreamJunction {
         }
     }
 
+    /**
+     * Interface to be implemented to send events into the Stream Junction.
+     */
     public class Publisher implements InputProcessor {
 
         private StreamJunction streamJunction;

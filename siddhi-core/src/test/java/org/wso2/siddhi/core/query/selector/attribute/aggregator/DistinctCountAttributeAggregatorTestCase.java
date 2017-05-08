@@ -37,7 +37,7 @@ public class DistinctCountAttributeAggregatorTestCase {
     }
 
     @Test
-    public void DistinctCountTest() throws InterruptedException {
+    public void distinctCountTest() throws InterruptedException {
         log.info("Distinct Count TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 

@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.query.function;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 public class IfThenElseFunctionTestCase {
-    static final Logger log = Logger.getLogger(IfThenElseFunctionTestCase.class);
+    private static final Logger log = Logger.getLogger(IfThenElseFunctionTestCase.class);
 
     private int count;
 
@@ -314,6 +314,4 @@ public class IfThenElseFunctionTestCase {
         executionPlanRuntime.shutdown();
         Assert.assertEquals(2, count);
     }
-
-
 }

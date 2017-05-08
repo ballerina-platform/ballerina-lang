@@ -27,6 +27,9 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Executor class for aggregations with group by configuration.
+ */
 public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttributeExecutor {
 
     private final ConfigReader configReader;
@@ -62,7 +65,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     public ExpressionExecutor cloneExecutor(String key) {
         return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
-                attributeExpressionExecutors, configReader, executionPlanContext, queryName);
+                                                       attributeExpressionExecutors, configReader, executionPlanContext, queryName);
     }
 
     @Override

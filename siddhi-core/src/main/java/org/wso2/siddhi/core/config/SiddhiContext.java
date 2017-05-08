@@ -32,6 +32,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 
+/**
+ * Context information holder associated with {@link org.wso2.siddhi.core.SiddhiManager}
+ */
 public class SiddhiContext {
 
     private static final Logger log = Logger.getLogger(SiddhiContext.class);
@@ -49,7 +52,7 @@ public class SiddhiContext {
         siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
         statisticsConfiguration = new StatisticsConfiguration(new SiddhiMetricsFactory());
         extensionHolderMap = new ConcurrentHashMap<Class, AbstractExtensionHolder>();
-        configManager= new InMemoryConfigManager();
+        configManager = new InMemoryConfigManager();
         defaultDisrupterExceptionHandler = new ExceptionHandler<Object>() {
             @Override
             public void handleEventException(Throwable throwable, long l, Object event) {

@@ -133,7 +133,8 @@ public class DefinitionParserHelper {
         }
     }
 
-    public static void addTable(TableDefinition tableDefinition, ConcurrentMap<String, Table> tableMap, ExecutionPlanContext executionPlanContext) {
+    public static void addTable(TableDefinition tableDefinition, ConcurrentMap<String, Table> tableMap,
+                                ExecutionPlanContext executionPlanContext) {
 
         if (!tableMap.containsKey(tableDefinition.getId())) {
 
@@ -165,7 +166,9 @@ public class DefinitionParserHelper {
                         return tableType;
                     }
                 };
-                table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension, TableExtensionHolder.getInstance(executionPlanContext));configReader = executionPlanContext.getSiddhiContext().getConfigManager()
+                table = (Table) SiddhiClassLoader.loadExtensionImplementation(
+                        extension, TableExtensionHolder.getInstance(executionPlanContext));
+                configReader = executionPlanContext.getSiddhiContext().getConfigManager()
                         .generateConfigReader(extension.getNamespace(), extension.getName());
             } else {
                 table = new InMemoryTable();
@@ -238,7 +241,10 @@ public class DefinitionParserHelper {
         }
     }
 
-    public static void addEventTrigger(TriggerDefinition triggerDefinition, ConcurrentMap<String, EventTrigger> eventTriggerMap, ConcurrentMap<String, StreamJunction> streamJunctionMap, ExecutionPlanContext executionPlanContext) {
+    public static void addEventTrigger(TriggerDefinition triggerDefinition,
+                                       ConcurrentMap<String, EventTrigger> eventTriggerMap,
+                                       ConcurrentMap<String, StreamJunction> streamJunctionMap,
+                                       ExecutionPlanContext executionPlanContext) {
         if (!eventTriggerMap.containsKey(triggerDefinition.getId())) {
             EventTrigger eventTrigger;
             if (triggerDefinition.getAtEvery() != null) {
@@ -327,7 +333,8 @@ public class DefinitionParserHelper {
 
                     String[] supportedDynamicOptions = null;
                     List<OptionHolder> destinationOptHolders = new ArrayList<>();
-                    String sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);Extension sinkExtension = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,
+                    String sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                    Extension sinkExtension = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,
                             sinkType, sinkAnnotation, SiddhiConstants.NAMESPACE_SINK);
                     ConfigReader sinkConfigReader = executionPlanContext.getSiddhiContext().
                             getConfigManager().generateConfigReader(sinkExtension.getNamespace(),
@@ -398,13 +405,15 @@ public class DefinitionParserHelper {
                             distributionStrategy.init(streamDefinition, transportOptionHolder, distributionOptHolder,
                                     destinationOptHolders, configReader);
 
-                           ((DistributedTransport)sink).init(streamDefinition, sinkType,
-                                   transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder,
-                                   payload, mapperConfigReader, executionPlanContext, destinationOptHolders,
-                                   sinkAnnotation, distributionStrategy,supportedDynamicOptions);
+                            ((DistributedTransport) sink).init(streamDefinition, sinkType,
+                                                               transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder,
+                                                               payload, mapperConfigReader, executionPlanContext,
+                                                               destinationOptHolders,
+                                                               sinkAnnotation, distributionStrategy,
+                                                               supportedDynamicOptions);
                         } else {
                             sink.init(streamDefinition, sinkType, transportOptionHolder, sinkConfigReader, sinkMapper,
-                                    mapType,mapOptionHolder, payload, mapperConfigReader, executionPlanContext);
+                                      mapType, mapOptionHolder, payload, mapperConfigReader, executionPlanContext);
                         }
 
                         // Setting the output group determiner

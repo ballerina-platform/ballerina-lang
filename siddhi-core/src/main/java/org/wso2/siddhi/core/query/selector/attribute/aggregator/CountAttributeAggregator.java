@@ -28,6 +28,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate count.
+ */
 @Extension(
         name = "count",
         namespace = "",
@@ -40,7 +43,7 @@ import java.util.Map;
 public class CountAttributeAggregator extends AttributeAggregator {
 
     private static Attribute.Type type = Attribute.Type.LONG;
-    private long count = 0l;
+    private long count = 0L;
 
     /**
      * The initialization method for FunctionExecutor
@@ -49,7 +52,8 @@ public class CountAttributeAggregator extends AttributeAggregator {
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
 
     }
 
@@ -83,7 +87,7 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object reset() {
-        count = 0l;
+        count = 0L;
         return count;
     }
 

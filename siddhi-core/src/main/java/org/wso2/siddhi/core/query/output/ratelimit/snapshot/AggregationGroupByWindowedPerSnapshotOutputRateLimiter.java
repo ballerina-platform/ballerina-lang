@@ -149,6 +149,8 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
             wrappedSnapshotOutputRateLimiter) {
         return new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
-                                                                          aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+                                                                          aggregateAttributePositionList,
+                                                                          wrappedSnapshotOutputRateLimiter,
+                                                                          executionPlanContext, queryName);
     }
 }

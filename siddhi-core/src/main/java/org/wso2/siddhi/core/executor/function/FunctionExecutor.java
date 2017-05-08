@@ -54,7 +54,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
                 elementId = "FunctionExecutor-" + executionPlanContext.getElementIdGenerator().createNewId();
             }
             executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
-            init(attributeExpressionExecutors,configReader, executionPlanContext);
+            init(attributeExpressionExecutors, configReader, executionPlanContext);
         } catch (Throwable t) {
             throw new ExecutionPlanCreationException(t);
         }

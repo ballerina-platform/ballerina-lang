@@ -74,7 +74,7 @@ public abstract class StreamProcessor extends AbstractStreamProcessor {
                                    ExecutionPlanContext
                                            executionPlanContext, boolean outputExpectsExpiredEvents) {
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
-        return init(inputDefinition,attributeExpressionExecutors,configReader,executionPlanContext);
+        return init(inputDefinition, attributeExpressionExecutors, configReader, executionPlanContext);
     }
 
     protected abstract List<Attribute> init(AbstractDefinition inputDefinition,

@@ -70,10 +70,10 @@ public class DeleteFromTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
-        deleteStockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        deleteStockStream.send(new Object[]{"WSO2", 57.6f, 100L});
 
         Thread.sleep(500);
         executionPlanRuntime.shutdown();
@@ -107,10 +107,10 @@ public class DeleteFromTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
-        deleteStockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        deleteStockStream.send(new Object[]{"WSO2", 57.6f, 100L});
 
         Thread.sleep(500);
         executionPlanRuntime.shutdown();
@@ -144,10 +144,10 @@ public class DeleteFromTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
-        deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        deleteStockStream.send(new Object[]{"IBM", 57.6f, 100L});
 
         Thread.sleep(500);
         executionPlanRuntime.shutdown();
@@ -218,11 +218,11 @@ public class DeleteFromTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 55.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 55.6f, 100L});
         checkStockStream.send(new Object[]{"IBM"});
         checkStockStream.send(new Object[]{"WSO2"});
-        deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+        deleteStockStream.send(new Object[]{"IBM", 57.6f, 100L});
         checkStockStream.send(new Object[]{"IBM"});
         checkStockStream.send(new Object[]{"WSO2"});
 
@@ -280,10 +280,10 @@ public class DeleteFromTableTestCase {
         });
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
-        deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        deleteStockStream.send(new Object[]{"IBM", 57.6f, 100L});
         countStockStream.send(new Object[]{"WSO2"});
 
         Thread.sleep(500);

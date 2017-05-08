@@ -44,7 +44,8 @@ public abstract class SourceMapper implements SourceEventListener {
         init(streamDefinition, mapOptionHolder, attributeMappings, configReader);
     }
 
-    public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping> attributeMappingList, ConfigReader configReader);
+    public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
+                              List<AttributeMapping> attributeMappingList, ConfigReader configReader);
 
     public void setInputHandler(InputHandler inputHandler) {
         this.inputHandler = inputHandler;

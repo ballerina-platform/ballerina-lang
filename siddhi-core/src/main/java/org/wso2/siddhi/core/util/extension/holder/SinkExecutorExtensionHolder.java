@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Holder to store {@link Sink} Extensions.
  */
 public class SinkExecutorExtensionHolder extends AbstractExtensionHolder {
-    private static Class clazz =Sink.class;
+    private static Class clazz = Sink.class;
 
     private SinkExecutorExtensionHolder(ExecutionPlanContext executionPlanContext) {
         super(clazz, executionPlanContext);

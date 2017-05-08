@@ -71,6 +71,9 @@ public interface CollectionExecutor {
 
     Cost getDefaultCost();
 
+    /**
+     * Enums to specify operation cost.
+     */
     public enum Cost {
 
         SINGLE_RETURN_INDEX_MATCHING(1),

@@ -85,7 +85,7 @@ public class SiddhiMemoryUsageMetric implements MemoryUsageTracker {
                                             try {
                                                 return ObjectSizeCalculator.getObjectSize(object);
                                             } catch (UnsupportedOperationException e) {
-                                                return 0l;
+                                                return 0L;
                                             }
                                         }
                                     });

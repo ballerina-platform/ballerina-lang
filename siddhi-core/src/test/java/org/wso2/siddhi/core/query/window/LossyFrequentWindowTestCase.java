@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.window;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class LossyFrequentWindowTestCase {
-    static final Logger log = Logger.getLogger(LossyFrequentWindowTestCase.class);
+    private static final Logger log = Logger.getLogger(LossyFrequentWindowTestCase.class);
 
     private int inEventCount;
     private int removeEventCount;
@@ -135,7 +135,7 @@ public class LossyFrequentWindowTestCase {
             inputHandler.send(new Object[]{"3234-3244-2432-4124", 73.36f});
             inputHandler.send(new Object[]{"3234-3244-2432-4124", 78.36f});
             inputHandler.send(new Object[]{"1234-3244-2432-123", 86.36f});
-            inputHandler.send(new Object[]{"5768-3244-2432-5646", 48.36f});//this event will not include in to the
+            inputHandler.send(new Object[]{"5768-3244-2432-5646", 48.36f}); //this event will not include in to the
             // window during first iteration because 1+0<5*0.25
         }
         Thread.sleep(1000);
@@ -185,7 +185,7 @@ public class LossyFrequentWindowTestCase {
             inputHandler.send(new Object[]{"3234-3244-2432-4124", 73.36f});
             inputHandler.send(new Object[]{"3234-3244-2432-4124", 78.36f});
             inputHandler.send(new Object[]{"1234-3244-2432-123", 86.36f});
-            inputHandler.send(new Object[]{"3234-3244-2432-4124", 48.36f});//this event will be included because we
+            inputHandler.send(new Object[]{"3234-3244-2432-4124", 48.36f}); //this event will be included because we
             // only consider cardNo
         }
         Thread.sleep(1000);

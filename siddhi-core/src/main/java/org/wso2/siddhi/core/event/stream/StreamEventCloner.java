@@ -18,6 +18,9 @@
 
 package org.wso2.siddhi.core.event.stream;
 
+/**
+ * Cloner class for {@link StreamEvent} to be used when creating {@link org.wso2.siddhi.core.partition.PartitionRuntime}
+ */
 public class StreamEventCloner {
 
     private final int beforeWindowDataSize;
@@ -44,11 +47,11 @@ public class StreamEventCloner {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
         if (beforeWindowDataSize > 0) {
             System.arraycopy(streamEvent.getBeforeWindowData(), 0, borrowedEvent.getBeforeWindowData(), 0,
-                    beforeWindowDataSize);
+                             beforeWindowDataSize);
         }
         if (onAfterWindowDataSize > 0) {
             System.arraycopy(streamEvent.getOnAfterWindowData(), 0, borrowedEvent.getOnAfterWindowData(), 0,
-                    onAfterWindowDataSize);
+                             onAfterWindowDataSize);
         }
         if (outputDataSize > 0) {
             System.arraycopy(streamEvent.getOutputData(), 0, borrowedEvent.getOutputData(), 0, outputDataSize);

@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -71,7 +72,7 @@ import java.util.concurrent.ConcurrentHashMap;
                 type = {})
 )
 public class LossyFrequentWindowProcessor extends WindowProcessor implements FindableProcessor {
-
+    private static final Logger log = Logger.getLogger(LossyFrequentWindowProcessor.class);
     private ConcurrentHashMap<String, LossyCount> countMap = new ConcurrentHashMap<String, LossyCount>();
     private ConcurrentHashMap<String, StreamEvent> map = new ConcurrentHashMap<String, StreamEvent>();
     private VariableExpressionExecutor[] variableExpressionExecutors;
@@ -223,6 +224,9 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
                 executionPlanContext, variableExpressionExecutors, tableMap, this.queryName);
     }
 
+    /**
+     * Inner class to keep the lossy count
+     */
     public class LossyCount {
         int count;
         int bucketId;
