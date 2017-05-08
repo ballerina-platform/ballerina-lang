@@ -20,6 +20,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from './../../ast/ballerina-ast-factory';
 import {util} from './../sizing-utils';
 
 class FunctionDefinitionDimensionCalculatorVisitor {
@@ -43,6 +44,27 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
+
+        let annotationHeight = 0;
+ 
+        /**
+         * calculate the height of annotation view
+         */
+        let annotations = node.filterChildren(function (child) {
+            return ASTFactory.isAnnotation(child)
+        });
+ 
+        _.forEach(annotations, function (annotation) {
+            annotationHeight = annotationHeight+ 25;
+        });
+ 
+        components['annotation'] = new SimpleBBox();
+ 
+        if(node.viewState.annotationViewCollapsed){
+            components['annotation'].h = 25; 
+        }else{
+            components['annotation'].h = annotationHeight; 
+        }
 
         components['statementContainer'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
@@ -110,8 +132,9 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
             DesignerDefaults.panel.body.padding.left + lifeLineWidth;
+        components['annotation'].w = components['body'].w;
 
-        viewState.bBox.h = components['heading'].h + components['body'].h;
+        viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;
 
         viewState.titleWidth = util.getTextWidth(node.getFunctionName()).w;

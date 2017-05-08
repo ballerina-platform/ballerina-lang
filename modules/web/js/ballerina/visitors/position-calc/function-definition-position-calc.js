@@ -32,6 +32,7 @@ class FunctionDefinitionPositionCalcVisitor {
     beginVisit(node) {
         let viewSate = node.getViewState();
         let bBox = viewSate.bBox;
+        let annotation = viewSate.components.annotation;
         let parent = node.getParent();
         let panelChildren = parent.filterChildren(function (child) {
             return ASTFactory.isFunctionDefinition(child) ||
@@ -57,7 +58,7 @@ class FunctionDefinitionPositionCalcVisitor {
         x = headerX;
         y = headerY;
         bodyX = headerX;
-        bodyY = headerY + heading.h;
+        bodyY = headerY + heading.h + annotation.h;
 
         bBox.x = x;
         bBox.y = y;
