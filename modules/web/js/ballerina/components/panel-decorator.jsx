@@ -58,7 +58,11 @@ class PanelDecorator extends React.Component {
         const panelBodyClassName = "panel-body" + ((dropZoneActivated) ? " drop-zone active" : "");
 
         const annotationBodyClassName = "annotation-body";
-        const annotationBodyHeight = this.props.model.viewState.components.annotation.h;
+        let annotationBodyHeight = 0;
+        // TODO: Fix Me
+        if (!_.isNil(this.props.model.viewState.components.annotation)) {
+            annotationBodyHeight = this.props.model.viewState.components.annotation.h;
+        }
         let titleComponents = this.getTitleComponents(this.props.titleComponentData);
         let annotationString = this.getAnnotationsString();
         let annotationComponents = this.getAnnotationComponents(this.props.annotations, bBox, titleHeight);
@@ -185,9 +189,12 @@ class PanelDecorator extends React.Component {
 
     getAnnotationsString() {
         let annotationString = '';
-        this.props.annotations.forEach(function (annotation) {
-            annotationString = annotationString + annotation.toString() + '  ';
-        });
+        // TODO: Fix Me
+        if (!_.isNil(this.props.annotations)) {
+            this.props.annotations.forEach(function (annotation) {
+                annotationString = annotationString + annotation.toString() + '  ';
+            });
+        }
         return annotationString;
     }
 }
