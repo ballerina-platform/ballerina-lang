@@ -150,17 +150,20 @@ export const statementContainer = {
 
 export const packageDefinition = {
     header: {
-        height: 50,
+        height: 35,
         padding: {
             top: 0,
-            right: 50,
+            right: 5,
             bottom: 0,
-            left: 50
+            left: 5
         }
     },
 
+    labelWidth: 60,
+    textWidth: 250,
+
     importDeclaration: {
-        itemHeight: 40
+        itemHeight: 30
     }
 }
 

@@ -17,29 +17,31 @@
  */
 
 import log from 'log';
-import _ from 'lodash';
-import { util } from '../sizing-utils';
+import * as Utils from './utils';
 
-class ArgumentDimensionCalculatorVisitor {
+class PackageDefinitionPositionCalcVisitor {
 
     canVisit(node) {
-        log.debug('can visit ArgumentDimensionCalculatorVisitor');
+        log.debug('can visit FunctionInvocationStatementPositionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit ArgumentDimensionCalculatorVisitor');
+        log.debug('begin visit FunctionInvocationStatementPositionCalc');
+        let viewSate = node.getViewState();
+        let bBox = viewSate.bBox;
+
+        bBox.x = 50;
+        bBox.y = 20;
     }
 
     visit(node) {
-        log.debug('visit ArgumentDimensionCalculatorVisitor');
+        log.debug('visit FunctionInvocationStatementPositionCalc');
     }
 
     endVisit(node) {
-        var viewState = node.getViewState();
-        viewState.textLength = util.getTextWidth(node.getArgumentAsString()).w;
+        log.debug('end visit FunctionInvocationStatementPositionCalc');
     }
-
 }
 
-export default ArgumentDimensionCalculatorVisitor;
+export default PackageDefinitionPositionCalcVisitor;

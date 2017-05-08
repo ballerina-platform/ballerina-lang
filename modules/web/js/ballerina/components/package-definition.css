@@ -6,6 +6,7 @@
     dominant-baseline: central;
 }
 
-.package-definition-package-name {
+.package-definition-label {
     dominant-baseline: central;
+    fill: #999;
 }

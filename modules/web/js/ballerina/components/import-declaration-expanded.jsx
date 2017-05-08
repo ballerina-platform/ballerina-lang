@@ -23,6 +23,7 @@ export default class importDeclarationExpanded extends React.Component {
         const bBox = this.props.bBox;
         const importDeclarationHeight = 30;
         const importDeclarationWidth = 200;
+        const leftPadding = 10;
         const importElements = [];
         let lastImportElementY = bBox.y;
 
@@ -30,7 +31,7 @@ export default class importDeclarationExpanded extends React.Component {
             importElements.push(
                 <g className='package-declaration-item'>
                     <rect x={ bBox.x } y={ lastImportElementY } height={importDeclarationHeight} width={importDeclarationWidth} />
-                    <text x={ bBox.x } y={ lastImportElementY + importDeclarationHeight/2 } rx="0" ry="0">
+                    <text x={ bBox.x + leftPadding } y={ lastImportElementY + importDeclarationHeight/2 } rx="0" ry="0">
                         {importDec._packageName}
                     </text>
                 </g>

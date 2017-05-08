@@ -22,13 +22,24 @@ import './import-declaration.css'
 export default class importDeclaration extends React.Component {
     render() {
         const bBox = this.props.bBox;
-
+        const numberBadgeHeight = 24;
+        const headerHeight = 35;
+        const leftPadding = 15;
+        let text = { };
+        text.x = bBox.x + leftPadding;
+        text.y = bBox.y + headerHeight / 2;
+        let number = {};
+        number.x = text.x + 65;
+        number.y = text.y;
         return (
-            <g className="package-definition-head" onClick={ () => {this.props.onClick();} }>
-                <text x={ bBox.x } y={ bBox.y } rx="0" ry="0">
+            <g className="package-definition-head" onClick={ e => {this.props.onClick(e);} }>
+                <rect x={ bBox.x } y={ bBox.y } width={110} height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
+
+                <text x={ text.x } y={ text.y } rx="0" ry="0">
                     Imports
                 </text>
-                <text x={ bBox.x + 55 } y={ bBox.y } rx="0" ry="0">
+                <rect x={ number.x - 9 } y={ number.y - headerHeight/2 + 5 } width={25} height={25} rx="12.5" ry="12.5" className="import-badge"/>
+                <text x={ number.x } y={ number.y } rx="0" ry="0">
                     {this.props.imports.length}
                 </text>
             </g>
