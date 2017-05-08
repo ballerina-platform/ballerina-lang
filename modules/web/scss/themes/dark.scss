@@ -1,14 +1,14 @@
-$header-bgcolor: #16191d;
+$header-bgcolor: #1e1e1e;
 $header-brand-color: #fff;
 
-$footer-bgcolor: #282b2f;
-$footer-color: #cbcbcb;
+$footer-bgcolor: #151515;
+$footer-color: #6d6d6d;
 
 $menubar-link-color: #c7c7c7;
 $menubar-link-hover-color: #fff;
 $menubar-link-disabled-color: #afafaf;
 $menubar-link-hover-bgcolor: #707276;
-$menubar-file-dropdown-menu-bgcolor: #707276;
+$menubar-file-dropdown-menu-bgcolor: #3c3c3c;
 $menubar-file-dropdown-menu-link-hover-color: $menubar-file-dropdown-menu-bgcolor;
 $menubar-file-dropdown-menu-link-hover-bgcolor: #d4d4d4;
 
@@ -22,23 +22,23 @@ $tab-header-bgcolor: #282828;
 $tab-header-active-tab-bgcolor: #fff;
 $tab-header-inactive-tab-bgcolor: #565656;
 $tab-header-active-inverse-tab-bgcolor: #3c3c3c;
-$tab-content-wrapper-bgcolor: #fff;
-$tab-content-wrapper-grid-color: #eee;
+$tab-content-wrapper-bgcolor: #141414;
+$tab-content-wrapper-grid-color: #202020;
 
-$bottom-right-controls-bgcolor: #707276;
+$bottom-right-controls-bgcolor: #565656;
 
 $source-editor-color: #F8F8F8;
 $source-editor-bgcolor: $tab-header-active-inverse-tab-bgcolor;
 $source-editor-gutter-color: #E2E2E2;
 $source-editor-gutter-bgcolor: #313131;
 
-$tool-palette-container-bgcolor: #fff;
-$tool-group-header-bgcolor: #eee;
-$tool-group-header-text-color: #333;
-$tool-title-color: #000;
+$tool-palette-container-bgcolor: #1e1e1e;
+$tool-group-header-bgcolor: #3c3c3c;
+$tool-group-header-text-color: #cccccc;
+$tool-title-color: #767676;
 
-$panel-title-bgcolor: #fff;
-$panel-border-color: #909090;
-$panel-title-color: #333;
+$panel-title-bgcolor: #ccc;
+$panel-border-color: #3c3c3c;
+$panel-title-color: #fff;
 
 @import '../main.scss';

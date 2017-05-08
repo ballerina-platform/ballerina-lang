@@ -11,6 +11,7 @@ var config = {
         'worker-ballerina': './js/ballerina/utils/ace-worker.js',
         default: './scss/themes/default.scss',
         light: './scss/themes/light.scss',
+        dark: './scss/themes/dark.scss',
     },
     output: {
         filename: '[name].js',

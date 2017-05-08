@@ -32,4 +32,13 @@ $source-editor-bgcolor: $tab-header-active-inverse-tab-bgcolor;
 $source-editor-gutter-color: #E2E2E2;
 $source-editor-gutter-bgcolor: #313131;
 
+$tool-palette-container-bgcolor: #fff;
+$tool-group-header-bgcolor: #eee;
+$tool-group-header-text-color: #333;
+$tool-title-color: #000;
+
+$panel-title-bgcolor: #fff;
+$panel-border-color: #909090;
+$panel-title-color: #333;
+
 @import '../main.scss';
