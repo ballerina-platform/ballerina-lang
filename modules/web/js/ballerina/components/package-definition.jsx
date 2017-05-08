@@ -111,8 +111,9 @@ class PackageDefinition extends React.Component {
                 >
                     {packageName}
                 </text>
-                <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick}/>
-                { expanded && <ImportDeclarationExpanded bBox={expandedImportsBbox} imports={imports} /> }
+                { expanded ? <ImportDeclarationExpanded
+                                bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}/> :
+                             <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick}/> }
             </g>
         );
     }

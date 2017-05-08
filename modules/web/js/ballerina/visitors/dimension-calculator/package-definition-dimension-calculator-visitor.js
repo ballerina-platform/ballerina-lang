@@ -38,6 +38,8 @@ class PackageDefinitionDimensionCalculatorVisitor {
     endVisit(node) {
         log.info('end visit PackageDefinitionDimensionCalcVisitor');
         let viewState = node.getViewState();
+        const topGutter = 10;
+        const importInputHeight = 40;
 
         let height = 0;
 
@@ -46,7 +48,7 @@ class PackageDefinitionDimensionCalculatorVisitor {
             const imports = astRoot.children.filter(
                 c => {return ASTFactory.isImportDeclaration(c)});
 
-            height += imports.length * packageDefinition.importDeclaration.itemHeight;
+            height += topGutter + importInputHeight + imports.length * packageDefinition.importDeclaration.itemHeight;
         }
 
         viewState.bBox.h = height;
