@@ -47,6 +47,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.TimeZone;
@@ -940,5 +941,161 @@ public class SQLConnectorUtils {
             dateString.append("0");
         }
         dateString.append(calendar.get(Calendar.DAY_OF_MONTH));
+    }
+
+    public Calendar convertToDateTime(String source) {
+        //lexical representation of the date time is '-'? yyyy '-' mm '-' dd 'T' hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
+        if ((source == null) || source.trim().equals("")) {
+            return null;
+        }
+        source = source.trim();
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.setLenient(false);
+        if (source.startsWith("-")) {
+            source = source.substring(1);
+            calendar.set(Calendar.ERA, GregorianCalendar.BC);
+        }
+        if (source.length() >= 19) {
+            if ((source.charAt(4) != '-') || (source.charAt(7) != '-') || (source.charAt(10) != 'T') || (
+                    source.charAt(13) != ':') || (source.charAt(16) != ':')) {
+                throw new RuntimeException("invalid date format (" + source + ") with out - s at correct place ");
+            }
+            int year = Integer.parseInt(source.substring(0, 4));
+            int month = Integer.parseInt(source.substring(5, 7));
+            int day = Integer.parseInt(source.substring(8, 10));
+            int hour = Integer.parseInt(source.substring(11, 13));
+            int minite = Integer.parseInt(source.substring(14, 16));
+            int second = Integer.parseInt(source.substring(17, 19));
+            long miliSecond = 0;
+            int timeZoneOffSet = TimeZone.getDefault().getRawOffset();
+            int milliSecondPartLength = 0;
+            if (source.length() > 19) {
+                String rest = source.substring(19);
+                if (rest.startsWith(".")) { //has decimal fraction of second
+                    if (rest.endsWith("Z")) { //timezone is given as Z
+                        timeZoneOffSet = 0;
+                        String fractionPart = rest.substring(1, rest.lastIndexOf("Z"));
+                        miliSecond = Integer.parseInt(fractionPart);
+                        milliSecondPartLength = fractionPart.trim().length();
+                    } else if ((rest.lastIndexOf("+") > 0) || (rest.lastIndexOf("-") > 0)) { //timezone is +/-hh:mm
+                        String timeOffSet = null;
+                        if (rest.lastIndexOf("+") > 0) {
+                            timeOffSet = rest.substring(rest.lastIndexOf("+") + 1);
+                            String fractionPart = rest.substring(1, rest.lastIndexOf("+"));
+                            miliSecond = Integer.parseInt(fractionPart);
+                            milliSecondPartLength = fractionPart.trim().length();
+                            timeZoneOffSet = 1;
+                        } else if (rest.lastIndexOf("-") > 0) {
+                            timeOffSet = rest.substring(rest.lastIndexOf("-") + 1);
+                            miliSecond = Integer.parseInt(rest.substring(1, rest.lastIndexOf("-")));
+                            milliSecondPartLength = rest.substring(1, rest.lastIndexOf("-")).trim().length();
+                            timeZoneOffSet = -1;
+                        }
+                        if (timeOffSet != null) {
+                            if (timeOffSet.charAt(2) != ':') {
+                                throw new RuntimeException(
+                                        "invalid time zone format (" + source + ") without : at correct place");
+                            }
+                            int hours = Integer.parseInt(timeOffSet.substring(0, 2));
+                            int minits = Integer.parseInt(timeOffSet.substring(3, 5));
+                            timeZoneOffSet = ((hours * 60) + minits) * 60000 * timeZoneOffSet;
+                        }
+                    } else { //no timezone
+                        miliSecond = Integer.parseInt(rest.substring(1));
+                        milliSecondPartLength = rest.substring(1).trim().length();
+                    }
+                } else {
+                    timeZoneOffSet = getTimeZoneOffset(rest);
+                }
+            }
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, day);
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.MINUTE, minite);
+            calendar.set(Calendar.SECOND, second);
+            if (milliSecondPartLength != 3) {
+                // milisecond part represenst the fraction of the second so we have to
+                // find the fraction and multiply it by 1000. So if milisecond part
+                // has three digits nothing required
+                miliSecond = miliSecond * 1000;
+                for (int i = 0; i < milliSecondPartLength; i++) {
+                    miliSecond = miliSecond / 10;
+                }
+            }
+            calendar.set(Calendar.MILLISECOND, (int) miliSecond);
+            calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
+            // set the day light offset only if the time zone is present
+            if (source.length() > 19) {
+                calendar.set(Calendar.DST_OFFSET, 0);
+            }
+        } else {
+            throw new NumberFormatException("date string can not be less than 19 characters");
+        }
+        return calendar;
+    }
+
+    public java.util.Date convertToDate(String source) {
+        // the lexical form of the date is '-'? yyyy '-' mm '-' dd zzzzzz?
+        if ((source == null) || source.trim().equals("")) {
+            return null;
+        }
+        source = source.trim();
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.setLenient(false);
+        if (source.startsWith("-")) {
+            source = source.substring(1);
+            calendar.set(Calendar.ERA, GregorianCalendar.BC);
+        }
+        if (source.length() >= 10) {
+            if ((source.charAt(4) != '-') || (source.charAt(7) != '-')) {
+                throw new RuntimeException("invalid date format (" + source + ") with out - s at correct place ");
+            }
+            int year = Integer.parseInt(source.substring(0, 4));
+            int month = Integer.parseInt(source.substring(5, 7));
+            int day = Integer.parseInt(source.substring(8, 10));
+            int timeZoneOffSet = TimeZone.getDefault().getRawOffset();
+            if (source.length() > 10) {
+                String restpart = source.substring(10);
+                timeZoneOffSet = getTimeZoneOffset(restpart);
+            }
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, day);
+            calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
+            // set the day light off set only if time zone is present
+            if (source.length() > 10) {
+                calendar.set(Calendar.DST_OFFSET, 0);
+            }
+            calendar.getTimeInMillis();
+        } else {
+            throw new RuntimeException("Invalid string to parse");
+        }
+        return calendar.getTime();
+    }
+
+    private int getTimeZoneOffset(String timezoneStr) {
+        int timeZoneOffSet = 0;
+        if (timezoneStr.startsWith("Z")) {
+            // this is a gmt time zone value
+            timeZoneOffSet = 0;
+        } else if (timezoneStr.startsWith("+") || timezoneStr.startsWith("-")) {
+            // this is a specific time format string
+            if (timezoneStr.charAt(3) != ':') {
+                throw new RuntimeException(
+                        "invalid time zone format (" + timezoneStr + ") without : at correct place");
+            }
+            int hours = Integer.parseInt(timezoneStr.substring(1, 3));
+            int minits = Integer.parseInt(timezoneStr.substring(4, 6));
+            timeZoneOffSet = ((hours * 60) + minits) * 60000;
+            if (timezoneStr.startsWith("-")) {
+                timeZoneOffSet = timeZoneOffSet * -1;
+            }
+        } else {
+            throw new RuntimeException("In valid string sufix");
+        }
+        return timeZoneOffSet;
     }
 }
