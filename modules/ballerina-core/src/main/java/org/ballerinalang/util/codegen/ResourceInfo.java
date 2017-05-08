@@ -20,24 +20,31 @@ package org.ballerinalang.util.codegen;
 import java.util.Objects;
 
 /**
- * {@code StructInfo} contains metadata of a Ballerina struct entry in the program file.
+ * {@code ResourceInfo} contains metadata of a Ballerina resource entry in the program file.
  *
  * @since 0.87
  */
-public class StructInfo extends StructureTypeInfo {
+public class ResourceInfo extends CallableUnitInfo {
 
-    public StructInfo(int pkgPathCPIndex, int connectorNameCPIndex) {
-        super(pkgPathCPIndex, connectorNameCPIndex);
+    public ResourceInfo(String pkgPath, int pkgCPIndex, String actionName, int resNameCPIndex) {
+        this.pkgPath = pkgPath;
+        this.pkgCPIndex = pkgCPIndex;
+        this.name = actionName;
+        this.nameCPIndex = resNameCPIndex;
+
+        codeAttributeInfo = new CodeAttributeInfo();
+        attributeInfoMap.put(AttributeInfo.CODE_ATTRIBUTE, codeAttributeInfo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pkgPathCPIndex, nameCPIndex);
+        return Objects.hash(pkgCPIndex, nameCPIndex);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof StructInfo && pkgPathCPIndex == (((StructInfo) obj).pkgPathCPIndex)
-                && nameCPIndex == (((StructInfo) obj).nameCPIndex);
+        return obj instanceof ResourceInfo
+                && pkgCPIndex == (((ResourceInfo) obj).pkgCPIndex)
+                && nameCPIndex == (((ResourceInfo) obj).nameCPIndex);
     }
 }
