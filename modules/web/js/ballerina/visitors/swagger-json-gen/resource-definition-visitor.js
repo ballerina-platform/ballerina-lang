@@ -39,15 +39,21 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         if (!_.isUndefined(pathAnnotation)) {
             pathValue = pathAnnotation.getChildren()[0].getRightValue().replace(/"/g, '');
         }
-        _.set(this.getSwaggerJson(), pathValue, {});
+
+        // Check if path already exists
+        if (!_.has(this.getSwaggerJson(), pathValue)) {
+            _.set(this.getSwaggerJson(), pathValue, {});
+        }
+
+        let pathJson = _.get(this.getSwaggerJson(), pathValue);
 
         // Creating http method element that maps to the http:<Method> annotation.
         let httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
         let httpMethodValue = !_.isUndefined(httpMethodAnnotation) ?
                                 httpMethodAnnotation.getIdentifier().toLowerCase() : 'get';
-        _.set(_.get(this.getSwaggerJson(), pathValue), httpMethodValue, {});
+        _.set(pathJson, httpMethodValue, {});
 
-        let httpMethodJson = _.get(this.getSwaggerJson(), pathValue + '.' + httpMethodValue);
+        let httpMethodJson = _.get(pathJson, httpMethodValue);
 
         // Creating annotations
         let existingAnnotations = resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation);
