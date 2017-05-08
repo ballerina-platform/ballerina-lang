@@ -29,7 +29,6 @@ class PackageDefinition extends React.Component {
 
     constructor(props) {
         super(props);
-        this.packageDefTextWidth = 200;
         this.handlePackageNameInput = this.handlePackageNameInput.bind(this);
         this.handleImportsHeaderClick = this.handleImportsHeaderClick.bind(this);
     }
@@ -47,14 +46,16 @@ class PackageDefinition extends React.Component {
         const bBox = model.viewState.bBox;
         const headerPadding = packageDefinition.header.padding;
         const headerHeight = packageDefinition.header.height;
+        const packageDefTextWidth = packageDefinition.textWidth;
+        const packageDefLabelWidth = packageDefinition.labelWidth;
         const textBoxPadding = 3;
         const textBoxHeight = 25;
 
         const textBoxBBox = {
-            x: bBox.x + headerPadding.left - textBoxPadding - 2,
+            x: bBox.x + headerPadding.left + packageDefLabelWidth - textBoxPadding - 2,
             y: bBox.y + headerHeight/2 - textBoxHeight/2,
             h: textBoxHeight,
-            w: this.packageDefTextWidth
+            w: packageDefTextWidth
         };
 
         const options = {
@@ -72,14 +73,16 @@ class PackageDefinition extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const packageName = model._packageName || "";
+        const packageName = model._packageName || 'Define Package';
         const headerHeight = packageDefinition.header.height;
         const headerPadding = packageDefinition.header.padding;
-        const expanded = this.props.model.viewState.expanded
+        const expanded = this.props.model.viewState.expanded;
+        const packageDefTextWidth = packageDefinition.textWidth;
+        const packageDefLabelWidth = packageDefinition.labelWidth;
 
         const importsBbox = {
-            x: bBox.x + headerPadding.left + this.packageDefTextWidth,
-            y: bBox.y + headerHeight/2
+            x: bBox.x + headerPadding.left + packageDefTextWidth + packageDefLabelWidth + 15,
+            y: bBox.y
         }
 
         const expandedImportsBbox = {
@@ -92,14 +95,21 @@ class PackageDefinition extends React.Component {
 
         return (
             <g>
-                <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
+                <rect x={ bBox.x } y={ bBox.y } width={310} height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
                 <text
                     x={ bBox.x + headerPadding.left }
+                    y={ bBox.y + headerHeight/2 }
+                    className="package-definition-label"
+                >
+                    {'package'}
+                </text>
+                <text
+                    x={ bBox.x + headerPadding.left + packageDefLabelWidth}
                     y={ bBox.y + headerHeight/2 }
                     className="package-definition-text"
                     onClick={e => {this.handlePackageNameClick(e)}}
                 >
-                    {packageName || 'Define Package'}
+                    {packageName}
                 </text>
                 <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick}/>
                 { expanded && <ImportDeclarationExpanded bBox={expandedImportsBbox} imports={imports} /> }

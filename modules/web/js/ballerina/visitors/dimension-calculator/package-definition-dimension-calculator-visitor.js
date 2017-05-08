@@ -39,7 +39,7 @@ class PackageDefinitionDimensionCalculatorVisitor {
         log.info('end visit PackageDefinitionDimensionCalcVisitor');
         let viewState = node.getViewState();
 
-        let height = packageDefinition.header.height;
+        let height = 0;
 
         if(viewState.expanded) {
             const astRoot = node.parent;
