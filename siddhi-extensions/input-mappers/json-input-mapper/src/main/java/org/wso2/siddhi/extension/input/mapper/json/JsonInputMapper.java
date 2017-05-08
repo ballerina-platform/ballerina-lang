@@ -63,6 +63,7 @@ public class JsonInputMapper extends SourceMapper {
 
     public static final String DEFAULT_JSON_MAPPING_PREFIX = "$.";
     public static final String DEFAULT_JSON_EVENT_IDENTIFIER = "event";
+    public static final String DEFAULT_ENCLOSING_ELEMENT = "$";
     public static final String FAIL_ON_UNKNOWN_ATTRIBUTE_IDENTIFIER = "fail.on.unknown.attribute";
     private final String ENCLOSING_ELEMENT_INDENTIFIER = "enclosing.element";
 
@@ -70,7 +71,7 @@ public class JsonInputMapper extends SourceMapper {
     private MappingPositionData[] mappingPositions;
     private List<Attribute> streamAttributes;
     private boolean isCustomMappingEnabled = false;
-    private boolean failOnUnknownAttribute = false;
+    private boolean failOnUnknownAttribute = true;
     private String enclosingElement = null;
     private AttributeConverter attributeConverter = new AttributeConverter();
 
@@ -80,7 +81,7 @@ public class JsonInputMapper extends SourceMapper {
         this.streamAttributes = this.streamDefinition.getAttributeList();
         int attributesSize = this.streamDefinition.getAttributeList().size();
         this.mappingPositions = new MappingPositionData[attributesSize];
-        failOnUnknownAttribute = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(FAIL_ON_UNKNOWN_ATTRIBUTE_IDENTIFIER, "false"));
+        failOnUnknownAttribute = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(FAIL_ON_UNKNOWN_ATTRIBUTE_IDENTIFIER, "true"));
         if (attributeMappingList != null && attributeMappingList.size() > 0) {
             isCustomMappingEnabled = true;
             enclosingElement = optionHolder.validateAndGetStaticValue(ENCLOSING_ELEMENT_INDENTIFIER, "$");
@@ -153,7 +154,7 @@ public class JsonInputMapper extends SourceMapper {
                 Event[] newEventArray = new Event[jsonArray.size()];
                 index = 0;
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    Event event = processEvent(JsonPath.parse(jsonArray.get(i)));
+                    Event event = processCustomEvent(JsonPath.parse(jsonArray.get(i)));
                     if (failOnUnknownAttribute && checkForUnknownAttributes(event)) {
                         log.error("Event " + event.toString() + " contains unknown attributes");
                     } else {
@@ -162,7 +163,7 @@ public class JsonInputMapper extends SourceMapper {
                 }
                 return Arrays.copyOfRange(newEventArray, 0, index);
             } else {
-                Event event = processEvent(JsonPath.parse(jsonObj));
+                Event event = processCustomEvent(JsonPath.parse(jsonObj));
                 if (failOnUnknownAttribute && checkForUnknownAttributes(event)) {
                     throw new ExecutionPlanRuntimeException("Event " + event.toString() + " contains unknown attributes");
                 }
@@ -262,18 +263,22 @@ public class JsonInputMapper extends SourceMapper {
             for (Attribute attribute : streamAttributes) {
                 String attribtueName = attribute.getName();
                 Attribute.Type type = attribute.getType();
-                data[position] = attributeConverter.getPropertyValue(eventObj.get(attribtueName).toString(), type);
-                position++;
+                Object attributeValue = eventObj.get(attribtueName);
+                if (attributeValue == null) {
+                    data[position++] = null;
+                } else {
+                    data[position++] = attributeConverter.getPropertyValue(eventObj.get(attribtueName).toString(), type);
+                }
             }
             events[index++] = event;
         }
         return Arrays.copyOfRange(events, 0, index);
     }
 
-    private Event processEvent(ReadContext readContext) {
+    private Event processCustomEvent(ReadContext readContext) {
         Event event = new Event(this.streamDefinition.getAttributeList().size());
         Object[] data = event.getData();
-        Object childObject = readContext.read(DEFAULT_JSON_EVENT_IDENTIFIER);
+        Object childObject = readContext.read(DEFAULT_ENCLOSING_ELEMENT);
         readContext = JsonPath.parse(childObject.toString());
         for (MappingPositionData mappingPositionData : this.mappingPositions) {
             int position = mappingPositionData.getPosition();

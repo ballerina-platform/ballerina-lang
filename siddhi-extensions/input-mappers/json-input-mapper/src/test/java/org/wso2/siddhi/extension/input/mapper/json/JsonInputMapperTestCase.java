@@ -153,7 +153,7 @@ public class JsonInputMapperTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "@source(type='inMemory', topic='stock', @map(type='json', fail.on.unknown.attribute='true', validate.json='true')) " +
+                "@source(type='inMemory', topic='stock', @map(type='json', fail.on.unknown.attribute='false', validate.json='true')) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
@@ -176,7 +176,19 @@ public class JsonInputMapperTestCase {
                             junit.framework.Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(75.6f, event.getData(1));
+                            junit.framework.Assert.assertEquals(56.6f, event.getData(1));
+                            break;
+                        case 3:
+                            junit.framework.Assert.assertEquals(57.6f, event.getData(1));
+                            break;
+                        case 4:
+                            junit.framework.Assert.assertEquals(58.6f, event.getData(1));
+                            break;
+                        case 5:
+                            junit.framework.Assert.assertEquals(59.6f, event.getData(1));
+                            break;
+                        case 6:
+                            junit.framework.Assert.assertEquals(60.6f, event.getData(1));
                             break;
                         default:
                             org.junit.Assert.fail();
@@ -199,12 +211,12 @@ public class JsonInputMapperTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of events", 2, count.get());
+        Assert.assertEquals("Number of events", 6, count.get());
         executionPlanRuntime.shutdown();
     }
 
     /*
-    Default mapping : event array
+    Custom mapping : event array
     */
     @Test
     public void jsonInputMapperTest4() throws InterruptedException {
@@ -212,8 +224,8 @@ public class JsonInputMapperTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "@source(type='inMemory', topic='stock', @map(type='json', grouping.element='$.events', fail.on.unknown.attribute='true', " +
-                "@attributes(symbol=\"symbol\",price=\"price\",volume=\"volume\")))  " +
+                "@source(type='inMemory', topic='stock', @map(type='json', enclosing.element='$.events', fail.on.unknown.attribute='true', " +
+                "@attributes(symbol=\"event.company.symbol\",price=\"event.price\",volume=\"event.volume\")))  " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
@@ -261,21 +273,21 @@ public class JsonInputMapperTestCase {
         executionPlanRuntime.start();
 
         InMemoryBroker.publish("stock", "{\"events\":[" +
-                "{\"event\":{\"symbol\":\"wso2\",\"price\":55.6,\"volume\":100}}," +
-                "{\"event\":{\"symbol\":\"wso2\",\"price\":56.6,\"volume\":101}}," +
-                "{\"event\":{\"symbol\":\"wso2\",\"price\":57.6,\"volume\":102}}," +
-                "{\"event\":{\"symbol\":\"wso2\",\"price\":58.6,\"volume\":103}}," +
-                "{\"event\":{\"symbol\":\"wso2\",\"price\":59.6,\"volume\":104}}," +
-                "{\"event\":{\"symbol\":\"wso2\",\"price\":60.6,\"volume\":105}}" +
+                "{\"event\":{\"company\":{\"symbol\":\"wso2\"},\"price\":55.6,\"volume\":100}}," +
+                "{\"event\":{\"company\":{\"symbol\":\"wso2\"},\"price\":56.6,\"volume\":101}}," +
+                "{\"event\":{\"company\":{\"symbol\":\"wso2\"},\"price\":57.6,\"volume\":102}}," +
+                "{\"event\":{\"company\":{\"symbol\":\"wso2\"},\"price\":58.6,\"volume\":103}}," +
+                "{\"event\":{\"company\":{\"symbol\":\"wso2\"},\"price\":59.6,\"volume\":104}}," +
+                "{\"event\":{\"company\":{\"symbol\":\"wso2\"},\"price\":60.6,\"volume\":105}}" +
                 "]}");
-        InMemoryBroker.publish("stock", "{\"events\":[" +
+        /*InMemoryBroker.publish("stock", "{\"events\":[" +
                 "{\"event\":{\"symbol\":\"IBM\",\"price\":55.6,\"volume\":100}}," +
                 "{\"event\":{\"symbol\":\"IBM\",\"price\":56.6,\"volume\":101}}," +
                 "{\"event\":{\"symbol\":\"IBM\",\"price\":57.6,\"volume\":102}}," +
                 "{\"event\":{\"symbol\":\"IBM\",\"price\":58.6,\"volume\":103}}," +
                 "{\"event\":{\"symbol\":\"IBM\",\"price\":59.6,\"volume\":104}}," +
                 "{\"event\":{\"symbol\":\"IBM\",\"price\":60.6,\"volume\":105}}" +
-                "]}");
+                "]}");*/
         Thread.sleep(100);
 
         //assert event count
