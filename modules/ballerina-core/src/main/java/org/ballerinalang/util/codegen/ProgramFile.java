@@ -20,10 +20,12 @@ package org.ballerinalang.util.codegen;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * {@code ProgramFile} is the runtime representations of a compiled Ballerina program.
+ * {@code ProgramFile} is the runtime representation of a compiled Ballerina program.
  *
  * @since 0.87
  */
@@ -35,9 +37,7 @@ public class ProgramFile {
 
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
 
-    private List<Instruction> instructionList = new ArrayList<>();
-
-    private List<FunctionInfo> funcInfoList = new ArrayList<>();
+    private Map<String, PackageInfo> packageInfoMap = new HashMap<>();
 
     public int getMagicValue() {
         return magicValue;
@@ -66,33 +66,13 @@ public class ProgramFile {
         return constPool;
     }
 
-    // Bytecode
+    // PackageInfo
 
-    public int addInstruction(Instruction instruction) {
-        instructionList.add(instruction);
-        return instructionList.size() - 1;
+    public PackageInfo getPackageInfo(String packageName) {
+        return packageInfoMap.get(packageName);
     }
 
-    public List<Instruction> getInstructionList() {
-        return instructionList;
-    }
-
-    // FunctionInfo
-
-    public List<FunctionInfo> getFuncInfoList() {
-        return funcInfoList;
-    }
-
-    public FunctionInfo getFunctionInfo(FunctionInfo functionInfo) {
-        int index = funcInfoList.indexOf(functionInfo);
-        if (index >= 0) {
-            return funcInfoList.get(index);
-        }
-
-        return null;
-    }
-
-    public void addFunctionInfo(FunctionInfo functionInfo) {
-        funcInfoList.add(functionInfo);
+    public void addPackageInfo(String packageName, PackageInfo packageInfo) {
+        packageInfoMap.put(packageName, packageInfo);
     }
 }

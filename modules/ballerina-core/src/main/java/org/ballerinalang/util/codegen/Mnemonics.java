@@ -52,6 +52,11 @@ public class Mnemonics {
         mnemonics[InstructionCodes.saload] = "saload";
         mnemonics[InstructionCodes.baload] = "baload";
         mnemonics[InstructionCodes.raload] = "raload";
+        mnemonics[InstructionCodes.igload] = "igload";
+        mnemonics[InstructionCodes.fgload] = "fgload";
+        mnemonics[InstructionCodes.sgload] = "sgload";
+        mnemonics[InstructionCodes.bgload] = "bgload";
+        mnemonics[InstructionCodes.rgload] = "rgload";
 
         mnemonics[InstructionCodes.istore] = "istore";
         mnemonics[InstructionCodes.fstore] = "fstore";
@@ -63,6 +68,11 @@ public class Mnemonics {
         mnemonics[InstructionCodes.sastore] = "sastore";
         mnemonics[InstructionCodes.bastore] = "bastore";
         mnemonics[InstructionCodes.rastore] = "rastore";
+        mnemonics[InstructionCodes.igstore] = "igstore";
+        mnemonics[InstructionCodes.fgstore] = "fgstore";
+        mnemonics[InstructionCodes.sgstore] = "sgstore";
+        mnemonics[InstructionCodes.bgstore] = "bgstore";
+        mnemonics[InstructionCodes.rgstore] = "rgstore";
 
         mnemonics[InstructionCodes.ifieldload] = "ifieldload";
         mnemonics[InstructionCodes.ffieldload] = "ffieldload";
@@ -101,6 +111,7 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.goto_] = "goto";
         mnemonics[InstructionCodes.call] = "call";
+        mnemonics[InstructionCodes.acall] = "acall";
         mnemonics[InstructionCodes.ret] = "ret";
 
         mnemonics[InstructionCodes.inewarray] = "inewarray";
@@ -110,6 +121,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.rnewarray] = "rnewarray";
 
         mnemonics[InstructionCodes.newstruct] = "newstruct";
+        mnemonics[InstructionCodes.newconnector] = "newconnector";
     }
 
     public static String getMnem(int opcode) {

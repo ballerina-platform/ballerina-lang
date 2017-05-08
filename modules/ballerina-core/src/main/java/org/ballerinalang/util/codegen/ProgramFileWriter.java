@@ -20,7 +20,7 @@ package org.ballerinalang.util.codegen;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry.EntryType;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
-import org.ballerinalang.util.codegen.cpentries.PackageCPEntry;
+import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 
@@ -50,8 +50,8 @@ public class ProgramFileWriter {
             outputStream.writeShort(programFile.getVersion());
 
             writeCP(outputStream, programFile.getConstPool());
-            writeInstructions(outputStream, programFile.getInstructionList());
-            writeFunctions(outputStream, programFile.getFuncInfoList());
+//            writeInstructions(outputStream, programFile.getInstructionList());
+//            writeFunctions(outputStream, programFile.getFuncInfoList());
 
             outputStream.flush();
             outputStream.close();
@@ -76,7 +76,7 @@ public class ProgramFileWriter {
                     break;
                 case CP_ENTRY_PACKAGE:
                     outputStream.writeByte(EntryType.CP_ENTRY_PACKAGE.getValue());
-                    int nameIndex = ((PackageCPEntry) cpEntry).getNameCPIndex();
+                    int nameIndex = ((PackageRefCPEntry) cpEntry).getNameCPIndex();
                     outputStream.writeInt(nameIndex);
                     break;
                 case CP_ENTRY_INTEGER:
@@ -109,12 +109,12 @@ public class ProgramFileWriter {
                                 List<FunctionInfo> functionInfoList) throws IOException {
         outputStream.writeShort(functionInfoList.size());
         for (FunctionInfo functionInfo : functionInfoList) {
-            outputStream.writeInt(functionInfo.getPackageNameIndex());
+            outputStream.writeInt(functionInfo.getPackageCPIndex());
 //            outputStream.writeInt(functionInfo.getNameAndTypeIndex());
 
             CodeAttributeInfo codeAttribute = functionInfo.codeAttributeInfo;
 
-            outputStream.writeShort(functionInfo.getAttributeInfoList().size());
+//            outputStream.writeShort(functionInfo.getAttributeInfoList().size());
             outputStream.writeInt(codeAttribute.getAttributeNameIndex());
             outputStream.writeInt(codeAttribute.getMaxIntRegs());
             outputStream.writeInt(codeAttribute.getMaxLongRegs());
