@@ -2,13 +2,15 @@ var path = require('path');
 var webpack = require("webpack");
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
-var extractTheme = new ExtractTextPlugin('./main.css');
-var extractBundle = new ExtractTextPlugin('./bundle.css');
+var extractThemes = new ExtractTextPlugin('./themes/[name].css');
+var extractCSSBundle = new ExtractTextPlugin('./bundle.css');
 
 var config = {
     entry: {
-      bundle: './index.js',
-      'worker-ballerina': './js/ballerina/utils/ace-worker.js'
+        bundle: './index.js',
+        'worker-ballerina': './js/ballerina/utils/ace-worker.js',
+        default: './scss/themes/default.scss',
+        light: './scss/themes/light.scss',
     },
     output: {
         filename: '[name].js',
@@ -35,16 +37,31 @@ var config = {
         },
         {
             test: /\.scss$/,
-            use: extractTheme.extract({
+            use: extractThemes.extract({
                 fallback: "style-loader",
-                use: ['css-loader','sass-loader']
+                use: [{
+                    loader: "css-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                }, {
+                    loader: "sass-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                }]
             })
         },
         {
             test: /\.css$/,
-            use: extractBundle.extract({
+            use: extractCSSBundle.extract({
                 fallback: "style-loader",
-                use: ['css-loader']
+                use: [{
+                    loader: "css-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                }]
             })
         },
         {
@@ -66,8 +83,8 @@ var config = {
       ]
     },
     plugins: [
-        extractBundle,
-        extractTheme
+        extractCSSBundle,
+        extractThemes
     ],
     devServer: {
       publicPath: '/dist/'

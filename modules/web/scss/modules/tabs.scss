@@ -1,3 +1,4 @@
+
 .tab-headers {
     background-color: $tab-header-bgcolor;
     
@@ -23,6 +24,27 @@
             }
         }
     }
+}
+
+#tab-content-wrapper {
+    position: relative;
+    background-color: $tab-content-wrapper-bgcolor !important;
+    background:  linear-gradient(-90deg, $tab-content-wrapper-grid-color 1px, transparent 1px),
+                 linear-gradient($tab-content-wrapper-grid-color 1px, transparent 1px),
+                 linear-gradient(-90deg, $tab-content-wrapper-grid-color 1px, transparent 1px),
+                 linear-gradient($tab-content-wrapper-grid-color 1px, transparent 1px),
+                 linear-gradient(transparent 3px, transparent 3px, transparent 78px, transparent 78px),
+                 linear-gradient(-90deg, transparent 1px, transparent 1px),
+                 linear-gradient(-90deg, transparent 3px, transparent 3px, transparent 78px, transparent 78px),
+                 linear-gradient(transparent 1px, transparent 1px), transparent;
+    background-size: 10px 10px,
+                     10px 10px,
+                     10px 10px,
+                     10px 10px,
+                     10px 10px,
+                     10px 10px,
+                     10px 10px,
+                     10px 10px;
 }
 
 .bottom-right-controls-container {
