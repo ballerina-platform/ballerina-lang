@@ -24,15 +24,16 @@ import Alerts from 'alerts';
 import Renderer from './renderer';
 import PropTypes from 'prop-types';
 
+const DEFAULT_INPUT_VALUE = "Enter Variable";
+
 /**
  * Annotation Attribute Decorator
  * */
 class AnnotationAttributeDecorator extends React.Component {
-
     constructor(props) {
         super(props);
         this.model = this.props.model;
-        this.state = {inputValue: "Enter Variable"};
+        this.state = {inputValue: DEFAULT_INPUT_VALUE};
         this.setAnnotationAttributeFromInputBox = this.setAnnotationAttributeFromInputBox.bind(this);
     }
 
@@ -51,7 +52,7 @@ class AnnotationAttributeDecorator extends React.Component {
             bBox: textBoxBBox,
             onChange: this.setAnnotationAttributeFromInputBox,
             initialValue: ""
-        }
+        };
 
         this.context.renderer.renderTextBox(options);
     }
@@ -67,37 +68,41 @@ class AnnotationAttributeDecorator extends React.Component {
         let model = this.props.model;
         try {
             let variableDeclaration = this.state.inputValue.trim();
-            let splitedExpression = variableDeclaration.split("=");
-            let leftHandSideExpression = splitedExpression[0].trim();
-            let rightHandSideExpression;
-            if (splitedExpression.length > 1) {
-                rightHandSideExpression = splitedExpression[1].trim();
-            }
+            if (DEFAULT_INPUT_VALUE !== variableDeclaration) {
+                let splitedExpression = variableDeclaration.split("=");
+                let leftHandSideExpression = splitedExpression[0].trim();
+                let rightHandSideExpression;
+                if (splitedExpression.length > 1) {
+                    rightHandSideExpression = splitedExpression[1].trim();
+                }
 
-            if (leftHandSideExpression.split(" ").length <= 1) {
-                let errorString = "Invalid variable declaration: " + variableDeclaration;
+                if (leftHandSideExpression.split(" ").length <= 1) {
+                    let errorString = "Invalid variable declaration: " + variableDeclaration;
+                    Alerts.error(errorString);
+                    return false;
+                }
+
+                let bType = leftHandSideExpression.split(" ")[0];
+                if (!this.validateType(bType)) {
+                    let errorString = "Invalid type for a variable: " + bType;
+                    Alerts.error(errorString);
+                    return false;
+                }
+
+                let identifier = leftHandSideExpression.split(" ")[1];
+
+                let defaultValue = "";
+                if (rightHandSideExpression) {
+                    defaultValue = rightHandSideExpression;
+                }
+
+                model.addAnnotationAttributeDefinition(bType, identifier, defaultValue);
+                this.setState({inputValue: DEFAULT_INPUT_VALUE});
+            } else {
+                let errorString = "Please Enter Variable Declaration Before Adding";
                 Alerts.error(errorString);
-                e.stopPropagation();
                 return false;
             }
-
-            let bType = leftHandSideExpression.split(" ")[0];
-            if (!this.validateType(bType)) {
-                let errorString = "Invalid type for a variable: " + bType;
-                Alerts.error(errorString);
-                e.stopPropagation();
-                return false;
-            }
-
-            let identifier = leftHandSideExpression.split(" ")[1];
-
-            let defaultValue = "";
-            if (rightHandSideExpression) {
-                defaultValue = rightHandSideExpression;
-            }
-
-            model.addAnnotationAttributeDefinition(bType, identifier, defaultValue);
-            this.setState({inputValue: "Enter Variable"});
         } catch (e) {
             Alerts.error(e);
         }
@@ -107,17 +112,18 @@ class AnnotationAttributeDecorator extends React.Component {
         let bBox = this.props.bBox;
         return (
             <g className="attribute-content-operations-wrapper">
-                <rect x={bBox.x + 50} y={bBox.y + 50} width={300} height={30}
-                      className="attribute-content-operations-wrapper"/>
-                <rect x={bBox.x + 350 + 10} y={bBox.y + 50} width={30} height={30} className=""
-                      onClick={() => this.addAnnotationAttribute()}/>
-
-                <text x={bBox.x + 60} y={bBox.y + 70} width={300} height={30}
-                      onClick={() => this.onClickVariableTextBox()}>
-                    {this.state.inputValue}
-                </text>
-                <image x={bBox.x + 350 + 15} y={bBox.y + 55} width={20} height={20}
-                       xlinkHref={ImageUtil.getSVGIconString('add')}/>
+                <g onClick={() => this.onClickVariableTextBox()}>
+                    <rect x={bBox.x + 50} y={bBox.y + 50} width={300} height={30}
+                          className="attribute-content-operations-wrapper"/>
+                    <text x={bBox.x + 60} y={bBox.y + 70} width={300} height={30}>
+                        {this.state.inputValue}
+                    </text>
+                </g>
+                <g onClick={() => this.addAnnotationAttribute()}>
+                    <rect x={bBox.x + 350 + 10} y={bBox.y + 50} width={30} height={30} className=""/>
+                    <image x={bBox.x + 350 + 15} y={bBox.y + 55} width={20} height={20}
+                           xlinkHref={ImageUtil.getSVGIconString('add')}/>
+                </g>
             </g>
         );
     }
@@ -134,7 +140,7 @@ class AnnotationAttributeDecorator extends React.Component {
             dropdownData.push({id: bType, text: bType});
         });
 
-        var structTypes = [];
+        let structTypes = [];
         _.forEach(structTypes, function (sType) {
             dropdownData.push({id: sType.getAnnotationName(), text: sType.getAnnotationName()});
         });

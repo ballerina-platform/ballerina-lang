@@ -37,19 +37,23 @@ class AnnotationDefinitionPositionCalcVisitor {
         let bBox = viewState.bBox;
         let parent = node.getParent();
         let panelChildren = parent.filterChildren(function (child) {
-            return ASTFactory.isFunctionDefinition(child) || ASTFactory.isServiceDefinition(child)
-                || ASTFactory.isConnectorDefinition(child) || ASTFactory.isAnnotationDefinition(child);
+            return ASTFactory.isFunctionDefinition(child) ||
+                ASTFactory.isServiceDefinition(child) ||
+                ASTFactory.isConnectorDefinition(child) ||
+                ASTFactory.isAnnotationDefinition(child) ||
+                ASTFactory.isStructDefinition(child) ||
+                ASTFactory.isPackageDefinition(child);
         });
 
         let heading = viewState.components.heading;
         let body = viewState.components.body;
-        let currentServiceIndex = _.findIndex(panelChildren, node);
+        let currentAnnotationIndex = _.findIndex(panelChildren, node);
         let x, y, headerX, headerY, bodyX, bodyY;
-        if (currentServiceIndex === 0) {
+        if (currentAnnotationIndex === 0) {
             headerX = DesignerDefaults.panel.wrapper.gutter.h;
             headerY = DesignerDefaults.panel.wrapper.gutter.v;
-        } else if (currentServiceIndex > 0) {
-            let previousServiceBBox = panelChildren[currentServiceIndex - 1].getViewState().bBox;
+        } else if (currentAnnotationIndex > 0) {
+            let previousServiceBBox = panelChildren[currentAnnotationIndex - 1].getViewState().bBox;
             headerY = previousServiceBBox.y + previousServiceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
             headerX = DesignerDefaults.panel.wrapper.gutter.h;
         } else {
@@ -67,9 +71,6 @@ class AnnotationDefinitionPositionCalcVisitor {
         heading.y = headerY;
         body.x = bodyX;
         body.y = bodyY;
-
-        let children = node.getChildren();
-        let minWidth = node.getViewState().bBox.w - ( panel.body.padding.left + panel.body.padding.right);
     }
 
     visit(node) {
