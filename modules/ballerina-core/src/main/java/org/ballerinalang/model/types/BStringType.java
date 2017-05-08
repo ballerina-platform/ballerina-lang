@@ -38,7 +38,12 @@ public class BStringType extends BType {
     }
 
     @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
+        return (V) new BString("");
+    }
+    
+    @Override
+    public <V extends BValue> V getEmptyValue() {
         return (V) new BString("");
     }
 }

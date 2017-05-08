@@ -20,7 +20,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BDouble;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -59,9 +59,9 @@ public class FuncInvocationWithImplicitCastTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testExactMatchWhenCastPossible");
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDouble.class);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
 
-        double actual = ((BDouble) returns[0]).doubleValue();
+        double actual = ((BFloat) returns[0]).floatValue();
         double expected = 18;
         Assert.assertEquals(actual, expected);
     }

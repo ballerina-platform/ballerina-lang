@@ -53,8 +53,8 @@ public class SetContentLength extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         try {
             BMessage bMsg = (BMessage) getArgument(context, 0);
-            int statusCode = ((BInteger) getArgument(context, 1)).intValue();
-            bMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(statusCode));
+            long contentLength = ((BInteger) getArgument(context, 1)).intValue();
+            bMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
         } catch (ClassCastException e) {
             throw new BallerinaException("Invalid message or Content-Length");
         }

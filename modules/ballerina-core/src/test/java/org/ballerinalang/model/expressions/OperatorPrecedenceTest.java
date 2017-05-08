@@ -51,13 +51,13 @@ public class OperatorPrecedenceTest {
     }
 
     private void addSubPrecedence(int a, int b, int c) {
-        int expected = a - b + c;
+        long expected = a - b + c;
         BValue[] args = { new BInteger(a), new BInteger(b), new BInteger(c) };
 
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addSubPrecedence", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
+        long actual = ((BInteger) returns[0]).intValue();
 
         Assert.assertEquals(actual, expected);
     }
@@ -75,7 +75,7 @@ public class OperatorPrecedenceTest {
     }
 
     private void addSubMultPrecedence(int a, int b, int c, int d, int e, int f) {
-        int expected = a * b - c + d * e - f;
+        long expected = a * b - c + d * e - f;
         BValue[] args = {
                 new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
         };
@@ -83,7 +83,7 @@ public class OperatorPrecedenceTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addSubMultPrecedence", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
+        long actual = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(actual, expected);
     }
 
@@ -101,7 +101,7 @@ public class OperatorPrecedenceTest {
     }
 
     private void multDivisionPrecedence(int a, int b, int c, int d, int e, int f) {
-        int expected = a * b / c * d * e / f;
+        long expected = a * b / c * d * e / f;
         BValue[] args = {
                 new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
         };
@@ -109,7 +109,7 @@ public class OperatorPrecedenceTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "multDivisionPrecedence", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
+        long actual = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(actual, expected);
     }
 
@@ -123,7 +123,7 @@ public class OperatorPrecedenceTest {
     }
 
     private void addMultPrecedence(int a, int b, int c, int d, int e, int f) {
-        int expected = a * b * c + d * e + f;
+        long expected = a * b * c + d * e + f;
         BValue[] args = {
                 new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
         };
@@ -131,7 +131,7 @@ public class OperatorPrecedenceTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addMultPrecedence", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
+        long actual = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(actual, expected);
     }
 
@@ -144,7 +144,7 @@ public class OperatorPrecedenceTest {
     }
 
     private void addDivisionPrecedence(int a, int b, int c, int d, int e, int f) {
-        int expected = a / b / c + d / e + f;
+        long expected = a / b / c + d / e + f;
         BValue[] args = {
                 new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
         };
@@ -152,7 +152,7 @@ public class OperatorPrecedenceTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addDivisionPrecedence", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actual = ((BInteger) returns[0]).intValue();
+        long actual = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(actual, expected);
     }
 
@@ -191,13 +191,13 @@ public class OperatorPrecedenceTest {
         int c = 30;
         int d = 40;
 
-        int expectedResult = a - b + c - d;
+        long expectedResult = a - b + c - d;
 
         BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
 
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intAdditionAndSubtractionPrecedence", args);
 
-        int actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = ((BInteger) returns[0]).intValue();
 
         Assert.assertEquals(actualResult, expectedResult, "The results of addition and " +
                 "subtraction operation differ");
@@ -215,12 +215,12 @@ public class OperatorPrecedenceTest {
         int y = (a + b) * (c * d) - a * b;
         int z = a + b * c * d - a * b;
 
-        int expectedResult = x + y - z;
+        long expectedResult = x + y - z;
         BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
 
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intMultiplicationPrecedence", args);
 
-        int actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = ((BInteger) returns[0]).intValue();
 
         Assert.assertEquals(actualResult, expectedResult, "The results of multiplication operation differ");
     }
@@ -237,13 +237,13 @@ public class OperatorPrecedenceTest {
         int y = (a + b) / (c - d) - a / b;
         int z = a + b / c - d - a / b;
 
-        int expectedResult = x - y + z;
+        long expectedResult = x - y + z;
 
         BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
 
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intDivisionPrecedence", args);
 
-        int actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = ((BInteger) returns[0]).intValue();
 
         Assert.assertEquals(actualResult, expectedResult, "The results of division operation differ");
     }
@@ -261,13 +261,13 @@ public class OperatorPrecedenceTest {
         int y = (a + b) / (c - d) - a * b;
         int z = a + b / c - d + a * b;
 
-        int expectedResult = x + y + z;
+        long expectedResult = x + y + z;
 
         BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
 
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intMultiplicationAndDivisionPrecedence", args);
 
-        int actualResult = ((BInteger) returns[0]).intValue();
+        long actualResult = ((BInteger) returns[0]).intValue();
 
         Assert.assertEquals(actualResult, expectedResult, "The results of multiplication and " +
                 "division operation differ");

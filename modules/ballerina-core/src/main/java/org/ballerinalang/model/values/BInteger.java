@@ -27,29 +27,19 @@ import org.ballerinalang.model.types.BTypes;
  */
 public final class BInteger extends BValueType {
 
-    private int value;
+    private long value;
 
-    public BInteger(int value) {
+    public BInteger(long value) {
         this.value = value;
     }
 
     @Override
-    public int intValue() {
+    public long intValue() {
         return this.value;
     }
 
     @Override
-    public long longValue() {
-        return (long) this.value;
-    }
-
-    @Override
-    public float floatValue() {
-        return (float) this.value;
-    }
-
-    @Override
-    public double doubleValue() {
+    public double floatValue() {
         return (double) this.value;
     }
 
@@ -60,7 +50,7 @@ public final class BInteger extends BValueType {
 
     @Override
     public String stringValue() {
-        return Integer.toString(value);
+        return Long.toString(value);
     }
 
     @Override

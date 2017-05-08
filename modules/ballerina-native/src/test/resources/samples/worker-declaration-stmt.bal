@@ -2,7 +2,7 @@ import ballerina.lang.system;
 import ballerina.lang.messages;
 
 function testworker(message msg)(message) {
-  double aa;
+  float aa;
   message result;
   int count = 1000;
   //message msg = {};
@@ -18,10 +18,10 @@ function testworker(message msg)(message) {
   return result;
 
   worker sampleWorker  {
-  double amount;
-  double sumD;
+  float amount;
+  float sumD;
   int quantity;
-  double a;
+  float a;
   json j;
   message m;
   message m2;
@@ -42,7 +42,7 @@ function testworker(message msg)(message) {
 
   worker sampleWorker2 {
   int quantity;
-  double a;
+  float a;
   json j;
   message m;
   quantity, a, m <- sampleWorker;
@@ -57,7 +57,7 @@ function testworker(message msg)(message) {
   }
 
   worker sampleWorker3 {
-  double index;
+  float index;
   json j;
   message m = {};
   index <- default;

@@ -94,13 +94,13 @@ public class FunctionOverloadTest {
         Assert.assertEquals(actualResultStep1, a);
 
         // function testOverloading(int a) (int)
-        int b = 5;
+        long b = 5;
         BValue[] argsStep2 = {new BInteger(b)};
         BValue[] returnsStep2 = BLangFunctions.invoke(bLangProgram, overloadingFunctionName, argsStep2);
 
         Assert.assertEquals(returnsStep2.length, 1);
         Assert.assertSame(returnsStep2[0].getClass(), BInteger.class);
-        int actualResultStep2 = ((BInteger) returnsStep2[0]).intValue();
+        long actualResultStep2 = ((BInteger) returnsStep2[0]).intValue();
 
         Assert.assertEquals(actualResultStep2, b);
 
@@ -132,14 +132,14 @@ public class FunctionOverloadTest {
         int f = 5;
         int g = 5;
 
-        int expectedResultStep5 = f + g;
+        long expectedResultStep5 = f + g;
 
         BValue[] argsStep5 = {new BInteger(f), new BInteger(g)};
         BValue[] returnsStep5 = BLangFunctions.invoke(bLangProgram, overloadingFunctionName, argsStep5);
 
         Assert.assertEquals(returnsStep5.length, 1);
         Assert.assertSame(returnsStep5[0].getClass(), BInteger.class);
-        int actualResultStep5 = ((BInteger) returnsStep5[0]).intValue();
+        long actualResultStep5 = ((BInteger) returnsStep5[0]).intValue();
 
         Assert.assertEquals(actualResultStep5, expectedResultStep5);
     }

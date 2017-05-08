@@ -6,7 +6,7 @@ connector TestConnector(string param1, string param2, int param3) {
     boolean action2Invoked;
 
     action action1(TestConnector testConnector, message msg) (message){
-          double aa;
+          float aa;
           message result;
           aa = 13;
           system:println(aa);
@@ -18,10 +18,10 @@ connector TestConnector(string param1, string param2, int param3) {
           return result;
 
           worker sampleWorker {
-          double amount;
-          double sumD;
+          float amount;
+          float sumD;
           int quantity;
-          double a;
+          float a;
           json j;
           message m;
           m <- default;

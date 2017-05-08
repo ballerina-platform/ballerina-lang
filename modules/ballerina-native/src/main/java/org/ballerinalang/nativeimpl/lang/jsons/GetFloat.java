@@ -64,31 +64,39 @@ public class GetFloat extends AbstractJSONFunction {
     public BValue[] execute(Context ctx) {
         String jsonPath = null;
         BValue result = null;
-        
         try {
             // Accessing Parameters.
             BJSON json = (BJSON) getArgument(ctx, 0);
             jsonPath = getArgument(ctx, 1).stringValue();
 
+
             // Getting the value from JSON
             ReadContext jsonCtx = JsonPath.parse(json.value());
-            JsonNode element = jsonCtx.read(jsonPath);
-            if (element == null) {
+            Object elementObj = jsonCtx.read(jsonPath);
+            if (elementObj == null) {
                 throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
-            } else if (element.isValueNode()) {
-                // if the resulting value is a primitive, return the respective primitive value object
-                if (element.isNumber()) {
-                    Number number = element.numberValue();
-                    if (number instanceof Float || number instanceof Double) {
-                        result = new BFloat(number.floatValue());
+            } else if (elementObj instanceof JsonNode) {
+                JsonNode element = (JsonNode) elementObj;
+                if (element.isValueNode()) {
+                    // if the resulting value is a primitive, return the respective primitive value object
+                    if (element.isNumber()) {
+                        Number number = element.numberValue();
+                        if (number instanceof Float || number instanceof Double) {
+                            result = new BFloat(number.doubleValue());
+                        } else {
+                            throw new BallerinaException(
+                                    "The element matching path: " + jsonPath + " is not a Float.");
+                        }
                     } else {
                         throw new BallerinaException("The element matching path: " + jsonPath + " is not a Float.");
                     }
                 } else {
-                    throw new BallerinaException("The element matching path: " + jsonPath + " is not a Float.");
+                    throw new BallerinaException(
+                            "The element matching path: " + jsonPath + " is a JSON, not a Float.");
                 }
-            } else {
-                throw new BallerinaException("The element matching path: " + jsonPath + " is a JSON, not a Float.");
+            } else if (elementObj instanceof Double) {
+                // this handles the JsonPath's min(), max(), avg(), stddev() function
+                result = new BFloat((Double) elementObj);
             }
         } catch (PathNotFoundException e) {
             ErrorHandler.handleNonExistingJsonpPath(OPERATION, jsonPath, e);
@@ -99,7 +107,7 @@ public class GetFloat extends AbstractJSONFunction {
         } catch (Throwable e) {
             ErrorHandler.handleJsonPathException(OPERATION, e);
         }
-        
+
         // Setting output value.
         return getBValues(result);
     }

@@ -51,8 +51,8 @@ public class ArrayInitializerExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 110;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 110;
         Assert.assertEquals(actual, expected);
     }
 

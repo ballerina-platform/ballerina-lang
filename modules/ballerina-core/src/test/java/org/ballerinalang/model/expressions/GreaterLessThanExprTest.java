@@ -50,8 +50,8 @@ public class GreaterLessThanExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 1;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 1;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BInteger(50)};
@@ -77,8 +77,8 @@ public class GreaterLessThanExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 1;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 1;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BFloat(75.4f)};
@@ -120,7 +120,7 @@ public class GreaterLessThanExprTest {
 
     @Test(description = "Test greater-than check for two different types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "lang/expressions[/\\\\]type[/\\\\]incompatible[/\\\\]gt[/\\\\]"
+            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]gt[/\\\\]"
                     + "incompatible-type-greater-than.bal:6: invalid operation: incompatible types 'int' and 'string'")
     public void testIncompatibleGreaterThan() {
         BTestUtils.parseBalFile("lang/expressions/type/incompatible/gt");

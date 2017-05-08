@@ -53,8 +53,8 @@ public class IfElseStmtTest {
         // TODO Uncomment following line once the multiple return feature is implemented
 //        Assert.assertSame(returns[1].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 110;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 110;
         Assert.assertEquals(actual, expected);
 
 //        actual = ((BInteger) returns[1]).intValue();
@@ -72,8 +72,8 @@ public class IfElseStmtTest {
         // TODO Uncomment following line once the multiple return feature is implemented
 //        Assert.assertSame(returns[1].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 210;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 210;
         Assert.assertEquals(actual, expected);
 
 //        actual = ((BInteger) returns[1]).intValue();
@@ -92,8 +92,8 @@ public class IfElseStmtTest {
         // TODO Uncomment following line once the multiple return feature is implemented
 //        Assert.assertSame(returns[1].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 310;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 310;
         Assert.assertEquals(actual, expected);
 
 //        actual = ((BInteger) returns[1]).intValue();
@@ -111,8 +111,8 @@ public class IfElseStmtTest {
         // TODO Uncomment following line once the multiple return feature is implemented
 //        Assert.assertSame(returns[1].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 410;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 410;
         Assert.assertEquals(actual, expected);
 
 //        actual = ((BInteger) returns[1]).intValue();
