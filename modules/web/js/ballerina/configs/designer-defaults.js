@@ -192,3 +192,32 @@ export const structDefinitionStatement = {
     },
     deleteButtonOffset: 20,
 };
+
+export const panelHeading = {
+    wrapper: {
+        gutter: {
+            v: 50,
+            h: 50
+        }
+    },
+    heading: {
+        padding: {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0
+        },
+        height: 25
+    },
+    body: {
+        padding: {
+            top: 50,
+            right: 50,
+            bottom: 50,
+            left: 50
+        },
+        height: 200
+    }
+};
+
+
