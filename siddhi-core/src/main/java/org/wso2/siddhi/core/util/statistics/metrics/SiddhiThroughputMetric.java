@@ -22,6 +22,9 @@ import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 
+/**
+ * Class to calculate Siddhi throughput.
+ */
 public class SiddhiThroughputMetric implements ThroughputTracker {
     private Meter eventMeter = null;
     private String name;

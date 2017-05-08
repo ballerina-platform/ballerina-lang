@@ -49,6 +49,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation of {@link WindowProcessor} which represent a Batch Window operating based on external time.
+ */
 @Extension(
         name = "externalTimeBatch",
         namespace = "",

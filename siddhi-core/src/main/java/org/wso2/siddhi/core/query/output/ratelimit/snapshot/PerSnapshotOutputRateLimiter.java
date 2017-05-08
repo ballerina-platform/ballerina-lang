@@ -32,6 +32,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Parent implementation for per event periodic snapshot rate limiting. Multiple implementations of this will be
+ * there to represent different queries. Snapshot rate limiting will only emit current events representing the
+ * snapshot period.
+ */
 public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     private final Long value;
     private String id;
@@ -92,7 +97,7 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
             wrappedSnapshotOutputRateLimiter) {
         return new PerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
-                wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+                                                wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
     }
 
     @Override

@@ -27,7 +27,9 @@ import org.wso2.siddhi.query.api.annotation.Element;
 
 import java.util.List;
 
-
+/**
+ * Factory class to create Trackers and Managers.
+ */
 public class SiddhiMetricsFactory implements StatisticsTrackerFactory {
 
     public LatencyTracker createLatencyTracker(String name, StatisticsManager statisticsManager) {

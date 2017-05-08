@@ -18,6 +18,9 @@
 
 package org.wso2.siddhi.core.util.collection.operator;
 
+/**
+ * Represent a logical condition
+ */
 public interface CompiledCondition {
 
     CompiledCondition cloneCompiledCondition(String key);

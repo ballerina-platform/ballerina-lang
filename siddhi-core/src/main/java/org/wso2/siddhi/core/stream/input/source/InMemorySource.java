@@ -30,6 +30,9 @@ import org.wso2.siddhi.core.util.transport.OptionHolder;
 
 import java.util.Map;
 
+/**
+ * Implementation of {@link Source} to receive events through in-memory transport.
+ */
 @Extension(
         name = "inMemory",
         namespace = "source",

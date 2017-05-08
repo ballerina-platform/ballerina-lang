@@ -23,6 +23,10 @@ import org.wso2.siddhi.core.exception.NoPersistenceStoreException;
 import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 
+/**
+ * Persistence Service is the service layer to handle state persistence tasks such as persisting current state and
+ * restoring previous states.
+ */
 public class PersistenceService {
 
     static final Logger log = Logger.getLogger(PersistenceService.class);
@@ -54,7 +58,7 @@ public class PersistenceService {
             return revision;
         } else {
             throw new NoPersistenceStoreException("No persistence store assigned for execution plan " +
-                    executionPlanName);
+                                                          executionPlanName);
         }
 
     }
@@ -72,7 +76,7 @@ public class PersistenceService {
             }
         } else {
             throw new NoPersistenceStoreException("No persistence store assigned for execution plan " +
-                    executionPlanName);
+                                                          executionPlanName);
         }
 
     }
@@ -87,7 +91,7 @@ public class PersistenceService {
                 }
             } else {
                 throw new NoPersistenceStoreException("No persistence store assigned for execution plan " +
-                        executionPlanName);
+                                                              executionPlanName);
             }
         } finally {
             threadBarrier.unlock();

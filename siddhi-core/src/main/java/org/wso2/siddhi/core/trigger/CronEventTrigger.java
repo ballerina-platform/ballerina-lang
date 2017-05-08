@@ -37,7 +37,7 @@ import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 
 /**
- * Created on 5/13/15.
+ * Implementation of {@link EventTrigger} which will trigger events based on a cron expression.
  */
 public class CronEventTrigger implements EventTrigger, Job {
 

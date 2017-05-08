@@ -64,8 +64,6 @@ import java.util.stream.Collectors;
 public class ExecutionPlanRuntime {
     private static final Logger log = Logger.getLogger(ExecutionPlanRuntime.class);
     // Contains event tables.
-    private final ConcurrentMap<String, List<InputTransport>> eventSourceMap;
-    private final ConcurrentMap<String, List<OutputTransport>> eventSinkMap;
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String,
             AbstractDefinition>(); // Contains stream definition.
     private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String,

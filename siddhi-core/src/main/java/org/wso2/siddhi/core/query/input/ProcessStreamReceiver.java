@@ -35,6 +35,10 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Parent implementation for all process stream receivers(Multi/Single/State). Any newly written process stream
+ * receivers should extend this. ProcessStreamReceivers are the entry point to Siddhi queries.
+ */
 public class ProcessStreamReceiver implements StreamJunction.Receiver {
 
     protected String streamId;
@@ -64,7 +68,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
 
     public ProcessStreamReceiver clone(String key) {
         ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(streamId + key, latencyTracker,
-                queryName);
+                                                                                queryName);
         processStreamReceiver.batchProcessingAllowed = this.batchProcessingAllowed;
         return processStreamReceiver;
     }

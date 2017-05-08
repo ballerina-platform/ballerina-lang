@@ -18,6 +18,9 @@
 
 package org.wso2.siddhi.core.stream;
 
+/**
+ * Holder object to store mapping information for a given Siddhi {@link org.wso2.siddhi.query.api.definition.Attribute}
+ */
 public class AttributeMapping {
     private String mapping;
     private String rename;

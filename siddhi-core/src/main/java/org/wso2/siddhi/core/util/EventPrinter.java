@@ -21,6 +21,9 @@ import org.wso2.siddhi.core.event.Event;
 
 import java.util.Arrays;
 
+/**
+ * Utility class to print incoming {@link Event}
+ */
 public class EventPrinter {
 
     public static void print(Event[] events) {

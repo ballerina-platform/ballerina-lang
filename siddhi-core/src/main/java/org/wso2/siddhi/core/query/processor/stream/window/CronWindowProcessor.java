@@ -45,6 +45,9 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implementation of {@link WindowProcessor} which represent a Window operating based on a cron expression.
+ */
 @Extension(
         name = "cron",
         namespace = "",
@@ -52,8 +55,8 @@ import java.util.Map;
                 "triggered based on time passing.",
         parameters = {
                 @Parameter(name = "cronExpression",
-                        description = "The cron expression that represents a time schedule.",
-                        type = {DataType.STRING})
+                           description = "The cron expression that represents a time schedule.",
+                           type = {DataType.STRING})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns current and expired events.",

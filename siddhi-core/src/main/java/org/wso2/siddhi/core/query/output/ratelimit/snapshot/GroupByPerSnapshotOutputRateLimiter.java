@@ -33,6 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Implementation of {@link PerSnapshotOutputRateLimiter} for queries with GroupBy.
+ */
 public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     private final Long value;
     private String id;

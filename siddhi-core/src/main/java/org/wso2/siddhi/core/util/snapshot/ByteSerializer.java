@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-
+/**
+ * Serializer used by {@link SnapshotService} to do Object to Byte[] conversion and vise-versa
+ */
 public class ByteSerializer {
     private static final Logger log = Logger.getLogger(ByteSerializer.class);
 

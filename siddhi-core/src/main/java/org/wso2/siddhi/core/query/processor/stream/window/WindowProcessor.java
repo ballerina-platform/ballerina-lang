@@ -32,6 +32,10 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Abstract parent implementation of {@link Processor} to represent Windows. Common window behaviors will be handled
+ * here through this class and different implementations should extend this
+ */
 public abstract class WindowProcessor extends AbstractStreamProcessor {
 
     @Override
@@ -53,7 +57,7 @@ public abstract class WindowProcessor extends AbstractStreamProcessor {
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                  boolean outputExpectsExpiredEvents, ExecutionPlanContext
-            executionPlanContext);
+                                         executionPlanContext);
 
     @Override
     protected void processEventChunk(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,

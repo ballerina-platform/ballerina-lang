@@ -27,6 +27,9 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import java.util.Collection;
 import java.util.HashSet;
 
+/**
+ * Implementation of {@link CollectionExecutor} which handles or condition
+ */
 public class OrCollectionExecutor implements CollectionExecutor {
 
 

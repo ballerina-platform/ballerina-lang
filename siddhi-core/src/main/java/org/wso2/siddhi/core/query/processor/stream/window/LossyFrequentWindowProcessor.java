@@ -45,6 +45,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Implementation of {@link WindowProcessor} which represent a Window operating based on event frequency.
+ */
 @Extension(
         name = "lossyFrequent",
         namespace = "",

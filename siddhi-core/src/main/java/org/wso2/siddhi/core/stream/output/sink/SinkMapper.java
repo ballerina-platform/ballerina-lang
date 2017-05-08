@@ -24,7 +24,6 @@ import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
-import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -35,6 +34,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Abstract parent class to represent event mappers. Events mappers will receive {@link Event}s and can convert them
+ * to any desired object type (Ex: XML, JSON). Custom mappers can be implemented as extensions extending this
+ * abstract implementation.
+ */
 public abstract class SinkMapper implements Snapshotable {
     private String type;
     private AtomicLong lastEventId = new AtomicLong(0);
@@ -117,12 +121,12 @@ public abstract class SinkMapper implements Snapshotable {
 
             for (ArrayList<Event> eventList : eventMap.values()) {
                 mapAndSend(eventList.toArray(new Event[eventList.size()]), optionHolder,
-                        payloadTemplateBuilder, sinkListener, new DynamicOptions(eventList.get(0)));
+                           payloadTemplateBuilder, sinkListener, new DynamicOptions(eventList.get(0)));
 
             }
         } else {
             mapAndSend(events, optionHolder, payloadTemplateBuilder, sinkListener,
-                    new DynamicOptions(events[0]));
+                       new DynamicOptions(events[0]));
         }
     }
 

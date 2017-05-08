@@ -31,6 +31,10 @@ import org.wso2.siddhi.core.util.lock.LockWrapper;
 
 import java.util.Map;
 
+/**
+ * Parent implementation to run the {@link org.wso2.siddhi.core.util.Scheduler} to handle periodic snapshot rate
+ * limiting.
+ */
 public abstract class SnapshotOutputRateLimiter implements Schedulable {
     static final Logger log = Logger.getLogger(SnapshotOutputRateLimiter.class);
     protected ExecutionPlanContext executionPlanContext;

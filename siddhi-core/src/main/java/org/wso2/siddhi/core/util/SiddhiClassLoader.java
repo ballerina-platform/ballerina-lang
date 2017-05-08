@@ -22,6 +22,9 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
 import org.wso2.siddhi.query.api.extension.Extension;
 
+/**
+ * used to load classes required for Siddhi extensions.
+ */
 public class SiddhiClassLoader {
 
     private static Object loadClass(Class clazz) throws CannotLoadClassException {
@@ -39,7 +42,7 @@ public class SiddhiClassLoader {
         Class clazz = extensionHolder.getExtension(extension.getNamespace(), extension.getName());
         if (clazz == null) {
             throw new ExecutionPlanCreationException("No extension exist for " + extension.getNamespace() + ":" +
-                    extension.getName(), true);
+                                                             extension.getName(), true);
         }
         try {
             return SiddhiClassLoader.loadClass(clazz);

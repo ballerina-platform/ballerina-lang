@@ -28,7 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined number of events and the emit only the
+ * first event. This implementation specifically handle queries with group by.
+ */
 public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
     List<String> groupByKeys = new ArrayList<String>();

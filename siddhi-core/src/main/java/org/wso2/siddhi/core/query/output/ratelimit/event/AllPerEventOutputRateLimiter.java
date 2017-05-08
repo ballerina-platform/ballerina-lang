@@ -26,7 +26,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined number of events and the emit all
+ * collected events as a batch.
+ */
 public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
 
     private final Integer value;

@@ -26,6 +26,10 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 
+/**
+ * Abstract class to represent parent callback implementation which allows users to get processed events from Siddhi
+ * queries. There are multiple implementation of this which will receive events and perform various tasks.
+ */
 public abstract class OutputCallback {
 
     public abstract void send(ComplexEventChunk complexEventChunk);
@@ -39,7 +43,7 @@ public abstract class OutputCallback {
                                                                              StreamEventConverter
                                                                                      streamEventConvertor) {
         ComplexEventChunk<StateEvent> stateEventChunk = new ComplexEventChunk<StateEvent>(matchingComplexEventChunk
-                .isBatch());
+                                                                                                  .isBatch());
         while (matchingComplexEventChunk.hasNext()) {
             ComplexEvent matchingComplexEvent = matchingComplexEventChunk.next();
             matchingComplexEventChunk.remove();

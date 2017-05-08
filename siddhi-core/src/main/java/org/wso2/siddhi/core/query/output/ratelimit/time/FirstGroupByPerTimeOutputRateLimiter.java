@@ -34,6 +34,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined time period and the emit only first
+ * event. This implementation specifically represent GroupBy queries.
+ */
 public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
     static final Logger log = Logger.getLogger(FirstGroupByPerTimeOutputRateLimiter.class);
     private final Long value;

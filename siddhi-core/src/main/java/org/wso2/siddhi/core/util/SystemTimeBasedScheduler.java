@@ -25,6 +25,9 @@ import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Scheduler based on System time
+ */
 public class SystemTimeBasedScheduler extends Scheduler {
     private static final Logger log = Logger.getLogger(SystemTimeBasedScheduler.class);
     private EventCaller eventCaller;
@@ -59,7 +62,7 @@ public class SystemTimeBasedScheduler extends Scheduler {
     @Override
     public Scheduler clone(String key, EntryValveProcessor entryValveProcessor) {
         Scheduler scheduler = new SystemTimeBasedScheduler(scheduledExecutorService, entryValveProcessor,
-                executionPlanContext);
+                                                           executionPlanContext);
         scheduler.elementId = elementId + "-" + key;
         return scheduler;
     }

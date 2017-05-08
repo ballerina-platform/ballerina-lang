@@ -46,8 +46,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This is the implementation of a counting algorithm based on
- * Misra-Gries counting algorithm
+ * Implementation of {@link WindowProcessor} which represent a Window operating based on frequency of incoming events.
+ * Implementation uses a counting algorithm based on Misra-Gries counting algorithm
  */
 @Extension(
         name = "frequent",

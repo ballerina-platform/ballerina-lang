@@ -25,6 +25,10 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
 import java.util.Collection;
 
+/**
+ * Interface for executors which will operate on a collection of events(i.e {@link StateEvent}). These will be used
+ * by in-memory table implementation.
+ */
 public interface CollectionExecutor {
 
     /**

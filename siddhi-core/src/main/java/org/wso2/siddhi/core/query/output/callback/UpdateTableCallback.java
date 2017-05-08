@@ -29,6 +29,11 @@ import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.parser.MatcherParser;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
+/**
+ * Implementation of {@link OutputCallback} to receive processed Siddhi events from
+ * Siddhi queries and update data into a {@link Table}
+ * based on received events and condition.
+ */
 public class UpdateTableCallback extends OutputCallback {
     private final int matchingStreamIndex;
     private final UpdateAttributeMapper[] updateAttributeMappers;

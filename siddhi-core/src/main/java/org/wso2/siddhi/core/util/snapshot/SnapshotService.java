@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Service level implementation to take/restore snapshots of processing elements.
+ */
 public class SnapshotService {
 
 
@@ -65,7 +68,7 @@ public class SnapshotService {
             for (Map.Entry<String, List<Snapshotable>> entry : snapshotableMap.entrySet()) {
                 snapshotableList = entry.getValue();
                 snapshotableList.forEach(snapshotableElement -> snapshots.put(snapshotableElement.getElementId(),
-                        snapshotableElement.currentState()));
+                                                                              snapshotableElement.currentState()));
             }
             if (log.isDebugEnabled()) {
                 log.debug("Snapshot serialization started ...");

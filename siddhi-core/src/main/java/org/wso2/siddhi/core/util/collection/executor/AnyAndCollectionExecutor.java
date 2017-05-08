@@ -28,6 +28,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Implementation of {@link CollectionExecutor}
+ */
 public class AnyAndCollectionExecutor implements CollectionExecutor {
 
 
@@ -72,7 +75,7 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
     public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
         //limit for 10 is a magic number identified via performance test
         Collection<StreamEvent> lowCostStreamEvents = lowCollectionExecutor.findEvents(matchingEvent,
-                indexedEventHolder);
+                                                                                       indexedEventHolder);
         if (lowCostStreamEvents == null) {
             return null;
         } else if (lowCostStreamEvents.size() > 0) {
@@ -80,7 +83,8 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
                 return exhaustiveCollectionExecutor.findEvents(matchingEvent, lowCostStreamEvents);
             } else {
                 Collection<StreamEvent> highCostStreamEvents = highCostCollectionExecutor.findEvents(matchingEvent,
-                        indexedEventHolder);
+                                                                                                     indexedEventHolder);
+
                 if (highCostStreamEvents == null) {
                     return null;
                 } else if (highCostStreamEvents.size() > 0) {

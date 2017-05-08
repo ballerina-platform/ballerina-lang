@@ -47,6 +47,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation of {@link WindowProcessor} which represent a Window operating based on pre-defined length.
+ */
 @Extension(
         name = "timeLength",
         namespace = "",

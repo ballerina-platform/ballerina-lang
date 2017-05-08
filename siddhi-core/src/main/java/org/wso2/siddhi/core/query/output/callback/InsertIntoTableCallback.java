@@ -25,6 +25,11 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
+/**
+ * Implementation of {@link OutputCallback} to receive processed Siddhi events from
+ * Siddhi queries and insert data into a {@link Table}
+ * based on received events and condition.
+ */
 public class InsertIntoTableCallback extends OutputCallback {
     private Table table;
     private StreamDefinition outputStreamDefinition;

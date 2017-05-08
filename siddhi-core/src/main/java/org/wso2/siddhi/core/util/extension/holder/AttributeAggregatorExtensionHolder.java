@@ -22,6 +22,9 @@ import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggrega
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link AttributeAggregator} Extensions.
+ */
 public class AttributeAggregatorExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = AttributeAggregator.class;
 

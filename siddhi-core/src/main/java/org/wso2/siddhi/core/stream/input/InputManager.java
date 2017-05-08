@@ -27,6 +27,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Manager class to handle {@link org.wso2.siddhi.core.event.Event} insertion to Siddhi.
+ */
 public class InputManager {
 
     private final InputEntryValve inputEntryValve;

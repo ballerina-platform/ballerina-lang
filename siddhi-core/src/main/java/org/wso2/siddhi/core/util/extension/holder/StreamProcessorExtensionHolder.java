@@ -22,6 +22,9 @@ import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link StreamProcessor} Extensions.
+ */
 public class StreamProcessorExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = StreamProcessor.class;
 

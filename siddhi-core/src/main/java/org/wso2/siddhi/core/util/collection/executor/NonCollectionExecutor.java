@@ -28,6 +28,9 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import java.util.Collection;
 import java.util.HashSet;
 
+/**
+ * Implementation of {@link CollectionExecutor} which handles non condition
+ */
 public class NonCollectionExecutor implements CollectionExecutor {
     private ExpressionExecutor expressionExecutor;
 

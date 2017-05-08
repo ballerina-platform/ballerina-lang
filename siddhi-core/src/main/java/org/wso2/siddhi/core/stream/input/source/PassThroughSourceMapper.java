@@ -23,12 +23,16 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.stream.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
 
+/**
+ * Event Mapper implementation to handle pass-through scenario where user does not need to do any mapping.
+ */
 @Extension(
         name = "passThrough",
         namespace = "sourceMapper",
@@ -54,7 +58,7 @@ public class PassThroughSourceMapper extends SourceMapper {
                 inputHandler.send((Object[]) eventObject);
             } else {
                 throw new ExecutionPlanRuntimeException("Event object must be either Event[], Event or Object[] " +
-                        "but found " + eventObject.getClass().getCanonicalName());
+                                                                "but found " + eventObject.getClass().getCanonicalName());
             }
         }
     }

@@ -37,6 +37,9 @@ import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class to parse {@link InputStream}
+ */
 public class InputStreamParser {
 
     /**
@@ -67,20 +70,20 @@ public class InputStreamParser {
             boolean batchProcessingAllowed = window != null;      // If stream is from window, allow batch
             // processing
             ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(singleInputStream.getStreamId(),
-                    latencyTracker, queryName);
+                                                                                    latencyTracker, queryName);
             processStreamReceiver.setBatchProcessingAllowed(batchProcessingAllowed);
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
-                    executionPlanContext, executors, streamDefinitionMap, null, windowDefinitionMap, tableMap,
-                    new MetaStreamEvent(), processStreamReceiver, true, outputExpectsExpiredEvents, queryName);
+                                                            executionPlanContext, executors, streamDefinitionMap, null, windowDefinitionMap, tableMap,
+                                                            new MetaStreamEvent(), processStreamReceiver, true, outputExpectsExpiredEvents, queryName);
         } else if (inputStream instanceof JoinInputStream) {
             return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), executionPlanContext,
-                    streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, eventWindowMap,
-                    executors, latencyTracker, outputExpectsExpiredEvents, queryName);
+                                                          streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, eventWindowMap,
+                                                          executors, latencyTracker, outputExpectsExpiredEvents, queryName);
         } else if (inputStream instanceof StateInputStream) {
             MetaStateEvent metaStateEvent = new MetaStateEvent(inputStream.getAllStreamIds().size());
             return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), executionPlanContext,
-                    metaStateEvent, streamDefinitionMap, null, null, tableMap, executors, latencyTracker,
-                    queryName);
+                                                           metaStateEvent, streamDefinitionMap, null, null, tableMap, executors, latencyTracker,
+                                                           queryName);
         } else {
             throw new OperationNotSupportedException();
         }

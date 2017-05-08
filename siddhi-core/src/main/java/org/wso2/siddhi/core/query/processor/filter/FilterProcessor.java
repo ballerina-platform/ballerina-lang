@@ -24,7 +24,9 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-
+/**
+ * Implementation of {@link Processor} which handles Filter expressions in Siddhi.
+ */
 public class FilterProcessor implements Processor {
 
     protected Processor next;

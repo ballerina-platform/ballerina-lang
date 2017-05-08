@@ -25,6 +25,10 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
+/**
+ * Implementation of {@link org.wso2.siddhi.core.stream.StreamJunction.Receiver} to receive events to be fed into
+ * single stream stateless queries(Filter).
+ */
 public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
 
     protected final String lockKey;

@@ -21,6 +21,9 @@ package org.wso2.siddhi.core.util.collection;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
+/**
+ * Util mapper used by {@link org.wso2.siddhi.core.table.Table} callbacks to map Siddhi event to be inserted into Table.
+ */
 public class UpdateAttributeMapper {
     private final int updatingAttributePosition;
     private final int storeEventAttributePosition;

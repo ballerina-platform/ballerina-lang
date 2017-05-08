@@ -22,6 +22,9 @@ import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link WindowProcessor} Extensions.
+ */
 public class WindowProcessorExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = WindowProcessor.class;
 

@@ -28,6 +28,9 @@ import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 import java.util.Collection;
 
+/**
+ * Implementation of {@link CollectionExecutor} which handle compare condition.
+ */
 public class CompareCollectionExecutor implements CollectionExecutor {
 
 

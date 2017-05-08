@@ -24,6 +24,9 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Abstract Holder class to retrieve added extensions and store them in a map.
+ */
 public abstract class AbstractExtensionHolder {
     private static final Logger log = Logger.getLogger(AbstractExtensionHolder.class);
 
@@ -39,7 +42,7 @@ public abstract class AbstractExtensionHolder {
                         log.error("Extension class " + extension.getName() + " not loaded, as there is already an" +
                                           " matching extension '" + extensionKey + "' implemented as " + extensionMap
                                 .get
-                                (extensionKey).getName());
+                                        (extensionKey).getName());
                     } else {
                         extensionMap.put(extensionKey, extension);
                     }

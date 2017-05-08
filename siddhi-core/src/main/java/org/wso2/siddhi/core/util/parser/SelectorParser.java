@@ -44,6 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class to parse {@link QuerySelector}
+ */
 public class SelectorParser {
     private static final ThreadLocal<String> containsAggregatorThreadLocal = new ThreadLocal<String>();
 

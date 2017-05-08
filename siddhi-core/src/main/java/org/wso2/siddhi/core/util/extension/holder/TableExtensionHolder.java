@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.table.Table;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link Table} Extensions.
+ */
 public class TableExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz =Table.class;
 

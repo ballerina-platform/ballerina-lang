@@ -32,6 +32,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined time period and the emit only first
+ * event.
+ */
 public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
     static final Logger log = Logger.getLogger(FirstPerTimeOutputRateLimiter.class);
     private final Long value;

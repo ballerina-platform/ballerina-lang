@@ -26,6 +26,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined number of events and the emit only the
+ * first event.
+ */
 public class FirstPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
     private String id;

@@ -26,6 +26,9 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
 import java.util.Collection;
 
+/**
+ * Implementation of {@link CollectionExecutor}
+ */
 public class CompareExhaustiveAndCollectionExecutor implements CollectionExecutor {
 
     private final CollectionExecutor compareCollectionExecutor;

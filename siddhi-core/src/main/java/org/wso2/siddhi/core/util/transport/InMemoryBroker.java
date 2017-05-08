@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * In-memory broker to support in-memory transport.
+ */
 public class InMemoryBroker {
     private static final MessageBroker broker = new MessageBroker();
 

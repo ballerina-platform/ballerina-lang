@@ -47,6 +47,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation of {@link WindowProcessor} which represent a Batch Window operating based on time.
+ */
 @Extension(
         name = "timeBatch",
         namespace = "",
@@ -54,12 +57,12 @@ import java.util.Map;
                 "and gets updated for each windowTime.",
         parameters = {
                 @Parameter(name = "windowTime",
-                        description = "The batch time period for which the window should hold events.",
-                        type = {DataType.INT, DataType.LONG, DataType.TIME}),
+                           description = "The batch time period for which the window should hold events.",
+                           type = {DataType.INT, DataType.LONG, DataType.TIME}),
                 @Parameter(name = "startTime",
-                        description = "This specifies an offset in milliseconds in order to start the " +
-                                "window at a time different to the standard time.",
-                        type = {DataType.INT})
+                           description = "This specifies an offset in milliseconds in order to start the " +
+                                   "window at a time different to the standard time.",
+                           type = {DataType.INT})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns current and expired events.",
@@ -111,11 +114,11 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                             .getValue();
                 } else {
                     throw new ExecutionPlanValidationException("Time window's parameter attribute should be either " +
-                            "int or long, but found " + attributeExpressionExecutors[0].getReturnType());
+                                                                       "int or long, but found " + attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
                 throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but " +
-                        "found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
+                                                                   "found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
         } else if (attributeExpressionExecutors.length == 2) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
@@ -128,11 +131,11 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                             .getValue();
                 } else {
                     throw new ExecutionPlanValidationException("Time window's parameter attribute should be either " +
-                            "int or long, but found " + attributeExpressionExecutors[0].getReturnType());
+                                                                       "int or long, but found " + attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
                 throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but " +
-                        "found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
+                                                                   "found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
             // start time
             isStartTimeEnabled = true;
@@ -145,8 +148,9 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
             }
         } else {
             throw new ExecutionPlanValidationException("Time window should only have one or two parameters. " +
-                    "(<int|long|time> windowTime), but found " + attributeExpressionExecutors.length + " input " +
-                    "attributes");
+                                                               "(<int|long|time> windowTime), but found " +
+                                                               attributeExpressionExecutors.length + " input " +
+                                                               "attributes");
         }
     }
 
@@ -281,6 +285,6 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
         return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder,
-                executionPlanContext, variableExpressionExecutors, tableMap, this.queryName);
+                                                executionPlanContext, variableExpressionExecutors, tableMap, this.queryName);
     }
 }

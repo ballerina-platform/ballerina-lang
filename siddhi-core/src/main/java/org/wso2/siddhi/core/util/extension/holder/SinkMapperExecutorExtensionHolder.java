@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link SinkMapper} Extensions.
+ */
 public class SinkMapperExecutorExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = SinkMapper.class;
 

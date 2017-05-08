@@ -38,6 +38,9 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
 
+/**
+ * Abstract implementation of {@link Processor} intended to be used by any Stream Processors.
+ */
 public abstract class AbstractStreamProcessor implements Processor, EternalReferencedHolder, Snapshotable {
 
     protected static final Logger log = Logger.getLogger(AbstractStreamProcessor.class);
@@ -53,7 +56,6 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     protected ComplexEventPopulater complexEventPopulater;
     protected String elementId = null;
     private ConfigReader configReader;
-    private boolean outputExpectsExpiredEvents;
     protected String queryName;
     private boolean outputExpectsExpiredEvents;
 
@@ -74,8 +76,8 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
             }
             executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
             this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, configReader,
-                    executionPlanContext,
-                    outputExpectsExpiredEvents);
+                                             executionPlanContext,
+                                             outputExpectsExpiredEvents);
 
             executionPlanContext.addEternalReferencedHolder(this);
 
@@ -103,7 +105,8 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
      * @param outputExpectsExpiredEvents   is output expects ExpiredEvents   @return the additional output attributes introduced by the function
      */
     protected abstract List<Attribute> init(AbstractDefinition inputDefinition,
-                                            ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext
+                                            ExpressionExecutor[] attributeExpressionExecutors, ConfigReader
+                                                    configReader, ExecutionPlanContext
                                                     executionPlanContext, boolean outputExpectsExpiredEvents);
 
     public void process(ComplexEventChunk streamEventChunk) {
@@ -153,7 +156,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
             abstractStreamProcessor.executionPlanContext = executionPlanContext;
             abstractStreamProcessor.elementId = elementId + "-" + key;
             abstractStreamProcessor.init(inputDefinition, attributeExpressionExecutors, configReader, executionPlanContext,
-                    outputExpectsExpiredEvents);
+                                         outputExpectsExpiredEvents);
             abstractStreamProcessor.start();
             return abstractStreamProcessor;
 
@@ -165,7 +168,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     public void constructStreamEventPopulater(MetaStreamEvent metaStreamEvent, int streamEventChainIndex) {
         if (this.complexEventPopulater == null) {
             this.complexEventPopulater = StreamEventPopulaterFactory.constructEventPopulator(metaStreamEvent,
-                    streamEventChainIndex, additionalAttributes);
+                                                                                             streamEventChainIndex, additionalAttributes);
         }
     }
 

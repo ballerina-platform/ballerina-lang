@@ -27,7 +27,11 @@ import org.wso2.siddhi.core.util.transport.OptionHolder;
 
 import java.util.concurrent.ExecutorService;
 
-
+/**
+ * Abstract class to represent Event Sources. Events Sources are the object entry point to Siddhi from external
+ * transports. Each source represent a transport type. Whenever Siddhi need to support a new transport, a new Event
+ * source should be implemented.
+ */
 public abstract class Source implements Snapshotable {
     private static final Logger log = Logger.getLogger(Source.class);
     private SourceMapper mapper;

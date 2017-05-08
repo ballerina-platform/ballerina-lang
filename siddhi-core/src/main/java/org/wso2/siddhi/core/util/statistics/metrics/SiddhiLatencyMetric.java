@@ -22,6 +22,9 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
+/**
+ * Class to calculate Siddhi latency.
+ */
 public class SiddhiLatencyMetric implements LatencyTracker {
     // Using thread local variables to keep the timer track the time of the same execution path by different threads.
     private ThreadLocal<Timer> execLatencyTimer;

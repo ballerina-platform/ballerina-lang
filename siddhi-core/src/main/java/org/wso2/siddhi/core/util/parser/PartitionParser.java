@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Class to parse {@link PartitionRuntime}
+ */
 public class PartitionParser {
 
     public static PartitionRuntime parse(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Partition partition,

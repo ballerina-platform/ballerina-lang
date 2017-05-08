@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.function.Script;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link Script} Extensions.
+ */
 public class ScriptExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz =Script.class;
 

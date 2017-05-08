@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Implementation of {@link PerSnapshotOutputRateLimiter} for queries with Windows.
+ */
 public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     private final Long value;
     private final ScheduledExecutorService scheduledExecutorService;

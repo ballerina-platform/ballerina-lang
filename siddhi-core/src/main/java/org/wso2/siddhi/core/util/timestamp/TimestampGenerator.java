@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.util.timestamp;
 
 /**
- * Created on 1/27/15.
+ * Parent interface for timestamp generators. Various implementations can provide implementation specific timestamp.
  */
 public interface TimestampGenerator {
     long currentTime();

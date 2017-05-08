@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Interface for expressions related to collection of events. These will be used by in-memory table implementation.
+ */
 public interface CollectionExpression {
     Expression getExpression();
 

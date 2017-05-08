@@ -26,6 +26,9 @@ import org.wso2.siddhi.core.util.statistics.memory.ObjectSizeCalculator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Class to calculate Siddhi memory usage.
+ */
 public class SiddhiMemoryUsageMetric implements MemoryUsageTracker {
     private ConcurrentMap<Object, ObjectMetric> registeredObjects = new ConcurrentHashMap<Object, ObjectMetric>();
     private MetricRegistry metricRegistry;
@@ -76,16 +79,16 @@ public class SiddhiMemoryUsageMetric implements MemoryUsageTracker {
 
         private void initMetric() {
             metricRegistry.register(name,
-                    new Gauge<Long>() {
-                        @Override
-                        public Long getValue() {
-                            try {
-                                return ObjectSizeCalculator.getObjectSize(object);
-                            } catch (UnsupportedOperationException e) {
-                                return 0l;
-                            }
-                        }
-                    });
+                                    new Gauge<Long>() {
+                                        @Override
+                                        public Long getValue() {
+                                            try {
+                                                return ObjectSizeCalculator.getObjectSize(object);
+                                            } catch (UnsupportedOperationException e) {
+                                                return 0l;
+                                            }
+                                        }
+                                    });
         }
     }
 }

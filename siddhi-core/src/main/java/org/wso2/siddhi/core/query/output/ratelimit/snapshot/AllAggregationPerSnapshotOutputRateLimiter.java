@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Implementation of {@link PerSnapshotOutputRateLimiter} for queries with Aggregators which will output all events.
+ */
 public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     private final Long value;
     private final ScheduledExecutorService scheduledExecutorService;
@@ -91,7 +94,7 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
             wrappedSnapshotOutputRateLimiter) {
         return new AllAggregationPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
-                wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+                                                              wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
     }
 
     @Override

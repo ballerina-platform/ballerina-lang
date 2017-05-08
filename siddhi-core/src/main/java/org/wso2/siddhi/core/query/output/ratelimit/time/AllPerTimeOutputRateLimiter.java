@@ -32,6 +32,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined time period and the emit all
+ * collected events as a batch.
+ */
+
 public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
 
     static final Logger log = Logger.getLogger(AllPerTimeOutputRateLimiter.class);
@@ -55,7 +60,7 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
     @Override
     public OutputRateLimiter clone(String key) {
         AllPerTimeOutputRateLimiter instance = new AllPerTimeOutputRateLimiter(id + key, value,
-                scheduledExecutorService, queryName);
+                                                                               scheduledExecutorService, queryName);
         instance.setLatencyTracker(latencyTracker);
         return instance;
     }

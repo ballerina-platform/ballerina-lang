@@ -57,6 +57,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Class to parse {@link QueryRuntime}
+ */
 public class QueryParser {
 
     /**

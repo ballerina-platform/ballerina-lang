@@ -22,6 +22,9 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link FunctionExecutor} Extensions.
+ */
 public class FunctionExecutorExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = FunctionExecutor.class;
 

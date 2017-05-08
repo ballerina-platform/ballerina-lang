@@ -30,6 +30,9 @@ import org.wso2.siddhi.annotation.Extension;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class used to load Siddhi extensions
+ */
 public class SiddhiExtensionLoader {
 
     private static final Logger log = Logger.getLogger(SiddhiExtensionLoader.class);
@@ -84,21 +87,21 @@ public class SiddhiExtensionLoader {
                 Class previousClass;
                 if (!siddhiExtensionAnnotation.namespace().isEmpty()) {
                     previousClass = siddhiExtensionsMap.putIfAbsent(siddhiExtensionAnnotation.namespace() +
-                            SiddhiConstants.EXTENSION_SEPARATOR +
-                            siddhiExtensionAnnotation.name(), extensionClass);
+                                                                            SiddhiConstants.EXTENSION_SEPARATOR +
+                                                                            siddhiExtensionAnnotation.name(), extensionClass);
                     if (previousClass != null) {
                         log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already " +
-                                "loaded with the " +
-                                "same namespace and name '" + siddhiExtensionAnnotation.namespace() + SiddhiConstants
+                                         "loaded with the " +
+                                         "same namespace and name '" + siddhiExtensionAnnotation.namespace() + SiddhiConstants
                                 .EXTENSION_SEPARATOR +
-                                siddhiExtensionAnnotation.name() + "'");
+                                         siddhiExtensionAnnotation.name() + "'");
                     }
                 } else {
                     previousClass = siddhiExtensionsMap.put(siddhiExtensionAnnotation.name(), extensionClass);
                     if (previousClass != null) {
                         log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already " +
-                                "loaded with the " +
-                                "same name '" + siddhiExtensionAnnotation.name() + "'");
+                                         "loaded with the " +
+                                         "same name '" + siddhiExtensionAnnotation.name() + "'");
                     }
                 }
             } else {
@@ -106,7 +109,7 @@ public class SiddhiExtensionLoader {
             }
         } else {
             log.error("Unable to load extension " + extensionClass.getName() + ", empty name element given in " +
-                    "Extension annotation.");
+                              "Extension annotation.");
         }
     }
 

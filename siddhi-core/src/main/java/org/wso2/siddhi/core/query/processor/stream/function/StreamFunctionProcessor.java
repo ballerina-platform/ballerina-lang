@@ -32,6 +32,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
 
+/**
+ * Stream Processor to handle Stream Functions.
+ */
 public abstract class StreamFunctionProcessor extends AbstractStreamProcessor {
 
     //Introduced to maintain backward compatible

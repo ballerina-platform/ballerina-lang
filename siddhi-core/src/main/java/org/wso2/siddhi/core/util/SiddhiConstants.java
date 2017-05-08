@@ -18,6 +18,9 @@
 
 package org.wso2.siddhi.core.util;
 
+/**
+ * Class to hold constants
+ */
 public final class SiddhiConstants {
 
     public static final String NAMESPACE_STORE = "store";

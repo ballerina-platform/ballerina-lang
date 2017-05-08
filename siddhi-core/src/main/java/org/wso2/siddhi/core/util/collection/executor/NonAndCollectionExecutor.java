@@ -28,6 +28,9 @@ import org.wso2.siddhi.core.util.collection.expression.CollectionExpression;
 import java.util.Collection;
 import java.util.HashSet;
 
+/**
+ * Implementation of {@link CollectionExecutor}
+ */
 public class NonAndCollectionExecutor implements CollectionExecutor {
 
 

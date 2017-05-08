@@ -30,6 +30,9 @@ import java.util.List;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
+/**
+ * Class to parse {@link MatchingMetaInfoHolder}
+ */
 public class MatcherParser {
 
     public static MatchingMetaInfoHolder constructMatchingMetaStateHolder(MetaComplexEvent matchingMetaComplexEvent,
@@ -79,8 +82,8 @@ public class MatcherParser {
             }
         }
         return new MatchingMetaInfoHolder(metaStateEvent, defaultStreamEventIndex, storeEventIndex,
-                metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(),
-                candsidateDefinition, currentState);
+                                          metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(),
+                                          candsidateDefinition, currentState);
     }
 
     public static UpdateAttributeMapper[] constructUpdateAttributeMapper(AbstractDefinition tableDefinition,
@@ -90,8 +93,8 @@ public class MatcherParser {
         for (int i = 0; i < updatingStreamDefinition.size(); i++) {
             Attribute streamAttribute = updatingStreamDefinition.get(i);
             updateAttributeMappers[i] = new UpdateAttributeMapper(i,
-                    tableDefinition.getAttributePosition(streamAttribute.getName()), streamAttribute.getName(),
-                    matchingStreamEventPosition);
+                                                                  tableDefinition.getAttributePosition(streamAttribute.getName()), streamAttribute.getName(),
+                                                                  matchingStreamEventPosition);
         }
         return updateAttributeMappers;
     }

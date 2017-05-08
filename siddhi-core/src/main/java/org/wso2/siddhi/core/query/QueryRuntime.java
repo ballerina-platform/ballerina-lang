@@ -42,6 +42,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Query Runtime represent holder object for a single Siddhi query and holds all runtime objects related to that query.
+ */
 public class QueryRuntime {
 
     private final ExecutionPlanContext executionPlanContext;
@@ -148,7 +151,7 @@ public class QueryRuntime {
         clonedOutputRateLimiter.init(executionPlanContext, lockWrapper, queryId);
 
         QueryRuntime queryRuntime = new QueryRuntime(query, executionPlanContext, clonedStreamRuntime, clonedSelector,
-                clonedOutputRateLimiter, outputCallback, this.metaComplexEvent, synchronised);
+                                                     clonedOutputRateLimiter, outputCallback, this.metaComplexEvent, synchronised);
         QueryParserHelper.initStreamRuntime(clonedStreamRuntime, metaComplexEvent, lockWrapper, queryId);
 
         queryRuntime.queryId = this.queryId + key;
@@ -159,8 +162,8 @@ public class QueryRuntime {
             queryRuntime.outputCallback = this.outputCallback;
         } else {
             OutputCallback clonedQueryOutputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
-                    key,
-                    localStreamJunctionMap, outputStreamDefinition, executionPlanContext, queryId);
+                                                                                            key,
+                                                                                            localStreamJunctionMap, outputStreamDefinition, executionPlanContext, queryId);
             queryRuntime.outputRateLimiter.setOutputCallback(clonedQueryOutputCallback);
             queryRuntime.outputCallback = clonedQueryOutputCallback;
         }

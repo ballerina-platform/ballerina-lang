@@ -27,6 +27,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Holder object to contain {@link Option}
+ */
 public class OptionHolder {
 
     private Map<String, Option> options = new HashMap<>();
@@ -42,7 +45,7 @@ public class OptionHolder {
         }
         for (Map.Entry<String, String> entry : dynamicOptions.entrySet()) {
             options.put(entry.getKey(), new Option(entry.getKey(), null,
-                    new TemplateBuilder(streamDefinition, entry.getValue())));
+                                                   new TemplateBuilder(streamDefinition, entry.getValue())));
         }
 
         staticOptions.keySet().forEach(key -> staticOptionsKeys.add(key));
@@ -53,8 +56,8 @@ public class OptionHolder {
         Option option = options.get(optionKey);
         if (option == null) {
             throw new ExecutionPlanValidationException("Option '" + optionKey + "' does not exist in the " +
-                    "configuration" +
-                    " of '" + extension.namespace() + ":" + extension.name() + "'.");
+                                                               "configuration" +
+                                                               " of '" + extension.namespace() + ":" + extension.name() + "'.");
         }
         return option;
     }
@@ -82,7 +85,7 @@ public class OptionHolder {
         if (option != null) {
             if (!option.isStatic()) {
                 throw new ExecutionPlanValidationException("'" + optionKey + "' is not a 'static' " +
-                        "option in the configuration of " + extension.namespace() + ":" + extension.name() + ".");
+                                                                   "option in the configuration of " + extension.namespace() + ":" + extension.name() + ".");
             }
             return option.getValue();
         } else {
@@ -95,13 +98,13 @@ public class OptionHolder {
         if (option != null) {
             if (!option.isStatic()) {
                 throw new ExecutionPlanValidationException("'" + optionKey + "' is defined as a 'dynamic' option " +
-                        "but it has to be a 'static' option for the " + extension.namespace() + ":" +
-                        extension.name() + " configuration.");
+                                                                   "but it has to be a 'static' option for the " + extension.namespace() + ":" +
+                                                                   extension.name() + " configuration.");
             }
             return option.getValue();
         } else {
             throw new ExecutionPlanValidationException("'" + optionKey + "' 'static' option is not " +
-                    "defined in the configuration of " + extension.namespace() + ":" + extension.name() + ".");
+                                                               "defined in the configuration of " + extension.namespace() + ":" + extension.name() + ".");
         }
     }
 

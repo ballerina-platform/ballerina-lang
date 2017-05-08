@@ -21,6 +21,9 @@ package org.wso2.siddhi.core.util.collection.expression;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
+/**
+ * Implementation of {@link CollectionExpression} which represent Compare expressions.
+ */
 public class CompareCollectionExpression implements CollectionExpression {
 
     private final Compare compareExpression;

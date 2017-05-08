@@ -28,6 +28,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * StreamCallback is used to receive events from {@link StreamJunction}. This class should be extended if one intends
+ * to get events from a Siddhi Stream.
+ */
 public abstract class StreamCallback implements StreamJunction.Receiver {
 
     private static final Logger log = Logger.getLogger(StreamCallback.class);

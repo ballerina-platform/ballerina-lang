@@ -22,6 +22,9 @@ import org.wso2.siddhi.core.event.Event;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Holder class for general transport options.
+ */
 public class Option {
     private final String key;
     private final TemplateBuilder templateBuilder;

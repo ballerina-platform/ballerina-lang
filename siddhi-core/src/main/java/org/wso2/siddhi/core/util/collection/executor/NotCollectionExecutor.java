@@ -28,6 +28,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Implementation of {@link CollectionExecutor} which handles not condition.
+ */
 public class NotCollectionExecutor implements CollectionExecutor {
 
 

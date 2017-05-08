@@ -31,8 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Implementation of {@link PerSnapshotOutputRateLimiter} for queries with GroupBy, Aggregators and Windows.
+ */
 public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
-        AggregationWindowedPerSnapshotOutputRateLimiter {
+                                                                    AggregationWindowedPerSnapshotOutputRateLimiter {
     protected LinkedList<GroupedComplexEvent> eventList;
     protected String queryName;
     private Map<String, Map<Integer, Object>> groupByAggregateAttributeValueMap;
@@ -43,7 +46,7 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
                                                                      ExecutionPlanContext executionPlanContext,
                                                                      String queryName) {
         super(id, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter,
-                executionPlanContext, queryName);
+              executionPlanContext, queryName);
         this.queryName = queryName;
         groupByAggregateAttributeValueMap = new HashMap<String, Map<Integer, Object>>();
         eventList = new LinkedList<GroupedComplexEvent>();
@@ -146,6 +149,6 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
             wrappedSnapshotOutputRateLimiter) {
         return new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
-                aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+                                                                          aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
     }
 }

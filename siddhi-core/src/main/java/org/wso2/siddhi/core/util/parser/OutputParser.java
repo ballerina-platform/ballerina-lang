@@ -70,6 +70,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Class to parse {@link OutputCallback}
+ */
 public class OutputParser {
 
 

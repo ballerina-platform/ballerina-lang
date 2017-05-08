@@ -32,7 +32,6 @@ import java.util.List;
  */
 public abstract class SourceMapper implements SourceEventListener {
 
-    private static final Logger log = Logger.getLogger(InputMapper.class);
     private InputHandler inputHandler;
     private StreamDefinition streamDefinition;
     private String mapType;
@@ -53,10 +52,6 @@ public abstract class SourceMapper implements SourceEventListener {
 
     public InputHandler getInputHandler() {
         return inputHandler;
-    }
-
-    public void setInputHandler(InputHandler inputHandler) {
-        this.inputHandler = inputHandler;
     }
 
     public void onEvent(Object eventObject) {

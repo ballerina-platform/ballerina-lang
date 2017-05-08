@@ -23,6 +23,9 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
+/**
+ * Information holder for matching event used by in-memory table implementation.
+ */
 public class MatchingMetaInfoHolder {
     private int matchingStreamEventIndex;
     private int storeEventIndex;
