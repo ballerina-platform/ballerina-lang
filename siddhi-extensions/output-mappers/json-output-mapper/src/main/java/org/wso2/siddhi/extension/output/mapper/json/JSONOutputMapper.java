@@ -55,7 +55,7 @@ public class JSONOutputMapper extends SinkMapper {
 
     private boolean isCustomMappingEnabled = false;
     private String enclosingElement = null;
-    private boolean validationEnabled = false;
+    private boolean isJsonValidationEnabled = false;
 
 
     @Override
@@ -74,7 +74,7 @@ public class JSONOutputMapper extends SinkMapper {
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader) {
         this.streamDefinition = streamDefinition;
         enclosingElement = optionHolder.validateAndGetStaticValue(ENCLOSING_ELEMENT_IDENTIFIER, null);
-        validationEnabled = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(JSON_VALIDATION_IDENTIFIER, "true"));
+        isJsonValidationEnabled = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(JSON_VALIDATION_IDENTIFIER, "true"));
         if (enclosingElement != null) {
             isCustomMappingEnabled = true;
         }
@@ -88,9 +88,10 @@ public class JSONOutputMapper extends SinkMapper {
         } else {
             sb.append(constructJsonForCustomMapping(events, payloadTemplateBuilder));
         }
-        if (validationEnabled && isValidJson(sb.toString())) {
+
+        if (isJsonValidationEnabled && isValidJson(sb.toString())) {
             sinkListener.publish(sb.toString(), dynamicOptions);
-        } else if (!validationEnabled) {
+        } else if (!isJsonValidationEnabled) {
             sinkListener.publish(sb.toString(), dynamicOptions);
         } else {
             log.error("Invalid json string : " + sb.toString());
@@ -106,9 +107,9 @@ public class JSONOutputMapper extends SinkMapper {
             sb.append(constructJsonForCustomMapping(event, payloadTemplateBuilder));
         }
 
-        if (validationEnabled && isValidJson(sb.toString())) {
+        if (isJsonValidationEnabled && isValidJson(sb.toString())) {
             sinkListener.publish(sb.toString(), dynamicOptions);
-        } else if (!validationEnabled) {
+        } else if (!isJsonValidationEnabled) {
             sinkListener.publish(sb.toString(), dynamicOptions);
         } else {
             log.error("Invalid json string : " + sb.toString());
@@ -122,7 +123,7 @@ public class JSONOutputMapper extends SinkMapper {
      * @return the constructed JSON string
      */
     private JsonObject constructSingleEventForDefaultMapping(Event event) {
-        Object[] data = ((Event) event).getData();
+        Object[] data = event.getData();
         JsonObject jsonEventObject = new JsonObject();
         JsonObject innerParentObject = new JsonObject();
 
@@ -145,7 +146,7 @@ public class JSONOutputMapper extends SinkMapper {
                 } else if (attributeValue instanceof Map) {
                     if (!((Map) attributeValue).isEmpty()) {
                         Gson gson = new Gson();
-                        innerParentObject.add(attributeName, gson.toJsonTree((Map) attributeValue));
+                        innerParentObject.add(attributeName, gson.toJsonTree(attributeValue));
                     }
                 }
             }

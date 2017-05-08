@@ -62,21 +62,16 @@ public class JsonInputMapper extends SourceMapper {
     private static final Logger log = Logger.getLogger(JsonInputMapper.class);
 
     public static final String DEFAULT_JSON_MAPPING_PREFIX = "$.";
-
     public static final String DEFAULT_JSON_EVENT_IDENTIFIER = "event";
     public static final String FAIL_ON_UNKNOWN_ATTRIBUTE_IDENTIFIER = "fail.on.unknown.attribute";
-    public static final String ENABLE_JSON_VALIDATION_IDENTIFIER = "validate.json";
+    private final String ENCLOSING_ELEMENT_INDENTIFIER = "enclosing.element";
 
     private StreamDefinition streamDefinition;
-    private List<AttributeMapping> attributeMappingList;
     private MappingPositionData[] mappingPositions;
     private List<Attribute> streamAttributes;
     private boolean isCustomMappingEnabled = false;
-    private boolean isJsonValidationEnabled = false;
-    private boolean failOnUnknownAttribute = true;
+    private boolean failOnUnknownAttribute = false;
     private String enclosingElement = null;
-    private final String ENCLOSING_ELEMENT_INDENTIFIER = "enclosing.element";
-
     private AttributeConverter attributeConverter = new AttributeConverter();
 
     @Override
@@ -84,11 +79,8 @@ public class JsonInputMapper extends SourceMapper {
         this.streamDefinition = streamDefinition;
         this.streamAttributes = this.streamDefinition.getAttributeList();
         int attributesSize = this.streamDefinition.getAttributeList().size();
-        this.attributeMappingList = attributeMappingList;
         this.mappingPositions = new MappingPositionData[attributesSize];
         failOnUnknownAttribute = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(FAIL_ON_UNKNOWN_ATTRIBUTE_IDENTIFIER, "false"));
-        isJsonValidationEnabled = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(ENABLE_JSON_VALIDATION_IDENTIFIER, "false"));
-
         if (attributeMappingList != null && attributeMappingList.size() > 0) {
             isCustomMappingEnabled = true;
             enclosingElement = optionHolder.validateAndGetStaticValue(ENCLOSING_ELEMENT_INDENTIFIER, "$");
@@ -143,13 +135,14 @@ public class JsonInputMapper extends SourceMapper {
                     eventObject.getClass()
                             .getCanonicalName());
         }
-        if (isJsonValidationEnabled && !isJsonValid(eventObject.toString())) {
+
+        if (!isJsonValid(eventObject.toString())) {
             throw new ExecutionPlanRuntimeException("Invalid Json String :" + eventObject.toString());
         }
 
         Object jsonObj;
         ReadContext readContext = JsonPath.parse(eventObject.toString());
-        int index = 0;
+        int index;
         if (isCustomMappingEnabled) {
             jsonObj = readContext.read(enclosingElement);
             if (jsonObj == null) {
@@ -190,27 +183,6 @@ public class JsonInputMapper extends SourceMapper {
                     throw new ExecutionPlanRuntimeException("Invalid JSON string :" + eventObject.toString() + ". Cannot be converted to an event");
                 }
             }
-        }
-    }
-
-    private Object processForCustomMapping(Object eventObject) {
-        Object jsonObj;
-
-        ReadContext readContext = JsonPath.parse(eventObject.toString());
-        jsonObj = readContext.read(enclosingElement);
-        if (jsonObj == null) {
-            throw new ExecutionPlanRuntimeException("Enclosing element " + enclosingElement + " can not be found.");
-        }
-
-        if (jsonObj instanceof JSONArray) {
-            JSONArray jsonArray = (JSONArray) jsonObj;
-            Event[] newEventArray = new Event[jsonArray.size()];
-            for (int i = 0; i < jsonArray.size(); i++) {
-                newEventArray[i] = processEvent(JsonPath.parse(jsonArray.get(i)));
-            }
-            return newEventArray;
-        } else {
-            return processEvent(JsonPath.parse(jsonObj));
         }
     }
 
@@ -272,11 +244,11 @@ public class JsonInputMapper extends SourceMapper {
 
     private Event[] convertToEventArrayForDefaultMapping(Object eventObject) {
         Gson gson = new Gson();
-        JsonObject[] objects = gson.fromJson(eventObject.toString(), JsonObject[].class);
-        Event[] events = new Event[objects.length];
+        JsonObject[] eventObjects = gson.fromJson(eventObject.toString(), JsonObject[].class);
+        Event[] events = new Event[eventObjects.length];
         int index = 0;
-        for (int i = 0; i < objects.length; i++) {
-            JsonObject eventObj = objects[i].get(DEFAULT_JSON_EVENT_IDENTIFIER).getAsJsonObject();
+        for (int i = 0; i < eventObjects.length; i++) {
+            JsonObject eventObj = eventObjects[i].get(DEFAULT_JSON_EVENT_IDENTIFIER).getAsJsonObject();
             Event event = new Event(streamAttributes.size());
             Object[] data = event.getData();
             if (eventObj.size() < streamAttributes.size()) {
@@ -285,6 +257,7 @@ public class JsonInputMapper extends SourceMapper {
                     continue;
                 }
             }
+
             int position = 0;
             for (Attribute attribute : streamAttributes) {
                 String attribtueName = attribute.getName();
@@ -330,12 +303,10 @@ public class JsonInputMapper extends SourceMapper {
         switch (type) {
             case INT:
                 value = attribute.toString();
-                index = value.indexOf('.');
-                return Integer.parseInt(value.substring(0, index));
+                return (int) Double.parseDouble(value);
             case LONG:
                 value = attribute.toString();
-                index = value.indexOf('.');
-                return Long.parseLong(value.substring(0, index));
+                return (long) Double.parseDouble(value);
             case DOUBLE:
                 return Double.parseDouble(attribute.toString());
             case FLOAT:
@@ -344,6 +315,32 @@ public class JsonInputMapper extends SourceMapper {
                 return Boolean.parseBoolean(attribute.toString());
         }
         return attribute;
+    }
+
+    private boolean isJsonValid(String jsonInString) {
+        Gson gson = new Gson();
+        try {
+            gson.fromJson(jsonInString, Object.class);
+            return true;
+        } catch (com.google.gson.JsonSyntaxException ex) {
+            return false;
+        }
+    }
+
+    private boolean checkForUnknownAttributes(Event event) {
+        Object[] data = event.getData();
+        if (isCustomMappingEnabled) {
+            if (streamAttributes.size() > event.getData().length) {
+                return true;
+            }
+        } else {
+            for (int i = 0; i < data.length; i++) {
+                if (data[i] == null) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -380,31 +377,5 @@ public class JsonInputMapper extends SourceMapper {
         public void setMapping(String mapping) {
             this.mapping = mapping;
         }
-    }
-
-    private boolean isJsonValid(String jsonInString) {
-        Gson gson = new Gson();
-        try {
-            gson.fromJson(jsonInString, Object.class);
-            return true;
-        } catch (com.google.gson.JsonSyntaxException ex) {
-            return false;
-        }
-    }
-
-    private boolean checkForUnknownAttributes(Event event) {
-        Object[] data = event.getData();
-        if (isCustomMappingEnabled) {
-            if (streamAttributes.size() > event.getData().length) {
-                return true;
-            }
-        } else {
-            for (int i = 0; i < data.length; i++) {
-                if (data[i] == null) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }
