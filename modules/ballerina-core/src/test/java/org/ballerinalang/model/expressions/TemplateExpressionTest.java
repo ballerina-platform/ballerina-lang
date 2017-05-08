@@ -59,9 +59,9 @@ public class TemplateExpressionTest {
     }
 
     @Test(description = "Test JSON backtick expression definition")
-    public void testBacktickJSONExpr() {
+    public void testJSONInit() {
         BValue[] args = { new BString("WSO2")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickJSONTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJSONInit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"name\":\"John\"}";
@@ -69,9 +69,9 @@ public class TemplateExpressionTest {
     }
 
     @Test(description = "Test JSON backtick expression with string variable reference")
-    public void testBacktickJSONVariableAccessExpr() {
+    public void testStringVariableAccessInJSONInit() {
         BValue[] args = { new BString("WSO2")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickStringVariableAccessJSON", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStringVariableAccessInJSONInit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"name\":\"WSO2\"}";
@@ -89,9 +89,9 @@ public class TemplateExpressionTest {
     }
 
     @Test(description = "Test JSON backtick expression with integer variable reference")
-    public void testBacktickJSONIntegerVariableAccessExpr() {
+    public void testIntegerVariableAccessInJSONInit() {
         BValue[] args = { new BInteger(11)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickIntegerVariableAccessJSON", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntegerVariableAccessInJSONInit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"age\":11}";
@@ -99,9 +99,9 @@ public class TemplateExpressionTest {
     }
 
     @Test(description = "Test JSON backtick expression with embedding full JSON")
-    public void testBacktickJSONFullReplacement() {
+    public void testEnrichFullJSON() {
         BValue[] args = { new BInteger(11)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backticJSONEnrichFullJSON", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testEnrichFullJSON", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected =  "{\"name\":\"John\"}";
@@ -109,9 +109,9 @@ public class TemplateExpressionTest {
     }
 
     @Test(description = "Test JSON backtick expression with multiple variables embedding full JSON")
-    public void testBacktickMultipleVariablesFullJSONReplacement() {
+    public void testMultipleVariablesInJSONInit() {
         BValue[] args = { new BString("Chanaka"), new BString("Fernando")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backticJSONMultipleVariables", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testMultipleVariablesInJSONInit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected =  "{\"name\":{\"first_name\":\"Chanaka\",\"last_name\":\"Fernando\"}}";
@@ -129,8 +129,8 @@ public class TemplateExpressionTest {
 //    }
 
     @Test(description = "Test JSON backtick expression with int and string arrays variable reference")
-    public void testBacktickJSONArrayVariableAccess() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickJSONArrayVariableAccess");
+    public void testArrayVariableAccessInJSONInit() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testArrayVariableAccessInJSONInit");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"strIndex0\":\"value0\",\"intIndex2\":2,\"strIndex2\":\"value2\"}";
@@ -147,8 +147,8 @@ public class TemplateExpressionTest {
     }
 
     @Test(description = "Test JSON backtick expression with map variable reference")
-    public void testBacktickJSONMapVariableAccess() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickJSONMapVariableAccess");
+    public void testMapVariableAccessInJSONInit() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testMapVariableAccessInJSONInit");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"val1\":\"value0\",\"val2\":1}";
@@ -165,8 +165,8 @@ public class TemplateExpressionTest {
     }
 
     @Test(description = "Test JSON backtick expression with boolean and integers as string values")
-    public void testBacktickJSONBooleanIntegerValuesAsStrings() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickJSONBooleanIntegerValuesAsStrings");
+    public void testBooleanIntegerValuesAsStringsInJSONInit() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBooleanIntegerValuesAsStringsInJSONInit");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"intStrIndex0\":\"0\",\"intStrIndex1\":\"1\","

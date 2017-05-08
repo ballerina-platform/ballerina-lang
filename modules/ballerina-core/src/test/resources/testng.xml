@@ -38,7 +38,7 @@ under the License.
         </classes>
     </test>
     <!-- Ballerina Test Cases - Non Blocking. -->
-    <test name="ballerina-lang-test-suite-non-blocking" preserve-order="true" parallel="false">
+    <!-- <test name="ballerina-lang-test-suite-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true" />
         <packages>
             <package name="org.ballerinalang.model.values"/>
@@ -52,7 +52,7 @@ under the License.
         <classes>
             <class name="org.ballerinalang.TestConfigurationUtil" />
         </classes>
-    </test>
+    </test> -->
 
     <!-- Parser Level Test Cases -->
     <test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">
@@ -73,7 +73,7 @@ under the License.
         </classes>
     </test>
     <!-- Native Function Related Test Cases. -->
-    <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
+    <!-- <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true" />
         <packages>
             <package name="org.ballerinalang.core.nativeimpl.functions"/>
@@ -81,7 +81,7 @@ under the License.
         <classes>
             <class name="org.ballerinalang.TestConfigurationUtil" />
         </classes>
-    </test>
+    </test> -->
 
 
     <test name="ballerina-service-test">
@@ -94,14 +94,14 @@ under the License.
         </classes>
     </test>
     <!-- Non Blocking Test Cases -->
-    <test name="ballerina-service-test-non-blocking">
+   <!--  <test name="ballerina-service-test-non-blocking">
         <parameter name="enableNonBlocking" value="true" />
         <classes>
             <class name="org.ballerinalang.TestConfigurationUtil" />
             <class name="org.ballerinalang.service.ServiceVariableTest"/>
             <class name="org.ballerinalang.service.JMSServiceTest" />
         </classes>
-    </test>
+    </test> -->
 
     <!-- Debugger TestCases -->
 
@@ -122,7 +122,7 @@ under the License.
         </classes>
     </test>
     <!-- Non Blocking Test Cases -->
-    <test name="ballerina-any-type-test-suite-non-blocking">
+    <!-- <test name="ballerina-any-type-test-suite-non-blocking">
         <parameter name="enableNonBlocking" value="true" />
         <classes>
             <class name="org.ballerinalang.TestConfigurationUtil" />
@@ -130,5 +130,5 @@ under the License.
             <class name="org.ballerinalang.model.any.BAnyTypeInvalidCastError"/>
             <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>
         </classes>
-    </test>
+    </test> -->
 </suite>

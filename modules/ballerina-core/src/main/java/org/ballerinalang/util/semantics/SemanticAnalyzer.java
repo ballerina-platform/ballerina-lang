@@ -70,14 +70,18 @@ import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.JSONArrayInitExpr;
+import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
+import org.ballerinalang.model.expressions.JSONInitExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
@@ -86,7 +90,6 @@ import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -112,15 +115,12 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BExceptionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BMessageType;
 import org.ballerinalang.model.types.BNullType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.BXMLType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeEdge;
@@ -131,6 +131,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
+import org.ballerinalang.natives.typemappers.NativeCastMapper;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.LinkerException;
 import org.ballerinalang.util.exceptions.SemanticErrors;
@@ -138,6 +139,7 @@ import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -860,17 +862,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         
         //todo any type support for RefTypeInitExpr
         if (rExpr instanceof RefTypeInitExpr) {
-            RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
-
-            if (varBType instanceof BMapType) {
-                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                varDefStmt.setRExpr(refTypeInitExpr);
-            } else if (varBType instanceof StructDef) {
-                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                varDefStmt.setRExpr(refTypeInitExpr);
-            }
-
-            refTypeInitExpr.setInheritedType(varBType);
+            RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, varBType);
+            varDefStmt.setRExpr(refTypeInitExpr);
             refTypeInitExpr.accept(this);
             return;
         }
@@ -952,17 +945,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         
         //todo any type support for RefTypeInitExpr
         if (rExpr instanceof RefTypeInitExpr) {
-            RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
-
-            if (lExprType instanceof BMapType) {
-                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                assignStmt.setRExpr(refTypeInitExpr);
-            } else if (lExprType instanceof StructDef) {
-                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                assignStmt.setRExpr(refTypeInitExpr);
-            }
-
-            refTypeInitExpr.setInheritedType(lExprType);
+            RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lExprType);
+            assignStmt.setRExpr(refTypeInitExpr);
             refTypeInitExpr.accept(this);
             return;
         }
@@ -1325,14 +1309,27 @@ public class SemanticAnalyzer implements NodeVisitor {
                                 funcIExpr.getCallableUnit().getName());
                     }
                 }
-
-                if ((typesOfReturnExprs[i] == BTypes.typeNull && BTypes.isValueType(returnParamsOfCU[i].getType())) ||
-                    (returnParamsOfCU[i].getType() != BTypes.typeAny && typesOfReturnExprs[i] != BTypes.typeNull &&
-                    !typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType()))) {
-                    BLangExceptionHelper.throwSemanticError(returnStmt,
-                            SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, returnParamsOfCU[i].getType(),
-                            typesOfReturnExprs[i]);
+                BType targetType = returnParamsOfCU[i].getType();
+                if (NativeCastMapper.isCompatible(returnParamsOfCU[i].getType(), typesOfReturnExprs[i])) {
+                    continue;
                 }
+                
+                // Check whether implicit casting is possible. Create a casting expression, if so.
+                Expression sourceExpr = returnArgExprs[i];
+                TypeEdge newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(sourceExpr.getType(), 
+                        targetType, null);
+                if (newEdge != null) {
+                    TypeCastExpression newExpr = new TypeCastExpression(sourceExpr.getNodeLocation(), sourceExpr, 
+                            targetType);
+                    newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
+                    newExpr.accept(this);
+                    returnArgExprs[i] = newExpr;
+                    continue;
+                }
+                
+                BLangExceptionHelper.throwSemanticError(returnStmt,
+                    SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, returnParamsOfCU[i].getType(),
+                    typesOfReturnExprs[i]);
             }
         }
     }
@@ -1631,28 +1628,58 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         handleArrayType(arrayMapAccessExpr);
     }
-
+    
     @Override
-    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
-        visitStructField(structFieldAccessExpr, currentScope);
+    public void visit(FieldAccessExpr fieldAccessExpr) {
+        visitField(fieldAccessExpr, currentScope);
     }
+    
+    @Override
+    public void visit(JSONFieldAccessExpr jsonFieldExpr) {
 
+    }
+    
     @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
-        BType inheritedType = refTypeInitExpr.getInheritedType();
-        if (BTypes.isValueType(inheritedType) || inheritedType instanceof BArrayType ||
-                inheritedType instanceof BXMLType || inheritedType instanceof BConnectorType) {
-            BLangExceptionHelper.throwSemanticError(refTypeInitExpr, SemanticErrors.REF_TYPE_INTI_NOT_ALLOWED_HERE);
-        }
+        visitMapJsonInitExpr(refTypeInitExpr);
+    }
+    
+    @Override
+    public void visit(MapInitExpr mapInitExpr) {
+        visitMapJsonInitExpr(mapInitExpr);
+    }
+    
+    @Override
+    public void visit(JSONInitExpr jsonInitExpr) {
+        visitMapJsonInitExpr(jsonInitExpr);
+    }
+    
+    @Override
+    public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
+        BType inheritedType = jsonArrayInitExpr.getInheritedType();
+        jsonArrayInitExpr.setType(inheritedType);
 
-        Expression[] argExprs = refTypeInitExpr.getArgExprs();
-        if (argExprs.length == 0) {
-            refTypeInitExpr.setType(inheritedType);
+        Expression[] argExprs = jsonArrayInitExpr.getArgExprs();
+        
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression argExpr = argExprs[i];
+            if (argExpr instanceof RefTypeInitExpr) {
+                argExpr = getNestedInitExpr(argExpr, inheritedType);
+                argExprs[i] = argExpr;
+            }
+            visitSingleValueExpr(argExpr);
 
-        } else if (inheritedType instanceof BJSONType || inheritedType instanceof BMessageType ||
-                inheritedType instanceof BExceptionType) {
-            // If there are arguments, then only Structs and Map types are supported.
-            BLangExceptionHelper.throwSemanticError(refTypeInitExpr, SemanticErrors.STRUCT_MAP_INIT_NOT_ALLOWED);
+            // check the type compatibility of the value.
+            BType argType = argExpr.getType();
+            if (BTypes.isValueType(argType) || NativeCastMapper.isCompatible(BTypes.typeJSON, argType)) {
+                continue;
+            }
+            TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, argExpr);
+            if (typeCastExpr == null) {
+                BLangExceptionHelper.throwSemanticError(jsonArrayInitExpr, 
+                    SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, argExpr.getType(), BTypes.typeJSON);
+            }
+            argExprs[i] = typeCastExpr;
         }
     }
 
@@ -1699,10 +1726,15 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
-        BType inheritedType = arrayInitExpr.getInheritedType();
-        if (!(inheritedType instanceof BArrayType)) {
+        if (!(arrayInitExpr.getInheritedType() instanceof BArrayType)) {
             BLangExceptionHelper.throwSemanticError(arrayInitExpr, SemanticErrors.ARRAY_INIT_NOT_ALLOWED_HERE);
         }
+
+        visitArrayInitExpr(arrayInitExpr);
+    }
+    
+    private void visitArrayInitExpr(ArrayInitExpr arrayInitExpr) {
+        BType inheritedType = arrayInitExpr.getInheritedType();
 
         arrayInitExpr.setType(inheritedType);
         Expression[] argExprs = arrayInitExpr.getArgExprs();
@@ -1713,19 +1745,24 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType expectedElementType = ((BArrayType) inheritedType).getElementType();
 
         for (int i = 0; i < argExprs.length; i++) {
-            visitSingleValueExpr(argExprs[i]);
+            Expression argExpr = argExprs[i];
+            if (argExpr instanceof RefTypeInitExpr) {
+                ((RefTypeInitExpr) argExpr).setInheritedType(expectedElementType);
+                argExpr = getNestedInitExpr(argExpr, expectedElementType);
+                argExprs[i] = argExpr;
+            } 
 
-            // Types are defined only once, hence the following object equal should work.
-            if ((argExprs[i].getType() == BTypes.typeNull && BTypes.isValueType(expectedElementType)) ||
-                    (argExprs[i].getType() != BTypes.typeNull && argExprs[i].getType() != expectedElementType)) {
-                TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExprs[i]);
-                if (typeCastExpr == null) {
-                    BLangExceptionHelper.throwSemanticError(arrayInitExpr,
-                            SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                            argExprs[i].getType(), expectedElementType);
-                }
-                argExprs[i] = typeCastExpr;
+            visitSingleValueExpr(argExpr);
+
+            if (NativeCastMapper.isCompatible(expectedElementType, argExpr.getType())) {
+                continue;
             }
+            TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExpr);
+            if (typeCastExpr == null) {
+                BLangExceptionHelper.throwSemanticError(arrayInitExpr, 
+                    SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, argExpr.getType(), expectedElementType);
+            }
+            argExprs[i] = typeCastExpr;
         }
     }
 
@@ -1743,7 +1780,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         StructDef structDef = (StructDef) inheritedType;
         for (Expression argExpr : argExprs) {
-            MapStructInitKeyValueExpr keyValueExpr = (MapStructInitKeyValueExpr) argExpr;
+            KeyValueExpr keyValueExpr = (KeyValueExpr) argExpr;
             Expression keyExpr = keyValueExpr.getKeyExpr();
             if (!(keyExpr instanceof VariableRefExpr)) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INVALID_FIELD_NAME_STRUCT_INIT);
@@ -1765,9 +1802,16 @@ public class SemanticAnalyzer implements NodeVisitor {
             VariableDef varDef = (VariableDef) varDefSymbol;
             varRefExpr.setVariableDef(varDef);
             Expression valueExpr = keyValueExpr.getValueExpr();
-            visitSingleValueExpr(valueExpr);
+            
+            BType structFieldType = varDef.getType();
+            if (valueExpr instanceof RefTypeInitExpr) {
+                valueExpr = getNestedInitExpr(valueExpr, structFieldType);
+                keyValueExpr.setValueExpr(valueExpr);
+            }
+            
+            valueExpr.accept(this);
 
-            if (!valueExpr.getType().equals(varDef.getType()) && (varDef.getType() != BTypes.typeAny)) {
+            if (!NativeCastMapper.isCompatible(structFieldType, valueExpr.getType())) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
             }
@@ -1775,32 +1819,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(MapInitExpr mapInitExpr) {
-        mapInitExpr.setType(mapInitExpr.getInheritedType());
-        Expression[] argExprs = mapInitExpr.getArgExprs();
-        if (argExprs.length == 0) {
-            return;
-        }
-
-        for (Expression argExpr : argExprs) {
-            MapStructInitKeyValueExpr keyValueExpr = (MapStructInitKeyValueExpr) argExpr;
-            Expression keyExpr = keyValueExpr.getKeyExpr();
-            visitSingleValueExpr(keyExpr);
-
-            if (keyExpr.getType() != BTypes.typeString) {
-                BLangExceptionHelper.throwSemanticError(mapInitExpr,
-                        SemanticErrors.INVALID_TYPE_IN_MAP_INDEX_EXPECTED_STRING, keyExpr.getType());
-            }
-
-            visitSingleValueExpr(keyValueExpr.getValueExpr());
-        }
-    }
-
-    @Override
     public void visit(BacktickExpr backtickExpr) {
         // In this case, type of the backtickExpr should be either xml or json
         BType inheritedType = backtickExpr.getInheritedType();
-        if (inheritedType != BTypes.typeJSON && inheritedType != BTypes.typeXML) {
+        if (inheritedType != BTypes.typeXML) {
             BLangExceptionHelper.throwSemanticError(backtickExpr, SemanticErrors.INCOMPATIBLE_TYPES_EXPECTED_JSON_XML);
         }
         backtickExpr.setType(inheritedType);
@@ -1874,7 +1896,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(MapStructInitKeyValueExpr keyValueExpr) {
+    public void visit(KeyValueExpr keyValueExpr) {
 
     }
 
@@ -1915,11 +1937,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 sourceType, targetType);
         }
         
-        // Check whether this is a native conversion
-        if (sourceType == BTypes.typeAny || targetType == BTypes.typeAny || (BTypes.isValueType(sourceType) &&
-                BTypes.isValueType(targetType))) {
-            TypeEdge newEdge = null;
-            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+        TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+        if (newEdge != null) {
             typeCastExpression.setEvalFunc(newEdge.getTypeMapperFunction());
         } else {
             linkTypeMapper(typeCastExpression, sourceType, targetType);
@@ -1978,11 +1997,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void handleArrayType(ArrayMapAccessExpr arrayMapAccessExpr) {
-        VariableRefExpr arrayMapVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
+        ReferenceExpr arrayMapVarRefExpr = (ReferenceExpr) arrayMapAccessExpr.getRExpr();
 
         // Handle the arrays type
         if (arrayMapVarRefExpr.getType() instanceof BArrayType) {
-
             // Check the type of the index expression
             for (Expression indexExpr : arrayMapAccessExpr.getIndexExprs()) {
                 visitSingleValueExpr(indexExpr);
@@ -1991,16 +2009,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                             indexExpr.getType());
                 }
             }
-
             // Set type of the arrays access expression
             BType expectedType =  arrayMapVarRefExpr.getType();
             for (int i = 0; i < arrayMapAccessExpr.getIndexExprs().length; i++) {
                 expectedType =  ((BArrayType) expectedType).getElementType();
             }
             arrayMapAccessExpr.setType(expectedType);
-
+            
         } else if (arrayMapVarRefExpr.getType() instanceof BMapType) {
-
             // Check the type of the index expression
             Expression indexExpr = arrayMapAccessExpr.getIndexExprs()[0];
             visitSingleValueExpr(indexExpr);
@@ -2008,11 +2024,10 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_STRING_MAP_INDEX,
                         indexExpr.getType());
             }
-
             // Set type of the map access expression
             BMapType typeOfMap = (BMapType) arrayMapVarRefExpr.getType();
             arrayMapAccessExpr.setType(typeOfMap.getElementType());
-
+            
         } else {
             BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr,
                     SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, arrayMapVarRefExpr.getType());
@@ -2127,8 +2142,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     private String getVarNameFromExpression(Expression expr) {
         if (expr instanceof ArrayMapAccessExpr) {
             return ((ArrayMapAccessExpr) expr).getSymbolName().getName();
-        } else if (expr instanceof StructFieldAccessExpr) {
-            return getVarNameFromExpression(((StructFieldAccessExpr) expr).getVarRef());
+        } else if (expr instanceof FieldAccessExpr) {
+            return getVarNameFromExpression(((FieldAccessExpr) expr).getVarRef());
         } else {
             return ((VariableRefExpr) expr).getSymbolName().getName();
         }
@@ -2178,8 +2193,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             // for right side expressions.
             if (lExpr instanceof ArrayMapAccessExpr) {
                 ((ArrayMapAccessExpr) lExpr).setLHSExpr(true);
-            } else if (lExpr instanceof StructFieldAccessExpr) {
-                ((StructFieldAccessExpr) lExpr).setLHSExpr(true);
+            } else if (lExpr instanceof FieldAccessExpr) {
+                ((FieldAccessExpr) lExpr).setLHSExpr(true);
             }
 
             lExpr.accept(this);
@@ -2505,17 +2520,17 @@ public class SemanticAnalyzer implements NodeVisitor {
                 SemanticErrors.INVALID_OPERATION_OPERATOR_NOT_DEFINED, unaryExpr.getOperator(), rExprType);
     }
 
-    private void visitStructField(StructFieldAccessExpr structFieldAccessExpr, SymbolScope currentScope) {
-        ReferenceExpr varRefExpr = structFieldAccessExpr.getVarRef();
+    private void visitField(FieldAccessExpr fieldAccessExpr, SymbolScope enclosingScope) {
+        ReferenceExpr varRefExpr = (ReferenceExpr) fieldAccessExpr.getVarRef();
         SymbolName symbolName = varRefExpr.getSymbolName();
-        BLangSymbol fieldSymbol = currentScope.resolve(symbolName);
+        BLangSymbol fieldSymbol = enclosingScope.resolve(symbolName);
 
         if (fieldSymbol == null) {
-            if (currentScope instanceof StructDef) {
-                BLangExceptionHelper.throwSemanticError(structFieldAccessExpr, SemanticErrors.UNKNOWN_FIELD_IN_STRUCT,
-                        symbolName.getName(), ((StructDef) currentScope).getName());
+            if (enclosingScope instanceof StructDef) {
+                BLangExceptionHelper.throwSemanticError(fieldAccessExpr, SemanticErrors.UNKNOWN_FIELD_IN_STRUCT,
+                        symbolName.getName(), ((StructDef) enclosingScope).getName());
             } else {
-                BLangExceptionHelper.throwSemanticError(structFieldAccessExpr, SemanticErrors.STRUCT_NOT_FOUND,
+                BLangExceptionHelper.throwSemanticError(fieldAccessExpr, SemanticErrors.UNDEFINED_SYMBOL,
                         symbolName.getName());
             }
         }
@@ -2526,39 +2541,164 @@ public class SemanticAnalyzer implements NodeVisitor {
                     symbolName);
         }
         VariableDef varDef = (VariableDef) fieldSymbol;
-        BType exprType;
+        BType exprType = varDef.getType();
         
-
         /* Get the actual var representation of this field, and semantically analyze. This will check for semantic
-         * errors of arrays/map accesses, used in this struct field.
+         * errors of arrays/map accesses, used in this field.
          * eg: in dpt.employee[2].name , below will check for semantics of 'employee[2]',
          * treating them as individual arrays/map variables.
          */
+        
         if (varRefExpr instanceof ArrayMapAccessExpr) {
             Expression rExpr = ((ArrayMapAccessExpr) varRefExpr).getRExpr();
-            ((VariableRefExpr) rExpr).setVariableDef(varDef);
-
-            exprType = varDef.getType();
+            if (rExpr instanceof VariableRefExpr) {
+                ((VariableRefExpr) rExpr).setVariableDef(varDef);
+            }
             if (exprType instanceof BArrayType) {
                 exprType = ((BArrayType) varDef.getType()).getElementType();
             }
             handleArrayType((ArrayMapAccessExpr) varRefExpr);
         } else {
             ((VariableRefExpr) varRefExpr).setVariableDef(varDef);
-            exprType = (varDef).getType();
         }
 
-        // Go to the referenced field of this struct
-        StructFieldAccessExpr fieldExpr = structFieldAccessExpr.getFieldExpr();
-        if (fieldExpr != null) {
-            if (!(exprType instanceof StructDef)) {
-                BLangExceptionHelper.throwSemanticError(structFieldAccessExpr, SemanticErrors.MUST_BE_STRUCT_TYPE,
-                        symbolName.getName());
-            }
-            visitStructField(fieldExpr, ((StructDef) exprType));
+        // Go to the child field
+        FieldAccessExpr fieldExpr = (FieldAccessExpr) fieldAccessExpr.getFieldExpr();
+        if (fieldExpr == null) {
+            return;
+        }
+        
+        if (exprType instanceof StructDef) {
+            visitStructAccessExpr(fieldExpr, exprType);
+        } else if (exprType  instanceof BJSONType) {
+            visitJSONAccessExpr(fieldAccessExpr, fieldExpr);
+        } else if (exprType instanceof BMapType) {
+            visitMapAccessExpr(fieldAccessExpr, varRefExpr, fieldExpr, enclosingScope);
+        } else if (exprType instanceof BArrayType) {
+            visitArrayAccessExpr(fieldAccessExpr, varRefExpr, fieldExpr, exprType, enclosingScope);
+        } else {
+            BLangExceptionHelper.throwSemanticError(fieldAccessExpr, 
+                    SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, exprType);
         }
     }
+    
+    /**
+     * Visit a struct and its fields and semantically validate the field expression.
+     * 
+     * @param fieldExpr field expression to validate
+     * @param exprType Struct definition
+     */
+    private void visitStructAccessExpr(FieldAccessExpr fieldExpr, BType exprType) {
+        Expression fieldVar = fieldExpr.getVarRef();
+        
+        // Field of a struct is always a variable reference.
+        if (fieldVar instanceof BasicLiteral) {
+            String varName = ((BasicLiteral) fieldVar).getBValue().stringValue();
+            VariableRefExpr varRef = new VariableRefExpr(fieldVar.getNodeLocation(), varName);
+            fieldExpr.setVarRef(varRef);
+        }
+        
+        visitField(fieldExpr, ((StructDef) exprType));
+    }
+    
+    /**
+     * Visits a JSON access expression. Rewrites the tree by replacing the {@link FieldAccessExpr} 
+     * with a {@link JSONFieldAccessExpr}.
+     * 
+     * @param parentExpr Current expression
+     * @param fieldExpr Field access expression of the current expression
+     */
+    private void visitJSONAccessExpr(FieldAccessExpr parentExpr, FieldAccessExpr fieldExpr) {
+        if (fieldExpr == null) {
+            return;
+        }
+        
+        FieldAccessExpr currentFieldExpr;
+        FieldAccessExpr nextFieldExpr = fieldExpr.getFieldExpr();
+        if (fieldExpr instanceof JSONFieldAccessExpr) {
+            currentFieldExpr = fieldExpr;
+        } else {
+            Expression varRefExpr = fieldExpr.getVarRef();
+            varRefExpr.accept(this);
+            currentFieldExpr = new JSONFieldAccessExpr(fieldExpr.getNodeLocation(), varRefExpr, nextFieldExpr);
+        }
+        parentExpr.setFieldExpr(currentFieldExpr);
+        visitJSONAccessExpr(currentFieldExpr, nextFieldExpr);
+    }
+    
+    /**
+     * Visits a map access expression. Rewrites the tree by replacing the {@link FieldAccessExpr} with an 
+     * {@link ArrayMapAccessExpr}. Then revisits the rewritten branch, and check for semantic.
+     * 
+     * @param parentExpr Current expression
+     * @param varRefExpr VariableRefExpression of the current expression
+     * @param fieldExpr Field access expression of the current expression
+     * @param enclosingScope Enclosing scope
+     */
+    private void visitMapAccessExpr(FieldAccessExpr parentExpr, ReferenceExpr varRefExpr, FieldAccessExpr fieldExpr, 
+            SymbolScope enclosingScope) {
+        Expression fieldVar = fieldExpr.getVarRef();
+        
+        // map access can only be at the end of a field access expression chain. Because maps are of any-type. Hence
+        // cannot get a child field of any-type, without casting.
+        // TODO: Improve this once type-bound maps are implemented
+        if (fieldExpr.getFieldExpr() != null) {
+            BLangExceptionHelper.throwSemanticError(fieldExpr, SemanticErrors.INDEXING_NOT_SUPPORTED_FOR_MAP_ELEMENT, 
+                    BTypes.typeAny);
+        }
+        
+        Expression indexExpr[] = new Expression[]{fieldVar};
+        
+        ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
+        builder.setVarName(varRefExpr.getSymbolName());
+        builder.setIndexExprs(indexExpr);
+        builder.setArrayMapVarRefExpr(varRefExpr);
+        builder.setNodeLocation(fieldExpr.getNodeLocation());
+        ArrayMapAccessExpr accessExpr = builder.build();
+        
+        parentExpr.setFieldExpr(fieldExpr.getFieldExpr());
+        parentExpr.setVarRef(accessExpr);
+        accessExpr.setLHSExpr(parentExpr.isLHSExpr());
+        visitField(parentExpr, enclosingScope);
+    }
 
+    /**
+     * Visits an array access expression. Rewrites the tree by replacing the {@link FieldAccessExpr} with an 
+     * {@link ArrayMapAccessExpr}. Then revisits the rewritten branch, and check for semantic.
+     * 
+     * @param parentExpr Current expression
+     * @param varRefExpr VariableRefExpression of the current expression
+     * @param fieldExpr Field access expression of the current expression
+     * @param exprType Type to which the expression evaluates
+     * @param enclosingScope Enclosing scope
+     */
+    private void visitArrayAccessExpr(FieldAccessExpr parentExpr, ReferenceExpr varRefExpr, FieldAccessExpr fieldExpr, 
+            BType exprType, SymbolScope enclosingScope) {
+        int dimensions = ((BArrayType) exprType).getDimensions();
+        List<Expression> indexExprs = new ArrayList<Expression>();
+        
+        for (int i = 0; i < dimensions; i++) {
+            if (fieldExpr == null) {
+                break;
+            }
+            indexExprs.add(fieldExpr.getVarRef());
+            fieldExpr = (FieldAccessExpr) fieldExpr.getFieldExpr();
+        }
+        Collections.reverse(indexExprs);
+        
+        ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
+        builder.setVarName(varRefExpr.getSymbolName());
+        builder.setIndexExprs(indexExprs.toArray(new Expression[0]));
+        builder.setArrayMapVarRefExpr(varRefExpr);
+        builder.setNodeLocation(parentExpr.getNodeLocation());
+
+        ArrayMapAccessExpr accessExpr = builder.build();
+        parentExpr.setFieldExpr(fieldExpr);
+        parentExpr.setVarRef(accessExpr);
+        accessExpr.setLHSExpr(parentExpr.isLHSExpr());
+        visitField(parentExpr, enclosingScope);
+    }
+    
     private void linkTypeMapper(TypeCastExpression typeCastExpression, BType sourceType, BType targetType) {
         TypeEdge newEdge = null;
         TypeMapper typeMapper;
@@ -2968,6 +3108,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             structMemAddrOffset = -1;
             currentScope = tmpScope;
         }
+        
+        // Add type mappers for each struct. This is done after defining all the fields of all the structs,
+        // since fields of structs are compared when adding type mappers.
+        for (StructDef structDef : structDefs) {
+            TypeLattice.addStructEdges(structDef, currentScope);
+        }
     }
     
     /**
@@ -3011,4 +3157,88 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
+    /**
+     * Recursively visits a nested init expression. Reconstruct the init expression with the
+     * specific init expression type, and replaces the generic {@link RefTypeInitExpr}.
+     * 
+     * @param valueExpr value expression
+     * @param fieldType Type of the current field
+     * @return reconstructed nested init expression
+     */
+    private RefTypeInitExpr getNestedInitExpr(Expression expr, BType fieldType) {
+        RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) expr;
+        if (refTypeInitExpr instanceof ArrayInitExpr) {
+            if (fieldType == BTypes.typeAny || fieldType == BTypes.typeMap) {
+                fieldType = BTypes.resolveType(new SimpleTypeName(BTypes.typeAny.getName(), true, 1), currentScope, 
+                        expr.getNodeLocation());
+            } else if (fieldType == BTypes.typeJSON) {
+                refTypeInitExpr = new JSONArrayInitExpr(refTypeInitExpr.getNodeLocation(), 
+                        refTypeInitExpr.getArgExprs());
+            }
+        } else {
+            // if the inherited type is any, then default this initializer to a map init expression
+            if (fieldType == BTypes.typeAny) {
+                fieldType = BTypes.typeMap;
+            }
+            if (fieldType == BTypes.typeMap) {
+                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+            } else if (fieldType == BTypes.typeJSON) {
+                refTypeInitExpr = new JSONInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+            } else if (fieldType instanceof StructDef) {
+                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+            }
+        }
+        refTypeInitExpr.setInheritedType(fieldType);
+        
+        return refTypeInitExpr;
+    }
+    
+    /**
+     * Visit and validate map/json initialize expression.
+     * 
+     * @param initExpr Expression to visit.
+     */
+    private void visitMapJsonInitExpr(RefTypeInitExpr initExpr) {
+        BType inheritedType = initExpr.getInheritedType();
+        initExpr.setType(inheritedType);
+        Expression[] argExprs = initExpr.getArgExprs();
+        
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression argExpr = argExprs[i];
+            KeyValueExpr keyValueExpr = (KeyValueExpr) argExpr;
+            Expression keyExpr = keyValueExpr.getKeyExpr();
+            
+            // In maps and json, key is always a string literal.
+            if (keyExpr instanceof VariableRefExpr) {
+                BString key = new BString(((VariableRefExpr) keyExpr).getVarName());
+                keyExpr = new BasicLiteral(keyExpr.getNodeLocation(), new SimpleTypeName(TypeConstants.STRING_TNAME),
+                        key);
+                keyValueExpr.setKeyExpr(keyExpr);
+            }
+            visitSingleValueExpr(keyExpr);
+
+            Expression valueExpr = keyValueExpr.getValueExpr();
+            if (valueExpr instanceof RefTypeInitExpr) {
+                valueExpr = getNestedInitExpr(valueExpr, inheritedType);
+                keyValueExpr.setValueExpr(valueExpr);
+            }
+            valueExpr.accept(this);
+            
+            if (inheritedType == BTypes.typeMap) {
+                continue;
+            }
+            
+            // for JSON init expr, check the type compatibility of the value.
+            BType valueType = valueExpr.getType();
+            if (BTypes.isValueType(valueType) || NativeCastMapper.isCompatible(BTypes.typeJSON, valueType)) {
+                continue;
+            }
+            TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, valueExpr);
+            if (typeCastExpr == null) {
+                BLangExceptionHelper.throwSemanticError(initExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
+                    valueExpr.getType(), BTypes.typeJSON);
+            }
+            argExprs[i] = typeCastExpr;
+        }
+    }
 }

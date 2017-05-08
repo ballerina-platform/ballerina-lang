@@ -1053,7 +1053,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null || ctx.getChild(0) == null) {
             return;
         }
-        modelBuilder.createStructFieldRefExpr(getCurrentLocation(ctx));
+        modelBuilder.createFieldRefExpr(getCurrentLocation(ctx));
     }
 
     @Override

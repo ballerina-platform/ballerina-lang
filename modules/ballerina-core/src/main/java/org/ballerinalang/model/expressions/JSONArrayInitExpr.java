@@ -17,27 +17,30 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.NodeExecutor;
+import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.values.BValue;
+
 
 /**
- * {@code ReferenceExpr} represents a variable reference in Ballerina.
+ * {@link JSONArrayInitExpr} represents a JSON array initializer expression.
+ * *
  *
- * @since 1.0.0
+ * @since 0.87
  */
-public interface ReferenceExpr extends Expression {
+public class JSONArrayInitExpr extends RefTypeInitExpr {
 
-    /**
-     * Return the name of the variable reference.
-     *
-     * @return  variable name
-     */
-    String getVarName();
+    public JSONArrayInitExpr(NodeLocation location, Expression[] argExprs) {
+        super(location, argExprs);
+    }
 
-    /**
-     * Get the symbol name of the reference expression.
-     * 
-     * @return  Symbolic name
-     */
-    SymbolName getSymbolName();
-    
+    @Override
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
+    }
 }

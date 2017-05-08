@@ -44,7 +44,6 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
-import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryExpression;
@@ -52,12 +51,13 @@ import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
@@ -65,7 +65,6 @@ import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
@@ -102,7 +101,6 @@ import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,7 +151,7 @@ public class BLangModelBuilder {
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     protected Stack<List<Expression>> exprListStack = new Stack<>();
     
-    protected Stack<List<MapStructInitKeyValueExpr>> mapStructKVListStack = new Stack<>();
+    protected Stack<List<KeyValueExpr>> mapStructKVListStack = new Stack<>();
     protected Stack<AnnotationAttachment> annonAttachmentStack = new Stack<>();
 
     // This variable keeps the package scope so that workers (and any global things) can be added to package scope
@@ -499,24 +497,19 @@ public class BLangModelBuilder {
     }
 
     public void createMapArrayVarRefExpr(NodeLocation location, String varName, int dimensions) {
-        SymbolName symName = new SymbolName(varName);
-        VariableRefExpr arrayVarRefExpr = new VariableRefExpr(location, varName);
+        FieldAccessExpr fieldExpr = null;
+        for (int i = 0; i <= dimensions; i++) {
+            Expression parent;
+            if (i == dimensions) {
+                parent = new VariableRefExpr(location, varName);
+            } else {
+                parent = exprStack.pop();
+            }
 
-        Expression[] indexExprs = new Expression[dimensions];
-        int i = 0;
-        while (i < dimensions) {
-            indexExprs[i++] = exprStack.pop();
+            FieldAccessExpr parentExpr = new FieldAccessExpr(location, parent, fieldExpr);
+            fieldExpr = parentExpr;
         }
-        checkArgExprValidity(location, Arrays.asList(indexExprs));
-
-        ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
-        builder.setVarName(symName);
-        builder.setIndexExprs(indexExprs);
-        builder.setArrayMapVarRefExpr(arrayVarRefExpr);
-        builder.setNodeLocation(location);
-
-        ArrayMapAccessExpr accessExpr = builder.build();
-        exprStack.push(accessExpr);
+        exprStack.push(fieldExpr);
     }
 
     public void createBinaryExpr(NodeLocation location, String opStr) {
@@ -691,8 +684,6 @@ public class BLangModelBuilder {
             argExprList = new ArrayList<>(0);
         }
 
-        checkArgExprValidity(location, argExprList);
-
         ArrayInitExpr arrayInitExpr = new ArrayInitExpr(location,
                 argExprList.toArray(new Expression[argExprList.size()]));
         exprStack.push(arrayInitExpr);
@@ -702,8 +693,8 @@ public class BLangModelBuilder {
         Expression valueExpr = exprStack.pop();
         Expression keyExpr = exprStack.pop();
 
-        List<MapStructInitKeyValueExpr> keyValueList = mapStructKVListStack.peek();
-        keyValueList.add(new MapStructInitKeyValueExpr(location, keyExpr, valueExpr));
+        List<KeyValueExpr> keyValueList = mapStructKVListStack.peek();
+        keyValueList.add(new KeyValueExpr(location, keyExpr, valueExpr));
     }
 
     public void startMapStructLiteral() {
@@ -711,8 +702,8 @@ public class BLangModelBuilder {
     }
 
     public void createMapStructLiteral(NodeLocation location) {
-        List<MapStructInitKeyValueExpr> keyValueExprList = mapStructKVListStack.pop();
-        for (MapStructInitKeyValueExpr argExpr : keyValueExprList) {
+        List<KeyValueExpr> keyValueExprList = mapStructKVListStack.pop();
+        for (KeyValueExpr argExpr : keyValueExprList) {
 
             if (argExpr.getKeyExpr() instanceof BacktickExpr) {
                 String errMsg = BLangExceptionHelper.constructSemanticError(location,
@@ -1413,26 +1404,47 @@ public class BLangModelBuilder {
     }
 
     /**
-     * Create an expression for accessing fields of user defined struct types.
+     * Create an expression for accessing fields, represented in the form of '<identifier>.<identifier>'.
      *
      * @param location Source location of the ballerina file
      */
-    public void createStructFieldRefExpr(NodeLocation location) {
+    public void createFieldRefExpr(NodeLocation location) {
         if (exprStack.size() < 2) {
             return;
         }
-        ReferenceExpr field = (ReferenceExpr) exprStack.pop();
-        StructFieldAccessExpr fieldExpr;
-        if (field instanceof StructFieldAccessExpr) {
-            fieldExpr = (StructFieldAccessExpr) field;
-        } else {
-            fieldExpr = new StructFieldAccessExpr(location, field.getSymbolName(), field);
+
+        // Accessing a field with syntax x.y.z means y and z are static field names, but x is a variable ref.
+        // Hence the varRefs are replaced with a basic literal, upto the very first element in the chain. 
+        // First element is treated as a variableRef.
+        Expression childExpr = exprStack.pop();
+        if (childExpr instanceof FieldAccessExpr) {
+            FieldAccessExpr fieldExpr = (FieldAccessExpr) childExpr;
+            Expression varRefExpr = fieldExpr.getVarRef();
+            if (varRefExpr instanceof VariableRefExpr) {
+                varRefExpr = new BasicLiteral(varRefExpr.getNodeLocation(), 
+                        new SimpleTypeName(TypeConstants.STRING_TNAME),
+                        new BString(((VariableRefExpr) varRefExpr).getVarName()));
+                fieldExpr.setVarRef(varRefExpr);
+            }
+        } else  {
+            if (childExpr instanceof VariableRefExpr) {
+                childExpr = new BasicLiteral(childExpr.getNodeLocation(), 
+                        new SimpleTypeName(TypeConstants.STRING_TNAME),
+                        new BString(((VariableRefExpr) childExpr).getVarName()));
+            }
+            childExpr = new FieldAccessExpr(location, childExpr);
         }
 
-        ReferenceExpr parent = (ReferenceExpr) exprStack.pop();
-        StructFieldAccessExpr parentExpr = new StructFieldAccessExpr(location, parent, fieldExpr);
-
-        exprStack.push(parentExpr);
+        Expression parentExpr = (ReferenceExpr) exprStack.pop();
+        Expression newParentExpr;
+        if (parentExpr instanceof FieldAccessExpr) {
+            FieldAccessExpr fieldOfParent = ((FieldAccessExpr) parentExpr).getFieldExpr();
+            fieldOfParent.setFieldExpr((FieldAccessExpr) childExpr);
+            newParentExpr = parentExpr;
+        } else {
+            newParentExpr = new FieldAccessExpr(location, parentExpr, (FieldAccessExpr) childExpr);
+        }
+        exprStack.push(newParentExpr);
     }
 
     protected ImportPackage getImportPackage(String pkgName) {

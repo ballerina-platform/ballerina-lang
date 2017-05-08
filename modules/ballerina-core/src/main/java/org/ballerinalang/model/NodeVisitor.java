@@ -33,14 +33,18 @@ import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.JSONArrayInitExpr;
+import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
+import org.ballerinalang.model.expressions.JSONInitExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
@@ -48,7 +52,6 @@ import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -190,8 +193,10 @@ public interface NodeVisitor {
     void visit(TypeCastExpression typeCastExpression);
 
     void visit(ArrayMapAccessExpr arrayMapAccessExpr);
-
-    void visit(StructFieldAccessExpr structAttributeAccessExpr);
+    
+    void visit(FieldAccessExpr structAttributeAccessExpr);
+    
+    void visit(JSONFieldAccessExpr jsonPathExpr);
 
     void visit(BacktickExpr backtickExpr);
 
@@ -202,10 +207,14 @@ public interface NodeVisitor {
     void visit(ConnectorInitExpr connectorInitExpr);
 
     void visit(StructInitExpr structInitExpr);
-
+    
     void visit(MapInitExpr mapInitExpr);
 
-    void visit(MapStructInitKeyValueExpr keyValueExpr);
+    void visit(JSONInitExpr jsonInitExpr);
+    
+    void visit(JSONArrayInitExpr jsonArrayInitExpr);
+
+    void visit(KeyValueExpr keyValueExpr);
 
     void visit(VariableRefExpr variableRefExpr);
 
@@ -227,5 +236,4 @@ public interface NodeVisitor {
     void visit(MainInvoker mainInvoker);
 
     void visit(WorkerVarLocation workerVarLocation);
-
 }

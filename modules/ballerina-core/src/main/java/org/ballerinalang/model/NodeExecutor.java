@@ -31,13 +31,16 @@ import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.JSONArrayInitExpr;
+import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
+import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
@@ -112,7 +115,9 @@ public interface NodeExecutor {
 
     BValue visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
-    BValue visit(StructFieldAccessExpr structAttributeAccessExpr);
+    BValue visit(FieldAccessExpr structAttributeAccessExpr);
+    
+    BValue visit(JSONFieldAccessExpr jsonPathExpr);
 
     BValue visit(ArrayInitExpr arrayInitExpr);
 
@@ -125,6 +130,10 @@ public interface NodeExecutor {
     BValue visit(StructInitExpr structInitExpr);
 
     BValue visit(MapInitExpr mapInitExpr);
+    
+    BValue visit(JSONInitExpr jsonInitExpr);
+    
+    BValue visit(JSONArrayInitExpr jsonArrayInitExpr);
 
     BValue visit(VariableRefExpr variableRefExpr);
 

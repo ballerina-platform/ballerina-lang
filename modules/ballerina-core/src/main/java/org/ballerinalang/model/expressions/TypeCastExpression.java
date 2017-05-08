@@ -26,7 +26,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * Class to hold the data related to type casting expression.
@@ -43,7 +43,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     private String packageName;
     private SymbolName typeMapperName;
     private TypeMapper typeMapper;
-    protected Function<BValue, BValue> evalFuncNewNew;
+    protected BiFunction<BValue, BType, BValue> evalFunc;
     private int retuningBranchID;
     private boolean hasReturningBranch;
 
@@ -59,12 +59,12 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         this.typeName = typeName;
     }
 
-    public Function<BValue, BValue> getEvalFunc() {
-        return evalFuncNewNew;
+    public BiFunction<BValue, BType, BValue> getEvalFunc() {
+        return evalFunc;
     }
 
-    public void setEvalFunc(Function<BValue, BValue> evalFuncNewNew) {
-        this.evalFuncNewNew = evalFuncNewNew;
+    public void setEvalFunc(BiFunction<BValue, BType, BValue> evalFunc) {
+        this.evalFunc = evalFunc;
     }
 
     public Expression getRExpr() {

@@ -32,7 +32,7 @@ public enum SemanticErrors {
     INCOMPATIBLE_TYPES_BOOLEAN_EXPECTED("incompatible.types.boolean.expected", "SEMANTIC_0007"),
     NO_STATEMENTS_WHILE_LOOP("no.statements.while.loop", "SEMANTIC_0008"),
     UNKNOWN_OPERATOR_IN_UNARY("unknown.operator.in.unary", "SEMANTIC_0009"),
-    REF_TYPE_INTI_NOT_ALLOWED_HERE("ref.type.inti.not.allowed.here", "SEMANTIC_0010"),
+    REF_TYPE_INTI_NOT_ALLOWED_HERE("ref.type.init.not.allowed.here", "SEMANTIC_0010"),
     STRUCT_MAP_INIT_NOT_ALLOWED("struct.map.init.not.allowed", "SEMANTIC_0011"),
     CONNECTOR_INIT_NOT_ALLOWED("connector.init.not.allowed", "SEMANTIC_0012"),
     ARRAY_INIT_NOT_ALLOWED_HERE("array.init.not.allowed.here", "SEMANTIC_0013"),
@@ -89,7 +89,8 @@ public enum SemanticErrors {
     INVALID_DEFAULT_VALUE("invalid.default.value", "SEMANTIC_0064"),
     INVALID_ATTRIBUTE_TYPE("invalid.attribute.type", "SEMANTIC_0065"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found", "SEMANTIC_0066"),
-    INCOMPATIBLE_ASSIGNMENT("incompatible.assignment", "SEMANTIC_0067");
+    INCOMPATIBLE_ASSIGNMENT("incompatible.assignment", "SEMANTIC_0067"),
+    INDEXING_NOT_SUPPORTED_FOR_MAP_ELEMENT("indexing.not.supported.map.element", "SEMANTIC_0068");
     
     private String errorMsgKey;
     private String errorCode;
