@@ -76,6 +76,7 @@ class SizingUtil {
         viewState.bBox.h = statement.height + viewState.components['drop-zone'].h;
 
         viewState.expression = textViewState.text;
+        viewState.fullExpression = expression;
         return viewState;
     }
 

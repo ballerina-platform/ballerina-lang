@@ -63,12 +63,12 @@ class StatementDecorator extends React.Component {
     }
 
 	onJumptoCodeLine() {
-			const {expression} = this.props;
+			const {viewState: {fullExpression}} = this.props;
 			const {renderingContext: {ballerinaFileEditor}} = this.context;
 
 			const container = ballerinaFileEditor._container;
 			$(container).find('.view-source-btn').trigger('click');
-			ballerinaFileEditor.getSourceView().jumpToLine({expression});
+			ballerinaFileEditor.getSourceView().jumpToLine({expression: fullExpression});
 	}
 
 	render() {
