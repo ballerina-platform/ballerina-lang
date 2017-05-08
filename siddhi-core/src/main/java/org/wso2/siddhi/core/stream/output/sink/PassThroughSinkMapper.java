@@ -33,10 +33,10 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
         namespace = "sinkMapper",
         description = "Pass-through mapper passed events (Event[]) through without any mapping or modifications.",
         examples = @Example(
-                value = "In the following example BarStream uses passThrough outputmapper which emit " +
-                        "Siddhi event directly without any transformation into sink.\n" +
-                        "@sink(type='inMemory', @map(type='passThrough'),\n" +
-                        "define stream BarStream (symbol string, price float, volume long);"
+                syntax = "@sink(type='inMemory', @map(type='passThrough'),\n" +
+                        "define stream BarStream (symbol string, price float, volume long);",
+                description = "In the following example BarStream uses passThrough outputmapper which emit " +
+                        "Siddhi event directly without any transformation into sink."
         )
 )
 public class PassThroughSinkMapper extends SinkMapper {

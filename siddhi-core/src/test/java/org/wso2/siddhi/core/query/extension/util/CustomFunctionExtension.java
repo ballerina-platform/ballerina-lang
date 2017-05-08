@@ -44,7 +44,10 @@ import java.util.Map;
                 description = "Returns the calculated sum value as a double or float.",
                 type = {DataType.DOUBLE, DataType.FLOAT}),
         examples = @Example(
-                value = "custom:plus(4, 6, 10) will return value 20 as total."
+                syntax = "from fooStream\n" +
+                        "select custom:plus(4, 6, 10) as total\n" +
+                        "insert into barStream",
+                description = "This will return value 20 as total."
         )
 )
 public class CustomFunctionExtension extends FunctionExecutor {

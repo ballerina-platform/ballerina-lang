@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.query.processor.stream.window;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -64,10 +63,17 @@ import java.util.Map;
         },
         examples = {
                 @Example(
-                        value = "timeBatch(20) for processing events arrived every 20 milliseconds."
-                ),
-                @Example(
-                        value = "timeBatch(2 min) for processing events arrived every 2 minutes."
+                        syntax = "define window cseEventWindow (symbol string, price float, volume int) " +
+                                "timeBatch(20) output all events;\n" +
+                                "@info(name = 'query0')\n" +
+                                "from cseEventStream\n" +
+                                "insert into cseEventWindow;\n" +
+                                "@info(name = 'query1')\n" +
+                                "from cseEventWindow\n" +
+                                "select symbol, sum(price) as price\n" +
+                                "insert all events into outputStream ;",
+                        description = "This will processing events arrived every 20 milliseconds" +
+                                " as a batch and out put all events."
                 )
         }
 )

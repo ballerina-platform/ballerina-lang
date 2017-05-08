@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -59,10 +58,17 @@ import java.util.Map;
                         type = {DataType.INT, DataType.LONG, DataType.TIME}),
         },
         examples = @Example(
-                value = "externalTime(eventTime,20) for processing events arrived within the last 20 milliseconds " +
-                        "from the eventTime\n" +
-                        "externalTime(eventTimestamp, 2 min) for processing events arrived within the last 2 minutes " +
-                        "from the eventTimestamp"
+                syntax = "define window cseEventWindow (symbol string, price float, volume int) " +
+                        "externalTime(eventTime, 20 sec) output expired events;\n" +
+                        "@info(name = 'query0')\n" +
+                        "from cseEventStream\n" +
+                        "insert into cseEventWindow;\n" +
+                        "@info(name = 'query1')\n" +
+                        "from cseEventWindow\n" +
+                        "select symbol, sum(price) as price\n" +
+                        "insert expired events into outputStream ;",
+                description = "processing events arrived within the last 20 seconds " +
+                        "from the eventTime and output expired events."
         )
 )
 public class ExternalTimeWindowProcessor extends WindowProcessor implements FindableProcessor {

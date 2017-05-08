@@ -47,13 +47,17 @@ import java.util.Map;
                 type = {DataType.BOOL}),
         examples = {
                 @Example(
-                        value = "instanceOfLong(123) returns false."
+                        syntax = "from fooStream\n" +
+                                "select instanceOfInteger(value) as state\n" +
+                                "insert into barStream;",
+                        description = "This will return true if the value field format is integer."
                 ),
                 @Example(
-                        value = "instanceOfLong(5667l) returns true."
-                ),
-                @Example(
-                        value = "instanceOfLong(56.67) returns false."
+                        syntax = "from fooStream\n" +
+                                "select instanceOfInteger(switchState) as state\n" +
+                                "insert into barStream;",
+                        description = "if the switchState = true then this will returns false as the value is an" +
+                                " instance of the boolean not a long."
                 )
         }
 )

@@ -39,8 +39,12 @@ import java.util.UUID;
                 description = "Returns a UUID string.",
                 type = {DataType.STRING}),
         examples = @Example(
-                value = "UUID() returns a34eec40-32c2-44fe-8075-7f4fde2e2dd8\n" +
-                        "The following converts a room number to string, introducing a message ID to each event.\n" +
+                syntax = "from TempStream\n" +
+                        "select convert(roomNo, 'string') as roomNo, temp, UUID() as messageID\n" +
+                        "insert into RoomTempStream;",
+                description = "This will converts a room number to string, introducing a message ID to each event as" +
+                        "UUID() returns a34eec40-32c2-44fe-8075-7f4fde2e2dd8\n" +
+                        "\n" +
                         "from TempStream\n" +
                         "select convert(roomNo, 'string') as roomNo, temp, UUID() as messageID\n" +
                         "insert into RoomTempStream;"

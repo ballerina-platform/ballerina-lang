@@ -62,8 +62,17 @@ import java.util.Map;
                         type = {DataType.INT})
         },
         examples = @Example(
-                value = "window.timeLength(2 sec, 10) holds the last 10 events that arrived during last 2 seconds " +
-                        "and gets updated for every event arrival and expiry."
+                syntax = "define stream cseEventStream (symbol string, price float, volume int);\n" +
+                        "define window cseEventWindow (symbol string, price float, volume int) " +
+                        "timeLength(2 sec, 10);\n" +
+                        "@info(name = 'query0')\n" +
+                        "from cseEventStream\n" +
+                        "insert into cseEventWindow;\n" +
+                        "@info(name = 'query1')\n" +
+                        "from cseEventWindow select symbol, price, volume\n" +
+                        "insert all events into outputStream;",
+                description = "window.timeLength(2 sec, 10) holds the last 10 events that arrived during " +
+                        "last 2 seconds and gets updated for every event arrival and expiry."
         )
 )
 public class TimeLengthWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {

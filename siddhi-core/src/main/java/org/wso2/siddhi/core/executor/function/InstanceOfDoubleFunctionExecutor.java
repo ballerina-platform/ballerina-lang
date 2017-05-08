@@ -47,13 +47,17 @@ import java.util.Map;
                 type = {DataType.BOOL}),
         examples = {
                 @Example(
-                        value = "instanceOfDouble(123) returns false"
+                        syntax = "from fooStream\n" +
+                                "select instanceOfDouble(value) as state\n" +
+                                "insert into barStream;",
+                        description = "This will return true if the value field format is double ex : 56.45."
                 ),
                 @Example(
-                        value = "instanceOfDouble(56.45) returns true"
-                ),
-                @Example(
-                        value = "instanceOfDouble(false) returns false"
+                        syntax = "from fooStream\n" +
+                                "select instanceOfDouble(switchState) as state\n" +
+                                "insert into barStream;",
+                        description = "if the switchState = true then this will returns false as the value is not an" +
+                                " instance of the double."
                 )
         }
 )

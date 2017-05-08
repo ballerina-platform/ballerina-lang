@@ -38,7 +38,10 @@ import java.util.Map;
                 description = "Returns the event count as a long.",
                 type = {DataType.LONG}),
         examples = @Example(
-                value = "count() will return the count of all the events."
+                syntax = "from fooStream#window.timeBatch(10 sec)\n" +
+                        "select count() as count\n" +
+                        "insert into barStream;",
+                description = "This will return the count of all the events for time batch in 10 seconds."
         )
 )
 public class CountAttributeAggregator extends AttributeAggregator {

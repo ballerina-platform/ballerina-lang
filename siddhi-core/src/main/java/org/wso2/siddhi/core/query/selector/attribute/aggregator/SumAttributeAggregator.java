@@ -47,11 +47,11 @@ import java.util.Map;
                 type = {DataType.LONG, DataType.DOUBLE}),
         examples = {
                 @Example(
-                        value = "sum(20) returns the sum of 20s as a long value for each event arrival and expiry."
-                ),
-                @Example(
-                        value = "sum(temp) returns the sum of all temp attributes based on each event arrival " +
-                                "and expiry."
+                        syntax = "from inputStream\n" +
+                                "select sum(volume) as sumOfVolume\n" +
+                                "insert into outputStream;",
+                        description = "This will returns the sum of volume values as a long value for each event " +
+                                "arrival and expiry."
                 )
         }
 )

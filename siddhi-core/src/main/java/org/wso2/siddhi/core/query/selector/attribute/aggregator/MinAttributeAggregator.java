@@ -43,7 +43,10 @@ import java.util.*;
                 description = "Returns the minimum value in the same type as the input.",
                 type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
         examples = @Example(
-                value = "min(temp) returns the minimum temp value recorded for all the events based on their " +
+                syntax = "from inputStream\n" +
+                        "select min(temp) as minTemp\n" +
+                        "insert into outputStream;",
+                description = "min(temp) returns the minimum temp value recorded for all the events based on their " +
                         "arrival and expiry."
         )
 )

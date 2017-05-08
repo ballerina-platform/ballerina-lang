@@ -60,20 +60,34 @@ import java.util.Map;
         },
         examples = {
                 @Example(
-                        value = "fooStream#log(\"INFO\", \"Sample Event :\", true), will log as INFO with the " +
-                                "message \"Sample Event :\" + fooStream:events."
+                        syntax = "from fooStream#log(\"INFO\", \"Sample Event :\", true)\n" +
+                                "select *\n" +
+                                "insert into barStream;",
+                        description = "This will log as INFO with the message \"Sample Event :\" + fooStream:events."
                 ),
                 @Example(
-                        value = "fooStream#log(\"Sample Event :\", true), default log level taken as INFO."
+                        syntax = "from fooStream#log(\"Sample Event :\", true)\n" +
+                                "select *\n" +
+                                "insert into barStream;",
+                        description = "This will logs with default log level as INFO."
                 ),
                 @Example(
-                        value = "fooStream#log(\"Sample Event :\", fasle), will only log message."
+                        syntax = "from fooStream#log(\"Sample Event :\", fasle)\n" +
+                                "select *\n" +
+                                "insert into barStream;",
+                        description = "This will only log message."
                 ),
                 @Example(
-                        value = "fooStream#log(true), will only log fooStream:events."
+                        syntax = "from fooStream#log(true)\n" +
+                                "select *\n" +
+                                "insert into barStream;",
+                        description = "This will only log fooStream:events."
                 ),
                 @Example(
-                        value = "fooStream#log(\"Sample Event :\"), will log message and fooStream:events."
+                        syntax = "from fooStream#log(\"Sample Event :\")\n" +
+                                "select *\n" +
+                                "insert into barStream;",
+                        description = "This will log message and fooStream:events."
                 )
         }
 )

@@ -46,11 +46,20 @@ import java.util.Map;
                         DataType.STRING, DataType.BOOL, DataType.OBJECT}),
         examples = {
                 @Example(
-                        value = "coalesce('123', null, '789') returns 123"),
+                        syntax = "from fooStream\n" +
+                                "select coalesce('123', null, '789') as value\n" +
+                                "insert into barStream;",
+                        description = "This will returns first null value 123."),
                 @Example(
-                        value = "coalesce(null, 76, 567) returns 76"),
+                        syntax = "from fooStream\n" +
+                                "select coalesce(null, 76, 567) as value\n" +
+                                "insert into barStream;",
+                        description = "This will returns first null value 76."),
                 @Example(
-                        value = "coalesce(null, null, null) returns null")
+                        syntax = "from fooStream\n" +
+                                "select coalesce(null, null, null) as value\n" +
+                                "insert into barStream;",
+                        description = "This will returns null as there are no notnull values.")
         }
 )
 public class CoalesceFunctionExecutor extends FunctionExecutor {

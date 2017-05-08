@@ -16,13 +16,13 @@ import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
         parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Event will be delivered to all" +
                 "the subscribers of the same topic"),
         examples = @Example(
-                value = "In the following example BarStream uses testInMemory transport which emit the Siddhi\n" +
-                        "events internally without using external transport and transformation.\n" +
-                        "@sink(type='testInMemory', @map(type='passThrough'),\n" +
+                syntax = "@sink(type='testInMemory', @map(type='passThrough'),\n" +
                         "@distribution(strategy='roundRobin',\n" +
                         "@destination(topic = 'topic1'), \n" +
                         "@destination(topic = 'topic2')))\n" +
-                        "define stream BarStream (symbol string, price float, volume long);"
+                        "define stream BarStream (symbol string, price float, volume long);",
+                description = "In the following example BarStream uses testInMemory transport which emit the Siddhi" +
+                        "events internally without using external transport and transformation."
         )
 )
 public class TestInMemorySink extends InMemorySink {

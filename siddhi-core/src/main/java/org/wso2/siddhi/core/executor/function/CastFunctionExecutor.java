@@ -35,7 +35,7 @@ import java.util.Map;
 @Extension(
         name = "cast",
         namespace = "",
-        description = "Converts the first parameter according to the castTo parameter. Incompatible arguments cause " +
+        description = "Converts the first parameter according to the cast.to parameter. Incompatible arguments cause " +
                 "Class Cast exceptions if further processed. This function is used with map extension that returns " +
                 "attributes of the object type. You can use this function to cast the object to an accurate and " +
                 "concrete type.",
@@ -50,16 +50,15 @@ import java.util.Map;
                         type = {DataType.STRING})
         },
         returnAttributes = @ReturnAttribute(
-                description = "Returned type will be defined by the castTo string constant value.",
+                description = "Returned type will be defined by the cast.to string constant value.",
                 type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
                         DataType.STRING, DataType.BOOL, DataType.OBJECT}),
         examples = {
                 @Example(
-                        value = "cast(100.3, 'double') returns 100.3d"),
-                @Example(
-                        value = "cast(true, 'double') returns true"),
-                @Example(
-                        value = "cast(null, 'double') returns null")
+                        syntax = "from fooStream\n" +
+                                "select symbol as name, cast(temp, 'double') as temp\n" +
+                                "insert into barStream;",
+                        description = "This will cast the fooStream temp field value into 'double' format.")
         }
 )
 public class CastFunctionExecutor extends FunctionExecutor {

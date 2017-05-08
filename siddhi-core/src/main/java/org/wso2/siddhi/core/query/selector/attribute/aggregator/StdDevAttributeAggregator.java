@@ -46,7 +46,10 @@ import java.util.Map;
                 description = "Returns the calculated standard deviation value as a double.",
                 type = {DataType.DOUBLE}),
         examples = @Example(
-                value = "stddev(temp) returns the calculated standard deviation of temp for all the events " +
+                syntax = "from inputStream\n" +
+                        "select stddev(temp) as stdTemp\n" +
+                        "insert into outputStream;",
+                description = "stddev(temp) returns the calculated standard deviation of temp for all the events " +
                         "based on their arrival and expiry."
         )
 )

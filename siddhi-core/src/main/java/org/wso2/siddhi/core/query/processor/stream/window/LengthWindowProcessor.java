@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.query.processor.stream.window;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -56,7 +55,16 @@ import java.util.Map;
                         type = {DataType.INT})
         },
         examples = @Example(
-                value = "length(10) for processing last 10 events. length(200) for processing last 200 events."
+                syntax = "define window cseEventWindow (symbol string, price float, volume int) " +
+                        "length(10) output all events;\n" +
+                        "@info(name = 'query0')\n" +
+                        "from cseEventStream\n" +
+                        "insert into cseEventWindow;\n" +
+                        "@info(name = 'query1')\n" +
+                        "from cseEventWindow\n" +
+                        "select symbol, sum(price) as price\n" +
+                        "insert all events into outputStream ;",
+                description = "This will processing 10 events and out put all events."
         )
 )
 public class LengthWindowProcessor extends WindowProcessor implements FindableProcessor {

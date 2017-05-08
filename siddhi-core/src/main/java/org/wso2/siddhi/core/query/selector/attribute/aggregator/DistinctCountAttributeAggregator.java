@@ -46,7 +46,10 @@ import java.util.Map;
                 description = "Returns the count of distinct occurrences for a given arg.",
                 type = {DataType.LONG}),
         examples = @Example(
-                value = "distinctcount(pageID) for the following output returns 3.\n" +
+                syntax = "from fooStream\n" +
+                        "select distinctcount(pageID) as count\n" +
+                        "insert into barStream;",
+                description = "distinctcount(pageID) for the following output returns 3.\n" +
                         " \"WEB_PAGE_1\"\n" +
                         " \"WEB_PAGE_1\"\n" +
                         " \"WEB_PAGE_2\"\n" +

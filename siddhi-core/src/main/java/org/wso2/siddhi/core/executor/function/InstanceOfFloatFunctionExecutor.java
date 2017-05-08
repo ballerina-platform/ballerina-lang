@@ -46,13 +46,17 @@ import java.util.Map;
                 type = {DataType.BOOL}),
         examples = {
                 @Example(
-                        value = "instanceOfFloat(123) returns false."
+                        syntax = "from fooStream\n" +
+                                "select instanceOfFloat(value) as state\n" +
+                                "insert into barStream;",
+                        description = "This will return true if the value field format is float ex : 56.45f."
                 ),
                 @Example(
-                        value = "instanceOfFloat(56.45) returns false."
-                ),
-                @Example(
-                        value = "instanceOfFloat(56.45f) returns true."
+                        syntax = "from fooStream\n" +
+                                "select instanceOfFloat(switchState) as state\n" +
+                                "insert into barStream;",
+                        description = "if the switchState = true then this will returns false as the value is an" +
+                                " instance of the boolean not a float."
                 )
         }
 )

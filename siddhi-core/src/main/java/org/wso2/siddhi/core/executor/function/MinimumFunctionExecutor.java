@@ -48,11 +48,11 @@ import java.util.Map;
                 type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
         examples = {
                 @Example(
-                        value = "minimum(37.88, 38.12, 37.62) returns 37.62."
-                ),
-                @Example(
-                        value = "minimum(15, 30, 25, 57 ) returns 15."
-                )
+                        syntax = "@info(name = 'query1') from inputStream\n" +
+                                "select maximum(price1, price2, price3) as max\n" +
+                                "insert into outputStream;",
+                        description = "This will returns the minimum value of the input parameters price1, " +
+                                "price2, price3.")
         }
 )
 public class MinimumFunctionExecutor extends FunctionExecutor {

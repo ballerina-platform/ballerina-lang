@@ -59,10 +59,16 @@ import java.util.Map;
         },
         examples = {
                 @Example(
-                        value = "time(20) for processing events that arrived within the last 20 milliseconds."
-                ),
-                @Example(
-                        value = "time(2 min) for processing events that arrived within the last 2 minutes."
+                        syntax = "define window cseEventWindow (symbol string, price float, volume int) " +
+                                "time(20) output all events;\n" +
+                                "@info(name = 'query0')\n" +
+                                "from cseEventStream\n" +
+                                "insert into cseEventWindow;\n" +
+                                "@info(name = 'query1')\n" +
+                                "from cseEventWindow\n" +
+                                "select symbol, sum(price) as price\n" +
+                                "insert all events into outputStream ;",
+                        description = "This will processing events that arrived within the last 20 milliseconds."
                 )
         }
 )

@@ -21,7 +21,6 @@ package org.wso2.siddhi.core.query.processor.stream.window;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -66,11 +65,31 @@ import java.util.concurrent.ConcurrentHashMap;
         },
         examples = {
                 @Example(
-                        value = "lossyFrequent(0.1, 0.01) returns all the events of which the current frequency " +
-                                "exceeds 0.1, with an error bound of 0.01."
+                        syntax = "define stream purchase (cardNo string, price float);\n" +
+                                "define window purchaseWindow (cardNo string, price float) lossyFrequent(0.1, " +
+                                "0.01);\n" +
+                                "@info(name = 'query0')\n" +
+                                "from purchase[price >= 30]\n" +
+                                "insert into purchaseWindow;\n" +
+                                "@info(name = 'query1')\n" +
+                                "from purchaseWindow\n" +
+                                "select cardNo, price\n" +
+                                "insert all events into PotentialFraud;",
+                        description = "lossyFrequent(0.1, 0.01) returns all the events of which the current " +
+                                "frequency exceeds 0.1, with an error bound of 0.01."
                 ),
                 @Example(
-                        value = "lossyFrequent(0.3, 0.05, cardNo) returns all the events of which the cardNo " +
+                        syntax = "define stream purchase (cardNo string, price float);\n" +
+                                "define window purchaseWindow (cardNo string, price float) lossyFrequent(0.3, 0.05," +
+                                " cardNo);\n" +
+                                "@info(name = 'query0')\n" +
+                                "from purchase[price >= 30]\n" +
+                                "insert into purchaseWindow;\n" +
+                                "@info(name = 'query1')\n" +
+                                "from purchaseWindow\n" +
+                                "select cardNo, price\n" +
+                                "insert all events into PotentialFraud;",
+                        description = "lossyFrequent(0.3, 0.05, cardNo) returns all the events of which the cardNo " +
                                 "attributes frequency exceeds 0.3, with an error bound of 0.05."
                 )
         }

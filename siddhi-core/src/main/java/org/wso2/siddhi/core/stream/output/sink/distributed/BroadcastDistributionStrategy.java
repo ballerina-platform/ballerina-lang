@@ -35,12 +35,13 @@ import java.util.List;
         namespace = "distributionStrategy",
         description = "Publishing strategy to broad cast message to all destinations",
         examples = @Example(
-                value = "In the following example BarStream sink will act as broadcast strategy to 'topic1' and " +
-                        "'topic2' destinations.\n @sink(type='tcp', @map(type='text'),\n" +
+                syntax = "@sink(type='tcp', @map(type='text'),\n" +
                         "@distribution(strategy='broadcast',\n" +
                         "@destination(topic = 'topic1'),\n" +
                         "@destination(topic = 'topic2')))\n" +
-                        "define stream BarStream (symbol string, price float, volume long);"
+                        "define stream BarStream (symbol string, price float, volume long);",
+                description = "In this example BarStream sink will act as broadcast strategy to publish events" +
+                        "'topic1' and 'topic2' destinations."
         )
 )
 public class BroadcastDistributionStrategy extends DistributionStrategy {

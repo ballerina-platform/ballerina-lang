@@ -36,10 +36,10 @@ import java.util.List;
         namespace = "sourceMapper",
         description = "Pass-through mapper passed events (Event[]) through without any mapping or modifications.",
         examples = @Example(
-                value = "In the following example BarStream uses passThrough inputmapper which passes the received " +
-                        "Siddhi event directly without any transformation into source.\n" +
-                        "@source(type='tcp', @map(type='passThrough'),\n" +
-                        "define stream BarStream (symbol string, price float, volume long);"
+                syntax = "@source(type='tcp', @map(type='passThrough'),\n" +
+                        "define stream BarStream (symbol string, price float, volume long);",
+                description = "In this example BarStream uses passThrough inputmapper which passes the " +
+                        "received Siddhi event directly without any transformation into source."
         )
 )
 public class PassThroughSourceMapper extends SourceMapper {

@@ -59,13 +59,25 @@ import java.util.Map;
                         DataType.STRING, DataType.BOOL, DataType.OBJECT}),
         examples = {
                 @Example(
-                        value = "ifThenElse(sensorValue > 35,'High','Low') returns High if sensorValue = 50."
+                        syntax = "@info(name = 'query1')\n" +
+                                "from sensorEventStream\n" +
+                                "select sensorValue, ifThenElse(sensorValue>35,'High','Low') as status\n" +
+                                "insert into outputStream;",
+                        description = "This will returns High if sensorValue = 50."
                 ),
                 @Example(
-                        value = "ifThenElse(voltage < 5, 0, 1) returns 1 if voltage= 12."
+                        syntax = "@info(name = 'query1')\n" +
+                                "from sensorEventStream\n" +
+                                "select sensorValue, ifThenElse(voltage < 5, 0, 1) as status\n" +
+                                "insert into outputStream;",
+                        description = "This will returns 1 if voltage= 12."
                 ),
                 @Example(
-                        value = "ifThenElse(password == 'admin', true, false) returns true if password = admin."
+                        syntax = "@info(name = 'query1')\n" +
+                                "from userEventStream\n" +
+                                "select userName, ifThenElse(password == 'admin', true, false) as passwordState\n" +
+                                "insert into outputStream;",
+                        description = "This will returns  passwordState as true if password = admin."
                 )
         }
 )

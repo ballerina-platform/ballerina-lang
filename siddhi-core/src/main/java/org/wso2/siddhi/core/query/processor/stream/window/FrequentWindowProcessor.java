@@ -21,7 +21,6 @@ package org.wso2.siddhi.core.query.processor.stream.window;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -68,10 +67,18 @@ import java.util.concurrent.ConcurrentHashMap;
         },
         examples = {
                 @Example(
-                        value = "frequent(2) returns the 2 most frequent events."
+                        syntax = "@info(name = 'query1')\n" +
+                                "from purchase[price >= 30]#window.frequent(2)\n" +
+                                "select cardNo, price\n" +
+                                "insert all events into PotentialFraud;",
+                        description = "This will returns the 2 most frequent events."
                 ),
                 @Example(
-                        value = "frequent(2, cardNo) returns the 2 latest events with the most frequently appeared " +
+                        syntax = "@info(name = 'query1')\n" +
+                                "from purchase[price >= 30]#window.frequent(2, cardNo)\n" +
+                                "select cardNo, price\n" +
+                                "insert all events into PotentialFraud;",
+                        description = "This will returns the 2 latest events with the most frequently appeared " +
                                 "card numbers."
                 )
         }

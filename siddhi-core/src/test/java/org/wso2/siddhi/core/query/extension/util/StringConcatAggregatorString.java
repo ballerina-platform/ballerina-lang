@@ -45,7 +45,10 @@ import java.util.Map;
                 description = "Returns the concatenated value as a string.",
                 type = {DataType.STRING}),
         examples = @Example(
-                value = "custom:getAll(\"hello\",\"_\",\"world\") will return 'hello world'."
+                syntax = "from inputStream\n" +
+                        "select custom:getAll(\"hello\",\"_\",\"world\") as name\n" +
+                        "insert into outputStream;",
+                description = "This will concatenate given input values and return 'hello world'."
         )
 )
 public class StringConcatAggregatorString extends AttributeAggregator {

@@ -55,13 +55,17 @@ import java.util.Map;
         },
         examples = {
                 @Example(
-                        value = "from PolarStream#pol2Cart(theta, rho)\n" +
-                                "select x, y \ninsert into outputStream ; will return cartesian coordinates " +
-                                "(4.99953024681082, 0.06853693328228748) for theta: 0.7854 and rho: 5."),
+                        syntax = "from PolarStream#pol2Cart(theta, rho)\n" +
+                                "select x, y \n" +
+                                "insert into outputStream ;",
+                        description = "This will return cartesian coordinates (4.99953024681082, 0.06853693328228748)" +
+                                " for theta: 0.7854 and rho: 5."),
                 @Example(
-                        value = "from PolarStream#pol2Cart(theta, rho, 3.4)\n" +
-                                "select x, y, z \ninsert into outputStream ; will return cartesian coordinates " +
-                                "(4.99953024681082, 0.06853693328228748, 3.4)for theta: 0.7854 and rho: 5 and z: 3.4.")
+                        syntax = "from PolarStream#pol2Cart(theta, rho, 3.4)\n" +
+                                "select x, y, z \n" +
+                                "insert into outputStream ;",
+                        description = "This will return cartesian coordinates (4.99953024681082, 0.06853693328228748," +
+                                " 3.4)for theta: 0.7854 and rho: 5 and z: 3.4.")
         }
 )
 public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {

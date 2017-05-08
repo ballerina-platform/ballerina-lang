@@ -45,7 +45,9 @@ import java.util.Map;
                 description = "Returns the calculated average value as a double.",
                 type = {DataType.DOUBLE}),
         examples = @Example(
-                value = "avg(temp) returns the average temp value for all the events based on their arrival and expiry."
+                syntax = "from fooStream#window.timeBatch\n select avg(temp) as avgTemp\n insert into barStream;",
+                description = "avg(temp) returns the average temp value for all the events based on their " +
+                        "arrival and expiry."
         )
 )
 public class AvgAttributeAggregator extends AttributeAggregator {

@@ -46,7 +46,10 @@ import java.util.Map;
                 description = "Returns the minimum value in the same data type as the input.",
                 type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
         examples = @Example(
-                value = "minForever(temp) returns the minimum temp value recorded for all the events throughout " +
+                syntax = "from inputStream\n" +
+                        "select minForever(temp) as max\n" +
+                        "insert into outputStream;",
+                description = "minForever(temp) returns the minimum temp value recorded for all the events throughout" +
                         "the lifetime of the query."
         )
 )

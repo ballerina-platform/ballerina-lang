@@ -51,13 +51,16 @@ import java.util.Map;
                 type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING, DataType.BOOL}),
         examples = {
                 @Example(
-                        value = "convert('123', 'double') returns 123.0"
-                ),
+                        syntax = "from fooStream\n" +
+                                "select convert(temp, 'double') as temp\n" +
+                                "insert into barStream;",
+                        description = "This will convert fooStream temp value into 'double'."),
                 @Example(
-                        value = "convert(45.9, 'int') returns 46"
-                ),
-                @Example(
-                        value = "convert(true, 'string') returns true"
+                        syntax = "from fooStream\n" +
+                                "select convert(temp, 'int') as temp\n" +
+                                "insert into barStream;",
+                        description = "This will convert fooStream temp value into 'int' (value = \"convert(45.9, " +
+                                "'int') returns 46\")."
                 )
         }
 )

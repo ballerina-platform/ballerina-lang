@@ -47,7 +47,10 @@ import java.util.Map;
                 description = "Returns the maximum value in the same data type as the input.",
                 type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
         examples = @Example(
-                value = "maxForever(temp) returns the maximum temp value recorded for all the events throughout " +
+                syntax = "from inputStream\n" +
+                        "select maxForever(temp) as max\n" +
+                        "insert into outputStream;",
+                description = "maxForever(temp) returns the maximum temp value recorded for all the events throughout " +
                         "the lifetime of the query."
         )
 )
