@@ -22,12 +22,15 @@ package org.ballerinalang.nativeimpl.net.ws;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.connectors.ws.Utils;
+import org.ballerinalang.nativeimpl.connectors.ws.connectormanager.ConnectorRegistry;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.services.dispatchers.ws.Constants;
+import org.ballerinalang.services.dispatchers.ws.WebSocketClientServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -60,9 +63,17 @@ public class PushText extends AbstractNativeFunction {
         }
 
         try {
+            Session session;
             CarbonMessage carbonMessage = context.getCarbonMessage();
-            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
-            String text = getStringArgument(context, 0);
+            if (WebSocketClientServicesRegistry.getInstance().serviceExists(context.getServiceInfo().getName())) {
+                String clientID = (String) carbonMessage.getProperty(Constants.WEBSOCKET_CLIENT_ID);
+                session = ConnectorRegistry.getInstance().
+                        getConnectorController(Utils.getConnectorIDFromClientID(clientID)).
+                        getConnectionFromClientID(clientID);
+            } else {
+                session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+            }
+            String text = getArgument(context, 0).stringValue();
             session.getBasicRemote().sendText(text);
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
