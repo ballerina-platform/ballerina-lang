@@ -289,30 +289,32 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(BallerinaConnectorDef connector) {
+    public void visit(BallerinaConnectorDef connectorDef) {
         // Open the connector namespace
-        openScope(connector);
+        openScope(connectorDef);
 
-        for (AnnotationAttachment annotationAttachment : connector.getAnnotations()) {
+        for (AnnotationAttachment annotationAttachment : connectorDef.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.CONNECTOR);
             annotationAttachment.accept(this);
         }
-        
-        for (ParameterDef parameterDef : connector.getParameterDefs()) {
+
+        for (ParameterDef parameterDef : connectorDef.getParameterDefs()) {
             parameterDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
             parameterDef.accept(this);
         }
 
-        for (VariableDefStmt variableDefStmt : connector.getVariableDefStmts()) {
+        for (VariableDefStmt variableDefStmt : connectorDef.getVariableDefStmts()) {
             variableDefStmt.accept(this);
         }
 
-        for (BallerinaAction action : connector.getActions()) {
+        createConnectorInitFunction(connectorDef);
+
+        for (BallerinaAction action : connectorDef.getActions()) {
             action.accept(this);
         }
 
         int sizeOfConnectorMem = connectorMemAddrOffset + 1;
-        connector.setSizeOfConnectorMem(sizeOfConnectorMem);
+        connectorDef.setSizeOfConnectorMem(sizeOfConnectorMem);
 
         // Close the symbol scope
         connectorMemAddrOffset = -1;
@@ -1133,13 +1135,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName workerSymbol = new SymbolName(workerName);
         VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
         variableRefExpr.accept(this);
-        
+
         BLangSymbol worker = currentScope.resolve(workerSymbol);
         if (!(worker instanceof Worker)) {
-            BLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, 
+            BLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
                     workerSymbol);
         }
-        
+
         workerReplyStmt.setWorker((Worker) worker);
     }
 
@@ -1158,7 +1160,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Visit workers
-        for (Worker worker: forkJoinStmt.getWorkers()) {
+        for (Worker worker : forkJoinStmt.getWorkers()) {
             worker.accept(this);
         }
 
@@ -1887,16 +1889,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Check whether this symName is declared
         BLangSymbol varDefSymbol = currentScope.resolve(symbolName);
-        
+
         if (varDefSymbol == null) {
             BLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.UNDEFINED_SYMBOL, symbolName);
         }
-        
+
         if (!(varDefSymbol instanceof VariableDef)) {
-            BLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, 
+            BLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
                     symbolName);
         }
-        
+
         variableRefExpr.setVariableDef((VariableDef) varDefSymbol);
     }
 
@@ -1998,7 +2000,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Set type of the arrays access expression
             BType expectedType =  arrayMapVarRefExpr.getType();
             for (int i = 0; i < arrayMapAccessExpr.getIndexExprs().length; i++) {
-                expectedType =  ((BArrayType) expectedType).getElementType();
+                expectedType = ((BArrayType) expectedType).getElementType();
             }
             arrayMapAccessExpr.setType(expectedType);
 
@@ -2794,21 +2796,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
                 currentScope.define(connectorSymbolName, connectorDef);
             }
-
-            // Create the '<init>' function and inject it to the connector;
-            BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(
-                    connectorDef.getNodeLocation(), connectorDef);
-            for (VariableDefStmt variableDefStmt : connectorDef.getVariableDefStmts()) {
-                blockStmtBuilder.addStmt(variableDefStmt);
-            }
-
-            BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
-                    new BallerinaFunction.BallerinaFunctionBuilder(connectorDef);
-            functionBuilder.setNodeLocation(connectorDef.getNodeLocation());
-            functionBuilder.setName(connectorName + ".<init>");
-            functionBuilder.setPkgPath(connectorDef.getPackagePath());
-            functionBuilder.setBody(blockStmtBuilder.build());
-            connectorDef.setInitFunction(functionBuilder.buildFunction());
         }
 
         for (BallerinaConnectorDef connectorDef : connectorDefArray) {
@@ -2985,6 +2972,43 @@ public class SemanticAnalyzer implements NodeVisitor {
             
             currentScope.define(symbolName, annotationDef);
         }
+    }
+
+    /**
+     * Create the '<init>' function and inject it to the connector.
+     *
+     * @param connectorDef connector model object
+     */
+    private void createConnectorInitFunction(BallerinaConnectorDef connectorDef) {
+        NodeLocation location = connectorDef.getNodeLocation();
+        BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
+                new BallerinaFunction.BallerinaFunctionBuilder(connectorDef);
+        functionBuilder.setNodeLocation(location);
+        functionBuilder.setName(connectorDef.getName() + ".<init>");
+        functionBuilder.setPkgPath(connectorDef.getPackagePath());
+
+        ParameterDef paramDef = new ParameterDef(location, "connector",
+                null, new SymbolName("connector"), functionBuilder.getCurrentScope());
+        paramDef.setType(connectorDef);
+        functionBuilder.addParameter(paramDef);
+
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, connectorDef);
+
+        for (VariableDefStmt variableDefStmt : connectorDef.getVariableDefStmts()) {
+            if (variableDefStmt.getRExpr() == null) {
+                continue;
+            }
+
+            AssignStmt assignStmt = new AssignStmt(variableDefStmt.getNodeLocation(),
+                    new Expression[]{variableDefStmt.getLExpr()}, variableDefStmt.getRExpr());
+            blockStmtBuilder.addStmt(assignStmt);
+        }
+
+        // Adding the return statement
+        ReturnStmt returnStmt = new ReturnStmt(location, new Expression[0]);
+        blockStmtBuilder.addStmt(returnStmt);
+        functionBuilder.setBody(blockStmtBuilder.build());
+        connectorDef.setInitFunction(functionBuilder.buildFunction());
     }
 
     private void resolveStructFieldTypes(StructDef[] structDefs) {
