@@ -93,26 +93,17 @@ public class JsonInputMapper extends SourceMapper {
             isCustomMappingEnabled = true;
             enclosingElement = optionHolder.validateAndGetStaticValue(ENCLOSING_ELEMENT_INDENTIFIER, "$");
             for (int i = 0; i < attributeMappingList.size(); i++) {
-                // i represents the position of attributes as given by the user in mapping
-
                 AttributeMapping attributeMapping = attributeMappingList.get(i);
-
                 String attributeName = attributeMapping.getRename();
-
-                // The position of the attribute in the output stream definition
                 int position;
-
                 if (attributeName != null) {
-                    // Use the name to determine the position
                     position = this.streamDefinition.getAttributePosition(attributeName);
                 } else {
-                    // Use the same order as provided by the user
                     position = i;
                 }
                 this.mappingPositions[i] = new MappingPositionData(position, attributeMapping.getMapping());
             }
         } else {
-            // Use the attribute names of the output stream in order
             for (int i = 0; i < attributesSize; i++) {
                 this.mappingPositions[i] = new MappingPositionData(i, DEFAULT_JSON_MAPPING_PREFIX + this
                         .streamDefinition.getAttributeList().get(i).getName());
@@ -123,7 +114,7 @@ public class JsonInputMapper extends SourceMapper {
     @Override
     protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
         synchronized (this) {
-            Object convertedEvent = null;
+            Object convertedEvent;
             convertedEvent = convertToEvent(eventObject);
             if (convertedEvent != null) {
                 if (convertedEvent instanceof Event[]) {
@@ -227,15 +218,13 @@ public class JsonInputMapper extends SourceMapper {
         Event event = new Event(this.streamDefinition.getAttributeList().size());
         Object[] data = event.getData();
         JsonFactory factory = new JsonFactory();
-        com.fasterxml.jackson.core.JsonParser parser = null;
+        com.fasterxml.jackson.core.JsonParser parser;
         try {
             parser = factory.createParser(eventObject.toString());
         } catch (IOException e) {
             throw new ExecutionPlanRuntimeException("Initializing a parser failed for the event string." + eventObject.toString());
         }
-
-        int position = 0;
-
+        int position;
         while (!parser.isClosed()) {
             JsonToken jsonToken = parser.nextToken();
             if (DEFAULT_JSON_EVENT_IDENTIFIER.equals(parser.getText())) {
@@ -336,8 +325,8 @@ public class JsonInputMapper extends SourceMapper {
     }
 
     private Object convertAttribute(Object attribute, Attribute.Type type) {
-        String value = "";
-        int index = 0;
+        String value;
+        int index;
         switch (type) {
             case INT:
                 value = attribute.toString();
