@@ -45,18 +45,16 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         ibmCount.set(0);
     }
 
-    //    from FooStream
-    //    select symbol,price,volume
-    //    publish inMemory options ("topic", "{{symbol}}")
-    //    map json
+    /*
+    * Default output mapping for single event
+    */
     @Test
-    public void testJSONOutputMapperDefaultMappingWithSiddhiQL() throws InterruptedException {
-        log.info("Test default json mapping with SiddhiQL");
+    public void testJSONOutputMapperDefaultMappingWithSiddhiQL_1() throws InterruptedException {
+        log.info("Test default json output mapping for single event with SiddhiQL");
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object msg) {
-                System.out.println(msg);
                 wso2Count.incrementAndGet();
             }
 
@@ -104,13 +102,13 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         event.setData(data);
         //stockStream.send(new Event[]{event,event,event,event});
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
-        //stockStream.send(new Object[]{"IBM", 75.6f, 100L});
-        //stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
-        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
+        Assert.assertEquals(2, wso2Count.get());
+        Assert.assertEquals(1, ibmCount.get());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -118,12 +116,198 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         InMemoryBroker.unsubscribe(subscriberIBM);
     }
 
-    //    from FooStream
-    //    select symbol,price
-    //    publish inMemory options ("topic", "{{symbol}}")
-    //    map json custom
+    /*
+    * Default Json Output Mapping for single event with partial processing
+    */
     @Test
-    public void testJSONOutputCustomMappingWithSiddhiQL() throws InterruptedException {
+    public void testJSONOutputMapperDefaultMappingWithSiddhiQL_2() throws InterruptedException {
+        log.info("Test default json output mapping for single event with SiddhiQL");
+
+        InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                wso2Count.incrementAndGet();
+            }
+
+            @Override
+            public String getTopic() {
+                return "WSO2";
+            }
+        };
+
+        InMemoryBroker.Subscriber subscriberIBM = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                ibmCount.incrementAndGet();
+            }
+
+            @Override
+            public String getTopic() {
+                return "IBM";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriberWSO2);
+        InMemoryBroker.subscribe(subscriberIBM);
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='json')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+
+        executionPlanRuntime.start();
+        Event event = new Event();
+        Object[] data = {"WSO2", 55.6f, 100L};
+        event.setData(data);
+        //stockStream.send(new Event[]{event,event,event,event});
+        stockStream.send(new Object[]{"WSO2", null, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals(2, wso2Count.get());
+        Assert.assertEquals(1, ibmCount.get());
+        executionPlanRuntime.shutdown();
+
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriberWSO2);
+        InMemoryBroker.unsubscribe(subscriberIBM);
+    }
+
+    /*
+    * Default json output mapping for an event array
+    */
+    @Test
+    public void testJSONOutputMapperDefaultMappingWithSiddhiQL_3() throws InterruptedException {
+        log.info("Test default json output mapping for single event with SiddhiQL");
+
+        InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                System.out.println(msg);
+                wso2Count.incrementAndGet();
+            }
+
+            @Override
+            public String getTopic() {
+                return "WSO2";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriberWSO2);
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='WSO2', @map(type='json')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+
+        executionPlanRuntime.start();
+        Event wso2Event = new Event();
+        Event ibmEvent = new Event();
+        Object[] wso2Data = {"WSO2", 55.6f, 100L};
+        Object[] ibmData = {"IBM", 74.6f, 10L};
+        wso2Event.setData(wso2Data);
+        ibmEvent.setData(ibmData);
+        stockStream.send(new Event[]{wso2Event,wso2Event,ibmEvent,wso2Event,ibmEvent});
+
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals(1, wso2Count.get());
+        executionPlanRuntime.shutdown();
+
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriberWSO2);
+    }
+
+    /*
+    * Default json output mapping for an event array with partial processing
+    */
+    @Test
+    public void testJSONOutputMapperDefaultMappingWithSiddhiQL_4() throws InterruptedException {
+        log.info("Test default json output mapping for single event with SiddhiQL");
+
+        InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                System.out.println(msg);
+                wso2Count.incrementAndGet();
+            }
+
+            @Override
+            public String getTopic() {
+                return "WSO2";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriberWSO2);
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='WSO2', @map(type='json')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+
+        executionPlanRuntime.start();
+        Event wso2Event = new Event();
+        Event ibmEvent = new Event();
+        Object[] wso2Data = {"WSO2", 55.6f, 100L};
+        Object[] ibmData = {"IBM", null, 10L};
+        wso2Event.setData(wso2Data);
+        ibmEvent.setData(ibmData);
+        stockStream.send(new Event[]{wso2Event,wso2Event,ibmEvent,wso2Event,ibmEvent});
+
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals(1, wso2Count.get());
+        executionPlanRuntime.shutdown();
+
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriberWSO2);
+    }
+
+    /*
+    * Custom json mapping for single event
+    */
+    @Test
+    public void testJSONOutputCustomMappingWithSiddhiQL_1() throws InterruptedException {
         log.info("Test custom json mapping with SiddhiQL");
         List<Object> onMessageList = new ArrayList<Object>();
 
@@ -179,14 +363,110 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
         executionPlanRuntime.start();
-        Event event = new Event();
-        Object[] data = {"WSO2", 55.6f, 100L};
-        event.setData(data);
-        stockStream.send(new Event[]{event,event,event,event});
+        Event wso2Event = new Event();
+        Event ibmEvnet = new Event();
 
-        /*stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});*/
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
+        //assert custom json
+        Assert.assertEquals("Mapping incorrect!","{\n" +
+                "   \"Stock Data\":{\n" +
+                "      \"Symbol\":\"WSO2\",\n" +
+                "      \"Price\":55.6\n" +
+                "   }\n" +
+                "}", onMessageList.get(0).toString());
+        Assert.assertEquals("Mapping incorrect!","{\n" +
+                "   \"Stock Data\":{\n" +
+                "      \"Symbol\":\"IBM\",\n" +
+                "      \"Price\":75.6\n" +
+                "   }\n" +
+                "}", onMessageList.get(1).toString());
+        Assert.assertEquals("Mapping incorrect!","{\n" +
+                "   \"Stock Data\":{\n" +
+                "      \"Symbol\":\"WSO2\",\n" +
+                "      \"Price\":57.6\n" +
+                "   }\n" +
+                "}", onMessageList.get(2).toString());
+        executionPlanRuntime.shutdown();
+
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriberWSO2);
+        InMemoryBroker.unsubscribe(subscriberIBM);
+    }
+
+    /*
+    * Custom json mapping for single event with partial processing
+    */
+    @Test
+    public void testJSONOutputCustomMappingWithSiddhiQL_2() throws InterruptedException {
+        log.info("Test custom json mapping with SiddhiQL");
+        List<Object> onMessageList = new ArrayList<Object>();
+
+        InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                System.out.println(msg);
+                wso2Count.incrementAndGet();
+                onMessageList.add(msg);
+            }
+
+            @Override
+            public String getTopic() {
+                return "WSO2";
+            }
+        };
+
+        InMemoryBroker.Subscriber subscriberIBM = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                ibmCount.incrementAndGet();
+                onMessageList.add(msg);
+            }
+
+            @Override
+            public String getTopic() {
+                return "IBM";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriberWSO2);
+        InMemoryBroker.subscribe(subscriberIBM);
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan') " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='json', validate.json='true', @payload(\"\"\"{\n" +
+                "   \"Stock Data\":{\n" +
+                "      \"Symbol\":\"{{symbol}}\",\n" +
+                "      \"Price\":{{price}}\n" +
+                "   }\n" +
+                "}\"\"\"))) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+
+        executionPlanRuntime.start();
+        Event wso2Event = new Event();
+        Event ibmEvnet = new Event();
+
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", null, 100L});
         Thread.sleep(100);
 
         //assert event count
@@ -208,9 +488,101 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         Assert.assertEquals("Mapping incorrect!", "{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"WSO2\",\n" +
-                "      \"Price\":57.6\n" +
+                "      \"Price\":undefined\n" +
                 "   }\n" +
                 "}", onMessageList.get(2).toString());
+        executionPlanRuntime.shutdown();
+
+        //unsubscribe from "inMemory" broker per topic
+        InMemoryBroker.unsubscribe(subscriberWSO2);
+        InMemoryBroker.unsubscribe(subscriberIBM);
+    }
+
+    /*
+    * Custom json mapping for an event array with json validation enabled
+    */
+    @Test
+    public void testJSONOutputCustomMappingWithSiddhiQL_3() throws InterruptedException {
+        log.info("Test custom json mapping with SiddhiQL");
+        List<Object> onMessageList = new ArrayList<Object>();
+
+        InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                System.out.println(msg);
+                wso2Count.incrementAndGet();
+                onMessageList.add(msg);
+            }
+
+            @Override
+            public String getTopic() {
+                return "WSO2";
+            }
+        };
+
+        InMemoryBroker.Subscriber subscriberIBM = new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                ibmCount.incrementAndGet();
+                onMessageList.add(msg);
+            }
+
+            @Override
+            public String getTopic() {
+                return "IBM";
+            }
+        };
+
+        //subscribe to "inMemory" broker per topic
+        InMemoryBroker.subscribe(subscriberWSO2);
+        InMemoryBroker.subscribe(subscriberIBM);
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan') " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='WSO2', @map(type='json', validate.json='true', @payload(\"\"\"{\n" +
+                "   \"Stock Data\":{\n" +
+                "      \"Symbol\":\"{{symbol}}\",\n" +
+                "      \"Price\":{{price}}\n" +
+                "   }\n" +
+                "}\"\"\"))) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+
+        executionPlanRuntime.start();
+        Event wso2Event = new Event();
+        Event ibmEvnet = new Event();
+        wso2Event.setData(new Object[]{"WSO2", 55.6f, 100L});
+        ibmEvnet.setData(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Event[]{wso2Event,ibmEvnet});
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Incorrect number of events consumed!", 1, wso2Count.get());
+//        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
+        //assert custom json
+        Assert.assertEquals("Mapping incorrect!","[{\n" +
+                "   \"Stock Data\":{\n" +
+                "      \"Symbol\":\"WSO2\",\n" +
+                "      \"Price\":55.6\n" +
+                "   }\n" +
+                "},\n" +
+                "{\n" +
+                "   \"Stock Data\":{\n" +
+                "      \"Symbol\":\"IBM\",\n" +
+                "      \"Price\":75.6\n" +
+                "   }\n" +
+                "}]", onMessageList.get(0).toString());
+
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic

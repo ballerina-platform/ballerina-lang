@@ -169,8 +169,6 @@ public class JsonInputMapper extends SourceMapper {
             if (jsonObj instanceof JSONArray) {
                 JSONArray jsonArray = (JSONArray) jsonObj;
                 Event[] newEventArray = new Event[jsonArray.size()];
-                ArrayList<Event> eventList = new ArrayList<Event>();
-
                 index = 0;
                 for (int i = 0; i < jsonArray.size(); i++) {
                     Event event = processEvent(JsonPath.parse(jsonArray.get(i)));

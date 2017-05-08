@@ -47,9 +47,11 @@ public class JSONOutputMapper extends SinkMapper {
     private static final String JSON_VALIDATION_IDENTIFIER = "validate.json";
     private static final String JSON_START_SYMBOL = "{";
     private static final String JSON_END_SYMBOL = "}";
+    private static final String JSON_EVENT_SEPERATOR = ",";
+    private static final String JSON_ARRAY_START_SYMBOL = "[";
+    private static final String JSON_ARRAY_END_SYMBOL = "]";
     private static final String UNDEFINED = "undefined";
 
-    boolean groupEvents = false;
     private boolean isCustomMappingEnabled = false;
     private String enclosingElement = null;
     private boolean validationEnabled = false;
@@ -162,7 +164,7 @@ public class JSONOutputMapper extends SinkMapper {
             for(Event event : (Event[])eventObj){
                 eventArray.add(constructSingleEventForDefaultMapping(doPartialProcessing(event)));
             }
-            return(JSON_START_SYMBOL + eventArray.toString() +JSON_END_SYMBOL);
+            return(eventArray.toString());
         }
         return null;
     }
@@ -178,16 +180,20 @@ public class JSONOutputMapper extends SinkMapper {
                 return payloadTemplateBuilder.build(event);
             }
         }else if(eventObj instanceof Event[]){
+            StringBuilder sb = new StringBuilder();
             JsonArray jsonArray = new JsonArray();
+            sb.append(JSON_ARRAY_START_SYMBOL);
             for(Event event : (Event[])eventObj){
-                jsonArray.add(payloadTemplateBuilder.build(doPartialProcessing(event)));
+                sb.append(payloadTemplateBuilder.build(doPartialProcessing(event)) + JSON_EVENT_SEPERATOR +"\n");
             }
+            sb.delete(sb.length()-2,sb.length());
+            sb.append(JSON_ARRAY_END_SYMBOL);
             if(enclosingElement != null){
                 JsonObject jsonObj = new JsonObject();
                 jsonObj.addProperty(enclosingElement,jsonArray.toString());
                 return jsonObj.toString();
             }else{
-                return jsonArray.toString();
+                return sb.toString();
             }
         }
         return null;
