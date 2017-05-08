@@ -65,12 +65,13 @@ class PanelDecorator extends React.Component {
         }
         let titleComponents = this.getTitleComponents(this.props.titleComponentData);
         let annotationString = this.getAnnotationsString();
+        let annotationComponents = this.getAnnotationComponents(this.props.annotations, bBox, titleHeight);
 
         return (<g className="panel">
             <g className={annotationBodyClassName}>
                 <rect x={bBox.x} y={bBox.y} width={bBox.w} height={annotationBodyHeight} rx="0" ry="0" className="annotationRect" data-original-title="" title=""></rect>
-                <text x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + 5}>{annotationString}</text>
-                <image x={bBox.x + 5} y={bBox.y + 5} width={iconSize} height={iconSize} xlinkHref={ImageUtil.getSVGIconString(this.props.icon)} />
+                {!annotationViewCollapsed && annotationComponents}
+                {annotationViewCollapsed && <text x={bBox.x + 5} y={bBox.y + titleHeight / 2 + 5}>{annotationString}</text>}
                 <g className="panel-header-controls">
                     <image x={bBox.x + bBox.w - 19.5} y={bBox.y + 5.5} width={iconSize} height={iconSize} className="control"
                         xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')} onClick={() => this.onAnnotaionCollapseClick()} />
@@ -169,6 +170,22 @@ class PanelDecorator extends React.Component {
         }
         return components;
     }
+
+    getAnnotationComponents(annotationComponentData, bBox, titleHeight) {
+        let components = [];
+        let possitionY = bBox.y + titleHeight / 2 + 5;
+        if (!_.isUndefined(annotationComponentData)) {
+            for (let componentData of annotationComponentData) {
+                let modelComponents = [];
+                components.push(<g key={componentData.getID()}>
+                    <text className="annotation-text" x={bBox.x + 5} y={possitionY}>{componentData.toString()}</text>
+                </g>);
+                possitionY = possitionY + 25;
+            }
+        }
+        return components;
+    }
+
 
     getAnnotationsString() {
         let annotationString = '';
