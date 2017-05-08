@@ -187,7 +187,14 @@ class SizingUtil {
         });
 
         const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
-        const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
+
+        /**
+         * If the current default worker's statement container height is less than the highest worker's statement container
+         * we set the default statement container height to the highest statement container's height
+         */
+        components['statementContainer'].h = _.max([components['statementContainer'].h, highestStatementContainerHeight]);
+
+        const defaultWorkerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
 
         var lifeLineWidth = 0;
         _.forEach(workerChildren.concat(connectorChildren), function (child) {
@@ -201,15 +208,9 @@ class SizingUtil {
         if (node.viewState.collapsed) {
             components['body'].h = 0;
         } else {
-            components['body'].h = ((DesignerDefaults.panel.body.height < workerLifeLineHeight) ? workerLifeLineHeight : DesignerDefaults.panel.body.height)
+            components['body'].h = ((DesignerDefaults.panel.body.height < defaultWorkerLifeLineHeight) ? defaultWorkerLifeLineHeight : DesignerDefaults.panel.body.height)
                 + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         }
-
-        /**
-         * If the current default worker's statement container height is less than the highest worker's statement container
-         * we set the default statement container height to the highest statement container's height
-         */
-        components['statementContainer'].h = _.max([components['statementContainer'].h, highestStatementContainerHeight]);
 
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
             DesignerDefaults.panel.body.padding.left + lifeLineWidth;
