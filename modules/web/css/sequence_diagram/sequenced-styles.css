@@ -40,7 +40,7 @@
 }
 
 .headingRect {
-    fill: #b6b6b6;
+    fill: #e4e4e4;
     stroke-width: 1;
     shape-rendering: crispEdges;
 }
@@ -587,12 +587,12 @@ text-anchor: start;
 }
 
 .parameter-text-wrapper {
-    fill: #90CAF9;
+    fill: #bdbdbd;
     shape-rendering: crispEdges;
 }
 
 .parameter-delete-icon-wrapper {
-    fill: #90CAF9;
+    fill: #bdbdbd;
     shape-rendering: crispEdges;
     padding: 13px;
 }
@@ -612,8 +612,6 @@ text-anchor: start;
 
 .return-type-wrapper {
     fill: #FFFFFF;
-    stroke-width: 1;
-    stroke: #909090;
     shape-rendering: crispEdges;
 }
 
