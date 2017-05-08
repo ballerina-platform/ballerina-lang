@@ -17,25 +17,32 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
-import org.ballerinalang.util.codegen.cpentries.FunctionCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
+import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
-import org.ballerinalang.util.codegen.cpentries.StructCPEntry;
+import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 
 /**
  * @since 0.87
@@ -58,21 +65,24 @@ public class BLangVM {
 
     public BLangVM(ProgramFile programFile) {
         this.programFile = programFile;
-        this.constPool = programFile.getConstPool().toArray(new ConstantPoolEntry[0]);
-        this.code = programFile.getInstructionList().toArray(new Instruction[0]);
     }
 
     public void execMain() {
-        FunctionInfo mainFuncInfo = programFile.getFuncInfoList().get(0);
+        PackageInfo mainPkgInfo = programFile.getPackageInfo(".");
+        FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
         StackFrame stackFrame = new StackFrame(mainFuncInfo, ip, new int[0]);
+
+        // TODO Improve this
+        this.constPool = mainPkgInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+        this.code = mainPkgInfo.getInstructionList().toArray(new Instruction[0]);
         stackFrames[++fp] = stackFrame;
 
 //        traceCode();
 
         ip = mainFuncInfo.getCodeAttributeInfo().getCodeAddrs();
 
-
         exec();
+
     }
 
     /**
@@ -86,12 +96,17 @@ public class BLangVM {
         int cpIndex;
         int fieldIndex;
 
+        int[] fieldCount;
+
         BIntArray bIntArray;
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
         BRefValueArray bArray;
         StructureType structureType;
+
+        StructureRefCPEntry structureRefCPEntry;
+        FunctionCallCPEntry funcCallCPEntry;
 
         // TODO use HALT Instruction in the while condition
         while (ip < code.length && fp >= 0) {
@@ -434,14 +449,21 @@ public class BLangVM {
                     break;
                 case InstructionCodes.call:
                     cpIndex = operands[0];
-                    FunctionCPEntry funcCPEntry = (FunctionCPEntry) constPool[cpIndex];
-                    FunctionInfo functionInfo = programFile.getFunctionInfo(
-                            new FunctionInfo(funcCPEntry.getPackageCPIndex(), cpIndex, -1));
+                    FunctionRefCPEntry funcCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
+                    FunctionInfo functionInfo = funcCPEntry.getFunctionInfo();
 
                     cpIndex = operands[1];
-                    FunctionCallCPEntry funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+                    invokeCallableUnit(functionInfo, funcCallCPEntry);
+                    break;
+                case InstructionCodes.acall:
+                    cpIndex = operands[0];
+                    ActionRefCPEntry actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
+                    ActionInfo actionInfo = actionRefCPEntry.getActionInfo();
 
-                    invokeFunc(functionInfo, funcCallCPEntry);
+                    cpIndex = operands[1];
+                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+                    invokeCallableUnit(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.ret:
                     cpIndex = operands[0];
@@ -471,10 +493,20 @@ public class BLangVM {
                 case InstructionCodes.newstruct:
                     cpIndex = operands[0];
                     i = operands[1];
-                    StructCPEntry structCPEntry = (StructCPEntry) constPool[cpIndex];
+                    structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
+                    fieldCount = structureRefCPEntry.getStructureTypeInfo().getFieldCount();
                     BStruct bStruct = new BStruct();
-                    bStruct.init(structCPEntry.getFieldCount());
+                    bStruct.init(fieldCount);
                     sf.bValueRegs[i] = bStruct;
+                    break;
+                case InstructionCodes.newconnector:
+                    cpIndex = operands[0];
+                    i = operands[1];
+                    structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
+                    fieldCount = structureRefCPEntry.getStructureTypeInfo().getFieldCount();
+                    BConnector bConnector = new BConnector();
+                    bConnector.init(fieldCount);
+                    sf.bValueRegs[i] = bConnector;
                     break;
                 default:
                     throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
@@ -482,36 +514,48 @@ public class BLangVM {
         }
     }
 
-    private void invokeFunc(FunctionInfo functionInfo, FunctionCallCPEntry funcCallCPEntry) {
+    private void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
-        String[] paramTypeSigs = functionInfo.getParamTypeSigs();
+        BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = stackFrames[fp];
 
-        StackFrame calleeSF = new StackFrame(functionInfo, ip, funcCallCPEntry.getRetRegs());
+        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
         stackFrames[++fp] = calleeSF;
 
         // Copy arg values from the current StackFrame to the new StackFrame
-        copyArgValues(callerSF, calleeSF, argRegs, paramTypeSigs);
+        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
 
-        ip = functionInfo.getCodeAttributeInfo().getCodeAddrs();
+        // TODO Improve following two lines
+        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
+        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
     }
 
-    private void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, String[] paramTypeSigs) {
+    private void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int refRegIndex = -1;
 
         for (int i = 0; i < argRegs.length; i++) {
-            String typeSig = paramTypeSigs[i];
+            BType paramType = paramTypes[i];
             int argReg = argRegs[i];
-            switch (typeSig) {
-                case "I":
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
                     calleeSF.longLocalVars[++longRegIndex] = callerSF.longRegs[argReg];
                     break;
-                case "F":
-                    calleeSF.doubleLocalVars[++longRegIndex] = callerSF.doubleRegs[argReg];
+                case TypeTags.FLOAT_TAG:
+                    calleeSF.doubleLocalVars[++doubleRegIndex] = callerSF.doubleRegs[argReg];
                     break;
-                case "S":
-                    calleeSF.stringLocalVars[++longRegIndex] = callerSF.stringRegs[argReg];
+                case TypeTags.STRING_TAG:
+                    calleeSF.stringLocalVars[++stringRegIndex] = callerSF.stringRegs[argReg];
                     break;
+                case TypeTags.BOOLEAN_TAG:
+                    calleeSF.intLocalVars[++booleanRegIndex] = callerSF.intRegs[argReg];
+                    break;
+                default:
+                    calleeSF.bValueLocalVars[++refRegIndex] = callerSF.bValueRegs[argReg];
             }
         }
     }
@@ -521,22 +565,27 @@ public class BLangVM {
         if (fp != 0) {
 
             StackFrame callersSF = stackFrames[fp - 1];
-            String[] retTypeSigs = currentSF.functionInfo.getRetParamTypeSigs();
+            BType[] retTypes = currentSF.callableUnitInfo.getRetParamTypes();
 
             for (int i = 0; i < regIndexes.length; i++) {
                 int regIndex = regIndexes[i];
                 int callersRetRegIndex = currentSF.retRegIndexes[i];
-                String typeSig = retTypeSigs[i];
-                switch (typeSig) {
-                    case "I":
+                BType retType = retTypes[i];
+                switch (retType.getTag()) {
+                    case TypeTags.INT_TAG:
                         callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[regIndex];
                         break;
-                    case "F":
+                    case TypeTags.FLOAT_TAG:
                         callersSF.doubleRegs[callersRetRegIndex] = currentSF.doubleRegs[regIndex];
                         break;
-                    case "S":
+                    case TypeTags.STRING_TAG:
                         callersSF.stringRegs[callersRetRegIndex] = currentSF.stringRegs[regIndex];
                         break;
+                    case TypeTags.BOOLEAN_TAG:
+                        callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[regIndex];
+                        break;
+                    default:
+                        callersSF.bValueRegs[callersRetRegIndex] = currentSF.bValueRegs[regIndex];
                 }
             }
         }

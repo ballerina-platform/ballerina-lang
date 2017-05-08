@@ -18,8 +18,9 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CodeAttributeInfo;
-import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 
 /**
  * @since 0.87
@@ -44,11 +45,14 @@ public class StackFrame {
     // Caller's Register indexes to which the return values should be copied;
     int[] retRegIndexes;
 
-    FunctionInfo functionInfo;
+    CallableUnitInfo callableUnitInfo;
 
-    public StackFrame(FunctionInfo functionInfo, int retAddrs, int[] retRegIndexes) {
-        this.functionInfo = functionInfo;
-        CodeAttributeInfo codeAttribInfo = functionInfo.getCodeAttributeInfo();
+    PackageInfo packageInfo;
+
+    public StackFrame(CallableUnitInfo callableUnitInfo, int retAddrs, int[] retRegIndexes) {
+        this.callableUnitInfo = callableUnitInfo;
+        this.packageInfo = callableUnitInfo.getPackageInfo();
+        CodeAttributeInfo codeAttribInfo = callableUnitInfo.getCodeAttributeInfo();
 
         this.longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
         this.doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
