@@ -23,12 +23,7 @@ package org.ballerinalang.util.codegen;
  * @since 0.87
  */
 public interface InstructionCodes {
-
-    // TODO Add const* load* and store* instructions
-    // TODO const* load a constant from the CP
-    // TODO load* bring value from local variable to a register
-    // TODO store* stores a value in a register to a local variable
-
+    
     int iconst = 2;
     int fconst = 3;
     int sconst = 4;
@@ -57,23 +52,33 @@ public interface InstructionCodes {
     int saload = 29;
     int baload = 30;
     int raload = 31;
+    int igload = 32;
+    int fgload = 33;
+    int sgload = 34;
+    int bgload = 35;
+    int rgload = 36;
 
-    int istore = 32;
-    int fstore = 33;
-    int sstore = 34;
-    int bstore = 35;
-    int rstore = 36;
-    int iastore = 37;
-    int fastore = 38;
-    int sastore = 39;
-    int bastore = 40;
-    int rastore = 41;
+    int istore = 37;
+    int fstore = 38;
+    int sstore = 39;
+    int bstore = 40;
+    int rstore = 41;
+    int iastore = 42;
+    int fastore = 43;
+    int sastore = 44;
+    int bastore = 45;
+    int rastore = 46;
+    int igstore = 47;
+    int fgstore = 48;
+    int sgstore = 49;
+    int bgstore = 50;
+    int rgstore = 51;
 
-    int ifieldload = 50;
-    int ffieldload = 51;
-    int sfieldload = 52;
-    int bfieldload = 53;
-    int rfieldload = 54;
+    int ifieldload = 52;
+    int ffieldload = 53;
+    int sfieldload = 54;
+    int bfieldload = 55;
+    int rfieldload = 56;
 
     int ifieldstore = 60;
     int ffieldstore = 61;
@@ -106,7 +111,8 @@ public interface InstructionCodes {
 
     int goto_ = 119;
     int call = 120;
-    int ret = 121;
+    int acall = 121;
+    int ret = 125;
 
     int inewarray = 200;
     int fnewarray = 201;
@@ -115,6 +121,7 @@ public interface InstructionCodes {
     int rnewarray = 204;
 
     int newstruct = 210;
+    int newconnector = 211;
 
-    int InstructionCodeCount = 211;
+    int InstructionCodeCount = 212;
 }
