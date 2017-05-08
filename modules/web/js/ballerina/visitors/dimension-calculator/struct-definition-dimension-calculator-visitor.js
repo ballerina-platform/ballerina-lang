@@ -18,7 +18,6 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 import { util } from './../sizing-utils';
 
 class StructDefinitionDimensionCalculatorVisitor {
@@ -36,11 +35,34 @@ class StructDefinitionDimensionCalculatorVisitor {
         log.info('visit StructDefinitionDimensionCalc');
     }
 
-    _calculateChildrenDimensions(children = []) {
+    _calculateChildrenDimensions(children = [], components) {
         const dimensions = children.map( () => {
-            const childDimensions = new SimpleBBox();
-            childDimensions.h = DesignerDefaults.structDefinitionStatement.height;
-            childDimensions.w = DesignerDefaults.structDefinitionStatement.width;
+            components.body.h += DesignerDefaults.structDefinitionStatement.height;
+
+            const childDimensions = {};
+            childDimensions.typeWrapper = new SimpleBBox();
+            childDimensions.typeWrapper.h = DesignerDefaults.structDefinitionStatement.height;
+            childDimensions.typeWrapper.w = DesignerDefaults.structDefinitionStatement.width / 3;
+            childDimensions.typeText = new SimpleBBox();
+            childDimensions.typeText.h = DesignerDefaults.structDefinitionStatement.height;
+            childDimensions.typeText.w = DesignerDefaults.structDefinitionStatement.width / 3;
+
+            childDimensions.identifierWrapper = new SimpleBBox();
+            childDimensions.identifierWrapper.h = DesignerDefaults.structDefinitionStatement.height;
+            childDimensions.identifierWrapper.w = DesignerDefaults.structDefinitionStatement.width / 3;
+            childDimensions.identifierText = new SimpleBBox();
+            childDimensions.identifierText.h = DesignerDefaults.structDefinitionStatement.height;
+            childDimensions.identifierText.w = DesignerDefaults.structDefinitionStatement.width / 3;
+
+            childDimensions.valueWrapper = new SimpleBBox();
+            childDimensions.valueWrapper.h = DesignerDefaults.structDefinitionStatement.height;
+            childDimensions.valueWrapper.w = DesignerDefaults.structDefinitionStatement.width / 3;
+            childDimensions.valueText = new SimpleBBox();
+            childDimensions.valueText.h = DesignerDefaults.structDefinitionStatement.height;
+            childDimensions.valueText.w = DesignerDefaults.structDefinitionStatement.width / 3;
+
+            childDimensions.deleteButton = new SimpleBBox();
+
             return childDimensions;
         });
         return dimensions;
@@ -51,27 +73,23 @@ class StructDefinitionDimensionCalculatorVisitor {
 
         var components = {};
 
-        components['heading'] = new SimpleBBox();
-        components['heading'].h = DesignerDefaults.panel.heading.height;
+        components.heading = new SimpleBBox();
+        components.heading.h = DesignerDefaults.panel.heading.height;
 
-        components['body'] = new SimpleBBox();
-        components['statements'] = this._calculateChildrenDimensions(node.getChildren());
+        components.body = new SimpleBBox();
+        components.statements = this._calculateChildrenDimensions(node.getChildren(), components);
+        components.contentOperations = new SimpleBBox();
+        components.contentOperations.w = DesignerDefaults.contentOperations.width + 1;
+        components.contentOperations.h = DesignerDefaults.contentOperations.height;
+
         if(node.viewState.collapsed) {
-            components['body'].h = 0;
+            components.body.h = 0;
         } else {
-            components['body'].h = components['statements'].reduce((a, b)=>{
-                return {h: a.h + b.h};
-            }, {h: 0}).h;
-
-            components['body'].h = components['body'].h +
-              DesignerDefaults.structDefinition.padding.top +
-              DesignerDefaults.structDefinition.padding.bottom;
-
+            components.body.h += DesignerDefaults.structDefinition.padding.top +
+              DesignerDefaults.structDefinition.padding.bottom + DesignerDefaults.contentOperations.height;
         }
 
-        viewState.bBox.h = components['heading'].h + components['body'].h;
-        viewState.bBox.w = components['heading'].w + components['body'].w;
-
+        viewState.bBox.h = components.heading.h + components.body.h;
         viewState.components = components;
     }
 }

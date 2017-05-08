@@ -144,7 +144,7 @@ class FunctionInvocationExpression extends Expression {
             argsString += child.getExpression();
 
             if (itr !== jsonNode.children.length - 1) {
-                argsString += ' , ';
+                argsString += ', ';
             }
         }
         return argsString;
@@ -161,7 +161,7 @@ class FunctionInvocationExpression extends Expression {
         for (var itr = 0; itr < children.length; itr++) {
             argsString += children[itr];
             if (itr !== children.length - 1) {
-                argsString += ' , ';
+                argsString += ', ';
             }
         }
 
@@ -173,4 +173,3 @@ class FunctionInvocationExpression extends Expression {
 }
 
 export default FunctionInvocationExpression;
-

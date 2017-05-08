@@ -22,32 +22,48 @@ import Renderer from './renderer';
 import {packageDefinition} from '../configs/designer-defaults';
 import './package-definition.css';
 import {getCanvasOverlay} from '../configs/app-context';
+import ImportDeclaration from './import-declaration';
+import ImportDeclarationExpanded from './import-declaration-expanded';
 
 class PackageDefinition extends React.Component {
 
     constructor(props) {
         super(props);
+        this.packageDefTextWidth = 200;
         this.handlePackageNameInput = this.handlePackageNameInput.bind(this);
+        this.handleImportsHeaderClick = this.handleImportsHeaderClick.bind(this);
     }
 
     handlePackageNameInput(input) {
         this.props.model.setPackageName(input);
     }
 
+    handleImportsHeaderClick() {
+        this.props.model.setAttribute('viewState.expanded', !this.props.model.viewState.expanded);
+    }
+
     handlePackageNameClick(e) {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const headerPadding = packageDefinition.header.padding;
+        const headerHeight = packageDefinition.header.height;
+        const textBoxPadding = 3;
+        const textBoxHeight = 25;
 
         const textBoxBBox = {
-            x: bBox.x + headerPadding.left + 75,
-            y: bBox.y + 15
+            x: bBox.x + headerPadding.left - textBoxPadding - 2,
+            y: bBox.y + headerHeight/2 - textBoxHeight/2,
+            h: textBoxHeight,
+            w: this.packageDefTextWidth
         };
 
         const options = {
             bBox: textBoxBBox,
             onChange: this.handlePackageNameInput,
-            initialValue: model.getPackageName()
+            initialValue: model.getPackageName(),
+            styles: {
+                paddingLeft: textBoxPadding
+            }
         }
 
         this.context.renderer.renderTextBox(options);
@@ -59,17 +75,34 @@ class PackageDefinition extends React.Component {
         const packageName = model._packageName || "";
         const headerHeight = packageDefinition.header.height;
         const headerPadding = packageDefinition.header.padding;
+        const expanded = this.props.model.viewState.expanded
+
+        const importsBbox = {
+            x: bBox.x + headerPadding.left + this.packageDefTextWidth,
+            y: bBox.y + headerHeight/2
+        }
+
+        const expandedImportsBbox = {
+            x: bBox.x + headerPadding.left,
+            y: bBox.y + headerHeight
+        }
+
+        const astRoot = this.props.model.parent;
+        const imports = astRoot.children.filter(c => {return c.constructor.name === 'ImportDeclaration'});
 
         return (
             <g>
                 <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
-                <text x={ bBox.x + headerPadding.left } y={ bBox.y + headerHeight/2 } className="package-definition-text">Package</text>
-                <text x={ bBox.x + headerPadding.left + 75 } y={ bBox.y + headerHeight/2 }
-                      className="package-definition-package-name"
-                      onClick={e => {this.handlePackageNameClick(e)}}
+                <text
+                    x={ bBox.x + headerPadding.left }
+                    y={ bBox.y + headerHeight/2 }
+                    className="package-definition-text"
+                    onClick={e => {this.handlePackageNameClick(e)}}
                 >
-                      {packageName}
+                    {packageName || 'Define Package'}
                 </text>
+                <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick}/>
+                { expanded && <ImportDeclarationExpanded bBox={expandedImportsBbox} imports={imports} /> }
             </g>
         );
     }

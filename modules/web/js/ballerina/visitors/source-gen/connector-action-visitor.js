@@ -54,14 +54,14 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
         }
 
 
-        let constructedSourceSegment = '';
+        let constructedSourceSegment = '\n';
         _.forEach(connectorAction.getChildrenOfType(connectorAction.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString() + '\n';
+                constructedSourceSegment += this.getIndentation() + annotationNode.toString() + '\n';
             }
         });
 
-        constructedSourceSegment += 'action ' + connectorAction.getActionName() + ' (' +
+        constructedSourceSegment += this.getIndentation() + 'action ' + connectorAction.getActionName() + ' (' +
             connectorAction.getArgumentsAsString() + ') ' + connectorActionReturnTypesSource + '{\n';
         this.appendSource(constructedSourceSegment);
         this.indent();
@@ -78,8 +78,8 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitConnectorAction(connectorAction) {
         this.outdent();
-        this.appendSource("}\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(this.getIndentation() + "}\n");
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit FunctionDefinition');
     }
 

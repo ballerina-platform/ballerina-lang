@@ -29,7 +29,7 @@ import MessageManager from './../visitors/message-manager';
 import ASTFactory from './../ast/ballerina-ast-factory';
 import './statement-decorator.css';
 import ArrowDecorator from './arrow-decorator';
-import BackwardArrowDecorator from './bacward-arrow-decorator';
+import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
 
 const text_offset = 50;
@@ -112,47 +112,50 @@ class StatementDecorator extends React.Component {
 			}
 		}
 		const actionBbox = new SimpleBBox();
-        const fill = this.state.innerDropZoneExist ? {} : {fill:'none'};  
+        const fill = this.state.innerDropZoneExist ? {} : {fill:'none'};
 		actionBbox.w = DesignerDefaults.actionBox.width;
 		actionBbox.h = DesignerDefaults.actionBox.height;
 		actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
 		actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
 		return (
-          <g className="statement" 
-                onMouseOut={ this.setActionVisibility.bind(this,false) } 
-                onMouseOver={ this.setActionVisibility.bind(this,true) }  >
-			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
-                className={dropZoneClassName} {...fill}
-			 		onMouseOver={(e) => this.onDropZoneActivate(e)}
-					onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
-			<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className="statement-rect"
-				  onClick={(e) => this.openExpressionEditor(e)} />
-			<g className="statement-body">
-				<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
-			</g>
-                        <ActionBox bBox={ actionBbox } show={ this.state.showActions } onDelete={this.onDelete.bind(this)}/>
-			{isActionInvocation &&
-				<g>
-					<circle cx={arrowStartPointX}
-					cy={arrowStartPointY}
-					r={radius}
-					fill="#444"
-					fillOpacity={0}
-					onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
-					onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
-					onMouseDown={(e) => this.onMouseDown(e)}
-					onMouseUp={(e) => this.onMouseUp(e)}/>
-					{connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
-					{connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
-				</g>
-			}
-		</g>);
+	    	<g 	className="statement"
+            onMouseOut={ this.setActionVisibility.bind(this,false) }
+            onMouseOver={ (e) => {
+							if(!this.context.dragDropManager.isOnDrag()) {
+									this.setActionVisibility(true)
+							}
+						}}>
+						<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
+			                className={dropZoneClassName} {...fill}
+						 		onMouseOver={(e) => this.onDropZoneActivate(e)}
+								onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
+						<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className="statement-rect"
+							  onClick={(e) => this.openExpressionEditor(e)} />
+						<g className="statement-body">
+							<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
+						</g>
+			                        <ActionBox bBox={ actionBbox } show={ this.state.showActions } onDelete={this.onDelete.bind(this)}/>
+						{isActionInvocation &&
+							<g>
+								<circle cx={arrowStartPointX}
+								cy={arrowStartPointY}
+								r={radius}
+								fill="#444"
+								fillOpacity={0}
+								onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
+								onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
+								onMouseDown={(e) => this.onMouseDown(e)}
+								onMouseUp={(e) => this.onMouseUp(e)}/>
+								{connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
+								{connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
+							</g>
+						}
+				</g>);
 	}
 
-    setActionVisibility (show, e) {
-        this.setState({showActions: show})
-    }
-
+  setActionVisibility (show) {
+      this.setState({showActions: show})
+  }
 
 	onDropZoneActivate (e) {
 			const dragDropManager = this.context.dragDropManager,

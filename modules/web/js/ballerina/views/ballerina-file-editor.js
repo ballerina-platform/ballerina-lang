@@ -44,7 +44,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import BallerinaDiagram from './../components/diagram';
 import MessageManager from './../visitors/message-manager';
-import Renderer from '../components/renderer'
+import Renderer from '../components/renderer';
+import StructOperationsRenderer from '../components/struct-operations-renderer';
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -244,26 +245,24 @@ class BallerinaFileEditor extends BallerinaView {
 
         var importDeclarations = [];
         if(!this._parseFailed) {
-            //pass the container width and height to root view state.
-            let viewState = this._model.getViewState();
-            viewState.container = {
-                width : this._$canvasContainer.width(),
-                height : this._$canvasContainer.height()
-            };
             // attach a wrapper to the react diagram so we can attach expression editor to the container.
             let diagramRoot = $('<div class="diagram root" ></div>');
             let overlay = $('<div class="html-overlay" ></div>');
             var renderer = new Renderer(overlay[0]);
+            let structOperationsOverlay = $('<div class="struct-operations-html-overlay" ></div>');
+            const structOperationsRenderer = new StructOperationsRenderer(structOperationsOverlay[0]);
             this._$canvasContainer.append(diagramRoot);
             this._$canvasContainer.append(overlay);
+            this._$canvasContainer.append(structOperationsOverlay);
             //create Rect component for diagram
             let root = React.createElement(BallerinaDiagram, {
-                model: this._model,
+                editor: this,
                 dragDropManager: this.toolPalette.dragDropManager,
                 messageManager: this.messageManager,
                 container: this._$canvasContainer,
                 renderingContext: this.diagramRenderingContext,
-                renderer
+                renderer,
+                structOperationsRenderer
             }, null);
             ReactDOM.render(
               root,
@@ -504,11 +503,12 @@ class BallerinaFileEditor extends BallerinaView {
             swaggerViewBtn.show();
             designViewBtn.hide();
             self.setActiveView('design');
+            self.trigger("update-diagram");
             if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
                 self._environment.resetCurrentPackage();
                 self.rerenderCurrentPackageTool();
             }
-            $('.outer-box').mCustomScrollbar('scrollTo', 'left');
+            // $('.outer-box').mCustomScrollbar('scrollTo', 'left');
         });
 
         if(this._parseFailed) {

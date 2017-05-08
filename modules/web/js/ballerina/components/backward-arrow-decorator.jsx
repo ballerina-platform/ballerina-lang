@@ -22,10 +22,9 @@ import MessageManager from './../visitors/message-manager';
 import './arrow-decorator.css';
 
 class BackwardArrow extends React.Component {
-    constructor(props, context) {
+    constructor(props) {
         super(props);
         this.state = {enable: true, drawOnMouseMoveFlag: -1};
-        context.messageManager.setArrowDecorator(this);
     }
     getArrowAngle() {
         const { start, end } = this.props;

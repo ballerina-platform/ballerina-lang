@@ -47,10 +47,10 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let constructedSourceSegment = '';
+        let constructedSourceSegment = '\n';
         _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString() + '\n';
+                constructedSourceSegment += this.getIndentation() +  annotationNode.toString() + '\n';
             }
         });
 
@@ -63,7 +63,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
-        constructedSourceSegment += 'connector ' + connectorDefinition.getConnectorName() +
+        constructedSourceSegment += this.getIndentation() + 'connector ' + connectorDefinition.getConnectorName() +
             ' (' + argumentsSrc + ')' + ' {\n';
         this.appendSource(constructedSourceSegment);
         this.indent();
@@ -80,8 +80,8 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitConnectorDefinition(connectorDefinition) {
         this.outdent();
-        this.appendSource("}\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(this.getIndentation() + "}\n");
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Connector Definition');
     }
 

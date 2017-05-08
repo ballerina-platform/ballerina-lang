@@ -43,17 +43,17 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let constructedSourceSegment = '';
+        let constructedSourceSegment = '\n';
         _.forEach(resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString() + '\n';
+                constructedSourceSegment += this.getIndentation() + annotationNode.toString() + '\n';
             }
         });
 
-        constructedSourceSegment += 'resource ' + resourceDefinition.getResourceName() + '(';
+        constructedSourceSegment += this.getIndentation() + 'resource ' + resourceDefinition.getResourceName() + '(';
 
         constructedSourceSegment += resourceDefinition.getParametersAsString() + ') {\n';
-        this.appendSource(this.getIndentation() + constructedSourceSegment);
+        this.appendSource(constructedSourceSegment);
         this.indent();
     }
 

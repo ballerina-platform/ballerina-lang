@@ -93,7 +93,7 @@ function getCompoundStatementChildPosition(node) {
         let headerBBox = viewSate.components.heading;
         let bodyBBox = viewSate.components.body;
         let resources = _.filter(parent.getChildren(), function (child) {
-            return child instanceof AST.ResourceDefinition || 
+            return child instanceof AST.ResourceDefinition ||
                    child instanceof AST.ConnectorAction;
         });
         let x, y, headerX, headerY, bodyX, bodyY;
@@ -147,7 +147,8 @@ function getCompoundStatementChildPosition(node) {
             return ASTFactory.isFunctionDefinition(child) ||
                 ASTFactory.isServiceDefinition(child) ||
                 ASTFactory.isConnectorDefinition(child) ||
-                ASTFactory.isAnnotationDefinition(child);
+                ASTFactory.isAnnotationDefinition(child) ||
+                ASTFactory.isPackageDefinition(child);
         });
         let heading = viewSate.components.heading;
         let body = viewSate.components.body;
@@ -198,7 +199,7 @@ function getCompoundStatementChildPosition(node) {
             if(viewState.bBox.w + connectorWidthTotal < minWidth){
                 viewState.bBox.w = minWidth - connectorWidthTotal;
             }
-        }, this);  
+        }, this);
     }
 
 export {getSimpleStatementPosition, getCompoundStatementChildPosition, populateOuterPanelDecoratorBBoxPosition, populateInnerPanelDecoratorBBoxPosition};
