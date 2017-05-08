@@ -406,7 +406,8 @@ public class DefinitionParserHelper {
                                     destinationOptHolders, configReader);
 
                             ((DistributedTransport) sink).init(streamDefinition, sinkType,
-                                                               transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder,
+                                                               transportOptionHolder, sinkConfigReader, sinkMapper,
+                                                               mapType, mapOptionHolder,
                                                                payload, mapperConfigReader, executionPlanContext,
                                                                destinationOptHolders,
                                                                sinkAnnotation, distributionStrategy,

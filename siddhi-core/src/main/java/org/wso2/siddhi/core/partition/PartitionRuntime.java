@@ -203,12 +203,9 @@ public class PartitionRuntime implements Snapshotable {
                                       List<PartitionExecutor> partitionExecutors) {
         if (!partitionStreamReceivers.containsKey(streamId) && !isInnerStream && !metaStreamEvent.isTableEvent() &&
                 !metaStreamEvent.isWindowEvent()) {
-            PartitionStreamReceiver partitionStreamReceiver = new PartitionStreamReceiver(executionPlanContext,
-                                                                                          metaStreamEvent,
-                                                                                          (StreamDefinition)
-                                                                                                  streamDefinitionMap
-                                                                                                          .get(streamId),
-                                                                                          partitionExecutors, this);
+            PartitionStreamReceiver partitionStreamReceiver = new PartitionStreamReceiver(
+                    executionPlanContext, metaStreamEvent, (StreamDefinition) streamDefinitionMap.get(streamId),
+                    partitionExecutors, this);
             partitionStreamReceivers.put(partitionStreamReceiver.getStreamId(), partitionStreamReceiver);
             streamJunctionMap.get(partitionStreamReceiver.getStreamId()).subscribe(partitionStreamReceiver);
         }

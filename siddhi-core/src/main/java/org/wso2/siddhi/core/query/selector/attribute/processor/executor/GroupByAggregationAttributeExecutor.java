@@ -65,7 +65,8 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     public ExpressionExecutor cloneExecutor(String key) {
         return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
-                                                       attributeExpressionExecutors, configReader, executionPlanContext, queryName);
+                                                       attributeExpressionExecutors, configReader, executionPlanContext,
+                                                       queryName);
     }
 
     @Override

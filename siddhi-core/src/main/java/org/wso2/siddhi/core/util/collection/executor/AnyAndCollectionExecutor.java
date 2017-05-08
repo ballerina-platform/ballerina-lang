@@ -82,8 +82,8 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
             if (lowCostStreamEvents.size() <= 10) {
                 return exhaustiveCollectionExecutor.findEvents(matchingEvent, lowCostStreamEvents);
             } else {
-                Collection<StreamEvent> highCostStreamEvents = highCostCollectionExecutor.findEvents(matchingEvent,
-                                                                                                     indexedEventHolder);
+                Collection<StreamEvent> highCostStreamEvents = highCostCollectionExecutor.findEvents(
+                        matchingEvent, indexedEventHolder);
 
                 if (highCostStreamEvents == null) {
                     return null;

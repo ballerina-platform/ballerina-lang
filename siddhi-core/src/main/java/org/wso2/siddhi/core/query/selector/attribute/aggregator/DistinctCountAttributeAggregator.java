@@ -62,7 +62,8 @@ public class DistinctCountAttributeAggregator extends AttributeAggregator {
                         ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Distinct count aggregator has to have exactly 1 parameter, " +
-                                                             "currently " + attributeExpressionExecutors.length + " parameters provided");
+                                                             "currently " + attributeExpressionExecutors.length +
+                                                             " parameters provided");
         }
     }
 
