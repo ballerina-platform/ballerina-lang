@@ -29,9 +29,9 @@ import java.lang.annotation.Target;
  * eg:-
  *      {@literal @}Extension(
  *                      ...
- *                      examples = {{@literal @}Example({"Example of the CustomExtension usage 1"}),
- *                                  {@literal @}Example({"Example of the CustomExtension usage 2"})}
- *      )
+ *                      examples = {{@literal @}Example(syntax = "from fooStream#window.time(10 sec)
+ *                      select symbol as name, volume insert into barStream;",
+ *                      description = "This will processing events that arrived within the last 10 seconds.")
  *      public CustomExtension extends ExtensionSuperClass {
  *          ...
  *      }
@@ -40,5 +40,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface Example {
-    String value() default "";
+    String syntax() default "";
+
+    String description() default "";
 }
