@@ -23,7 +23,7 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitProxy;
@@ -193,8 +193,9 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.CONNECTOR.getSig();
+    public TypeSignature getSig() {
+        String packagePath = (pkgPath == null) ? "." : pkgPath;
+        return new TypeSignature(TypeSignature.SIG_CONNECTOR, packagePath, typeName);
     }
 
     @Override
