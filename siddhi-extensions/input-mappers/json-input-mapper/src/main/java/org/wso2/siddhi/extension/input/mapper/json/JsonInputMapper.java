@@ -177,11 +177,13 @@ public class JsonInputMapper extends SourceMapper {
                 try {
                     Event event = convertToSingleEventForDefaultMapping(eventObject);
                     if (failOnUnknownAttribute && checkForUnknownAttributes(event)) {
-                        throw new ExecutionPlanRuntimeException("Event " + event.toString() + " contains unknown attributes");
+                        log.error("Event " + event.toString() + " contains unknown attributes");
+                        return null;
                     }
                     return event;
                 } catch (IOException e) {
-                    throw new ExecutionPlanRuntimeException("Invalid JSON string :" + eventObject.toString() + ". Cannot be converted to an event");
+                    log.error("Invalid JSON string :" + eventObject.toString() + ". Cannot be converted to an event.");
+                    return null;
                 }
             }
         }
@@ -228,7 +230,7 @@ public class JsonInputMapper extends SourceMapper {
                             break;
                         }
                     case FLOAT:
-                        if (JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken)) {
+                        if (JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken) || JsonToken.VALUE_NUMBER_INT.equals(jsonToken)) {
                             data[position] = convertAttribute(parser.getValueAsString(), Attribute.Type.FLOAT);
                             break;
                         }
