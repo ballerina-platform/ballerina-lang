@@ -80,16 +80,15 @@ class PanelDecorator extends React.Component {
             </g>
             <g className="panel-header">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0" className="headingRect" data-original-title="" title=""></rect>
-                <text x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + 5 + annotationBodyHeight}>{this.props.title}</text>
+                <text x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + 5 + annotationBodyHeight} className="headingRectTitle">{this.props.title}</text>
                 <image x={bBox.x + 5} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize} xlinkHref={ImageUtil.getSVGIconString(this.props.icon)} />
                 {titleComponents}
                 <g className="panel-header-controls">
-                    <image x={bBox.x + bBox.w - 44.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize} height={iconSize} className="control"
-                        xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()} />
-                    <line x1={bBox.x + bBox.w - 50} y1={bBox.y + 5 + annotationBodyHeight} x2={bBox.x + bBox.w - 50} y2={bBox.y + 20 + annotationBodyHeight} className="operations-separator"></line>
-                    <image x={bBox.x + bBox.w - 19.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize} height={iconSize} className="control"
-                        xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')} onClick={() => this.onCollapseClick()} />
-                    <line x1={bBox.x + bBox.w - 25} y1={bBox.y + 5 + annotationBodyHeight} x2={bBox.x + bBox.w - 25} y2={bBox.y + 20 + annotationBodyHeight} className="operations-separator"></line>
+                    <rect className="panel-header-controls-wrapper" x={ bBox.x + bBox.w - 54} y={ bBox.y }> </rect>
+                    <image x={ bBox.x + bBox.w - 44.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize } className="control"
+                           xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}/>
+                    <image x={ bBox.x + bBox.w - 19.5} y={ bBox.y + 5.5} width={ iconSize } height={ iconSize }  className="control"
+                           xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')} onClick={() => this.onCollapseClick()}/>
                 </g>
             </g>
             <g className={panelBodyClassName}>
