@@ -37,7 +37,8 @@ class FunctionDefinitionPositionCalcVisitor {
         let panelChildren = parent.filterChildren(function (child) {
             return ASTFactory.isFunctionDefinition(child) ||
                 ASTFactory.isServiceDefinition(child) || ASTFactory.isConnectorDefinition(child)
-                || ASTFactory.isAnnotationDefinition(child);
+                || ASTFactory.isAnnotationDefinition(child) ||
+                ASTFactory.isPackageDefinition(child);
         });
         let heading = viewState.components.heading;
         let body = viewState.components.body;

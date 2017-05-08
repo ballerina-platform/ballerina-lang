@@ -160,7 +160,7 @@ export const packageDefinition = {
     },
 
     labelWidth: 60,
-    textWidth: 250,
+    textWidth: 245,
 
     importDeclaration: {
         itemHeight: 30
