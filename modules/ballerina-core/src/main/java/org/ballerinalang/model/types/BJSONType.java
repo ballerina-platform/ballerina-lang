@@ -48,8 +48,8 @@ public class BJSONType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.JSON.getSig() + TypeEnum.JSON.getName() + ";";
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.JSON.getName());
     }
 
     @Override

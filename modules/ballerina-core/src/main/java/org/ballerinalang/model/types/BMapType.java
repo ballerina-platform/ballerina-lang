@@ -61,8 +61,8 @@ public class BMapType extends BType implements BIndexedType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.MAP.getSig() + TypeEnum.MAP.getName() + ";";
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.MAP.getName());
     }
 
     @Override

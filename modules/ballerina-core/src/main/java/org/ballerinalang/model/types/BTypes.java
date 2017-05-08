@@ -108,7 +108,7 @@ public class BTypes {
         typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
         typeNull = new BNullType(TypeConstants.NULL_TNAME, null, globalScope);
-        
+
         initialized = true;
     }
 
@@ -132,7 +132,7 @@ public class BTypes {
 
         // Now check whether this is an arrays type
         if (typeName.isArrayType()) {
-            BLangSymbol bTypeSymbol = symbolScope.resolve(new SymbolName(typeName.getName(), 
+            BLangSymbol bTypeSymbol = symbolScope.resolve(new SymbolName(typeName.getName(),
                     typeName.getPackagePath()));
             if (bTypeSymbol instanceof BType) {
                 bType = (BType) bTypeSymbol;
@@ -178,5 +178,24 @@ public class BTypes {
 
     public static boolean isBuiltInTypeName(String paramName) {
         return builtInTypeNames.contains(paramName);
+    }
+
+    public static BType getTypeFromName(String typeName) {
+        switch (typeName) {
+            case TypeConstants.JSON_TNAME:
+                return typeJSON;
+            case TypeConstants.XML_TNAME:
+                return typeXML;
+            case TypeConstants.MAP_TNAME:
+                return typeMap;
+            case TypeConstants.MESSAGE_TNAME:
+                return typeMessage;
+            case TypeConstants.EXCEPTION_TNAME:
+                return typeException;
+            case TypeConstants.DATATABLE_TNAME:
+                return typeDatatable;
+            default:
+                throw new IllegalStateException("Unknown type name");
+        }
     }
 }

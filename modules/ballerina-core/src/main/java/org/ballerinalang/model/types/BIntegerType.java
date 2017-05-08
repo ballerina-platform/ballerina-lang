@@ -48,8 +48,8 @@ class BIntegerType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.INT.getSig();
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_INT);
     }
 
     @Override

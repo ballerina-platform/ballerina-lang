@@ -47,8 +47,8 @@ public class BExceptionType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.EXCEPTION.getSig() + ";";
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.EXCEPTION.getName());
     }
 
     @Override

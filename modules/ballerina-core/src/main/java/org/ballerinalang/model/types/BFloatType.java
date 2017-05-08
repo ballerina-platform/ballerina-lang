@@ -49,8 +49,8 @@ class BFloatType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.FLOAT.getSig();
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_FLOAT);
     }
 
     @Override

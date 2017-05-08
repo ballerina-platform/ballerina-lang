@@ -48,8 +48,8 @@ public class BMessageType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.MESSAGE.getSig() + TypeEnum.MESSAGE.getName() + ";";
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.MESSAGE.getName());
     }
 
     @Override

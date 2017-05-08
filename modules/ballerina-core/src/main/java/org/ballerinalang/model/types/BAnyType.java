@@ -47,8 +47,8 @@ public class BAnyType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.ANY.getSig();
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_ANY);
     }
 
     @Override

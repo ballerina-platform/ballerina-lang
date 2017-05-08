@@ -73,7 +73,7 @@ public abstract class BType implements BLangSymbol {
      */
     public abstract <V extends BValue> V getEmptyValue();
 
-    public abstract String getSig();
+    public abstract TypeSignature getSig();
 
     public abstract int getTag();
     

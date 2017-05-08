@@ -29,14 +29,24 @@ import org.ballerinalang.model.values.BValue;
 public class BConnectorType extends BType {
 
     /**
-     * Create a {@code BConnectorType} which represents the boolean type.
+     * Create a {@code BConnectorType} which represents the Ballerina Connector type.
      *
-     * @param typeName string name of the type
-     * @param pkgPath package of the connector
+     * @param typeName    string name of the type
+     * @param pkgPath     package of the connector
      * @param symbolScope symbol scope of the connector
      */
     public BConnectorType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BConnector.class);
+    }
+
+    /**
+     * Create a {@code BConnectorType} which represents the Ballerina Connector type.
+     *
+     * @param typeName    string name of the type
+     * @param pkgPath     package of the connector
+     */
+    public BConnectorType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, null, BConnector.class);
     }
 
     @Override
@@ -50,8 +60,9 @@ public class BConnectorType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return null;
+    public TypeSignature getSig() {
+        String packagePath = (pkgPath == null) ? "." : pkgPath;
+        return new TypeSignature(TypeSignature.SIG_CONNECTOR, packagePath, typeName);
     }
 
     @Override

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 
@@ -29,14 +28,13 @@ import org.ballerinalang.model.values.BValue;
 public class BStructType extends BType {
 
     /**
-     * Create a {@code BStructType} which represents the boolean type.
+     * Create a {@code BStructType} which represents a Struct type.
      *
      * @param typeName string name of the type
      * @param pkgPath package of the struct
-     * @param symbolScope symbol scope of the struct
      */
-    public BStructType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BStruct.class);
+    public BStructType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, null, BStruct.class);
     }
 
     @Override
@@ -50,8 +48,9 @@ public class BStructType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return null;
+    public TypeSignature getSig() {
+        String packagePath = (pkgPath == null) ? "." : pkgPath;
+        return new TypeSignature(TypeSignature.SIG_STRUCT, packagePath, typeName);
     }
 
     @Override

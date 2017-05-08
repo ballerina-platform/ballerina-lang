@@ -51,8 +51,8 @@ public class BDataTableType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.DATATABLE.getSig() + TypeEnum.DATATABLE.getName() + ";";
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.DATATABLE.getName());
     }
 
     @Override

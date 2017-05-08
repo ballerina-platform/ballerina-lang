@@ -48,8 +48,8 @@ class BBooleanType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.BOOLEAN.getSig();
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_BOOLEAN);
     }
 
     @Override

@@ -21,7 +21,7 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -181,8 +181,9 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.STRUCT.getSig() + pkgPath + ":" + typeName + ";";
+    public TypeSignature getSig() {
+        String packagePath = (pkgPath == null) ? "." : pkgPath;
+        return new TypeSignature(TypeSignature.SIG_STRUCT, packagePath, typeName);
     }
 
     @Override

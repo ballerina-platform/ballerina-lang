@@ -46,6 +46,11 @@ public class BArrayType extends BType implements BIndexedType {
         this.dimensions = dimensions;
     }
 
+    public BArrayType(BType elementType) {
+        super(null, null, null, BArray.class);
+        this.elementType = elementType;
+    }
+
     public BType getElementType() {
         return elementType;
     }
@@ -61,8 +66,8 @@ public class BArrayType extends BType implements BIndexedType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.ARRAY.getSig() + elementType.getSig();
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_ARRAY, elementType.getSig());
     }
 
     @Override

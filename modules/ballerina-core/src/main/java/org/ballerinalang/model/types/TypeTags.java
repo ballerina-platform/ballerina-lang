@@ -23,7 +23,6 @@ package org.ballerinalang.model.types;
  * @since 0.87
  */
 public class TypeTags {
-
     public static final int INT_TAG = 1;
     public static final int FLOAT_TAG = 2;
     public static final int STRING_TAG = 3;
@@ -39,4 +38,5 @@ public class TypeTags {
     public static final int EXCEPTION_TAG = 13;
     public static final int STRUCT_TAG = 14;
     public static final int ARRAY_TAG = 15;
+    public static final int ANNOTATION_TAG = 16;
 }

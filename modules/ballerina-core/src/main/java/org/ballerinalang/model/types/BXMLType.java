@@ -48,8 +48,8 @@ public class BXMLType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.XML.getSig() + TypeEnum.XML.getName();
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.XML.getName());
     }
 
     @Override

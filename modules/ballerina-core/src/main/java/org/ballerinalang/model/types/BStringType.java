@@ -48,8 +48,8 @@ public class BStringType extends BType {
     }
 
     @Override
-    public String getSig() {
-        return TypeEnum.STRING.getSig();
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_STRING);
     }
 
     @Override
