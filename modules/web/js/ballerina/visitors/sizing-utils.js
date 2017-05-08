@@ -129,6 +129,27 @@ class SizingUtil {
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
 
+        let annotationHeight = 0;
+
+        /**
+         * calculate the height of annotation view
+         */
+        let annotations = node.filterChildren(function (child) {
+            return ASTFactory.isAnnotation(child)
+        });
+
+        _.forEach(annotations, function (annotation) {
+            annotationHeight = annotationHeight+ 25;
+        });
+
+        components['annotation'] = new SimpleBBox();
+
+        if(node.viewState.annotationViewCollapsed){
+            components['annotation'].h = 25; 
+        }else{
+            components['annotation'].h = annotationHeight; 
+        }
+
         components['statementContainer'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
         var statementWidth = DesignerDefaults.statementContainer.width;
@@ -192,8 +213,9 @@ class SizingUtil {
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
             DesignerDefaults.panel.body.padding.left + lifeLineWidth;
         components['heading'].w = components['body'].w;
+        components['annotation'].w = components['body'].w;
 
-        viewState.bBox.h = components['heading'].h + components['body'].h;
+        viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
         viewState.bBox.w = components['body'].w;
 
         viewState.titleWidth = util.getTextWidth(name).w;
@@ -221,6 +243,8 @@ class SizingUtil {
         let bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         // Set the width initial value to the padding left and right
         var bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
+
+        let annotationHeight = 0;
 
         /**
          * If there are service level connectors, their height depends on the heights of the resources
@@ -277,18 +301,37 @@ class SizingUtil {
             bodyHeight = DesignerDefaults.innerPanel.body.height;
         }
 
+
+        /**
+         * calculate the height of annotation view
+         */
+        let annotations = node.filterChildren(function (child) {
+            return ASTFactory.isAnnotation(child)
+        });
+
+        _.forEach(annotations, function (annotation) {
+            annotationHeight = annotationHeight+ 25;
+        });
+
         components['heading'] = new SimpleBBox();
         components['body'] = new SimpleBBox();
+        components['annotation'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
         if (node.viewState.collapsed) {
             components['body'].h = 0;
         } else {
             components['body'].h = bodyHeight;
         }
+        if(node.viewState.annotationViewCollapsed){
+            components['annotation'].h = 25; 
+        }else{
+            components['annotation'].h = annotationHeight; 
+        }
         components['body'].w = bodyWidth;
         components['heading'].w = bodyWidth;
+        components['annotation'].w = bodyWidth;
 
-        viewState.bBox.h = components['heading'].h + components['body'].h;
+        viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
         viewState.bBox.w = components['body'].w;
 
         viewState.components = components;

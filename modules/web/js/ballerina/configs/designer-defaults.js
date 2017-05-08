@@ -40,6 +40,11 @@ export const panel = {
             left: 50
         },
         height: 200
+    },
+    annotation: {
+        body: {
+            height: 25
+        }
     }
 };
 

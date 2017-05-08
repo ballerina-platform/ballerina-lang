@@ -46,6 +46,13 @@
     shape-rendering: crispEdges;
 }
 
+.annotationRect {
+    fill: #FFFFFF;
+    stroke-width: 1;
+    stroke: #909090;
+    shape-rendering: crispEdges;
+}
+
 .headingRectIcon {
     fill: url(/#resourceIcon);
 }
