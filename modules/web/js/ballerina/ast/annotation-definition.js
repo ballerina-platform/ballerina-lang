@@ -25,7 +25,7 @@ import CommonUtils from '../utils/common-utils';
  * */
 class AnnotationDefinition extends ASTNode {
     constructor(args) {
-        super('Annotation');
+        super('AnnotationDefinition');
         this._annotationName = _.get(args, 'annotationName');
         this._attachmentPoints = _.get(args, 'attachmentPoints', []);
     }
@@ -60,7 +60,7 @@ class AnnotationDefinition extends ASTNode {
         return this.filterChildren(this.getFactory().isAnnotationAttributeDefinition);
     }
 
-    addAnnotationAttributeDefinition (type, identifier, defaultValue) {
+    addAnnotationAttributeDefinition(type, identifier, defaultValue) {
         // if identifier is empty
         if (_.isEmpty(identifier)) {
             var errorString = 'Identifier cannot be empty';
@@ -70,8 +70,8 @@ class AnnotationDefinition extends ASTNode {
 
         // Check if already variable definition exists with same identifier.
         var identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (attDef) {
-            return attDef.getAttributeName() === identifier;
-        }) !== -1;
+                return attDef.getAttributeName() === identifier;
+            }) !== -1;
 
         // If annotation attribute definition with the same identifier exists, then throw an error,
         // else create the new annotation attribute definition.
@@ -108,11 +108,11 @@ class AnnotationDefinition extends ASTNode {
                 return _.isEqual(identifier, attachmentPoint);
             }) !== -1;
 
-        if(identifierAlreadyExists){
-            var errorString = 'An attribute with identifier "'+identifier+'" already exists.';
+        if (identifierAlreadyExists) {
+            var errorString = 'An attribute with identifier "' + identifier + '" already exists.';
             log.error(errorString);
             throw errorString;
-        }else{
+        } else {
             this._attachmentPoints.push(identifier);
         }
     }
@@ -122,10 +122,10 @@ class AnnotationDefinition extends ASTNode {
      * @param {string} identifier - identifier for the attachment point.
      * */
     removeAnnotationAttachmentPoints(identifier) {
-        _.pull(this._attachmentPoints,identifier);
+        _.pull(this._attachmentPoints, identifier);
     }
 
-     /**
+    /**
      * Removes annotation attribute definition.
      * @param {string} modelID - The model ID of the variable.
      */
@@ -140,8 +140,8 @@ class AnnotationDefinition extends ASTNode {
     initFromJson(jsonNode) {
         var self = this;
         this.setAnnotationName(jsonNode.annotation_name, {doSilently: true});
-        if (!_.isNil(jsonNode.annotation_attachment_points)){
-        this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), {doSilently: true});
+        if (!_.isNil(jsonNode.annotation_attachment_points)) {
+            this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), {doSilently: true});
         }
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
@@ -161,9 +161,9 @@ class AnnotationDefinition extends ASTNode {
                 defaultValue: 'Annotation',
                 setter: this.setAnnotationName,
                 getter: this.getAnnotationName,
-                parent: [{
+                parents: [{
                     node: this.parent,
-                    getChildrenFunc: this.parent.getAnnotationDefinitions(),
+                    getChildrenFunc: this.parent.getAnnotationDefinitions,
                     getter: this.getAnnotationName
                 }]
             }]

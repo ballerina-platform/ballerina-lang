@@ -20,7 +20,7 @@ import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 
-class AnnotationDimensionCalculatorVisitor {
+class AnnotationDefinitionDimensionCalculatorVisitor {
     canVisit(node) {
         log.debug("can visit AnnotationDefinitionDimennsionCalc");
         return true;
@@ -35,20 +35,20 @@ class AnnotationDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        var viewState = node.getViewState();
-        var components = {};
+        let viewState = node.getViewState();
+        let components = {};
 
         components['heading'] = new SimpleBBox();
 
         //Initial statement height include panel heading and pannel padding.
-        var bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+        let bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         // Set the width to 0 dont add the padding now since we do a comparison.
-        var bodyWidth = 0;
+        let bodyWidth = 0;
 
         node.children.forEach(function (child, index) {
             bodyHeight += child.viewState.bBox.h;
             // If there is only one child no need to add gutter
-            if (index == 1) {
+            if (index === 1) {
                 bodyHeight = bodyHeight + DesignerDefaults.innerPanel.wrapper.gutter.v;
             }
             if (child.viewState.bBox.w > bodyWidth) {
@@ -75,4 +75,4 @@ class AnnotationDimensionCalculatorVisitor {
     }
 }
 
-export default AnnotationDimensionCalculatorVisitor;
+export default AnnotationDefinitionDimensionCalculatorVisitor;
