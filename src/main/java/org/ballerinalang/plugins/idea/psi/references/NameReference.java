@@ -139,9 +139,12 @@ public class NameReference extends BallerinaElementReference {
         for (ResolveResult resolveResult : resolveResults) {
             // Get the element from the resolve result.
             PsiElement element = resolveResult.getElement();
+            if(element==null){
+                continue;
+            }
             // Get all functions in the package.
             List<PsiElement> allFunctions =
-                    BallerinaPsiImplUtil.getAllFunctionsInPackage((PsiDirectory) element);
+                    BallerinaPsiImplUtil.getAllFunctionsFromPackage((PsiDirectory) element);
             // Add matching functions to results.
             for (PsiElement psiElement : allFunctions) {
                 if (getElement().getText().equals(psiElement.getText())) {
@@ -168,7 +171,7 @@ public class NameReference extends BallerinaElementReference {
             }
             // Get all structs in the package.
             List<PsiElement> allStructs =
-                    BallerinaPsiImplUtil.getAllStructsInPackage((PsiDirectory) element);
+                    BallerinaPsiImplUtil.getAllStructsFromPackage((PsiDirectory) element);
             // Add matching functions to results.
             for (PsiElement psiElement : allStructs) {
                 if (getElement().getText().equals(psiElement.getText())) {

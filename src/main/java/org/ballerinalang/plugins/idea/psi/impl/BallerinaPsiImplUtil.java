@@ -106,11 +106,7 @@ public class BallerinaPsiImplUtil {
         if (identifierElement == null) {
             return new PsiDirectory[0];
         }
-        Project project = identifierElement.getProject();
-
         PsiElement parent;
-
-
         PsiElement tempParent = identifierElement.getParent();
         if (tempParent == null) {
             return new PsiDirectory[0];
@@ -143,8 +139,18 @@ public class BallerinaPsiImplUtil {
             sibling = sibling.getPrevSibling();
         }
 
+        Project project = identifierElement.getProject();
         List<PsiDirectory> results = new ArrayList<>();
+        // Add matching directories from content roots.
+        addMatchingDirectoriesFromContentRoots(packages, project, results);
+        // Add matching directories from SDK sources.
+        addMatchingDirectoriesFromSDK(project, packages, results);
+        // Return the results.
+        return results.toArray(new PsiDirectory[results.size()]);
+    }
 
+    private static void addMatchingDirectoriesFromContentRoots(List<PsiElement> packages, Project project,
+                                                               List<PsiDirectory> results) {
         // We need to get the content roots from the project and find matching directories in each content root.
         VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
         for (VirtualFile contentRoot : contentRoots) {
@@ -155,7 +161,10 @@ public class BallerinaPsiImplUtil {
                 results.add(PsiManager.getInstance(project).findDirectory(match));
             }
         }
+    }
 
+    private static void addMatchingDirectoriesFromSDK(Project project, List<PsiElement> packages,
+                                                      List<PsiDirectory> results) {
         // Get all project source roots and find matching directories.
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (projectSdk != null) {
@@ -167,7 +176,6 @@ public class BallerinaPsiImplUtil {
                 }
             }
         }
-        return results.toArray(new PsiDirectory[results.size()]);
     }
 
     /**
@@ -192,7 +200,7 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static PsiDirectory[] suggestCurrentPackagePath(PsiElement element) {
+    public static PsiDirectory[] suggestCurrentPackagePath(@NotNull PsiElement element) {
 
         List<PsiDirectory> results = new ArrayList<>();
         Project project = element.getProject();
@@ -358,44 +366,33 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<PsiElement> getAllStructsInCurrentPackage(PsiElement element) {
         if (element instanceof PsiDirectory) {
-            return getAllStructsInPackage((PsiDirectory) element);
+            return getAllStructsFromPackage((PsiDirectory) element);
         }
         PsiElement parent = element.getParent();
         if (parent != null) {
-            return getAllStructsInPackage((PsiDirectory) parent);
+            return getAllStructsFromPackage((PsiDirectory) parent);
         }
         return new LinkedList<>();
     }
 
     @NotNull
-    public static List<PsiElement> getAllStructsInPackage(PsiDirectory directory) {
+    public static List<PsiElement> getAllStructsFromPackage(PsiDirectory directory) {
         return getAllMatchingElementsFromPackage(directory, STRUCT_DEFINITION);
     }
 
     @NotNull
-    public static List<PsiElement> getAllFunctionsInCurrentPackage(PsiElement element) {
-        if (element instanceof PsiDirectory) {
-            return getAllFunctionsInPackage((PsiDirectory) element);
-        }
-        PsiElement parent = element.getParent();
-        if (parent != null) {
-            return getAllFunctionsInPackage((PsiDirectory) parent);
-        }
-        return new LinkedList<>();
-    }
-
-    @NotNull
-    public static List<PsiElement> getAllFunctionsInPackage(PsiDirectory directory) {
+    public static List<PsiElement> getAllFunctionsFromPackage(@NotNull PsiDirectory directory) {
         return getAllMatchingElementsFromPackage(directory, FUNCTION_DEFINITION);
     }
 
     @NotNull
-    public static List<PsiElement> getAllConstantsInPackage(PsiDirectory directory) {
+    public static List<PsiElement> getAllConstantsFromPackage(PsiDirectory directory) {
         return getAllMatchingElementsFromPackage(directory, CONSTANT_DEFINITION);
     }
 
     @NotNull
     public static List<PsiElement> getAllImportedPackagesInCurrentFile(@NotNull PsiElement element) {
+
         PsiFile file = element.getContainingFile();
 
         Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfType(file,
@@ -435,10 +432,7 @@ public class BallerinaPsiImplUtil {
      * @return all functions in the given directory(package)
      */
     @NotNull
-    private static List<PsiElement> getAllMatchingElementsFromPackage(PsiDirectory directory, String xpath) {
-        if (directory == null) {
-            return new LinkedList<>();
-        }
+    private static List<PsiElement> getAllMatchingElementsFromPackage(@NotNull PsiDirectory directory, String xpath) {
         Project project = directory.getProject();
         List<PsiElement> results = new ArrayList<>();
         VirtualFile virtualFile = directory.getVirtualFile();
@@ -626,6 +620,9 @@ public class BallerinaPsiImplUtil {
                 XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement/Identifier");
         // Iterate through each definition.
         for (PsiElement variableDefinition : variableDefinitions) {
+            if (variableDefinition == null) {
+                continue;
+            }
             // If the variable definition or parent contains the PLACEHOLDER_STRING, then continue because that is
             // the node which we are currently editing.
             if (variableDefinition.getText().contains(PLACEHOLDER_STRING) ||
@@ -635,15 +632,15 @@ public class BallerinaPsiImplUtil {
             // Add variables.
             checkAndAddVariable(element, results, variableDefinition);
         }
-        // Get all parameters from the context.
-        Collection<? extends PsiElement> parameterDefinitions =
-                XPath.findAll(BallerinaLanguage.INSTANCE, context, PARAMETER_DEFINITION);
-        for (PsiElement parameterDefinition : parameterDefinitions) {
-            if (!parameterDefinition.getText().contains(PLACEHOLDER_STRING) &&
-                    !parameterDefinition.getParent().getText().contains(PLACEHOLDER_STRING)) {
-                results.add(parameterDefinition);
-            }
-        }
+//        // Get all parameters from the context.
+//        Collection<? extends PsiElement> parameterDefinitions =
+//                XPath.findAll(BallerinaLanguage.INSTANCE, context, PARAMETER_DEFINITION);
+//        for (PsiElement parameterDefinition : parameterDefinitions) {
+//            if (!parameterDefinition.getText().contains(PLACEHOLDER_STRING) &&
+//                    !parameterDefinition.getParent().getText().contains(PLACEHOLDER_STRING)) {
+//                results.add(parameterDefinition);
+//            }
+//        }
         // If the context is not null, get variables from parent context as well.
         // Ex:- If the current context is function body, we need to get parameters from function definition which is
         // the parent context.
@@ -660,8 +657,36 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
+    @NotNull
+    public static List<PsiElement> getAllParametersInResolvableScope(PsiElement element, PsiElement context) {
+        List<PsiElement> results = new ArrayList<>();
+        // Get all parameters from the context.
+        Collection<? extends PsiElement> parameterDefinitions =
+                XPath.findAll(BallerinaLanguage.INSTANCE, context, PARAMETER_DEFINITION);
+        for (PsiElement parameterDefinition : parameterDefinitions) {
+            if (!parameterDefinition.getText().contains(PLACEHOLDER_STRING) &&
+                    !parameterDefinition.getParent().getText().contains(PLACEHOLDER_STRING)) {
+                results.add(parameterDefinition);
+            }
+        }
+        // If the context is not null, get variables from parent context as well.
+        // Ex:- If the current context is function body, we need to get parameters from function definition which is
+        // the parent context.
+        // We need to check the context.getContext() here, otherwise all variables in the file will be suggested.
+        if (context != null && !(context.getContext() instanceof BallerinaFile)) {
+            List<PsiElement> allParametersInResolvableScope = getAllParametersInResolvableScope(element,
+                    context.getContext());
+            for (PsiElement psiElement : allParametersInResolvableScope) {
+                if (!results.contains(psiElement)) {
+                    results.add(psiElement);
+                }
+            }
+        }
+        return results;
+    }
+
     private static void checkAndAddVariable(PsiElement element, List<PsiElement> results,
-                                            PsiElement variableDefinition) {
+                                            @NotNull PsiElement variableDefinition) {
         // Get the variable definition node from the element which we are editing.
         VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(element,
                 VariableDefinitionNode.class);
@@ -689,16 +714,14 @@ public class BallerinaPsiImplUtil {
         if (statementNode == null) {
             PsiElement prevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
                     element.getTextOffset() - 1);
-            if (prevSibling != null) {
-                if (prevSibling instanceof LeafPsiElement) {
-                    IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
-                    boolean isValidLocation = (variableDefinition.getParent().getTextOffset() <
-                            prevSibling.getParent().getTextOffset())
-                            || ((variableDefinition.getParent().getTextOffset() < element.getTextOffset())
-                            && elementType != BallerinaTypes.ASSIGN);
-                    if (isValidLocation) {
-                        results.add(variableDefinition);
-                    }
+            if (prevSibling != null && prevSibling instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+                boolean isValidLocation = (variableDefinition.getParent().getTextOffset() <
+                        prevSibling.getParent().getTextOffset())
+                        || ((variableDefinition.getParent().getTextOffset() < element.getTextOffset())
+                        && elementType != BallerinaTypes.ASSIGN);
+                if (isValidLocation) {
+                    results.add(variableDefinition);
                 }
             }
         } else if (!PLACEHOLDER_STRING.equals(statementNode.getText())) {
