@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.extension.output.transport.kafka;
 
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
@@ -34,7 +34,6 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Extension(
@@ -104,9 +103,14 @@ public class KafkaSink extends Sink {
         String topic = topicOption.getValue(transportOptions);
         String partitionNo = partitionOption.getValue(transportOptions);
         try {
-            executorService.submit(new KafkaSender(topic, partitionNo, payload));
-        } catch (RejectedExecutionException e) {
-            log.error("Job queue is full : " + e.getMessage(), e);
+            if (null == partitionNo) {
+                producer.send(new ProducerRecord<>(topic, payload.toString()));
+            } else {
+                producer.send(new ProducerRecord<>(topic, partitionNo, payload.toString()));
+            }
+        } catch (Exception e) {
+            log.error(String.format("Failed to publish the message to [topic] %s [partition-no] %s. Error: %s",
+                    topic, partitionNo, e.getMessage()), e);
         }
     }
 

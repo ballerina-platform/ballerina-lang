@@ -95,14 +95,13 @@ public class TextSinkMapper extends SinkMapper {
      */
     private Object constructDefaultMapping(Event event) {
         StringBuilder eventText = new StringBuilder();
+        eventText.append("siddhiEventId").append(EVENT_ATTRIBUTE_VALUE_SEPARATOR).append(event.getId()).append("\n");
         Object[] data = event.getData();
         for (int i = 0; i < data.length; i++) {
-            String attributeName = streamDefinition.getAttributeNameArray()[i];
             Object attributeValue = data[i];
-            eventText.append(attributeName).append(EVENT_ATTRIBUTE_VALUE_SEPARATOR).append(attributeValue.toString()).append(EVENT_ATTRIBUTE_SEPARATOR).append("\n");
+            eventText.append(attributeValue.toString()).append(EVENT_ATTRIBUTE_SEPARATOR);
         }
         eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
-        eventText.deleteCharAt(eventText.lastIndexOf("\n"));
 
 //        // Get arbitrary data from event
 //        Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();

@@ -141,7 +141,14 @@ public class TextSourceMapper extends SourceMapper {
     protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
         if (eventObject != null) {
             synchronized (this) {
-                inputHandler.send(convertToEvent(eventObject));
+                Event event = convertToEvent(eventObject);
+                long eventId = event.getId();
+                // event id -1 is reserved for the events that are arriving for the first Siddhi node
+                if (getLastEventId() == null || eventId == -1 || getLastEventId() < eventId) {
+                    setLastEventId(eventId);
+                    inputHandler.send(event);
+                }
+
             }
         }
     }
@@ -154,7 +161,6 @@ public class TextSourceMapper extends SourceMapper {
      */
     private Event convertToEvent(Object eventObject) {
         // Validate the event
-        // Validate the event
         if (eventObject == null) {
             throw new ExecutionPlanRuntimeException("Null object received from the Source to TextsourceMapper");
         }
@@ -166,12 +172,18 @@ public class TextSourceMapper extends SourceMapper {
         }
 
         Event event = new Event(this.streamDefinition.getAttributeList().size());
+        String eventObj = (String) eventObject;
+        if (eventObj.contains("siddhiEventId:")) {
+            // siddhiEventId should be the first line of the message
+            event.setId(Long.parseLong(eventObj.split("\n")[0].split("siddhiEventId:")[1]));
+            eventObj = eventObj.replaceFirst(eventObj.split("\n")[0] + "\n", "");
+        }
         Object[] data = event.getData();
 
         for (MappingPositionData mappingPositionData : this.mappingPositions) {
             int position = mappingPositionData.getPosition();
             Attribute attribute = streamAttributes.get(position);
-            data[position] = attributeConverter.getPropertyValue(mappingPositionData.match((String) eventObject),
+            data[position] = attributeConverter.getPropertyValue(mappingPositionData.match(eventObj),
                     attribute.getType());
         }
 

@@ -293,7 +293,7 @@ public class DefinitionParserHelper {
 
                     sourceMapper.init(streamDefinition, mapType, mapOptionHolder, getAttributeMappings(mapAnnotation),
                             executionPlanContext.getSiddhiContext().getConfigManager().generateConfigReader
-                                    (mapperExtension.getNamespace(), mapperExtension.getName()));
+                                    (mapperExtension.getNamespace(), mapperExtension.getName()), executionPlanContext);
                     source.init(sourceOptionHolder, sourceMapper, executionPlanContext.getSiddhiContext()
                             .getConfigManager().generateConfigReader
                                     (sourceExtension.getNamespace(), sourceExtension.getName()), executionPlanContext);
