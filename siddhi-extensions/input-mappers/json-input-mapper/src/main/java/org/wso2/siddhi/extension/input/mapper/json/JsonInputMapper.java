@@ -59,12 +59,11 @@ import net.minidev.json.JSONArray;
 )
 public class JsonInputMapper extends SourceMapper {
 
-    private static final Logger log = Logger.getLogger(JsonInputMapper.class);
-
     public static final String DEFAULT_JSON_MAPPING_PREFIX = "$.";
     public static final String DEFAULT_JSON_EVENT_IDENTIFIER = "event";
     public static final String DEFAULT_ENCLOSING_ELEMENT = "$";
     public static final String FAIL_ON_UNKNOWN_ATTRIBUTE_IDENTIFIER = "fail.on.unknown.attribute";
+    private static final Logger log = Logger.getLogger(JsonInputMapper.class);
     private final String ENCLOSING_ELEMENT_INDENTIFIER = "enclosing.element";
 
     private StreamDefinition streamDefinition;
@@ -176,6 +175,10 @@ public class JsonInputMapper extends SourceMapper {
             } else {
                 try {
                     Event event = convertToSingleEventForDefaultMapping(eventObject);
+                    if (event == null) {
+                        log.error("Event" + eventObject + " contains incompatible attribute types and values.");
+                        return null;
+                    }
                     if (failOnUnknownAttribute && checkForUnknownAttributes(event)) {
                         log.error("Event " + event.toString() + " contains unknown attributes");
                         return null;
@@ -208,37 +211,42 @@ public class JsonInputMapper extends SourceMapper {
                 String key = parser.getCurrentName();
                 position = findDefaultMappingPosition(key);
                 jsonToken = parser.nextToken();
-                switch (streamAttributes.get(position).getType()) {
+                Attribute.Type type = streamAttributes.get(position).getType();
+                switch (type) {
                     case BOOL:
-                        if (JsonToken.VALUE_TRUE.equals(jsonToken) || JsonToken.VALUE_FALSE.equals(jsonToken)) {
+                        if (type.equals(Attribute.Type.BOOL) &&
+                                (JsonToken.VALUE_TRUE.equals(jsonToken) || JsonToken.VALUE_FALSE.equals(jsonToken))) {
                             data[position] = parser.getValueAsBoolean();
                             break;
                         }
                     case INT:
-                        if (JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken)) {
+                        if (type.equals(Attribute.Type.INT) && JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken)) {
                             data[position] = parser.getValueAsInt();
                             break;
                         }
                     case DOUBLE:
-                        if (JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken)) {
+                        if (type.equals(Attribute.Type.DOUBLE) && JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken)) {
                             data[position] = parser.getValueAsDouble();
                             break;
                         }
                     case STRING:
-                        if (JsonToken.VALUE_STRING.equals(jsonToken)) {
+                        if (type.equals(Attribute.Type.STRING) && JsonToken.VALUE_STRING.equals(jsonToken)) {
                             data[position] = parser.getValueAsString();
                             break;
                         }
                     case FLOAT:
-                        if (JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken) || JsonToken.VALUE_NUMBER_INT.equals(jsonToken)) {
+                        if (type.equals(Attribute.Type.FLOAT) &&
+                                (JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken) || JsonToken.VALUE_NUMBER_INT.equals(jsonToken))) {
                             data[position] = convertAttribute(parser.getValueAsString(), Attribute.Type.FLOAT);
                             break;
                         }
                     case LONG:
-                        if (JsonToken.VALUE_NUMBER_INT.equals(jsonToken)) {
+                        if (type.equals(Attribute.Type.LONG) && JsonToken.VALUE_NUMBER_INT.equals(jsonToken)) {
                             data[position] = parser.getValueAsLong();
                             break;
                         }
+                    default:
+                        return null;
                 }
             }
         }
@@ -306,7 +314,6 @@ public class JsonInputMapper extends SourceMapper {
 
     private Object convertAttribute(Object attribute, Attribute.Type type) {
         String value;
-        int index;
         switch (type) {
             case INT:
                 value = attribute.toString();

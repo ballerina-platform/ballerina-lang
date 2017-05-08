@@ -116,45 +116,6 @@ public class JSONOutputMapper extends SinkMapper {
         }
     }
 
-    /**
-     * Convert the given {@link Event} to JSON string
-     *
-     * @param event Event object
-     * @return the constructed JSON string
-     */
-    private JsonObject constructSingleEventForDefaultMapping(Event event) {
-        Object[] data = event.getData();
-        JsonObject jsonEventObject = new JsonObject();
-        JsonObject innerParentObject = new JsonObject();
-
-        for (int i = 0; i < data.length; i++) {
-            String attributeName = streamDefinition.getAttributeNameArray()[i];
-            Object attributeValue = data[i];
-            if (attributeValue != null) {
-                if (attributeValue instanceof String) {
-                    innerParentObject.addProperty(attributeName, attributeValue.toString());
-                } else if (attributeValue instanceof Integer) {
-                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
-                } else if (attributeValue instanceof Long) {
-                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
-                } else if (attributeValue instanceof Float) {
-                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
-                } else if (attributeValue instanceof Double) {
-                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
-                } else if (attributeValue instanceof Boolean) {
-                    innerParentObject.addProperty(attributeName, (Boolean) attributeValue);
-                } else if (attributeValue instanceof Map) {
-                    if (!((Map) attributeValue).isEmpty()) {
-                        Gson gson = new Gson();
-                        innerParentObject.add(attributeName, gson.toJsonTree(attributeValue));
-                    }
-                }
-            }
-        }
-        jsonEventObject.add(EVENT_PARENT_TAG, innerParentObject);
-        return jsonEventObject;
-    }
-
     private String constructJsonForDefaultMapping(Object eventObj) {
         if (eventObj instanceof Event) {
             Event event = (Event) eventObj;
@@ -198,6 +159,39 @@ public class JSONOutputMapper extends SinkMapper {
             }
         }
         return null;
+    }
+
+    private JsonObject constructSingleEventForDefaultMapping(Event event) {
+        Object[] data = event.getData();
+        JsonObject jsonEventObject = new JsonObject();
+        JsonObject innerParentObject = new JsonObject();
+
+        for (int i = 0; i < data.length; i++) {
+            String attributeName = streamDefinition.getAttributeNameArray()[i];
+            Object attributeValue = data[i];
+            if (attributeValue != null) {
+                if (attributeValue instanceof String) {
+                    innerParentObject.addProperty(attributeName, attributeValue.toString());
+                } else if (attributeValue instanceof Integer) {
+                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
+                } else if (attributeValue instanceof Long) {
+                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
+                } else if (attributeValue instanceof Float) {
+                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
+                } else if (attributeValue instanceof Double) {
+                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
+                } else if (attributeValue instanceof Boolean) {
+                    innerParentObject.addProperty(attributeName, (Boolean) attributeValue);
+                } else if (attributeValue instanceof Map) {
+                    if (!((Map) attributeValue).isEmpty()) {
+                        Gson gson = new Gson();
+                        innerParentObject.add(attributeName, gson.toJsonTree(attributeValue));
+                    }
+                }
+            }
+        }
+        jsonEventObject.add(EVENT_PARENT_TAG, innerParentObject);
+        return jsonEventObject;
     }
 
     private Event doPartialProcessing(Event event) {
