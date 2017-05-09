@@ -25,6 +25,13 @@ import org.wso2.siddhi.annotation.SystemParameter;
 import org.wso2.siddhi.annotation.util.AnnotationConstants;
 import org.wso2.siddhi.annotation.util.AnnotationValidationException;
 
+import java.lang.annotation.Annotation;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -36,13 +43,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
-import java.lang.annotation.Annotation;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * The annotation processor for siddhi extension annotation validation. This will validate @Extension, @Parameter,

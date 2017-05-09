@@ -20,6 +20,7 @@ package org.wso2.siddhi.annotation.processor;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.AnnotationValidationException;
+
 import java.text.MessageFormat;
 
 /**
