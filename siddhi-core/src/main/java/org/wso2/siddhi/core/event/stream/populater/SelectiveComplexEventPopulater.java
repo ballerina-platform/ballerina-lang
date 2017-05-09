@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_INDEX_IN_TYPE;
@@ -36,7 +37,7 @@ public class SelectiveComplexEventPopulater implements ComplexEventPopulater {
 
     private List<StreamMappingElement> streamMappingElements;       //List to hold information needed for population
 
-    public SelectiveComplexEventPopulater(List<StreamMappingElement> streamMappingElements) {
+    SelectiveComplexEventPopulater(List<StreamMappingElement> streamMappingElements) {
         this.streamMappingElements = streamMappingElements;
     }
 
@@ -72,7 +73,7 @@ public class SelectiveComplexEventPopulater implements ComplexEventPopulater {
                 break;
             default:
                 //will not happen
-                throw new IllegalStateException("To Position cannot be :" + toPosition);
+                throw new IllegalStateException("To Position cannot be :" + Arrays.toString(toPosition));
         }
     }
 
