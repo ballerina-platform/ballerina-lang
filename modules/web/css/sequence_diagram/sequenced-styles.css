@@ -47,13 +47,12 @@
 
 .annotationRect {
     fill: #eeeeee;
-    stroke-width: 1px;
     shape-rendering: crispEdges;
-    stroke: #7d7d7d;
 }
 
 .annotation-text {
-    fill: #2c2c2c;
+    font-size: 13px;
+    fill: #00866c;
 }
 
 .headingRectIcon {
