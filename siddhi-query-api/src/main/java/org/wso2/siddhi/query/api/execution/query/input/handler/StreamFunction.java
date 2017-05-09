@@ -46,7 +46,7 @@ public class StreamFunction implements StreamHandler, Extension {
 
     public StreamFunction(String function, Expression[] parameters) {
         this.function = function;
-        this.parameters = Arrays.copyOfRange(parameters, 0, parameters.length);
+        this.parameters = parameters;
     }
 
     public StreamFunction(String function) {

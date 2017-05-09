@@ -58,13 +58,15 @@ public class PassThroughSinkMapper extends SinkMapper {
 
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+                           SinkListener sinkListener, DynamicOptions dynamicOptions)
+            throws ConnectionUnavailableException {
         sinkListener.publish(events, dynamicOptions);
     }
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+                           SinkListener sinkListener, DynamicOptions dynamicOptions)
+            throws ConnectionUnavailableException {
         sinkListener.publish(event, dynamicOptions);
     }
 }

@@ -50,7 +50,7 @@ public class AttributeFunction extends Expression implements Extension {
     }
 
     public void setParameters(Expression[] parameters) {
-        this.parameters = Arrays.copyOfRange(parameters, 0, parameters.length);
+        this.parameters = parameters;
     }
 
     @Override
