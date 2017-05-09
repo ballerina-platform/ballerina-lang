@@ -25,9 +25,9 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -95,8 +95,8 @@ public class StatementReference extends BallerinaElementReference {
         }
 
         // We need to check parameters for matches as well. So we need to first get the enclosing definition node.
-        IdentifierDefSubtree definitionNode = PsiTreeUtil.getParentOfType(getElement(), FunctionNode.class,
-                ResourceDefinitionNode.class, ConnectorNode.class, ActionDefinitionNode.class);
+        IdentifierDefSubtree definitionNode = PsiTreeUtil.getParentOfType(getElement(), FunctionDefinitionNode.class,
+                ResourceDefinitionNode.class, ConnectorDefinitionNode.class, ActionDefinitionNode.class);
         // Get all parameter nodes.
         Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(definitionNode, ParameterNode.class);
         // Check and add each result.

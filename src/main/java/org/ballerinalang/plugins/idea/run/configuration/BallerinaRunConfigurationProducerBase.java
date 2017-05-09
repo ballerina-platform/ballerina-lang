@@ -30,7 +30,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
@@ -57,8 +57,8 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
         }
         // Get the element. This will be an identifier element.
         PsiElement element = sourceElement.get();
-        // Get the FunctionNode parent from element
-        FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
+        // Get the FunctionDefinitionNode parent from element
+        FunctionDefinitionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class);
 
         // Get the declared package in the file if available.
         String packageInFile = "";
@@ -75,7 +75,7 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
             packageInFile = packagePathNode.getText().replaceAll("\\.", File.separator);
         }
 
-        // If FunctionNode parent is available, that means that the sourceElement is within a function. We need to
+        // If FunctionDefinitionNode parent is available, that means that the sourceElement is within a function. We need to
         // check whether this is a main function or not as well.
         if (BallerinaRunUtil.hasMainFunction(file) && functionNode != null) {
             // Set the configuration info.

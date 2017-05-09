@@ -29,9 +29,9 @@ import com.intellij.util.FunctionUtil;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -76,9 +76,9 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
             int textOffset = element.getTextOffset();
             // Get the line number of the current element.
             int lineNumber = document.getLineNumber(textOffset);
-            // Find the common context. For a recursive call, the common context should be a FunctionNode.
+            // Find the common context. For a recursive call, the common context should be a FunctionDefinitionNode.
             PsiElement commonContext = PsiTreeUtil.findCommonContext(nameReferenceNode, resolvedElement);
-            if (commonContext instanceof FunctionNode && !lines.contains(lineNumber)) {
+            if (commonContext instanceof FunctionDefinitionNode && !lines.contains(lineNumber)) {
                 // Add the number to the set.
                 lines.add(lineNumber);
                 // Return a new line marker.

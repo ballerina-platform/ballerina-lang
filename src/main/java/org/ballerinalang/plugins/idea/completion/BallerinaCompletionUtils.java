@@ -34,9 +34,9 @@ import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
@@ -291,7 +291,7 @@ public class BallerinaCompletionUtils {
                                             @NotNull CompletionResultSet resultSet) {
         PsiFile file = parameters.getOriginalFile();
         PsiElement element = file.findElementAt(parameters.getOffset());
-        FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
+        FunctionDefinitionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class);
         if (functionNode != null) {
             addKeywordAsLookup(resultSet, RETURN, KEYWORDS_PRIORITY);
         }
@@ -641,9 +641,9 @@ public class BallerinaCompletionUtils {
         String type = null;
         if (definitionNode instanceof ServiceDefinitionNode) {
             type = "service";
-        } else if (definitionNode instanceof FunctionNode) {
+        } else if (definitionNode instanceof FunctionDefinitionNode) {
             type = "function";
-        } else if (definitionNode instanceof ConnectorNode) {
+        } else if (definitionNode instanceof ConnectorDefinitionNode) {
             type = "connector";
         } else if (definitionNode instanceof StructDefinitionNode) {
             type = "struct";

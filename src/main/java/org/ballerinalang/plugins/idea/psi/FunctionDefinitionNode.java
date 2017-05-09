@@ -32,9 +32,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
+public class FunctionDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
-    public FunctionNode(@NotNull ASTNode node) {
+    public FunctionDefinitionNode(@NotNull ASTNode node) {
         super(node, BallerinaParserDefinition.ID);
     }
 

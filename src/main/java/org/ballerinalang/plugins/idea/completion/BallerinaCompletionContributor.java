@@ -48,8 +48,8 @@ import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
@@ -881,7 +881,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             if (resolvedElement == null) {
                 return;
             }
-            if (resolvedElement.getParent() instanceof ConnectorNode) {
+            if (resolvedElement.getParent() instanceof ConnectorDefinitionNode) {
                 // Eg. Twitter.<caret>
                 handleActionInvocationNode(parameters, resultSet);
             } else {

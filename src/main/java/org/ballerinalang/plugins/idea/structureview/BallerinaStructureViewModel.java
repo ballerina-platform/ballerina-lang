@@ -21,7 +21,7 @@ import com.intellij.ide.structureView.StructureViewModelBase;
 import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.ide.util.treeView.smartTree.Sorter;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,7 +46,7 @@ public class BallerinaStructureViewModel extends StructureViewModelBase
     public boolean isAlwaysShowsPlus(StructureViewTreeElement element) {
         Object value = element.getValue();
         // Only the instances checked here can have sub nodes. Otherwise the sub nodes will not be added.
-        return (value instanceof BallerinaFile) || (value instanceof ConnectorNode)
+        return (value instanceof BallerinaFile) || (value instanceof ConnectorDefinitionNode)
                 || (value instanceof ServiceDefinitionNode);
     }
 

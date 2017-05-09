@@ -22,8 +22,8 @@ import com.intellij.psi.PsiElement;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
@@ -42,9 +42,9 @@ public class BallerinaItemPresentation implements ItemPresentation {
     @Nullable
     @Override
     public Icon getIcon(boolean unused) {
-        if (element.getParent() instanceof FunctionNode) {
+        if (element.getParent() instanceof FunctionDefinitionNode) {
             return BallerinaIcons.FUNCTION;
-        } else if (element.getParent() instanceof ConnectorNode || element instanceof ConnectorNode) {
+        } else if (element.getParent() instanceof ConnectorDefinitionNode || element instanceof ConnectorDefinitionNode) {
             return BallerinaIcons.CONNECTOR;
         } else if (element.getParent() instanceof ServiceDefinitionNode || element instanceof ServiceDefinitionNode) {
             return BallerinaIcons.SERVICE;
@@ -65,8 +65,8 @@ public class BallerinaItemPresentation implements ItemPresentation {
     public String getPresentableText() {
         // Todo - Add parameters, return types
         ASTNode node = element.getNode();
-        if (element instanceof ConnectorNode) {
-            PsiElement nameIdentifier = ((ConnectorNode) element).getNameIdentifier();
+        if (element instanceof ConnectorDefinitionNode) {
+            PsiElement nameIdentifier = ((ConnectorDefinitionNode) element).getNameIdentifier();
             if (nameIdentifier != null) {
                 return nameIdentifier.getText();
             }

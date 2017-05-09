@@ -30,9 +30,9 @@ import org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
@@ -99,7 +99,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
         // generate the signature.
         PsiElement parent = element.getParent();
         // Generate the signature according to the parent type.
-        if (parent instanceof FunctionNode) {
+        if (parent instanceof FunctionDefinitionNode) {
             // Add the function signature.
             stringBuilder.append("function ");
             stringBuilder.append(element.getText());
@@ -145,7 +145,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
                 stringBuilder.append(returnParams);
                 stringBuilder.append(")");
             }
-        } else if (parent instanceof ConnectorNode) {
+        } else if (parent instanceof ConnectorDefinitionNode) {
             // Add the connector signature.
             stringBuilder.append("connector ");
             stringBuilder.append(element.getText());

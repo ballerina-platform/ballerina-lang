@@ -28,9 +28,9 @@ import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ConnectorNode extends IdentifierDefSubtree implements ScopeNode {
+public class ConnectorDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
-    public ConnectorNode(@NotNull ASTNode node) {
+    public ConnectorDefinitionNode(@NotNull ASTNode node) {
         super(node, BallerinaParserDefinition.ID);
     }
 

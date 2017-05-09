@@ -49,18 +49,18 @@ import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
 import org.ballerinalang.plugins.idea.psi.MapStructLiteralNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
@@ -185,7 +185,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
         RuleIElementType ruleElType = (RuleIElementType) elementType;
         switch (ruleElType.getRuleIndex()) {
             case BallerinaParser.RULE_functionDefinition:
-                return new FunctionNode(node);
+                return new FunctionDefinitionNode(node);
             case BallerinaParser.RULE_callableUnitBody:
                 return new CallableUnitBodyNode(node);
             case BallerinaParser.RULE_nameReference:
@@ -201,7 +201,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
             case BallerinaParser.RULE_connectorBody:
                 return new ConnectorBodyNode(node);
             case BallerinaParser.RULE_connectorDefinition:
-                return new ConnectorNode(node);
+                return new ConnectorDefinitionNode(node);
             case BallerinaParser.RULE_resourceDefinition:
                 return new ResourceDefinitionNode(node);
             case BallerinaParser.RULE_packageName:

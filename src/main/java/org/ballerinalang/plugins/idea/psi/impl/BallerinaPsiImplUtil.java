@@ -44,7 +44,7 @@ import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
@@ -489,7 +489,7 @@ public class BallerinaPsiImplUtil {
             // Resolve the reference.
             PsiElement resolvedElement = reference.resolve();
             // Resolved element will be not null for connector variables.
-            if (resolvedElement != null && !(resolvedElement.getParent() instanceof ConnectorNode)) {
+            if (resolvedElement != null && !(resolvedElement.getParent() instanceof ConnectorDefinitionNode)) {
                 // Get the variable definition node.
                 PsiElement variableDefinitionNode = resolvedElement.getParent();
                 if (variableDefinitionNode == null) {
@@ -560,7 +560,7 @@ public class BallerinaPsiImplUtil {
                 if (resolved != null) {
                     // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native
                     // actions.
-                    ConnectorNode connectorNode = PsiTreeUtil.getParentOfType(resolved, ConnectorNode.class);
+                    ConnectorDefinitionNode connectorNode = PsiTreeUtil.getParentOfType(resolved, ConnectorDefinitionNode.class);
                     // Get all actions/native actions.
                     List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
                     for (PsiElement action : allActions) {
@@ -580,7 +580,7 @@ public class BallerinaPsiImplUtil {
                         }
                         // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native
                         // actions.
-                        ConnectorNode connectorNode = PsiTreeUtil.getParentOfType(resolvedElement, ConnectorNode.class);
+                        ConnectorDefinitionNode connectorNode = PsiTreeUtil.getParentOfType(resolvedElement, ConnectorDefinitionNode.class);
                         // Get all actions/native actions.
                         List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
                         for (PsiElement action : allActions) {

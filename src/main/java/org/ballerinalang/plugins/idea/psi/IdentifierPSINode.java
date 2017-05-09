@@ -131,8 +131,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
 
     @Override
     public ItemPresentation getPresentation() {
-        if (getParent() instanceof FunctionNode) {
-            return ((FunctionNode) getParent()).getPresentation();
+        if (getParent() instanceof FunctionDefinitionNode) {
+            return ((FunctionDefinitionNode) getParent()).getPresentation();
         }
         return super.getPresentation();
     }

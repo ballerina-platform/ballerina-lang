@@ -26,7 +26,7 @@ import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.jetbrains.annotations.NotNull;
 
@@ -83,7 +83,7 @@ public class BallerinaStructureViewElement implements StructureViewTreeElement, 
     @NotNull
     @Override
     public TreeElement[] getChildren() {
-        // The element can be one of BallerinaFile, ConnectorNode instance.
+        // The element can be one of BallerinaFile, ConnectorDefinitionNode instance.
         if (element instanceof BallerinaFile) {
             List<TreeElement> treeElements = new ArrayList<>();
             // Add services.
@@ -122,8 +122,8 @@ public class BallerinaStructureViewElement implements StructureViewTreeElement, 
             }
             // Convert the list to an array and return.
             return treeElements.toArray(new TreeElement[treeElements.size()]);
-        } else if (element instanceof ConnectorNode) {
-            // If the element is a ConnectorNode instance, we get all actions.
+        } else if (element instanceof ConnectorDefinitionNode) {
+            // If the element is a ConnectorDefinitionNode instance, we get all actions.
             List<TreeElement> treeElements = new ArrayList<>();
             // Add actions.
             Collection<? extends PsiElement> actions = XPath.findAll(BallerinaLanguage.INSTANCE, element,

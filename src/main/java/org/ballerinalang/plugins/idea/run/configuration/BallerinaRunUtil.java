@@ -39,7 +39,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
@@ -108,8 +108,8 @@ public class BallerinaRunUtil {
     }
 
     public static boolean hasMainFunction(PsiFile file) {
-        Collection<FunctionNode> functionNodes = PsiTreeUtil.findChildrenOfType(file, FunctionNode.class);
-        for (FunctionNode functionNode : functionNodes) {
+        Collection<FunctionDefinitionNode> functionNodes = PsiTreeUtil.findChildrenOfType(file, FunctionDefinitionNode.class);
+        for (FunctionDefinitionNode functionNode : functionNodes) {
             if (isMainFunction(functionNode)) {
                 return true;
             }
@@ -118,15 +118,15 @@ public class BallerinaRunUtil {
     }
 
     /**
-     * Checks whether the given functionNode is a main function node.
+     * Checks whether the given functionDefinitionNode is a main function node.
      *
-     * @param functionNode FunctionNode which needs to be checked
+     * @param functionDefinitionNode FunctionDefinitionNode which needs to be checked
      * @return {@code true} if the provided node is a main function, {@code false} otherwise.
      */
     @Contract("null -> false")
-    public static boolean isMainFunction(FunctionNode functionNode) {
+    public static boolean isMainFunction(FunctionDefinitionNode functionDefinitionNode) {
         // Get the function name.
-        PsiElement functionName = functionNode.getNameIdentifier();
+        PsiElement functionName = functionDefinitionNode.getNameIdentifier();
         if (functionName == null) {
             return false;
         }
@@ -135,7 +135,7 @@ public class BallerinaRunUtil {
             return false;
         }
         // Get the ParameterListNode which contains all the parameters in the function.
-        ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(functionNode, ParameterListNode.class);
+        ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(functionDefinitionNode, ParameterListNode.class);
         if (parameterListNode == null) {
             return false;
         }

@@ -28,8 +28,8 @@ import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
@@ -51,7 +51,7 @@ public class NameReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return (def instanceof FunctionNode) || (def instanceof ConnectorNode) || (def instanceof StructDefinitionNode)
+        return (def instanceof FunctionDefinitionNode) || (def instanceof ConnectorDefinitionNode) || (def instanceof StructDefinitionNode)
                 || (def instanceof VariableDefinitionNode) || (def instanceof AnnotationDefinitionNode);
     }
 
