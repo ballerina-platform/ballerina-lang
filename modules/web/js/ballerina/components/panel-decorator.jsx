@@ -59,6 +59,7 @@ class PanelDecorator extends React.Component {
 
         const annotationBodyClassName = "annotation-body";
         let annotationBodyHeight = 0;
+
         // TODO: Fix Me
         if (!_.isNil(this.props.model.viewState.components.annotation)) {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
@@ -74,9 +75,7 @@ class PanelDecorator extends React.Component {
                 {annotationViewCollapsed && <text x={bBox.x + 5} y={bBox.y + titleHeight / 2 + 5}>{annotationString}</text>}
                 <g className="panel-header-controls">
                     <image x={bBox.x + bBox.w - 19.5} y={bBox.y + 5.5} width={iconSize} height={iconSize} className="control"
-                        xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')} onClick={() => this.onAnnotaionCollapseClick()} />
-                    <line x1={bBox.x + bBox.w - 25} y1={bBox.y + 5} x2={bBox.x + bBox.w - 25} y2={bBox.y + 20} className="operations-separator"></line>
-                </g>
+                           xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')} onClick={() => this.onAnnotaionCollapseClick()} /></g>
             </g>
             <g className="panel-header">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0" className="headingRect" data-original-title="" title=""></rect>
@@ -84,12 +83,11 @@ class PanelDecorator extends React.Component {
                 <image x={bBox.x + 5} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize} xlinkHref={ImageUtil.getSVGIconString(this.props.icon)} />
                 {titleComponents}
                 <g className="panel-header-controls">
+                    <rect x={bBox.x + bBox.w - 54} y={bBox.y + annotationBodyHeight} width={iconSize} height={iconSize} className="panel-header-controls-wrapper"> </rect>
                     <image x={bBox.x + bBox.w - 44.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize} height={iconSize} className="control"
-                        xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()} />
-                    <line x1={bBox.x + bBox.w - 50} y1={bBox.y + 5 + annotationBodyHeight} x2={bBox.x + bBox.w - 50} y2={bBox.y + 20 + annotationBodyHeight} className="operations-separator"></line>
+                           xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()} />
                     <image x={bBox.x + bBox.w - 19.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize} height={iconSize} className="control"
-                        xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')} onClick={() => this.onCollapseClick()} />
-                    <line x1={bBox.x + bBox.w - 25} y1={bBox.y + 5 + annotationBodyHeight} x2={bBox.x + bBox.w - 25} y2={bBox.y + 20 + annotationBodyHeight} className="operations-separator"></line>
+                           xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')} onClick={() => this.onCollapseClick()} />
                 </g>
             </g>
             <g className={panelBodyClassName}>
@@ -99,11 +97,11 @@ class PanelDecorator extends React.Component {
                     transitionEnterTimeout={300}
                     transitionLeaveTimeout={300}>
                     {!collapsed &&
-                        <rect x={bBox.x} y={bBox.y + titleHeight + annotationBodyHeight} width={bBox.w} height={bBox.h - titleHeight - annotationBodyHeight}
-                            rx="0" ry="0" fill="#fff"
-                            className={dropZoneClassName}
-                            onMouseOver={(e) => this.onDropZoneActivate(e)}
-                            onMouseOut={(e) => this.onDropZoneDeactivate(e)} />
+                    <rect x={bBox.x} y={bBox.y + titleHeight + annotationBodyHeight} width={bBox.w} height={bBox.h - titleHeight - annotationBodyHeight}
+                          rx="0" ry="0" fill="#fff"
+                          className={dropZoneClassName}
+                          onMouseOver={(e) => this.onDropZoneActivate(e)}
+                          onMouseOut={(e) => this.onDropZoneDeactivate(e)} />
                     }
                     {!collapsed && this.props.children}
                 </CSSTransitionGroup>
@@ -165,7 +163,7 @@ class PanelDecorator extends React.Component {
                     <text x={componentData.components.titleText.x} y={componentData.components.titleText.y + 3} className={componentData.prefixTextClassName}>{componentData.title}</text>
                     {modelComponents}
                     <text x={componentData.components.closingBracket.x + 10} y={componentData.components.closingBracket.y + 3} className={componentData.closingBracketClassName}>)</text>
-                    </g>);
+                </g>);
             }
         }
         return components;
