@@ -413,6 +413,7 @@ JOIN            : 'join';
 NATIVE          : 'native';
 NULL            : 'null';
 PACKAGE         : 'package';
+PARAMETER       : 'parameter';
 REPLY           : 'reply';
 RESOURCE        : 'resource';
 RETURN          : 'return';

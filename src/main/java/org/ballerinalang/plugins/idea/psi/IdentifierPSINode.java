@@ -105,6 +105,17 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new NameReference(this);
                 case RULE_variableReference:
                 case RULE_parameter:
+                    // If "package:" is typed as an argument, it will be identified as a variableReference. So we
+                    // need to match it with a regex and return a PackageNameReference.
+                    if (parent.getText().matches(".+:")) {
+                        return new PackageNameReference(this);
+                    }
+                    PsiElement prevSibling = getPrevSibling();
+                    if (prevSibling != null && prevSibling.getText().matches(".+:")) {
+                        return new PackageNameReference(this);
+                    }
+                    return new VariableReference(this);
+                case RULE_variableDefinitionStatement:
                     return new VariableReference(this);
                 default:
                     return null;
@@ -120,8 +131,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
 
     @Override
     public ItemPresentation getPresentation() {
-        if (getParent() instanceof FunctionNode) {
-            return ((FunctionNode) getParent()).getPresentation();
+        if (getParent() instanceof FunctionDefinitionNode) {
+            return ((FunctionDefinitionNode) getParent()).getPresentation();
         }
         return super.getPresentation();
     }

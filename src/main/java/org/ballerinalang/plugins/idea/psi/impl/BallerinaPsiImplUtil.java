@@ -27,32 +27,33 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.ResolveResult;
-import com.intellij.psi.search.FileTypeIndex;
-import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.util.indexing.FileBasedIndex;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
-import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
-import org.ballerinalang.plugins.idea.psi.ExpressionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
-import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
-import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -62,143 +63,36 @@ import java.util.List;
 
 public class BallerinaPsiImplUtil {
 
+    private static final String PACKAGE_DECLARATION =
+            "/compilationUnit/packageDeclaration/packagePath/packageName/Identifier";
+    private static final String IMPORT_DECLARATION =
+            "/compilationUnit/importDeclaration/packagePath/packageName/Identifier";
+    private static final String ANNOTATION_DEFINITION = "//annotationDefinition/Identifier";
+    private static final String CONSTANT_DEFINITION = "//constantDefinition/Identifier";
+    private static final String FUNCTION_DEFINITION = "//functionDefinition/Identifier";
+    private static final String CONNECTOR_DEFINITION = "//connectorDefinition/Identifier";
+    private static final String ACTION_DEFINITION = "//actionDefinition/Identifier";
+    private static final String STRUCT_DEFINITION = "//structDefinition/Identifier";
+    private static final String PARAMETER_DEFINITION = "//parameter/Identifier";
+    private static final String PACKAGE_PATH = "//packagePath";
+    private static final String PLACEHOLDER_STRING = "IntellijIdeaRulezzz";
+
+    private BallerinaPsiImplUtil() {
+
+    }
+
     public static PsiElement findPackageNameReference(PsiNamedElement element) {
-        Collection<? extends PsiElement> declarations =
-                XPath.findAll(BallerinaLanguage.INSTANCE, element.getContainingFile(),
-                        "/compilationUnit/importDeclaration/packagePath/packageName/Identifier");
+        Collection<? extends PsiElement> declarations = XPath.findAll(BallerinaLanguage.INSTANCE,
+                element.getContainingFile(), IMPORT_DECLARATION);
         String id = element.getName();
         PsiElement resolvedElement = Trees.toMap(declarations).get(id);
 
         if (resolvedElement == null) {
             declarations = XPath.findAll(BallerinaLanguage.INSTANCE, element.getContainingFile(),
-                    "/compilationUnit/packageDeclaration/packagePath/packageName/Identifier");
+                    PACKAGE_DECLARATION);
             resolvedElement = Trees.toMap(declarations).get(id);
         }
         return resolvedElement;
-    }
-
-    public static PsiElement findConnectorReference(PsiNamedElement element) {
-        Collection<? extends PsiElement> declarations =
-                XPath.findAll(BallerinaLanguage.INSTANCE, element.getContainingFile(),
-                        "//simpleType/Identifier");
-        String id = element.getName();
-        PsiElement resolvedElement = Trees.toMap(declarations).get(id);
-
-        if (resolvedElement == null) {
-            declarations = XPath.findAll(BallerinaLanguage.INSTANCE, element.getContainingFile(),
-                    "//connectorDefinition/Identifier");
-            resolvedElement = Trees.toMap(declarations).get(id);
-        }
-        return resolvedElement;
-    }
-
-    public static PsiElement findFunctionReference(PsiNamedElement element) {
-
-        Project project = element.getProject();
-
-        String packageName = element.getParent().getFirstChild().getText();
-        String functionName = element.getText();
-
-        // Get all files in the project including the files in the libraries.
-        Collection<VirtualFile> fileList = FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME,
-                BallerinaFileType.INSTANCE, GlobalSearchScope.allScope(project));
-
-        // If no files found, return null
-        if (fileList.isEmpty()) {
-            return null;
-        }
-
-        // For each file
-        for (VirtualFile virtualFile : fileList) {
-            // Get the psi file
-            PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-
-            Collection<? extends PsiElement> packageDefinition =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, psiFile,
-                            "/compilationUnit/packageDeclaration/packagePath/packageName/Identifier");
-            PsiElement resolvedElement = Trees.toMap(packageDefinition).get(packageName);
-
-            if (resolvedElement == null) {
-                continue;
-            }
-
-            // Find all function definitions in the file
-            Collection<? extends PsiElement> declarations =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, "/compilationUnit/functionDefinition");
-
-            // For each function definition
-            for (PsiElement declaration : declarations) {
-
-                // Get the function name
-                Collection<? extends PsiElement> functionNames =
-                        XPath.findAll(BallerinaLanguage.INSTANCE, declaration, "/functionDefinition/Identifier");
-                resolvedElement = Trees.toMap(functionNames).get(functionName);
-                // If the resolvedElement is null, continue with the next function definition
-                if (resolvedElement == null) {
-                    continue;
-                }
-                // If the function names does not match, continue with the next function definition
-                if (!functionName.equals(resolvedElement.getText())) {
-                    continue;
-                }
-
-                // Get the expression list
-                Collection<ParameterNode> paramList = PsiTreeUtil.findChildrenOfType(declaration, ParameterNode.class);
-
-                PsiElement[] children = getFunctionInvocationStatement(element).getChildren()[1].getChildren()[1]
-                        .getChildren();
-
-                if (paramList.size() == children.length / 2 + 1) {
-                    return resolvedElement;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static PsiElement getFunctionInvocationStatement(PsiElement element) {
-        PsiElement parent = element;
-        while (!(parent instanceof FunctionInvocationStatementNode || parent instanceof ExpressionNode)
-                && parent != null) {
-            parent = parent.getParent();
-        }
-        return parent;
-    }
-
-    public static List<PsiElement> getAllFunctions(PsiElement element) {
-        ArrayList<PsiElement> results = new ArrayList<>();
-        PsiFile file = element.getContainingFile();
-        Collection<? extends PsiElement> all = XPath.findAll(BallerinaLanguage.INSTANCE, file,
-                "//functionDefinition/Identifier");
-
-        for (PsiElement psiElement : all) {
-            if (!psiElement.getText().contains("IntellijIdeaRulezzz")) {
-                results.add(psiElement);
-            }
-        }
-        return results;
-    }
-
-    public static ArrayList<PsiElement> getAllImportedPackages(PsiElement element) {
-        PsiFile file = element.getContainingFile();
-
-        Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfType(file,
-                ImportDeclarationNode.class);
-        ArrayList<PsiElement> filteredPackages = new ArrayList<>();
-
-        for (ImportDeclarationNode importDeclaration : allImports) {
-
-            Collection<? extends PsiElement> packagePathNodes =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, importDeclaration, "//packagePath");
-
-            PsiElement packagePathNode = packagePathNodes.iterator().next();
-
-            PsiElement lastChild = packagePathNode.getLastChild();
-
-            filteredPackages.add(lastChild);
-            //            }
-        }
-        return filteredPackages;
     }
 
     /**
@@ -207,14 +101,18 @@ public class BallerinaPsiImplUtil {
      * @param identifierElement the element which we need to resolve the reference
      * @return resolved element
      */
+    @NotNull
     public static PsiDirectory[] resolveDirectory(PsiElement identifierElement) {
-        List<PsiDirectory> results = new ArrayList<>();
-        Project project = identifierElement.getProject();
-
+        if (identifierElement == null) {
+            return new PsiDirectory[0];
+        }
         PsiElement parent;
-
-        if (identifierElement.getParent().getParent() instanceof AliasNode) {
-            PsiElement temp = identifierElement.getParent().getParent();
+        PsiElement tempParent = identifierElement.getParent();
+        if (tempParent == null) {
+            return new PsiDirectory[0];
+        }
+        if (tempParent.getParent() instanceof AliasNode) {
+            PsiElement temp = tempParent.getParent();
             while (temp != null && !(temp instanceof PackagePathNode)) {
                 temp = temp.getPrevSibling();
             }
@@ -224,7 +122,7 @@ public class BallerinaPsiImplUtil {
                 return new PsiDirectory[0];
             }
         } else {
-            parent = identifierElement.getParent();
+            parent = tempParent;
         }
 
         // This is used to store all the packages which need to resolve the current package.
@@ -241,17 +139,32 @@ public class BallerinaPsiImplUtil {
             sibling = sibling.getPrevSibling();
         }
 
+        Project project = identifierElement.getProject();
+        List<PsiDirectory> results = new ArrayList<>();
+        // Add matching directories from content roots.
+        addMatchingDirectoriesFromContentRoots(packages, project, results);
+        // Add matching directories from SDK sources.
+        addMatchingDirectoriesFromSDK(project, packages, results);
+        // Return the results.
+        return results.toArray(new PsiDirectory[results.size()]);
+    }
+
+    private static void addMatchingDirectoriesFromContentRoots(List<PsiElement> packages, Project project,
+                                                               List<PsiDirectory> results) {
         // We need to get the content roots from the project and find matching directories in each content root.
         VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
         for (VirtualFile contentRoot : contentRoots) {
-            // Get any matching directory in the content root.
+            // Get any matching directory from the content root.
             VirtualFile match = getMatchingDirectory(contentRoot, packages);
             // If there is a match, add it to the results.
             if (match != null) {
                 results.add(PsiManager.getInstance(project).findDirectory(match));
             }
         }
+    }
 
+    private static void addMatchingDirectoriesFromSDK(Project project, List<PsiElement> packages,
+                                                      List<PsiDirectory> results) {
         // Get all project source roots and find matching directories.
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (projectSdk != null) {
@@ -263,7 +176,6 @@ public class BallerinaPsiImplUtil {
                 }
             }
         }
-        return results.toArray(new PsiDirectory[results.size()]);
     }
 
     /**
@@ -274,20 +186,21 @@ public class BallerinaPsiImplUtil {
      * @return the matching directory
      */
     @Nullable
-    private static VirtualFile getMatchingDirectory(VirtualFile root, List<PsiElement> packages) {
+    private static VirtualFile getMatchingDirectory(@NotNull VirtualFile root, List<PsiElement> packages) {
+        VirtualFile tempRoot = root;
         VirtualFile match = null;
         for (PsiElement element : packages) {
-            match = root.findChild(element.getText());
+            match = tempRoot.findChild(element.getText());
             if (match == null) {
                 break;
             }
-            root = match;
+            tempRoot = match;
         }
         return match;
     }
 
-
-    public static PsiDirectory[] suggestCurrentPackagePath(PsiElement element) {
+    @NotNull
+    public static PsiDirectory[] suggestCurrentPackagePath(@NotNull PsiElement element) {
 
         List<PsiDirectory> results = new ArrayList<>();
         Project project = element.getProject();
@@ -308,15 +221,16 @@ public class BallerinaPsiImplUtil {
             sibling = sibling.getPrevSibling();
         }
 
-        // Get any matching directory in the project root
-        List<VirtualFile> matches = suggestDirectory(project.getBaseDir(), packages);
-        // If there is matches, add it to the results.
-        if (matches != null) {
+        // We need to get the content roots from the project and find matching directories in each content root.
+        VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
+        for (VirtualFile contentRoot : contentRoots) {
+            // Get any matching directory from the content root.
+            List<VirtualFile> matches = suggestDirectory(contentRoot, packages);
+            // If there are matches, add it to the results.
             for (VirtualFile file : matches) {
                 results.add(PsiManager.getInstance(project).findDirectory(file));
             }
         }
-
         return results.toArray(new PsiDirectory[results.size()]);
     }
 
@@ -326,6 +240,7 @@ public class BallerinaPsiImplUtil {
      * @param element package name element
      * @return suggestions for auto completion
      */
+    @NotNull
     public static PsiDirectory[] suggestImportPackages(PsiElement element) {
         List<PsiDirectory> results = new ArrayList<>();
         Project project = element.getProject();
@@ -346,10 +261,12 @@ public class BallerinaPsiImplUtil {
             sibling = sibling.getPrevSibling();
         }
 
-        // Get any matching directory in the project root
-        List<VirtualFile> matches = suggestDirectory(project.getBaseDir(), packages);
-        // If there is matches, add it to the results.
-        if (matches != null) {
+        // We need to get the content roots from the project and find matching directories in each content root.
+        VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
+        for (VirtualFile contentRoot : contentRoots) {
+            // Get any matching directory from the content root.
+            List<VirtualFile> matches = suggestDirectory(contentRoot, packages);
+            // If there are matches, add it to the results.
             for (VirtualFile file : matches) {
                 results.add(PsiManager.getInstance(project).findDirectory(file));
             }
@@ -360,11 +277,9 @@ public class BallerinaPsiImplUtil {
         if (projectSdk != null) {
             VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
             for (VirtualFile root : roots) {
-                matches = suggestDirectory(root, packages);
-                if (matches != null) {
-                    for (VirtualFile file : matches) {
-                        results.add(PsiManager.getInstance(project).findDirectory(file));
-                    }
+                List<VirtualFile> matches = suggestDirectory(root, packages);
+                for (VirtualFile file : matches) {
+                    results.add(PsiManager.getInstance(project).findDirectory(file));
                 }
             }
         }
@@ -378,32 +293,32 @@ public class BallerinaPsiImplUtil {
      * @param packages list of package name elements used to get the matching directory from the given root
      * @return all matching directories
      */
-    @Nullable
-    private static List<VirtualFile> suggestDirectory(VirtualFile root, List<PsiElement> packages) {
+    @NotNull
+    private static List<VirtualFile> suggestDirectory(@NotNull VirtualFile root, List<PsiElement> packages) {
+        VirtualFile tempRoot = root;
         List<VirtualFile> results = new ArrayList<>();
         VirtualFile match;
         int count = 1;
         for (PsiElement element : packages) {
             if (count == packages.size()) {
-                //Todo - Use caching if needed
-                for (VirtualFile file : root.getChildren()) {
+                for (VirtualFile file : tempRoot.getChildren()) {
                     if (file.isDirectory() && !file.getName().startsWith(".")) {
                         results.add(file);
                     }
                 }
             } else {
-                match = root.findChild(element.getText());
+                match = tempRoot.findChild(element.getText());
                 if (match == null) {
                     break;
                 }
-                root = match;
+                tempRoot = match;
             }
             count++;
         }
         return results;
     }
 
-    public static boolean hasSubdirectories(PsiDirectory directory) {
+    public static boolean hasSubdirectories(@NotNull PsiDirectory directory) {
         VirtualFile virtualFile = directory.getVirtualFile();
         VirtualFile[] children = virtualFile.getChildren();
         for (VirtualFile child : children) {
@@ -414,121 +329,7 @@ public class BallerinaPsiImplUtil {
         return false;
     }
 
-    /**
-     * Resolves the given function to definitions.
-     *
-     * @param element element which needs to be resolved
-     * @return the list of all resolved elements
-     */
-    public static List<PsiElement> resolveFunction(PsiElement element) {
-        List<PsiElement> results = new ArrayList<>();
-
-        // Get the packagePath element.
-        Collection<? extends PsiElement> packagePaths =
-                XPath.findAll(BallerinaLanguage.INSTANCE, element.getParent(), "//packagePath");
-
-        if (packagePaths.isEmpty()) {
-            // Todo - Resolve function in current package
-            return results;
-        } else {
-            // There cannot be multiple package paths. So we get the next path from the iterator.
-            PsiElement packagePathNode = packagePaths.iterator().next();
-
-            //Get the last package name node.
-            PsiElement packageNameNode = packagePathNode.getLastChild();
-            if (packageNameNode == null || !(packageNameNode instanceof IdentifierDefSubtree)) {
-                return results;
-            }
-
-            // Get the identifier.
-            PsiElement identifier = ((IdentifierDefSubtree) packageNameNode).getNameIdentifier();
-
-            // Get the reference.
-            PsiReference reference = identifier.getReference();
-
-            // Multi resolve the reference.
-            ResolveResult[] resolveResults = ((PackageNameReference) reference).multiResolve(false);
-
-            // If resolve result is 0, that means the package was not resolved.
-            if (resolveResults.length == 0) {
-                // Package is not imported or cannot resolve. Return the empty results.
-                return results;
-            }
-
-            // Resolve result cannot be more than one because all package imports are unique. This should be
-            // annotated using an annotator.
-            for (ResolveResult resolveResult : resolveResults) {
-                PsiElement element1 = resolveResult.getElement();
-                if (!(element1 instanceof PsiDirectory)) {
-                    continue;
-                }
-
-                // Todo - Use an util function to get values of multiple xpaths.
-                List<PsiElement> allFunctionsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
-                        "//functionDefinition/Identifier");
-                for (PsiElement psiElement : allFunctionsInAPackage) {
-                    if (element.getText().equals(psiElement.getText())) {
-                        results.add(psiElement);
-                    }
-                }
-            }
-        }
-        return results;
-    }
-
-    public static List<PsiElement> resolveConnector(PsiElement element) {
-        List<PsiElement> results = new ArrayList<>();
-
-        // Todo - Add null checks
-        Collection<? extends PsiElement> packagePaths =
-                XPath.findAll(BallerinaLanguage.INSTANCE, element.getParent().getParent().getParent(), "//packagePath");
-
-        if (packagePaths.isEmpty()) {
-            // Todo - Resolve connectors in current package
-            return results;
-        } else {
-            PsiElement packagePathNode = packagePaths.iterator().next();
-            PsiElement packageNameNode = packagePathNode.getLastChild();
-
-            if (packageNameNode == null || !(packageNameNode instanceof IdentifierDefSubtree)) {
-                return results;
-            }
-
-            PsiElement identifier = ((IdentifierDefSubtree) packageNameNode).getNameIdentifier();
-
-            // Get the reference.
-            PsiReference reference = identifier.getReference();
-
-            // Multi resolve the reference.
-            ResolveResult[] resolveResults = ((PackageNameReference) reference).multiResolve(false);
-
-            // If resolve result is 0, that means the package was not resolved.
-            if (resolveResults.length == 0) {
-                // Package is not imported or cannot resolve. Return the empty results.
-                return results;
-            }
-
-            // Resolve result cannot be more than one because all package imports are unique. This should be
-            // annotated using an annotator.
-            for (ResolveResult resolveResult : resolveResults) {
-                PsiElement element1 = resolveResult.getElement();
-                if (!(element1 instanceof PsiDirectory)) {
-                    continue;
-                }
-
-                // Todo - Use an util function to get values of multiple xpaths.
-                List<PsiElement> allConnectorsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
-                        "//connectorDefinition/Identifier");
-                for (PsiElement psiElement : allConnectorsInAPackage) {
-                    if (element.getText().equals(psiElement.getText())) {
-                        results.add(psiElement);
-                    }
-                }
-            }
-        }
-        return results;
-    }
-
+    @NotNull
     public static List<PsiElement> getAllConnectorsInCurrentPackage(PsiElement element) {
         if (element instanceof PsiDirectory) {
             return getAllConnectorsInPackage((PsiDirectory) element);
@@ -540,19 +341,13 @@ public class BallerinaPsiImplUtil {
         return new LinkedList<>();
     }
 
+    @NotNull
     public static List<PsiElement> getAllConnectorsInPackage(PsiDirectory packageElement) {
-        List<PsiElement> results = new ArrayList<>();
-        List<PsiElement> connectors = getAllMatchingElementsFromPackage(packageElement,
-                "//connectorDefinition/Identifier");
-        if (connectors != null) {
-            for (PsiElement connector : connectors) {
-                results.add(connector);
-            }
-        }
-        return results;
+        return getAllMatchingElementsFromPackage(packageElement, CONNECTOR_DEFINITION);
     }
 
-    public static List<PsiElement> getAllAnnotationsInCurrentPackage(PsiElement element) {
+    @NotNull
+    public static List<PsiElement> getAllAnnotationsInCurrentPackage(@NotNull PsiElement element) {
         if (element instanceof PsiDirectory) {
             return getAllAnnotationsInPackage((PsiDirectory) element);
         }
@@ -563,77 +358,41 @@ public class BallerinaPsiImplUtil {
         return new LinkedList<>();
     }
 
+    @NotNull
     public static List<PsiElement> getAllAnnotationsInPackage(PsiDirectory packageElement) {
-        List<PsiElement> results = new ArrayList<>();
-        List<PsiElement> annotations = getAllMatchingElementsFromPackage(packageElement,
-                "//annotationDefinition/Identifier");
-        if (annotations != null) {
-            for (PsiElement annotation : annotations) {
-                results.add(annotation);
-            }
-        }
-        return results;
+        return getAllMatchingElementsFromPackage(packageElement, ANNOTATION_DEFINITION);
     }
 
+    @NotNull
     public static List<PsiElement> getAllStructsInCurrentPackage(PsiElement element) {
         if (element instanceof PsiDirectory) {
-            return getAllStructsInPackage((PsiDirectory) element);
+            return getAllStructsFromPackage((PsiDirectory) element);
         }
         PsiElement parent = element.getParent();
         if (parent != null) {
-            return getAllStructsInPackage((PsiDirectory) parent);
+            return getAllStructsFromPackage((PsiDirectory) parent);
         }
         return new LinkedList<>();
     }
 
-    public static List<PsiElement> getAllStructsInPackage(PsiDirectory packageElement) {
-        List<PsiElement> results = new ArrayList<>();
-        List<PsiElement> structs = getAllMatchingElementsFromPackage(packageElement,
-                "//structDefinition/Identifier");
-        if (structs != null) {
-            for (PsiElement struct : structs) {
-                results.add(struct);
-            }
-        }
-        return results;
+    @NotNull
+    public static List<PsiElement> getAllStructsFromPackage(PsiDirectory directory) {
+        return getAllMatchingElementsFromPackage(directory, STRUCT_DEFINITION);
     }
 
-    public static List<PsiElement> getAllFunctionsInCurrentPackage(PsiElement element) {
-        if (element instanceof PsiDirectory) {
-            return getAllFunctionsInPackage((PsiDirectory) element);
-        }
-        PsiElement parent = element.getParent();
-        if (parent != null) {
-            return getAllFunctionsInPackage((PsiDirectory) parent);
-        }
-        return new LinkedList<>();
+    @NotNull
+    public static List<PsiElement> getAllFunctionsFromPackage(@NotNull PsiDirectory directory) {
+        return getAllMatchingElementsFromPackage(directory, FUNCTION_DEFINITION);
     }
 
-    public static List<PsiElement> getAllFunctionsInPackage(PsiDirectory packageElement) {
-        List<PsiElement> results = new ArrayList<>();
-        List<PsiElement> functions = getAllMatchingElementsFromPackage(packageElement,
-                "//functionDefinition/Identifier");
-        if (functions != null) {
-            for (PsiElement function : functions) {
-                results.add(function);
-            }
-        }
-        return results;
+    @NotNull
+    public static List<PsiElement> getAllConstantsFromPackage(PsiDirectory directory) {
+        return getAllMatchingElementsFromPackage(directory, CONSTANT_DEFINITION);
     }
 
-    public static List<PsiElement> getAllConstantsInPackage(PsiDirectory packageElement) {
-        List<PsiElement> results = new ArrayList<>();
-        List<PsiElement> functions = getAllMatchingElementsFromPackage(packageElement,
-                "//constantDefinition/Identifier");
-        if (functions != null) {
-            for (PsiElement function : functions) {
-                results.add(function);
-            }
-        }
-        return results;
-    }
+    @NotNull
+    public static List<PsiElement> getAllImportedPackagesInCurrentFile(@NotNull PsiElement element) {
 
-    public static ArrayList<PsiElement> getAllImportedPackagesInCurrentFile(PsiElement element) {
         PsiFile file = element.getContainingFile();
 
         Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfType(file,
@@ -647,15 +406,19 @@ public class BallerinaPsiImplUtil {
 
             if (aliasNodes.isEmpty()) {
                 Collection<? extends PsiElement> packagePathNodes =
-                        XPath.findAll(BallerinaLanguage.INSTANCE, importDeclaration, "//packagePath");
+                        XPath.findAll(BallerinaLanguage.INSTANCE, importDeclaration, PACKAGE_PATH);
 
                 PsiElement packagePathNode = packagePathNodes.iterator().next();
                 PsiElement lastChild = packagePathNode.getLastChild();
-                filteredPackages.add(lastChild);
+                if (lastChild != null) {
+                    filteredPackages.add(lastChild);
+                }
             } else {
                 PsiElement aliasNode = aliasNodes.iterator().next();
                 PsiElement firstChild = aliasNode.getFirstChild();
-                filteredPackages.add(firstChild);
+                if (firstChild != null) {
+                    filteredPackages.add(firstChild);
+                }
             }
         }
         return filteredPackages;
@@ -668,10 +431,8 @@ public class BallerinaPsiImplUtil {
      * @param xpath     xpath to the element
      * @return all functions in the given directory(package)
      */
-    public static List<PsiElement> getAllMatchingElementsFromPackage(PsiDirectory directory, String xpath) {
-        if (directory == null) {
-            return new LinkedList<>();
-        }
+    @NotNull
+    private static List<PsiElement> getAllMatchingElementsFromPackage(@NotNull PsiDirectory directory, String xpath) {
         Project project = directory.getProject();
         List<PsiElement> results = new ArrayList<>();
         VirtualFile virtualFile = directory.getVirtualFile();
@@ -691,6 +452,7 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
+    @NotNull
     public static List<PsiElement> resolveAction(PsiElement element) {
         List<PsiElement> results = new ArrayList<>();
         // Get tht parent element.
@@ -727,7 +489,7 @@ public class BallerinaPsiImplUtil {
             // Resolve the reference.
             PsiElement resolvedElement = reference.resolve();
             // Resolved element will be not null for connector variables.
-            if (resolvedElement != null && !(resolvedElement.getParent() instanceof ConnectorNode)) {
+            if (resolvedElement != null && !(resolvedElement.getParent() instanceof ConnectorDefinitionNode)) {
                 // Get the variable definition node.
                 PsiElement variableDefinitionNode = resolvedElement.getParent();
                 if (variableDefinitionNode == null) {
@@ -798,7 +560,7 @@ public class BallerinaPsiImplUtil {
                 if (resolved != null) {
                     // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native
                     // actions.
-                    ConnectorNode connectorNode = PsiTreeUtil.getParentOfType(resolved, ConnectorNode.class);
+                    ConnectorDefinitionNode connectorNode = PsiTreeUtil.getParentOfType(resolved, ConnectorDefinitionNode.class);
                     // Get all actions/native actions.
                     List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
                     for (PsiElement action : allActions) {
@@ -818,7 +580,7 @@ public class BallerinaPsiImplUtil {
                         }
                         // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native
                         // actions.
-                        ConnectorNode connectorNode = PsiTreeUtil.getParentOfType(resolvedElement, ConnectorNode.class);
+                        ConnectorDefinitionNode connectorNode = PsiTreeUtil.getParentOfType(resolvedElement, ConnectorDefinitionNode.class);
                         // Get all actions/native actions.
                         List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
                         for (PsiElement action : allActions) {
@@ -840,43 +602,43 @@ public class BallerinaPsiImplUtil {
      * @param connectorDefinitionNode PsiElement which represent a Connector Definition
      * @return List of all actions/native actions defined in the given ConnectorDefinitionNode.
      */
+    @NotNull
     public static List<PsiElement> getAllActionsFromAConnector(PsiElement connectorDefinitionNode) {
         List<PsiElement> results = new ArrayList<>();
         // Get all actions
         Collection<? extends PsiElement> allActions = XPath.findAll(BallerinaLanguage.INSTANCE, connectorDefinitionNode,
-                "//actionDefinition/Identifier");
-        for (PsiElement action : allActions) {
-            results.add(action);
-        }
+                ACTION_DEFINITION);
+        results.addAll(allActions);
         return results;
     }
 
-    public static List<PsiElement> getAllVariablesInResolvableScope(PsiElement context) {
+    @NotNull
+    public static List<PsiElement> getAllVariablesInResolvableScope(PsiElement element, PsiElement context) {
         List<PsiElement> results = new ArrayList<>();
         // Get all variables from the context.
         Collection<? extends PsiElement> variableDefinitions =
                 XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement/Identifier");
+        // Iterate through each definition.
         for (PsiElement variableDefinition : variableDefinitions) {
-            if (!variableDefinition.getText().contains("IntellijIdeaRulezzz") &&
-                    !variableDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
-                results.add(variableDefinition);
+            if (variableDefinition == null) {
+                continue;
             }
-        }
-        // Get all parameters from the context.
-        Collection<? extends PsiElement> parameterDefinitions =
-                XPath.findAll(BallerinaLanguage.INSTANCE, context, "//parameter/Identifier");
-        for (PsiElement parameterDefinition : parameterDefinitions) {
-            if (!parameterDefinition.getText().contains("IntellijIdeaRulezzz") &&
-                    !parameterDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
-                results.add(parameterDefinition);
+            // If the variable definition or parent contains the PLACEHOLDER_STRING, then continue because that is
+            // the node which we are currently editing.
+            if (variableDefinition.getText().contains(PLACEHOLDER_STRING) ||
+                    variableDefinition.getParent().getText().contains(PLACEHOLDER_STRING)) {
+                continue;
             }
+            // Add variables.
+            checkAndAddVariable(element, results, variableDefinition);
         }
         // If the context is not null, get variables from parent context as well.
         // Ex:- If the current context is function body, we need to get parameters from function definition which is
         // the parent context.
         // We need to check the context.getContext() here, otherwise all variables in the file will be suggested.
         if (context != null && !(context.getContext() instanceof BallerinaFile)) {
-            List<PsiElement> allVariablesInResolvableScope = getAllVariablesInResolvableScope(context.getContext());
+            List<PsiElement> allVariablesInResolvableScope = getAllVariablesInResolvableScope(element,
+                    context.getContext());
             for (PsiElement psiElement : allVariablesInResolvableScope) {
                 if (!results.contains(psiElement)) {
                     results.add(psiElement);
@@ -886,6 +648,99 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
+    @NotNull
+    public static List<PsiElement> getAllParametersInResolvableScope(PsiElement element, PsiElement context) {
+        List<PsiElement> results = new ArrayList<>();
+        // Get all parameters from the context.
+        Collection<? extends PsiElement> parameterDefinitions =
+                XPath.findAll(BallerinaLanguage.INSTANCE, context, PARAMETER_DEFINITION);
+        for (PsiElement parameterDefinition : parameterDefinitions) {
+            if (!parameterDefinition.getText().contains(PLACEHOLDER_STRING) &&
+                    !parameterDefinition.getParent().getText().contains(PLACEHOLDER_STRING)) {
+                results.add(parameterDefinition);
+            }
+        }
+        // If the context is not null, get variables from parent context as well.
+        // Ex:- If the current context is function body, we need to get parameters from function definition which is
+        // the parent context.
+        // We need to check the context.getContext() here, otherwise all variables in the file will be suggested.
+        if (context != null && !(context.getContext() instanceof BallerinaFile)) {
+            List<PsiElement> allParametersInResolvableScope = getAllParametersInResolvableScope(element,
+                    context.getContext());
+            for (PsiElement psiElement : allParametersInResolvableScope) {
+                if (!results.contains(psiElement)) {
+                    results.add(psiElement);
+                }
+            }
+        }
+        return results;
+    }
+
+    private static void checkAndAddVariable(PsiElement element, List<PsiElement> results,
+                                            @NotNull PsiElement variableDefinition) {
+        // Get the variable definition node from the element which we are editing.
+        VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                VariableDefinitionNode.class);
+        if (variableDefinitionNode == null) {
+            handleVariableDefinition(element, results, variableDefinition);
+        } else {
+            StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
+            if (statementNode != null) {
+                PsiElement prevSibling = statementNode.getPrevSibling();
+                if (prevSibling == null) {
+                    return;
+                }
+                if (!prevSibling.getText().equals(variableDefinition.getParent().getText())) {
+                    if (statementNode.getTextOffset() > variableDefinition.getParent().getTextOffset()) {
+                        results.add(variableDefinition);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void handleVariableDefinition(PsiElement element, List<PsiElement> results, PsiElement
+            variableDefinition) {
+        StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
+        if (statementNode == null) {
+            PsiElement prevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
+                    element.getTextOffset() - 1);
+            if (prevSibling != null && prevSibling instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+                boolean isValidLocation = (variableDefinition.getParent().getTextOffset() <
+                        prevSibling.getParent().getTextOffset())
+                        || ((variableDefinition.getParent().getTextOffset() < element.getTextOffset())
+                        && elementType != BallerinaTypes.ASSIGN);
+                if (isValidLocation) {
+                    results.add(variableDefinition);
+                }
+            }
+        } else if (!PLACEHOLDER_STRING.equals(statementNode.getText())) {
+            handleStatementNode(results, variableDefinition, statementNode);
+        }
+    }
+
+    private static void handleStatementNode(List<PsiElement> results, PsiElement variableDefinition,
+                                            StatementNode statementNode) {
+        PsiElement prevSibling = statementNode.getPrevSibling();
+        if (prevSibling != null && prevSibling.getText().isEmpty()) {
+            PsiElement prevPrevSibling = PsiTreeUtil.skipSiblingsBackward(prevSibling,
+                    PsiWhiteSpace.class);
+            if (prevPrevSibling == null) {
+                if (variableDefinition.getParent().getTextOffset() < prevSibling.getTextOffset()) {
+                    results.add(variableDefinition);
+                }
+            } else {
+                if (variableDefinition.getParent().getTextOffset() <= prevPrevSibling.getTextOffset()) {
+                    results.add(variableDefinition);
+                }
+            }
+        } else {
+            results.add(variableDefinition);
+        }
+    }
+
+    @Nullable
     public static PsiElement resolveElement(ScopeNode scope, PsiNamedElement element, String... xpaths) {
         PsiElement resolved = null;
         for (String xpath : xpaths) {
@@ -933,5 +788,66 @@ public class BallerinaPsiImplUtil {
         }
         // Return the resolved element.
         return resolved;
+    }
+
+    @NotNull
+    public static List<PsiElement> getAllAnnotationAttachmentsForType(PsiDirectory packageElement,
+                                                                      @NotNull String type) {
+        List<PsiElement> results = new ArrayList<>();
+        List<PsiElement> annotationDefinitions = getAllMatchingElementsFromPackage(packageElement,
+                ANNOTATION_DEFINITION);
+        if (annotationDefinitions.isEmpty()) {
+            return results;
+        }
+        for (PsiElement annotationDefinition : annotationDefinitions) {
+            if (annotationDefinition.getParent() instanceof AnnotationDefinitionNode) {
+                AnnotationDefinitionNode annotationDefinitionNode =
+                        (AnnotationDefinitionNode) annotationDefinition.getParent();
+
+                Collection<AttachmentPointNode> attachmentPointNodes =
+                        PsiTreeUtil.findChildrenOfType(annotationDefinitionNode, AttachmentPointNode.class);
+
+                if (attachmentPointNodes.isEmpty()) {
+                    results.add(annotationDefinition);
+                    continue;
+                }
+                for (AttachmentPointNode attachmentPointNode : attachmentPointNodes) {
+                    if (type.equals(attachmentPointNode.getText())) {
+                        results.add(annotationDefinition);
+                        break;
+                    }
+                }
+            }
+        }
+        return results;
+    }
+
+    @Nullable
+    public static PsiDirectory resolvePackage(@NotNull PackageNameNode packageNameNode) {
+        PsiElement nameIdentifier = packageNameNode.getNameIdentifier();
+        if (nameIdentifier == null) {
+            return null;
+        }
+        PsiReference reference = nameIdentifier.getReference();
+        if (reference != null) {
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement != null && resolvedElement instanceof PsiDirectory) {
+                return ((PsiDirectory) resolvedElement);
+            }
+        }
+        PsiReference[] references = nameIdentifier.getReferences();
+        if (references.length == 0) {
+            return null;
+        }
+        for (PsiReference psiReference : references) {
+            PsiElement resolvedElement = psiReference.resolve();
+            if (resolvedElement == null) {
+                continue;
+            }
+            if (resolvedElement instanceof PsiDirectory) {
+                return ((PsiDirectory) resolvedElement);
+            }
+        }
+        return null;
     }
 }

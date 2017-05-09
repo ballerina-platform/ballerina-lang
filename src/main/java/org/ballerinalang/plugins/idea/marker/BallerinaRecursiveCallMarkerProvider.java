@@ -19,7 +19,6 @@ package org.ballerinalang.plugins.idea.marker;
 import com.intellij.codeHighlighting.Pass;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.psi.PsiDocumentManager;
@@ -28,10 +27,11 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.FunctionUtil;
 import com.intellij.util.containers.ContainerUtil;
+import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,61 +53,79 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
         // This is used to prevent adding multiple line markers to the same line.
         Set<Integer> lines = ContainerUtil.newHashSet();
         for (PsiElement element : elements) {
-            // Check whether the element is an instance of IdentifierPSINode since recursion can only happen for those
-            // (function name and function invocation both are instance of IdentifierPSINode).
-            PsiElement parent = element.getParent();
-            PsiElement superParent = null;
-            if (parent != null) {
-                superParent = parent.getParent();
+            if (!isValidElement(element)) {
+                continue;
             }
-            if (element instanceof IdentifierPSINode && (parent instanceof FunctionInvocationStatementNode ||
-                    (parent instanceof NameReferenceNode && superParent instanceof ExpressionNode))) {
-                // If it is a function invocation, there should be a parent of NameReferenceNode.
-                NameReferenceNode nameReferenceNode = PsiTreeUtil.getParentOfType(element, NameReferenceNode.class);
-                if (nameReferenceNode == null) {
-                    continue;
-                }
-                // Get the identifier.
-                PsiElement identifier = nameReferenceNode.getNameIdentifier();
-                if (identifier == null) {
-                    continue;
-                }
-                // Get the reference.
-                PsiReference reference = identifier.getReference();
-                if (reference == null) {
-                    continue;
-                }
-                // Resolve the reference.
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement == null) {
-                    continue;
-                }
-                // Get the document manager;
-                PsiDocumentManager documentManager = PsiDocumentManager.getInstance(element.getProject());
-                // Get the document.
-                Document document = documentManager.getDocument(element.getContainingFile());
-                if (document == null) {
-                    continue;
-                }
-                // Get the offset of the current element.
-                int textOffset = element.getTextOffset();
-                // Get the line number of the current element.
-                int lineNumber = document.getLineNumber(textOffset);
-                // Find the common context. For a recursive call, the common context should be a FunctionNode.
-                PsiElement commonContext = PsiTreeUtil.findCommonContext(nameReferenceNode, resolvedElement);
-                if (commonContext instanceof FunctionNode && !lines.contains(lineNumber)) {
-                    // Add the number to the set.
-                    lines.add(lineNumber);
-                    // Return a new line marker.
-                    result.add(new RecursiveMethodCallMarkerInfo(element));
-                }
+            // If it is a function invocation, there should be a parent of NameReferenceNode.
+            NameReferenceNode nameReferenceNode = PsiTreeUtil.getParentOfType(element, NameReferenceNode.class);
+            if (nameReferenceNode == null) {
+                continue;
+            }
+            PsiElement resolvedElement = resolveElement(nameReferenceNode);
+            if (resolvedElement == null) {
+                continue;
+            }
+            // Get the document manager;
+            PsiDocumentManager documentManager = PsiDocumentManager.getInstance(element.getProject());
+            // Get the document.
+            Document document = documentManager.getDocument(element.getContainingFile());
+            if (document == null) {
+                continue;
+            }
+            // Get the offset of the current element.
+            int textOffset = element.getTextOffset();
+            // Get the line number of the current element.
+            int lineNumber = document.getLineNumber(textOffset);
+            // Find the common context. For a recursive call, the common context should be a FunctionDefinitionNode.
+            PsiElement commonContext = PsiTreeUtil.findCommonContext(nameReferenceNode, resolvedElement);
+            if (commonContext instanceof FunctionDefinitionNode && !lines.contains(lineNumber)) {
+                // Add the number to the set.
+                lines.add(lineNumber);
+                // Return a new line marker.
+                result.add(new RecursiveMethodCallMarkerInfo(element));
             }
         }
     }
 
+    private boolean isValidElement(@NotNull PsiElement element) {
+        // Check whether the element is an instance of IdentifierPSINode since recursion can only happen for those
+        // (function name and function invocation both are instance of IdentifierPSINode).
+        PsiElement parent = element.getParent();
+        PsiElement superParent = null;
+        if (parent != null) {
+            superParent = parent.getParent();
+        }
+        if (!(element instanceof IdentifierPSINode)) {
+            return false;
+        }
+        if (!(superParent instanceof ExpressionNode || superParent instanceof FunctionInvocationStatementNode)) {
+            return false;
+        }
+        if (!(parent instanceof FunctionInvocationStatementNode || parent instanceof NameReferenceNode)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Nullable
+    private PsiElement resolveElement(@NotNull NameReferenceNode nameReferenceNode) {
+        // Get the identifier.
+        PsiElement identifier = nameReferenceNode.getNameIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+        // Get the reference.
+        PsiReference reference = identifier.getReference();
+        if (reference == null) {
+            return null;
+        }
+        // Resolve the reference.
+        return reference.resolve();
+    }
+
     private static class RecursiveMethodCallMarkerInfo extends LineMarkerInfo<PsiElement> {
         private RecursiveMethodCallMarkerInfo(@NotNull PsiElement methodCall) {
-            super(methodCall, methodCall.getTextRange(), AllIcons.Gutter.RecursiveMethod, Pass.LINE_MARKERS,
+            super(methodCall, methodCall.getTextRange(), BallerinaIcons.RECURSIVE, Pass.LINE_MARKERS,
                     FunctionUtil.constant("Recursive call"), null, GutterIconRenderer.Alignment.RIGHT);
         }
     }

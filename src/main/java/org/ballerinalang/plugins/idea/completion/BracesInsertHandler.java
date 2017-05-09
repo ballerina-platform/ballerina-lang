@@ -36,11 +36,11 @@ public class BracesInsertHandler implements InsertHandler<LookupElement> {
     private final String myIgnoreOnChars;
     private final boolean myTriggerAutoPopup;
 
-    public BracesInsertHandler(boolean triggerAutoPopup) {
+    private BracesInsertHandler(boolean triggerAutoPopup) {
         this("", triggerAutoPopup);
     }
 
-    public BracesInsertHandler(String ignoreOnChars, boolean triggerAutoPopup) {
+    private BracesInsertHandler(String ignoreOnChars, boolean triggerAutoPopup) {
         myIgnoreOnChars = ignoreOnChars;
         myTriggerAutoPopup = triggerAutoPopup;
     }
@@ -48,14 +48,16 @@ public class BracesInsertHandler implements InsertHandler<LookupElement> {
     public void handleInsert(InsertionContext context, LookupElement item) {
         Editor editor = context.getEditor();
         char completionChar = context.getCompletionChar();
-        if (completionChar == ' ' || StringUtil.containsChar(myIgnoreOnChars, completionChar)) return;
+        if (completionChar == ' ' || StringUtil.containsChar(myIgnoreOnChars, completionChar)) {
+            return;
+        }
         Project project = editor.getProject();
         if (project != null) {
             if (!isCompletionCharAtSpace(editor)) {
                 EditorModificationUtil.insertStringAtCaret(editor, " {}", false, 2);
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
             } else {
-                editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + 1);
+                editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + 2);
             }
             if (myTriggerAutoPopup) {
                 AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
@@ -66,6 +68,7 @@ public class BracesInsertHandler implements InsertHandler<LookupElement> {
     private static boolean isCompletionCharAtSpace(Editor editor) {
         final int startOffset = editor.getCaretModel().getOffset();
         final Document document = editor.getDocument();
+        // Todo - get non empty next sibling and compare
         return document.getTextLength() > startOffset && document.getCharsSequence().charAt(startOffset) == '{';
     }
 }

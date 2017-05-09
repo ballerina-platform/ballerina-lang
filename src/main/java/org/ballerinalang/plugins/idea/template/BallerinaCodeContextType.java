@@ -22,13 +22,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtilCore;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlighter;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.jetbrains.annotations.NonNls;
@@ -120,23 +123,21 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element.getParent() instanceof PsiErrorElement) {
-                if (element.getParent().getParent() instanceof ConnectorBodyNode) {
-                    return true;
-                }
-            } else if (element instanceof ConnectorBodyNode || element.getParent() instanceof ConnectorNode) {
-                return true;
-            } else {
-                PsiElement parent = element.getParent();
-                if (parent instanceof ActionDefinitionNode) {
+            if (element instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) element).getElementType();
+                if (elementType == BallerinaTypes.QUOTED_STRING) {
                     return false;
                 }
-                while (parent != null && !(parent instanceof PsiFile)) {
-                    if (parent instanceof ConnectorBodyNode) {
-                        return true;
-                    }
-                    parent = parent.getParent();
-                }
+            }
+            ActionDefinitionNode actionDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                    ActionDefinitionNode.class);
+            if (actionDefinitionNode != null) {
+                return false;
+            }
+
+            ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getParentOfType(element, ConnectorBodyNode.class);
+            if (connectorBodyNode != null) {
+                return true;
             }
             return false;
         }

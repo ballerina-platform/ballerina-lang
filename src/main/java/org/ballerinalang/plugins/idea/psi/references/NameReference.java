@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.psi.references;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
@@ -27,8 +28,8 @@ import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
@@ -50,7 +51,7 @@ public class NameReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return (def instanceof FunctionNode) || (def instanceof ConnectorNode) || (def instanceof StructDefinitionNode)
+        return (def instanceof FunctionDefinitionNode) || (def instanceof ConnectorDefinitionNode) || (def instanceof StructDefinitionNode)
                 || (def instanceof VariableDefinitionNode) || (def instanceof AnnotationDefinitionNode);
     }
 
@@ -91,11 +92,31 @@ public class NameReference extends BallerinaElementReference {
         if (packagePathNode == null) {
             return new ResolveResult[0];
         }
+        // Create a new List to save resolved elements.
+        List<ResolveResult> results = new ArrayList<>();
         // Get the PackageNameNode. We need this to resolve the package.
         PackageNameNode[] packageNameNodes =
                 PsiTreeUtil.getChildrenOfType(packagePathNode, PackageNameNode.class);
         if (packageNameNodes == null) {
-            return new ResolveResult[0];
+            // Even though the package name is null, the name reference node might be an annotation node. So we need to
+            // get all annotations in the current.
+            PsiFile containingFile = myElement.getContainingFile();
+            if (containingFile == null) {
+                return new ResolveResult[0];
+            }
+            PsiDirectory parentDirectory = containingFile.getParent();
+            if (parentDirectory == null) {
+                return new ResolveResult[0];
+            }
+            List<PsiElement> allAnnotations =
+                    BallerinaPsiImplUtil.getAllAnnotationsInCurrentPackage(parentDirectory);
+            // Add matching functions to results.
+            for (PsiElement psiElement : allAnnotations) {
+                if (getElement().getText().equals(psiElement.getText())) {
+                    results.add(new PsiElementResolveResult(psiElement));
+                }
+            }
+            return results.toArray(new ResolveResult[results.size()]);
         }
         // Get the last PackageNameNode because we only need to resolve the corresponding package.
         PackageNameNode lastPackage = packageNameNodes[packageNameNodes.length - 1];
@@ -114,15 +135,16 @@ public class NameReference extends BallerinaElementReference {
         }
         // Multi resolve the reference.
         ResolveResult[] resolveResults = ((PackageNameReference) reference).multiResolve(false);
-        // Create a new List to save resolved elements.
-        List<ResolveResult> results = new ArrayList<>();
         // Iterate through all resolve results.
         for (ResolveResult resolveResult : resolveResults) {
             // Get the element from the resolve result.
             PsiElement element = resolveResult.getElement();
+            if(element==null){
+                continue;
+            }
             // Get all functions in the package.
             List<PsiElement> allFunctions =
-                    BallerinaPsiImplUtil.getAllFunctionsInPackage((PsiDirectory) element);
+                    BallerinaPsiImplUtil.getAllFunctionsFromPackage((PsiDirectory) element);
             // Add matching functions to results.
             for (PsiElement psiElement : allFunctions) {
                 if (getElement().getText().equals(psiElement.getText())) {
@@ -149,7 +171,7 @@ public class NameReference extends BallerinaElementReference {
             }
             // Get all structs in the package.
             List<PsiElement> allStructs =
-                    BallerinaPsiImplUtil.getAllStructsInPackage((PsiDirectory) element);
+                    BallerinaPsiImplUtil.getAllStructsFromPackage((PsiDirectory) element);
             // Add matching functions to results.
             for (PsiElement psiElement : allStructs) {
                 if (getElement().getText().equals(psiElement.getText())) {

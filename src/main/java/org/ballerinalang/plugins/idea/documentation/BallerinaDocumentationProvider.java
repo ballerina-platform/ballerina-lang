@@ -30,8 +30,9 @@ import org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorNode;
-import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
@@ -51,12 +52,12 @@ import java.util.List;
 
 public class BallerinaDocumentationProvider extends AbstractDocumentationProvider {
 
-    public static final String DOC_PACKAGE_NAME = "doc";
-    public static final String DOC_SEPARATOR = ":";
-    public static final String DOC_DESCRIPTION = "Description";
-    public static final String DOC_PARAM = "Param";
-    public static final String DOC_RETURN = "Return";
-    public static final String DOC_FIELD = "Field";
+    private static final String DOC_PACKAGE_NAME = "doc";
+    private static final String DOC_SEPARATOR = ":";
+    private static final String DOC_DESCRIPTION = "Description";
+    private static final String DOC_PARAM = "Param";
+    private static final String DOC_RETURN = "Return";
+    private static final String DOC_FIELD = "Field";
 
     @Nullable
     @Override
@@ -81,7 +82,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
     public String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
         // This method will be called to generate the doc.
         // First we get the signature.
-        String signature = getSignature(element, originalElement);
+        String signature = getSignature(element);
         signature = StringUtil.isNotEmpty(signature) ? "<b>" + signature + "</b><br>" : signature;
         // Then we get the text from docs.
         String generatedDoc = StringUtil.nullize(signature + getDocText(element, originalElement));
@@ -89,7 +90,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
     }
 
     @NotNull
-    private static String getSignature(PsiElement element, PsiElement originalElement) {
+    private static String getSignature(PsiElement element) {
         if (element == null) {
             return "";
         }
@@ -98,9 +99,9 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
         // generate the signature.
         PsiElement parent = element.getParent();
         // Generate the signature according to the parent type.
-        if (parent instanceof FunctionNode) {
+        if (parent instanceof FunctionDefinitionNode) {
             // Add the function signature.
-            stringBuilder.append("func ");
+            stringBuilder.append("function ");
             stringBuilder.append(element.getText());
 
             // Get parameters.
@@ -144,7 +145,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
                 stringBuilder.append(returnParams);
                 stringBuilder.append(")");
             }
-        } else if (parent instanceof ConnectorNode) {
+        } else if (parent instanceof ConnectorDefinitionNode) {
             // Add the connector signature.
             stringBuilder.append("connector ");
             stringBuilder.append(element.getText());
@@ -162,6 +163,9 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             stringBuilder.append("struct ");
             stringBuilder.append(element.getText());
             stringBuilder.append(" { }");
+        } else if (parent instanceof ConstantDefinitionNode) {
+            // Add the function signature.
+            stringBuilder.append(parent.getText());
         }
 
         // If the doc is available, add package to the top.

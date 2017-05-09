@@ -16,18 +16,22 @@
 
 package org.ballerinalang.plugins.idea.psi.references;
 
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -36,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class StatementReference extends BallerinaElementReference {
@@ -69,46 +74,56 @@ public class StatementReference extends BallerinaElementReference {
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
         List<ResolveResult> results = new ArrayList<>();
-
-        PsiElement prevSibling = getElement().getParent().getPrevSibling();
-        // Todo - handle incomplete function invocation completion
-        if (prevSibling != null && prevSibling.getPrevSibling() != null) {
-            String text = prevSibling.getPrevSibling().getText();
-            if (text.endsWith(":")) {
-                List<PsiElement> allImportedPackages = BallerinaPsiImplUtil.getAllImportedPackages(getElement());
-
-                for (PsiElement importedPackage : allImportedPackages) {
-                    if (text.equals(importedPackage.getText() + ":")) {
-                        PsiElement packageIdentifier = ((IdentifierDefSubtree) importedPackage).getNameIdentifier();
-                        if (packageIdentifier == null) {
-                            continue;
-                        }
-                        PsiReference packageReference = packageIdentifier.getReference();
-                        if (packageReference == null) {
-                            continue;
-                        }
-                        PsiElement resolved = packageReference.resolve();
-
-                        List<PsiElement> allFunctions =
-                                BallerinaPsiImplUtil.getAllMatchingElementsFromPackage((PsiDirectory) resolved,
-                                        "//functionDefinition");
-                        for (PsiElement psiElement : allFunctions) {
-                            results.add(new PsiElementResolveResult(psiElement));
-                        }
-
-                        List<PsiElement> allConnectors =
-                                BallerinaPsiImplUtil.getAllMatchingElementsFromPackage((PsiDirectory) resolved,
-                                        "//connectorDefinition");
-                        for (PsiElement psiElement : allConnectors) {
-                            results.add(new PsiElementResolveResult(psiElement));
-                        }
-                    }
-                }
+        // This is used to resolve elements which cannot be parsed properly. We assume that the element is a
+        // reference to a definition.
+        CallableUnitBodyNode bodyNode = PsiTreeUtil.getParentOfType(getElement(), CallableUnitBodyNode.class);
+        if (bodyNode == null) {
+            return results.toArray(new ResolveResult[results.size()]);
+        }
+        // First we get all the definitions in the callable unit body.
+        Collection<VariableDefinitionNode> variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(bodyNode,
+                VariableDefinitionNode.class);
+        // Check and add each result.
+        for (VariableDefinitionNode variableDefinitionNode : variableDefinitionNodes) {
+            PsiElement nameIdentifier = variableDefinitionNode.getNameIdentifier();
+            if (nameIdentifier == null) {
+                continue;
+            }
+            if (myElement.getText().equals(nameIdentifier.getText())) {
+                results.add(new PsiElementResolveResult(variableDefinitionNode));
             }
         }
-        List<PsiElement> functions = BallerinaPsiImplUtil.resolveConnector(getElement());
-        for (PsiElement function : functions) {
-            results.add(new PsiElementResolveResult(function));
+
+        // We need to check parameters for matches as well. So we need to first get the enclosing definition node.
+        IdentifierDefSubtree definitionNode = PsiTreeUtil.getParentOfType(getElement(), FunctionDefinitionNode.class,
+                ResourceDefinitionNode.class, ConnectorDefinitionNode.class, ActionDefinitionNode.class);
+        // Get all parameter nodes.
+        Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(definitionNode, ParameterNode.class);
+        // Check and add each result.
+        for (ParameterNode parameterNode : parameterNodes) {
+            PsiElement nameIdentifier = parameterNode.getNameIdentifier();
+            if (nameIdentifier == null) {
+                continue;
+            }
+            if (myElement.getText().equals(nameIdentifier.getText())) {
+                results.add(new PsiElementResolveResult(parameterNode));
+            }
+        }
+
+        // We need to check connectors in the package as well.
+        List<PsiElement> connectorsInCurrentPackage =
+                BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(myElement.getContainingFile().getParent());
+        for (PsiElement connector : connectorsInCurrentPackage) {
+            if (!(connector instanceof IdentifierPSINode)) {
+                continue;
+            }
+            PsiElement nameIdentifier = ((IdentifierPSINode) connector).getNameIdentifier();
+            if (nameIdentifier == null) {
+                continue;
+            }
+            if (myElement.getText().equals(nameIdentifier.getText())) {
+                results.add(new PsiElementResolveResult(nameIdentifier));
+            }
         }
         return results.toArray(new ResolveResult[results.size()]);
     }

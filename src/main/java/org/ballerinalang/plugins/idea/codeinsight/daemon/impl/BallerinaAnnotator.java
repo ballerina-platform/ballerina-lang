@@ -27,21 +27,28 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlightingColors;
+import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BallerinaAnnotator implements Annotator {
 
-    private static final String ESCAPE_CHARACTERS = "\\\\[btnfr\"'\\\\]";
-    private static final Pattern ESCAPE_CHAR_PATTERN = Pattern.compile(ESCAPE_CHARACTERS);
+    private static final String VALID_ESCAPE_CHARACTERS = "\\\\[btnfr\"'\\\\]";
+    private static final Pattern VALID_ESCAPE_CHAR_PATTERN = Pattern.compile(VALID_ESCAPE_CHARACTERS);
+    private static final String INVALID_ESCAPE_CHARACTERS = "((\\\\\\\\)+|(\\\\[^btnfr\"'\\\\]))|(\\\\(?!.))";
+    private static final Pattern INVALID_ESCAPE_CHAR_PATTERN = Pattern.compile(INVALID_ESCAPE_CHARACTERS);
 
     @Override
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
@@ -57,6 +64,10 @@ public class BallerinaAnnotator implements Annotator {
             annotateVariableReferenceNodes((VariableReferenceNode) element, holder);
         } else if (element instanceof AnnotationDefinitionNode) {
             annotateAnnotationDefinitionNodes((AnnotationDefinitionNode) element, holder);
+        } else if (element instanceof ImportDeclarationNode) {
+            annotateImportDeclarations(element, holder);
+        } else if (element instanceof PackageNameNode) {
+            annotatePackageNameNodes(element, holder);
         }
     }
 
@@ -75,7 +86,7 @@ public class BallerinaAnnotator implements Annotator {
         } else if (elementType == BallerinaTypes.QUOTED_STRING) {
             // In here, we annotate escape characters.
             String text = element.getText();
-            Matcher matcher = ESCAPE_CHAR_PATTERN.matcher(text);
+            Matcher matcher = VALID_ESCAPE_CHAR_PATTERN.matcher(text);
             // Get the start offset of the element.
             int startOffset = ((LeafPsiElement) element).getStartOffset();
             // Iterate through each match.
@@ -88,6 +99,23 @@ public class BallerinaAnnotator implements Annotator {
                 // Create the annotation.
                 Annotation annotation = holder.createInfoAnnotation(range, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.VALID_STRING_ESCAPE);
+            }
+
+            matcher = INVALID_ESCAPE_CHAR_PATTERN.matcher(text);
+            // Get the start offset of the element.
+            startOffset = ((LeafPsiElement) element).getStartOffset();
+            // Iterate through each match.
+            while (matcher.find()) {
+                // Get the matching group.
+                String group = matcher.group(3);
+                if (group != null) {
+                    // Calculate the start and end offsets and create the range.
+                    TextRange range = new TextRange(startOffset + matcher.start(),
+                            startOffset + matcher.start() + group.length());
+                    // Create the annotation.
+                    Annotation annotation = holder.createInfoAnnotation(range, "Invalid string escape");
+                    annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.INVALID_STRING_ESCAPE);
+                }
             }
         }
     }
@@ -132,5 +160,46 @@ public class BallerinaAnnotator implements Annotator {
         }
         Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
+    }
+
+
+    private void annotateImportDeclarations(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+        AliasNode aliasNode = PsiTreeUtil.findChildOfType(element, AliasNode.class);
+        if (aliasNode != null) {
+            // Create the annotation.
+            Annotation annotation = holder.createInfoAnnotation(aliasNode.getTextRange(), null);
+            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.PACKAGE);
+        } else {
+            Collection<PackageNameNode> packageNameNodes = PsiTreeUtil.findChildrenOfType(element,
+                    PackageNameNode.class);
+            if (!packageNameNodes.isEmpty()) {
+                PackageNameNode lastPackageName =
+                        (PackageNameNode) packageNameNodes.toArray()[packageNameNodes.size() - 1];
+                // Create the annotation.
+                Annotation annotation = holder.createInfoAnnotation(lastPackageName.getTextRange(), null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.PACKAGE);
+            }
+        }
+    }
+
+    private void annotatePackageNameNodes(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+        ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(element,
+                ImportDeclarationNode.class);
+        if (importDeclarationNode != null) {
+            return;
+        }
+        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.getParentOfType(element,
+                PackageDeclarationNode.class);
+        if (packageDeclarationNode != null) {
+            return;
+        }
+        AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(element,
+                AnnotationAttachmentNode.class);
+        if (annotationAttachmentNode != null) {
+            return;
+        }
+        // Create the annotation.
+        Annotation annotation = holder.createInfoAnnotation(element.getTextRange(), null);
+        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.PACKAGE);
     }
 }

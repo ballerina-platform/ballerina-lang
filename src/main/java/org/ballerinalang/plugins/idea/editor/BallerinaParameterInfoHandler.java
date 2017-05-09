@@ -254,7 +254,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                     if (resolvedElement != null) {
                         isResolved = true;
                         // Resolved element will be the identifier of the function node. So we get the parent
-                        // node (FunctionNode).
+                        // node (FunctionDefinitionNode).
                         PsiElement functionNode = resolvedElement.getParent();
                         // Since we need the ParameterListNode, search for ParameterListNode child node.
                         ParameterListNode parameterListNode =
@@ -287,7 +287,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                                     continue;
                                 }
                                 isResolved = true;
-                                // Get the parent node (FunctionNode).
+                                // Get the parent node (FunctionDefinitionNode).
                                 PsiElement parentElement = resolvedElement.getParent();
                                 // Get the ParameterListNode.
                                 ParameterListNode parameterListNode =
@@ -313,7 +313,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                                     continue;
                                 }
                                 isResolved = true;
-                                // Get the parent node (FunctionNode).
+                                // Get the parent node (FunctionDefinitionNode).
                                 PsiElement parentElement = resolvedElement.getParent();
                                 // Get the ParameterListNode.
                                 ParameterListNode parameterListNode =

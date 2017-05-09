@@ -16,21 +16,16 @@
 
 package org.ballerinalang.plugins.idea.completion;
 
-public class BallerinaCompletionUtil {
+/**
+ * Interface which is used to pass methods to {@link BallerinaCompletionUtils#checkPrevNodeAndHandle} method. These
+ * passed methods will contain the logic which is executed to add lookup elements.
+ *
+ * @param <T> A {@link com.intellij.codeInsight.completion.CompletionParameters} object
+ * @param <U> A {@link com.intellij.codeInsight.completion.CompletionResultSet} object
+ * @param <V> A {@link com.intellij.psi.PsiElement} object which represents the element which we are editing
+ */
+@FunctionalInterface
+public interface Strategy<T, U, V> {
 
-    public static final int KEYWORD_PRIORITY = 20;
-    public static final int CONTEXT_KEYWORD_PRIORITY = 25;
-    public static final int VALUE_TYPE_PRIORITY = 30;
-    public static final int REFERENCE_TYPE_PRIORITY = 30;
-    public static final int PACKAGE_PRIORITY = 35;
-    public static final int CONNECTOR_PRIORITY = 35;
-    public static final int ANNOTATION_PRIORITY = 35;
-    public static final int FUNCTION_PRIORITY = 40;
-    public static final int STRUCT_PRIORITY = 35;
-    public static final int VARIABLE_PRIORITY = 35;
-    public static final int ACTION_PRIORITY = 40;
-
-    private BallerinaCompletionUtil() {
-
-    }
+    void execute(T t, U u, V v);
 }

@@ -26,8 +26,25 @@ import javax.swing.Icon;
 public class BallerinaIcons {
 
     public static final Icon ICON = IconLoader.findIcon("/icons/ballerina.png");
-
     public static final Icon APPLICATION_RUN = createIconWithShift(ICON, AllIcons.Nodes.RunnableMark);
+    public static final Icon RUN = AllIcons.RunConfigurations.TestState.Run;
+    public static final Icon RECURSIVE = AllIcons.Gutter.RecursiveMethod;
+    public static final Icon PACKAGE = AllIcons.Nodes.Package;
+    public static final Icon FUNCTION = AllIcons.Nodes.Field;
+    public static final Icon VARIABLE = AllIcons.Nodes.Variable;
+    public static final Icon PARAMETER = AllIcons.Nodes.Parameter;
+    public static final Icon CONSTANT = AllIcons.Nodes.Class;
+    public static final Icon CONNECTOR = AllIcons.Nodes.Class;
+    public static final Icon ACTION = AllIcons.Nodes.Deploy;
+    public static final Icon SERVICE = AllIcons.Nodes.Static;
+    public static final Icon RESOURCE = AllIcons.Nodes.Rw_access;
+    public static final Icon STRUCT = AllIcons.Json.Object;
+    public static final Icon FIELD = AllIcons.Nodes.Advice;
+    public static final Icon ANNOTATION = AllIcons.Nodes.Annotationtype;
+
+    private BallerinaIcons() {
+
+    }
 
     @NotNull
     public static LayeredIcon createIconWithShift(@NotNull Icon base, Icon mark) {
