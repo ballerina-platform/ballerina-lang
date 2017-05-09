@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MultiClientDistributedSinkTestCase {
-    static final Logger log = Logger.getLogger(MultiClientDistributedSinkTestCase.class);
+    private static final Logger log = Logger.getLogger(MultiClientDistributedSinkTestCase.class);
     private AtomicInteger topic1Count = new AtomicInteger(0);
     private AtomicInteger topic2Count = new AtomicInteger(0);
 

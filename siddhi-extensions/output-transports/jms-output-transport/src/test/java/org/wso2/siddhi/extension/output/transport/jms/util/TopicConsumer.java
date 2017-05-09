@@ -16,9 +16,13 @@
  * under the License.
  */
 package org.wso2.siddhi.extension.output.transport.jms.util;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -28,9 +32,6 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Consumes JMS topic messages.
