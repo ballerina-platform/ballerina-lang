@@ -82,6 +82,7 @@ public class Event {
     public String toString() {
         return "Event{" +
                 "timestamp=" + timestamp +
+                ", id=" + id +
                 ", data=" + Arrays.toString(data) +
                 ", isExpired=" + isExpired +
                 '}';

@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.stream.input.source;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.stream.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -32,7 +33,7 @@ import java.util.List;
  */
 public abstract class SourceMapper implements SourceEventListener {
 
-    private InputHandler inputHandler;
+    private InputEventHandler inputEventHandler;
     private StreamDefinition streamDefinition;
     private String mapType;
     private static final Logger log = Logger.getLogger(SourceMapper.class);
@@ -44,21 +45,21 @@ public abstract class SourceMapper implements SourceEventListener {
         init(streamDefinition, mapOptionHolder, attributeMappings, configReader);
     }
 
-    public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
-                              List<AttributeMapping> attributeMappingList, ConfigReader configReader);
+    public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
+            attributeMappingList, ConfigReader configReader);
 
-    public void setInputHandler(InputHandler inputHandler) {
-        this.inputHandler = inputHandler;
+    public void setInputEventHandler(InputEventHandler inputEventHandler) {
+        this.inputEventHandler = inputEventHandler;
     }
 
     public InputHandler getInputHandler() {
-        return inputHandler;
+        return inputEventHandler.getInputHandler();
     }
 
     public void onEvent(Object eventObject) {
         try {
             if (eventObject != null) {
-                mapAndProcess(eventObject, inputHandler);
+                mapAndProcess(eventObject, inputEventHandler);
             }
         } catch (InterruptedException e) {
             log.error("Error while processing '" + eventObject + "', for the input Mapping '" + mapType +
@@ -70,6 +71,6 @@ public abstract class SourceMapper implements SourceEventListener {
         return streamDefinition;
     }
 
-    protected abstract void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException;
-
+    protected abstract void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws
+            InterruptedException;
 }

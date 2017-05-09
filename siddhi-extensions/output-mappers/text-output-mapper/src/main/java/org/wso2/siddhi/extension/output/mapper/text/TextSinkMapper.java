@@ -36,10 +36,10 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
         description = "Event to Text output mapper."
 )
 public class TextSinkMapper extends SinkMapper {
-    private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
-    private static final String EVENT_ATTRIBUTE_VALUE_SEPARATOR = ":";
     private StreamDefinition streamDefinition;
     private TemplateBuilder payloadTemplateBuilder;
+    private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
+    private static final String EVENT_ATTRIBUTE_VALUE_SEPARATOR = ":";
 
     @Override
     public String[] getSupportedDynamicOptions() {
@@ -64,7 +64,6 @@ public class TextSinkMapper extends SinkMapper {
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
-        updateEventIds(events);
         if (this.payloadTemplateBuilder != null) {
             for (Event event : events) {
                 sinkListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
@@ -80,7 +79,6 @@ public class TextSinkMapper extends SinkMapper {
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
-        updateEventId(event);
         if (this.payloadTemplateBuilder != null) {
             sinkListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
         } else {
@@ -96,15 +94,13 @@ public class TextSinkMapper extends SinkMapper {
      */
     private Object constructDefaultMapping(Event event) {
         StringBuilder eventText = new StringBuilder();
+        eventText.append("siddhiEventId").append(EVENT_ATTRIBUTE_VALUE_SEPARATOR).append(event.getId()).append("\n");
         Object[] data = event.getData();
         for (int i = 0; i < data.length; i++) {
-            String attributeName = streamDefinition.getAttributeNameArray()[i];
             Object attributeValue = data[i];
-            eventText.append(attributeName).append(EVENT_ATTRIBUTE_VALUE_SEPARATOR).append(attributeValue.toString())
-                    .append(EVENT_ATTRIBUTE_SEPARATOR).append("\n");
+            eventText.append(attributeValue.toString()).append(EVENT_ATTRIBUTE_SEPARATOR);
         }
         eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
-        eventText.deleteCharAt(eventText.lastIndexOf("\n"));
 
 //        // Get arbitrary data from event
 //        Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();

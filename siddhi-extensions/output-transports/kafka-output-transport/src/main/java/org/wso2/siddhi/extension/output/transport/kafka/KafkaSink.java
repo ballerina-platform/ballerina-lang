@@ -34,7 +34,6 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Extension(
@@ -44,19 +43,21 @@ import java.util.concurrent.ScheduledExecutorService;
 )
 public class KafkaSink extends Sink {
 
+    private ScheduledExecutorService executorService;
+    private Producer<String, String>  producer;
+    private Option topicOption = null;
+    private String kafkaConnect;
+    private String optionalConfigs;
+    private Option partitionOption;
+
     private static final String KAFKA_PUBLISH_TOPIC = "topic";
     private static final String KAFKA_BROKER_LIST = "bootstrap.servers";
     private static final String KAFKA_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
     private static final String HEADER_SEPARATOR = ",";
     private static final String ENTRY_SEPARATOR = ":";
     private static final String KAFKA_PARTITION_NO = "partition.no";
+
     private static final Logger log = Logger.getLogger(KafkaSink.class);
-    private ScheduledExecutorService executorService;
-    private Producer<String, String> producer;
-    private Option topicOption = null;
-    private String kafkaConnect;
-    private String optionalConfigs;
-    private Option partitionOption;
 
     @Override
     protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
@@ -102,9 +103,14 @@ public class KafkaSink extends Sink {
         String topic = topicOption.getValue(transportOptions);
         String partitionNo = partitionOption.getValue(transportOptions);
         try {
-            executorService.submit(new KafkaSender(topic, partitionNo, payload));
-        } catch (RejectedExecutionException e) {
-            log.error("Job queue is full : " + e.getMessage(), e);
+            if (null == partitionNo) {
+                producer.send(new ProducerRecord<>(topic, payload.toString()));
+            } else {
+                producer.send(new ProducerRecord<>(topic, partitionNo, payload.toString()));
+            }
+        } catch (Exception e) {
+            log.error(String.format("Failed to publish the message to [topic] %s [partition-no] %s. Error: %s",
+                    topic, partitionNo, e.getMessage()), e);
         }
     }
 
@@ -134,31 +140,5 @@ public class KafkaSink extends Sink {
     @Override
     public void restoreState(Map<String, Object> state) {
 
-    }
-
-    private class KafkaSender implements Runnable {
-
-        String topic;
-        Object message;
-        String partitionNo;
-
-        KafkaSender(String topic, String partitionNo, Object message) {
-            this.topic = topic;
-            this.message = message;
-            this.partitionNo = partitionNo;
-        }
-
-        @Override
-        public void run() {
-            try {
-                if (null == partitionNo) {
-                    producer.send(new ProducerRecord<>(topic, message.toString()));
-                } else {
-                    producer.send(new ProducerRecord<>(topic, partitionNo, message.toString()));
-                }
-            } catch (Throwable e) {
-                log.error("Unexpected error when sending event via Kafka Output Adapter:" + e.getMessage(), e);
-            }
-        }
     }
 }
