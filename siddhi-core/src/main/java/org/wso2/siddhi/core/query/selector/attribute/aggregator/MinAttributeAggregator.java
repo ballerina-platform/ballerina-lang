@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -48,7 +49,14 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the minimum value in the same type as the input.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
+        examples = @Example(
+                syntax = "from inputStream\n" +
+                        "select min(temp) as minTemp\n" +
+                        "insert into outputStream;",
+                description = "min(temp) returns the minimum temp value recorded for all the events based on their " +
+                        "arrival and expiry."
+        )
 )
 public class MinAttributeAggregator extends AttributeAggregator {
 

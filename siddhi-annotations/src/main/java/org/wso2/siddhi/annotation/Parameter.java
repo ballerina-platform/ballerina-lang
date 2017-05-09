@@ -45,11 +45,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface Parameter {
-    String name();
+    String name() default "";
 
-    DataType[] type();
+    DataType[] type() default {};
 
-    String description() default "";        // optional
+    String description() default "";
 
-    boolean optional() default false;       // optional
+    boolean optional() default false;
+
+    boolean dynamic() default false;
 }

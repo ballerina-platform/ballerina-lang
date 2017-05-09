@@ -18,9 +18,9 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -62,10 +62,10 @@ import java.util.Map;
                         description = "The time which the window determines as current time and will act upon. " +
                                 "The value of this parameter should be monotonically increasing.",
                         type = {DataType.LONG}),
-                @Parameter(name = "windowTime",
+                @Parameter(name = "window.time",
                         description = "The batch time period for which the window should hold events.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME}),
-                @Parameter(name = "startTime",
+                @Parameter(name = "start.time",
                         description = "User defined start time. This could either be a constant (of type int, " +
                                 "long or time) or an attribute of the corresponding stream (of type long). " +
                                 "If an attribute is provided, initial value of attribute would be considered as " +
@@ -81,9 +81,34 @@ import java.util.Map;
                         type = {DataType.INT, DataType.LONG, DataType.TIME},
                         optional = true)
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = {
+                @Example(
+                        syntax = "define window cseEventWindow (symbol string, price float, volume int) " +
+                                "externalTimeBatch(eventTime, 1 sec) output expired events;\n" +
+                                "@info(name = 'query0')\n" +
+                                "from cseEventStream\n" +
+                                "insert into cseEventWindow;\n" +
+                                "@info(name = 'query1')\n" +
+                                "from cseEventWindow\n" +
+                                "select symbol, sum(price) as price\n" +
+                                "insert expired events into outputStream ;",
+                        description = "This will processing events that arrive every 1 seconds " +
+                                "from the eventTime."
+                ),
+                @Example(
+                        syntax = "define window cseEventWindow (symbol string, price float, volume int) " +
+                                "externalTimeBatch(eventTime, 20 sec, 0) output expired events;",
+                        description = "This will processing events that arrive every 1 seconds " +
+                                "from the eventTime. Starts on 0th millisecond of an hour."
+                ),
+                @Example(
+                        syntax = "define window cseEventWindow (symbol string, price float, volume int) " +
+                                "externalTimeBatch(eventTime, 2 sec, eventTimestamp, 100) output expired events;",
+                        description = "This will processing events that arrive every 2 seconds from the " +
+                                "eventTim. Considers the first event's eventTimestamp value as startTime. " +
+                                "Waits 100 milliseconds for the arrival of a new event before flushing current batch."
+                )
+        }
 )
 public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor,
         FindableProcessor {

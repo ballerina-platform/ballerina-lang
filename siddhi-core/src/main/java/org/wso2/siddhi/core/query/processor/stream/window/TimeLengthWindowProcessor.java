@@ -18,9 +18,9 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -53,19 +53,29 @@ import java.util.Map;
 @Extension(
         name = "timeLength",
         namespace = "",
-        description = "A sliding time window that, at a given time holds the last windowLength events that arrived " +
-                "during last windowTime period, and gets updated for every event arrival and expiry.",
+        description = "A sliding time window that, at a given time holds the last window.length events that arrived " +
+                "during last window.time period, and gets updated for every event arrival and expiry.",
         parameters = {
-                @Parameter(name = "windowTime",
+                @Parameter(name = "window.time",
                         description = "The sliding time period for which the window should hold events.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME}),
-                @Parameter(name = "windowLength",
+                @Parameter(name = "window.length",
                         description = "The number of events that should be be included in a sliding length window..",
                         type = {DataType.INT})
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = @Example(
+                syntax = "define stream cseEventStream (symbol string, price float, volume int);\n" +
+                        "define window cseEventWindow (symbol string, price float, volume int) " +
+                        "timeLength(2 sec, 10);\n" +
+                        "@info(name = 'query0')\n" +
+                        "from cseEventStream\n" +
+                        "insert into cseEventWindow;\n" +
+                        "@info(name = 'query1')\n" +
+                        "from cseEventWindow select symbol, price, volume\n" +
+                        "insert all events into outputStream;",
+                description = "window.timeLength(2 sec, 10) holds the last 10 events that arrived during " +
+                        "last 2 seconds and gets updated for every event arrival and expiry."
+        )
 )
 public class TimeLengthWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 

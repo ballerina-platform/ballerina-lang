@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -46,7 +47,13 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "This will be the same as the type of the first input parameter.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
+        examples = @Example(
+                syntax = "@info(name = 'query1') from inputStream\n" +
+                        "select maximum(price1, price2, price3) as max\n" +
+                        "insert into outputStream;",
+                description = "This will returns the maximum value of the input parameters price1, price2, price3."
+        )
 )
 public class MaximumFunctionExecutor extends FunctionExecutor {
 

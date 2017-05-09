@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c)  2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -23,15 +23,22 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An Optional annotation for storing an examples for a Siddhi Extension.
+ * Annotation for storing the system parameters of a Siddhi Extension.
  * <p>
  * <pre><code>
  * eg:-
  *      {@literal @}Extension(
  *                      ...
- *                      examples = {{@literal @}Example(syntax = "from fooStream#window.time(10 sec)
- *                      select symbol as name, volume insert into barStream;",
- *                      description = "This will processing events that arrived within the last 10 seconds.")
+ *                      SystemParameters = {
+ *                          {@literal @}SystemParameters(
+ *                          name = "systemParameterName",
+ *                      description = "Description of the system parameter.",
+ *                      defaultValue = "defaultValue1",
+ *                      possibleParameters = {"defaultValue1", "defaultValue2", "defaultValue3"}
+ *                      ),
+ *                      },
+ *                      ...
+ *      )
  *      public CustomExtension extends ExtensionSuperClass {
  *          ...
  *      }
@@ -39,8 +46,12 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-public @interface Example {
-    String syntax() default "";
+public @interface SystemParameter {
+    String name() default "";
 
     String description() default "";
+
+    String defaultValue() default "";
+
+    String[] possibleParameters() default {}; //Optional
 }

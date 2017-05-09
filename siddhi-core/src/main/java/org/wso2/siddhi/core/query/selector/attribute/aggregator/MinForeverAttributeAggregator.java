@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -46,7 +47,14 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the minimum value in the same data type as the input.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
+        examples = @Example(
+                syntax = "from inputStream\n" +
+                        "select minForever(temp) as max\n" +
+                        "insert into outputStream;",
+                description = "minForever(temp) returns the minimum temp value recorded for all the events throughout" +
+                        "the lifetime of the query."
+        )
 )
 public class MinForeverAttributeAggregator extends AttributeAggregator {
 

@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.stream.input.source;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
@@ -36,7 +37,13 @@ import java.util.List;
 @Extension(
         name = "passThrough",
         namespace = "sourceMapper",
-        description = "Pass-through mapper passed events (Event[]) through without any mapping or modifications."
+        description = "Pass-through mapper passed events (Event[]) through without any mapping or modifications.",
+        examples = @Example(
+                syntax = "@source(type='tcp', @map(type='passThrough'),\n" +
+                        "define stream BarStream (symbol string, price float, volume long);",
+                description = "In this example BarStream uses passThrough inputmapper which passes the " +
+                        "received Siddhi event directly without any transformation into source."
+        )
 )
 public class PassThroughSourceMapper extends SourceMapper {
     private static final Logger log = Logger.getLogger(PassThroughSourceMapper.class);

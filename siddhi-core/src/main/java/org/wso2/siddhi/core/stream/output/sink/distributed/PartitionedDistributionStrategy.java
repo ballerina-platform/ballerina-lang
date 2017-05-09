@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -37,7 +38,16 @@ import java.util.List;
 @Extension(
         name = "partitioned",
         namespace = "distributionStrategy",
-        description = ""
+        description = "Publishing strategy to allow publish messages to multiple destination by partitioning.",
+        examples = @Example(
+                syntax = "@sink(type='tcp', @map(type='text'),\n" +
+                        "@distribution(strategy='partitioned', partitionKey='symbol',\n" +
+                        "@destination(topic = 'topic1'),\n" +
+                        "@destination(topic = 'topic2')))\n" +
+                        "define stream BarStream (symbol string, price float, volume long);",
+                description = "In this example BarStream sink will act as partitioned manner to 'topic1' and " +
+                        "'topic2' destinations according to partitionKey='symbol'."
+        )
 )
 public class PartitionedDistributionStrategy extends DistributionStrategy {
     /**

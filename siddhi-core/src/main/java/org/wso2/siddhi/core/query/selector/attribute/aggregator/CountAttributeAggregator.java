@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
@@ -38,7 +39,13 @@ import java.util.Map;
         parameters = {},
         returnAttributes = @ReturnAttribute(
                 description = "Returns the event count as a long.",
-                type = {DataType.LONG})
+                type = {DataType.LONG}),
+        examples = @Example(
+                syntax = "from fooStream#window.timeBatch(10 sec)\n" +
+                        "select count() as count\n" +
+                        "insert into barStream;",
+                description = "This will return the count of all the events for time batch in 10 seconds."
+        )
 )
 public class CountAttributeAggregator extends AttributeAggregator {
 

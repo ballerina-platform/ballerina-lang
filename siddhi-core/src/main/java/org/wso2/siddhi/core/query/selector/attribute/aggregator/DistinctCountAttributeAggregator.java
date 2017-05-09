@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -46,7 +47,19 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the count of distinct occurrences for a given arg.",
-                type = {DataType.LONG})
+                type = {DataType.LONG}),
+        examples = @Example(
+                syntax = "from fooStream\n" +
+                        "select distinctcount(pageID) as count\n" +
+                        "insert into barStream;",
+                description = "distinctcount(pageID) for the following output returns 3.\n" +
+                        " \"WEB_PAGE_1\"\n" +
+                        " \"WEB_PAGE_1\"\n" +
+                        " \"WEB_PAGE_2\"\n" +
+                        " \"WEB_PAGE_3\"\n" +
+                        " \"WEB_PAGE_1\"\n" +
+                        " \"WEB_PAGE_2\""
+        )
 )
 public class DistinctCountAttributeAggregator extends AttributeAggregator {
     private Map<Object, Long> distinctValues = new HashMap<Object, Long>();

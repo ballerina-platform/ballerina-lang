@@ -18,9 +18,9 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -64,7 +64,7 @@ import java.util.Map;
         description = "This window holds a batch of events that equal the number specified as the windowLength " +
                 "and sorts them in the given order.",
         parameters = {
-                @Parameter(name = "windowLength",
+                @Parameter(name = "window.length",
                         description = "The size of the window length.",
                         type = {DataType.INT}),
                 @Parameter(name = "attribute",
@@ -76,9 +76,19 @@ import java.util.Map;
                         type = {DataType.STRING},
                         optional = true)
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = @Example(
+                syntax =  "define stream cseEventStream (symbol string, price float, volume long);\n" +
+                        "define window cseEventWindow (symbol string, price float, volume long) sort(2,volume, 'asc')" +
+                        ";\n@info(name = 'query0')\n" +
+                        "from cseEventStream\n" +
+                        "insert into cseEventWindow;\n" +
+                        "@info(name = 'query1')\n" +
+                        "from cseEventWindow\n" +
+                        "select volume\n" +
+                        "insert all events into outputStream ;",
+                description = "sort(5, price, 'asc') keeps the events sorted by price in the ascending order. " +
+                        "Therefore, at any given time, the window contains the 5 lowest prices."
+        )
 )
 public class SortWindowProcessor extends WindowProcessor implements FindableProcessor {
     private static final String ASC = "asc";

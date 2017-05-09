@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -38,19 +39,33 @@ import java.util.Map;
         namespace = "",
         description = "Converts the first input parameter according to the convertedTo parameter.",
         parameters = {
-                @Parameter(name = "toBeConverted",
-                           description = "This specifies the value to be converted.",
-                           type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING,
-                                   DataType.BOOL}),
-                @Parameter(name = "convertedTo",
-                           description = "A string constant parameter to which type the attribute need to be "
-                                   + "converted using one of the following strings values: 'int', 'long', 'float', "
-                                   + "'double', 'string', 'bool'.",
-                           type = DataType.STRING)
+                @Parameter(name = "to.be.converted",
+                        description = "This specifies the value to be converted.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING,
+                                DataType.BOOL}),
+                @Parameter(name = "converted.to",
+                        description = "A string constant parameter to which type the attribute need to be converted " +
+                                " using one of the following strings values: 'int', 'long', 'float', 'double', " +
+                                "'string', 'bool'.",
+                        type = DataType.STRING)
         },
         returnAttributes = @ReturnAttribute(
                 description = "Based on the given convertedTo parameter.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING, DataType.BOOL})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING, DataType.BOOL}),
+        examples = {
+                @Example(
+                        syntax = "from fooStream\n" +
+                                "select convert(temp, 'double') as temp\n" +
+                                "insert into barStream;",
+                        description = "This will convert fooStream temp value into 'double'."),
+                @Example(
+                        syntax = "from fooStream\n" +
+                                "select convert(temp, 'int') as temp\n" +
+                                "insert into barStream;",
+                        description = "This will convert fooStream temp value into 'int' (value = \"convert(45.9, " +
+                                "'int') returns 46\")."
+                )
+        }
 )
 public class ConvertFunctionExecutor extends FunctionExecutor {
 

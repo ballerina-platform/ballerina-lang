@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -48,7 +49,14 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the maximum value in the same data type as the input.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
+        examples = @Example(
+                syntax = "from fooStream#window.timeBatch(10 sec)\n" +
+                        "select max(temp) as maxTemp\n" +
+                        "insert into barStream;",
+                description = "max(temp) returns the maximum temp value recorded for all the events based on their " +
+                        "arrival and expiry."
+        )
 )
 public class MaxAttributeAggregator extends AttributeAggregator {
 

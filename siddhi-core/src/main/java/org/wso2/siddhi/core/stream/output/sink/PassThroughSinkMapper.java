@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.stream.output.sink;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
@@ -34,7 +35,13 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 @Extension(
         name = "passThrough",
         namespace = "sinkMapper",
-        description = "Pass-through mapper passed events (Event[]) through without any mapping or modifications."
+        description = "Pass-through mapper passed events (Event[]) through without any mapping or modifications.",
+        examples = @Example(
+                syntax = "@sink(type='inMemory', @map(type='passThrough'),\n" +
+                        "define stream BarStream (symbol string, price float, volume long);",
+                description = "In the following example BarStream uses passThrough outputmapper which emit " +
+                        "Siddhi event directly without any transformation into sink."
+        )
 )
 public class PassThroughSinkMapper extends SinkMapper {
 

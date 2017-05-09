@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -46,7 +47,14 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the calculated standard deviation value as a double.",
-                type = {DataType.DOUBLE})
+                type = {DataType.DOUBLE}),
+        examples = @Example(
+                syntax = "from inputStream\n" +
+                        "select stddev(temp) as stdTemp\n" +
+                        "insert into outputStream;",
+                description = "stddev(temp) returns the calculated standard deviation of temp for all the events " +
+                        "based on their arrival and expiry."
+        )
 )
 public class StdDevAttributeAggregator extends AttributeAggregator {
     private StdDevAttributeAggregator stdDevOutputAttributeAggregator;
