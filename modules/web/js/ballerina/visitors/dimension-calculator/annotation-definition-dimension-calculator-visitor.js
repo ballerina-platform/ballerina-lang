@@ -44,6 +44,14 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
         let bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         // Set the width to 0 dont add the padding now since we do a comparison.
         let bodyWidth = 0;
+        let largestWidthAmongChildren = 0;
+
+        // Get the largest width of children.
+        node.children.forEach(function (child, index) {
+            if (largestWidthAmongChildren < child.viewState.textLength.w) {
+                largestWidthAmongChildren = child.viewState.textLength.w;
+            }
+        });
 
         node.children.forEach(function (child, index) {
             bodyHeight += child.viewState.bBox.h;
@@ -51,6 +59,11 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
             if (index === 1) {
                 bodyHeight = bodyHeight + DesignerDefaults.innerPanel.wrapper.gutter.v;
             }
+
+            if (largestWidthAmongChildren > child.viewState.bBox.w) {
+                child.viewState.bBox.w = largestWidthAmongChildren + 10;
+            }
+
             if (child.viewState.bBox.w > bodyWidth) {
                 bodyWidth = child.viewState.bBox.w;
             }
