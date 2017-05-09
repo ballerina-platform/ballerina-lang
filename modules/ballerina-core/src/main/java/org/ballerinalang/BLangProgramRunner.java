@@ -30,6 +30,7 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BString;
@@ -123,6 +124,10 @@ public class BLangProgramRunner {
                 executor.continueExecution(mainFunction.getCallableUnitBody());
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+                // Start the workers defined within the function
+                for (Worker worker : mainFunction.getWorkers()) {
+                    executor.executeWorker(worker);
+                }
                 mainFunction.getCallableUnitBody().execute(executor);
             }
 

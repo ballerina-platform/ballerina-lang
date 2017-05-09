@@ -73,21 +73,60 @@ function testworker(message msg)(message) {
 function testSimpleWorker(message msg)(message) {
     message result;
     //message msg = {};
-    msg -> sampleWorker;
-    system:println("Worker calling function simple test started");
-    result <- sampleWorker;
+    int x = 100;
+    float y;
+    map p = { "a" : 1, "b" : 2};
+    p, msg, x ->sampleWorker;
+    system:println("Worker calling function test started");
+    y, result <-sampleWorker;
     string s = messages:getStringPayload(result);
     system:println(s);
+    system:println("Value received from worker is " + (int)p["a"]);
     return result;
 
     worker sampleWorker {
     message result;
     message m;
-    m <- default;
+    int a;
+    map q;
+    float b = 12.34;
+    q, m, a <-default;
+    q["a"] = 12;
+    system:println("passed in value is " + (int)q["a"]);
     json j;
     j = `{"name":"chanaka"}`;
     messages:setJsonPayload(m, j);
-    m -> default;
+    b, m ->default;
+}
+
+}
+
+function testAccessFunctionArgumentsWorker(message msg)(message) {
+    message result;
+    int x = 100;
+    float y;
+    map p = { "a" : 1, "b" : 2};
+    p, x ->sampleWorker;
+    system:println("Worker calling function test started");
+    y, result <-sampleWorker;
+    string s = messages:getStringPayload(result);
+    system:println(s);
+    system:println("Value received from worker is " + (int)p["a"]);
+    return result;
+
+    worker sampleWorker {
+    message result;
+    message m;
+    int a;
+    map q;
+    float b = 12.34;
+    q, a <-default;
+    q["a"] = 12;
+    system:println("passed in value is " + (int)q["a"]);
+    json j;
+    j = `{"name":"chanaka"}`;
+    messages:setJsonPayload(msg, j);
+    b, msg ->default;
 }
 
 }

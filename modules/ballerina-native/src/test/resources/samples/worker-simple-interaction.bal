@@ -3,12 +3,14 @@ import ballerina.lang.messages;
 
 const int index = 12;
 
-function testWorker()(message) {
+function main(string[] args)(message) {
     message result;
     message msg = {};
-    msg -> sampleWorker;
+    int x = 100;
+    float y;
+    msg, x -> sampleWorker;
     system:println("Worker calling function test started");
-    result <- sampleWorker;
+    y, result <- sampleWorker;
     string s = messages:getStringPayload(result);
     system:println(s);
     return result;
@@ -16,12 +18,14 @@ function testWorker()(message) {
     worker sampleWorker {
     message result;
     message m;
-    m <- default;
+    int a;
+    float b = 12.34;
+    m, a <- default;
     system:println("constant value is " + index);
     json j;
     j = `{"name":"chanaka"}`;
     messages:setJsonPayload(m, j);
-    m -> default;
+    b, m -> default;
 }
 
 }
