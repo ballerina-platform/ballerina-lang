@@ -63,7 +63,6 @@ public class TextSinkMapper extends SinkMapper {
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
-        updateEventIds(events);
         if (this.payloadTemplateBuilder != null) {
             for (Event event : events) {
                 sinkListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
@@ -79,7 +78,6 @@ public class TextSinkMapper extends SinkMapper {
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
-        updateEventId(event);
         if (this.payloadTemplateBuilder != null) {
             sinkListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
         } else {

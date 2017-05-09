@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
@@ -37,7 +38,7 @@ import java.util.Map;
  */
 public abstract class SourceMapper implements SourceEventListener, Snapshotable {
 
-    private InputHandler inputHandler;
+    private InputEventHandler inputHandler;
     private StreamDefinition streamDefinition;
     private String mapType;
     private String elementId;
@@ -58,18 +59,18 @@ public abstract class SourceMapper implements SourceEventListener, Snapshotable 
 
     public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping> attributeMappingList, ConfigReader configReader);
 
-    public void setInputHandler(InputHandler inputHandler) {
+    public void setInputHandler(InputEventHandler inputHandler) {
         this.inputHandler = inputHandler;
     }
 
     public InputHandler getInputHandler() {
-        return inputHandler;
+        return inputHandler.getInputHandler();
     }
 
     public void onEvent(Object eventObject) {
         try {
             if (eventObject != null) {
-                mapAndProcess(eventObject, inputHandler);
+                mapAndProcess(eventObject);
             }
         } catch (InterruptedException e) {
             log.error("Error while processing '" + eventObject + "', for the input Mapping '" + mapType +
@@ -77,8 +78,16 @@ public abstract class SourceMapper implements SourceEventListener, Snapshotable 
         }
     }
 
-    public void setLastEventId(Long lastEventId) {
-        this.lastEventId = lastEventId;
+    public void send(Event event) throws InterruptedException {
+        lastEventId = inputHandler.sendEvent(event, getLastEventId());
+    }
+
+    public void send(Event[] events) throws InterruptedException {
+        lastEventId = inputHandler.sendEvents(events, getLastEventId());
+    }
+
+    public void send(Object[] objects) throws InterruptedException {
+        inputHandler.getInputHandler().send(objects);
     }
 
     public Long getLastEventId() {
@@ -108,6 +117,6 @@ public abstract class SourceMapper implements SourceEventListener, Snapshotable 
         return streamDefinition;
     }
 
-    protected abstract void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException;
+    protected abstract void mapAndProcess(Object eventObject) throws InterruptedException;
 
 }

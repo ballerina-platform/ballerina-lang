@@ -23,11 +23,10 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
-import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -135,20 +134,13 @@ public class TextSourceMapper extends SourceMapper {
      * {@link OutputCallback}.
      *
      * @param eventObject  the TEXT string
-     * @param inputHandler input handler
      */
     @Override
-    protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
+    protected void mapAndProcess(Object eventObject) throws InterruptedException {
         if (eventObject != null) {
             synchronized (this) {
                 Event event = convertToEvent(eventObject);
-                long eventId = event.getId();
-                // event id -1 is reserved for the events that are arriving for the first Siddhi node
-                if (getLastEventId() == null || eventId == -1 || getLastEventId() < eventId) {
-                    setLastEventId(eventId);
-                    inputHandler.send(event);
-                }
-
+                send(event);
             }
         }
     }

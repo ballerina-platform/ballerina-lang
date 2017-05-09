@@ -62,7 +62,7 @@ public abstract class SinkMapper implements Snapshotable {
      *
      * @param event event to be updated
      */
-    public void updateEventId(Event event) {
+    private void updateEventId(Event event) {
         // event id -1 is reserved for the events that are arriving for the first Siddhi node
         event.setId(lastEventId.incrementAndGet() == -1 ? lastEventId.incrementAndGet() : lastEventId.get());
     }
@@ -72,7 +72,7 @@ public abstract class SinkMapper implements Snapshotable {
      *
      * @param events events to be updated
      */
-    public void updateEventIds(Event[] events) {
+    private void updateEventIds(Event[] events) {
         for (Event event : events) {
             // event id -1 is reserved for the events that are arriving for the first Siddhi node
             event.setId(lastEventId.incrementAndGet() == -1 ? lastEventId.incrementAndGet() : lastEventId.get());
@@ -107,7 +107,7 @@ public abstract class SinkMapper implements Snapshotable {
      */
     public void mapAndSend(Event[] events, SinkListener sinkListener)
             throws ConnectionUnavailableException {
-
+        updateEventIds(events);
         if (groupDeterminer != null) {
             LinkedHashMap<String, ArrayList<Event>> eventMap = new LinkedHashMap<>();
             for (Event event : events) {
@@ -136,6 +136,7 @@ public abstract class SinkMapper implements Snapshotable {
      */
     public void mapAndSend(Event event, SinkListener sinkListener)
             throws ConnectionUnavailableException {
+        updateEventId(event);
         mapAndSend(event, optionHolder, payloadTemplateBuilder, sinkListener, new DynamicOptions(event));
     }
 

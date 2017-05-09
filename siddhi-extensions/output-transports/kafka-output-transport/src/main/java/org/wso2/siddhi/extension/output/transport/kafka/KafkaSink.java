@@ -141,30 +141,4 @@ public class KafkaSink extends Sink {
     public void restoreState(Map<String, Object> state) {
 
     }
-
-    private class KafkaSender implements Runnable {
-
-        String topic;
-        Object message;
-        String partitionNo;
-
-        KafkaSender(String topic, String partitionNo, Object message) {
-            this.topic = topic;
-            this.message = message;
-            this.partitionNo = partitionNo;
-        }
-
-        @Override
-        public void run() {
-            try {
-                if(null == partitionNo) {
-                    producer.send(new ProducerRecord<>(topic, message.toString()));
-                } else {
-                    producer.send(new ProducerRecord<>(topic, partitionNo, message.toString()));
-                }
-            } catch (Throwable e) {
-                log.error("Unexpected error when sending event via Kafka Output Adapter:" + e.getMessage(), e);
-            }
-        }
-    }
 }

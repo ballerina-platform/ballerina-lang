@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
-import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -44,14 +43,14 @@ public class PassThroughSourceMapper extends SourceMapper {
     }
 
     @Override
-    protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
+    protected void mapAndProcess(Object eventObject) throws InterruptedException {
         if (eventObject != null) {
             if (eventObject instanceof Event[]) {
-                inputHandler.send((Event[]) eventObject);
+                send((Event[]) eventObject);
             } else if (eventObject instanceof Event) {
-                inputHandler.send((Event) eventObject);
+                send((Event) eventObject);
             } else if (eventObject instanceof Object[]) {
-                inputHandler.send((Object[]) eventObject);
+                send((Object[]) eventObject);
             } else {
                 throw new ExecutionPlanRuntimeException("Event object must be either Event[], Event or Object[] " +
                         "but found " + eventObject.getClass().getCanonicalName());
