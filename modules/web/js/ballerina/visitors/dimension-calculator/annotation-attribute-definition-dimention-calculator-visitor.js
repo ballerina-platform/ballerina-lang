@@ -20,6 +20,7 @@ import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import {util} from '../sizing-utils';
 
 class AnnotationAttributeDimensionCalculatorVisitor {
     canVisit(node) {
@@ -41,6 +42,7 @@ class AnnotationAttributeDimensionCalculatorVisitor {
 
         viewState.bBox.h = 30;
         viewState.bBox.w = 300;
+        viewState.textLength = util.getTextWidth(node.getAttributeStatementString(), viewState.bBox.w, 500);
 
         viewState.components = components;
     }

@@ -45,6 +45,7 @@ class MessageManager {
             y: 0
         };
         this._arrowDecorator = undefined;
+        this._backwardArrowDecorator = undefined;
         this._container = undefined;
     }
 
@@ -106,8 +107,16 @@ class MessageManager {
         this._arrowDecorator = arrowDecorator;
     }
 
+    setBackwardArrowDecorator(arrowDecorator) {
+        this._backwardArrowDecorator = arrowDecorator;
+    }
+
     getArrowDecorator() {
         return this._arrowDecorator;
+    }
+
+    getBackwardArrowDecorator() {
+        return this._backwardArrowDecorator;
     }
 
     setContainer(container) {
@@ -126,6 +135,7 @@ class MessageManager {
         this.setSource(undefined);
         this.setDestination(undefined);
         this.getArrowDecorator().setState({drawOnMouseMoveFlag: -1});
+        this.getBackwardArrowDecorator().setState({drawOnMouseMoveFlag: -1});
         this.setIsOnDrag(false);
     }
 
@@ -137,8 +147,14 @@ class MessageManager {
         container.on('mousemove', function (e) {
             var m = d3.mouse(this);
             self.setMessageEnd(m[0] - 5, self.getMessageStart().y);
-            const currentDrawOnMouseMoveFlag = self.getArrowDecorator().state.drawOnMouseMoveFlag;
-            self.getArrowDecorator().setState({drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1)});
+            if (self.getMessageEnd().x > self.getMessageStart().x) {
+                const currentDrawOnMouseMoveFlag = self.getArrowDecorator().state.drawOnMouseMoveFlag;
+                self.getArrowDecorator().setState({drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1)});
+            } else {
+                const currentDrawOnMouseMoveFlag = self.getBackwardArrowDecorator().state.drawOnMouseMoveFlag;
+                self.getBackwardArrowDecorator().setState({drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1)});
+            }
+
         });
 
         container.on('mouseup', function () {
