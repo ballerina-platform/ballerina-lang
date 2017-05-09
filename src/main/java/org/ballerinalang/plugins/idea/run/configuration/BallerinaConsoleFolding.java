@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 
 public class BallerinaConsoleFolding extends ConsoleFolding {
 
-    private final String REGEX = "ballerina (run|build) (main|service) .+";
-    private final Pattern PATTERN = Pattern.compile(REGEX);
+    private static final String REGEX = "ballerina(.bat)? (run|build) (main|service) .+";
+    private static final Pattern PATTERN = Pattern.compile(REGEX);
 
     @Override
     public boolean shouldFoldLine(String line) {
