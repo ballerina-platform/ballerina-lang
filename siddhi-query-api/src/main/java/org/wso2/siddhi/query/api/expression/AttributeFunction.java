@@ -33,7 +33,7 @@ public class AttributeFunction extends Expression implements Extension {
 
     public AttributeFunction(String extensionNamespace, String functionName, Expression... parameters) {
         this.functionName = functionName;
-        this.parameters = Arrays.copyOfRange(parameters, 0, parameters.length);
+        this.parameters = parameters;
         this.extensionNamespace = extensionNamespace;
     }
 
