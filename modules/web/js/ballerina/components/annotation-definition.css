@@ -1,0 +1,17 @@
+.attribute-content-operations-wrapper {
+    fill: #ffffff;
+    stroke-width: 1px;
+    stroke: #3d3d3d;
+    shape-rendering: crispEdges;
+}
+
+.delete-button-icon {
+    opacity: 0.6;
+    cursor: pointer;
+}
+
+.delete-button-icon:hover {
+    fill: #912d31;
+    opacity: 0.9;
+    cursor: pointer;
+}
