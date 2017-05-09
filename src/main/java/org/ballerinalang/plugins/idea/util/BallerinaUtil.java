@@ -93,10 +93,11 @@ public class BallerinaUtil {
             if (project != null && project.getBasePath() != null) {
                 // Get the relative path of the file in the project
                 String trimmedPath = virtualFile.getPath().replace(project.getBasePath(), "");
+                // Node: In virtual file paths, separators will always be "/" regardless of the OS.
                 // Remove the separator at the beginning of the string
-                trimmedPath = trimmedPath.replaceFirst(File.separator, "");
+                trimmedPath = trimmedPath.replaceFirst("/", "");
                 // Replace all other separators with . to get the package path
-                trimmedPath = trimmedPath.replaceAll(File.separator, ".");
+                trimmedPath = trimmedPath.replaceAll("/", ".");
                 return trimmedPath;
             }
             // If the package name cannot be constructed, return empty string
