@@ -73,7 +73,7 @@ class PackageDefinition extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const packageName = model._packageName || 'Define Package';
+        const packageName = model._packageName || 'Undefined';
         const headerHeight = packageDefinition.header.height;
         const headerPadding = packageDefinition.header.padding;
         const expanded = this.props.model.viewState.expanded;
@@ -106,13 +106,14 @@ class PackageDefinition extends React.Component {
                 <text
                     x={ bBox.x + headerPadding.left + packageDefLabelWidth}
                     y={ bBox.y + headerHeight/2 }
-                    className="package-definition-text"
+                    className={ "package-definition-text  pkg-name-" + packageName }
                     onClick={e => {this.handlePackageNameClick(e)}}
                 >
                     {packageName}
                 </text>
-                <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick}/>
-                { expanded && <ImportDeclarationExpanded bBox={expandedImportsBbox} imports={imports} /> }
+                { expanded ? <ImportDeclarationExpanded
+                                bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}/> :
+                             <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick}/> }
             </g>
         );
     }

@@ -23,26 +23,31 @@
     <title>Ballerina Composer</title>
 
     <!-- Favion -->
-    <link href="images/favicon.png" rel="icon" type="image/png" sizes="16x16" />
+    <link rel="shortcut icon" href="/favicon.ico" />
 
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
 
     <link href="lib/font-wso2-1.2.1/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2-2.0.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
-    <link href="css/layout.css" rel="stylesheet" type="text/css"/>
-    <link href="css/styles.css" rel="stylesheet" type="text/css"/>
-    <link href="css/tab-styles.css" rel="stylesheet" type="text/css"/>
-    <link href="css/notification.css" rel="stylesheet" type="text/css"/>
     <link href="lib/context-menu_v2.4.2/jquery.contextMenu.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/select2-4.0.3/dist/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/js-tree-v3.3.2/themes/default/style.min.css" rel="stylesheet" type="text/css"/>
 
+    <link rel="stylesheet" type="text/css" href="css/layout.css"/>
+    <link rel="stylesheet" type="text/css" href="css/styles.css"/>
+    <link rel="stylesheet" type="text/css" href="css/tab-styles.css"/>
+    <link rel="stylesheet" type="text/css" href="css/notification.css"/>
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
     <link rel="stylesheet" type="text/css" href="css/ballerina-file-editor.css"/>
     <link rel="stylesheet" type="text/css" href="css/menu-bar.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
     <link rel="stylesheet" type="text/css" href="css/left-tool-bar.css"/>
+
+    <link rel="stylesheet" type="text/css" href="dist/bundle.css"/>
+    <link rel="stylesheet" href="dist/themes/default.css" title="default" disabled/>
+    <link rel="stylesheet" href="dist/themes/light.css" title="light" disabled/>
+    <link rel="stylesheet" href="dist/themes/dark.css" title="dark" disabled/>
 </head>
 <body class="sticky-footer">
 
@@ -588,75 +593,90 @@
                 <h3 class="modal-title" id="aboutSettingsLabel">Settings</h3>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
-                <form>
-                    <h3>Source View</h3>
-                    <hr />
-                    <div class="form-group">
-                        <label for="sourceViewTheme">Theme</label>
-                        <select class="form-control" id="sourceViewTheme">
-                            <optgroup label="Bright">
-                                <option value="ace/theme/chrome">Chrome</option>
-                                <option value="ace/theme/clouds">Clouds</option>
-                                <option value="ace/theme/crimson_editor">Crimson Editor</option>
-                                <option value="ace/theme/dawn">Dawn</option>
-                                <option value="ace/theme/dreamweaver">Dreamweaver</option>
-                                <option value="ace/theme/eclipse">Eclipse</option>
-                                <option value="ace/theme/github">GitHub</option>
-                                <option value="ace/theme/iplastic">IPlastic</option>
-                                <option value="ace/theme/solarized_light">Solarized Light</option>
-                                <option value="ace/theme/textmate">TextMate</option>
-                                <option value="ace/theme/tomorrow">Tomorrow</option>
-                                <option value="ace/theme/xcode">XCode</option>
-                                <option value="ace/theme/kuroir">Kuroir</option>
-                                <option value="ace/theme/katzenmilch">KatzenMilch</option>
-                                <option value="ace/theme/sqlserver">SQL Server</option>
-                            </optgroup>
-                            <optgroup label="Dark">
-                                <option value="ace/theme/ambiance">Ambiance</option>
-                                <option value="ace/theme/ballerina">Ballerina(Default)</option>
-                                <option value="ace/theme/chaos">Chaos</option>
-                                <option value="ace/theme/clouds_midnight">Clouds Midnight</option>
-                                <option value="ace/theme/cobalt">Cobalt</option>
-                                <option value="ace/theme/gruvbox">Gruvbox</option>
-                                <option value="ace/theme/idle_fingers">idle Fingers</option>
-                                <option value="ace/theme/kr_theme">krTheme</option>
-                                <option value="ace/theme/merbivore">Merbivore</option>
-                                <option value="ace/theme/merbivore_soft">Merbivore Soft</option>
-                                <option value="ace/theme/mono_industrial">Mono Industrial</option>
-                                <option value="ace/theme/monokai">Monokai</option>
-                                <option value="ace/theme/pastel_on_dark">Pastel on dark</option>
-                                <option value="ace/theme/solarized_dark">Solarized Dark</option>
-                                <option value="ace/theme/terminal">Terminal</option>
-                                <option value="ace/theme/tomorrow_night">Tomorrow Night</option>
-                                <option value="ace/theme/tomorrow_night_blue">Tomorrow Night Blue</option>
-                                <option value="ace/theme/tomorrow_night_bright">Tomorrow Night Bright</option>
-                                <option value="ace/theme/tomorrow_night_eighties">Tomorrow Night 80s</option>
-                                <option value="ace/theme/twilight">Twilight</option>
-                                <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
-                            </optgroup>
-                        </select>
+
+                <h4>Choose a theme</h4>
+                <hr />
+                <div class="row no-gutter">
+                    <div class="col-md-8 theme-chooser">
+                        <a onclick="setActiveStyleSheet('default'); return false;" class="theme-pick"><span class="square default"></span></a>
+                        <a onclick="setActiveStyleSheet('light'); return false;" class="theme-pick"><span class="square light"></span></a>
+                        <a onclick="setActiveStyleSheet('dark'); return false;" class="theme-pick"><span class="square dark"></span></a>
                     </div>
-                    <div class="form-group">
-                        <label for="sourceViewFontSize">Font Size</label>
-                        <select class="form-control" id="sourceViewFontSize">
-                            <option value="10px">10px</option>
-                            <option value="11px">11px</option>
-                            <option value="12px" selected="selected">12px</option>
-                            <option value="13px">13px</option>
-                            <option value="14px">14px</option>
-                            <option value="15px">15px</option>
-                            <option value="16px">16px</option>
-                            <option value="17px">17px</option>
-                            <option value="18px">18px</option>
-                            <option value="19px">19px</option>
-                            <option value="20px">20px</option>
-                            <option value="21px">21px</option>
-                            <option value="22px">22px</option>
-                            <option value="23px">23px</option>
-                            <option value="24px">24px</option>
-                        </select>
+                </div>
+
+                <h4>Source View</h4>
+                <hr />
+                <div class="row no-gutter">
+                    <div class="col-md-5">
+                        <form>
+                            <div class="form-group">
+                                <label for="sourceViewTheme">Theme</label>
+                                <select class="form-control" id="sourceViewTheme">
+                                    <optgroup label="Bright">
+                                        <option value="ace/theme/chrome">Chrome</option>
+                                        <option value="ace/theme/clouds">Clouds</option>
+                                        <option value="ace/theme/crimson_editor">Crimson Editor</option>
+                                        <option value="ace/theme/dawn">Dawn</option>
+                                        <option value="ace/theme/dreamweaver">Dreamweaver</option>
+                                        <option value="ace/theme/eclipse">Eclipse</option>
+                                        <option value="ace/theme/github">GitHub</option>
+                                        <option value="ace/theme/iplastic">IPlastic</option>
+                                        <option value="ace/theme/solarized_light">Solarized Light</option>
+                                        <option value="ace/theme/textmate">TextMate</option>
+                                        <option value="ace/theme/tomorrow">Tomorrow</option>
+                                        <option value="ace/theme/xcode">XCode</option>
+                                        <option value="ace/theme/kuroir">Kuroir</option>
+                                        <option value="ace/theme/katzenmilch">KatzenMilch</option>
+                                        <option value="ace/theme/sqlserver">SQL Server</option>
+                                    </optgroup>
+                                    <optgroup label="Dark">
+                                        <option value="ace/theme/ambiance">Ambiance</option>
+                                        <option value="ace/theme/ballerina">Ballerina(Default)</option>
+                                        <option value="ace/theme/chaos">Chaos</option>
+                                        <option value="ace/theme/clouds_midnight">Clouds Midnight</option>
+                                        <option value="ace/theme/cobalt">Cobalt</option>
+                                        <option value="ace/theme/gruvbox">Gruvbox</option>
+                                        <option value="ace/theme/idle_fingers">idle Fingers</option>
+                                        <option value="ace/theme/kr_theme">krTheme</option>
+                                        <option value="ace/theme/merbivore">Merbivore</option>
+                                        <option value="ace/theme/merbivore_soft">Merbivore Soft</option>
+                                        <option value="ace/theme/mono_industrial">Mono Industrial</option>
+                                        <option value="ace/theme/monokai">Monokai</option>
+                                        <option value="ace/theme/pastel_on_dark">Pastel on dark</option>
+                                        <option value="ace/theme/solarized_dark">Solarized Dark</option>
+                                        <option value="ace/theme/terminal">Terminal</option>
+                                        <option value="ace/theme/tomorrow_night">Tomorrow Night</option>
+                                        <option value="ace/theme/tomorrow_night_blue">Tomorrow Night Blue</option>
+                                        <option value="ace/theme/tomorrow_night_bright">Tomorrow Night Bright</option>
+                                        <option value="ace/theme/tomorrow_night_eighties">Tomorrow Night 80s</option>
+                                        <option value="ace/theme/twilight">Twilight</option>
+                                        <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sourceViewFontSize">Font Size</label>
+                                <select class="form-control" id="sourceViewFontSize">
+                                    <option value="10px">10px</option>
+                                    <option value="11px">11px</option>
+                                    <option value="12px" selected="selected">12px</option>
+                                    <option value="13px">13px</option>
+                                    <option value="14px">14px</option>
+                                    <option value="15px">15px</option>
+                                    <option value="16px">16px</option>
+                                    <option value="17px">17px</option>
+                                    <option value="18px">18px</option>
+                                    <option value="19px">19px</option>
+                                    <option value="20px">20px</option>
+                                    <option value="21px">21px</option>
+                                    <option value="22px">22px</option>
+                                    <option value="23px">23px</option>
+                                    <option value="24px">24px</option>
+                                </select>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal" id="saveSettingsButton">OK</button>
@@ -668,6 +688,7 @@
 
 <script src="lib/swagger-editor-3.0.1/swagger-editor-bundle.js"></script>
 <script src="dist/bundle.js"></script>
+<script src="styleswitcher.js"></script>
 
 </body>
 </html>

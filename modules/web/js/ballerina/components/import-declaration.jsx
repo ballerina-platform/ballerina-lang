@@ -18,6 +18,7 @@
 
 import React from 'react';
 import './import-declaration.css'
+import ImageUtil from './image-util';
 
 export default class importDeclaration extends React.Component {
     render() {
@@ -25,6 +26,7 @@ export default class importDeclaration extends React.Component {
         const numberBadgeHeight = 24;
         const headerHeight = 35;
         const leftPadding = 15;
+        const iconSize = 20;
         let text = { };
         text.x = bBox.x + leftPadding;
         text.y = bBox.y + headerHeight / 2;
@@ -33,7 +35,7 @@ export default class importDeclaration extends React.Component {
         number.y = text.y;
         return (
             <g className="package-definition-head" onClick={ e => {this.props.onClick(e);} }>
-                <rect x={ bBox.x } y={ bBox.y } width={110} height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
+                <rect x={ bBox.x } y={ bBox.y } width={136} height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
 
                 <text x={ text.x } y={ text.y } rx="0" ry="0">
                     Imports
@@ -42,6 +44,8 @@ export default class importDeclaration extends React.Component {
                 <text x={ number.x } y={ number.y } rx="0" ry="0">
                     {this.props.imports.length}
                 </text>
+                <image width={ iconSize } height={ iconSize } className="property-pane-action-button-delete"
+                    xlinkHref={ ImageUtil.getSVGIconString('view') } x={number.x + 25} y={ number.y - iconSize/2 }/>
             </g>
         );
     }

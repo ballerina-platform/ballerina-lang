@@ -859,7 +859,7 @@ input#package-name-input {
 }
 
 .panel > .panel-header > .panel-header-controls > .control {
-    opacity: 0.4;
+    opacity: 0.6;
     cursor: pointer;
 }
 

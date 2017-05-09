@@ -44,12 +44,21 @@ class ResourceDefinition extends React.Component {
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
 
-        let titleComponentData = this.props.model.getParameters().length > 0 ? [{ component: ParameterView, 
-            title: 'Parameters: ', 
+        let titleComponentData = [{
+            rComponent: ParameterView,
+            title: 'Parameters: ',
+            components: {
+                openingBracket: this.props.model.getViewState().components.openingParameter,
+                titleText: this.props.model.getViewState().components.parametersText,
+                closingBracket: this.props.model.getViewState().components.closingParameter
+            },
             prefixView: this.props.model.getViewState().components.parametersPrefixContainer,
-            prefixViewClassName: 'parameters-prefix-wrapper', 
-            models: this.props.model.getParameters()}
-            ] : [];
+            openingBracketClassName: 'parameter-opening-brack-text',
+            closingBracketClassName: 'parameter-closing-brack-text',
+            prefixTextClassName: 'parameter-prefix-text',
+            models: this.props.model.getParameters()
+        }
+            ];
 
         return (<PanelDecorator icon="tool-icons/resource" title={name} annotations={annotations} bBox={bBox}
                         model={this.props.model}
@@ -57,9 +66,10 @@ class ResourceDefinition extends React.Component {
                         dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
                         titleComponentData={titleComponentData}>
             <g>
-                <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}/>
                 <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox}/>
-                {children}
+                <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
+                  {children}
+                </StatementContainer>
             </g>
         </PanelDecorator>);
     }

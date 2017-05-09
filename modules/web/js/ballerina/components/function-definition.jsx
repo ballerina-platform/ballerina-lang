@@ -58,19 +58,31 @@ class FunctionDefinition extends React.Component {
 
         let titleComponentData = [
             {
-                component: ParameterView,
+                rComponent: ParameterView,
                 title: 'Parameters: ',
-                prefixView: this.props.model.getViewState().components.parametersPrefixContainer,
-                prefixViewClassName: 'parameters-prefix-wrapper',
+                components: {
+                    openingBracket: this.props.model.getViewState().components.openingParameter,
+                    titleText: this.props.model.getViewState().components.parametersText,
+                    closingBracket: this.props.model.getViewState().components.closingParameter
+                },
+                openingBracketClassName: 'parameter-opening-brack-text',
+                closingBracketClassName: 'parameter-closing-brack-text',
+                prefixTextClassName: 'parameter-prefix-text',
                 models: this.props.model.getArguments()
             },
             {
-                component: ReturnTypeView,
+                rComponent: ReturnTypeView,
                 title: 'Return Types: ',
-                prefixView: this.props.model.getViewState().components.returnTypesPrefixContainer,
-                prefixViewClassName: 'return-types-prefix-wrapper',
+                components: {
+                    openingBracket: this.props.model.getViewState().components.openingReturnType,
+                    titleText: this.props.model.getViewState().components.returnTypesText,
+                    closingBracket: this.props.model.getViewState().components.closingReturnType
+                },
+                openingBracketClassName: 'return-types-opening-brack-text',
+                closingBracketClassName: 'return-types-closing-brack-text',
+                prefixTextClassName: 'return-types-prefix-text',
                 models: this.props.model.getReturnTypes()
-            } 
+            }
         ];
 
         return (<PanelDecorator icon={icons} title={name} annotations={annotations} bBox={bBox}
@@ -78,10 +90,11 @@ class FunctionDefinition extends React.Component {
                         dropTarget={this.props.model}
                         dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
                         titleComponentData={titleComponentData}>
-                    <StatementContainer  dropTarget={this.props.model}
-                      title="StatementContainer" bBox={statementContainerBBox}/>
                     <LifeLine title="FunctionWorker" bBox={function_worker_bBox}/>
-                    {children}
+                    <StatementContainer  dropTarget={this.props.model}
+                      title="StatementContainer" bBox={statementContainerBBox}>
+                      {children}
+                    </StatementContainer>
                 </PanelDecorator>);
     }
 

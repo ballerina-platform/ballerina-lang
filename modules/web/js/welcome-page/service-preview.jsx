@@ -22,7 +22,7 @@ class ServicePreviewView extends React.Component {
 
     render() {
         var previewThumbnails = this.props.sampleConfigs.map(function(config) {
-            return (<div className="item active" onClick={config.clickEventCallback}>
+            return (<div className="item active" onClick={config.clickEventCallback} key={config.sampleName}>
                 <div className="col-xs-3 preview-parent">
                     <div className="preview-div">
                         <img id="previewImg" className="preview-img" src={"images/preview_" + config.sampleName + ".png"} />

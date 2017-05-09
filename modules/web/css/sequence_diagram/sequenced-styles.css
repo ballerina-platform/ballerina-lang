@@ -1,4 +1,4 @@
-.lifeline-title {
+    .lifeline-title {
     fill: #000000;
     text-anchor: middle;
     cursor: text;
@@ -36,21 +36,23 @@
 }
 
 .resource > line {
-    stroke: #000000;
+    stroke: #000;
 }
 
 .headingRect {
-    fill: #FFFFFF;
+    fill: #e4e4e4;
     stroke-width: 1;
-    stroke: #909090;
     shape-rendering: crispEdges;
 }
 
 .annotationRect {
-    fill: #FFFFFF;
-    stroke-width: 1;
-    stroke: #909090;
+    fill: #eeeeee;
     shape-rendering: crispEdges;
+}
+
+.annotation-text {
+    font-size: 13px;
+    fill: #00866c;
 }
 
 .headingRectIcon {
@@ -579,24 +581,19 @@ text-anchor: start;
 }
 
 .parameter-wrapper {
-    fill: #FFFFFF;
-    stroke-width: 1;
-    stroke: #909090;
+    fill: #fff;
     shape-rendering: crispEdges;
 }
 
 .parameter-text-wrapper {
-    fill: #90CAF9;
-    stroke-width: 1;
-    stroke: #909090;
+    fill: #bdbdbd;
     shape-rendering: crispEdges;
 }
 
 .parameter-delete-icon-wrapper {
-    fill: #90CAF9;
-    stroke-width: 1;
-    stroke: #909090;
+    fill: #bdbdbd;
     shape-rendering: crispEdges;
+    padding: 13px;
 }
 
 .parameter-delete-icon {
@@ -608,10 +605,12 @@ text-anchor: start;
     opacity: 1;
 }
 
-.parameters-prefix-wrapper {
-    fill: #64B5F6;
-    stroke-width: 1;
-    stroke: #909090;
+.parameter-opening-brack-text, .parameter-closing-brack-text, .parameter-prefix-text, .parameter-text {
+    dominant-baseline: text-before-edge;
+}
+
+.return-type-wrapper {
+    fill: #FFFFFF;
     shape-rendering: crispEdges;
 }
 
@@ -630,7 +629,7 @@ text-anchor: start;
 }
 
 .return-type-delete-icon-wrapper {
-    fill: #80CBC4;
+    fill: #FFFFFF;
     stroke-width: 1;
     stroke: #909090;
     shape-rendering: crispEdges;
@@ -643,4 +642,8 @@ text-anchor: start;
 
 .return-type-delete-icon:hover {
     opacity: 1;
+}
+
+.return-types-opening-brack-text, .return-types-closing-brack-text, .return-types-prefix-text, .return-type-text {
+    dominant-baseline: text-before-edge;
 }

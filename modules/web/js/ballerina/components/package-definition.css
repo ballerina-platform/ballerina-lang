@@ -1,5 +1,5 @@
 .package-definition-header {
-    fill: #FFFFFF;
+    fill: #eee;
 }
 
 .package-definition-text {
@@ -8,5 +8,13 @@
 
 .package-definition-label {
     dominant-baseline: central;
-    fill: #999;
+    fill: #333;
+}
+
+.package-declaration-item rect{
+    fill: #eee;
+}
+
+.pkg-name-Undefined{
+     fill: #999;
 }
