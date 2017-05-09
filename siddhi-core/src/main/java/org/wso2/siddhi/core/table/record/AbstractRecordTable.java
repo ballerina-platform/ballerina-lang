@@ -247,7 +247,7 @@ public abstract class AbstractRecordTable implements Table {
                              updateAttributeMapper.getUpdateEventOutputData(stateEvent));
             }
             updateValues.add(valueMap);
-            addingRecords.add(stateEvent.getOutputData());
+            addingRecords.add(stateEvent.getStreamEvent(0).getOutputData());
         }
         updateOrAdd(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition, updateValues,
                     addingRecords);

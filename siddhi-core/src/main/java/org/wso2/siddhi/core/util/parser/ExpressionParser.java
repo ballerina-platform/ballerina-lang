@@ -263,7 +263,7 @@ public class ExpressionParser {
      * @param expression              Expression to be parsed
      * @param metaEvent               Meta Event
      * @param currentState            Current state number
-     * @param tableMap           Event Table Map
+     * @param tableMap                Event Table Map
      * @param executorList            List to hold VariableExpressionExecutors to update after query parsing  @return
      * @param executionPlanContext    ExecutionPlanContext
      * @param groupBy                 is for groupBy expression

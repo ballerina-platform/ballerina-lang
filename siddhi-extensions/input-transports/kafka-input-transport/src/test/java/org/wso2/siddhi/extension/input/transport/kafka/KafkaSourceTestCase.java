@@ -207,7 +207,7 @@ public class KafkaSourceTestCase {
     @Test
     public void testAKafkaPauseAndResume() throws InterruptedException {
         try {
-            log.info("Test to verify the pause and resume functionality of Kafka transport");
+            log.info("Test to verify the pause and resume functionality of Kafka source");
             String topics[] = new String[]{"kafka_topic3"};
             createTopic(topics, 2);
             SiddhiManager siddhiManager = new SiddhiManager();

@@ -51,10 +51,10 @@ import org.wso2.siddhi.core.util.extension.holder.SinkMapperExecutorExtensionHol
 import org.wso2.siddhi.core.util.extension.holder.SourceExecutorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.SourceMapperExecutorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.TableExtensionHolder;
-import org.wso2.siddhi.core.util.transport.MultiClientDistributedTransport;
+import org.wso2.siddhi.core.util.transport.MultiClientDistributedSink;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.core.util.transport.SingleClientDistributedTransport;
+import org.wso2.siddhi.core.util.transport.SingleClientDistributedSink;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
@@ -354,8 +354,8 @@ public class DefinitionParserHelper {
                     if (sinkType != null && mapType != null) {
                         Sink sink;
                         if (isDistributedTransport) {
-                            sink = (isMultiClient) ? new MultiClientDistributedTransport() :
-                                    new SingleClientDistributedTransport();
+                            sink = (isMultiClient) ? new MultiClientDistributedSink() :
+                                    new SingleClientDistributedSink();
                         } else {
                             sink = createSink(sinkExtension, executionPlanContext);
                         }

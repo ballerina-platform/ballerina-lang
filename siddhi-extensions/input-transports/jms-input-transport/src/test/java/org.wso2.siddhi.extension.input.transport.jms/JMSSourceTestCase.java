@@ -46,11 +46,11 @@ public class JMSSourceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@source(type='jms', @map(type='text'), "
-                + "factoryInitial='org.apache.activemq.jndi.ActiveMQInitialContextFactory', "
-                + "providerUrl='vm://localhost',"
+                + "factory.initial='org.apache.activemq.jndi.ActiveMQInitialContextFactory', "
+                + "provider.url='vm://localhost',"
                 + "destination='DAS_JMS_TEST', "
-                + "connectionFactoryType='topic',"
-                + "connectionFactoryJNDIName='QueueConnectionFactory',"
+                + "connection.factory.type='topic',"
+                + "connection.factory.jndi.name='TopicConnectionFactory',"
                 + "transport.jms.SubscriptionDurable='true', "
                 + "transport.jms.DurableSubscriberClientID='wso2dasclient1'"
                 + ")" +
@@ -79,7 +79,7 @@ public class JMSSourceTestCase {
         List<String> expected = new ArrayList<>(2);
         expected.add("\nJohn");
         expected.add("\nMike");
-        Assert.assertEquals("JMS Input Transport expected input not received", expected, receivedEventNameList);
+        Assert.assertEquals("JMS Source expected input not received", expected, receivedEventNameList);
     }
 
     private void publishEvents(String topicName, String queueName, String broker, String format, String filePath)

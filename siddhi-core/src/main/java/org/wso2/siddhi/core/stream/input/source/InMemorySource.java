@@ -36,7 +36,7 @@ import java.util.Map;
 @Extension(
         name = "inMemory",
         namespace = "source",
-        description = "In-memory transport that can communicate with other in-memory transports within the same JVM, " +
+        description = "In-memory source that can communicate with other in-memory sinks within the same JVM, " +
                 "it " +
                 "is assumed that the publisher and subscriber of a topic uses same event schema (stream definition).",
         parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Subscribes to sent on the " +
@@ -54,7 +54,7 @@ public class InMemorySource extends Source {
                      ExecutionPlanContext
             executionPlanContext) {
         this.sourceEventListener = sourceEventListener;
-        String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY, "input inMemory transport");
+        String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY, "input inMemory source");
         this.subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object event) {

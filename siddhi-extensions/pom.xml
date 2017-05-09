@@ -37,6 +37,8 @@
         <!--<module>output-transports/test-output-transport</module>-->
         <!--<module>output-transports/http-output-transport</module>-->
         <module>output-transports/kafka-output-transport</module>
+        <module>output-transports/tcp-output-transport</module>
+        <module>output-transports/jms-output-transport</module>
         <module>output-mappers/text-output-mapper</module>
         <!--<module>output-mappers/json-output-mapper</module>-->
         <!--<module>output-mappers/keyvalue-output-mapper</module>-->
@@ -49,7 +51,6 @@
         <module>input-transports/kafka-input-transport</module>
         <module>input-transports/tcp-input-transport</module>
         <module>input-transports/jms-input-transport</module>
-        <module>output-transports/tcp-output-transport</module>
         <module>transport/tcp-transport</module>
     </modules>
 
