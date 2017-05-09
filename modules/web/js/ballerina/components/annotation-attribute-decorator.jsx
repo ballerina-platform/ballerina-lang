@@ -18,7 +18,7 @@
 
 import React from 'react';
 import _ from 'lodash';
-import './annotation-attribute-decorator.css';
+import './annotation-definition.css';
 import ImageUtil from './image-util';
 import Alerts from 'alerts';
 import Renderer from './renderer';
@@ -122,7 +122,9 @@ class AnnotationAttributeDecorator extends React.Component {
                 <g onClick={() => this.addAnnotationAttribute()}>
                     <rect x={bBox.x + 350 + 10} y={bBox.y + 50} width={30} height={30} className=""/>
                     <image x={bBox.x + 350 + 15} y={bBox.y + 55} width={20} height={20}
-                           xlinkHref={ImageUtil.getSVGIconString('add')}/>
+                           xlinkHref={ImageUtil.getSVGIconString('add')}>
+                        <title>Add</title>
+                    </image>
                 </g>
             </g>
         );
