@@ -36,11 +36,17 @@ $tool-palette-container-bgcolor: #1e1e1e;
 $tool-group-header-bgcolor: #3c3c3c;
 $tool-group-header-text-color: #cccccc;
 $tool-title-color: #767676;
+$tool-separator-color: $tool-group-header-bgcolor;
 
-$panel-title-bgcolor: #ccc;
-$panel-border-color: #3c3c3c;
-$panel-title-color: #fff;
+$panel-header-bgcolor: #3c3c3c;
+$panel-header-border-color: $panel-header-bgcolor;
+$panel-header-color: #b5b5b5;
+$panel-body-bgcolor: #3c3c3c;
+$panel-body-border-color: $panel-header-border-color;
+$panel-body-dropzone-bgcolor: #fff;
 
+$package-configs-bgcolor: #3c3c3c;
 $worker-life-line-color: #fff;
+$package-definition-color: #fff;
 
 @import '../main.scss';
