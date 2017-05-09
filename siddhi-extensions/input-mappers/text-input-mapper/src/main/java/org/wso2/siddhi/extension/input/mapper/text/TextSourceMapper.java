@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
@@ -136,11 +137,11 @@ public class TextSourceMapper extends SourceMapper {
      * @param eventObject  the TEXT string
      */
     @Override
-    protected void mapAndProcess(Object eventObject) throws InterruptedException {
+    protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         if (eventObject != null) {
             synchronized (this) {
                 Event event = convertToEvent(eventObject);
-                send(event);
+                inputEventHandler.sendEvent(event);
             }
         }
     }

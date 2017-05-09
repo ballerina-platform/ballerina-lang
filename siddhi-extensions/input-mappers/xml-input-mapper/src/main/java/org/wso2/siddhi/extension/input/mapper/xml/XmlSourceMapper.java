@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
@@ -167,12 +168,12 @@ public class XmlSourceMapper extends SourceMapper {
      * @param eventObject  the input event, given as an XML string
      */
     @Override
-    protected void mapAndProcess(Object eventObject) throws InterruptedException {
+    protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         Event[] result;
         try {
             result = convertToEvents(eventObject);
             if (result.length > 0) {
-                send(result);
+                inputEventHandler.sendEvents(result);
             }
         } catch (Throwable t) { //stringToOM does not throw the exception immediately due to streaming. Hence need this.
             log.error("Exception occurred when converting XML message to Siddhi Event", t);

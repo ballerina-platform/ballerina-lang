@@ -121,7 +121,7 @@ public class ExecutionPlanRuntime {
         for (Map.Entry<String, List<Source>> sourceEntries : eventSourceMap.entrySet()) {
             InputHandler inputHandler = getInputHandler(sourceEntries.getKey());
             for (Source source : sourceEntries.getValue()) {
-                source.getMapper().setInputHandler(new InputEventHandler(inputHandler));
+                source.getMapper().setInputEventHandler(new InputEventHandler(inputHandler, executionPlanContext));
             }
         }
     }

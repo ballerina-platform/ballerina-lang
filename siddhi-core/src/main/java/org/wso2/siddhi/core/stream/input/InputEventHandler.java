@@ -17,42 +17,75 @@
  */
 package org.wso2.siddhi.core.stream.input;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class wraps {@link InputHandler} class in order to guarantee exactly once processing
  */
-public class InputEventHandler {
+public class InputEventHandler implements Snapshotable {
 
     private InputHandler inputHandler;
+    private String elementId;
+    /**
+     * {@link Event#id} of the last event which is processed by this mapper
+     */
+    private Long lastEventId = null;
 
-    public InputEventHandler(InputHandler inputHandler) {
+    public InputEventHandler(InputHandler inputHandler, ExecutionPlanContext executionPlanContext) {
         this.inputHandler = inputHandler;
+        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        executionPlanContext.getSnapshotService().addSnapshotable(inputHandler.hashCode() + "inputeventhandler", this);
     }
 
-    public Long sendEvent(Event event, Long lastEventId) throws InterruptedException {
+    public void sendEvent(Event event) throws InterruptedException {
         long eventId = event.getId();
         // event id -1 is reserved for the events that are arriving for the first Siddhi node
         if (lastEventId == null || eventId == -1 || lastEventId < eventId) {
+            lastEventId = eventId;
             inputHandler.send(event);
-            return eventId;
         }
-        return lastEventId;
     }
 
-    public Long sendEvents(Event[] events, Long lastEventId) throws InterruptedException {
+    public void sendEvents(Event[] events) throws InterruptedException {
+        List<Event> eventsToBeSent = new ArrayList<>();
         for (Event event : events) {
             long eventId = event.getId();
             // event id -1 is reserved for the events that are arriving for the first Siddhi node
             if (lastEventId == null || eventId == -1 || lastEventId < eventId) {
                 lastEventId = eventId;
+                eventsToBeSent.add(event);
             }
         }
-        inputHandler.send(events);
-        return lastEventId;
+        inputHandler.send(eventsToBeSent.toArray(new Event[eventsToBeSent.size()]));
     }
 
     public InputHandler getInputHandler() {
         return inputHandler;
+    }
+
+    @Override
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        synchronized (lastEventId) {
+            state.put("LastEventId", lastEventId);
+        }
+        return state;
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        lastEventId = (Long) state.get("LastEventId");
+    }
+
+    @Override
+    public String getElementId() {
+        return elementId;
     }
 }
