@@ -38,7 +38,7 @@ class ArgumentParameterDefinitionHolder extends ASTNode{
         var self = this;
 
         _.each(jsonNode.children, function (childNode){
-            var child = this.getFactory().createFromJson(childNode);
+            var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

@@ -87,10 +87,10 @@ class FunctionDefinitionPositionCalcVisitor {
                 }
 
                 viewState.x = nextXPositionOfParameter;
-                nextXPositionOfParameter += util.getTextWidth(resourceParameter.getParameterAsString()).w;
+                nextXPositionOfParameter += util.getTextWidth(resourceParameter.getParameterDefinitionAsString()).w;
 
                 if (i === node.getArguments().length - 1) {
-                    lastParameterEndXPosition = viewState.x + util.getTextWidth(resourceParameter.getParameterAsString()).w;
+                    lastParameterEndXPosition = viewState.x + util.getTextWidth(resourceParameter.getParameterDefinitionAsString()).w;
                 }
             }
         }
@@ -108,7 +108,7 @@ class FunctionDefinitionPositionCalcVisitor {
                 }
 
                 viewState.x = nextXPositionOfReturnType;
-                nextXPositionOfReturnType += util.getTextWidth(returnType.getArgumentAsString()).w;
+                nextXPositionOfReturnType += util.getTextWidth(returnType.getParameterDefinitionAsString()).w;
             }
         }
 

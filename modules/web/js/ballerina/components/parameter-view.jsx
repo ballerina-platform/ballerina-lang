@@ -30,10 +30,9 @@ class ParameterView extends React.Component {
         let viewState = model.viewState;
         let lengthOfIcon = 14;
         let xOfTextWithLeftPadding = viewState.x + 5;
-        let parameterAsString = this.props.model.getFactory().isArgument(this.props.model) ? model.getArgumentAsString() : model.getParameterAsString() ;
         return (<g><rect x={viewState.x} y={this.props.rectY} width={viewState.textLength + lengthOfIcon} height={this.props.h} rx="0" ry="0" className="parameter-wrapper"></rect>
             <rect x={viewState.x} y={this.props.rectY} width={viewState.textLength - 10} height={this.props.h} rx="0" ry="0" className="parameter-text-wrapper"></rect>
-            <text x={xOfTextWithLeftPadding} y={this.props.textY}>{parameterAsString}</text>
+            <text x={xOfTextWithLeftPadding} y={this.props.textY}>{model.getParameterDefinitionAsString()}</text>
             <rect x={viewState.textLength + viewState.x - 10} y={this.props.rectY} width={lengthOfIcon + 10} height={this.props.h} rx="0" ry="0" className="parameter-delete-icon-wrapper"></rect>
             <image x={viewState.textLength + viewState.x - 5} y={this.props.rectY + 5} width={lengthOfIcon} height={lengthOfIcon } className="parameter-delete-icon"
                                     xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}/>

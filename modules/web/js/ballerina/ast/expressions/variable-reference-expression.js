@@ -49,11 +49,11 @@ class VariableReferenceExpression extends Expression {
     /**
      * initialize VariableReferenceExpression from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.variable_name] - Variable name of the VariableReferenceExpression
+     * @param {string} [jsonNode.variable_reference_name] - Variable name of the VariableReferenceExpression
      */
     initFromJson(jsonNode) {
         var self = this;
-        this.setVariableName(jsonNode.variable_name, {doSilently: true});
+        this.setVariableName(jsonNode.variable_reference_name, {doSilently: true});
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);

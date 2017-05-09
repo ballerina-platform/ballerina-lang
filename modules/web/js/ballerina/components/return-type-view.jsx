@@ -30,7 +30,7 @@ class ReturnTypeView extends React.Component {
         let viewState = model.viewState;
         let lengthOfIcon = 14;
         let xOfTextWithLeftPadding = viewState.x + 5;
-        let returnTypeAsString = model.getArgumentAsString();
+        let returnTypeAsString = model.getParameterDefinitionAsString();
         return (<g><rect x={viewState.x} y={this.props.rectY} width={viewState.textLength + lengthOfIcon} height={this.props.h} rx="0" ry="0" className="return-type-wrapper"></rect>
             <rect x={viewState.x} y={this.props.rectY} width={viewState.textLength - 10} height={this.props.h} rx="0" ry="0" className="return-type-text-wrapper"></rect>
             <text x={xOfTextWithLeftPadding} y={this.props.textY}>{returnTypeAsString}</text>

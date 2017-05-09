@@ -209,7 +209,7 @@ public class BLangJSONModelConstants {
 
     public static final String VARIABLE_REFERENCE_EXPRESSION = "variable_reference_expression";
 
-    public static final String VARIABLE_REFERENCE_TYPE = "type";
+    public static final String VARIABLE_REFERENCE_TYPE = "variable_reference_type";
 
     public static final String VARIABLE_REFERENCE_NAME = "variable_reference_name";
 

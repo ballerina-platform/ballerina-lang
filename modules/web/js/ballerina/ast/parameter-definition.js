@@ -17,10 +17,9 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import ASTNode from './node';
 import VariableDefinition from './variable-definition';
 
-class ParameterDefinition extends ASTNode {
+class ParameterDefinition extends VariableDefinition {
     /**
      * Constructor for ParameterDefinition
      * @param {Object} [args] - The arguments to create the ParameterDefinition.

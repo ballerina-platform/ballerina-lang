@@ -432,7 +432,7 @@ class ResourceDefinition extends ASTNode {
      * @return {ConnectorDeclaration}
      */
     getConnectorByName(connectorName) {
-        var connectorReference = _.find(this.getChildren(), function (child) {
+        var connectorReference = _.find(this.getChildren(), (child) => {
             return (this.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
         });
 
