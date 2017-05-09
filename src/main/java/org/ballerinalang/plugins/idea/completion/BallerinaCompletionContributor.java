@@ -49,6 +49,7 @@ import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
@@ -73,6 +74,7 @@ import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
+import org.ballerinalang.plugins.idea.psi.references.StatementReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -324,7 +326,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(parent,
                         AnnotationAttachmentNode.class);
                 if (annotationAttachmentNode == null) {
-                    addKeywordAsLookup(resultSet, RESOURCE, KEYWORDS_GROUP);
+                    addKeywordAsLookup(resultSet, RESOURCE, KEYWORDS_PRIORITY);
                     return true;
                 }
             }
@@ -356,18 +358,35 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             this::handleIdentifierInNameReference,
                             this::handleLeafElementInNameReference,
                             null);
+                    return true;
                 } else if (elementType == BallerinaTypes.COLON) {
-                    String type = getAttachmentType(parameters);
-                    if (type == null) {
+
+                    if (element.getParent().getText().matches("@.*")) {
+                        String type = getAttachmentType(parameters);
+                        if (type == null) {
+                            return true;
+                        }
+                        PsiElement packageNode = originalFile.findElementAt(prevSibling.getTextOffset() - 2);
+                        suggestAnnotationsFromPackage(parameters, resultSet, packageNode, type);
+                    } else {
+                        PsiElement packageNode = originalFile.findElementAt(prevSibling.getTextOffset() - 2);
+                        suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true,
+                                true, true);
                         return true;
                     }
-                    PsiElement packageNode = originalFile.findElementAt(prevSibling.getTextOffset() - 2);
-                    suggestAnnotationsFromPackage(parameters, resultSet, packageNode, type);
+                } else if (elementType == BallerinaTypes.ASSIGN) {
+                    addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
+                    addLookups(resultSet, originalFile, true, true, true, true);
+                    return true;
+                } else if (elementType == BallerinaTypes.CREATE) {
+                    addLookups(resultSet, originalFile, true, true, true, true);
+                    return true;
+                } else if (elementType == BallerinaTypes.ACTION) {
+                    return true;
                 }
-            } else {
-                addKeywordAsLookup(resultSet, ACTION, KEYWORDS_GROUP);
             }
-            return true;
+        } else {
+            addKeywordAsLookup(resultSet, ACTION, KEYWORDS_PRIORITY);
         }
         return false;
     }
@@ -385,7 +404,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     IElementType elementType = ((LeafPsiElement) token).getElementType();
                     if (elementType == BallerinaTypes.ASSIGN) {
                         // Eg: function test(){ string s = <caret> + " world"; }
-                        addKeywordAsLookup(resultSet, CREATE, KEYWORDS_GROUP);
+                        addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
                         addLookups(resultSet, originalFile, true, true, true, true);
                         addVariableTypesAsLookups(resultSet, originalFile, element);
                     } else if (elementType == BallerinaTypes.COLON) {
@@ -428,7 +447,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         // Cannot use a switch statement since the types are not constants and declaring them final does not fix
         // the issue as well.
         if (elementType == BallerinaTypes.ASSIGN) {
-            addKeywordAsLookup(resultSet, CREATE, KEYWORDS_GROUP);
+            addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
             addLookups(resultSet, originalFile, true, true, true, true);
             addVariableTypesAsLookups(resultSet, originalFile, element);
         } else if (elementType == BallerinaTypes.COLON) {
@@ -639,7 +658,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                              @NotNull CompletionResultSet resultSet, @NotNull PsiElement prevElement) {
         PsiFile originalFile = parameters.getOriginalFile();
 
-        addKeywordAsLookup(resultSet, CREATE, KEYWORDS_GROUP);
+        addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
         addValueTypesAsLookups(resultSet);
         addReferenceTypesAsLookups(resultSet);
         addCommonKeywords(resultSet);
@@ -810,10 +829,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
                 addLookups(resultSet, originalFile, true, true, false, true);
                 addVariableTypesAsLookups(resultSet, originalFile, currentElement);
-                addKeywordAsLookup(resultSet, CREATE, KEYWORDS_GROUP);
+                addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
             } else {
                 PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
-                addLookups(resultSet, originalFile, true, true, false, true);
+                addLookups(resultSet, originalFile, true, true, true, true);
                 addVariableTypesAsLookups(resultSet, originalFile, currentElement);
                 addFunctionSpecificKeywords(parameters, resultSet);
                 addResourceSpecificKeywords(parameters, resultSet);
@@ -847,19 +866,33 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             addAllImportedPackagesAsLookups(resultSet, originalFile);
             addVariableTypesAsLookups(resultSet, originalFile, element);
             if (elementType == BallerinaTypes.ASSIGN) {
-                addKeywordAsLookup(resultSet, CREATE, KEYWORDS_GROUP);
+                addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
             }
         } else if (elementType == BallerinaTypes.DOT) {
             element = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
             if (!(element instanceof IdentifierPSINode)) {
                 element = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset() - 1);
             }
-            addStructFields(parameters, resultSet, element, null, false, false);
+            PsiReference reference = element.getReference();
+            if (reference == null) {
+                return;
+            }
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null) {
+                return;
+            }
+            if (resolvedElement.getParent() instanceof ConnectorNode) {
+                // Eg. Twitter.<caret>
+                handleActionInvocationNode(parameters, resultSet);
+            } else {
+                // Eg: user.<caret>
+                addStructFields(parameters, resultSet, element, null, false, false);
+            }
         } else {
             PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
             addValueTypesAsLookups(resultSet);
             addReferenceTypesAsLookups(resultSet);
-            addLookups(resultSet, originalFile, true, true, false, true);
+            addLookups(resultSet, originalFile, true, true, true, true);
             addVariableTypesAsLookups(resultSet, originalFile, currentElement);
             addFunctionSpecificKeywords(parameters, resultSet);
             addResourceSpecificKeywords(parameters, resultSet);
@@ -879,7 +912,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         addResourceSpecificKeywords(parameters, resultSet);
         addActionSpecificKeywords(parameters, resultSet);
         addCommonKeywords(resultSet);
-        addKeywordAsLookup(resultSet, CREATE, KEYWORDS_GROUP);
+        addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
     }
 
     /**
@@ -1025,28 +1058,58 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                             @NotNull CompletionResultSet resultSet) {
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
+        PsiElement nameIdentifier;
+
         // Get the NameReferenceNode.
         NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(parent, NameReferenceNode.class);
         if (nameReferenceNode == null) {
-            return;
+            // Eg: Twitter.<caret>
+            PsiElement prevSibling = parent.getPrevSibling();
+            if (prevSibling == null || !prevSibling.getText().isEmpty()) {
+                return;
+            }
+            PsiElement prevPrevSibling = prevSibling.getPrevSibling();
+            if (prevPrevSibling == null) {
+                return;
+            }
+            PsiElement previousNonEmptyElement = getPreviousNonEmptyElement(parameters.getOriginalFile(),
+                    prevSibling.getTextOffset());
+
+            if (previousNonEmptyElement == null) {
+                return;
+            }
+            if (!(previousNonEmptyElement instanceof LeafPsiElement)) {
+                return;
+            }
+            IElementType elementType = ((LeafPsiElement) previousNonEmptyElement).getElementType();
+            if (elementType != BallerinaTypes.DOT) {
+                return;
+            }
+            nameIdentifier = getPreviousNonEmptyElement(parameters.getOriginalFile(),
+                    ((LeafPsiElement) previousNonEmptyElement).getStartOffset());
+        } else {
+            // Eg: http:ClientConnector.<caret>
+            nameIdentifier = nameReferenceNode.getNameIdentifier();
         }
-        // Get the TypeNameNode.
-        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(nameReferenceNode, TypeNameNode.class);
-        if (typeNameNode == null) {
-            return;
-        }
-        // Get the identifier.
-        PsiElement nameIdentifier = typeNameNode.getNameIdentifier();
+        // Check whether the nameIdentifier is null.
         if (nameIdentifier == null) {
             return;
         }
         // Get the reference.
         PsiReference reference = nameIdentifier.getReference();
-        if (reference == null || !(reference instanceof NameReference)) {
+        if (reference == null) {
             return;
         }
         // Multi resolve the reference.
-        ResolveResult[] resolvedElement = ((NameReference) reference).multiResolve(false);
+        ResolveResult[] resolvedElement;
+        if (reference instanceof NameReference) {
+            resolvedElement = ((NameReference) reference).multiResolve(false);
+        } else if (reference instanceof StatementReference) {
+            resolvedElement = ((StatementReference) reference).multiResolve(false);
+        } else {
+            return;
+        }
+
         // For each resolve result, get all actions and add them as lookup elements.
         for (ResolveResult resolveResult : resolvedElement) {
             PsiElement resolveResultElement = resolveResult.getElement();
@@ -1083,7 +1146,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             return;
         }
         if (superParent instanceof ResourceDefinitionNode || superParent instanceof ServiceBodyNode) {
-            addKeywordAsLookup(resultSet, RESOURCE, KEYWORDS_GROUP);
+            addKeywordAsLookup(resultSet, RESOURCE, KEYWORDS_PRIORITY);
         }
         if (superParent instanceof StatementNode) {
             handleStatementNode(parameters, resultSet);
@@ -1113,7 +1176,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 }
             }
         } else if (superParent instanceof AnnotationDefinitionNode) {
-            addKeywordAsLookup(resultSet, ATTACH, KEYWORDS_GROUP);
+            addKeywordAsLookup(resultSet, ATTACH, KEYWORDS_PRIORITY);
         } else if (superParent instanceof AttachmentPointNode) {
             addAttachmentPointsAsLookups(resultSet);
         } else if (superParent instanceof VariableReferenceNode) {

@@ -74,6 +74,7 @@ public class BallerinaTypes {
 
     // Keywords
     public static TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
+    public static TokenIElementType ACTION = tokenIElementTypes.get(BallerinaLexer.ACTION);
     public static TokenIElementType ANNOTATION = tokenIElementTypes.get(BallerinaLexer.ANNOTATION);
     public static TokenIElementType ANY = tokenIElementTypes.get(BallerinaLexer.ANY);
     public static TokenIElementType AS = tokenIElementTypes.get(BallerinaLexer.AS);

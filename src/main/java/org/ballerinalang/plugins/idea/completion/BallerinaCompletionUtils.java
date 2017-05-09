@@ -52,16 +52,16 @@ import java.util.List;
 
 public class BallerinaCompletionUtils {
 
-    private static final int VARIABLE_GROUP = 20;
-    private static final int FUNCTION_GROUP = VARIABLE_GROUP - 1;
-    private static final int PACKAGE_GROUP = FUNCTION_GROUP - 1;
-    private static final int STRUCT_GROUP = PACKAGE_GROUP - 1;
-    private static final int CONNECTOR_GROUP = STRUCT_GROUP - 1;
-    private static final int ACTION_GROUP = CONNECTOR_GROUP - 1;
-    private static final int ANNOTATION_GROUP = ACTION_GROUP - 1;
-    private static final int VALUE_TYPES_GROUP = ANNOTATION_GROUP - 1;
-    private static final int REFERENCE_TYPES_GROUP = VALUE_TYPES_GROUP - 1;
-    static final int KEYWORDS_GROUP = REFERENCE_TYPES_GROUP - 1;
+    private static final int VARIABLE_PRIORITY = 20;
+    private static final int FUNCTION_PRIORITY = VARIABLE_PRIORITY - 1;
+    private static final int PACKAGE_PRIORITY = FUNCTION_PRIORITY - 1;
+    private static final int STRUCT_PRIORITY = PACKAGE_PRIORITY - 1;
+    private static final int CONNECTOR_PRIORITY = STRUCT_PRIORITY - 1;
+    private static final int ACTION_PRIORITY = CONNECTOR_PRIORITY - 1;
+    private static final int ANNOTATION_PRIORITY = ACTION_PRIORITY - 1;
+    private static final int VALUE_TYPES_PRIORITY = ANNOTATION_PRIORITY - 1;
+    private static final int REFERENCE_TYPES_PRIORITY = VALUE_TYPES_PRIORITY - 1;
+    static final int KEYWORDS_PRIORITY = REFERENCE_TYPES_PRIORITY - 1;
 
     // File level keywords
     private static final LookupElementBuilder PACKAGE;
@@ -198,10 +198,10 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      */
     static void addValueTypesAsLookups(@NotNull CompletionResultSet resultSet) {
-        resultSet.addElement(PrioritizedLookupElement.withPriority(BOOLEAN, VALUE_TYPES_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(INT, VALUE_TYPES_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(FLOAT, VALUE_TYPES_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(STRING, VALUE_TYPES_GROUP));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(BOOLEAN, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(INT, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(FLOAT, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(STRING, VALUE_TYPES_PRIORITY));
     }
 
     /**
@@ -210,12 +210,12 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      */
     static void addReferenceTypesAsLookups(@NotNull CompletionResultSet resultSet) {
-        resultSet.addElement(PrioritizedLookupElement.withPriority(MESSAGE, REFERENCE_TYPES_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(JSON, REFERENCE_TYPES_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(EXCEPTION, REFERENCE_TYPES_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(MAP, REFERENCE_TYPES_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(DATATABLE, REFERENCE_TYPES_GROUP));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(MESSAGE, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(JSON, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(EXCEPTION, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(MAP, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(DATATABLE, REFERENCE_TYPES_PRIORITY));
     }
 
     /**
@@ -228,18 +228,18 @@ public class BallerinaCompletionUtils {
     static void addFileLevelKeywordsAsLookups(@NotNull CompletionResultSet resultSet, boolean withPackage,
                                               boolean withImport) {
         if (withPackage) {
-            resultSet.addElement(PrioritizedLookupElement.withPriority(PACKAGE, KEYWORDS_GROUP));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(PACKAGE, KEYWORDS_PRIORITY));
         }
         if (withImport) {
-            resultSet.addElement(PrioritizedLookupElement.withPriority(IMPORT, KEYWORDS_GROUP));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(IMPORT, KEYWORDS_PRIORITY));
         }
-        resultSet.addElement(PrioritizedLookupElement.withPriority(CONST, KEYWORDS_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(SERVICE, KEYWORDS_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(FUNCTION, KEYWORDS_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(CONNECTOR, KEYWORDS_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(STRUCT, KEYWORDS_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(TYPEMAPPER, KEYWORDS_GROUP));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(ANNOTATION, KEYWORDS_GROUP));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(CONST, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(SERVICE, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(FUNCTION, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(CONNECTOR, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(STRUCT, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(TYPEMAPPER, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(ANNOTATION, KEYWORDS_PRIORITY));
     }
 
     /**
@@ -248,14 +248,14 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      */
     static void addAttachmentPointsAsLookups(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, CONST, KEYWORDS_GROUP);
-        addKeywordAsLookup(resultSet, SERVICE, KEYWORDS_GROUP);
-        addKeywordAsLookup(resultSet, FUNCTION, KEYWORDS_GROUP);
-        addKeywordAsLookup(resultSet, CONNECTOR, KEYWORDS_GROUP);
-        addKeywordAsLookup(resultSet, STRUCT, KEYWORDS_GROUP);
-        addKeywordAsLookup(resultSet, TYPEMAPPER, KEYWORDS_GROUP);
-        addKeywordAsLookup(resultSet, ACTION, KEYWORDS_GROUP);
-        addKeywordAsLookup(resultSet, PARAMETER, KEYWORDS_GROUP);
+        addKeywordAsLookup(resultSet, CONST, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, SERVICE, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, FUNCTION, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, CONNECTOR, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, STRUCT, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, TYPEMAPPER, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, ACTION, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, PARAMETER, KEYWORDS_PRIORITY);
     }
 
     /**
@@ -276,8 +276,8 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      */
     static void addCommonKeywords(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, IF, KEYWORDS_GROUP);
-        addKeywordAsLookup(resultSet, ELSE, KEYWORDS_GROUP);
+        addKeywordAsLookup(resultSet, IF, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, ELSE, KEYWORDS_PRIORITY);
         // todo - add fork/join, while, etc
     }
 
@@ -293,7 +293,7 @@ public class BallerinaCompletionUtils {
         PsiElement element = file.findElementAt(parameters.getOffset());
         FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
         if (functionNode != null) {
-            addKeywordAsLookup(resultSet, RETURN, KEYWORDS_GROUP);
+            addKeywordAsLookup(resultSet, RETURN, KEYWORDS_PRIORITY);
         }
     }
 
@@ -309,7 +309,7 @@ public class BallerinaCompletionUtils {
         PsiElement element = file.findElementAt(parameters.getOffset());
         ActionDefinitionNode actionDefinitionNode = PsiTreeUtil.getParentOfType(element, ActionDefinitionNode.class);
         if (actionDefinitionNode != null) {
-            addKeywordAsLookup(resultSet, RETURN, KEYWORDS_GROUP);
+            addKeywordAsLookup(resultSet, RETURN, KEYWORDS_PRIORITY);
         }
     }
 
@@ -326,7 +326,7 @@ public class BallerinaCompletionUtils {
         ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(element,
                 ResourceDefinitionNode.class);
         if (resourceDefinitionNode != null) {
-            addKeywordAsLookup(resultSet, REPLY, KEYWORDS_GROUP);
+            addKeywordAsLookup(resultSet, REPLY, KEYWORDS_PRIORITY);
         }
     }
 
@@ -401,7 +401,7 @@ public class BallerinaCompletionUtils {
             LookupElementBuilder builder = LookupElementBuilder.create(annotation.getText())
                     .withTypeText("Annotation").withIcon(BallerinaIcons.ANNOTATION)
                     .withInsertHandler(BracesInsertHandler.INSTANCE);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ANNOTATION_GROUP));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ANNOTATION_PRIORITY));
         }
     }
 
@@ -417,7 +417,7 @@ public class BallerinaCompletionUtils {
             LookupElementBuilder builder = LookupElementBuilder.create(pack.getText())
                     .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
                     .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_GROUP));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
         }
     }
 
@@ -443,7 +443,7 @@ public class BallerinaCompletionUtils {
             LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
                     .withTypeText("Function").withTailText("()", true).withIcon(BallerinaIcons.FUNCTION)
                     .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FUNCTION_GROUP));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY));
         }
     }
 
@@ -468,7 +468,7 @@ public class BallerinaCompletionUtils {
         for (PsiElement connector : connectors) {
             LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
                     .withTypeText("Connector").withIcon(BallerinaIcons.CONNECTOR);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_GROUP));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY));
         }
     }
 
@@ -483,7 +483,7 @@ public class BallerinaCompletionUtils {
             LookupElementBuilder builder = LookupElementBuilder.create(action.getText())
                     .withTypeText("Action").withIcon(BallerinaIcons.ACTION)
                     .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ACTION_GROUP));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY));
         }
     }
 
@@ -508,7 +508,7 @@ public class BallerinaCompletionUtils {
         for (PsiElement struct : structs) {
             LookupElementBuilder builder = LookupElementBuilder.create(struct.getText())
                     .withTypeText("Struct").withIcon(BallerinaIcons.STRUCT);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_GROUP));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY));
         }
     }
 
@@ -527,7 +527,7 @@ public class BallerinaCompletionUtils {
         for (PsiElement variable : variables) {
             LookupElementBuilder builder = LookupElementBuilder.create(variable.getText())
                     .withTypeText("Variable").withIcon(BallerinaIcons.VARIABLE);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_GROUP));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
         }
     }
 
@@ -546,7 +546,7 @@ public class BallerinaCompletionUtils {
         for (PsiElement variable : variables) {
             LookupElementBuilder builder = LookupElementBuilder.create(variable.getText())
                     .withTypeText("Parameter").withIcon(BallerinaIcons.PARAMETER);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_GROUP));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
         }
     }
 
@@ -571,7 +571,7 @@ public class BallerinaCompletionUtils {
         for (PsiElement constant : constants) {
             LookupElementBuilder builder = LookupElementBuilder.create(constant.getText())
                     .withTypeText("Constant").withIcon(BallerinaIcons.CONSTANT);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_GROUP));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
         }
     }
 
@@ -628,7 +628,7 @@ public class BallerinaCompletionUtils {
                 builder = builder.withInsertHandler(PackageCompletionInsertHandler.INSTANCE);
             }
         }
-        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_GROUP));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
     }
 
     /**

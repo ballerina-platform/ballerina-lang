@@ -681,7 +681,6 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("s1");
         expectedLookups.add("s2");
         expectedLookups.add("A");
-
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -695,9 +694,18 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("s1");
         expectedLookups.add("s2");
         expectedLookups.add("A");
-
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> \nstring s4 = \"\";}",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testConnectorInvocationInDifferentPackage() {
+        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector(){ action get(){} action post(){}}");
+        doTest("import org.test; function A(){ test:TestConnector.<caret> }", "get", "post");
+    }
+
+    public void testConnectorInvocationInSamePackage() {
+        doTest("function A(){ TestConnector.<caret> } connector TestConnector(){ action get(){} action post(){}}",
+                "get", "post");
     }
 
     /**
@@ -995,62 +1003,119 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     }
 
     public void testConnectorAnnotation() {
-        doCheckResult("test.bal", "@<caret> connector A{}", null, '@');
+        doCheckResult("test.bal", "@<caret> connector A(){}", null, '@');
     }
 
     public void testConnectorAnnotationWithImports() {
-        doCheckResult("test.bal", "import org.test; <caret>connector A{}", null, '@', "test");
+        doCheckResult("test.bal", "import org.test; <caret>connector A(){}", null, '@', "test");
     }
 
     public void testConnectorAnnotationWithImportsNoAnnotationDefinitions() {
         myFixture.addFileToProject("org/test/file.bal", "function test(){}");
-        doCheckResult("test.bal", "import org.test; @test<caret> connector A{}", null, ':');
+        doCheckResult("test.bal", "import org.test; @test<caret> connector A(){}", null, ':');
     }
 
     public void testConnectorAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
         myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
-        doCheckResult("test.bal", "import org.test; @test:<caret> connector A{}", null, null);
+        doCheckResult("test.bal", "import org.test; @test:<caret> connector A(){}", null, null);
     }
 
     public void testConnectorAnnotationWithImportsWithMatchingAnnotationDefinitions() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach connector {} " +
                 "annotation TEST2 attach resource {}");
-        doCheckResult("test.bal", "import org.test; @test:<caret> connector A{}", null, null, "TEST");
+        doCheckResult("test.bal", "import org.test; @test:<caret> connector A(){}", null, null, "TEST");
     }
 
     public void testConnectorAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach connector {}");
-        doCheckResult("test.bal", "import org.test; @test:T<caret> connector A{}",
-                "import org.test; @test:TEST {} connector A{}", null);
+        doCheckResult("test.bal", "import org.test; @test:T<caret> connector A(){}",
+                "import org.test; @test:TEST {} connector A(){}", null);
     }
 
     public void testConnectorAnnotationInCurrentPackageSameFile() {
-        doCheckResult("test.bal", "annotation TEST attach connector {} <caret> connector A{}", null, '@', "TEST");
+        doCheckResult("test.bal", "annotation TEST attach connector {} <caret> connector A(){}", null, '@', "TEST");
     }
 
     public void testConnectorAnnotationInCurrentPackageSameFileAutoComplete() {
-        doCheckResult("test.bal", "annotation TEST attach connector {} @T<caret> connector A{}",
-                "annotation TEST attach connector {} @TEST {} connector A{}", null);
+        doCheckResult("test.bal", "annotation TEST attach connector {} @T<caret> connector A(){}",
+                "annotation TEST attach connector {} @TEST {} connector A(){}", null);
     }
 
     public void testConnectorAnnotationInCurrentPackageDifferentFile() {
         myFixture.addFileToProject("file.bal", "annotation TEST attach connector {}");
-        doCheckResult("test.bal", "<caret> connector A{}", null, '@', "TEST");
+        doCheckResult("test.bal", "<caret> connector A(){}", null, '@', "TEST");
     }
 
     public void testConnectorAnnotationInCurrentPackageDifferentFileAutoComplete() {
         myFixture.addFileToProject("file.bal", "annotation TEST attach connector {}");
-        doCheckResult("test.bal", "@T<caret> connector A{}", "@TEST {} connector A{}", null);
+        doCheckResult("test.bal", "@T<caret> connector A(){}", "@TEST {} connector A(){}", null);
     }
 
     public void testConnectorAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
         myFixture.addFileToProject("file.bal", "annotation TEST attach connector {}");
-        doCheckResult("test.bal", "<caret> connector A{} service R{}", null, '@', "TEST");
+        doCheckResult("test.bal", "<caret> connector A(){} service R{}", null, '@', "TEST");
     }
 
     public void testConnectorAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
-        doCheckResult("test.bal", "annotation TEST attach connector {} <caret> connector A{} service R{}", null,
+        doCheckResult("test.bal", "annotation TEST attach connector {} <caret> connector A(){} service R{}", null,
                 '@', "TEST");
+    }
+
+    public void testConnectorBody() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("C");
+        doTest("connector C(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testConnectorBodyVariableDeclarationPackageAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        doCheckResult("test.bal", "import org.test; connector C(){ te<caret> }",
+                "import org.test; connector C(){ test: }", null);
+    }
+
+    public void testConnectorBodyVariableDeclarationPackageInvocation() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        doTest("import org.test; connector C(){ test:<caret> }", "TEST");
+    }
+
+    public void testConnectorBodyVariableDeclarationPackageInvocationAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        doCheckResult("test.bal", "import org.test; connector C(){ test:T<caret> }",
+                "import org.test; connector C(){ test:TEST }", null);
+    }
+
+    public void testConnectorBodyVariableDeclarationIdentifier() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        doTest("import org.test; connector C(){ test:TEST <caret> }");
+    }
+
+    public void testConnectorBodyVariableInitialization() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        doTest("import org.test; connector C(){ test:TEST t = <caret> }", "create", "C", "test");
+    }
+
+    public void testConnectorBodyVariableInitializationCreateKeyword() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        doTest("import org.test; connector C(){ test:TEST t = create <caret> }", "C", "test");
+    }
+
+    public void testConnectorBodyVariableInitializationPackageInvocation() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        doCheckResult("test.bal", "import org.test; connector C(){ test:TEST t = create t<caret> }",
+                "import org.test; connector C(){ test:TEST t = create test: }", null);
+    }
+
+    public void testConnectorBodyVariableInitializationPackageAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        doTest("import org.test; connector C(){ test:TEST t = create test:<caret> }", "TEST");
+    }
+
+    public void testConnectorBodyVariableInitializationPackageInvocationAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        doCheckResult("test.bal", "import org.test; connector C(){ test:TEST t = create test:T<caret> }",
+                "import org.test; connector C(){ test:TEST t = create test:TEST }", null);
     }
 
     /**
@@ -1071,8 +1136,8 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     public void testActionAnnotationWithImportsNoAnnotationDefinitions() {
         myFixture.addFileToProject("org/test/file.bal", "function test(){}");
-        doCheckResult("test.bal", "import org.test; connector C(){ @test<caret> action A()(message) {} }", null,
-                ':');
+        doCheckResult("test.bal", "import org.test; connector C(){ @tes<caret> action A()(message) {} }",
+                "import org.test; connector C(){ @test: action A()(message) {} }", null);
     }
 
     public void testActionAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {

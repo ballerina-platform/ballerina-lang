@@ -35,6 +35,7 @@ import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,6 +107,22 @@ public class StatementReference extends BallerinaElementReference {
             }
             if (myElement.getText().equals(nameIdentifier.getText())) {
                 results.add(new PsiElementResolveResult(parameterNode));
+            }
+        }
+
+        // We need to check connectors in the package as well.
+        List<PsiElement> connectorsInCurrentPackage =
+                BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(myElement.getContainingFile().getParent());
+        for (PsiElement connector : connectorsInCurrentPackage) {
+            if (!(connector instanceof IdentifierPSINode)) {
+                continue;
+            }
+            PsiElement nameIdentifier = ((IdentifierPSINode) connector).getNameIdentifier();
+            if (nameIdentifier == null) {
+                continue;
+            }
+            if (myElement.getText().equals(nameIdentifier.getText())) {
+                results.add(new PsiElementResolveResult(nameIdentifier));
             }
         }
         return results.toArray(new ResolveResult[results.size()]);

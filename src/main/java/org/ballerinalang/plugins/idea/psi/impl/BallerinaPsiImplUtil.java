@@ -632,15 +632,6 @@ public class BallerinaPsiImplUtil {
             // Add variables.
             checkAndAddVariable(element, results, variableDefinition);
         }
-//        // Get all parameters from the context.
-//        Collection<? extends PsiElement> parameterDefinitions =
-//                XPath.findAll(BallerinaLanguage.INSTANCE, context, PARAMETER_DEFINITION);
-//        for (PsiElement parameterDefinition : parameterDefinitions) {
-//            if (!parameterDefinition.getText().contains(PLACEHOLDER_STRING) &&
-//                    !parameterDefinition.getParent().getText().contains(PLACEHOLDER_STRING)) {
-//                results.add(parameterDefinition);
-//            }
-//        }
         // If the context is not null, get variables from parent context as well.
         // Ex:- If the current context is function body, we need to get parameters from function definition which is
         // the parent context.
