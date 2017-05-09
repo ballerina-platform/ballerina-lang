@@ -1,0 +1,16 @@
+.panel-title {
+    background: $panel-title-bgcolor;
+    color: $panel-title-color;
+    border-top: 1px solid $panel-border-color;
+    border-bottom: 1px solid $panel-border-color;
+    border-right: 1px solid $panel-border-color;
+    vertical-align: middle;
+    
+    & a {
+        color: $panel-title-color;
+    }
+}
+
+.default-worker-life-line line {
+    stroke: $worker-life-line-color;
+}

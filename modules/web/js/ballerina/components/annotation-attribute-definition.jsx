@@ -18,7 +18,6 @@
 
 import React from 'react';
 import ImageUtil from './image-util';
-import SizingUtil from './../visitors/sizing-utils';
 
 class AnnotationAttributeDefinition extends React.Component {
     constructor(props) {
@@ -37,10 +36,12 @@ class AnnotationAttributeDefinition extends React.Component {
                 <rect x={this.bBox.x} y={this.bBox.y} width={this.bBox.w} height={this.bBox.h}
                       className="attribute-content-operations-wrapper"/>
                 <rect x={this.bBox.x + this.bBox.w + 10} y={this.bBox.y} width={30} height={30} className=""/>
-                <text x={this.bBox.x + 10} y={this.bBox.y + 20} width={this.bBox.w}
-                      height={this.bBox.h}>{this.model.getAttributeStatementString()}</text>
+                <text x={this.bBox.x + 10} y={this.bBox.y + 20} width={this.bBox.w} height={this.bBox.h}>
+                    {this.props.model.viewState.textLength.text}
+                    <title>{this.props.model.getAttributeStatementString()}</title>
+                </text>
                 <image x={this.bBox.x + this.bBox.w + 15} y={this.bBox.y + 5} width={20} height={20}
-                       xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={()=>this.deleteAttribute()}/>
+                       xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.deleteAttribute()}/>
             </g>
         );
     }

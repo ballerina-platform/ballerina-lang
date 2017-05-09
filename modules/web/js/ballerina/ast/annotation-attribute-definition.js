@@ -35,7 +35,7 @@ class AnnotationAttributeDefinition extends ASTNode {
         if (!_.isNil(attributeName) && ASTNode.isValidIdentifier(attributeName)) {
             this.setAttribute('_attributeName', attributeName, options);
         } else {
-            var error = 'Invalid name for the annotation attribute name: ' + attributeName;
+            let error = 'Invalid name for the annotation attribute name: ' + attributeName;
             log.error(error);
             throw  error;
         }
@@ -53,24 +53,24 @@ class AnnotationAttributeDefinition extends ASTNode {
         return this._attributeType;
     }
 
-    setPackagePath(pkgPath, options){
+    setPackagePath(pkgPath, options) {
         this.setAttribute('_pkgPath', pkgPath, options);
     }
 
-    getPackagePath(){
+    getPackagePath() {
         return this._pkgPath;
     }
 
-    setAttributeValue(value, options){
+    setAttributeValue(value, options) {
         this.setAttribute('_attributeValue', value, options);
     }
 
-    getAttributeValue(){
+    getAttributeValue() {
         return this._attributeValue;
     }
 
-    getAttributeStatementString(){
-        var statement =  this.getAttributeType() + ' ' + this.getAttributeName() ;
+    getAttributeStatementString() {
+        let statement = this.getAttributeType() + ' ' + this.getAttributeName();
         if (!_.isEmpty(this.getAttributeValue())) {
             statement += ' = ' + this.getAttributeValue();
         }
@@ -82,11 +82,11 @@ class AnnotationAttributeDefinition extends ASTNode {
      * @override
      * */
     initFromJson(jsonNode) {
-        var self = this;
+        let self = this;
         this.setAttributeName(jsonNode.annotation_attribute_name, {doSilently: true});
         this.setAttributeType(jsonNode.annotation_attribute_type, {doSilently: true});
         _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+            let child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
