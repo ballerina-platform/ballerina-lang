@@ -10,16 +10,24 @@
     }
     
     & .tool-group-body {
-        .tool-container {
+        & .tool-container {
             width: 39px;
             height: 39px;
             margin: 3px;
             float: left;
             cursor: pointer;
-            border: 1px solid $tool-title-color;
+            border: 1px solid $tool-group-header-bgcolor;
             padding: 3px;
             white-space: nowrap;
             text-align: center;
+        }
+
+        & .tool-separator {
+            width: 100%;
+            padding-top: 7px;
+            border-bottom: 1px solid $tool-separator-color;
+            clear: both;
+            margin: 0 0 7px 0;
         }
         
         &.tool-group-body-list {
