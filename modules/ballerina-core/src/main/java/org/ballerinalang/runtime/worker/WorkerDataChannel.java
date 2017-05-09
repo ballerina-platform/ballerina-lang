@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.runtime.worker;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -27,18 +30,23 @@ public class WorkerDataChannel {
 
     private String source;
     private String target;
-    private BlockingQueue<Object[]> channel = new LinkedBlockingQueue<>();
+    private BlockingQueue<Object[]> channel;
+    private static final Logger log = LoggerFactory.getLogger(WorkerDataChannel.class);
 
     public WorkerDataChannel(String source, String target) {
         this.source = source;
         this.target = target;
+        this.channel =  new LinkedBlockingQueue<>();
     }
 
     public void putData(Object[] data) {
         try {
-            channel.put(data);
+            if (data != null) {
+                channel.put(data);
+            }
         } catch (InterruptedException e) {
             // Handle the error properly
+            log.error("Error occurred when inserting data to the channel");
         }
     }
 
@@ -48,6 +56,7 @@ public class WorkerDataChannel {
             data = channel.take();
         } catch (InterruptedException e) {
             // Handle the error properly
+            log.error("Error occurred when taking data from the channel");
         }
         return data;
     }

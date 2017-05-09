@@ -70,6 +70,28 @@ function testworker(message msg)(message) {
 
 }
 
+function testSimpleWorker(message msg)(message) {
+    message result;
+    //message msg = {};
+    msg -> sampleWorker;
+    system:println("Worker calling function simple test started");
+    result <- sampleWorker;
+    string s = messages:getStringPayload(result);
+    system:println(s);
+    return result;
+
+    worker sampleWorker {
+    message result;
+    message m;
+    m <- default;
+    json j;
+    j = `{"name":"chanaka"}`;
+    messages:setJsonPayload(m, j);
+    m -> default;
+}
+
+}
+
 
 
 

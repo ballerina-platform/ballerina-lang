@@ -176,7 +176,8 @@ public class BLangModelBuilder {
     
     protected List<String> errorMsgs = new ArrayList<>();
 
-    // This stack is used to keep the worker interaction related data holders along with worker name
+    // This map is used to keep the worker interactions related data holders along with worker name for a given
+    // function/action/resource
     protected Map<String, Queue<WorkerInteractionDataHolder>> workerInteractionDataHolders = new HashMap<>();
 
     // This map holds the worker data channels against the respective source and target workers
@@ -831,6 +832,7 @@ public class BLangModelBuilder {
 
         currentScope = function.getEnclosingScope();
         currentCUBuilder = null;
+        workerInteractionDataHolders.clear();
     }
 
     public void startTypeMapperDef(NodeLocation location) {
@@ -874,6 +876,7 @@ public class BLangModelBuilder {
 
         currentScope = resource.getEnclosingScope();
         currentCUBuilder = null;
+        workerInteractionDataHolders.clear();
     }
 
     public void createWorker(NodeLocation sourceLocation, String name) {
@@ -922,6 +925,7 @@ public class BLangModelBuilder {
 
         currentScope = action.getEnclosingScope();
         currentCUBuilder = null;
+        workerInteractionDataHolders.clear();
     }
 
 

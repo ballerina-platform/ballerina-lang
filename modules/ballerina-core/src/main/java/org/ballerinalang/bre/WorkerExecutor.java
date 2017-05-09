@@ -32,7 +32,7 @@ import java.io.PrintStream;
  */
 public class WorkerExecutor implements Runnable {
 
-    private static final Logger log = LoggerFactory.getLogger(WorkerRunner.class);
+    private static final Logger log = LoggerFactory.getLogger(WorkerExecutor.class);
     private static PrintStream outStream = System.err;
 
     private BLangExecutor executor;

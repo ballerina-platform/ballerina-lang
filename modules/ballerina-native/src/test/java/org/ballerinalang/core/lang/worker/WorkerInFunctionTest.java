@@ -47,4 +47,13 @@ public class WorkerInFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
+    @Test(description = "Test simple worker in function")
+    public void testSimpleWorkerInFunction() {
+        BValue[] args = {new BMessage()};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSimpleWorker", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BMessage);
+        final String expected = "{\"name\":\"chanaka\"}";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
 }
