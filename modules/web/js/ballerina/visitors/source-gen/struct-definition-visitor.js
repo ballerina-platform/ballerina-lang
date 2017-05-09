@@ -36,12 +36,12 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
 
     beginVisitStructDefinition(structDefinition) {
         var constructedSourceSegment = '\n' + this.getIndentation() +  'struct ' + structDefinition.getStructName() + "{\n";
+        this.indent();
         _.forEach(structDefinition.getVariableDefinitionStatements(), (variableDefStatement) => {
             constructedSourceSegment = constructedSourceSegment + this.getIndentation()
                           + variableDefStatement.getStatementString() + ";\n";
         });
         this.appendSource(constructedSourceSegment);
-        this.indent();
         log.debug('Begin Visit FunctionDefinition');
     }
 

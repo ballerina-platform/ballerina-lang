@@ -10,3 +10,8 @@
     fill: green;
     fill-opacity: 0;
 }
+
+.drop-zone.active .compound-statement .drop-zone {
+    fill: #fff;
+    fill-opacity: 1;
+}
