@@ -171,4 +171,13 @@ public class StructAccessWithIndexTest {
     public void testUndeclaredFieldAccess() {
         BTestUtils.parseBalFile("lang/structs/undeclared-attribute-access-as-index.bal");
     }
+    
+    @Test(description = "Test accesing a struct with a dynamic index",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "struct-access-with-dynamic-index.bal:15: only static keys are " +
+            "supported for accessing struct fields")
+    public void testExpressionAsStructIndex() {
+        BTestUtils.parseBalFile("lang/structs/struct-access-with-dynamic-index.bal");
+    }
+    
 }

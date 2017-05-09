@@ -90,7 +90,8 @@ public enum SemanticErrors {
     INVALID_ATTRIBUTE_TYPE("invalid.attribute.type", "SEMANTIC_0065"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found", "SEMANTIC_0066"),
     INCOMPATIBLE_ASSIGNMENT("incompatible.assignment", "SEMANTIC_0067"),
-    INDEXING_NOT_SUPPORTED_FOR_MAP_ELEMENT("indexing.not.supported.map.element", "SEMANTIC_0068");
+    INDEXING_NOT_SUPPORTED_FOR_MAP_ELEMENT("indexing.not.supported.map.element", "SEMANTIC_0068"),
+    DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT("dynamic.keys.not.supported.for.struct", "SEMANTIC_0069");
     
     private String errorMsgKey;
     private String errorCode;

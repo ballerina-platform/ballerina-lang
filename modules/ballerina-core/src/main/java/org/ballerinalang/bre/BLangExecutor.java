@@ -1310,7 +1310,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue unitVal = getUnitValue(currentVal, currentExpr);
         
         if (unitVal == null) {
-            throw new BallerinaException("field '" + currentExpr.getSymbolName() + "' is null");
+            throw new BallerinaException("field '" + currentExpr.getVarName() + "' is null");
         }
         
         // if fieldExpr exist means this is a struct.

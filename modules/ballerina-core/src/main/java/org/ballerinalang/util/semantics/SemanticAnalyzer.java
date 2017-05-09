@@ -2596,6 +2596,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             String varName = ((BasicLiteral) fieldVar).getBValue().stringValue();
             VariableRefExpr varRef = new VariableRefExpr(fieldVar.getNodeLocation(), varName);
             fieldExpr.setVarRef(varRef);
+        } else if (!(fieldVar instanceof VariableRefExpr)) {
+            BLangExceptionHelper.throwSemanticError(fieldVar, SemanticErrors.DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT);
         }
         
         visitField(fieldExpr, ((StructDef) exprType));

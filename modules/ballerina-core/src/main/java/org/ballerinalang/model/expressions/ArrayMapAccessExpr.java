@@ -41,6 +41,7 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
                                Expression arrayVarRefExpr, Expression[] indexExprs) {
         super(location, null, arrayVarRefExpr);
         this.symbolName = symbolName;
+        this.varName = symbolName.getName();
         this.indexExprs = indexExprs;
     }
 
