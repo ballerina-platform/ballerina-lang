@@ -56,7 +56,7 @@ class WorkerDeclarationDimensionCalculatorVisitor {
          * We add an extra gap to the statement container height, in order to maintain the gap between the
          * last statement's bottom margin and the default worker bottom rect's top margin
          */
-        statementHeight += DesignerDefaults.statement.gutter.v;
+        statementHeight += DesignerDefaults.statement.gutter.v * 2;
 
         viewState.bBox.h = statementHeight + DesignerDefaults.lifeLine.head.height * 2;
         viewState.bBox.w = statementWidth;
