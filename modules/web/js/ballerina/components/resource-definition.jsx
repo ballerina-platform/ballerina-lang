@@ -44,8 +44,8 @@ class ResourceDefinition extends React.Component {
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
 
-        let titleComponentData = [{ 
-            rComponent: ParameterView, 
+        let titleComponentData = [{
+            rComponent: ParameterView,
             title: 'Parameters: ',
             components: {
                 openingBracket: this.props.model.getViewState().components.openingParameter,
@@ -66,9 +66,10 @@ class ResourceDefinition extends React.Component {
                         dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
                         titleComponentData={titleComponentData}>
             <g>
-                <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}/>
                 <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox}/>
-                {children}
+                <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
+                  {children}
+                </StatementContainer>
             </g>
         </PanelDecorator>);
     }

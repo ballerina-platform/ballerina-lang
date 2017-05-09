@@ -82,7 +82,7 @@ class FunctionDefinition extends React.Component {
                 closingBracketClassName: 'return-types-closing-brack-text',
                 prefixTextClassName: 'return-types-prefix-text',
                 models: this.props.model.getReturnTypes()
-            } 
+            }
         ];
 
         return (<PanelDecorator icon={icons} title={name} annotations={annotations} bBox={bBox}
@@ -90,10 +90,11 @@ class FunctionDefinition extends React.Component {
                         dropTarget={this.props.model}
                         dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
                         titleComponentData={titleComponentData}>
-                    <StatementContainer  dropTarget={this.props.model}
-                      title="StatementContainer" bBox={statementContainerBBox}/>
                     <LifeLine title="FunctionWorker" bBox={function_worker_bBox}/>
-                    {children}
+                    <StatementContainer  dropTarget={this.props.model}
+                      title="StatementContainer" bBox={statementContainerBBox}>
+                      {children}
+                    </StatementContainer>
                 </PanelDecorator>);
     }
 
