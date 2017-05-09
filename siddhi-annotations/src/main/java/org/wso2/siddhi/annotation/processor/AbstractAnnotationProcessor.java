@@ -29,15 +29,15 @@ import java.util.regex.Pattern;
 /**
  * Parent class for extension annotation validation processors.
  * <p>
- * corePackagePattern: regex pattern for check the core package name while validation.
- * parameterNamePattern: regex pattern for check the @Extension -> @Parameters -> name format validation.
+ * CORE_PACKAGE_PATTERN: regex pattern for check the core package name while validation.
+ * PARAMETER_NAME_PATTERN: regex pattern for check the @Extension -> @Parameters -> name format validation.
  * extensionClassFullName: holds the extension class full name.
- * camelCasePattern: regex pattern for check the camelCase naming convention.
+ * CAMEL_CASE_PATTERN: regex pattern for check the camelCase naming convention.
  */
 public class AbstractAnnotationProcessor {
-    protected static final Pattern corePackagePattern = Pattern.compile("^org.wso2.siddhi.core.");
-    protected static final Pattern parameterNamePattern = Pattern.compile("^[a-z]+(\\.[a-z0-9]+)*$");
-    protected static final Pattern camelCasePattern = Pattern.compile("^[a-z]+([A-Z][a-z0-9]+)*$");
+    protected static final Pattern CORE_PACKAGE_PATTERN = Pattern.compile("^org.wso2.siddhi.core.");
+    protected static final Pattern PARAMETER_NAME_PATTERN = Pattern.compile("^[a-z]+(\\.[a-z0-9]+)*$");
+    protected static final Pattern CAMEL_CASE_PATTERN = Pattern.compile("^[a-z]+([A-Z][a-z0-9]+)*$");
     protected String extensionClassFullName;
 
     public AbstractAnnotationProcessor(String extensionClassFullName) {
@@ -68,8 +68,8 @@ public class AbstractAnnotationProcessor {
         //Check if the @Extension namespace is empty.
         if (namespace.isEmpty()) {
             //The namespace cannot be null or empty if @Extension is not in core package.
-            //Extract core package name by using corePackagePattern pattern.
-            if (!corePackagePattern.matcher(extensionClassFullName).find()) {
+            //Extract core package name by using CORE_PACKAGE_PATTERN pattern.
+            if (!CORE_PACKAGE_PATTERN.matcher(extensionClassFullName).find()) {
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> namespace " +
                         "annotated in class {0} is null or empty.", extensionClassFullName));
             }
@@ -90,7 +90,7 @@ public class AbstractAnnotationProcessor {
             if (parameterName.isEmpty()) {
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter -> " +
                         "name annotated in class {0} is null or empty.", extensionClassFullName));
-            } else if (!parameterNamePattern.matcher(parameterName).find()) {
+            } else if (!PARAMETER_NAME_PATTERN.matcher(parameterName).find()) {
                 //Check if the @Parameter name is in a correct format 'abc.def.ghi' using regex pattern.
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter -> " +
                                 "name {0} annotated in class {1} is not in proper format ''abc.def.ghi''.",
@@ -125,7 +125,7 @@ public class AbstractAnnotationProcessor {
             if (returnAttributeName.isEmpty()) {
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> " +
                         "@ReturnAttribute -> name annotated in class {0} is null or empty.", extensionClassFullName));
-            } else if (!camelCasePattern.matcher(returnAttributeName).find()) {
+            } else if (!CAMEL_CASE_PATTERN.matcher(returnAttributeName).find()) {
                 //Check if the @Extension -> @ReturnAttribute -> name is in a correct camelCase
                 // format using regex pattern.
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> " +

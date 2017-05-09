@@ -39,7 +39,7 @@ public class StreamFunctionProcessorValidationAnnotationProcessor extends Abstra
             if (parameterName.isEmpty()) {
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter ->" +
                         " name annotated in class {0} is null or empty.", extensionClassFullName));
-            } else if (!parameterNamePattern.matcher(parameterName).find()) {
+            } else if (!PARAMETER_NAME_PATTERN.matcher(parameterName).find()) {
                 //Check if the @Parameter name is in a correct format 'abc.def.ghi' using regex pattern.
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter ->" +
                                 " name:{0} annotated in class {1} is not in proper format ''abc.def.ghi''.",
@@ -75,7 +75,7 @@ public class StreamFunctionProcessorValidationAnnotationProcessor extends Abstra
             if (returnAttributeName.isEmpty()) {
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> " +
                         "@ReturnAttribute -> name annotated in class {0} is null or empty.", extensionClassFullName));
-            } else if (!camelCasePattern.matcher(returnAttributeName).find()) {
+            } else if (!CAMEL_CASE_PATTERN.matcher(returnAttributeName).find()) {
                 //Check if the @Extension -> @ReturnAttribute -> name is in a correct camelCase
                 // format using regex pattern.
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> " +
