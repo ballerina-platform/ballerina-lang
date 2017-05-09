@@ -92,7 +92,8 @@ public class KafkaConsumerThread implements Runnable {
                     for (Map.Entry<Integer, Long> entry : offsetMap.entrySet()) {
                         TopicPartition partition = new TopicPartition(topic, entry.getKey());
                         if (partitionsList.contains(partition)) {
-                            log.info("Seeking partition: " + partition + " for topic: " + topic);
+                            log.info("Seeking partition: " + partition + " for topic: " + topic + " offset: " + (entry
+                                    .getValue() + 1));
                             try {
                                 consumerLock.lock();
                                 consumer.seek(partition, entry.getValue() + 1);

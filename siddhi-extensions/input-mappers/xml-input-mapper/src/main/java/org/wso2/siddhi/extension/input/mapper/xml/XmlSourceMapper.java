@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.AttributeMapping;
-import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
@@ -40,13 +40,13 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * This mapper converts XML string input to {@link ComplexEventChunk}. This extension accepts optional xpath expressions to
@@ -166,15 +166,14 @@ public class XmlSourceMapper extends SourceMapper {
      * and send to the {@link OutputCallback}.
      *
      * @param eventObject  the input event, given as an XML string
-     * @param inputHandler input handler
      */
     @Override
-    protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
+    protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         Event[] result;
         try {
             result = convertToEvents(eventObject);
             if (result.length > 0) {
-                inputHandler.send(result);
+                inputEventHandler.sendEvents(result);
             }
         } catch (Throwable t) { //stringToOM does not throw the exception immediately due to streaming. Hence need this.
             log.error("Exception occurred when converting XML message to Siddhi Event", t);

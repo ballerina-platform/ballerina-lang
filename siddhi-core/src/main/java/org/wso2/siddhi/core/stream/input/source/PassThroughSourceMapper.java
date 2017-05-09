@@ -23,8 +23,8 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
-import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -51,14 +51,14 @@ public class PassThroughSourceMapper extends SourceMapper {
     }
 
     @Override
-    protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
+    protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         if (eventObject != null) {
             if (eventObject instanceof Event[]) {
-                inputHandler.send((Event[]) eventObject);
+                inputEventHandler.sendEvents((Event[]) eventObject);
             } else if (eventObject instanceof Event) {
-                inputHandler.send((Event) eventObject);
+                inputEventHandler.sendEvent((Event) eventObject);
             } else if (eventObject instanceof Object[]) {
-                inputHandler.send((Object[]) eventObject);
+                inputEventHandler.getInputHandler().send((Object[]) eventObject);
             } else {
                 throw new ExecutionPlanRuntimeException("Event object must be either Event[], Event or Object[] " +
                         "but found " + eventObject.getClass().getCanonicalName());
