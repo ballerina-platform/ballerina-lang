@@ -63,7 +63,7 @@ public class StreamFunction implements StreamHandler, Extension {
     }
 
     public Expression[] getParameters() {
-        return Arrays.copyOfRange(parameters, 0, parameters.length);
+        return parameters;
     }
 
     @Override

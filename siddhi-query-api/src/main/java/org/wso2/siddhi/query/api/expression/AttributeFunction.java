@@ -46,7 +46,7 @@ public class AttributeFunction extends Expression implements Extension {
     }
 
     public Expression[] getParameters() {
-        return Arrays.copyOfRange(parameters, 0, parameters.length);
+        return parameters;
     }
 
     public void setParameters(Expression[] parameters) {
