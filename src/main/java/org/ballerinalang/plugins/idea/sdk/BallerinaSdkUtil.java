@@ -53,11 +53,12 @@ public class BallerinaSdkUtil {
 
     private static final Pattern BALLERINA_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+(\\.\\d+)?(-.+)?)");
     private static final Key<String> VERSION_DATA_KEY = Key.create("BALLERINA_VERSION_KEY");
+    private static final String BALLERINA_EXEC_PATH = "bin" + File.separator + "ballerina";
 
     @Nullable
     public static VirtualFile suggestSdkDirectory() {
         if (SystemInfo.isWindows) {
-            return ObjectUtils.chooseNotNull(LocalFileSystem.getInstance().findFileByPath("C:\\Ballerina"), null);
+            return ObjectUtils.chooseNotNull(LocalFileSystem.getInstance().findFileByPath("C:\\ballerina"), null);
         }
         if (SystemInfo.isMac || SystemInfo.isLinux) {
             String fromEnv = suggestSdkDirectoryPathFromEnv();
@@ -86,8 +87,8 @@ public class BallerinaSdkUtil {
             try {
                 canonicalFile = fileFromPath.getCanonicalFile();
                 String path = canonicalFile.getPath();
-                if (path.endsWith("bin/ballerina")) {
-                    return StringUtil.trimEnd(path, "bin/ballerina");
+                if (path.endsWith(BALLERINA_EXEC_PATH)) {
+                    return StringUtil.trimEnd(path, BALLERINA_EXEC_PATH);
                 }
             } catch (IOException ignore) {
             }
@@ -165,7 +166,8 @@ public class BallerinaSdkUtil {
     public static String getBallerinaExecutablePath(Project project) {
         String sdkHome = getSdkHome(project);
         if (!sdkHome.isEmpty()) {
-            return sdkHome + File.separator + "bin/ballerina";
+            String execPath = sdkHome + File.separator + BALLERINA_EXEC_PATH;
+            return SystemInfo.isWindows ? execPath + ".bat" : execPath;
         }
         return "";
     }
@@ -177,7 +179,8 @@ public class BallerinaSdkUtil {
 
     @NotNull
     private static List<VirtualFile> getInnerGoPathSources(@NotNull Project project, @Nullable Module module) {
-        return ContainerUtil.mapNotNull(getBallerinaPathRoots(project, module), new RetrieveSubDirectoryOrSelfFunction("src"));
+        return ContainerUtil.mapNotNull(getBallerinaPathRoots(project, module), new
+                RetrieveSubDirectoryOrSelfFunction("src"));
     }
 
     @NotNull
@@ -192,7 +195,8 @@ public class BallerinaSdkUtil {
     }
 
     private static class RetrieveSubDirectoryOrSelfFunction implements Function<VirtualFile, VirtualFile> {
-        @NotNull private final String mySubdirName;
+        @NotNull
+        private final String mySubdirName;
 
         public RetrieveSubDirectoryOrSelfFunction(@NotNull String subdirName) {
             mySubdirName = subdirName;
@@ -200,7 +204,8 @@ public class BallerinaSdkUtil {
 
         @Override
         public VirtualFile fun(VirtualFile file) {
-            return file == null || FileUtil.namesEqual(mySubdirName, file.getName()) ? file : file.findChild(mySubdirName);
+            return file == null || FileUtil.namesEqual(mySubdirName, file.getName()) ? file : file.findChild
+                    (mySubdirName);
         }
     }
 
