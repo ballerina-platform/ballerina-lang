@@ -37,7 +37,8 @@ public class AnnotationConstants {
     public static final String STORE_SUPER_CLASS = "org.wso2.siddhi.core.table.Table";
     public static final String SOURCE_SUPER_CLASS = "org.wso2.siddhi.core.stream.input.source.Source";
     public static final String SOURCE_MAPPER_SUPER_CLASS = "org.wso2.siddhi.core.stream.input.source.SourceMapper";
-    public static final String WINDOW_PROCESSOR_CLASS = "org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor";
+    public static final String WINDOW_PROCESSOR_CLASS =
+            "org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor";
 
     public static final String DISTRIBUTION_STRATEGY_NAMESPACE = "distributionStrategy";
     public static final String STORE_NAMESPACE = "store";

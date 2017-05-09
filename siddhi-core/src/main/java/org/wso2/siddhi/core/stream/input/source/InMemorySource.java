@@ -39,8 +39,8 @@ import java.util.Map;
         namespace = "source",
         description = "In-memory source that can communicate with other in-memory sinks within the same JVM, it " +
                 "is assumed that the publisher and subscriber of a topic uses same event schema (stream definition).",
-        parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Subscribes to sent on the given" +
-                " topic."),
+        parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Subscribes to sent on the "
+                + "given topic."),
         examples = @Example(
                 syntax = "@source(type='inMemory', @map(type='passThrough'),\n" +
                         "define stream BarStream (symbol string, price float, volume long)",

@@ -58,11 +58,11 @@ public class SimpleFilterSample {
         executionPlanRuntime.start();
 
         //Sending events to Siddhi
-        inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
-        inputHandler.send(new Object[]{"GOOG", 50f, 30l});
-        inputHandler.send(new Object[]{"IBM", 76.6f, 400l});
-        inputHandler.send(new Object[]{"WSO2", 45.6f, 50l});
+        inputHandler.send(new Object[]{"IBM", 700f, 100L});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
+        inputHandler.send(new Object[]{"GOOG", 50f, 30L});
+        inputHandler.send(new Object[]{"IBM", 76.6f, 400L});
+        inputHandler.send(new Object[]{"WSO2", 45.6f, 50L});
         Thread.sleep(500);
 
         //Shutting down the runtime

@@ -53,8 +53,8 @@ import java.util.Map;
                 syntax = "from inputStream\n" +
                         "select maxForever(temp) as max\n" +
                         "insert into outputStream;",
-                description = "maxForever(temp) returns the maximum temp value recorded for all the events throughout " +
-                        "the lifetime of the query."
+                description = "maxForever(temp) returns the maximum temp value recorded for all the events throughout" +
+                        " the lifetime of the query."
         )
 )
 public class MaxForeverAttributeAggregator extends AttributeAggregator {
