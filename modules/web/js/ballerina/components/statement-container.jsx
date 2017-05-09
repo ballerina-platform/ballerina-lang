@@ -35,7 +35,8 @@ class StatementContainer extends React.Component {
         const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
         const dropZoneClassName = ((!dropZoneActivated) ? "drop-zone" : "drop-zone active")
               + ((dropZoneDropNotAllowed) ? " block" : "");
-        return (<g className="statement-container">
+        const containerClassName = ((dropZoneActivated) ? "statement-container drop-zone active" : "statement-container");
+        return (<g className={containerClassName}>
             <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h }
                 className={dropZoneClassName}
                 onMouseOver={(e) => this.onDropZoneActivate(e)}
