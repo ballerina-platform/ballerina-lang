@@ -23,22 +23,9 @@ under the License.
 
     <!-- Native Function Related Test Cases. -->
     <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="false"/>
         <packages>
             <package name="org.ballerinalang.nativeimpl.functions.*"/>
         </packages>
-        <classes>
-            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
-        </classes>
-    </test>
-    <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="true"/>
-        <packages>
-            <package name="org.ballerinalang.nativeimpl.functions.*"/>
-        </packages>
-        <classes>
-            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
-        </classes>
     </test>
 
     <!-- Native Connectors Related Test Cases -->
@@ -50,77 +37,27 @@ under the License.
 
     <!-- Native TypeConvertors Related Test Cases -->
     <test name="ballerina-native-type-convertors-unit-tests" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="false"/>
         <packages>
             <package name="org.ballerinalang.nativeimpl.typemappers"/>
         </packages>
-        <classes>
-            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
-        </classes>
-    </test>
-    <test name="ballerina-native-type-convertors-unit-tests-non-blocking" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="true"/>
-        <packages>
-            <package name="org.ballerinalang.nativeimpl.typemappers"/>
-        </packages>
-        <classes>
-            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
-        </classes>
     </test>
 
     <!-- Worker Related Test Cases -->
     <test name="ballerina-core-worker-unit-tests" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="false"/>
         <packages>
             <package name="org.ballerinalang.core.lang.worker"/>
         </packages>
-        <classes>
-            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
-        </classes>
     </test>
-    <test name="ballerina-core-worker-unit-tests-non-blocking" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="true"/>
-        <packages>
-            <package name="org.ballerinalang.core.lang.worker"/>
-        </packages>
-        <classes>
-            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
-        </classes>
-    </test>
-
 
     <!-- Service Related Test Cases -->
     <test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="false"/>
         <packages>
             <package name="org.ballerinalang.service"/>
         </packages>
-        <classes>
-            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
-        </classes>
-    </test>
-    <test name="ballerina-service-unit-tests-non-blocking" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="true"/>
-        <packages>
-            <package name="org.ballerinalang.service"/>
-        </packages>
-        <classes>
-            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
-        </classes>
     </test>
 
     <test name="ballerina-any-type-test-suite">
-        <parameter name="enableNonBlocking" value="false" />
         <classes>
-            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
-            <class name="org.ballerinalang.any.BAnyTypeNativeSuccessScenariosTest"/>
-        </classes>
-    </test>
-    <!-- Non Blocking Test Cases -->
-    <test name="ballerina-any-type-test-suite-non-blocking">
-        <parameter name="enableNonBlocking" value="true" />
-        <classes>
-            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
             <class name="org.ballerinalang.any.BAnyTypeNativeSuccessScenariosTest"/>
         </classes>
     </test>
