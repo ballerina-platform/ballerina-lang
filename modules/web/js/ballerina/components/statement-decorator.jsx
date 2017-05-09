@@ -167,6 +167,7 @@ class StatementDecorator extends React.Component {
 								{connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
 							</g>
 						}
+				{this.props.children}
 				</g>);
 	}
 

@@ -22,12 +22,14 @@ import MessageManager from './../visitors/message-manager';
 import './arrow-decorator.css';
 
 class BackwardArrow extends React.Component {
-    constructor(props) {
+    constructor(props, context) {
         super(props);
         this.state = {enable: true, drawOnMouseMoveFlag: -1};
+        if (this.props.moveWithMessageManager) {
+            context.messageManager.setBackwardArrowDecorator(this);
+        }
     }
-    getArrowAngle() {
-        const { start, end } = this.props;
+    getArrowAngle(start, end) {
         var deltaX = end.x - start.x;
         var deltaY = end.y - start.y;
         var rad = Math.atan2(deltaY, deltaX);
@@ -60,7 +62,7 @@ class BackwardArrow extends React.Component {
             <polygon
                 points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
                 transform={`translate(${arrowEnd.x}, ${arrowEnd.y})
-						rotate(${this.getArrowAngle()}, 0, 0)`}
+						rotate(${this.getArrowAngle(arrowStart, arrowEnd)}, 0, 0)`}
                 className="action-arrow-head"/>
             }
         </g>);

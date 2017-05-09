@@ -26,7 +26,6 @@ const text_offset = 50;
 class StartArrowConnection extends React.Component {
 
 	render() {
-		debugger;
 		const { start, end} = this.props;
 
 		let arrowStart = {x : 0, y : 0};
