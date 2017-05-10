@@ -10,6 +10,9 @@
     }
     
     & .tool-group-body {
+        & .tools-view-modes-controls {
+            margin-bottom: 20px;
+        }
         & .tool-container {
             width: 39px;
             height: 39px;
@@ -67,7 +70,7 @@
                     color: $tool-title-color;
                 }
                 & .tool-title {
-                    display: inline-block;
+                    display: none;
                 }
             }
         }
