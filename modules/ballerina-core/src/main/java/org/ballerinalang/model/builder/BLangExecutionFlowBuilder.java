@@ -1068,7 +1068,15 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     public void visit(ArrayLengthAccessExpr arrayLengthAccessExpr) {
         calculateTempOffSet(arrayLengthAccessExpr);
         ArrayLengthAccessExprEndNode endNode = new ArrayLengthAccessExprEndNode(arrayLengthAccessExpr);
-        arrayLengthAccessExpr.setNext(endNode);
+        if (arrayLengthAccessExpr.getVarRef() instanceof StructFieldAccessExpr) {
+            arrayLengthAccessExpr.setNext(arrayLengthAccessExpr.getVarRef());
+            StructFieldAccessExprEndNode structEndNode =
+                    new StructFieldAccessExprEndNode((StructFieldAccessExpr) arrayLengthAccessExpr.getVarRef());
+            arrayLengthAccessExpr.getVarRef().setNext(structEndNode);
+            structEndNode.setNext(endNode);
+        } else {
+            arrayLengthAccessExpr.setNext(endNode);
+        }
         endNode.setNext(findNext(arrayLengthAccessExpr));
     }
 

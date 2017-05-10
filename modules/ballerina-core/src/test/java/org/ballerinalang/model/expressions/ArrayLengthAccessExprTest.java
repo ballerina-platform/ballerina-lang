@@ -158,4 +158,17 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test array length access expression when present in Struct field access expression.")
+    public void testArrayLengthAccessExpStructFieldAccessCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayLengthAccessTestStructFieldAccessCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 3;
+        Assert.assertEquals(actual, expected);
+    }
+
 }

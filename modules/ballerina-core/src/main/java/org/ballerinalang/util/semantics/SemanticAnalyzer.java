@@ -2050,16 +2050,24 @@ public class SemanticAnalyzer implements NodeVisitor {
     private Expression visitBValueExpr(Expression expr, boolean isSingleValCheckRequired) {
         if (expr instanceof StructFieldAccessExpr) {
             ReferenceExpr variableRefExpr = ((StructFieldAccessExpr) expr).getVarRef();
-            variableRefExpr.accept(this);
-            if ((variableRefExpr.getType() instanceof BArrayType)) {
-                StructFieldAccessExpr fieldRef = ((StructFieldAccessExpr) expr).getFieldExpr();
+            StructFieldAccessExpr fieldRef = ((StructFieldAccessExpr) expr).getFieldExpr();
+            while (fieldRef != null) {
                 if (fieldRef != null &&
                         fieldRef.getVarRef() instanceof ReferenceExpr) {
-                    if (fieldRef.getVarRef().getVarName().equals("length")) {
-                        return visitBValueExpr(new ArrayLengthAccessExpr(expr.getNodeLocation(),
-                                variableRefExpr), true);
+                    if (fieldRef.getVarRef().getVarName() != null &&
+                            fieldRef.getVarRef().getVarName().equals("length")) {
+                        if (variableRefExpr instanceof StructFieldAccessExpr) {
+                            ((StructFieldAccessExpr) variableRefExpr).setFieldExpr(null);
+                            return visitBValueExpr(new ArrayLengthAccessExpr(expr.getNodeLocation(),
+                                    (ReferenceExpr) expr), true);
+                        } else {
+                            return visitBValueExpr(new ArrayLengthAccessExpr(expr.getNodeLocation(),
+                                    variableRefExpr), true);
+                        }
                     }
                 }
+                variableRefExpr = fieldRef;
+                fieldRef = fieldRef.getFieldExpr();
             }
         }
         expr.accept(this);

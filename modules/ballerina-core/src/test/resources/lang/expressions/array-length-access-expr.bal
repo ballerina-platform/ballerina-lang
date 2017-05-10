@@ -92,3 +92,22 @@ function arrayLengthAccessTestBinaryExpressionCase(int x, int y) (int) {
     }
 }
 
+function arrayLengthAccessTestStructFieldAccessCase(int x, int y) (int) {
+    int[] arr = [];
+    arr[0] = x;
+    arr[1] = y;
+    arr[2] = arr[0] + arr[1];
+    Person jack;
+    jack = {name:"Jack", days:arr};
+
+    if ( jack.days.length == 3 ) {
+        return 3;
+    } else {
+        return 0;
+    }
+}
+
+struct Person {
+    string name;
+    int[] days;
+}

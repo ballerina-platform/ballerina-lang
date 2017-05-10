@@ -1853,7 +1853,12 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         next = arrayLengthAccessExprEndNode.next;
         ArrayLengthAccessExpr arrayLengthAccessExpr = arrayLengthAccessExprEndNode.getExpression();
         Expression varRef = arrayLengthAccessExpr.getVarRef();
-        BValue value = getTempValue(varRef);
+        BValue value = null;
+        if (varRef instanceof VariableRefExpr) {
+            value = getTempValue(varRef);
+        } else {
+            value = getTempValue(varRef.getTempOffset());
+        }
         setTempValue(arrayLengthAccessExpr.getTempOffset(), new BInteger(((BArray) value).size()));
     }
 
