@@ -1,4 +1,4 @@
-#File Server Connector
+# File Server Connector
 
 The File Server connector is used to process files in the specified source directory. Note that files cannot remain in the source directory after processing or they will be processed again. Therefore, after processing a file it will be deleted.
 
