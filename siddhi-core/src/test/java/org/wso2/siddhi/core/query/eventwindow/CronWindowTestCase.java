@@ -15,8 +15,8 @@
  */
 package org.wso2.siddhi.core.query.eventwindow;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -100,7 +100,8 @@ public class CronWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int); " +
-                "define window cseEventWindow (symbol string, price float, volume int) cron('*/5 * * * * ?') output expired events; ";
+                "define window cseEventWindow (symbol string, price float, volume int) cron('*/5 * * * * ?') output " +
+                "expired events; ";
 
         String query = "@info(name = 'query0') " +
                 "from cseEventStream " +
@@ -118,7 +119,7 @@ public class CronWindowTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                        removeEventCount++;
+                    removeEventCount++;
                 }
                 eventArrived = true;
             }

@@ -24,10 +24,13 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.*;
+import static org.wso2.siddhi.core.util.SiddhiConstants.BEFORE_WINDOW_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.ON_AFTER_WINDOW_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_INDEX;
 
 /**
- * The StateEventPopulaterFactory that populates StreamEventPopulater according to MetaStreamEvent and to be mapped attributes
+ * The StateEventPopulaterFactory that populates StreamEventPopulater according to MetaStreamEvent and to be mapped
+ * attributes
  */
 public class StreamEventPopulaterFactory {
     /**
@@ -38,7 +41,8 @@ public class StreamEventPopulaterFactory {
      * @param attributes            mapped attributes
      * @return StateEventPopulater
      */
-    public static ComplexEventPopulater constructEventPopulator(MetaStreamEvent metaStreamEvent, int streamEventChainIndex, List<Attribute> attributes) {
+    public static ComplexEventPopulater constructEventPopulator(MetaStreamEvent metaStreamEvent, int
+            streamEventChainIndex, List<Attribute> attributes) {
 
         List<StreamMappingElement> streamMappingElements = new ArrayList<StreamMappingElement>();
         for (int i = 0, attributesSize = attributes.size(); i < attributesSize; i++) {
@@ -51,11 +55,13 @@ public class StreamEventPopulaterFactory {
             } else {
                 index = metaStreamEvent.getOnAfterWindowData().indexOf(attribute);
                 if (index > -1) {
-                    streamMappingElement.setToPosition(new int[]{streamEventChainIndex, 0, ON_AFTER_WINDOW_DATA_INDEX, index});
+                    streamMappingElement.setToPosition(new int[]{streamEventChainIndex, 0,
+                            ON_AFTER_WINDOW_DATA_INDEX, index});
                 } else {
                     index = metaStreamEvent.getBeforeWindowData().indexOf(attribute);
                     if (index > -1) {
-                        streamMappingElement.setToPosition(new int[]{streamEventChainIndex, 0, BEFORE_WINDOW_DATA_INDEX, index});
+                        streamMappingElement.setToPosition(new int[]{streamEventChainIndex, 0,
+                                BEFORE_WINDOW_DATA_INDEX, index});
                     } else {
                         streamMappingElement.setToPosition(null);
                     }

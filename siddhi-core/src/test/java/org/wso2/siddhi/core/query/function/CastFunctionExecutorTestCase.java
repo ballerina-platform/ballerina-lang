@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.function;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -51,7 +51,8 @@ public class CastFunctionExecutorTestCase {
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
                 + "cast(price, 'double') as priceInDouble insert into outputStream;");
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -77,9 +78,9 @@ public class CastFunctionExecutorTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", 100.3, 100l});
-        inputHandler.send(new Object[]{"WSO2", true, 200l});
-        inputHandler.send(new Object[]{"XYZ", 300d, 200l});
+        inputHandler.send(new Object[]{"IBM", 100.3, 100L});
+        inputHandler.send(new Object[]{"WSO2", true, 200L});
+        inputHandler.send(new Object[]{"XYZ", 300d, 200L});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
         Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);

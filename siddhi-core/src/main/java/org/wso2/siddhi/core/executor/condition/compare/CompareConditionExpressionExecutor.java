@@ -21,7 +21,9 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 
-
+/**
+ * Parent Executor class for Compare conditions. common evaluation logic is implemented within executor.
+ */
 public abstract class CompareConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     protected ExpressionExecutor leftExpressionExecutor;

@@ -27,19 +27,29 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
+/**
+ * EventHolder implementation where events will be indexed and stored. This will offer faster access compared to
+ * other EventHolder implementations. User can only add unique events based on a given primary key.
+ */
 public class IndexEventHolder implements IndexedEventHolder {
 
     private static final Logger log = Logger.getLogger(IndexEventHolder.class);
+    private final Map<Object, StreamEvent> primaryKeyData;
+    private final Map<String, TreeMap<Object, Set<StreamEvent>>> indexData;
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter;
     private int primaryKeyPosition = -1;
     private String primaryKeyAttribute;
     private Map<String, Integer> indexMetaData;
     private Map<String, Integer> allIndexMetaData = new HashMap<>();
-    private final Map<Object, StreamEvent> primaryKeyData;
-    private final Map<String, TreeMap<Object, Set<StreamEvent>>> indexData;
 
     public IndexEventHolder(StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter,
                             int primaryKeyPosition, String primaryKeyAttribute,
@@ -93,8 +103,9 @@ public class IndexEventHolder implements IndexedEventHolder {
         if (primaryKeyData != null) {
             existingValue = primaryKeyData.putIfAbsent(streamEvent.getOutputData()[primaryKeyPosition], streamEvent);
             if (existingValue != null) {
-                log.error("Drooping event :" + streamEvent + ", as there is already an event stored with primary key '" +
-                        streamEvent.getOutputData()[primaryKeyPosition] + "'");
+                log.error("Drooping event :" + streamEvent + ", as there is already an event stored with primary key " +
+                                  "'" +
+                                  streamEvent.getOutputData()[primaryKeyPosition] + "'");
             }
         }
 
@@ -272,7 +283,8 @@ public class IndexEventHolder implements IndexedEventHolder {
                     return resultEventSet;
             }
         }
-        throw new OperationNotSupportedException(operator + " not supported for '" + value + "' by " + getClass().getName());
+        throw new OperationNotSupportedException(operator + " not supported for '" + value + "' by " + getClass()
+                .getName());
     }
 
     @Override
@@ -410,7 +422,8 @@ public class IndexEventHolder implements IndexedEventHolder {
                     return;
             }
         }
-        throw new OperationNotSupportedException(operator + " not supported for '" + value + "' by " + getClass().getName());
+        throw new OperationNotSupportedException(operator + " not supported for '" + value + "' by " + getClass()
+                .getName());
     }
 
     @Override
@@ -450,7 +463,8 @@ public class IndexEventHolder implements IndexedEventHolder {
                     return currentIndexedData.size() > 1;
             }
         }
-        throw new OperationNotSupportedException(operator + " not supported for '" + value + "' by " + getClass().getName());
+        throw new OperationNotSupportedException(operator + " not supported for '" + value + "' by " + getClass()
+                .getName());
     }
 
     private void deleteFromIndexesAndPrimaryKey(String currentAttribute, Set<StreamEvent> deletedEventSet) {

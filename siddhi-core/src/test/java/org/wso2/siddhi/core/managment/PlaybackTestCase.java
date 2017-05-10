@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.managment;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -65,7 +65,8 @@ public class PlaybackTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents == null);
+                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                            == null);
                 }
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
@@ -103,7 +104,8 @@ public class PlaybackTestCase {
 
     @Test
     public void playbackTest2() throws InterruptedException {
-        log.info("Playback Test 2: Playback with heartbeat disabled in query with start time enabled time batch window");
+        log.info("Playback Test 2: Playback with heartbeat disabled in query with start time enabled time batch " +
+                "window");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -123,7 +125,8 @@ public class PlaybackTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents == null);
+                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                            == null);
                 }
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
@@ -181,7 +184,8 @@ public class PlaybackTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents == null);
+                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                            == null);
                 }
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
@@ -268,7 +272,8 @@ public class PlaybackTestCase {
 
     @Test
     public void playbackTest5() throws InterruptedException {
-        log.info("Playback Test 5: Playback enabled timeLength window with no of events less than window length and time period less than window time");
+        log.info("Playback Test 5: Playback enabled timeLength window with no of events less than window length and " +
+                "time period less than window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -316,11 +321,13 @@ public class PlaybackTestCase {
 
     @Test
     public void playbackTest6() throws InterruptedException {
-        log.info("Playback Test 6: Playback with heartbeat enabled timeLength window with no of events less than window length and time period less than window time");
+        log.info("Playback Test 6: Playback with heartbeat enabled timeLength window with no of events less than " +
+                "window length and time period less than window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@Plan:playback(idle.time = '100 millisecond', increment = '4 sec') define stream cseEventStream (symbol string, price float, volume int);";
+        String cseEventStream = "@Plan:playback(idle.time = '100 millisecond', increment = '4 sec') define stream " +
+                "cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream#window.timeLength(4 sec,10) select symbol,price," +
                 "volume insert all events into outputStream ;";
 
@@ -597,7 +604,8 @@ public class PlaybackTestCase {
 
     @Test
     public void playbackTest13() throws InterruptedException {
-        log.info("Playback Test 13: Testing playback with out of order event with smaller than system timestamp after window expires");
+        log.info("Playback Test 13: Testing playback with out of order event with smaller than system timestamp after" +
+                " window expires");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 

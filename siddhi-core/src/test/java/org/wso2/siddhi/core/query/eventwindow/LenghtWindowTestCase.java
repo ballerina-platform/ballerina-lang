@@ -15,8 +15,8 @@
  */
 package org.wso2.siddhi.core.query.eventwindow;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -46,7 +46,8 @@ public class LenghtWindowTestCase {
     public void testLengthWindow0() throws InterruptedException {
         log.info("Testing length window definition");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String window = "define window EventWindow1(symbol string, price int, volume float) length(5) output all events; " +
+        String window = "define window EventWindow1(symbol string, price int, volume float) length(5) output all " +
+                "events; " +
                 "define window EventWindow2(symbol string, price int, volume float) length(5);";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(window);
         executionPlanRuntime.shutdown();
@@ -96,7 +97,8 @@ public class LenghtWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int); " +
-                "define window cseWindow (symbol string, price float, volume int) length(" + length + ") output all events; ";
+                "define window cseWindow (symbol string, price float, volume int) length(" + length + ") output all " +
+                "events; ";
         String query = "@info(name = 'query1') from cseEventStream select symbol,price,volume insert into cseWindow ;" +
                 "@info(name = 'query2') from cseWindow insert all events into outputStream ;";
 
@@ -147,7 +149,8 @@ public class LenghtWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int); " +
-                "define window cseWindow (symbol string, price float, volume int) length(" + length + ") output all events; ";
+                "define window cseWindow (symbol string, price float, volume int) length(" + length + ") output all " +
+                "events; ";
         String query = "@info(name = 'query1') from cseEventStream select symbol,price,volume insert into cseWindow ;" +
                 "@info(name = 'query2') from cseWindow insert all events into outputStream ;";
 

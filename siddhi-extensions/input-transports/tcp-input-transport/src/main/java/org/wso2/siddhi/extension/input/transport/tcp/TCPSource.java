@@ -44,7 +44,8 @@ public class TCPSource extends Source {
     private StreamDefinition streamDefinition;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader configReader, ExecutionPlanContext
+            executionPlanContext) {
         this.sourceEventListener = sourceEventListener;
         context = optionHolder.validateAndGetStaticValue(CONTEXT,
                 executionPlanContext.getName() + "/" + sourceEventListener.getStreamDefinition().getId());

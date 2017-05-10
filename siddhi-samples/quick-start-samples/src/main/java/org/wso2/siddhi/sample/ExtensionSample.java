@@ -61,9 +61,9 @@ public class ExtensionSample {
         executionPlanRuntime.start();
 
         //Sending events to Siddhi
-        inputHandler.send(new Object[]{"IBM", 700l, 100l});
-        inputHandler.send(new Object[]{"WSO2", 605l, 200l});
-        inputHandler.send(new Object[]{"GOOG", 60l, 200l});
+        inputHandler.send(new Object[]{"IBM", 700L, 100L});
+        inputHandler.send(new Object[]{"WSO2", 600L, 200L});
+        inputHandler.send(new Object[]{"GOOG", 60L, 200L});
         Thread.sleep(500);
 
         //Shutting down the runtime

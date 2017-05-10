@@ -18,10 +18,13 @@
 
 package org.wso2.siddhi.core.event;
 
+/**
+ * Implementation of {@link ComplexEvent} to hold events belonging to the same GroupBy group.
+ */
 public class GroupedComplexEvent implements ComplexEvent {
 
-    private String groupKey;
     private final ComplexEvent complexEvent;
+    private String groupKey;
     private ComplexEvent next;
 
     public GroupedComplexEvent(String groupKey, ComplexEvent complexEvent) {

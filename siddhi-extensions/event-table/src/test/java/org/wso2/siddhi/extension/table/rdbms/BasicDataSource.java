@@ -18,10 +18,14 @@
 
 package org.wso2.siddhi.extension.table.rdbms;
 
-import javax.sql.DataSource;
 import java.io.PrintWriter;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Statement;
 import java.util.logging.Logger;
+import javax.sql.DataSource;
 
 public class BasicDataSource implements DataSource {
 
@@ -33,13 +37,16 @@ public class BasicDataSource implements DataSource {
             e.printStackTrace();
         }
         try {
-            return DriverManager.getConnection(RDBMSTestConstants.CONNECTION_URL, RDBMSTestConstants.USERNAME, RDBMSTestConstants.PASSWORD);
+            return DriverManager.getConnection(RDBMSTestConstants.CONNECTION_URL, RDBMSTestConstants.USERNAME,
+                    RDBMSTestConstants.PASSWORD);
         } catch (Exception ex) {
-            try (Connection connection = DriverManager.getConnection(RDBMSTestConstants.CONNECTION_URL.replace("cepdb",""), RDBMSTestConstants.USERNAME, RDBMSTestConstants.PASSWORD)) {
+            try (Connection connection = DriverManager.getConnection(RDBMSTestConstants.CONNECTION_URL.replace
+                    ("cepdb", ""), RDBMSTestConstants.USERNAME, RDBMSTestConstants.PASSWORD)) {
                 Statement statement = connection.createStatement();
                 statement.executeUpdate("CREATE DATABASE cepdb");
                 statement.close();
-                return DriverManager.getConnection(RDBMSTestConstants.CONNECTION_URL, RDBMSTestConstants.USERNAME, RDBMSTestConstants.PASSWORD);
+                return DriverManager.getConnection(RDBMSTestConstants.CONNECTION_URL, RDBMSTestConstants.USERNAME,
+                        RDBMSTestConstants.PASSWORD);
             }
         }
     }
@@ -54,13 +61,16 @@ public class BasicDataSource implements DataSource {
 //            e.printStackTrace();
 //        }
 //        try {
-//            return DriverManager.getConnection(RDBMSTestConstants.H2_CONNECTION_URL, RDBMSTestConstants.H2USERNAME, RDBMSTestConstants.H2PASSWORD);
+//            return DriverManager.getConnection(RDBMSTestConstants.H2_CONNECTION_URL, RDBMSTestConstants.H2USERNAME,
+// RDBMSTestConstants.H2PASSWORD);
 //        } catch (Exception ex) {
-//            Connection connection = DriverManager.getConnection(RDBMSTestConstants.H2_CONNECTION_URL, RDBMSTestConstants.H2USERNAME, RDBMSTestConstants.H2PASSWORD);
+//            Connection connection = DriverManager.getConnection(RDBMSTestConstants.H2_CONNECTION_URL,
+// RDBMSTestConstants.H2USERNAME, RDBMSTestConstants.H2PASSWORD);
 //            Statement statement = connection.createStatement();
 //            statement.executeUpdate("CREATE DATABASE cepdb");
 //            statement.close();
-//            return DriverManager.getConnection(RDBMSTestConstants.H2_CONNECTION_URL, RDBMSTestConstants.H2USERNAME, RDBMSTestConstants.H2PASSWORD);
+//            return DriverManager.getConnection(RDBMSTestConstants.H2_CONNECTION_URL, RDBMSTestConstants.H2USERNAME,
+// RDBMSTestConstants.H2PASSWORD);
 //
 //        }
 //    }
@@ -75,13 +85,16 @@ public class BasicDataSource implements DataSource {
 //            e.printStackTrace();
 //        }
 //        try {
-//            return DriverManager.getConnection(RDBMSTestConstants.ORACLE_CONNECTION_URL, RDBMSTestConstants.ORACLEUSERNAME, RDBMSTestConstants.ORACLEPASSWORD);
+//            return DriverManager.getConnection(RDBMSTestConstants.ORACLE_CONNECTION_URL, RDBMSTestConstants
+// .ORACLEUSERNAME, RDBMSTestConstants.ORACLEPASSWORD);
 //        } catch (Exception ex) {
-//            Connection connection = DriverManager.getConnection(RDBMSTestConstants.ORACLE_CONNECTION_URL, RDBMSTestConstants.ORACLEUSERNAME, RDBMSTestConstants.ORACLEPASSWORD);
+//            Connection connection = DriverManager.getConnection(RDBMSTestConstants.ORACLE_CONNECTION_URL,
+// RDBMSTestConstants.ORACLEUSERNAME, RDBMSTestConstants.ORACLEPASSWORD);
 //            Statement statement = connection.createStatement();
 //            statement.executeUpdate("CREATE DATABASE daniddb");
 //            statement.close();
-//            return DriverManager.getConnection(RDBMSTestConstants.ORACLE_CONNECTION_URL, RDBMSTestConstants.ORACLEUSERNAME, RDBMSTestConstants.ORACLEPASSWORD);
+//            return DriverManager.getConnection(RDBMSTestConstants.ORACLE_CONNECTION_URL, RDBMSTestConstants
+// .ORACLEUSERNAME, RDBMSTestConstants.ORACLEPASSWORD);
 //
 //        }
 //    }
@@ -103,13 +116,13 @@ public class BasicDataSource implements DataSource {
     }
 
     @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
-
+    public int getLoginTimeout() throws SQLException {
+        return 0;
     }
 
     @Override
-    public int getLoginTimeout() throws SQLException {
-        return 0;
+    public void setLoginTimeout(int seconds) throws SQLException {
+
     }
 
     /**
@@ -120,8 +133,7 @@ public class BasicDataSource implements DataSource {
      * In the worst case, this may be the root Logger.
      *
      * @return the parent Logger for this data source
-     * @throws java.sql.SQLFeatureNotSupportedException
-     *          if the data source does not use <code>java.util.logging<code>.
+     * @throws java.sql.SQLFeatureNotSupportedException if the data source does not use <code>java.util.logging<code>.
      * @since 1.7
      */
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {

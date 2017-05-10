@@ -70,10 +70,10 @@ public class UpdateOrInsertTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
-        updateStockStream.send(new Object[]{"GOOG", 10.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        updateStockStream.send(new Object[]{"GOOG", 10.6f, 100L});
 
         Thread.sleep(500);
         executionPlanRuntime.shutdown();
@@ -101,10 +101,10 @@ public class UpdateOrInsertTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
-        stockStream.send(new Object[]{"WSO2", 10f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 10f, 100L});
 
         Thread.sleep(500);
         executionPlanRuntime.shutdown();
@@ -147,13 +147,13 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100l}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100l}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             case 3:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100l}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(3, inEventCount);
@@ -175,13 +175,13 @@ public class UpdateOrInsertTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-        checkStockStream.send(new Object[]{"IBM", 100l});
-        checkStockStream.send(new Object[]{"WSO2", 100l});
-        updateStockStream.send(new Object[]{"IBM", 77.6f, 200l});
-        checkStockStream.send(new Object[]{"IBM", 100l});
-        checkStockStream.send(new Object[]{"WSO2", 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+        checkStockStream.send(new Object[]{"IBM", 100L});
+        checkStockStream.send(new Object[]{"WSO2", 100L});
+        updateStockStream.send(new Object[]{"IBM", 77.6f, 200L});
+        checkStockStream.send(new Object[]{"IBM", 100L});
+        checkStockStream.send(new Object[]{"WSO2", 100L});
 
 
         Thread.sleep(500);
@@ -225,13 +225,13 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100l}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100l}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             case 3:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100l}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(3, inEventCount);
@@ -252,13 +252,13 @@ public class UpdateOrInsertTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-        checkStockStream.send(new Object[]{"IBM", 100l});
-        checkStockStream.send(new Object[]{"WSO2", 100l});
-        stockStream.send(new Object[]{"IBM", 77.6f, 200l});
-        checkStockStream.send(new Object[]{"IBM", 100l});
-        checkStockStream.send(new Object[]{"WSO2", 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+        checkStockStream.send(new Object[]{"IBM", 100L});
+        checkStockStream.send(new Object[]{"WSO2", 100L});
+        stockStream.send(new Object[]{"IBM", 77.6f, 200L});
+        checkStockStream.send(new Object[]{"IBM", 100L});
+        checkStockStream.send(new Object[]{"WSO2", 100L});
 
 
         Thread.sleep(500);
@@ -312,13 +312,13 @@ public class UpdateOrInsertTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-        checkStockStream.send(new Object[]{"IBM", 100l});
-        checkStockStream.send(new Object[]{"WSO2", 100l});
-        updateStockStream.send(new Object[]{"FB", 300l});
-        checkStockStream.send(new Object[]{"FB", 300l});
-        checkStockStream.send(new Object[]{"WSO2", 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+        checkStockStream.send(new Object[]{"IBM", 100L});
+        checkStockStream.send(new Object[]{"WSO2", 100L});
+        updateStockStream.send(new Object[]{"FB", 300L});
+        checkStockStream.send(new Object[]{"FB", 300L});
+        checkStockStream.send(new Object[]{"WSO2", 100L});
 
         Thread.sleep(500);
 
@@ -368,13 +368,13 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100l}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"IBM", 100L}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100l}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             case 3:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100l}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", 100L}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(3, inEventCount);
@@ -396,14 +396,14 @@ public class UpdateOrInsertTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-        checkStockStream.send(new Object[]{"IBM", 100l});
-        checkStockStream.send(new Object[]{"WSO2", 100l});
-        updateStockStream.send(new Object[]{"IBM", 200l});
-        updateStockStream.send(new Object[]{"FB", 300l});
-        checkStockStream.send(new Object[]{"IBM", 100l});
-        checkStockStream.send(new Object[]{"WSO2", 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+        checkStockStream.send(new Object[]{"IBM", 100L});
+        checkStockStream.send(new Object[]{"WSO2", 100L});
+        updateStockStream.send(new Object[]{"IBM", 200L});
+        updateStockStream.send(new Object[]{"FB", 300L});
+        checkStockStream.send(new Object[]{"IBM", 100L});
+        checkStockStream.send(new Object[]{"WSO2", 100L});
 
         Thread.sleep(500);
 
@@ -439,7 +439,8 @@ public class UpdateOrInsertTableTestCase {
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable" +
+                ".price) in StockTable] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -453,10 +454,10 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100l, 155.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"IBM", 100L, 155.6f}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 200l, 0f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(2, inEventCount);
@@ -478,13 +479,13 @@ public class UpdateOrInsertTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 155.6f, 100l});
-        checkStockStream.send(new Object[]{"IBM", 100l, 155.6f});
-        checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
-        updateStockStream.send(new Object[]{"IBM", 200l});
-        checkStockStream.send(new Object[]{"IBM", 200l, 0f});
-        checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 155.6f, 100L});
+        checkStockStream.send(new Object[]{"IBM", 100L, 155.6f});
+        checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
+        updateStockStream.send(new Object[]{"IBM", 200L});
+        checkStockStream.send(new Object[]{"IBM", 200L, 0f});
+        checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
 
         Thread.sleep(500);
 
@@ -514,7 +515,8 @@ public class UpdateOrInsertTableTestCase {
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable" +
+                ".price) in StockTable] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -528,10 +530,10 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100l, 155.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"IBM", 100L, 155.6f}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 200l, 155.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"IBM", 200L, 155.6f}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(2, inEventCount);
@@ -552,13 +554,13 @@ public class UpdateOrInsertTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 155.6f, 100l});
-        checkStockStream.send(new Object[]{"IBM", 100l, 155.6f});
-        checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
-        stockStream.send(new Object[]{"IBM", 155.6f, 200l});
-        checkStockStream.send(new Object[]{"IBM", 200l, 155.6f});
-        checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 155.6f, 100L});
+        checkStockStream.send(new Object[]{"IBM", 100L, 155.6f});
+        checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
+        stockStream.send(new Object[]{"IBM", 155.6f, 200L});
+        checkStockStream.send(new Object[]{"IBM", 200L, 155.6f});
+        checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
 
         Thread.sleep(500);
 
@@ -594,7 +596,8 @@ public class UpdateOrInsertTableTestCase {
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable" +
+                ".price) in StockTable] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -608,10 +611,10 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100l, 155.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"IBM", 100L, 155.6f}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 200l, 155.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"IBM", 200L, 155.6f}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(2, inEventCount);
@@ -633,13 +636,13 @@ public class UpdateOrInsertTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 155.6f, 100l});
-        checkStockStream.send(new Object[]{"IBM", 100l, 155.6f});
-        checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
-        updateStockStream.send(new Object[]{"IBM", 200l});
-        checkStockStream.send(new Object[]{"IBM", 200l, 155.6f});
-        checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 155.6f, 100L});
+        checkStockStream.send(new Object[]{"IBM", 100L, 155.6f});
+        checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
+        updateStockStream.send(new Object[]{"IBM", 200L});
+        checkStockStream.send(new Object[]{"IBM", 200L, 155.6f});
+        checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
 
         Thread.sleep(500);
 
@@ -675,7 +678,8 @@ public class UpdateOrInsertTableTestCase {
                 "   on StockTable.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price==StockTable" +
+                ".price) in StockTable] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -689,12 +693,12 @@ public class UpdateOrInsertTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 200l, 0f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 300l, 55.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", 300L, 55.6f}, event.getData());
                                 break;
-                                                        default:
+                            default:
                                 Assert.assertSame(2, inEventCount);
                         }
                     }
@@ -714,13 +718,13 @@ public class UpdateOrInsertTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        checkStockStream.send(new Object[]{"IBM", 100l, 155.6f});
-        checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
-        updateStockStream.send(new Object[]{"IBM", 200l});
-        updateStockStream.send(new Object[]{"WSO2", 300l});
-        checkStockStream.send(new Object[]{"IBM", 200l, 0f});
-        checkStockStream.send(new Object[]{"WSO2", 300l, 55.6f});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        checkStockStream.send(new Object[]{"IBM", 100L, 155.6f});
+        checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
+        updateStockStream.send(new Object[]{"IBM", 200L});
+        updateStockStream.send(new Object[]{"WSO2", 300L});
+        checkStockStream.send(new Object[]{"IBM", 200L, 0f});
+        checkStockStream.send(new Object[]{"WSO2", 300L, 55.6f});
 
         Thread.sleep(500);
 

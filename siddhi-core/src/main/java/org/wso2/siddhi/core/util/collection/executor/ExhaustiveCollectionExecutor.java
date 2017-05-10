@@ -30,6 +30,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * Implementation of {@link CollectionExecutor}
+ */
 public class ExhaustiveCollectionExecutor implements CollectionExecutor {
     private ExpressionExecutor expressionExecutor;
     private int storeEventIndex;
@@ -40,7 +43,8 @@ public class ExhaustiveCollectionExecutor implements CollectionExecutor {
         this.storeEventIndex = storeEventIndex;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner
+            storeEventCloner) {
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
         Collection<StreamEvent> storeEvents = indexedEventHolder.getAllEvents();
 
@@ -58,7 +62,8 @@ public class ExhaustiveCollectionExecutor implements CollectionExecutor {
         return returnEventChunk.getFirst();
     }
 
-    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, Collection<StreamEvent> preProcessedstoreEvents) {
+    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, Collection<StreamEvent>
+            preProcessedstoreEvents) {
         HashSet<StreamEvent> streamEvents = new HashSet<StreamEvent>();
         for (Iterator<StreamEvent> iterator = preProcessedstoreEvents.iterator(); iterator.hasNext(); ) {
             StreamEvent storeEvent = iterator.next();

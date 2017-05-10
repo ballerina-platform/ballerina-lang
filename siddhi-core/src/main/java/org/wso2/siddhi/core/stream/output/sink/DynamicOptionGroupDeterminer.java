@@ -24,7 +24,8 @@ import org.wso2.siddhi.core.util.transport.Option;
 import java.util.List;
 
 /**
- * This implementation of {@OutputEventGroupDeterminer} groups events based on dynamic options of the Sink. Events which are having the same value
+ * This implementation of {@OutputEventGroupDeterminer} groups events based on dynamic options of the Sink. Events
+ * which are having the same value
  * for all dynamic options are belong to the same group.
  */
 public class DynamicOptionGroupDeterminer implements OutputGroupDeterminer {
@@ -36,7 +37,8 @@ public class DynamicOptionGroupDeterminer implements OutputGroupDeterminer {
     }
 
     /**
-     * Deciding the group of a given event and returning a unique identifier to identify the group. A correct implementation of this method
+     * Deciding the group of a given event and returning a unique identifier to identify the group. A correct
+     * implementation of this method
      * should be returning  the same group identifier for all events belongs a give group.
      *
      * @param event Event that needs to be decided to which group it belongs to

@@ -24,7 +24,8 @@ import java.util.Objects;
 /**
  * Error
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-03-15T08:56:59.657Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date =
+        "2017-03-15T08:56:59.657Z")
 public class Error {
     @JsonProperty("code")
     private Integer code = null;
@@ -103,8 +104,8 @@ public class Error {
         }
         Error error = (Error) o;
         return Objects.equals(this.code, error.code) &&
-               Objects.equals(this.status, error.status) &&
-               Objects.equals(this.message, error.message);
+                Objects.equals(this.status, error.status) &&
+                Objects.equals(this.message, error.message);
     }
 
     @Override

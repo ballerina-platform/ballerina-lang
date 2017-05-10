@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.query.api.execution.query.output.ratelimit;
 
+/**
+ * Rate limiting of query output based on time
+ */
 public class TimeOutputRate extends OutputRate {
 
     private Long value;
@@ -49,13 +52,21 @@ public class TimeOutputRate extends OutputRate {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TimeOutputRate)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TimeOutputRate)) {
+            return false;
+        }
 
         TimeOutputRate that = (TimeOutputRate) o;
 
-        if (type != that.type) return false;
-        if (value != null ? !value.equals(that.value) : that.value != null) return false;
+        if (type != that.type) {
+            return false;
+        }
+        if (value != null ? !value.equals(that.value) : that.value != null) {
+            return false;
+        }
 
         return true;
     }

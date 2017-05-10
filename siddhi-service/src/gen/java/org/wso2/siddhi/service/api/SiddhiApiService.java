@@ -19,7 +19,8 @@ package org.wso2.siddhi.service.api;
 
 import javax.ws.rs.core.Response;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-03-15T08:56:59.657Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date =
+        "2017-03-15T08:56:59.657Z")
 public abstract class SiddhiApiService {
 
     public abstract Response siddhiArtifactDeployPost(String body) throws NotFoundException;

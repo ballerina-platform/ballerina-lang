@@ -27,15 +27,19 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 
+/**
+ * Parent abstract class for Function Executors. Function executor will have one or more input parameters and single
+ * return value.
+ */
 public abstract class FunctionExecutor implements ExpressionExecutor, EternalReferencedHolder, Snapshotable {
 
     private static final Logger log = Logger.getLogger(FunctionExecutor.class);
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
     protected String elementId;
-    private int attributeSize;
     protected String queryName;
     private ConfigReader configReader;
+    private int attributeSize;
 
     public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
             executionPlanContext, String queryName, ConfigReader configReader) {
@@ -50,7 +54,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
                 elementId = "FunctionExecutor-" + executionPlanContext.getElementIdGenerator().createNewId();
             }
             executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
-            init(attributeExpressionExecutors,configReader, executionPlanContext);
+            init(attributeExpressionExecutors, configReader, executionPlanContext);
         } catch (Throwable t) {
             throw new ExecutionPlanCreationException(t);
         }
@@ -80,7 +84,8 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
      * @param executionPlanContext         the context of the execution plan
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                 ExecutionPlanContext executionPlanContext);
+                                 ExecutionPlanContext
+                                         executionPlanContext);
 
 
     /**

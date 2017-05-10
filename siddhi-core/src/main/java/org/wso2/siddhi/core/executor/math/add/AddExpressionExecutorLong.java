@@ -21,6 +21,9 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Executor class for Long Add function. Function execution logic is implemented in execute here.
+ */
 public class AddExpressionExecutorLong implements ExpressionExecutor {
     private ExpressionExecutor leftExpressionExecutor;
     private ExpressionExecutor rightExpressionExecutor;
@@ -49,7 +52,8 @@ public class AddExpressionExecutorLong implements ExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new AddExpressionExecutorLong(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new AddExpressionExecutorLong(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor
+                .cloneExecutor(key));
     }
 
 }

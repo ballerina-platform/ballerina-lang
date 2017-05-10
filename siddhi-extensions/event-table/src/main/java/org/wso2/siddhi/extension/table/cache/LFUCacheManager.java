@@ -27,8 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LFUCacheManager implements CacheManager {
 
-    private ConcurrentHashMap<StreamEvent, Integer> eventAccessFrequencies;
     private final LinkedList<StreamEvent> cacheList;
+    private ConcurrentHashMap<StreamEvent, Integer> eventAccessFrequencies;
     private long limit;
 
     public LFUCacheManager(LinkedList<StreamEvent> cacheList, long limit) {

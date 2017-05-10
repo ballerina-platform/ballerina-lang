@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.executor.condition.compare.equal;
 
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
+/**
+ * Executor class for Boolean-Boolean Equal condition. Condition evaluation logic is implemented within executor.
+ */
 public class EqualCompareConditionExpressionExecutorBoolBool extends EqualCompareConditionExpressionExecutor {
     public EqualCompareConditionExpressionExecutorBoolBool(ExpressionExecutor leftExpressionExecutor,
                                                            ExpressionExecutor rightExpressionExecutor) {
@@ -34,6 +37,7 @@ public class EqualCompareConditionExpressionExecutorBoolBool extends EqualCompar
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new EqualCompareConditionExpressionExecutorBoolBool(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new EqualCompareConditionExpressionExecutorBoolBool(leftExpressionExecutor.cloneExecutor(key),
+                rightExpressionExecutor.cloneExecutor(key));
     }
 }

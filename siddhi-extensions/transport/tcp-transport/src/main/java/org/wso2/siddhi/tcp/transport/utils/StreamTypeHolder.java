@@ -35,8 +35,9 @@ public class StreamTypeHolder {
     }
 
     public void putStreamCallback(StreamListener streamListener) {
-        if(this.streamInfoMap.containsKey(streamListener.getStreamDefinition().getId())){
-            throw new ExecutionPlanCreationException("TCP source with name '"+streamListener.getStreamDefinition().getId()+"' already defined !");
+        if (this.streamInfoMap.containsKey(streamListener.getStreamDefinition().getId())) {
+            throw new ExecutionPlanCreationException("TCP source with name '" + streamListener.getStreamDefinition()
+                    .getId() + "' already defined !");
         }
         this.streamInfoMap.put(streamListener.getStreamDefinition().getId(), new StreamInfo(streamListener));
     }

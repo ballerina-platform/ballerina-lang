@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
+/**
+ * Executor class for IsNullStream condition. Condition evaluation logic is implemented within executor.
+ */
 public class IsNullStreamConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     private int[] eventPosition;

@@ -19,6 +19,9 @@ package org.wso2.siddhi.core.executor.condition.compare.equal;
 
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
+/**
+ * Executor class for Long-Double Equal condition. Condition evaluation logic is implemented within executor.
+ */
 public class EqualCompareConditionExpressionExecutorLongDouble extends
         EqualCompareConditionExpressionExecutor {
 
@@ -37,6 +40,7 @@ public class EqualCompareConditionExpressionExecutorLongDouble extends
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new EqualCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new EqualCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor.cloneExecutor(key),
+                rightExpressionExecutor.cloneExecutor(key));
     }
 }

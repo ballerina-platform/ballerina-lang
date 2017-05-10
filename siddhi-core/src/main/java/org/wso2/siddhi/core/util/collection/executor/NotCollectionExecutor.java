@@ -28,19 +28,24 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Implementation of {@link CollectionExecutor} which handles not condition.
+ */
 public class NotCollectionExecutor implements CollectionExecutor {
 
 
     private final CollectionExecutor notCollectionExecutor;
     private final ExhaustiveCollectionExecutor exhaustiveCollectionExecutor;
 
-    public NotCollectionExecutor(CollectionExecutor notCollectionExecutor, ExhaustiveCollectionExecutor exhaustiveCollectionExecutor) {
+    public NotCollectionExecutor(CollectionExecutor notCollectionExecutor, ExhaustiveCollectionExecutor
+            exhaustiveCollectionExecutor) {
 
         this.notCollectionExecutor = notCollectionExecutor;
         this.exhaustiveCollectionExecutor = exhaustiveCollectionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner
+            storeEventCloner) {
 
         Collection<StreamEvent> notStreamEvents = notCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (notStreamEvents == null) {

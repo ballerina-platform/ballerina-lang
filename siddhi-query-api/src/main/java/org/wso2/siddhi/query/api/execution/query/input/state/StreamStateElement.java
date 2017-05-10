@@ -20,7 +20,9 @@ package org.wso2.siddhi.query.api.execution.query.input.state;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
-
+/**
+ * State element containing the event stream
+ */
 public class StreamStateElement implements StateElement {
 
     private final BasicSingleInputStream basicSingleInputStream;
@@ -60,14 +62,22 @@ public class StreamStateElement implements StateElement {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof StreamStateElement)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof StreamStateElement)) {
+            return false;
+        }
 
         StreamStateElement that = (StreamStateElement) o;
 
-        if (basicSingleInputStream != null ? !basicSingleInputStream.equals(that.basicSingleInputStream) : that.basicSingleInputStream != null)
+        if (basicSingleInputStream != null ? !basicSingleInputStream.equals(that.basicSingleInputStream) : that
+                .basicSingleInputStream != null) {
             return false;
-        if (within != null ? !within.equals(that.within) : that.within != null) return false;
+        }
+        if (within != null ? !within.equals(that.within) : that.within != null) {
+            return false;
+        }
 
         return true;
     }

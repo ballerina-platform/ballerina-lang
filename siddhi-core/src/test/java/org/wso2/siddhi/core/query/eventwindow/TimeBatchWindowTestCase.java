@@ -15,8 +15,8 @@
  */
 package org.wso2.siddhi.core.query.eventwindow;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -41,7 +41,7 @@ public class TimeBatchWindowTestCase {
 
     @Test
     public void testTimeWindowBatch1() throws InterruptedException {
-        log.info("TimeWindowBatch Test1");
+        log.info("TimeWindowBatch test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -66,7 +66,8 @@ public class TimeBatchWindowTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents == null);
+                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                            == null);
                 }
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
@@ -92,7 +93,7 @@ public class TimeBatchWindowTestCase {
 
     @Test
     public void testTimeWindowBatch2() throws InterruptedException {
-        log.info("TimeWindowBatch Test2");
+        log.info("TimeWindowBatch test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -154,7 +155,8 @@ public class TimeBatchWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream cseEventStream (symbol string, price float, volume int); " +
-                "define window cseEventWindow (symbol string, price float, volume int) timeBatch(1 sec) output current events; ";
+                "define window cseEventWindow (symbol string, price float, volume int) timeBatch(1 sec) output " +
+                "current events; ";
 
         String query = "" +
                 "@info(name = 'query0') " +
@@ -209,7 +211,8 @@ public class TimeBatchWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream cseEventStream (symbol string, price float, volume int); " +
-                "define window cseEventWindow (symbol string, price float, volume int) timeBatch(1 sec) output expired events; ";
+                "define window cseEventWindow (symbol string, price float, volume int) timeBatch(1 sec) output " +
+                "expired events; ";
 
         String query = "" +
                 "@info(name = 'query0') " +
@@ -380,8 +383,10 @@ public class TimeBatchWindowTestCase {
         String streams = "" +
                 "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, company string); " +
-                "define window cseEventWindow (symbol string, price float, volume int) timeBatch(1 sec) output current events; " +
-                "define window twitterWindow (user string, tweet string, company string) timeBatch(1 sec) output current events; ";
+                "define window cseEventWindow (symbol string, price float, volume int) timeBatch(1 sec) output " +
+                "current events; " +
+                "define window twitterWindow (user string, tweet string, company string) timeBatch(1 sec) output " +
+                "current events; ";
 
         String query = "" +
                 "@info(name = 'query0') " +
@@ -437,7 +442,8 @@ public class TimeBatchWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream cseEventStream (symbol string, price float, volume int); " +
-                "define window cseEventWindow (symbol string, price float, volume int) timeBatch(2 sec, 0) output current events; ";
+                "define window cseEventWindow (symbol string, price float, volume int) timeBatch(2 sec, 0) output " +
+                "current events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from cseEventStream " +
@@ -455,7 +461,8 @@ public class TimeBatchWindowTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents == null);
+                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                            == null);
                 }
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
@@ -469,7 +476,9 @@ public class TimeBatchWindowTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        while (System.currentTimeMillis() % 2000 != 0) ;
+        while (System.currentTimeMillis() % 2000 != 0) {
+            ;
+        }
         inputHandler.send(new Object[]{"IBM", 700f, 0});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
         Thread.sleep(8500);
@@ -511,7 +520,8 @@ public class TimeBatchWindowTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents == null);
+                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                            == null);
                 }
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
@@ -526,7 +536,9 @@ public class TimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         // Start sending events in the beginning of a cycle
-        while (System.currentTimeMillis() % 2000 != 0) ;
+        while (System.currentTimeMillis() % 2000 != 0) {
+            ;
+        }
         inputHandler.send(new Object[]{"IBM", 700f, 0});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
         Thread.sleep(8500);

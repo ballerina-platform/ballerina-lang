@@ -25,34 +25,23 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
 import java.util.Collection;
 
+/**
+ * Interface for executors which will operate on a collection of events(i.e {@link StateEvent}). These will be used
+ * by in-memory table implementation.
+ */
 public interface CollectionExecutor {
-
-    public enum Cost {
-
-        SINGLE_RETURN_INDEX_MATCHING(1),
-        MULTI_RETURN_INDEX_MATCHING(2),
-        EXHAUSTIVE(3);
-
-        private int weight;
-
-        Cost(int cost) {
-            this.weight = cost;
-        }
-
-        public int getWeight() {
-            return weight;
-        }
-    }
 
     /**
      * Find the Events matching to the condition, used on the primary call
      *
-     * @param matchingEvent        matching input event
-     * @param indexedEventHolder   indexed EventHolder containing data
-     * @param storeEventCloner store event cloner
-     * @return matched StreamEvent, null if no events matched. If storeEventCloner is null it will return the actual event references.
+     * @param matchingEvent      matching input event
+     * @param indexedEventHolder indexed EventHolder containing data
+     * @param storeEventCloner   store event cloner
+     * @return matched StreamEvent, null if no events matched. If storeEventCloner is null it will return the actual
+     * event references.
      */
-    StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner);
+    StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner
+            storeEventCloner);
 
     /**
      * Find the Events matching to the condition, used for consecutive calls from parent CollectionExecutor
@@ -81,4 +70,24 @@ public interface CollectionExecutor {
     void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder);
 
     Cost getDefaultCost();
+
+    /**
+     * Enums to specify operation cost.
+     */
+    public enum Cost {
+
+        SINGLE_RETURN_INDEX_MATCHING(1),
+        MULTI_RETURN_INDEX_MATCHING(2),
+        EXHAUSTIVE(3);
+
+        private int weight;
+
+        Cost(int cost) {
+            this.weight = cost;
+        }
+
+        public int getWeight() {
+            return weight;
+        }
+    }
 }

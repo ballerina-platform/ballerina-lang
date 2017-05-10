@@ -19,7 +19,12 @@ package org.wso2.siddhi.query.api.expression.constant;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Double constant {@link Expression}
+ */
 public class DoubleConstant extends Expression implements Constant {
+
+    private static final long serialVersionUID = 1L;
     private Double value;
 
     public DoubleConstant(double value) {

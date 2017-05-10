@@ -102,14 +102,16 @@ public class WSO2EventSinkmapperTestCase {
                 .annotation(Annotation.annotation("sink")
                         .element("type", "inMemory")
                         .element("topic", "{{meta_symbol}}")
-                        .annotation(Annotation.annotation("map").element("type", "wso2event").element("streamID", "BarStream")));
+                        .annotation(Annotation.annotation("map").element("type", "wso2event").element("streamID",
+                                "BarStream")));
 
         Query query = Query.query();
         query.from(
                 InputStream.stream("FooStream")
         );
         query.select(
-                Selector.selector().select(new Variable("meta_symbol")).select(new Variable("correlation_price")).select(new Variable("volume"))
+                Selector.selector().select(new Variable("meta_symbol")).select(new Variable("correlation_price"))
+                        .select(new Variable("volume"))
         );
         query.insertInto("BarStream");
 

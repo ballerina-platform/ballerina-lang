@@ -88,7 +88,7 @@ public class SingleClientDistributedSink extends DistributedTransport {
 
         this.sink = (Sink) SiddhiClassLoader.loadExtensionImplementation(
                 sinkExtension, SinkExecutorExtensionHolder.getInstance(executionPlanContext));
-        this.sink.initOnlyTransport(streamDefinition, sinkOptionHolder,sinkConfigReader, executionPlanContext);
+        this.sink.initOnlyTransport(streamDefinition, sinkOptionHolder, sinkConfigReader, executionPlanContext);
     }
 
     /**

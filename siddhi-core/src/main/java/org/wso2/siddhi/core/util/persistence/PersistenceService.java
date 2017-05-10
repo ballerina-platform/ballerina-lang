@@ -23,9 +23,13 @@ import org.wso2.siddhi.core.exception.NoPersistenceStoreException;
 import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 
+/**
+ * Persistence Service is the service layer to handle state persistence tasks such as persisting current state and
+ * restoring previous states.
+ */
 public class PersistenceService {
 
-    static final Logger log = Logger.getLogger(PersistenceService.class);
+    private static final Logger log = Logger.getLogger(PersistenceService.class);
     private String executionPlanName;
     private PersistenceStore persistenceStore;
     private SnapshotService snapshotService;
@@ -53,7 +57,8 @@ public class PersistenceService {
             }
             return revision;
         } else {
-            throw new NoPersistenceStoreException("No persistence store assigned for execution plan " + executionPlanName);
+            throw new NoPersistenceStoreException("No persistence store assigned for execution plan " +
+                                                          executionPlanName);
         }
 
     }
@@ -70,7 +75,8 @@ public class PersistenceService {
                 log.debug("Restored revision: " + revision);
             }
         } else {
-            throw new NoPersistenceStoreException("No persistence store assigned for execution plan " + executionPlanName);
+            throw new NoPersistenceStoreException("No persistence store assigned for execution plan " +
+                                                          executionPlanName);
         }
 
     }
@@ -84,7 +90,8 @@ public class PersistenceService {
                     restoreRevision(revision);
                 }
             } else {
-                throw new NoPersistenceStoreException("No persistence store assigned for execution plan " + executionPlanName);
+                throw new NoPersistenceStoreException("No persistence store assigned for execution plan " +
+                                                              executionPlanName);
             }
         } finally {
             threadBarrier.unlock();

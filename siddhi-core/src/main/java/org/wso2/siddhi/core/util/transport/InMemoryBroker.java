@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * In-memory broker to support in-memory transport.
+ */
 public class InMemoryBroker {
     private static final MessageBroker broker = new MessageBroker();
 
@@ -46,6 +49,9 @@ public class InMemoryBroker {
         void broadcast(String topic, Object msg);
     }
 
+    /**
+     * Subscriber interface to be implemented to subscribe to in-memory broker.
+     */
     public interface Subscriber {
         void onMessage(Object msg);
 
@@ -54,7 +60,7 @@ public class InMemoryBroker {
 
     private static class MessageBroker implements Broker {
 
-        private final Object MUTEX = new Object();
+        private final Object mutex = new Object();
         private Map<String, List<Subscriber>> topicSubscribers;
 
         public MessageBroker() {
@@ -63,23 +69,27 @@ public class InMemoryBroker {
 
         @Override
         public void register(final Subscriber subscriber) {
-            if (subscriber == null) throw new NullPointerException("Subscriber cannot be null.");
-            synchronized (MUTEX) {
+            if (subscriber == null) {
+                throw new NullPointerException("Subscriber cannot be null.");
+            }
+            synchronized (mutex) {
                 if (topicSubscribers.containsKey(subscriber.getTopic())) {
                     if (!topicSubscribers.get(subscriber.getTopic()).contains(subscriber)) {
                         topicSubscribers.get(subscriber.getTopic()).add(subscriber);
                     }
                 } else {
-                    topicSubscribers.put(subscriber.getTopic(), new ArrayList<Subscriber>() {{
-                        add(subscriber);
-                    }});
+                    topicSubscribers.put(subscriber.getTopic(), new ArrayList<Subscriber>() {
+                        {
+                            add(subscriber);
+                        }
+                    });
                 }
             }
         }
 
         @Override
         public void unregister(Subscriber subscriber) {
-            synchronized (MUTEX) {
+            synchronized (mutex) {
                 try {
                     topicSubscribers.get(subscriber.getTopic()).remove(subscriber);
                 } catch (Exception ignored) {
@@ -93,7 +103,7 @@ public class InMemoryBroker {
             // synchronization is used to make sure
             // any observer registered after message
             // is received is not notified
-            synchronized (MUTEX) {
+            synchronized (mutex) {
                 if (this.topicSubscribers.containsKey(topic)) {
                     subscribers = new ArrayList<>(this.topicSubscribers.get(topic));
                     for (Subscriber subscriber : subscribers) {

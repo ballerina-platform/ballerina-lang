@@ -18,6 +18,9 @@
 
 package org.wso2.siddhi.core.exception;
 
+/**
+ * Exception class to be used when non-existence definition is requested.
+ */
 public class DefinitionNotExistException extends RuntimeException {
 
     public DefinitionNotExistException() {

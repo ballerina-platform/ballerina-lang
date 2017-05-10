@@ -19,6 +19,9 @@ package org.wso2.siddhi.core.partition.executor;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 
+/**
+ * Interface class for Partition Executors which will calculate the partition key for a given {@link ComplexEvent}
+ */
 public interface PartitionExecutor {
 
     String execute(ComplexEvent event);

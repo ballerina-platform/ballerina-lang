@@ -80,7 +80,8 @@ public class SiddhiEventConverter {
         streamInfo.getStreamListener().onEvents(events);
     }
 
-    public static Event getEvent(ByteBuffer byteBuffer, Attribute.Type[] attributeTypes) throws MalformedEventException {
+    public static Event getEvent(ByteBuffer byteBuffer, Attribute.Type[] attributeTypes) throws
+            MalformedEventException {
         Event event = new Event();
         long timeStamp = byteBuffer.getLong();
         event.setTimestamp(timeStamp);

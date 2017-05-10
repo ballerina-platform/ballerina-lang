@@ -25,21 +25,21 @@ import org.wso2.siddhi.extension.table.jaxbMappings.Element;
 import org.wso2.siddhi.extension.table.jaxbMappings.Mapping;
 import org.wso2.siddhi.extension.table.jaxbMappings.Mappings;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 /**
  * Class that reads the rdbms-table-config.xml and assign all the db mappings
  */
 public class DBQueryHelper {
 
-    private static Map<String, Map<String, String>> dbTypeMappings;
     private static final Logger log = Logger.getLogger(DBQueryHelper.class);
+    private static Map<String, Map<String, String>> dbTypeMappings;
 
     private DBQueryHelper() {
 
@@ -47,6 +47,10 @@ public class DBQueryHelper {
 
     public static void loadConfiguration() throws CannotLoadConfigurationException {
         new DBQueryHelper().populateJaxbMappings();
+    }
+
+    static Map<String, Map<String, String>> getDbTypeMappings() {
+        return dbTypeMappings;
     }
 
     /**
@@ -62,7 +66,8 @@ public class DBQueryHelper {
             ClassLoader classLoader = getClass().getClassLoader();
             InputStream inputStream = classLoader.getResourceAsStream(RDBMSTableConstants.RDBMS_TABLE_CONFIG_FILE);
             if (inputStream == null) {
-                throw new CannotLoadConfigurationException(RDBMSTableConstants.RDBMS_TABLE_CONFIG_FILE + " is not found in the classpath");
+                throw new CannotLoadConfigurationException(RDBMSTableConstants.RDBMS_TABLE_CONFIG_FILE + " is " +
+                        "not found in the classpath");
             }
             Mappings mappings = (Mappings) unmarshaller.unmarshal(inputStream);
             Map<String, Mapping> dbMap = new HashMap<String, Mapping>();
@@ -107,9 +112,5 @@ public class DBQueryHelper {
             throw new CannotLoadConfigurationException("Syntax Error.Cannot unmarshal provided File "
                     + RDBMSTableConstants.RDBMS_TABLE_CONFIG_FILE + e.getMessage(), e);
         }
-    }
-
-    static Map<String, Map<String, String>> getDbTypeMappings() {
-        return dbTypeMappings;
     }
 }

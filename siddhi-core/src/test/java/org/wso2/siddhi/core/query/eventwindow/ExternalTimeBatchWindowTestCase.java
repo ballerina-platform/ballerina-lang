@@ -57,7 +57,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 6 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 6 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -89,17 +90,17 @@ public class ExternalTimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
-        inputHandler.send(new Object[]{1366335804342l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335814341l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335814345l, "192.10.1.6"});
-        inputHandler.send(new Object[]{1366335824341l, "192.10.1.7"});
+        inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804342L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335814341L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335814345L, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335824341L, "192.10.1.7"});
 
         Thread.sleep(1000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 2, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.junit.Assert.assertEquals("In Events ", 2, inEventCount);
+        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
     }
 
@@ -111,7 +112,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec) output all" +
+                " events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -143,18 +145,18 @@ public class ExternalTimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
-        inputHandler.send(new Object[]{1366335804342l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335805340l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335814341l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335814345l, "192.10.1.6"});
-        inputHandler.send(new Object[]{1366335824341l, "192.10.1.7"});
+        inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804342L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805340L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335814341L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335814345L, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335824341L, "192.10.1.7"});
 
         Thread.sleep(1000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 2, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.junit.Assert.assertEquals("In Events ", 2, inEventCount);
+        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
 
@@ -169,7 +171,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec) output all" +
+                " events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -201,18 +204,18 @@ public class ExternalTimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
-        inputHandler.send(new Object[]{1366335804342l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335805341l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335814341l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335814345l, "192.10.1.6"});
-        inputHandler.send(new Object[]{1366335824341l, "192.10.1.7"});
+        inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804342L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805341L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335814341L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335814345L, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335824341L, "192.10.1.7"});
 
         Thread.sleep(1000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 3, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.junit.Assert.assertEquals("In Events ", 3, inEventCount);
+        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
 
@@ -227,7 +230,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 6 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 6 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -259,19 +263,19 @@ public class ExternalTimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
-        inputHandler.send(new Object[]{1366335804999l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335805000l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335805999l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335806000l, "192.10.1.6"});
-        inputHandler.send(new Object[]{1366335806001l, "192.10.1.6"});
-        inputHandler.send(new Object[]{1366335824341l, "192.10.1.7"});
+        inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804999L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805000L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805999L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335806000L, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335806001L, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335824341L, "192.10.1.7"});
 
         Thread.sleep(1000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 3, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.junit.Assert.assertEquals("In Events ", 3, inEventCount);
+        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
 
@@ -285,7 +289,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 3 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 3 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -317,16 +322,16 @@ public class ExternalTimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
-        inputHandler.send(new Object[]{1366335804599l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335804600l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335804607l, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804599L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335804600L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335804607L, "192.10.1.6"});
 
         Thread.sleep(5000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 1, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.junit.Assert.assertEquals("In Events ", 1, inEventCount);
+        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
     }
@@ -339,7 +344,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 3 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 3 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -372,19 +378,19 @@ public class ExternalTimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
-        inputHandler.send(new Object[]{1366335804599l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335804600l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335804607l, "192.10.1.6"});
-        inputHandler.send(new Object[]{1366335805599l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335805600l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335805607l, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804599L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335804600L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335804607L, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335805599L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805600L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335805607L, "192.10.1.6"});
 
         Thread.sleep(5000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 2, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.junit.Assert.assertEquals("In Events ", 2, inEventCount);
+        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
 
@@ -398,7 +404,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 2 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 2 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -430,24 +437,24 @@ public class ExternalTimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
-        inputHandler.send(new Object[]{1366335804599l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335804600l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335804607l, "192.10.1.6"});
-        inputHandler.send(new Object[]{1366335805599l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335805600l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335805607l, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804599L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335804600L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335804607L, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335805599L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805600L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335805607L, "192.10.1.6"});
         Thread.sleep(3000);
-        inputHandler.send(new Object[]{1366335805606l, "192.10.1.7"});
-        inputHandler.send(new Object[]{1366335805605l, "192.10.1.8"});
+        inputHandler.send(new Object[]{1366335805606L, "192.10.1.7"});
+        inputHandler.send(new Object[]{1366335805605L, "192.10.1.8"});
         Thread.sleep(3000);
-        inputHandler.send(new Object[]{1366335806606l, "192.10.1.9"});
-        inputHandler.send(new Object[]{1366335806690l, "192.10.1.10"});
+        inputHandler.send(new Object[]{1366335806606L, "192.10.1.9"});
+        inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 4, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.junit.Assert.assertEquals("In Events ", 4, inEventCount);
+        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
 
@@ -461,7 +468,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timestamp long, ip string); " +
-                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 2 sec) output all events; ";
+                "define window LoginWindow (timestamp long, ip string) externalTimeBatch(timestamp, 1 sec, 0, 2 sec) " +
+                "output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -484,15 +492,15 @@ public class ExternalTimeBatchWindowTestCase {
                 for (Event event : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(4l, event.getData(2));
+                        Assert.assertEquals(4L, event.getData(2));
                     } else if (inEventCount == 2) {
-                        Assert.assertEquals(3l, event.getData(2));
+                        Assert.assertEquals(3L, event.getData(2));
                     } else if (inEventCount == 3) {
-                        Assert.assertEquals(5l, event.getData(2));
+                        Assert.assertEquals(5L, event.getData(2));
                     } else if (inEventCount == 4) {
-                        Assert.assertEquals(7l, event.getData(2));
+                        Assert.assertEquals(7L, event.getData(2));
                     } else if (inEventCount == 5) {
-                        Assert.assertEquals(2l, event.getData(2));
+                        Assert.assertEquals(2L, event.getData(2));
                     }
                 }
                 eventArrived = true;
@@ -504,26 +512,26 @@ public class ExternalTimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
-        inputHandler.send(new Object[]{1366335804599l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335804600l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335804607l, "192.10.1.6"});
-        inputHandler.send(new Object[]{1366335805599l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335805600l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335805607l, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804599L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335804600L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335804607L, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335805599L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805600L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335805607L, "192.10.1.6"});
         Thread.sleep(2100);
-        inputHandler.send(new Object[]{1366335805606l, "192.10.1.7"});
-        inputHandler.send(new Object[]{1366335805605l, "192.10.1.8"});
+        inputHandler.send(new Object[]{1366335805606L, "192.10.1.7"});
+        inputHandler.send(new Object[]{1366335805605L, "192.10.1.8"});
         Thread.sleep(2100);
-        inputHandler.send(new Object[]{1366335805606l, "192.10.1.91"});
-        inputHandler.send(new Object[]{1366335805605l, "192.10.1.92"});
-        inputHandler.send(new Object[]{1366335806606l, "192.10.1.9"});
-        inputHandler.send(new Object[]{1366335806690l, "192.10.1.10"});
+        inputHandler.send(new Object[]{1366335805606L, "192.10.1.91"});
+        inputHandler.send(new Object[]{1366335805605L, "192.10.1.92"});
+        inputHandler.send(new Object[]{1366335806606L, "192.10.1.9"});
+        inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 5, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.junit.Assert.assertEquals("In Events ", 5, inEventCount);
+        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
     }
 
@@ -570,13 +578,13 @@ public class ExternalTimeBatchWindowTestCase {
             @Override
             public void run() {
                 int i = 0;
-                long time = 1366335804341l;
+                long time = 1366335804341L;
                 while (i < 10000) {
 
                     try {
                         inputHandler.send(new Object[]{time, "192.10.1." + Thread.currentThread().getId()});
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        log.error(e.getMessage(), e);
                     }
                     time += 1000;
                     i++;
@@ -631,15 +639,15 @@ public class ExternalTimeBatchWindowTestCase {
                 for (Event event : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(4l, event.getData(2));
+                        Assert.assertEquals(4L, event.getData(2));
                     } else if (inEventCount == 2) {
-                        Assert.assertEquals(3l, event.getData(2));
+                        Assert.assertEquals(3L, event.getData(2));
                     } else if (inEventCount == 3) {
-                        Assert.assertEquals(5l, event.getData(2));
+                        Assert.assertEquals(5L, event.getData(2));
                     } else if (inEventCount == 4) {
-                        Assert.assertEquals(7l, event.getData(2));
+                        Assert.assertEquals(7L, event.getData(2));
                     } else if (inEventCount == 5) {
-                        Assert.assertEquals(2l, event.getData(2));
+                        Assert.assertEquals(2L, event.getData(2));
                     }
                 }
                 eventArrived = true;
@@ -651,26 +659,26 @@ public class ExternalTimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
-        inputHandler.send(new Object[]{1366335804599l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335804600l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335804607l, "192.10.1.6"});
-        inputHandler.send(new Object[]{1366335805599l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335805600l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335805607l, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804599L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335804600L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335804607L, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335805599L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805600L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335805607L, "192.10.1.6"});
         Thread.sleep(2100);
-        inputHandler.send(new Object[]{1366335805606l, "192.10.1.7"});
-        inputHandler.send(new Object[]{1366335805605l, "192.10.1.8"});
+        inputHandler.send(new Object[]{1366335805606L, "192.10.1.7"});
+        inputHandler.send(new Object[]{1366335805605L, "192.10.1.8"});
         Thread.sleep(2100);
-        inputHandler.send(new Object[]{1366335805606l, "192.10.1.91"});
-        inputHandler.send(new Object[]{1366335805605l, "192.10.1.92"});
-        inputHandler.send(new Object[]{1366335806606l, "192.10.1.9"});
-        inputHandler.send(new Object[]{1366335806690l, "192.10.1.10"});
+        inputHandler.send(new Object[]{1366335805606L, "192.10.1.91"});
+        inputHandler.send(new Object[]{1366335805605L, "192.10.1.92"});
+        inputHandler.send(new Object[]{1366335806606L, "192.10.1.9"});
+        inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 5, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.junit.Assert.assertEquals("In Events ", 5, inEventCount);
+        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
     }
 
@@ -705,9 +713,9 @@ public class ExternalTimeBatchWindowTestCase {
                 for (Event event : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(4l, event.getData(2));
+                        Assert.assertEquals(4L, event.getData(2));
                     } else if (inEventCount == 2) {
-                        Assert.assertEquals(7l, event.getData(2));
+                        Assert.assertEquals(7L, event.getData(2));
                     }
                 }
                 eventArrived = true;
@@ -719,26 +727,26 @@ public class ExternalTimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
-        inputHandler.send(new Object[]{1366335804599l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335804600l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335804607l, "192.10.1.6"});
-        inputHandler.send(new Object[]{1366335805599l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335805600l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335805607l, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804599L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335804600L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335804607L, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335805599L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805600L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335805607L, "192.10.1.6"});
         Thread.sleep(2100);
-        inputHandler.send(new Object[]{1366335805606l, "192.10.1.7"});
-        inputHandler.send(new Object[]{1366335805605l, "192.10.1.8"});
+        inputHandler.send(new Object[]{1366335805606L, "192.10.1.7"});
+        inputHandler.send(new Object[]{1366335805605L, "192.10.1.8"});
         Thread.sleep(2100);
-        inputHandler.send(new Object[]{1366335805606l, "192.10.1.91"});
-        inputHandler.send(new Object[]{1366335805605l, "192.10.1.92"});
-        inputHandler.send(new Object[]{1366335806606l, "192.10.1.9"});
-        inputHandler.send(new Object[]{1366335806690l, "192.10.1.10"});
+        inputHandler.send(new Object[]{1366335805606L, "192.10.1.91"});
+        inputHandler.send(new Object[]{1366335805605L, "192.10.1.92"});
+        inputHandler.send(new Object[]{1366335806606L, "192.10.1.9"});
+        inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 2, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.junit.Assert.assertEquals("In Events ", 2, inEventCount);
+        org.junit.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
     }
 
@@ -751,8 +759,10 @@ public class ExternalTimeBatchWindowTestCase {
         String streams = "" +
                 "define stream cseEventStream (timestamp long, symbol string, price float, volume int); " +
                 "define stream twitterStream (timestamp long, user string, tweet string, company string); " +
-                "define window cseEventWindow (timestamp long, symbol string, price float, volume int) externalTimeBatch(timestamp, 1 sec, 0); " +
-                "define window twitterWindow (timestamp long, user string, tweet string, company string) externalTimeBatch(timestamp, 1 sec, 0); ";
+                "define window cseEventWindow (timestamp long, symbol string, price float, volume int) " +
+                "externalTimeBatch(timestamp, 1 sec, 0); " +
+                "define window twitterWindow (timestamp long, user string, tweet string, company string) " +
+                "externalTimeBatch(timestamp, 1 sec, 0); ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from cseEventStream " +
@@ -786,15 +796,15 @@ public class ExternalTimeBatchWindowTestCase {
             InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
             InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
             executionPlanRuntime.start();
-            cseEventStreamHandler.send(new Object[]{1366335804341l, "WSO2", 55.6f, 100});
-            twitterStreamHandler.send(new Object[]{1366335804341l, "User1", "Hello World", "WSO2"});
-            twitterStreamHandler.send(new Object[]{1366335805301l, "User2", "Hello World2", "WSO2"});
-            cseEventStreamHandler.send(new Object[]{1366335805341l, "WSO2", 75.6f, 100});
-            cseEventStreamHandler.send(new Object[]{1366335806541l, "WSO2", 57.6f, 100});
+            cseEventStreamHandler.send(new Object[]{1366335804341L, "WSO2", 55.6f, 100});
+            twitterStreamHandler.send(new Object[]{1366335804341L, "User1", "Hello World", "WSO2"});
+            twitterStreamHandler.send(new Object[]{1366335805301L, "User2", "Hello World2", "WSO2"});
+            cseEventStreamHandler.send(new Object[]{1366335805341L, "WSO2", 75.6f, 100});
+            cseEventStreamHandler.send(new Object[]{1366335806541L, "WSO2", 57.6f, 100});
             Thread.sleep(1000);
-            junit.framework.Assert.assertEquals(2, inEventCount);
-            junit.framework.Assert.assertEquals(0, removeEventCount);
-            junit.framework.Assert.assertTrue(eventArrived);
+            org.junit.Assert.assertEquals(2, inEventCount);
+            org.junit.Assert.assertEquals(0, removeEventCount);
+            org.junit.Assert.assertTrue(eventArrived);
         } finally {
             executionPlanRuntime.shutdown();
         }
@@ -809,8 +819,10 @@ public class ExternalTimeBatchWindowTestCase {
         String streams = "" +
                 "define stream cseEventStream (timestamp long, symbol string, price float, volume int); " +
                 "define stream twitterStream (timestamp long, user string, tweet string, company string); " +
-                "define window cseEventWindow (timestamp long, symbol string, price float, volume int) externalTimeBatch(timestamp, 1 sec, 0); " +
-                "define window twitterWindow (timestamp long, user string, tweet string, company string) externalTimeBatch(timestamp, 1 sec, 0); ";
+                "define window cseEventWindow (timestamp long, symbol string, price float, volume int) " +
+                "externalTimeBatch(timestamp, 1 sec, 0); " +
+                "define window twitterWindow (timestamp long, user string, tweet string, company string) " +
+                "externalTimeBatch(timestamp, 1 sec, 0); ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from cseEventStream " +
@@ -844,15 +856,15 @@ public class ExternalTimeBatchWindowTestCase {
             InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
             InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
             executionPlanRuntime.start();
-            cseEventStreamHandler.send(new Object[]{1366335804341l, "WSO2", 55.6f, 100});
-            twitterStreamHandler.send(new Object[]{1366335804341l, "User1", "Hello World", "WSO2"});
-            twitterStreamHandler.send(new Object[]{1366335805301l, "User2", "Hello World2", "WSO2"});
-            cseEventStreamHandler.send(new Object[]{1366335805341l, "WSO2", 75.6f, 100});
-            cseEventStreamHandler.send(new Object[]{1366335806541l, "WSO2", 57.6f, 100});
+            cseEventStreamHandler.send(new Object[]{1366335804341L, "WSO2", 55.6f, 100});
+            twitterStreamHandler.send(new Object[]{1366335804341L, "User1", "Hello World", "WSO2"});
+            twitterStreamHandler.send(new Object[]{1366335805301L, "User2", "Hello World2", "WSO2"});
+            cseEventStreamHandler.send(new Object[]{1366335805341L, "WSO2", 75.6f, 100});
+            cseEventStreamHandler.send(new Object[]{1366335806541L, "WSO2", 57.6f, 100});
             Thread.sleep(1000);
-            junit.framework.Assert.assertEquals(2, inEventCount);
-            junit.framework.Assert.assertEquals(1, removeEventCount);
-            junit.framework.Assert.assertTrue(eventArrived);
+            org.junit.Assert.assertEquals(2, inEventCount);
+            org.junit.Assert.assertEquals(1, removeEventCount);
+            org.junit.Assert.assertTrue(eventArrived);
         } finally {
             executionPlanRuntime.shutdown();
         }
@@ -922,7 +934,8 @@ public class ExternalTimeBatchWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String stream = "define stream jmxMetric(cpu int, memory int, bytesIn long, bytesOut long, timestamp long); " +
-                "define window jmxMetricWindow(cpu int, memory int, bytesIn long, bytesOut long, timestamp long) externalTimeBatch(timestamp, 10 sec) output current events; ";
+                "define window jmxMetricWindow(cpu int, memory int, bytesIn long, bytesOut long, timestamp long) " +
+                "externalTimeBatch(timestamp, 10 sec) output current events; ";
 
         String query = "" +
                 "@info(name = 'query0') " +
@@ -1000,7 +1013,8 @@ public class ExternalTimeBatchWindowTestCase {
         for (int i = 0; i < len; i++) {
             // cpu int, memory int, bytesIn long, bytesOut long, timestamp long
             events[i] = new Event(externalTs,
-                    new Object[]{15 + 10 * i * ite, 1500 + 10 * i * ite, 1000L, 2000L, externalTs + ite * 10000 + i * 50});
+                    new Object[]{15 + 10 * i * ite, 1500 + 10 * i * ite, 1000L, 2000L, externalTs + ite * 10000 + i *
+                            50});
         }
 
         input.send(events);
@@ -1129,7 +1143,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "define stream inputStream(currentTime long,value int); " +
-                "define window inputWindow(currentTime long,value int) externalTimeBatch(currentTime,5 sec, 0, 6 sec) output current events; ";
+                "define window inputWindow(currentTime long,value int) externalTimeBatch(currentTime,5 sec, 0, 6 sec)" +
+                " output current events; ";
         String query = " " +
                 "@info(name = 'query0') " +
                 "from inputStream " +

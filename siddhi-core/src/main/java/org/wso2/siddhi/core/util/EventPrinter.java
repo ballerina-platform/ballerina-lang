@@ -17,14 +17,19 @@
  */
 package org.wso2.siddhi.core.util;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.Event;
 
 import java.util.Arrays;
 
+/**
+ * Utility class to print incoming {@link Event}
+ */
 public class EventPrinter {
+    private static final Logger log = Logger.getLogger(EventPrinter.class);
 
     public static void print(Event[] events) {
-        System.out.println(Arrays.deepToString(events));
+        log.info(Arrays.deepToString(events));
     }
 
 
@@ -33,7 +38,7 @@ public class EventPrinter {
         sb.append("Events{ @timestamp = ").append(timeStamp).
                 append(", inEvents = ").append(Arrays.deepToString(inEvents)).
                 append(", RemoveEvents = ").append(Arrays.deepToString(removeEvents)).append(" }");
-        System.out.println(sb.toString());
+        log.info(sb.toString());
     }
 
 }

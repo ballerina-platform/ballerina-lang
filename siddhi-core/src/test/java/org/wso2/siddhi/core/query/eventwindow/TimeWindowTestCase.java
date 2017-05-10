@@ -15,8 +15,8 @@
  */
 package org.wso2.siddhi.core.query.eventwindow;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -42,7 +42,7 @@ public class TimeWindowTestCase {
 
     @Test
     public void testTimeWindow1() throws InterruptedException {
-        log.info("TimeWindow Test1");
+        log.info("TimeWindow test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -93,7 +93,7 @@ public class TimeWindowTestCase {
 
     @Test
     public void testTimeWindow2() throws InterruptedException {
-        log.info("TimeWindow Test2");
+        log.info("TimeWindow test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -154,7 +154,8 @@ public class TimeWindowTestCase {
 
 
         String queries = "define stream fireAlarmEventStream (deviceID string, sonar double); " +
-                "define window fireAlarmEventWindow (deviceID string, sonar double) time(30 milliseconds) output expired events; " +
+                "define window fireAlarmEventWindow (deviceID string, sonar double) time(30 milliseconds) output " +
+                "expired events; " +
                 "" +
                 "@info(name = 'query0') " +
                 "from fireAlarmEventStream " +

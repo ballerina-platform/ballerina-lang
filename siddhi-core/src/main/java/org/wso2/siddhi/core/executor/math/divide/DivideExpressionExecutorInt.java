@@ -21,6 +21,9 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Executor class for Integer Divide function. Function execution logic is implemented in execute here.
+ */
 public class DivideExpressionExecutorInt implements ExpressionExecutor {
     private ExpressionExecutor leftExpressionExecutor;
     private ExpressionExecutor rightExpressionExecutor;
@@ -43,7 +46,7 @@ public class DivideExpressionExecutorInt implements ExpressionExecutor {
         if (right == 0) {
             return null;
         }
-        return  ((Number) leftObject).intValue() / right;
+        return ((Number) leftObject).intValue() / right;
     }
 
     public Attribute.Type getReturnType() {
@@ -52,7 +55,8 @@ public class DivideExpressionExecutorInt implements ExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new DivideExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new DivideExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor
+                .cloneExecutor(key));
     }
 
 }

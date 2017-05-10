@@ -99,14 +99,14 @@ public class IndexTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"IBM", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -164,16 +164,17 @@ public class IndexTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"GOOG", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"GOOG", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"GOOG", "IBM", 100l},
-                    new Object[]{"GOOG", "WSO2", 100l}
+                    new Object[]{"GOOG", "IBM", 100L},
+                    new Object[]{"GOOG", "WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -242,8 +243,10 @@ public class IndexTableTestCase {
             expected2.add(new Object[]{"FOO", "GOOG", 50L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 3), expected2));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(0, 2), expected1));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(2, 3), expected2));
             Assert.assertEquals("Number of success events", 3, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -308,7 +311,8 @@ public class IndexTableTestCase {
                     new Object[]{"IBM", "GOOG", 50L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -373,7 +377,8 @@ public class IndexTableTestCase {
                     new Object[]{"IBM", "GOOG", 50L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -438,7 +443,8 @@ public class IndexTableTestCase {
                     new Object[]{"IBM", "ABC", 70L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -503,7 +509,8 @@ public class IndexTableTestCase {
                     new Object[]{"IBM", "WSO2", 200L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -570,7 +577,8 @@ public class IndexTableTestCase {
                     new Object[]{"IBM", "FOO", 200L}
             );
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 3, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -633,19 +641,19 @@ public class IndexTableTestCase {
             InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"IBM", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            updateStockStream.send(new Object[]{"IBM", 77.6f, 200l});
-            checkStockStream.send(new Object[]{"IBM", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            updateStockStream.send(new Object[]{"IBM", 77.6f, 200L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 100l},
-                    new Object[]{"IBM", 200l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 100L},
+                    new Object[]{"IBM", 200L},
+                    new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -726,8 +734,10 @@ public class IndexTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 4), expected2));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(0, 2),
+                    expected1));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(2, 4), expected2));
             Assert.assertEquals("Number of success events", 4, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -807,8 +817,10 @@ public class IndexTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 4), expected2));
+            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(0, 2), expected1));
+            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(2, 4), expected2));
             Assert.assertEquals("Number of success events", 4, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -887,8 +899,10 @@ public class IndexTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 4), expected2));
+            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(0, 2), expected1));
+            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(2, 4), expected2));
             Assert.assertEquals("Number of success events", 4, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -962,7 +976,8 @@ public class IndexTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1036,7 +1051,8 @@ public class IndexTableTestCase {
             );
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1097,23 +1113,25 @@ public class IndexTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 100L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"WSO2", 100l});
+            expected2.add(new Object[]{"WSO2", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3), expected2));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(0, 2), expected1));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
+                    expected2));
             Assert.assertEquals("Number of success events", 3, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1173,23 +1191,25 @@ public class IndexTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 100L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"IBM", 100l});
+            expected2.add(new Object[]{"IBM", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3), expected2));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(0, 2), expected1));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
+                    expected2));
             Assert.assertEquals("Number of success events", 3, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1249,23 +1269,25 @@ public class IndexTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 200l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 200L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"IBM", 100l});
+            expected2.add(new Object[]{"IBM", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3), expected2));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(0, 2), expected1));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
+                    expected2));
             Assert.assertEquals("Number of success events", 3, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1325,23 +1347,25 @@ public class IndexTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 200L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 200l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 200L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"IBM", 100l});
+            expected2.add(new Object[]{"IBM", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3), expected2));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(0, 2), expected1));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
+                    expected2));
             Assert.assertEquals("Number of success events", 3, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1402,23 +1426,25 @@ public class IndexTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 200l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 200L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"WSO2", 200l});
+            expected2.add(new Object[]{"WSO2", 200L});
 
             SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3), expected2));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(0, 2), expected1));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(2, 3),
+                    expected2));
             Assert.assertEquals("Number of success events", 3, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1478,25 +1504,27 @@ public class IndexTableTestCase {
             InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            deleteStockStream.send(new Object[]{"IBM", 77.6f, 150L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected1 = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"BAR", 150l},
-                    new Object[]{"WSO2", 200l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"BAR", 150L},
+                    new Object[]{"WSO2", 200L}
             );
 
             List<Object[]> expected2 = new ArrayList<Object[]>();
-            expected2.add(new Object[]{"WSO2", 200l});
+            expected2.add(new Object[]{"WSO2", 200L});
 
             SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 3), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(3, 4), expected2));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList
+                    .subList(0, 3), expected1));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(3, 4),
+                    expected2));
             Assert.assertEquals("Number of success events", 4, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1548,17 +1576,18 @@ public class IndexTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
 
             List<Object[]> expected1 = new ArrayList<Object[]>();
-            expected1.add(new Object[]{"WSO2", 100l});
+            expected1.add(new Object[]{"WSO2", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected1));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected1));
             Assert.assertEquals("Number of success events", 1, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1610,19 +1639,20 @@ public class IndexTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"FOO", 100l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"FOO", 100L},
+                    new Object[]{"WSO2", 100L}
             );
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1674,18 +1704,19 @@ public class IndexTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 170l});
-            checkStockStream.send(new Object[]{"FOO", 500l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 170L});
+            checkStockStream.send(new Object[]{"FOO", 500L});
 
             List<Object[]> expected = new ArrayList<Object[]>();
             expected.add(new Object[]{"FOO", 170L});
-            expected.add(new Object[]{"FOO", 500l});
+            expected.add(new Object[]{"FOO", 500L});
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1738,17 +1769,18 @@ public class IndexTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 170l});
-            checkStockStream.send(new Object[]{"FOO", 500l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 170L});
+            checkStockStream.send(new Object[]{"FOO", 500L});
 
             List<Object[]> expected = new ArrayList<Object[]>();
             expected.add(new Object[]{"FOO", 170L});
 
             SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 1, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1800,18 +1832,19 @@ public class IndexTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 170l});
-            checkStockStream.send(new Object[]{"FOO", 200l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 170L});
+            checkStockStream.send(new Object[]{"FOO", 200L});
 
             List<Object[]> expected = new ArrayList<Object[]>();
             expected.add(new Object[]{"FOO", 170L});
             expected.add(new Object[]{"FOO", 200L});
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1863,18 +1896,19 @@ public class IndexTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 200l});
-            stockStream.send(new Object[]{"BAR", 55.6f, 150l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"FOO", 170l});
-            checkStockStream.send(new Object[]{"FOO", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 200L});
+            stockStream.send(new Object[]{"BAR", 55.6f, 150L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"FOO", 170L});
+            checkStockStream.send(new Object[]{"FOO", 100L});
 
             List<Object[]> expected = new ArrayList<Object[]>();
             expected.add(new Object[]{"FOO", 170L});
             expected.add(new Object[]{"FOO", 100L});
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -1922,10 +1956,10 @@ public class IndexTableTestCase {
                             inEventCount.incrementAndGet();
                             switch (inEventCount.get()) {
                                 case 1:
-                                    Assert.assertArrayEquals(new Object[]{"IBM", 200l, 0f}, event.getData());
+                                    Assert.assertArrayEquals(new Object[]{"IBM", 200L, 0f}, event.getData());
                                     break;
                                 case 2:
-                                    Assert.assertArrayEquals(new Object[]{"WSO2", 300l, 55.6f}, event.getData());
+                                    Assert.assertArrayEquals(new Object[]{"WSO2", 300L, 55.6f}, event.getData());
                                     break;
                                 default:
                                     Assert.assertSame(2, inEventCount.get());
@@ -1945,13 +1979,13 @@ public class IndexTableTestCase {
             InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"IBM", 100l, 155.6f});
-            checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
-            updateStockStream.send(new Object[]{"IBM", 200l});
-            updateStockStream.send(new Object[]{"WSO2", 300l});
-            checkStockStream.send(new Object[]{"IBM", 200l, 0f});
-            checkStockStream.send(new Object[]{"WSO2", 300l, 55.6f});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L, 155.6f});
+            checkStockStream.send(new Object[]{"WSO2", 100L, 155.6f});
+            updateStockStream.send(new Object[]{"IBM", 200L});
+            updateStockStream.send(new Object[]{"WSO2", 300L});
+            checkStockStream.send(new Object[]{"IBM", 200L, 0f});
+            checkStockStream.send(new Object[]{"WSO2", 300L, 55.6f});
 
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
@@ -2009,14 +2043,14 @@ public class IndexTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"IBM", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -2075,14 +2109,14 @@ public class IndexTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-            checkStockStream.send(new Object[]{"IBM", 100l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            checkStockStream.send(new Object[]{"IBM", 100L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));

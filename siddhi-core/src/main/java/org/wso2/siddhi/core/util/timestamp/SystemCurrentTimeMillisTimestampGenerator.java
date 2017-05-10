@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.util.timestamp;
 
 /**
- * Created on 1/27/15.
+ * {@link TimestampGenerator} which return value of System.currentTimeMillis()
  */
 public class SystemCurrentTimeMillisTimestampGenerator implements TimestampGenerator {
 

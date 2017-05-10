@@ -18,6 +18,7 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -31,31 +32,57 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
+/**
+ * Executor class for ifThenElse function. Function execution logic is implemented in execute here.
+ */
 @Extension(
         name = "ifThenElse",
         namespace = "",
-        description = "Evaluates the 'condition' parameter and returns value of the 'ifExpression' parameter " +
-                "if the condition is true, or returns value of the 'elseExpression' parameter " +
-                "if the condition is false. Here both 'ifExpression' and 'elseExpression' should be of the same type.",
+        description = "Evaluates the 'condition' parameter and returns value of the 'if.expression' parameter " +
+                "if the condition is true, or returns value of the 'else.expression' parameter if the condition is "
+                + "false. Here both 'if.expression' and 'else.expression' should be of the same type.",
         parameters = {
                 @Parameter(name = "condition",
                         description = "This specifies the if then else condition value.",
                         type = {DataType.BOOL}),
-                @Parameter(name = "ifExpression",
+                @Parameter(name = "if.expression",
                         description = "This specifies the value to be returned if " +
                                 "the value of the condition parameter is true.",
                         type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
                                 DataType.STRING, DataType.BOOL, DataType.OBJECT}),
-                @Parameter(name = "elseExpression",
+                @Parameter(name = "else.expression",
                         description = "This specifies the value to be returned if " +
                                 "the value of the condition parameter is false.",
                         type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
                                 DataType.STRING, DataType.BOOL, DataType.OBJECT})
         },
         returnAttributes = @ReturnAttribute(
-                description = "Returned type will be same as the 'ifExpression' and 'elseExpression' type.",
+                description = "Returned type will be same as the 'if.expression' and 'else.expression' type.",
                 type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                DataType.STRING, DataType.BOOL, DataType.OBJECT})
+                        DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+        examples = {
+                @Example(
+                        syntax = "@info(name = 'query1')\n" +
+                                "from sensorEventStream\n" +
+                                "select sensorValue, ifThenElse(sensorValue>35,'High','Low') as status\n" +
+                                "insert into outputStream;",
+                        description = "This will returns High if sensorValue = 50."
+                ),
+                @Example(
+                        syntax = "@info(name = 'query1')\n" +
+                                "from sensorEventStream\n" +
+                                "select sensorValue, ifThenElse(voltage < 5, 0, 1) as status\n" +
+                                "insert into outputStream;",
+                        description = "This will returns 1 if voltage= 12."
+                ),
+                @Example(
+                        syntax = "@info(name = 'query1')\n" +
+                                "from userEventStream\n" +
+                                "select userName, ifThenElse(password == 'admin', true, false) as passwordState\n" +
+                                "insert into outputStream;",
+                        description = "This will returns  passwordState as true if password = admin."
+                )
+        }
 )
 public class IfThenElseFunctionExecutor extends FunctionExecutor {
     private static final Logger log = Logger.getLogger(IfThenElseFunctionExecutor.class);

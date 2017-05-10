@@ -21,6 +21,10 @@ import org.wso2.siddhi.core.query.QueryRuntime;
 
 import java.util.List;
 
+/**
+ * Class to represent each partition key instance. These will be created dynamically and will contain
+ * {@link QueryRuntime}s belonging to that partition key.
+ */
 public class PartitionInstanceRuntime {
     private String key;
     private List<QueryRuntime> queryRuntimeList;

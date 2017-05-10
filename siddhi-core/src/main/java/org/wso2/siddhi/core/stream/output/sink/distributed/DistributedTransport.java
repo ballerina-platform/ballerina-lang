@@ -46,7 +46,8 @@ public abstract class DistributedTransport extends Sink {
      * Will be called for initialing the {@link Sink}
      *
      * @param outputStreamDefinition The stream definition this Output transport/sink is attached to
-     * @param optionHolder           Option holder containing static and dynamic options related to the {@link Sink}
+     * @param optionHolder           Option holder containing static and dynamic options related to the
+     * {@link Sink}
      * @param sinkConfigReader
      * @param executionPlanContext   Context of the execution plan which this output sink belongs to
      */
@@ -71,26 +72,19 @@ public abstract class DistributedTransport extends Sink {
      * @param sinkAnnotation
      * @param strategy
      */
-    public void init(StreamDefinition streamDefinition,
-                     String type,
-                     OptionHolder transportOptionHolder,
+    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
                      ConfigReader sinkConfigReader,
-                     SinkMapper sinkMapper,
-                     String mapType,
-                     OptionHolder mapOptionHolder,
-                     String payload,
-                     ConfigReader mapperConfigReader,
-                     ExecutionPlanContext executionPlanContext,
-                     List<OptionHolder> destinationOptionHolders,
-                     Annotation sinkAnnotation,
-                     DistributionStrategy strategy,
-                     String[] supportedDynamicOptions) {
+                     SinkMapper sinkMapper, String mapType, OptionHolder mapOptionHolder, String payload,
+                     ConfigReader mapperConfigReader, ExecutionPlanContext executionPlanContext, List<OptionHolder>
+                             destinationOptionHolders, Annotation sinkAnnotation, DistributionStrategy strategy,
+                     String[]
+                             supportedDynamicOptions) {
         this.strategy = strategy;
         this.supportedDynamicOptions = supportedDynamicOptions;
         init(streamDefinition, type, transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder,
-                payload, mapperConfigReader, executionPlanContext);
+             payload, mapperConfigReader, executionPlanContext);
         initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, sinkConfigReader,
-                executionPlanContext);
+                      executionPlanContext);
     }
 
     @Override

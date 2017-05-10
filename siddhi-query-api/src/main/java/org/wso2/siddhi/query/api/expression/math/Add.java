@@ -19,8 +19,12 @@ package org.wso2.siddhi.query.api.expression.math;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * And {@link Expression}
+ */
 public class Add extends Expression {
 
+    private static final long serialVersionUID = 1L;
     private Expression leftValue;
     private Expression rightValue;
 

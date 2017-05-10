@@ -27,6 +27,9 @@ import org.wso2.siddhi.query.api.util.SiddhiConstants;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Single input stream using only filters and functions
+ */
 public class SingleInputStream extends InputStream {
 
     protected boolean isInnerStream = false;
@@ -140,18 +143,31 @@ public class SingleInputStream extends InputStream {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SingleInputStream)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SingleInputStream)) {
+            return false;
+        }
 
         SingleInputStream that = (SingleInputStream) o;
 
-        if (isInnerStream != that.isInnerStream) return false;
-        if (windowPosition != that.windowPosition) return false;
-        if (streamHandlers != null ? !streamHandlers.equals(that.streamHandlers) : that.streamHandlers != null)
+        if (isInnerStream != that.isInnerStream) {
             return false;
-        if (streamId != null ? !streamId.equals(that.streamId) : that.streamId != null) return false;
-        if (streamReferenceId != null ? !streamReferenceId.equals(that.streamReferenceId) : that.streamReferenceId != null)
+        }
+        if (windowPosition != that.windowPosition) {
             return false;
+        }
+        if (streamHandlers != null ? !streamHandlers.equals(that.streamHandlers) : that.streamHandlers != null) {
+            return false;
+        }
+        if (streamId != null ? !streamId.equals(that.streamId) : that.streamId != null) {
+            return false;
+        }
+        if (streamReferenceId != null ? !streamReferenceId.equals(that.streamReferenceId) : that.streamReferenceId !=
+                null) {
+            return false;
+        }
 
         return true;
     }

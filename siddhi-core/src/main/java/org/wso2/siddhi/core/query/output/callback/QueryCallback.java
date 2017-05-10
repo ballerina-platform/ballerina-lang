@@ -30,6 +30,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Query Callback is used to get resulting output events from a Siddhi query. Users can create and register a callback
+ * to a specific query and onEvent() of callback will be called upon query emitting results.
+ */
 public abstract class QueryCallback {
 
     private static final Logger log = Logger.getLogger(QueryCallback.class);
@@ -81,7 +85,8 @@ public abstract class QueryCallback {
         try {
             receive(timeStamp, currentEvents, expiredEvents);
         } catch (RuntimeException e) {
-            log.error("Error on sending events" + Arrays.deepToString(currentEvents) + ", " + Arrays.deepToString(expiredEvents), e);
+            log.error("Error on sending events" + Arrays.deepToString(currentEvents) + ", " + Arrays.deepToString
+                    (expiredEvents), e);
         }
     }
 

@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -30,6 +31,9 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
+/**
+ * Executor class for instanceOf Boolean function. Function execution logic is implemented in execute here.
+ */
 @Extension(
         name = "instanceOfBoolean",
         namespace = "",
@@ -41,24 +45,43 @@ import java.util.Map;
                                 DataType.STRING, DataType.BOOL, DataType.OBJECT})
         },
         returnAttributes = @ReturnAttribute(
-                description = "Returned type will be boolean and true if and only if the input is a instance of Boolean.",
-                type = {DataType.BOOL})
+                description = "Returned type will be boolean and true if and only if the input is a instance " +
+                        "of Boolean.",
+                type = {DataType.BOOL}),
+        examples = {
+                @Example(
+                        syntax = "from fooStream\n" +
+                                "select instanceOfBoolean(switchState) as state\n" +
+                                "insert into barStream;",
+                        description = "This will return true if the value of switchState is true."
+                ),
+                @Example(
+                        syntax = "from fooStream\n" +
+                                "select instanceOfBoolean(value) as state\n" +
+                                "insert into barStream;",
+                        description = "if the value = 32 then this will returns false as the value is not an" +
+                        " instance of the boolean."
+                )
+        }
 )
 public class InstanceOfBooleanFunctionExecutor extends FunctionExecutor {
 
     Attribute.Type returnType = Attribute.Type.BOOL;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfBoolean() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfBoolean() " +
+                    "function, " +
                     "required only 1, but found " + attributeExpressionExecutors.length);
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        return null;//Since the instanceOfBoolean function takes in 1 parameter, this method does not get called. Hence, not implemented.
+        return null; //Since the instanceOfBoolean function takes in 1 parameter, this method does not get called.
+        // Hence, not implemented.
     }
 
     @Override

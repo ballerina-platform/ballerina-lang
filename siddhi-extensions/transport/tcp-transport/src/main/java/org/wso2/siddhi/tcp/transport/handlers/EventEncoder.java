@@ -21,15 +21,16 @@ package org.wso2.siddhi.tcp.transport.handlers;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.wso2.siddhi.tcp.transport.utils.EventComposite;
 import org.wso2.siddhi.tcp.transport.converter.BinaryEventConverter;
+import org.wso2.siddhi.tcp.transport.utils.EventComposite;
 
 
 public class EventEncoder extends MessageToByteEncoder<EventComposite> {
 
 
     @Override
-    protected void encode(ChannelHandlerContext channelHandlerContext, EventComposite eventComposite, ByteBuf byteBuf) throws Exception {
+    protected void encode(ChannelHandlerContext channelHandlerContext, EventComposite eventComposite, ByteBuf
+            byteBuf) throws Exception {
         BinaryEventConverter.convertToBinaryMessage(eventComposite, byteBuf);
     }
 

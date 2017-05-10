@@ -35,8 +35,18 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.condition.*;
-import org.wso2.siddhi.query.api.expression.constant.*;
+import org.wso2.siddhi.query.api.expression.condition.And;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
+import org.wso2.siddhi.query.api.expression.condition.IsNull;
+import org.wso2.siddhi.query.api.expression.condition.Not;
+import org.wso2.siddhi.query.api.expression.condition.Or;
+import org.wso2.siddhi.query.api.expression.constant.BoolConstant;
+import org.wso2.siddhi.query.api.expression.constant.Constant;
+import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
+import org.wso2.siddhi.query.api.expression.constant.FloatConstant;
+import org.wso2.siddhi.query.api.expression.constant.IntConstant;
+import org.wso2.siddhi.query.api.expression.constant.LongConstant;
+import org.wso2.siddhi.query.api.expression.constant.StringConstant;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,14 +66,17 @@ public class RDBMSOperatorParser {
      *
      * @param dbHandler                   dbHandler
      * @param expression                  Expression
-     * @param matchingMetaInfoHolder     MetaComplexEvent and details
+     * @param matchingMetaInfoHolder      MetaComplexEvent and details
      * @param executionPlanContext        ExecutionPlanContext
      * @param variableExpressionExecutors list of VariableExpressionExecutor
      * @param tableMap               Table map
      * @param cachingTable                caching table
      * @return Operator
      */
-    public static Operator parse(DBHandler dbHandler, Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap, TableDefinition tableDefinition, CachingTable cachingTable, String queryName) {
+    public static Operator parse(DBHandler dbHandler, Expression expression, MatchingMetaInfoHolder
+            matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor>
+            variableExpressionExecutors, Map<String, Table> tableMap, TableDefinition tableDefinition,
+                                 CachingTable cachingTable, String queryName) {
 
 
         ExecutionInfo executionInfo = dbHandler.getExecutionInfoInstance();
@@ -99,12 +112,16 @@ public class RDBMSOperatorParser {
 
         }
 
-        buildConditionQuery(isTableStreamMap, expression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getMatchingStreamEventIndex(), tableMap, variableExpressionExecutors, executionPlanContext, executionInfo, queryName);
+        buildConditionQuery(isTableStreamMap, expression, conditionBuilder, conditionAttributeList,
+                expressionExecutorList, dbHandler, elementMappings, matchingMetaInfoHolder.getMetaStateEvent(),
+                matchingMetaInfoHolder.getMatchingStreamEventIndex(), tableMap, variableExpressionExecutors,
+                executionPlanContext, executionInfo, queryName);
 
         //Constructing query to delete a table row
         String deleteTableRowQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSTableConstants.EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE), null, null, null, null, conditionBuilder);
         if (log.isDebugEnabled()) {
-            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " + deleteTableRowQuery);
+            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " +
+                    deleteTableRowQuery);
         }
         executionInfo.setPreparedDeleteStatement(deleteTableRowQuery);
         executionInfo.setDeleteQueryColumnOrder(conditionAttributeList);
@@ -113,7 +130,8 @@ public class RDBMSOperatorParser {
         StringBuilder updateColumnValues = getUpdateQueryAttributes(updateConditionAttributeList, dbHandler.getElementMappings());
         String updateTableRowQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSTableConstants.EVENT_TABLE_GENERIC_RDBMS_UPDATE_TABLE), null, null, null, updateColumnValues, conditionBuilder);
         if (log.isDebugEnabled()) {
-            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " + updateTableRowQuery);
+            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " +
+                    updateTableRowQuery);
         }
         executionInfo.setPreparedUpdateStatement(updateTableRowQuery);
         updateConditionAttributeList.addAll(conditionAttributeList);
@@ -122,25 +140,31 @@ public class RDBMSOperatorParser {
         //Constructing query to select table rows
         String selectTableRowQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSTableConstants.EVENT_TABLE_GENERIC_RDBMS_SELECT_TABLE), null, null, null, null, conditionBuilder);
         if (log.isDebugEnabled()) {
-            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " + selectTableRowQuery);
+            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " +
+                    selectTableRowQuery);
         }
         executionInfo.setPreparedSelectTableStatement(selectTableRowQuery);
         executionInfo.setConditionQueryColumnOrder(conditionAttributeList);
 
         //Constructing query to check for existence
-        String isTableRowExistentQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSTableConstants.EVENT_TABLE_GENERIC_RDBMS_TABLE_ROW_EXIST), null, null, null, null, conditionBuilder);
+        String isTableRowExistentQuery = dbHandler.constructQuery(tableName, elementMappings.get
+                (RDBMSTableConstants.EVENT_TABLE_GENERIC_RDBMS_TABLE_ROW_EXIST), null, null, null, null,
+                conditionBuilder);
         if (log.isDebugEnabled()) {
-            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " + isTableRowExistentQuery);
+            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " +
+                    isTableRowExistentQuery);
         }
         executionInfo.setPreparedTableRowExistenceCheckStatement(isTableRowExistentQuery);
         executionInfo.setConditionQueryColumnOrder(conditionAttributeList);
 
         Operator inMemoryTableOperator = null;
         if (cachingTable != null) {
-            inMemoryTableOperator = OperatorParser.constructOperator(cachingTable.getCacheList(), expression, matchingMetaInfoHolder,
+            inMemoryTableOperator = OperatorParser.constructOperator(cachingTable.getCacheList(), expression,
+                    matchingMetaInfoHolder,
                     executionPlanContext, variableExpressionExecutors, tableMap, queryName);
         }
-        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryTableOperator, matchingMetaInfoHolder.getMatchingStreamDefinition().getAttributeList().size());
+        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryTableOperator,
+                matchingMetaInfoHolder.getMatchingStreamDefinition().getAttributeList().size());
     }
 
 
@@ -160,7 +184,8 @@ public class RDBMSOperatorParser {
     /**
      * Method which constructs the update query string
      */
-    private static StringBuilder getUpdateQueryAttributes(List<Attribute> updateConditionAttributeList, Map<String, String> elementMappings) {
+    private static StringBuilder getUpdateQueryAttributes(List<Attribute> updateConditionAttributeList, Map<String,
+            String> elementMappings) {
 
         //Constructing (eg: information = ?  , latitude = ?) type values : column_values
         StringBuilder columnValues = new StringBuilder(RDBMSTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
@@ -184,9 +209,15 @@ public class RDBMSOperatorParser {
     /**
      * Create necessary executors based on the Siddhi query in recursive manner
      */
-    private static void buildConditionQuery(Map<String, Boolean> isTableStreamMap, Expression expression, StringBuilder conditionBuilder, List<Attribute> conditionAttributeList, List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Map<String, String> elementMappings, MetaComplexEvent metaStateEvent, int matchingStreamIndex,
-                                            Map<String, Table> tableMap, List<VariableExpressionExecutor> variableExpressionExecutors,
-                                            ExecutionPlanContext executionPlanContext, ExecutionInfo executionInfo, String queryName) {
+    private static void buildConditionQuery(Map<String, Boolean> isTableStreamMap, Expression expression,
+                                            StringBuilder conditionBuilder, List<Attribute> conditionAttributeList,
+                                            List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler,
+                                            Map<String, String> elementMappings, MetaComplexEvent metaStateEvent, int
+                                                    matchingStreamIndex,
+                                            Map<String, Table> tableMap, List<VariableExpressionExecutor>
+                                                    variableExpressionExecutors,
+                                            ExecutionPlanContext executionPlanContext, ExecutionInfo executionInfo,
+                                            String queryName) {
 
 
         if (expression instanceof And) {
@@ -241,7 +272,10 @@ public class RDBMSOperatorParser {
                             setTableVariableAttribute(leftExpression, conditionBuilder);
                             isLeftExpressionTable = true;
                         } else {
-                            setExpressionExecutor(rightExpression, leftExpression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, metaStateEvent, matchingStreamIndex, tableMap, variableExpressionExecutors, executionPlanContext, queryName);
+                            setExpressionExecutor(rightExpression, leftExpression, conditionBuilder,
+                                    conditionAttributeList, expressionExecutorList, dbHandler, elementMappings,
+                                    metaStateEvent, matchingStreamIndex, tableMap, variableExpressionExecutors,
+                                    executionPlanContext, queryName);
                             isLeftExpressionTable = false;
                         }
                     }
@@ -256,7 +290,8 @@ public class RDBMSOperatorParser {
 
             if (((Compare) expression).getOperator().equals(Compare.Operator.EQUAL)) {
                 executionInfo.setIsBloomFilterCompatible(true);
-                conditionBuilder.append(elementMappings.get(RDBMSTableConstants.EVENT_TABLE_GENERIC_RDBMS_EQUAL)).append(RDBMSTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+                conditionBuilder.append(elementMappings.get(RDBMSTableConstants.EVENT_TABLE_GENERIC_RDBMS_EQUAL)
+                ).append(RDBMSTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             } else if (((Compare) expression).getOperator().equals(Compare.Operator.GREATER_THAN)) {
                 executionInfo.setIsBloomFilterCompatible(false);
                 conditionBuilder.append(elementMappings.get(RDBMSTableConstants.EVENT_TABLE_GENERIC_RDBMS_GREATER_THAN)).append(RDBMSTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
@@ -292,8 +327,12 @@ public class RDBMSOperatorParser {
         conditionBuilder.append(attributeName).append(RDBMSTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
     }
 
-    private static void setExpressionExecutor(Expression tableExpression, Expression expression, StringBuilder conditionBuilder, List<Attribute> conditionAttributeList, List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Map<String, String> elementMappings, MetaComplexEvent metaStateEvent, int matchingStreamIndex,
-                                              Map<String, Table> tableMap, List<VariableExpressionExecutor> variableExpressionExecutors,
+    private static void setExpressionExecutor(Expression tableExpression, Expression expression, StringBuilder
+            conditionBuilder, List<Attribute> conditionAttributeList, List<ExpressionExecutor>
+            expressionExecutorList, DBHandler dbHandler, Map<String, String> elementMappings, MetaComplexEvent
+            metaStateEvent, int matchingStreamIndex,
+                                              Map<String, Table> tableMap, List<VariableExpressionExecutor>
+                                                      variableExpressionExecutors,
                                               ExecutionPlanContext executionPlanContext, String queryName) {
         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                 metaStateEvent, matchingStreamIndex, tableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
