@@ -227,6 +227,14 @@
     margin-top: 0;
 }
 
+.media-left{
+    width:15%;
+}
+
+.media-body{
+
+}
+
 @media (max-width: 1040px) {
     .initial-welcome-container {
         position: static;

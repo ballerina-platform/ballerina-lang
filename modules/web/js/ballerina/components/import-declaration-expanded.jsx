@@ -63,7 +63,7 @@ export default class importDeclarationExpanded extends React.Component {
         return (
             <g className="package-definitions-collection">
                 {importElements}
-                <rect x={ bBox.x } y={ lastImportElementY } height={importInputHeight} width={importDeclarationWidth} />
+                <rect x={ bBox.x } y={ lastImportElementY } height={importInputHeight} width={importDeclarationWidth} style={ { fill: "#eee"} } />
                 <image width={ iconSize } height={ iconSize } className="property-pane-action-button-delete"
                     onClick={this.props.onCollapse} xlinkHref={ ImageUtil.getSVGIconString('hide') }
                     x={bBox.x + importDeclarationWidth - iconSize - 6 } y={bBox.y + topGutter + 3}/>
