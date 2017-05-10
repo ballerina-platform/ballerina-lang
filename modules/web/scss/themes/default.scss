@@ -35,7 +35,7 @@ $source-editor-gutter-bgcolor: #313131;
 $tool-palette-container-bgcolor: #fff;
 $tool-group-header-bgcolor: #eee;
 $tool-group-header-text-color: #333;
-$tool-title-color: #000;
+$tool-title-color: $tool-group-header-text-color;
 $tool-separator-color: $tool-group-header-bgcolor;
 
 $panel-header-bgcolor: #dcdcdc;
