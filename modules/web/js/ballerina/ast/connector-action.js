@@ -29,7 +29,6 @@ class ConnectorAction extends ASTNode {
     constructor(args) {
         super('ConnectorAction');
         this.action_name = _.get(args, 'action_name');
-        this.annotations = _.get(args, 'annotations', []);
         this.arguments = _.get(args, 'arguments', []);
     }
 
@@ -39,14 +38,6 @@ class ConnectorAction extends ASTNode {
      */
     getActionName() {
         return this.action_name
-    }
-
-    /**
-     * Get the annotations
-     * @return {string[]} annotations - Action Annotations
-     */
-    getAnnotations() {
-        return this.annotations
     }
 
     /**
@@ -72,18 +63,6 @@ class ConnectorAction extends ASTNode {
      */
     setActionName(name, options) {
         this.setAttribute('action_name', name, options);
-    }
-
-    /**
-     * Set the action annotations
-     * @param {string[]} annotations - Action Annotations
-     */
-    setAnnotations(annotations, options) {
-        if (!_.isNil(annotations)) {
-            this.setAttribute('annotations', annotations, options);
-        } else {
-            log.warn('Trying to set a null or undefined array to annotations');
-        }
     }
 
     /**
@@ -333,12 +312,10 @@ class ConnectorAction extends ASTNode {
      * initialize ConnectorAction from json object
      * @param {Object} jsonNode to initialize from
      * @param {string} [jsonNode.resource_name] - Name of the resource definition
-     * @param {string} [jsonNode.annotations] - Annotations of the resource definition
      */
     initFromJson(jsonNode) {
         var self = this;
         this.setActionName(jsonNode.action_name, {doSilently: true});
-        this.setAnnotations(jsonNode.annotations, {doSilently: true});
 
         _.each(jsonNode.children, function (childNode) {
             var child = undefined;
@@ -366,6 +343,44 @@ class ConnectorAction extends ASTNode {
             || this.getFactory().isVariableDeclaration(node)
             || this.getFactory().isWorkerDeclaration(node)
             || this.getFactory().isStatement(node);
+    }
+
+    /**
+     * Override the addChild method for ordering the child elements as
+     * [Statements, Workers, Connectors]
+     * @param {ASTNode} child
+     * @param {number|undefined} index
+     */
+    addChild(child, index) {
+        if (_.isUndefined(index)) {
+            let indexNew;
+
+            let lastAnnotationIndex = _.findLastIndex(this.getChildren(), (child) => {
+                return this.getFactory().isAnnotation(child);
+            });
+
+            indexNew = lastAnnotationIndex === -1 ? 0 : lastAnnotationIndex + 1;
+
+            if (!this.getFactory().isAnnotation(child)) {
+                let lastWorkerDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
+                    return this.getFactory().isWorkerDeclaration(child);
+                });
+
+                indexNew = lastWorkerDeclarationIndex === -1 ? indexNew : lastWorkerDeclarationIndex + 1;
+
+                if (!this.getFactory().isWorkerDeclaration(child)) {
+                    let lastConnectorDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
+                        return this.getFactory().isConnectorDeclaration(child);
+                    });
+
+                    indexNew = lastConnectorDeclarationIndex === -1 ? indexNew : lastConnectorDeclarationIndex + 1;
+                }
+            }
+
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+        }
     }
 
     /**

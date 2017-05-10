@@ -17,7 +17,8 @@
  */
 
 import log from 'log';
-import * as DesignerDefaults from './../../configs/designer-defaults';
+import { packageDefinition } from '../../configs/designer-defaults';
+import ASTFactory from '../../ast/ballerina-ast-factory';
 
 class PackageDefinitionDimensionCalculatorVisitor {
 
@@ -36,6 +37,21 @@ class PackageDefinitionDimensionCalculatorVisitor {
 
     endVisit(node) {
         log.info('end visit PackageDefinitionDimensionCalcVisitor');
+        let viewState = node.getViewState();
+        const topGutter = 10;
+        const importInputHeight = 40;
+
+        let height = 0;
+
+        if(viewState.expanded) {
+            const astRoot = node.parent;
+            const imports = astRoot.children.filter(
+                c => {return ASTFactory.isImportDeclaration(c)});
+
+            height += topGutter + importInputHeight + imports.length * packageDefinition.importDeclaration.itemHeight;
+        }
+
+        viewState.bBox.h = height;
     }
 }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016-2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,287 +17,228 @@
  */
 import _ from 'lodash';
 import $ from 'jquery';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+const ace = global.ace;
 
+/**
+ * The annotation editor shown in the design view
+ */
 class AnnotationView {
-    constructor () {}
-
     /**
-     * Creates the variable pane
-     * @param {Object} args - Arguments for creating the view.
-     * @param {Object} args.activatorElement - The variable button which activates to show the pane.
-     * @param {ServiceDefinition} args.model - The service definition model.
-     * @param {Object} args.paneAppendElement - The element to which the pane should be appended to.
-     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * Initializes the annotation view.
+     * @param {object} args The arguments object to create the annotation view.
+     * @param {DiagramRenderContext} args.diagramRenderingContext The diagram rending context.
+     * @param {Element} args.viewPrependElement The element to which the annotation view should be appended to.
+     * @param {Element} args.positionElement The element to which the annotation view should be positions to.
      */
-    createAnnotationPane (args) {
-
-        var activatorElement = _.get(args, 'activatorElement');
-        var model = _.get(args, 'model');
-        var paneElement = _.get(args, 'paneAppendElement');
-        var viewOptions = _.get(args, 'viewOptions');
-
-        var annotationEditorWrapper = $('<div/>', {
-            class: 'main-action-wrapper service-annotation-main-action-wrapper'
-        }).appendTo(paneElement);
-        this._annotationEditorWrapper = annotationEditorWrapper;
-
-        // Positioning the main wrapper
-        annotationEditorWrapper.css('left',
-            viewOptions.position.left - parseInt(annotationEditorWrapper.css('width'), 10));
-        annotationEditorWrapper.css('top', viewOptions.position.top);
-
-        // Creating header content.
-        var headerWrapper = $('<div/>', {
-            class: 'action-content-wrapper-heading service-annotation-wrapper-heading'
-        }).appendTo(annotationEditorWrapper);
-
-        // Creating annotations dropdown.
-        var annotationTypeDropDown = $('<select/>').appendTo(headerWrapper);
-
-        // Text input for editing the value of an annotation.
-        var annotationValueInput = $('<input/>', {
-            type: 'text'
-        }).appendTo(headerWrapper);
-
-        // Wrapper for the add and check icon.
-        var addIconWrapper = $('<div/>', {
-            class: 'action-icon-wrapper service-annotation-action-icon'
-        }).appendTo(headerWrapper);
-
-        var addButton = $('<span class=\'fw-stack fw-lg\'><i class=\'fw fw-square fw-stack-2x\'></i>' +
-            '<i class=\'fw fw-add fw-stack-1x fw-inverse service-annotation-action-icon-i\'></i></span>')
-            .appendTo(addIconWrapper);
-
-        // Adding a value to a new annotation.
-        $(addButton).click((event) => {
-            var annotationType = annotationTypeDropDown.val();
-            var annotationValue = annotationValueInput.val();
-
-            try {
-                // Sets the annotation values in the model
-                model.addAnnotation(annotationType, annotationValue);
-
-                //Clear the text box and drop down value
-                annotationValueInput.val('');
-
-                // Recreating the annotation details view.
-                this._createCurrentAnnotationView(model, annotationsContentWrapper, annotationTypeDropDown, headerWrapper);
-
-                // Re-add elements to dropdown.
-                this._addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
-            } catch (e) {
-                event.preventDefault();
-                return false;
-            }
-        });
-
-        // Add new annotation upon enter key.
-        $(annotationValueInput).on('change paste keydown', function (e) {
-            if (_.isEqual(e.which, 13)) {
-                addButton.click();
-            }
-        });
-
-        // Add elements to dropdown.
-        this._addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
-
-        // Creating the content editing div.
-        var annotationsContentWrapper = $('<div/>', {
-            class: 'action-content-wrapper-body service-annotation-details-wrapper'
-        }).appendTo(annotationEditorWrapper);
-
-        // Creating the annotation details view.
-        this._createCurrentAnnotationView(model, annotationsContentWrapper, annotationTypeDropDown, headerWrapper);
-
-        // Showing and hiding the annotation pane upton annotation button/activator is clicked.
-        $(activatorElement).click({
-            annotationEditorWrapper: annotationEditorWrapper,
-            annotationValueInput: annotationValueInput
-        }, function (event) {
-            if ($(event.currentTarget).data('showing-pane') === 'true') {
-                $(event.currentTarget).removeClass('operations-annotation-icon');
-                event.data.annotationEditorWrapper.hide();
-                $(event.currentTarget).data('showing-pane', 'false');
-            } else {
-                $(event.currentTarget).addClass('operations-annotation-icon');
-                event.data.annotationEditorWrapper.show();
-                $(event.currentTarget).data('showing-pane', 'true');
-                $(event.data.annotationValueInput).focus();
-            }
-        });
-
-        $(annotationEditorWrapper).click(function (event) {
-            event.stopPropagation();
-        });
-
-        // On window click.
-        $(window).click({
-            activatorElement: activatorElement,
-            argumentsEditorWrapper: annotationEditorWrapper
-        }, function (event) {
-            if ($(event.data.activatorElement).data('showing-pane') === 'true'){
-                $(event.data.activatorElement).click();
-            }
-        });
-
-        return this;
+    constructor (args) {
+        this._astNode = _.get(args, 'astNode');
+        this._diagramRenderingContext = _.get(args, 'diagramRenderingContext');
+        this._viewPrependElement = _.get(args, 'viewPrependElement');
+        this._postitioningElement = _.get(args, 'positioningElement');
     }
 
     /**
-     * Adds annotation with values to the dropdown.
-     * @param model - The model which contains the list of annotations.
-     * @param annotationTypeDropDown - The <select> element which has the available annotation.
-     * @param headerWrapper - Wrapper which container the annotation editor.
+     * Renders the annotation view. By default the view is hidden.
+     */
+    render() {
+        let ballerinaFileEditor = this._diagramRenderingContext.ballerinaFileEditor;
+        let annotationEditorDiv;
+        if (_.isUndefined(this._postitionArgs)) {
+            annotationEditorDiv = $('<div/>').prependTo(this._viewPrependElement);
+        } else {
+            annotationEditorDiv = $('<div/>').appendTo(this._viewPrependElement);
+        }
+
+        this._editor = ace.edit(annotationEditorDiv.get(0));
+        this._editor.getSession().setMode('ace/mode/ballerina');
+        this._editor.$blockScrolling = Infinity;
+        let editorThemeName = 'ace/theme/chrome';
+        //ballerinaFileEditor.getFile()._storage.get('pref:sourceViewTheme') !== null || _.get(ballerinaFileEditor.getViewOptions().source_view, 'theme');
+        let editorFontSize = ballerinaFileEditor.getFile()._storage.get('pref:sourceViewFontSize') !== null || _.get(ballerinaFileEditor.getViewOptions().source_view, 'font_size');
+
+        let editorTheme = ace.acequire(editorThemeName);
+
+        this._editor.setTheme(editorTheme);
+        this._editor.setFontSize(editorFontSize);
+        this._editor.setOptions({
+            enableBasicAutocompletion:true
+        });
+        this._editor.setBehavioursEnabled(true);
+
+        // Hiding line numbers
+        this._editor.renderer.setOption('showLineNumbers', false);
+
+        this.hideEditor();
+    }
+
+    /**
+     * Sets the annotation values to the editor.
+     */
+    setEditorValue() {
+        let sourcePrefix = '';
+        let annotationSource = '';
+        let sourceSuffix = '';
+        let annotationASTs = this._astNode.getChildrenOfType(BallerinaASTFactory.isAnnotation);
+        let ballerinaFileEditor = this._diagramRenderingContext.ballerinaFileEditor;
+        let generatedSource = ballerinaFileEditor.generateSource();
+        let response = ballerinaFileEditor.getModelFromSource(generatedSource);
+        let sourceArray = generatedSource.split('\n');
+        if (annotationASTs.length > 0) {
+            let firstAnnotation = _.first(annotationASTs);
+            let lastAnnotation = _.last(annotationASTs);
+
+            let lineNumberOfFirstAnnotation = 0;
+            let lineNumberOfLastAnnotation = 0;
+            if (this._astNode.getFactory().isBallerinaAstRoot(response)) {
+                let pathVector = [];
+                ballerinaFileEditor.getModel().getPathToNode(firstAnnotation, pathVector);
+                let parsedFirstAnnotationNode = ballerinaFileEditor.getModel().getNodeByVector(response, pathVector);
+                lineNumberOfFirstAnnotation = parsedFirstAnnotationNode.getLineNumber();
+
+                pathVector = [];
+                ballerinaFileEditor.getModel().getPathToNode(lastAnnotation, pathVector);
+                let parsedLastAnnotationNode = ballerinaFileEditor.getModel().getNodeByVector(response, pathVector);
+                lineNumberOfLastAnnotation = parsedLastAnnotationNode.getLineNumber();
+            }
+
+            for (let i = 0; i < sourceArray.length; i++) {
+                if (i < lineNumberOfFirstAnnotation - 1) {
+                    if (i === 0) {
+                        sourcePrefix += sourceArray[i];
+                    } else {
+                        sourcePrefix += '\n' + sourceArray[i];
+                    }
+                } else if (i < lineNumberOfLastAnnotation) {
+                    if (i === lineNumberOfFirstAnnotation - 1) {
+                        annotationSource += sourceArray[i];
+                    } else {
+                        annotationSource += '\n' + sourceArray[i];
+                    }
+                } else {
+                    if (i === lineNumberOfLastAnnotation) {
+                        sourceSuffix += sourceArray[i];
+                    } else {
+                        sourceSuffix += '\n' + sourceArray[i];
+                    }
+                }
+            }
+        } else {
+            let pathVector = [];
+            ballerinaFileEditor.getModel().getPathToNode(this._astNode, pathVector);
+            let parsedAstNode = ballerinaFileEditor.getModel().getNodeByVector(response, pathVector);
+            for (let i = 0; i < sourceArray.length; i++) {
+                if (i < parsedAstNode.getLineNumber() - 1) {
+                    if (i === 0) {
+                        sourcePrefix += sourceArray[i];
+                    } else {
+                        sourcePrefix += '\n' + sourceArray[i];
+                    }
+                } else {
+                    if (i === parsedAstNode.getLineNumber()) {
+                        sourceSuffix += sourceArray[i];
+                    } else {
+                        sourceSuffix += '\n' + sourceArray[i];
+                    }
+                }
+            }
+        }
+
+        this._editor.setValue(annotationSource);
+        this._editor.getSession().getUndoManager().markClean();
+        this._editor.clearSelection();
+        this._editor.navigateFileEnd();
+
+        this._updateEditorHeight();
+
+        let self = this;
+
+        this._editor.getSession().on('change', () => {
+            let newSource = sourcePrefix + self._editor.getValue() + sourceSuffix;
+            let response = ballerinaFileEditor.getModelFromSource(newSource);
+            if (!_.isUndefined(response) && self._astNode.getFactory().isBallerinaAstRoot(response)) {
+                // Updating AST
+                if (!self._editor.getSession().getUndoManager().isClean() && !_.isUndefined(response)) {
+                    let pathVector = [];
+
+                    ballerinaFileEditor.getModel().getPathToNode(self._astNode, pathVector);
+                    let newAstNode = response.getNodeByVector(response, pathVector);
+
+                    if (!_.isUndefined(newAstNode)) { // Removing old annotations.
+                        let oldAnnotationASTs = self._astNode.getChildrenOfType(BallerinaASTFactory.isAnnotation);
+                        _.forEach(oldAnnotationASTs, (annotationAST) => {
+                            annotationAST.remove();
+                        });
+
+                        // Adding new annotations.
+                        let newAnnotationASTs = newAstNode.getChildrenOfType(BallerinaASTFactory.isAnnotation);
+                        _.forEach(newAnnotationASTs, (annotationAST, index) => {
+                            self._astNode.addChild(annotationAST, index);
+                        });
+                    }
+                }
+            }
+
+            // Updating height.
+            this._updateEditorHeight();
+        });
+    }
+
+    /**
+     * Update the height of the editor depending on the content inside.
      * @private
      */
-    _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper) {
-        // Clearing existing options in the dropdown.
-        annotationTypeDropDown.empty();
-
-        // Adding dropdown elements.
-        _.forEach(model.getAnnotations(), function (annotation) {
-            // Adding annotations which has no value to the dropdown.
-            if (_.isEmpty(annotation.value)) {
-                annotationTypeDropDown.append(
-                    $('<option></option>').val(annotation.key).html(annotation.key)
-                );
-            }
-        });
-
-        // Disable dropdown if options available.
-        if (_.isEqual(annotationTypeDropDown.find('option').length, 0)) {
-            $(headerWrapper).attr('disabled', true);
-            $(headerWrapper).find('*').attr('disabled', true);
+    _updateEditorHeight() {
+        if (_.isUndefined(this._postitioningElement)) {
+            // Updating height.
+            let newHeight = (this._editor.getSession().getScreenLength() * this._editor.renderer.lineHeight)
+                + this._editor.renderer.scrollBar.getWidth();
+            $(this._editor.container).height(newHeight.toString() + 'px');
+            // This call is required for the editor to fix all of
+            // its inner structure for adapting to a change in size
+            this._editor.resize();
         } else {
-            $(headerWrapper).attr('disabled', false);
-            $(headerWrapper).find('*').attr('disabled', false);
+            // Updating height.
+            let newHeight = (this._editor.getSession().getScreenLength() * this._editor.renderer.lineHeight)
+                + this._editor.renderer.scrollBar.getWidth();
+            $(this._editor.container).height(newHeight.toString() + 'px');
+            // This call is required for the editor to fix all of
+            // its inner structure for adapting to a change in size
+            this._editor.resize();
+
+            $(this._editor.container).css('top', this._postitioningElement.attr('y') - newHeight - 26);
+        }
+
+    }
+
+    /**
+     * Positions the editor with x, y and width.
+     */
+    positionEditor() {
+        if (!_.isUndefined(this._postitioningElement)) {
+            // Positioning the editor
+            let editorContainer = $(this._editor.container);
+            editorContainer.removeClass('annotation-editor-view').addClass('annotation-editor-view');
+            editorContainer.css('left', parseFloat(this._postitioningElement.attr('x')) - 1);
+            editorContainer.css('top', parseFloat(this._postitioningElement.attr('y')));
+            editorContainer.css('width', parseFloat(this._postitioningElement.attr('width')) + 2);
         }
     }
 
     /**
-     * Creates the annotation detail wrapper and its events.
-     * @param model - The annotation data.
-     * @param wrapper - The wrapper element which these details should be appended to.
-     * @param annotationTypeDropDown - The dropdown which has the available annotations.
-     * @param headerWrapper - Wrapper which container the annotation editor.
-     * @private
+     * Shows the editor.
      */
-    _createCurrentAnnotationView(model, wrapper, annotationTypeDropDown, headerWrapper) {
-        // Clearing all the element in the wrapper as we are rerendering the annotation view.
-        wrapper.empty();
-
-        // Calculating the number of non-empty annotations.
-        var nonEmptyAnnotations = 0;
-        _.forEach(model.getAnnotations(), function (annotation) {
-            if (!_.isEmpty(annotation.value)) {
-                nonEmptyAnnotations++;
-            }
-        });
-
-        // Creating annotation info.
-        _.forEach(model.getAnnotations(), (annotation, index) => {
-            if (!_.isEmpty(annotation.value)) {
-
-                var annotationWrapper = $('<div/>', {
-                    class: 'service-annotation-detail-wrapper'
-                }).appendTo(wrapper);
-
-                // Creating a wrapper for the annotation type.
-                $('<div/>', {
-                    text: annotation.key,
-                    class: 'service-annotation-detail-type-wrapper'
-                }).appendTo(annotationWrapper);
-
-                // Creating a wrapper for the annotation value.
-                var annotationValueWrapper = $('<div/>', {
-                    text: ': ' + annotation.value,
-                    class: 'service-annotation-detail-value-wrapper'
-                }).appendTo(annotationWrapper);
-
-                var deleteIcon = $('<i class=\'fw fw-cancel service-annotation-detail-close-wrapper\'></i>');
-
-                deleteIcon.appendTo(annotationWrapper);
-
-                // Removes the value of the annotation in the model and rebind the annotations to the dropdown and
-                // to the annotation view.
-                deleteIcon.click(() => {
-                    model.addAnnotation(annotation.key, '');
-                    $(annotationWrapper).remove();
-                    this._addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
-                    this._createCurrentAnnotationView(model, wrapper, annotationTypeDropDown, headerWrapper);
-                });
-
-                // Not add a thematic break.
-                if (_.isEqual(nonEmptyAnnotations - 1, index)) {
-                    $('<hr/>').appendTo(wrapper);
-                }
-
-                // When an annotation detail is clicked.
-                annotationWrapper.click({
-                    clickedAnnotationValueWrapper: annotationValueWrapper,
-                    deleteIcon: deleteIcon,
-                    annotation: annotation
-                }, function (event) {
-                    var clickedAnnotationValueWrapper = event.data.clickedAnnotationValueWrapper;
-                    var annotation = event.data.annotation;
-                    var deleteIcon = event.data.deleteIcon;
-
-                    // Empty the content inside the annotation value and type wrapper.
-                    clickedAnnotationValueWrapper.empty();
-
-                    // Changing the background
-                    $(event.currentTarget).css('background-color', '#f5f5f5');
-
-                    // Creating the text area for the value of the annotation.
-                    var annotationValueTextArea = $('<textarea/>', {
-                        text: annotation.value,
-                        class: 'form-control'
-                    }).appendTo(clickedAnnotationValueWrapper);
-
-                    annotationValueTextArea.click(function (event) {
-                        event.stopPropagation();
-                    });
-
-                    // Gets the user input and set it as the annotation value
-                    annotationValueTextArea.on('change keyup input', function (e) {
-                        model.addAnnotation(annotation.key, e.target.value);
-                    });
-
-                    // Adding in-line display block to override the hovering css.
-                    deleteIcon.show();
-
-                    // Resetting of other annotations wrapper which has been used for editing.
-                    annotationWrapper.siblings().each(function () {
-
-                        // Removing the textareas of other annotations and use simple text.
-                        var annotationValueDiv = $(this).children().eq(1);
-                        if (annotationValueDiv.find('textarea').length > 0) {
-                            // Reverting the background color of other annotation editors.
-                            $(this).removeAttr('style');
-
-                            var annotationVal = ': ' + annotationValueDiv.find('textarea').val();
-                            annotationValueDiv.empty().text(annotationVal);
-
-                            deleteIcon.removeAttr('style');
-                        }
-                    });
-                });
-            }
-
-        });
+    showEditor() {
+        this.positionEditor();
+        $(this._editor.container).show();
+        this.setEditorValue();
     }
 
     /**
-     * moves the position of annotation editor view
-     * @param {Object} args - object which contains delta values for x and y
-     * @param {Object} args.dx - delta value for x value
-     * @param {Object} args.dy - delta value for y value
+     * Hides the editor.
      */
-    move(args) {
-        var dx = _.get(args, 'dx', 0);
-        var dy = _.get(args, 'dy', 0);
-        this._annotationEditorWrapper.css('left', (parseInt(this._annotationEditorWrapper.css('left'), 10)  + dx));
-        this._annotationEditorWrapper.css('top', (parseInt(this._annotationEditorWrapper.css('top'), 10) + dy));
+    hideEditor() {
+        $(this._editor.container).hide();
     }
 }
 

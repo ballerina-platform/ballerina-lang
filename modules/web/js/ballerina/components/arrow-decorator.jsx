@@ -18,11 +18,18 @@
 
 import React from "react";
 import PropTypes from 'prop-types';
+import MessageManager from './../visitors/message-manager';
 import './arrow-decorator.css';
 
 class Arrow extends React.Component {
-	getArrowAngle() {
-		const { start, end } = this.props;
+	constructor(props, context) {
+		super(props);
+		this.state = {enable: true, drawOnMouseMoveFlag: -1};
+		if (this.props.moveWithMessageManager) {
+			context.messageManager.setArrowDecorator(this);
+		}
+	}
+	getArrowAngle(start, end) {
 		var deltaX = end.x - start.x;
 		var deltaY = end.y - start.y;
 		var rad = Math.atan2(deltaY, deltaX);
@@ -31,23 +38,40 @@ class Arrow extends React.Component {
 		return deg;
 	}
 	render() {
-		const { start, end, children, dashed, arrowSize } = this.props;
+		const { start, end, dashed, arrowSize } = this.props;
+		const enable = this.props.enable;
+		const drawOnMouseMove = this.state.drawOnMouseMoveFlag;
+		const messageManager = this.context.messageManager;
+		let arrowStart, arrowEnd;
+
+		if (drawOnMouseMove > -1) {
+			arrowStart = messageManager.getMessageStart();
+			arrowEnd = messageManager.getMessageEnd();
+		} else {
+			arrowStart = start;
+			arrowEnd = end;
+		}
 
 		let className = "action-arrow";
 		if(dashed) {
 			className = "action-arrow action-dash-line";
 		}
 		return (<g >
-				<line x1={start.x} x2={end.x} y1={start.y} y2={end.y} className={className} />
-				<polygon
-						points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
-						transform={`translate(${end.x}, ${end.y})
-						rotate(${this.getArrowAngle()}, 0, 0)`}
-						className="action-arrow-head"
-				/>
-				</g>);
+			{enable &&  < line x1={arrowStart.x} x2={arrowEnd.x} y1={arrowStart.y} y2={arrowEnd.y} className={className} /> }
+			{enable &&
+			<polygon
+				points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
+				transform={`translate(${arrowEnd.x}, ${arrowEnd.y})
+						rotate(${this.getArrowAngle(arrowStart, arrowEnd)}, 0, 0)`}
+				className="action-arrow-head"/>
+			}
+		</g>);
   }
 }
+
+Arrow.contextTypes = {
+	messageManager: PropTypes.instanceOf(MessageManager).isRequired
+};
 
 Arrow.propTypes = {
 	start: PropTypes.shape({
@@ -58,11 +82,11 @@ Arrow.propTypes = {
     x: PropTypes.number.isRequired,
     y: PropTypes.number.isRequired,
   })
-}
+};
 
 Arrow.defaultProps = {
 	dashed: false,
 	arrowSize: 5
-}
+};
 
 export default Arrow;

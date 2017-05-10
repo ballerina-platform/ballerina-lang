@@ -88,6 +88,9 @@ import annotationAttributeDefinition from './annotation-attribute-definition';
 import parameterDefinition from './parameter-definition';
 import argumentParameterDefinitionHolder from './argument-parameter-definition-holder';
 import returnParameterDefinitionHolder from './return-parameter-definition-holder';
+import annotation from './annotations/annotation';
+import annotationEntry from './annotations/annotation-entry';
+import annotationEntryArray from './annotations/annotation-entry-array';
 
 /**
  * @class BallerinaASTFactory
@@ -388,9 +391,9 @@ BallerinaASTFactory.createReturnStatement = function (args) {
 };
 
 /**
-* creates StructFieldAccessExpression
-* @param args
-*/
+ * creates StructFieldAccessExpression
+ * @param args
+ */
 BallerinaASTFactory.createStructFieldAccessExpression = function (args) {
     return new structFieldAccessExpression(args);
 };
@@ -627,7 +630,16 @@ BallerinaASTFactory.createCommentStatement = function (args) {
 };
 
 /**
-* crates ParameterDefinition
+ * creates {@link Annotation}
+ * @param  {Object} args arguments for creating a new annotation.
+ * @return {Annotation}      new annotation object.
+ */
+BallerinaASTFactory.createAnnotation = function (args) {
+    return new annotation(args);
+};
+
+/**
+* creates ParameterDefinition
 * @param {Object} args - Arguments for creating a new parameter definition.
 * @returns {ParameterDefinition}
 */
@@ -641,6 +653,24 @@ BallerinaASTFactory.createArgumentParameterDefinitionHolder = function (args) {
 
 BallerinaASTFactory.createReturnParameterDefinitionHolder = function (args) {
     return new returnParameterDefinitionHolder();
+};
+/**
+ * creates {@link AnnotationEntry}
+ * @param {object} args Arguments to create the annotation entry node.
+ * @param {string} [args.leftValue='value'] The value of the key.
+ * @param {string|Annotation|AnnotationEntryArray} args.rightValue The value of the right hand element.
+ * @return {AnnotationEntry}      new annotation key value object.
+ */
+BallerinaASTFactory.createAnnotationEntry = function (args) {
+    return new annotationEntry(args);
+};
+
+/**
+ * creates {@link AnnotationEntryArray}
+ * @return {AnnotationEntryArray}      new annotation value array object.
+ */
+BallerinaASTFactory.createAnnotationEntryArray = function () {
+    return new annotationEntryArray();
 };
 
 /**
@@ -1113,7 +1143,6 @@ BallerinaASTFactory.isArrayMapAccessExpression = function (child) {
     return child instanceof arrayMapAccessExpression;
 };
 
-
 /**
  * instanceof check for functionInvocationExpression
  * @param {ASTNode} child - The ast node.
@@ -1155,7 +1184,7 @@ BallerinaASTFactory.isConstantDefinition = function (child) {
  * @param {ASTNode} child - The ast node.
  * @return {boolean} - true if same type, else false
  * */
-BallerinaASTFactory.isAnnotationDefinition = function (child) {
+BallerinaASTFactory.isAnnotationDefinition = function(child){
     return child instanceof annotationDefinition;
 };
 
@@ -1164,7 +1193,7 @@ BallerinaASTFactory.isAnnotationDefinition = function (child) {
  * @param {ASTNode} child - The ast node.
  * @return {boolean} - true if same type, else false
  * */
-BallerinaASTFactory.isAnnotationAttributeDefinition = function (child) {
+BallerinaASTFactory.isAnnotationAttributeDefinition = function(child){
     return child instanceof annotationAttributeDefinition;
 };
 
@@ -1193,6 +1222,33 @@ BallerinaASTFactory.isThrowStatement = function (child) {
  */
 BallerinaASTFactory.isCommentStatement = function (child) {
     return child instanceof commentStatement;
+};
+
+/**
+ * instanceof check for annotation ast node.
+ * @param  {ASTNode}  child The ast node
+ * @return {Boolean}       true if same type, else false
+ */
+BallerinaASTFactory.isAnnotation = function (child) {
+    return child instanceof annotation;
+};
+
+/**
+ * instanceof check for annotationEntry ast node.
+ * @param  {ASTNode}  child The ast node
+ * @return {Boolean}       true if same type, else false
+ */
+BallerinaASTFactory.isAnnotationEntry = function (child) {
+    return child instanceof annotationEntry;
+};
+
+/**
+ * instanceof check for annotationEntryArray ast node.
+ * @param  {ASTNode}  child The ast node
+ * @return {Boolean}       true if same type, else false
+ */
+BallerinaASTFactory.isAnnotationEntryArray = function (child) {
+    return child instanceof annotationEntryArray;
 };
 
 /**
@@ -1232,6 +1288,15 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
             break;
         case 'import':
             node = BallerinaASTFactory.createImportDeclaration();
+            break;
+        case 'annotation':
+            node = BallerinaASTFactory.createAnnotation();
+            break;
+        case 'annotation_entry':
+            node = BallerinaASTFactory.createAnnotationEntry();
+            break;
+        case 'annotation_entry_array':
+            node = BallerinaASTFactory.createAnnotationEntryArray();
             break;
         case 'service_definition':
             node = BallerinaASTFactory.createServiceDefinition();
@@ -1296,13 +1361,13 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         case 'back_tick_expression':
             node = BallerinaASTFactory.createBackTickExpression();
             break;
-        case 'while_statement':
+        case 'while_statement' :
             node = BallerinaASTFactory.createWhileStatement();
             break;
-        case 'break_statement':
+        case 'break_statement' :
             node = BallerinaASTFactory.createBreakStatement();
             break;
-        case 'basic_literal_expression':
+        case 'basic_literal_expression' :
             node = BallerinaASTFactory.createBasicLiteralExpression();
             break;
         case 'left_operand_expression':
@@ -1311,7 +1376,7 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         case 'right_operand_expression':
             node = BallerinaASTFactory.createRightOperandExpression();
             break;
-        case 'if_else_statement':
+        case 'if_else_statement' :
             node = BallerinaASTFactory.createIfElseStatement();
             break;
         case 'instance_creation_expression':
@@ -1324,46 +1389,46 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
             node = BallerinaASTFactory.createIfCondition();
             break;
         case 'equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": "==" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": "=="});
             break;
         case 'greater_than_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": ">" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": ">"});
             break;
         case 'add_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": "+" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": "+"});
             break;
         case 'multiplication_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": "*" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": "*"});
             break;
         case 'division_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": "/" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": "/"});
             break;
-        case 'mod_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": "%" });
+        case 'mod_expression' :
+            node = BallerinaASTFactory.createBinaryExpression({"operator": "%"});
             break;
         case 'and_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": "&&" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": "&&"});
             break;
         case 'subtract_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": "-" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": "-"});
             break;
         case 'or_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": "||" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": "||"});
             break;
         case 'greater_equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": ">=" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": ">="});
             break;
         case 'less_than_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": "<" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": "<"});
             break;
         case 'less_equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": "<=" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": "<="});
             break;
         case 'not_equal_expression':
-            node = BallerinaASTFactory.createBinaryExpression({ "operator": "!=" });
+            node = BallerinaASTFactory.createBinaryExpression({"operator": "!="});
             break;
         case 'unary_expression':
-            node = BallerinaASTFactory.createUnaryExpression({ "operator": jsonNode.operator });
+            node = BallerinaASTFactory.createUnaryExpression({"operator": jsonNode.operator});
             break;
         case 'array_map_access_expression':
             node = BallerinaASTFactory.createArrayMapAccessExpression();
@@ -1444,7 +1509,7 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
             throw new Error('Unknown node definition for ' + jsonNode.type);
     }
 
-    node.setLineNumber(jsonNode.line_number, { doSilently: true });
+    node.setLineNumber(jsonNode.line_number, {doSilently: true});
     return node;
 };
 

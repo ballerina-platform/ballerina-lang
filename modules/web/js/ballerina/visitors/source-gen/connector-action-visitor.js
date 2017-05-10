@@ -48,12 +48,20 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
          * that particular source generation has to be constructed here
          */
         var functionReturnTypes = connectorAction.getReturnTypesAsString();
-        var connectorActionReturnTypesSource = "";
+        var connectorActionReturnTypesSource = '';
         if (!_.isEmpty(functionReturnTypes)) {
             connectorActionReturnTypesSource = '(' + connectorAction.getReturnTypesAsString() + ') ';
         }
 
-        var constructedSourceSegment = 'action ' + connectorAction.getActionName() + ' (' +
+
+        let constructedSourceSegment = '\n';
+        _.forEach(connectorAction.getChildrenOfType(connectorAction.getFactory().isAnnotation), annotationNode => {
+            if (annotationNode.isSupported()) {
+                constructedSourceSegment += this.getIndentation() + annotationNode.toString() + '\n';
+            }
+        });
+
+        constructedSourceSegment += this.getIndentation() + 'action ' + connectorAction.getActionName() + ' (' +
             connectorAction.getArgumentsAsString() + ') ' + connectorActionReturnTypesSource + '{\n';
         this.appendSource(constructedSourceSegment);
         this.indent();
@@ -70,8 +78,8 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitConnectorAction(connectorAction) {
         this.outdent();
-        this.appendSource("}\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(this.getIndentation() + "}\n");
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit FunctionDefinition');
     }
 

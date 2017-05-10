@@ -1,0 +1,57 @@
+$header-bgcolor: #f5f5f5;
+$header-brand-color: #000;
+
+$footer-bgcolor: #d4d4d4;
+$footer-color: #444;
+
+$menubar-link-color: #444;
+$menubar-link-hover-color: #fff;
+$menubar-link-disabled-color: #afafaf;
+$menubar-link-hover-bgcolor: #707276;
+$menubar-file-dropdown-menu-bgcolor: #707276;
+$menubar-file-dropdown-menu-link-hover-color: $menubar-file-dropdown-menu-bgcolor;
+$menubar-file-dropdown-menu-link-hover-bgcolor: #d4d4d4;
+
+$breadcrumb-bgcolor: #fcfcfc;
+$breadcrumb-active-color: #000;
+
+$left-toolbar-bgcolor: #e4e4e4;
+$left-toolbar-link-color: #21252b;
+
+$tab-header-bgcolor: #d4d4d4;
+$tab-header-active-tab-bgcolor: #fff;
+$tab-header-inactive-tab-bgcolor: #707276;
+$tab-header-active-inverse-tab-bgcolor: #3c3c3c;
+$tab-content-wrapper-bgcolor: #fff;
+$tab-content-wrapper-grid-color: #eee;
+
+$bottom-right-controls-bgcolor: #707276;
+
+$source-editor-color: #F8F8F8;
+$source-editor-bgcolor: $tab-header-active-inverse-tab-bgcolor;
+$source-editor-gutter-color: #E2E2E2;
+$source-editor-gutter-bgcolor: #313131;
+
+$tool-palette-container-bgcolor: #fff;
+$tool-group-header-bgcolor: #eee;
+$tool-group-header-text-color: #333;
+$tool-title-color: #000;
+$tool-separator-color: $tool-group-header-bgcolor;
+
+$panel-header-bgcolor: #fff;
+$panel-header-border-color: $panel-header-bgcolor;
+$panel-header-color: #333;
+$panel-body-bgcolor: #fff;
+$panel-body-border-color: $panel-header-border-color;
+$panel-body-dropzone-bgcolor: #fff;
+
+$package-configs-bgcolor: #fff;
+$worker-life-line-color: #000;
+$package-definition-color: #000;
+
+$btn-primary-bgcolor: #5b5b5b;
+$btn-secondary-bgcolor: #858585;
+$welcome-details-content-wrapper-bgcolor: transparentize(#e4e4e4, 0.5);
+$welcome-tile-view-wrapper-bgcolor: #ffffff;
+
+@import '../main.scss';

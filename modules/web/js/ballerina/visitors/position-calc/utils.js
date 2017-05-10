@@ -92,8 +92,9 @@ function getCompoundStatementChildPosition(node) {
         let statementContainerBBox = viewSate.components.statementContainer;
         let headerBBox = viewSate.components.heading;
         let bodyBBox = viewSate.components.body;
+        let annotation = viewSate.components.annotation;
         let resources = _.filter(parent.getChildren(), function (child) {
-            return child instanceof AST.ResourceDefinition || 
+            return child instanceof AST.ResourceDefinition ||
                    child instanceof AST.ConnectorAction;
         });
         let x, y, headerX, headerY, bodyX, bodyY;
@@ -125,7 +126,7 @@ function getCompoundStatementChildPosition(node) {
         x = headerX;
         y = headerY;
         bodyX = headerX;
-        bodyY = headerY + headerBBox.h;
+        bodyY = headerY + headerBBox.h + annotation.h;;
 
         statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
         statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
@@ -147,10 +148,12 @@ function getCompoundStatementChildPosition(node) {
             return ASTFactory.isFunctionDefinition(child) ||
                 ASTFactory.isServiceDefinition(child) ||
                 ASTFactory.isConnectorDefinition(child) ||
-                ASTFactory.isAnnotationDefinition(child);
+                ASTFactory.isAnnotationDefinition(child) ||
+                ASTFactory.isPackageDefinition(child);
         });
         let heading = viewSate.components.heading;
         let body = viewSate.components.body;
+        let annotation = viewSate.components.annotation;
         let currentServiceIndex = _.findIndex(panelChildren, node);
         let x, y, headerX, headerY, bodyX, bodyY;
         if (currentServiceIndex === 0) {
@@ -167,7 +170,7 @@ function getCompoundStatementChildPosition(node) {
         x = headerX;
         y = headerY;
         bodyX = headerX;
-        bodyY = headerY + heading.h;
+        bodyY = headerY + heading.h + annotation.h;
 
         bBox.x = x;
         bBox.y = y;
@@ -198,7 +201,7 @@ function getCompoundStatementChildPosition(node) {
             if(viewState.bBox.w + connectorWidthTotal < minWidth){
                 viewState.bBox.w = minWidth - connectorWidthTotal;
             }
-        }, this);  
+        }, this);
     }
 
 export {getSimpleStatementPosition, getCompoundStatementChildPosition, populateOuterPanelDecoratorBBoxPosition, populateInnerPanelDecoratorBBoxPosition};

@@ -19,7 +19,7 @@
 import React from 'react';
 import LifeLine from './lifeline.jsx';
 import {getComponentForNodeArray} from './utils';
-import StatementContainer from './statement-container';
+import ConnectorActivationContainer from './connector-activation-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
 
 // require possible themes
@@ -45,6 +45,8 @@ class ConnectorDeclaration extends React.Component {
     render() {
         const statementContainerBBox = this.props.model.viewState.components.statementContainer;
         let connectorBBox = {};
+        let model = this.props.model;
+        const connectorName = model.getConnectorVariable();
         var children = getComponentForNodeArray(this.props.model.getChildren());
         connectorBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width)/2;
         connectorBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
@@ -52,8 +54,8 @@ class ConnectorDeclaration extends React.Component {
         connectorBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
 
         return (<g>
-                <StatementContainer bBox={statementContainerBBox}/>
-                <LifeLine title="Connector" bBox={connectorBBox}/>
+                <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model}/>
+                <LifeLine title={connectorName} bBox={connectorBBox}/>
                 {children}
             </g>
         );

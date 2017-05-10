@@ -28,13 +28,10 @@ class ParameterView extends React.Component {
     render() {
         let model = this.props.model;
         let viewState = model.viewState;
-        let lengthOfIcon = 14;
-        let xOfTextWithLeftPadding = viewState.x + 5;
-        return (<g><rect x={viewState.x} y={this.props.rectY} width={viewState.textLength + lengthOfIcon} height={this.props.h} rx="0" ry="0" className="parameter-wrapper"></rect>
-            <rect x={viewState.x} y={this.props.rectY} width={viewState.textLength - 10} height={this.props.h} rx="0" ry="0" className="parameter-text-wrapper"></rect>
-            <text x={xOfTextWithLeftPadding} y={this.props.textY}>{model.getParameterDefinitionAsString()}</text>
-            <rect x={viewState.textLength + viewState.x - 10} y={this.props.rectY} width={lengthOfIcon + 10} height={this.props.h} rx="0" ry="0" className="parameter-delete-icon-wrapper"></rect>
-            <image x={viewState.textLength + viewState.x - 5} y={this.props.rectY + 5} width={lengthOfIcon} height={lengthOfIcon } className="parameter-delete-icon"
+        return (<g><rect x={viewState.x} y={viewState.y + 3} width={viewState.w} height={viewState.h} rx="0" ry="0" className="parameter-wrapper"></rect>
+            <text x={viewState.x + 5} y={viewState.y + 3} className="parameter-text">{model.getParameterDefinitionAsString()}</text>
+            <rect x={viewState.components.deleteIcon.x} y={viewState.components.deleteIcon.y + 3} width={viewState.components.deleteIcon.w} height={viewState.components.deleteIcon.h} rx="0" ry="0" className="parameter-delete-icon-wrapper"></rect>
+            <image x={viewState.components.deleteIcon.x + 2} y={viewState.components.deleteIcon.y + 5} width="14" height="14" className="parameter-delete-icon"
                                     xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}/>
                 </g>)
     }

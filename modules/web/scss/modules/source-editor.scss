@@ -1,0 +1,11 @@
+body {
+    .ace-twilight {
+        background-color: $source-editor-bgcolor;
+        color: $source-editor-color;
+        
+        & .ace_gutter {
+            background: $source-editor-gutter-bgcolor;
+            color: $source-editor-gutter-color;
+        }
+    }
+}

@@ -31,22 +31,29 @@ class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitCatchStatement(catchStatement) {
+        this.node = catchStatement;
         /**
          * set the configuration start for the catch statement
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        this.appendSource('catch('+ catchStatement.getParameter() + ') {\n');
+        this.appendSource(' catch ('+ catchStatement.getParameter() + ') {\n');
+        this.indent();
         log.debug('Begin Visit Catch Statement');
     }
 
-    visitCatchStatement(catchStatement) {
-        log.debug('Visit Catch Statement');
+    visitStatement(statement) {
+        if(!_.isEqual(this.node, statement)) {
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        }
     }
 
     endVisitCatchStatement(catchStatement) {
-        this.appendSource("}\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.outdent();
+        this.appendSource(this.getIndentation() + "}");
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Catch Statement');
     }
 }

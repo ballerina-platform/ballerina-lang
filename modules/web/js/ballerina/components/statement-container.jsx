@@ -20,6 +20,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
+import MessageManager from './../visitors/message-manager';
+import ASTFactory from './../ast/ballerina-ast-factory';
 import './statement-container.css';
 
 class StatementContainer extends React.Component {
@@ -35,18 +37,21 @@ class StatementContainer extends React.Component {
         const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
         const dropZoneClassName = ((!dropZoneActivated) ? "drop-zone" : "drop-zone active")
               + ((dropZoneDropNotAllowed) ? " block" : "");
-        return (<g className="statement-container">
+        const containerClassName = ((dropZoneActivated) ? "statement-container drop-zone active" : "statement-container");
+        return (<g className={containerClassName}>
             <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h }
                 className={dropZoneClassName}
                 onMouseOver={(e) => this.onDropZoneActivate(e)}
-                onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
+                onMouseOut={(e) => this.onDropZoneDeactivate(e)}
+				onMouseUp={(e) => this.onDropZoneMouseUp(e)}/>
             {this.props.children}
         </g>);
     }
 
     onDropZoneActivate (e) {
   			const dragDropManager = this.context.dragDropManager,
-  						dropTarget = this.props.dropTarget;
+				dropTarget = this.props.dropTarget,
+				messageManager = this.context.messageManager;
   			if(dragDropManager.isOnDrag()) {
   					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
   							return;
@@ -64,21 +69,36 @@ class StatementContainer extends React.Component {
   					dragDropManager.once('drop-target-changed', () => {
   							this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
   					});
-  			}
+  			} else if (messageManager.isOnDrag()) {
+				/**
+				 * Hover on a worker declaration while drawing an arrow starting from a worker invocation
+				 */
+				this.setState({statementDropZoneActivated: true, dropZoneDropNotAllowed: false});
+				messageManager.setDestination(dropTarget);
+			}
         e.stopPropagation();
   	}
 
   	onDropZoneDeactivate (e) {
   			const dragDropManager = this.context.dragDropManager,
-  						dropTarget = this.props.dropTarget;
+				dropTarget = this.props.dropTarget,
+				messageManager = this.context.messageManager;
   			if(dragDropManager.isOnDrag()){
   					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
   							dragDropManager.clearActivatedDropTarget();
   							this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
   					}
-  			}
+  			} else if (messageManager.isOnDrag() && ASTFactory.isWorkerDeclaration(dropTarget)) {
+				this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
+				messageManager.setDestination(undefined);
+			}
         e.stopPropagation();
   	}
+
+  	onDropZoneMouseUp (e) {
+		this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
+		e.stopPropagation();
+	}
 }
 
 
@@ -93,7 +113,8 @@ StatementContainer.propTypes = {
 };
 
 StatementContainer.contextTypes = {
-	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
+	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+	 messageManager: PropTypes.instanceOf(MessageManager).isRequired
 };
 
 export default StatementContainer;

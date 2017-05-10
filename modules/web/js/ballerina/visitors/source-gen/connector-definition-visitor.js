@@ -47,22 +47,24 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        var self = this;
-        _.forEach(connectorDefinition.getAnnotations(), function(annotation) {
-            if (!_.isEmpty(annotation.value)) {
-                var constructedPathAnnotation;
-                if (annotation.key.indexOf(":") === -1) {
-                    constructedPathAnnotation = '@' + annotation.key + '("' + annotation.value + '")\n';
-                } else {
-                    constructedPathAnnotation = '@' + annotation.key.split(":")[0] + '(' + annotation.key.split(":")[1] +
-                        ' = "' + annotation.value + '")\n';
-                }
-                self.appendSource(constructedPathAnnotation);
+        let constructedSourceSegment = '\n';
+        _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation), annotationNode => {
+            if (annotationNode.isSupported()) {
+                constructedSourceSegment += this.getIndentation() +  annotationNode.toString() + '\n';
             }
         });
 
-        var constructedSourceSegment = 'connector ' + connectorDefinition.getConnectorName() +
-            ' (' + connectorDefinition.getArgumentsAsString()  + ')' + ' {\n';
+        var argumentsSrc = '';
+        _.forEach(connectorDefinition.getArguments(), function(argument, index){
+            argumentsSrc += argument.type + ' ';
+            argumentsSrc += argument.identifier;
+            if (connectorDefinition.getArguments().length - 1 !== index) {
+                argumentsSrc += ', ';
+            }
+        });
+
+        constructedSourceSegment += this.getIndentation() + 'connector ' + connectorDefinition.getConnectorName() +
+            ' (' + argumentsSrc + ')' + ' {\n';
         this.appendSource(constructedSourceSegment);
         this.indent();
         log.debug('Begin Visit Connector Definition');
@@ -78,8 +80,8 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitConnectorDefinition(connectorDefinition) {
         this.outdent();
-        this.appendSource("}\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(this.getIndentation() + "}\n");
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Connector Definition');
     }
 

@@ -26,7 +26,6 @@ const text_offset = 50;
 class StartArrowConnection extends React.Component {
 
 	render() {
-		debugger;
 		const { start, end} = this.props;
 
 		let arrowStart = {x : 0, y : 0};
@@ -50,7 +49,7 @@ class StartArrowConnection extends React.Component {
 		}
 
 		return (<g>
-		           <ArrowDecorator start={arrowStart} end={arrowEnd} />
+		           <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>
 				   <rect x={arrowEnd.x} y={arrowEnd.y - statement.height/2} width={statement.width} height={statement.height} className="statement-rect" />
 		           <text x={end.bBox.x + end.bBox.w/2} y={arrowStart.y} textAnchor="middle" alignmentBaseline="central" dominantBaseline="central">Start</text>
 				</g>);

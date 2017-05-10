@@ -1,0 +1,12 @@
+body {
+    &.sticky-footer footer {
+        position: absolute;
+        bottom: 0;
+        z-index: 1000;
+    }
+    
+    & footer {
+        background: $footer-bgcolor;
+        color: $footer-color;
+    }
+}
