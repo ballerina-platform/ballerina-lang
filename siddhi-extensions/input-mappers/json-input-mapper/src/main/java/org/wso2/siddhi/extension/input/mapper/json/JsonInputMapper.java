@@ -156,7 +156,8 @@ public class JsonInputMapper extends SourceMapper {
         if (isCustomMappingEnabled) {
             jsonObj = readContext.read(enclosingElement);
             if (jsonObj == null) {
-                log.error("Enclosing element " + enclosingElement + " can not be found.");
+                log.error("Enclosing element " + enclosingElement + " cannot be found in the json string " +
+                        eventObject.toString()+".");
                 return null;
             }
             if (jsonObj instanceof JSONArray) {
@@ -184,12 +185,17 @@ public class JsonInputMapper extends SourceMapper {
                 return eventArray;
                 //return Arrays.copyOfRange(newEventArray, 0, index);
             } else {
-                Event event = processCustomEvent(JsonPath.parse(jsonObj));
-                if (failOnMissingAttribute && checkForUnknownAttributes(event)) {
-                    log.error("Event " + event.toString() + " contains missing attributes");
+                try {
+                    Event event = processCustomEvent(JsonPath.parse(jsonObj));
+                    if (failOnMissingAttribute && checkForUnknownAttributes(event)) {
+                        log.error("Event " + event.toString() + " contains missing attributes");
+                        return null;
+                    }
+                    return event;
+                } catch (ExecutionPlanRuntimeException e) {
+                    log.error(e.getMessage());
                     return null;
                 }
-                return event;
             }
         } else {
             jsonObj = readContext.read(DEFAULT_ENCLOSING_ELEMENT);
@@ -292,7 +298,8 @@ public class JsonInputMapper extends SourceMapper {
                                         parser.getText() + " is not compatible with type STRING");
                             }
                         case FLOAT:
-                            if (JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken) || JsonToken.VALUE_NUMBER_INT.equals(jsonToken)) {
+                            if (JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken) ||
+                                    JsonToken.VALUE_NUMBER_INT.equals(jsonToken)) {
                                 data[position] = convertAttribute(parser.getValueAsString(), Attribute.Type.FLOAT);
                                 break;
                             } else {
@@ -343,13 +350,13 @@ public class JsonInputMapper extends SourceMapper {
 
             int position = 0;
             for (Attribute attribute : streamAttributes) {
-                String attribtueName = attribute.getName();
+                String attributeName = attribute.getName();
                 Attribute.Type type = attribute.getType();
-                Object attributeValue = eventObj.get(attribtueName);
+                Object attributeValue = eventObj.get(attributeName);
                 if (attributeValue == null) {
                     data[position++] = null;
                 } else {
-                    data[position++] = attributeConverter.getPropertyValue(eventObj.get(attribtueName).toString(), type);
+                    data[position++] = attributeConverter.getPropertyValue(eventObj.get(attributeName).toString(), type);
                 }
             }
             events[index++] = event;
@@ -366,20 +373,21 @@ public class JsonInputMapper extends SourceMapper {
         readContext = JsonPath.parse(childObject.toString());
         for (MappingPositionData mappingPositionData : this.mappingPositions) {
             int position = mappingPositionData.getPosition();
-            Object mappedValue = null;
+            Object mappedValue;
             try {
-               mappedValue = readContext.read(mappingPositionData.getMapping());
-            }catch (PathNotFoundException e){
+                mappedValue = readContext.read(mappingPositionData.getMapping());
+            } catch (PathNotFoundException e) {
                 throw new ExecutionPlanRuntimeException("Invalid Json path \"" +
                         mappingPositionData.getMapping() +
                         "\" for the json string " +
                         childObject.toString());
             }
             if (mappedValue == null) {
-                throw new ExecutionPlanRuntimeException("Can't find an attribute to map the value, " + mappingPositionData.getMapping());
+                data[position] = null;
+            } else {
+                data[position] = attributeConverter.getPropertyValue(mappedValue.toString(),
+                        streamAttributes.get(position).getType());
             }
-            data[position] = attributeConverter.getPropertyValue(mappedValue.toString(),
-                    streamAttributes.get(position).getType());
         }
         return event;
     }
