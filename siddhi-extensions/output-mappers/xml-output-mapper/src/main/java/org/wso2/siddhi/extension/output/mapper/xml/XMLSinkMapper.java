@@ -37,6 +37,7 @@ import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -168,7 +169,7 @@ public class XMLSinkMapper extends SinkMapper {
             sb.append(endingElement);
             if (xmlValidationEnabled) {
                 try {
-                    builder.parse(new ByteArrayInputStream(sb.toString().getBytes()));
+                    builder.parse(new ByteArrayInputStream(sb.toString().getBytes(Charset.forName("UTF-8"))));
                 } catch (SAXException e) {
                     log.error("Parse error occurred when validating output XML event. " +
                                       "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
@@ -220,7 +221,7 @@ public class XMLSinkMapper extends SinkMapper {
             sb.append(endingElement);
             if (xmlValidationEnabled) {
                 try {
-                    builder.parse(new ByteArrayInputStream(sb.toString().getBytes()));
+                    builder.parse(new ByteArrayInputStream(sb.toString().getBytes(Charset.forName("UTF-8"))));
                 } catch (SAXException | IOException e) {
                     log.error("Error occurred when validating output XML event. " +
                                       "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());

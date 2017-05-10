@@ -28,13 +28,10 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
-import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.input.InputEventHandler;
-import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -52,8 +49,8 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * This mapper converts XML string input to {@link ComplexEventChunk}. This extension accepts optional xpath expressions
- * to select specific attributes from the stream.
+ * This mapper converts XML string input to {@link org.wso2.siddhi.core.event.ComplexEventChunk}. This extension
+ * accepts optional xpath expressions to select specific attributes from the stream.
  */
 @Extension(
         name = "xml",
@@ -189,13 +186,15 @@ public class XmlSourceMapper extends SourceMapper {
                         axiomxPath = new AXIOMXPath(attributeMapping.getMapping());
                     } catch (JaxenException e) {
                         throw new ExecutionPlanValidationException("Error occurred when building XPath from: " +
-                                attributeMapping.getMapping() + ", mapped to attribute: " + attributeMapping.getRename());
+                                attributeMapping.getMapping() + ", mapped to attribute: " +
+                                attributeMapping.getRename());
                     }
                     for (Map.Entry<String, String> entry : namespaceMap.entrySet()) {
                         try {
                             axiomxPath.addNamespace(entry.getKey(), entry.getValue());
                         } catch (JaxenException e) {
-                            throw new ExecutionPlanValidationException("Error occurred when adding namespace: " + entry.getKey()
+                            throw new ExecutionPlanValidationException(
+                                    "Error occurred when adding namespace: " + entry.getKey()
                                     + ":" + entry.getValue() + " to XPath element: " + attributeMapping.getMapping());
                         }
                     }
@@ -213,8 +212,9 @@ public class XmlSourceMapper extends SourceMapper {
                         try {
                             enclosingElementSelectorPath.addNamespace(entry.getKey(), entry.getValue());
                         } catch (JaxenException e) {
-                            throw new ExecutionPlanValidationException("Error occurred when adding namespace: " + entry.getKey()
-                                    + ":" + entry.getValue() + " to XPath element:" + enclosingElementSelectorXPath.toString());
+                            throw new ExecutionPlanValidationException(
+                                    "Error occurred when adding namespace: " + entry.getKey() + ":" + entry.getValue
+                                            () + " to XPath element:" + enclosingElementSelectorXPath);
                         }
                     }
                 } catch (JaxenException e) {
@@ -228,8 +228,8 @@ public class XmlSourceMapper extends SourceMapper {
     }
 
     /**
-     * Receives an event as an XML string from {@link Source}, converts it to a {@link ComplexEventChunk}
-     * and send to the {@link OutputCallback}.
+     * Receives an event as an XML string from {@link org.wso2.siddhi.core.stream.input.source.Source}, converts it to
+     * a {@link ComplexEventChunk} and send to the {@link org.wso2.siddhi.core.query.output.callback.OutputCallback}.
      *
      * @param eventObject  the input event, given as an XML string
      * @param inputEventHandler input handler
@@ -346,7 +346,8 @@ public class XmlSourceMapper extends SourceMapper {
             } else {
                 log.warn("Incoming XML message should adhere to pre-defined format" +
                         "when using default mapping. Root element name should be " + EVENTS_PARENT_ELEMENT + ". But " +
-                        "found " + rootOMElement.getLocalName() + ". Hence dropping XML message : " + rootOMElement.toString());
+                        "found " + rootOMElement.getLocalName() + ". Hence dropping XML message : " +
+                                 rootOMElement.toString());
             }
         }
         return eventList.toArray(new Event[0]);
@@ -357,7 +358,8 @@ public class XmlSourceMapper extends SourceMapper {
         for (String ns : namespaces) {
             String[] splits = ns.split("=");
             if (splits.length != 2) {
-                log.warn("Malformed namespace mapping found: " + ns + ". Each namespace has to have format: <prefix>=<uri>");
+                log.warn("Malformed namespace mapping found: " + ns + ". Each namespace has to have format: "
+                                 + "<prefix>=<uri>");
             }
             namespaceMap.put(splits[0].trim(), splits[1].trim());
         }
@@ -374,8 +376,8 @@ public class XmlSourceMapper extends SourceMapper {
                 List selectedNodes = axiomXPath.selectNodes(eventOMElement);
                 if (selectedNodes.size() == 0) {
                     if (failOnUnknownAttribute) {
-                        log.warn("Xpath: '" + axiomXPath.toString() + " did not yield any results. Hence dropping the " +
-                                "event : " + eventOMElement.toString());
+                        log.warn("Xpath: '" + axiomXPath.toString() + " did not yield any results. Hence dropping the" +
+                                " event : " + eventOMElement.toString());
                         return null;
                     } else {
                         continue;
@@ -409,7 +411,8 @@ public class XmlSourceMapper extends SourceMapper {
                 } else if (elementObj instanceof OMAttribute) {
                     OMAttribute omAttribute = (OMAttribute) elementObj;
                     try {
-                        data[i] = attributeConverter.getPropertyValue(omAttribute.getAttributeValue(), attribute.getType());
+                        data[i] = attributeConverter.getPropertyValue(omAttribute.getAttributeValue(),
+                                                                      attribute.getType());
                     } catch (ExecutionPlanRuntimeException | NumberFormatException e) {
                         log.warn("Error occurred when extracting attribute value. Cause: " + e.getMessage() +
                                 ". Hence dropping the event: " + eventOMElement.toString());
