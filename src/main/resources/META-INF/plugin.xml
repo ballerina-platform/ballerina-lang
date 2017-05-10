@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.8.3</version>
+    <version>0.8.4</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -11,10 +11,11 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Add spellchecking support.</li>
-        <li>Add code folding support.</li>
+        <li>Add Quick Documentation support.</li>
+        <li>Improvements to code completion.</li>
+        <li>Improvements to syntax highlighting.</li>
       </ul>
-      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/4?closed=1">View all changes and bug fixes.</a>
+      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/5?closed=1">View all changes and bug fixes.</a>
     ]]>
     </change-notes>
 
