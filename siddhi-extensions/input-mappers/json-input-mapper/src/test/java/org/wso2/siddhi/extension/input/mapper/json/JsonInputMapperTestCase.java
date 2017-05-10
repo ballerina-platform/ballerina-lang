@@ -82,7 +82,7 @@ public class JsonInputMapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock", "{\"event\":{\"symbol\":\"WSO2\",\"price\":55.6,\"volume\":100,\"country\":\"Sri Lanka\"}}");
+        InMemoryBroker.publish("stock", "{\"events\":{\"symbol\":\"WSO2\",\"price\":55.6,\"volume\":100,\"country\":\"Sri Lanka\"}}");
         InMemoryBroker.publish("stock", "{\"event\":{\"symbol\":\"IBM\",\"price\":75.6,\"volume\":10,\"country\":\"USA\"}}");
         Thread.sleep(100);
 

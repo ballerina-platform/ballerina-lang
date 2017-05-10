@@ -122,7 +122,7 @@ public class JsonSourceMapperTestCase {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "@source(type='inMemory', topic='stock', " +
-                "@map(type='json', fail.on.unknown.attribute='true'))\n" +
+                "@map(type='json', fail.on.missing.attribute='true'))\n" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
@@ -195,7 +195,7 @@ public class JsonSourceMapperTestCase {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "@source(type='inMemory', topic='stock', " +
-                "@map(type='json', fail.on.unknown.attribute='false'))\n" +
+                "@map(type='json', fail.on.missing.attribute='false'))\n" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
@@ -277,7 +277,7 @@ public class JsonSourceMapperTestCase {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "@source(type='inMemory', topic='stock', " +
-                "@map(type='json', fail.on.unknown.attribute='true'))\n" +
+                "@map(type='json', fail.on.missing.attribute='true'))\n" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
@@ -347,15 +347,29 @@ public class JsonSourceMapperTestCase {
                 " }");
         InMemoryBroker.publish("stock", " {\n" +
                 "      \"event\":{\n" +
-                "         \"symbol\":10.234\",\n" +
+                "         \"symbol\":10.234,\n" +
                 "         \"price\":55.6,\n" +
                 "         \"volume\":a\n" +
+                "      }\n" +
+                " }");
+        InMemoryBroker.publish("stock", " {\n" +
+                "      \"event\":{\n" +
+                "         \"symbol\":\"WSO2\",\n" +
+                "         \"price\":USD55.6,\n" +
+                "         \"volume\": 100\n" +
+                "      }\n" +
+                " }");
+        InMemoryBroker.publish("stock", " {\n" +
+                "      \"event\":{\n" +
+                "         \"symbol\":\"WSO2\",\n" +
+                "         \"price\":55.6,\n" +
+                "         \"volume\": 100.20\n" +
                 "      }\n" +
                 " }");
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of events", 2, count.get());
+        Assert.assertEquals("Number of events", 1, count.get());
         executionPlanRuntime.shutdown();
     }
 
@@ -366,7 +380,298 @@ public class JsonSourceMapperTestCase {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "@source(type='inMemory', topic='stock', " +
-                "@map(type='json', fail.on.unknown.attribute='true'))\n" +
+                "@map(type='json', fail.on.missing.attribute='true'))\n" +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1:
+                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            break;
+                        default:
+                            Assert.fail();
+                    }
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+
+        InMemoryBroker.publish("stock", "  {\n" +
+                "   \"event\":{\n" +
+                "       <symbol>WSO2</symbol>\n" +
+                "       <price>55.6</price>\n" +
+                "       <volume>100</volume>\n" +
+                "   }\n" +
+                "}");
+        InMemoryBroker.publish("stock", " {\n" +
+                "   \"event\":{\n" +
+                "       \"TESTevent\": {\n" +
+                "       \"symbol\": \"WSO2\",\n" +
+                "       \"price\": \"55.6\",\n" +
+                "       \"volume\": \"100\"\n" +
+                "   }\n" +
+                "}");
+        InMemoryBroker.publish("stock", " {\n" +
+                "      \"event\":{\n" +
+                "         \"symbol\":\"WSO2\",\n" +
+                "         \"price\":55.6,\n" +
+                "         \"volume\": 100\n" +
+                "      }\n" +
+                " }");
+
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Number of events", 1, count.get());
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void jsonSourceMapperTest6() throws InterruptedException {
+        log.info("test JsonSourceMapper 6");
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "@source(type='inMemory', topic='stock', " +
+                "@map(type='json', fail.on.missing.attribute='true'))\n" +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1:
+                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            break;
+                        default:
+                            Assert.fail();
+                    }
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+
+        InMemoryBroker.publish("stock", " {\n" +
+                "   \"event\": {\n" +
+                "       \"symbol\": \"WSO2\",\n" +
+                "       \"price\": 55.6,\n" +
+                "       \"volume\": [\n" +
+                "           {\"v\": 100},\n" +
+                "           {\"v\": 200}\n" +
+                "       ]\n" +
+                "   }\n" +
+                "}");
+        InMemoryBroker.publish("stock", " {\n" +
+                "   \"event\":{\n" +
+                "       \"symbol\":\"WSO2\",\n" +
+                "       \"volume\":100\n" +
+                "   }\n" +
+                "}");
+        InMemoryBroker.publish("stock", " {\n" +
+                "      \"event\":{\n" +
+                "         \"symbol\":\"WSO2\",\n" +
+                "         \"price\":10.12,\n" +
+                "          \"discount\":\"3%\",\n" +
+                "         \"volume\":100\n" +
+                "      }\n" +
+                " }");
+        InMemoryBroker.publish("stock", " {\n" +
+                "      \"event\":{\n" +
+                "         \"symbol\":\"WSO2\",\n" +
+                "         \"price\":55.6,\n" +
+                "         \"volume\": 100\n" +
+                "      }\n" +
+                " }");
+
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Number of events", 1, count.get());
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void jsonSourceMapperTest8() throws InterruptedException {
+        log.info("test JsonSourceMapper 8");
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "@source(type='inMemory', topic='stock', " +
+                "@map(type='json', fail.on.missing.attribute='true'))\n" +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1:
+                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            break;
+                        default:
+                            Assert.fail();
+                    }
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+
+        InMemoryBroker.publish("stock", " {\n" +
+                "      \"testEvent\":{\n" +
+                "         \"symbol\":\"WSO2\",\n" +
+                "         \"price\":55.6,\n" +
+                "         \"volume\": 100\n" +
+                "      }\n" +
+                " }");
+        InMemoryBroker.publish("stock", " {\n" +
+                "      \"event\":{\n" +
+                "         \"symbol\":\"WSO2\",\n" +
+                "         \"price\":55.6,\n" +
+                "         \"volume\": 100\n" +
+                "      }\n" +
+                " }");
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Number of events", 1, count.get());
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void jsonSourceMapperTest9() throws InterruptedException {
+        log.info("test JsonSourceMapper 9");
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "@source(type='inMemory', topic='stock', " +
+                "@map(type='json', fail.on.missing.attribute='true'))\n" +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    switch (count.incrementAndGet()) {
+                        case 1:
+                            junit.framework.Assert.assertEquals(52.6f, event.getData(1));
+                            break;
+                        case 2:
+                            junit.framework.Assert.assertEquals(53.6f, event.getData(1));
+                            break;
+                        case 3:
+                            junit.framework.Assert.assertEquals(54.6f, event.getData(1));
+                            break;
+                        case 4:
+                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            break;
+                        case 5:
+                            junit.framework.Assert.assertEquals(57.6f, event.getData(1));
+                            break;
+                        case 6:
+                            junit.framework.Assert.assertEquals(58.6f, event.getData(1));
+                            break;
+                        case 7:
+                            junit.framework.Assert.assertEquals(60.6f, event.getData(1));
+                            break;
+                        default:
+                            Assert.fail();
+                    }
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+
+        InMemoryBroker.publish("stock", " \n" +
+                "[\n" +
+                "{\"event\":{\"symbol\":\"WSO2\",\"price\":52.6,\"volume\":100}},\n" +
+                "{\"event\":{\"symbol\":\"WSO2\",\"price\":53.6,\"volume\":99}},\n" +
+                "{\"event\":{\"symbol\":\"WSO2\",\"price\":54.6,\"volume\":80}}\n" +
+                "]\n");
+
+        InMemoryBroker.publish("stock", " \n" +
+                "[\n" +
+                "{\"event\":{\"symbol\":\"WSO2\",\"price\":55.6,\"volume\":100}},\n" +
+                "{\"testEvent\":{\"symbol\":\"WSO2\",\"price\":56.6,\"volume\":99}},\n" +
+                "{\"event\":{\"symbol\":\"WSO2\",\"price\":57.6,\"volume\":80}}\n" +
+                "]\n");
+        InMemoryBroker.publish("stock", "\n" +
+                "[\n" +
+                "{\"event\":{\"symbol\":\"WSO2\",\"price\":58.6,\"volume\":100}},\n" +
+                "{\"Event\":{\"symbol\":\"WSO2\",\"price\":59.6,\"volume\":99}},\n" +
+                "{\"event\":{\"symbol\":\"WSO2\",\"price\":60.6,\"volume\":80}}\n" +
+                "]\n");
+        Thread.sleep(100);
+
+        //assert event count
+        Assert.assertEquals("Number of events", 7, count.get());
+        executionPlanRuntime.shutdown();
+    }
+
+    /*
+    * Test cases for custom input mapping
+    */
+
+    @Test
+    public void jsonSourceMapperTest10() throws InterruptedException {
+        log.info("test JsonSourceMapper 1");
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "@source(type='inMemory', topic='stock', " +
+                "@map(type='json', enclosing.element=\"portfolio\", " +
+                "@attributes(symbol = \"company.symbol\", price = \"price\", volume = \"volume\"))) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
@@ -389,13 +694,13 @@ public class JsonSourceMapperTestCase {
                             junit.framework.Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(1.0f, event.getData(1));
+                            junit.framework.Assert.assertEquals(55.678f, event.getData(1));
                             break;
                         case 3:
-                            junit.framework.Assert.assertEquals(56.0f, event.getData(1));
+                            junit.framework.Assert.assertEquals(55f, event.getData(1));
                             break;
                         case 4:
-                            junit.framework.Assert.assertEquals(57.6f, event.getData(1));
+                            junit.framework.Assert.assertEquals("WSO2@#$%^*", event.getData(0));
                             break;
                         default:
                             Assert.fail();
@@ -406,45 +711,35 @@ public class JsonSourceMapperTestCase {
 
         executionPlanRuntime.start();
 
+        InMemoryBroker.publish("stock", "\n" +
+                "{\"portfolio\":\n" +
+                "[{\"stock\":{\"volume\":100,\"company\":{\"symbol\":\"wso2\"},\"price\":55.6}},{\"stock\":{\"volume\":200,\"company\":{\"symbol\":\"wso2\"},\"price\":75.6}}]\n" +
+                "}\n");
         InMemoryBroker.publish("stock", " {\n" +
                 "      \"event\":{\n" +
                 "         \"symbol\":\"WSO2\",\n" +
-                "         \"price\":55.6,\n" +
-                "         \"volume\": \"\"\n" +
-                "      }\n" +
-                " }");
-        InMemoryBroker.publish("stock", " {\n" +
-                "      \"event\":{\n" +
-                "         \"symbol\":\"WSO2\",\n" +
-                "         \"price\": \"\",\n" +
-                "         \"volume\": 100\n" +
-                "      }\n" +
-                " }");
-        InMemoryBroker.publish("stock", " {\n" +
-                "      \"event\":{\n" +
-                "         \"symbol\":\" \",\n" +
-                "         \"price\":55.6,\n" +
-                "         \"volume\": 100\n" +
-                "      }\n" +
-                " }");
-        InMemoryBroker.publish("stock", " {\n" +
-                "      \"event\":{\n" +
-                "         \"symbol\": 123,\n" +
-                "         \"price\":1,\n" +
+                "         \"price\":55.678,\n" +
                 "         \"volume\":100\n" +
                 "      }\n" +
                 " }");
         InMemoryBroker.publish("stock", " {\n" +
                 "      \"event\":{\n" +
-                "         \"symbol\":10.234\",\n" +
-                "         \"price\":55.6,\n" +
-                "         \"volume\":a\n" +
+                "         \"symbol\":\"WSO2\",\n" +
+                "         \"price\":55,\n" +
+                "         \"volume\":100\n" +
+                "      }\n" +
+                " }");
+        InMemoryBroker.publish("stock", " {\n" +
+                "      \"event\":{\n" +
+                "         \"symbol\":\"WSO2@#$%^*\",\n" +
+                "         \"price\":55,\n" +
+                "         \"volume\":100\n" +
                 "      }\n" +
                 " }");
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of events", 2, count.get());
+        Assert.assertEquals("Number of events", 4, count.get());
         executionPlanRuntime.shutdown();
     }
 

@@ -40,20 +40,19 @@ import com.google.gson.JsonObject;
         namespace = "sinkMapper",
         description = "Event to JSON output mapper."
 )
+
+// TODO : enable checkstyle, reformat
 public class JSONOutputMapper extends SinkMapper {
     private static final Logger log = Logger.getLogger(JSONOutputMapper.class);
     private StreamDefinition streamDefinition;
     private static final String EVENT_PARENT_TAG = "event";
     private static final String ENCLOSING_ELEMENT_IDENTIFIER = "enclosing.element";
     private static final String JSON_VALIDATION_IDENTIFIER = "validate.json";
-    private static final String JSON_START_SYMBOL = "{";
-    private static final String JSON_END_SYMBOL = "}";
     private static final String JSON_EVENT_SEPERATOR = ",";
     private static final String JSON_ARRAY_START_SYMBOL = "[";
     private static final String JSON_ARRAY_END_SYMBOL = "]";
     private static final String UNDEFINED = "undefined";
 
-    private boolean isCustomMappingEnabled = false;
     private String enclosingElement = null;
     private boolean isJsonValidationEnabled = false;
 
@@ -74,10 +73,7 @@ public class JSONOutputMapper extends SinkMapper {
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader) {
         this.streamDefinition = streamDefinition;
         enclosingElement = optionHolder.validateAndGetStaticValue(ENCLOSING_ELEMENT_IDENTIFIER, null);
-        isJsonValidationEnabled = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(JSON_VALIDATION_IDENTIFIER, "true"));
-        if (enclosingElement != null) {
-            isCustomMappingEnabled = true;
-        }
+        isJsonValidationEnabled = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(JSON_VALIDATION_IDENTIFIER, "false"));
     }
 
     @Override
@@ -127,6 +123,8 @@ public class JSONOutputMapper extends SinkMapper {
                 eventArray.add(constructSingleEventForDefaultMapping(doPartialProcessing(event)));
             }
             return (eventArray.toString());
+        } else {
+            // TODO : log error
         }
         return null;
     }
@@ -141,12 +139,13 @@ public class JSONOutputMapper extends SinkMapper {
             } else {
                 return payloadTemplateBuilder.build(event);
             }
-        } else if (eventObj instanceof Event[]) {
+        } // TODO : use class name instead of "instance of"
+        else if (eventObj instanceof Event[]) {
             StringBuilder sb = new StringBuilder();
             JsonArray jsonArray = new JsonArray();
             sb.append(JSON_ARRAY_START_SYMBOL);
             for (Event event : (Event[]) eventObj) {
-                sb.append(payloadTemplateBuilder.build(doPartialProcessing(event)) + JSON_EVENT_SEPERATOR + "\n");
+                sb.append(payloadTemplateBuilder.build(doPartialProcessing(event))).append(JSON_EVENT_SEPERATOR).append("\n");
             }
             sb.delete(sb.length() - 2, sb.length());
             sb.append(JSON_ARRAY_END_SYMBOL);
@@ -167,8 +166,10 @@ public class JSONOutputMapper extends SinkMapper {
         JsonObject innerParentObject = new JsonObject();
 
         for (int i = 0; i < data.length; i++) {
+            // TODO : mote attribute name array to the top
             String attributeName = streamDefinition.getAttributeNameArray()[i];
             Object attributeValue = data[i];
+            // TODO : use lambda expressions
             if (attributeValue != null) {
                 if (attributeValue instanceof String) {
                     innerParentObject.addProperty(attributeName, attributeValue.toString());
@@ -204,7 +205,7 @@ public class JSONOutputMapper extends SinkMapper {
         return event;
     }
 
-    public static boolean isValidJson(String jsonInString) {
+    private static boolean isValidJson(String jsonInString) {
         try {
             new Gson().fromJson(jsonInString, Object.class);
             return true;
