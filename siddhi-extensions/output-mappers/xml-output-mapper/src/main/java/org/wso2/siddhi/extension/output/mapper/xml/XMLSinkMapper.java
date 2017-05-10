@@ -73,9 +73,10 @@ import javax.xml.parsers.ParserConfigurationException;
         },
         examples = {
                 @Example(
-                        value = "@sink(type='inMemory', topic='stock', @map(type='xml'))\n"
-                                + "define stream FooStream (symbol string, price float, volume long);\n"
-                                + "Above configuration will do a default XML input mapping which will generate below "
+                        syntax = "@sink(type='inMemory', topic='stock', @map(type='xml'))\n"
+                                + "define stream FooStream (symbol string, price float, volume long);\n",
+                        description = "Above configuration will do a default XML input mapping which will "
+                                + "generate below "
                                 + "output"
                                 + "<events>\n"
                                 + "    <event>\n"
@@ -85,11 +86,12 @@ import javax.xml.parsers.ParserConfigurationException;
                                 + "    </event>\n"
                                 + "</events>\n"),
                 @Example(
-                        value = "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', enclosing"
+                        syntax = "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', enclosing"
                                 + ".element='<portfolio>', validate.xml='true', @payload( "
                                 + "\"<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}</Price></StockData>\")))\n"
-                                + "define stream BarStream (symbol string, price float, volume long);"
-                                + "Above configuration will perform a custom XML mapping which will produce below "
+                                + "define stream BarStream (symbol string, price float, volume long);",
+                        description = "Above configuration will perform a custom XML mapping which will "
+                                + "produce below "
                                 + "output MXL message"
                                 + "<portfolio>\n"
                                 + "    <StockData>\n"
@@ -129,7 +131,8 @@ public class XMLSinkMapper extends SinkMapper {
      * @param mapperConfigReader
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
+                     TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader) {
         this.streamDefinition = streamDefinition;
         enclosingElement = optionHolder.getOrCreateOption(OPTION_ENCLOSING_ELEMENT, null).getValue();
         if (enclosingElement != null) {

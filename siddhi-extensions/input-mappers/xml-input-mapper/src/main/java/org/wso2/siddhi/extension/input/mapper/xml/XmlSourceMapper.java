@@ -33,7 +33,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.AttributeMapping;
-import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
@@ -95,10 +95,10 @@ import javax.xml.stream.XMLStreamException;
         },
         examples = {
                 @Example(
-                        value = "@source(type='inMemory', topic='stock', @map(type='xml'))\n"
-                                + "define stream FooStream (symbol string, price float, volume long);\n"
-                                + "Above configuration will do a default XML input mapping. Expected input will"
-                                + "look like below."
+                        syntax = "@source(type='inMemory', topic='stock', @map(type='xml'))\n"
+                                + "define stream FooStream (symbol string, price float, volume long);\n",
+                        description =  "Above configuration will do a default XML input mapping. Expected "
+                                + "input will look like below."
                                 + "<events>\n"
                                 + "    <event>\n"
                                 + "        <symbol>WSO2</symbol>\n"
@@ -107,11 +107,11 @@ import javax.xml.stream.XMLStreamException;
                                 + "    </event>\n"
                                 + "</events>\n"),
                 @Example(
-                        value = "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = "
+                        syntax = "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = "
                                 + "\"dt=urn:schemas-microsoft-com:datatypes\", enclosing.element=\"//portfolio\", "
-                                + "@attributes(symbol = \"company/symbol\", price = \"price\", volume = \"volume\")))"
-                                + "Above configuration will perform a custom XML mapping. Expected input will look "
-                                + "like below."
+                                + "@attributes(symbol = \"company/symbol\", price = \"price\", volume = \"volume\")))",
+                        description =  "Above configuration will perform a custom XML mapping. Expected input will "
+                                + "look like below."
                                 + "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">\n"
                                 + "    <stock exchange=\"nasdaq\">\n"
                                 + "        <volume>100</volume>\n"
@@ -232,15 +232,15 @@ public class XmlSourceMapper extends SourceMapper {
      * and send to the {@link OutputCallback}.
      *
      * @param eventObject  the input event, given as an XML string
-     * @param inputHandler input handler
+     * @param inputEventHandler input handler
      */
     @Override
-    protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
+    protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         Event[] result;
         try {
             result = convertToEvents(eventObject);
             if (result.length > 0) {
-                inputHandler.send(result);
+                inputEventHandler.sendEvents(result);
             }
         } catch (Throwable t) { //stringToOM does not throw the exception immediately due to streaming. Hence need this.
             log.error("Exception occurred when converting XML message to Siddhi Event", t);

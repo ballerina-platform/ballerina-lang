@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class XMLSinkMapperWithSiddhiQLTestCase {
-    static final Logger log = Logger.getLogger(XMLSinkMapperWithSiddhiQLTestCase.class);
+    private static final Logger log = Logger.getLogger(XMLSinkMapperWithSiddhiQLTestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
@@ -459,8 +459,8 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "@Plan:name('TestExecutionPlan')" +
                 "define stream FooStream (id int, symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', @payload(" +
-                "\"<StockData><Symbol id=''{{id}}'' value=''{{price}}''>{{symbol}}</Symbol><Price company=''{{symbol}}''>" +
-                "{{price}}</Price></StockData>\"))) " +
+                "\"<StockData><Symbol id=''{{id}}'' value=''{{price}}''>{{symbol}}</Symbol>"
+                + "<Price company=''{{symbol}}''>{{price}}</Price></StockData>\"))) " +
                 "define stream BarStream (id int, symbol string, price float, volume long); ";
         String query = "" +
                 "from FooStream " +

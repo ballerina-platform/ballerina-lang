@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class XMLSinkMapperWithSiddhiQueryAPITestCase {
 
-    static final Logger log = Logger.getLogger(XMLSinkMapperWithSiddhiQueryAPITestCase.class);
+    private static final Logger log = Logger.getLogger(XMLSinkMapperWithSiddhiQueryAPITestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
