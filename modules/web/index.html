@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
 ~   Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
 ~
@@ -27,12 +28,13 @@
 
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
 
-    <link href="lib/font-wso2-1.2.1/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/font-wso2-1.2.2/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2-2.0.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
     <link href="lib/context-menu_v2.4.2/jquery.contextMenu.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/select2-4.0.3/dist/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/js-tree-v3.3.2/themes/default/style.min.css" rel="stylesheet" type="text/css"/>
 
+    <link rel="stylesheet" type="text/css" href="css/preloader.css"/>
     <link rel="stylesheet" type="text/css" href="css/layout.css"/>
     <link rel="stylesheet" type="text/css" href="css/styles.css"/>
     <link rel="stylesheet" type="text/css" href="css/tab-styles.css"/>
@@ -48,8 +50,29 @@
     <link rel="stylesheet" href="dist/themes/default.css" title="default" disabled/>
     <link rel="stylesheet" href="dist/themes/light.css" title="light" disabled/>
     <link rel="stylesheet" href="dist/themes/dark.css" title="dark" disabled/>
+
 </head>
-<body class="sticky-footer">
+<body class="sticky-footer loading" data-toggle="loading" data-loading-style="overlay">
+
+<div class="loading-animation">
+    <img src="images/BallerinaLogo.svg" />
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+        <defs>
+            <filter id="gooey">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"></feGaussianBlur>
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo"></feColorMatrix>
+                <feBlend in="SourceGraphic" in2="goo"></feBlend>
+            </filter>
+        </defs>
+    </svg>
+    <div class="blob blob-0"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+    <div class="blob blob-5"></div>
+</div>
+<div class="loading-bg"></div>
 
 <!-- Start: header -->
 <header class="header header-default">
@@ -689,6 +712,12 @@
 <script src="lib/swagger-editor-3.0.1/swagger-editor-bundle.js"></script>
 <script src="dist/bundle.js"></script>
 <script src="styleswitcher.js"></script>
+
+<script>
+    $(document).ready(function(){
+        $('body').loading('hide');
+    });
+</script>
 
 </body>
 </html>

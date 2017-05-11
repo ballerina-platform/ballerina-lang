@@ -23,6 +23,7 @@ import PropTypes from 'prop-types';
 import ASTNode from '../ast/node';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DragDropManager from '../tool-palette/drag-drop-manager';
+import EditableText from './editable-text';
 import './panel-decorator.css';
 import { panel } from '../configs/designer-defaults.js';
 
@@ -30,7 +31,7 @@ class PanelDecorator extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { dropZoneActivated: false, dropZoneDropNotAllowed: false };
+        this.state = { dropZoneActivated: false, dropZoneDropNotAllowed: false, titleEditing: false };
     }
 
     onCollapseClick() {
@@ -43,6 +44,22 @@ class PanelDecorator extends React.Component {
 
     onDelete() {
         this.props.model.remove();
+    }
+
+    onTitleClick() {
+        this.setState({titleEditing: true})
+    }
+
+    onTitleInputBlur() {
+        console.log(this.props.model);
+        this.setState({titleEditing: false})
+    }
+
+    onTitleInputChange(e) {
+        const modelType = this.props.model.type.replace('Definition', '');
+
+        // Setter functions take form 'setModelTypeName'. eg: setServiceName
+        this.props.model[`set${modelType}Name`](e.target.value);
     }
 
     render() {
@@ -79,7 +96,11 @@ class PanelDecorator extends React.Component {
             </g>
             <g className="panel-header">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0" className="headingRect" data-original-title="" title=""></rect>
-                <text x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + 5 + annotationBodyHeight}>{this.props.title}</text>
+                <EditableText x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + 5 + annotationBodyHeight}
+                              onBlur={() => {this.onTitleInputBlur()}} onClick={() => {this.onTitleClick()}} editing={this.state.titleEditing}
+                              onChange={e => {this.onTitleInputChange(e)}}>
+                    {this.props.title}
+                </EditableText>
                 <image x={bBox.x + 5} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize} xlinkHref={ImageUtil.getSVGIconString(this.props.icon)} />
                 {titleComponents}
                 <g className="panel-header-controls">

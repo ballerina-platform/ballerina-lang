@@ -17,13 +17,13 @@
 
 @font-face {
 	font-family:"font-wso2";
-	src:local("font-wso2"), url("../fonts/font-wso2.eot?3292138067f67a4483cdc2ec6d6999b8");
+	src:local("font-wso2"), url("../fonts/font-wso2.eot?3607b8a70ef5cdf4ce0e16344b02488c");
 	src:local("font-wso2"),
         url("../fonts/font-wso2.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/font-wso2.woff2?3292138067f67a4483cdc2ec6d6999b8") format("woff2"),
-		url("../fonts/font-wso2.woff?3292138067f67a4483cdc2ec6d6999b8") format("woff"),
-		url("../fonts/font-wso2.ttf?3292138067f67a4483cdc2ec6d6999b8") format("truetype"),
-		url("../fonts/font-wso2.svg?3292138067f67a4483cdc2ec6d6999b8#font-wso2") format("svg");
+		url("../fonts/font-wso2.woff2?3607b8a70ef5cdf4ce0e16344b02488c") format("woff2"),
+		url("../fonts/font-wso2.woff?3607b8a70ef5cdf4ce0e16344b02488c") format("woff"),
+		url("../fonts/font-wso2.ttf?3607b8a70ef5cdf4ce0e16344b02488c") format("truetype"),
+		url("../fonts/font-wso2.svg?3607b8a70ef5cdf4ce0e16344b02488c#font-wso2") format("svg");
 	font-weight:normal;
 	font-style:normal;
 }
@@ -380,6 +380,10 @@
     content:"\e60f";
 }
 
+.fw-break:before {
+    content:"\e721";
+}
+
 .fw-bug:before {
     content:"\e611";
 }
@@ -462,6 +466,10 @@
 
 .fw-connector:before {
     content:"\e700";
+}
+
+.fw-console:before {
+    content:"\e71d";
 }
 
 .fw-constant:before {
@@ -688,6 +696,10 @@
     content:"\e62e";
 }
 
+.fw-fork-join:before {
+    content:"\e720";
+}
+
 .fw-format:before {
     content:"\e6fa";
 }
@@ -814,6 +826,10 @@
 
 .fw-is-connector:before {
     content:"\e6e5";
+}
+
+.fw-iterate:before {
+    content:"\e71f";
 }
 
 .fw-jaggery:before {
@@ -1068,6 +1084,10 @@
     content:"\e662";
 }
 
+.fw-resume:before {
+    content:"\e71e";
+}
+
 .fw-retire:before {
     content:"\e6cd";
 }
@@ -1264,6 +1284,10 @@
     content:"\e67f";
 }
 
+.fw-throw:before {
+    content:"\e722";
+}
+
 .fw-tiles:before {
     content:"\e681";
 }
@@ -1370,6 +1394,14 @@
 
 .fw-windows:before {
     content:"\e605";
+}
+
+.fw-worker-invoke:before {
+    content:"\e723";
+}
+
+.fw-worker-reply:before {
+    content:"\e724";
 }
 
 .fw-worker:before {

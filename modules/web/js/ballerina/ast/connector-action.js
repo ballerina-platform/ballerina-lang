@@ -386,7 +386,7 @@ class ConnectorAction extends ASTNode {
 
     /**
      * Override the addChild method for ordering the child elements as
-     * [Statements, Workers, Connectors]
+     * [Workers, Connectors, Statements]
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
@@ -413,6 +413,14 @@ class ConnectorAction extends ASTNode {
                     });
 
                     indexNew = lastConnectorDeclarationIndex === -1 ? indexNew : lastConnectorDeclarationIndex + 1;
+
+                    if (!this.getFactory().isConnectorDeclaration(child)) {
+                        let lastStatementIndex = _.findLastIndex(this.getChildren(), (child) => {
+                            return this.getFactory().isStatement(child) || this.getFactory().isExpression(child);
+                        });
+
+                        indexNew = lastStatementIndex === -1 ? indexNew : lastStatementIndex + 1;
+                    }
                 }
             }
 

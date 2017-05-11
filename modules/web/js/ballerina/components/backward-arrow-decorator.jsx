@@ -52,10 +52,7 @@ class BackwardArrow extends React.Component {
             arrowEnd = end;
         }
 
-        let className = "action-arrow";
-        if(dashed) {
-            className = "action-arrow action-dash-line";
-        }
+        let className = "action-arrow action-dash-line";
         return (<g >
             {enable &&  < line x1={arrowStart.x} x2={arrowEnd.x} y1={arrowStart.y} y2={arrowEnd.y} className={className} /> }
             {enable &&
