@@ -146,7 +146,8 @@ public class BuiltinPackageRepository extends PackageRepository {
             jarInputStream = new ZipInputStream(repoUrl.openStream());
             while ((fileNameEntry = jarInputStream.getNextEntry()) != null) {
                 String filePath = fileNameEntry.getName();
-                if (filePath.startsWith(pkgRelPath) && filePath.endsWith(BAL_FILE_EXT)) {
+                // read .bal files in the package directory, but not in sub-packages
+                if (filePath.matches(pkgRelPath + "((?!/).)*\\" + BAL_FILE_EXT)) {
                     if (skipNatives && filePath.endsWith(NATIVE_BAL_FILE)) {
                         continue;
                     }
