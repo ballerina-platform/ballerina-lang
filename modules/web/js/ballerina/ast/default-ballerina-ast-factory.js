@@ -133,12 +133,7 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
      */
     DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
         var connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
-        var actionDef = DefaultBallerinaASTFactory.createConnectorAction(args);
-        var connectorArg = BallerinaASTFactory.createResourceParameter();
-        connectorArg.setBType("message");
-        connectorArg.setIdentifier("m");
-        connectorDef.addChild(actionDef);
-        connectorDef.addChild(connectorArg);
+        connectorDef.addArgument('message', 'm');
         return connectorDef;
     };
 
@@ -148,10 +143,7 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
      */
     DefaultBallerinaASTFactory.createConnectorAction = function (args) {
         var actionDef = BallerinaASTFactory.createConnectorAction(args);
-        var actionArg = BallerinaASTFactory.createResourceParameter();
-        actionArg.setBType("message");
-        actionArg.setIdentifier("m");
-        actionDef.addChild(actionArg);
+        actionDef.addArgument('message', 'm');
         return actionDef;
     };
 

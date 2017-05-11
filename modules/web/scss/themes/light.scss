@@ -36,11 +36,22 @@ $tool-palette-container-bgcolor: #fff;
 $tool-group-header-bgcolor: #eee;
 $tool-group-header-text-color: #333;
 $tool-title-color: #000;
+$tool-separator-color: $tool-group-header-bgcolor;
 
-$panel-title-bgcolor: #fff;
-$panel-border-color: #909090;
-$panel-title-color: #333;
+$panel-header-bgcolor: #fff;
+$panel-header-border-color: $panel-header-bgcolor;
+$panel-header-color: #333;
+$panel-body-bgcolor: #fff;
+$panel-body-border-color: $panel-header-border-color;
+$panel-body-dropzone-bgcolor: #fff;
 
-$worker-life-line-color: #fff;
+$package-configs-bgcolor: #fff;
+$worker-life-line-color: #000;
+$package-definition-color: #000;
+
+$btn-primary-bgcolor: #5b5b5b;
+$btn-secondary-bgcolor: #858585;
+$welcome-details-content-wrapper-bgcolor: transparentize(#e4e4e4, 0.5);
+$welcome-tile-view-wrapper-bgcolor: #ffffff;
 
 @import '../main.scss';
