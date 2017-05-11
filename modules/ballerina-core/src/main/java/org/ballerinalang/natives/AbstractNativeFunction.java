@@ -35,7 +35,6 @@ import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +67,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     private SimpleTypeName[] returnParamTypeNames;
     private SimpleTypeName[] argTypeNames;
     private String[] argNames;
-    private int tempStackFrameSize;
+    private int cacheFrameSize;
 
     /**
      * Initialize a native function.
@@ -196,17 +195,12 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     @Override
-    public int getTempStackFrameSize() {
-        return tempStackFrameSize;
+    public int getCacheFrameSize() {
+        return cacheFrameSize;
     }
 
-    @Override
-    public void setTempStackFrameSize(int stackFrameSize) {
-        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
-            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
-                    this.tempStackFrameSize + ", new :" + stackFrameSize);
-        }
-        this.tempStackFrameSize = stackFrameSize;
+    public void setCacheFrameSize(int stackFrameSize) {
+        this.cacheFrameSize = stackFrameSize;
     }
 
     @Override

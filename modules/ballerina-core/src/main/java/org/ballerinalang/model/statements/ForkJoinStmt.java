@@ -54,7 +54,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
-    private int tempStackFrameSize;
+    private int cacheFrameSize;
 
     private ForkJoinStmt(NodeLocation nodeLocation, SymbolScope enclosingScope) {
         super(nodeLocation);
@@ -341,13 +341,12 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
 
 
     @Override
-    public int getTempStackFrameSize() {
-        return tempStackFrameSize;
+    public int getCacheFrameSize() {
+        return cacheFrameSize;
     }
 
-    @Override
-    public void setTempStackFrameSize(int frameSize) {
-        this.tempStackFrameSize = frameSize;
+    public void setCacheFrameSize(int frameSize) {
+        this.cacheFrameSize = frameSize;
     }
 
     /**

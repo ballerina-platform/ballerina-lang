@@ -18,7 +18,6 @@
 
 package org.ballerinalang.runtime;
 
-import org.ballerinalang.bre.BLangExecutor;
 import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
@@ -43,7 +42,6 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.debugger.DebugManager;
-import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Map;
@@ -55,13 +53,13 @@ import java.util.Map;
  */
 public class BalProgramExecutor {
 
-    public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
+    public static void execute(CarbonMessage cMsg, Resource resource, Service service,
                                Context balContext) {
-
+        // TODO : Remove deprecated usages.
         balContext.setServiceInfo(
                 new CallableUnitInfo(service.getName(), service.getPackagePath(), service.getNodeLocation()));
+        balContext.setServiceName(service.getName());
 
-        balContext.setBalCallback(new DefaultBalCallback(callback));
         Expression[] exprs = new Expression[resource.getParameterDefs().length];
 
         BValue[] argValues = new BValue[resource.getParameterDefs().length];
@@ -105,12 +103,11 @@ public class BalProgramExecutor {
         RuntimeEnvironment runtimeEnv = service.getBLangProgram().getRuntimeEnvironment();
 
         SymbolName resourceSymbolName = resource.getSymbolName();
-        CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
-                resourceSymbolName.getName(), resource.getNodeLocation());
 
-        BValue[] cacheValues = new BValue[resource.getTempStackFrameSize()];
+        BValue[] cacheValues = new BValue[resource.getCacheFrameSize()];
 
-        StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], cacheValues, resourceInfo);
+        StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], cacheValues,
+                resourceSymbolName.getName());
         balContext.getControlStack().pushFrame(currentStackFrame);
         if (ModeResolver.getInstance().isDebugEnabled()) {
             DebugManager debugManager = DebugManager.getInstance();
@@ -118,27 +115,15 @@ public class BalProgramExecutor {
             if (debugManager.isDebugSessionActive()) {
                 BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, balContext);
                 debugManager.setDebugger(debugger);
-                balContext.setExecutor(debugger);
-                debugger.execute(new ResourceInvocationExpr(resource, exprs));
+                debugger.startExecution(new ResourceInvocationExpr(resource, exprs));
             } else {
                 // repeated code to make sure debugger have no impact in none debug mode.
-                if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                    BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-                    balContext.setExecutor(executor);
-                    executor.execute(new ResourceInvocationExpr(resource, exprs));
-                } else {
-                    BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
-                    new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
-                }
+                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
+                executor.startExecution(new ResourceInvocationExpr(resource, exprs));
             }
-        } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
-            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-            balContext.setExecutor(executor);
-            executor.execute(new ResourceInvocationExpr(resource, exprs));
         } else {
-            BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
-            new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
-            balContext.getControlStack().popFrame();
+            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
+            executor.startExecution(new ResourceInvocationExpr(resource, exprs));
         }
     }
 }

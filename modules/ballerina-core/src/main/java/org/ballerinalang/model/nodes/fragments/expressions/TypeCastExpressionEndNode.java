@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.nodes.fragments.expressions;
 
+import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.LinkedNodeVisitor;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.nodes.AbstractLinkedNode;
@@ -27,6 +28,7 @@ import org.ballerinalang.model.nodes.AbstractLinkedNode;
 public class TypeCastExpressionEndNode extends AbstractLinkedNode {
 
     private TypeCastExpression expression;
+    private LinkedNode branchingLinkedNode;
 
     public TypeCastExpressionEndNode(TypeCastExpression expression) {
         this.expression = expression;
@@ -40,5 +42,13 @@ public class TypeCastExpressionEndNode extends AbstractLinkedNode {
     @Override
     public void accept(LinkedNodeVisitor nodeVisitor) {
         nodeVisitor.visit(this);
+    }
+
+    public LinkedNode getBranchingLinkedNode() {
+        return branchingLinkedNode;
+    }
+
+    public void setBranchingLinkedNode(LinkedNode branchingLinkedNode) {
+        this.branchingLinkedNode = branchingLinkedNode;
     }
 }

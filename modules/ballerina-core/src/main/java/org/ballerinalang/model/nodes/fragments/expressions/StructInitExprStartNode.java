@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.nodes.fragments.expressions;
 
+import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.LinkedNodeVisitor;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.nodes.AbstractLinkedNode;
@@ -27,8 +28,7 @@ import org.ballerinalang.model.nodes.AbstractLinkedNode;
 public class StructInitExprStartNode extends AbstractLinkedNode {
 
     private StructInitExpr expression;
-    private int retuningBranchID;
-    private boolean hasReturningBranch;
+    private LinkedNode branchingLinkedNode;
     
     public StructInitExprStartNode(StructInitExpr expression) {
         this.expression = expression;
@@ -43,20 +43,12 @@ public class StructInitExprStartNode extends AbstractLinkedNode {
     public void accept(LinkedNodeVisitor nodeVisitor) {
         nodeVisitor.visit(this);
     }
-    
-    public int getGotoBranchID() {
-        return retuningBranchID;
+
+    public LinkedNode getBranchingLinkedNode() {
+        return branchingLinkedNode;
     }
 
-    public void setGotoBranchID(int retuningBranchID) {
-        this.retuningBranchID = retuningBranchID;
-    }
-
-    public boolean hasGotoBranchID() {
-        return hasReturningBranch;
-    }
-
-    public void setHasGotoBranchID(boolean hasReturningBranch) {
-        this.hasReturningBranch = hasReturningBranch;
+    public void setBranchingLinkedNode(LinkedNode branchingLinkedNode) {
+        this.branchingLinkedNode = branchingLinkedNode;
     }
 }

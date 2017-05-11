@@ -210,8 +210,7 @@ public interface NodeVisitor {
     void visit(VariableRefExpr variableRefExpr);
 
     void visit(NullLiteral nullLiteral);
-    
-    
+
     void visit(StackVarLocation stackVarLocation);
 
     void visit(ServiceVarLocation serviceVarLocation);

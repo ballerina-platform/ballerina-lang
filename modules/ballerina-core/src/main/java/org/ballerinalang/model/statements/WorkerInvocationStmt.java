@@ -40,8 +40,6 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     private Worker calleeWorker;
     private VariableRefExpr inMsg;
     private BType[] types = new BType[0];
-    private int retuningBranchID;
-    private boolean hasReturningBranch;
 
     public WorkerInvocationStmt(String workerName, NodeLocation nodeLocation) {
         super(nodeLocation);
@@ -96,26 +94,6 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     @Override
     public void setTypes(BType[] types) {
         this.types = types;
-    }
-
-    @Override
-    public int getGotoBranchID() {
-        return retuningBranchID;
-    }
-
-    @Override
-    public void setGotoBranchID(int retuningBranchID) {
-        this.retuningBranchID = retuningBranchID;
-    }
-
-    @Override
-    public boolean hasGotoBranchID() {
-        return hasReturningBranch;
-    }
-
-    @Override
-    public void setHasGotoBranchID(boolean hasReturningBranch) {
-        this.hasReturningBranch = hasReturningBranch;
     }
 
     @Override

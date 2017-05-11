@@ -23,8 +23,6 @@ package org.ballerinalang.runtime;
  */
 public class Constants {
 
-    public static final String SYS_PROP_ENABLE_NONBLOCKING = "enable.nonblocking";
-
     // Intermediate headers added to the ballerina message
     public static final String INTERMEDIATE_HEADERS = "INTERMEDIATE_HEADERS";
 

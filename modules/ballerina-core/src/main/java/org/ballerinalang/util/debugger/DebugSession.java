@@ -93,12 +93,6 @@ public class DebugSession implements DebugSessionObserver {
     }
 
     @Override
-    public void notifyExit() {
-        DebugManager debugManager = DebugManager.getInstance();
-        debugManager.notifyExit(this);
-    }
-
-    @Override
     public void notifyHalt(BreakPointInfo breakPointInfo) {
         DebugManager debugManager = DebugManager.getInstance();
         debugManager.notifyDebugHit(this, breakPointInfo);

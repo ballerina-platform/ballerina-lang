@@ -17,8 +17,6 @@
 */
 package org.ballerinalang;
 
-import org.ballerinalang.bre.BLangExecutor;
-import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
@@ -56,14 +54,13 @@ public class BLangProgramRunner {
 
         int serviceCount = 0;
         BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
+        bLangProgram.accept(flowBuilder);
         for (BLangPackage servicePackage : servicePackages) {
             for (Service service : servicePackage.getServices()) {
                 serviceCount++;
                 service.setBLangProgram(bLangProgram);
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
                         dispatcher.serviceRegistered(service));
-                // Build Flow for Non-Blocking execution.
-                service.accept(flowBuilder);
             }
         }
 
@@ -86,10 +83,10 @@ public class BLangProgramRunner {
         BallerinaFunction mainFunction = bLangProgram.getMainFunction();
 
         // Build flow for Non-Blocking execution.
-        mainFunction.accept(new BLangExecutionFlowBuilder());
+        bLangProgram.accept(new BLangExecutionFlowBuilder());
         try {
             BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
-            BValue[] cacheValues = new BValue[mainFunction.getTempStackFrameSize()];
+            BValue[] cacheValues = new BValue[mainFunction.getCacheFrameSize()];
 
             BArray<BString> arrayArgs = new BArray<>(BString.class);
             for (int i = 0; i < args.length; i++) {
@@ -97,11 +94,8 @@ public class BLangProgramRunner {
             }
 
             argValues[0] = arrayArgs;
-
-            CallableUnitInfo functionInfo = new CallableUnitInfo(mainFunction.getName(), mainFunction.getPackagePath(),
-                    mainFunction.getNodeLocation());
-
-            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
+            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, mainFunction.getName());
+            stackFrame.nodeLocation = mainFunction.getNodeLocation();
             bContext.getControlStack().pushFrame(stackFrame);
 
             // Invoke main function
@@ -114,23 +108,15 @@ public class BLangProgramRunner {
                 debugManager.waitTillClientConnect();
                 BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
                 debugManager.setDebugger(debugger);
-                bContext.setExecutor(debugger);
-                debugger.continueExecution(mainFunction.getCallableUnitBody());
-                debugManager.holdON();
-            } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
-                bContext.setExecutor(executor);
-                executor.continueExecution(mainFunction.getCallableUnitBody());
+                debugger.startExecution(mainFunction.getCallableUnitBody());
+                debugger.getExecution().get();
             } else {
-                BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-                mainFunction.getCallableUnitBody().execute(executor);
+                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
+                executor.startExecution(mainFunction.getCallableUnitBody());
+                executor.getExecution().get();
             }
-
-            bContext.getControlStack().popFrame();
         } catch (Throwable ex) {
-            String errorMsg = ErrorHandlerUtils.getErrorMessage(ex);
-            String stacktrace = ErrorHandlerUtils.getMainFuncStackTrace(bContext, ex);
-            throw new BLangRuntimeException(errorMsg + "\n" + stacktrace);
+            throw new BLangRuntimeException(ErrorHandlerUtils.getErrorWithStackTrace(bContext, ex));
         }
     }
 }

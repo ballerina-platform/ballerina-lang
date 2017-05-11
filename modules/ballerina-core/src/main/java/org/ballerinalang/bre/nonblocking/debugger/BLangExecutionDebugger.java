@@ -31,12 +31,10 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.nodes.EndNode;
-import org.ballerinalang.model.nodes.ExitNode;
-import org.ballerinalang.model.nodes.GotoNode;
+import org.ballerinalang.model.nodes.StartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ActionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
@@ -70,22 +68,16 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     private static final Logger logger = LoggerFactory.getLogger(Constants.BAL_LINKED_INTERPRETER_LOGGER);
     private HashMap<String, NodeLocation> positionHashMap;
 
-    private Context bContext;
-    private RuntimeEnvironment runtimeEnvironment;
-
     private LinkedNode currentHaltNode;
     private Statement nextStep;
-    private boolean done, stepInToStatement, stepOutFromCallableUnit;
+    private boolean stepInToStatement, execute;
     private DebugSessionObserver observer;
 
     public BLangExecutionDebugger(RuntimeEnvironment runtimeEnv, Context bContext) {
         super(runtimeEnv, bContext);
-        this.bContext = bContext;
-        this.runtimeEnvironment = runtimeEnv;
         this.positionHashMap = new HashMap<>();
-        this.done = false;
+        this.execute = true;
         this.stepInToStatement = false;
-        this.stepOutFromCallableUnit = false;
     }
 
     public void setDebugSessionObserver(DebugSessionObserver observer) {
@@ -110,13 +102,13 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
      * Resume Execution.
      */
     public synchronized void resume() {
-        if (done) {
+        if (complete) {
             throw new IllegalStateException("Can't resume. Ballerina Program execution completed.");
         } else {
             LinkedNode current = currentHaltNode;
             this.currentHaltNode = null;
             this.stepInToStatement = false;
-            continueExecution(current);
+            startExecution(current);
         }
     }
 
@@ -125,7 +117,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
      * sibling.
      */
     public synchronized void stepOver() {
-        if (done) {
+        if (complete) {
             throw new IllegalStateException("Can't Step Over. Ballerina Program execution completed.");
         } else {
             LinkedNode current = currentHaltNode;
@@ -139,7 +131,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                 LinkedNode previous = current;
                 while (nextStep == null) {
                     if (previous instanceof BlockStmt) {
-                        if (((BlockStmt) previous).getGotoNode() != null) {
+                        if (previous.getParent() instanceof StartNode) {
                             // This is a callable Unit. We have to step-in here.
                             this.stepInToStatement = true;
                             break;
@@ -160,7 +152,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                     }
                 }
             }
-            continueExecution(current);
+            startExecution(current);
         }
     }
 
@@ -168,7 +160,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
      * Step into the first statement of current statement's callable unit (Function, Action, TypeMapper).
      */
     public synchronized void stepIn() {
-        if (done) {
+        if (complete) {
             throw new IllegalStateException("Can't Step In. Ballerina Program execution completed.");
         } else {
             LinkedNode current = currentHaltNode;
@@ -176,7 +168,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             this.stepInToStatement = true;
             // Currently we are stepping though statements.
             // We always step in to next Statement.
-            continueExecution(current);
+            startExecution(current);
         }
     }
 
@@ -184,23 +176,21 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
      * Step out from current callable unit, and move to next sibling statement of the parent.
      */
     public synchronized void stepOut() {
-        if (done) {
+        if (complete) {
             throw new IllegalStateException("Can't Step Out. Ballerina Program execution completed.");
         } else {
+            // Find branchingNode's next statement
+            LinkedNode stepOutStatement = bContext.getControlStack().getCurrentFrame().branchingNode.next();
+            while (stepOutStatement != null && !(stepOutStatement instanceof Statement)) {
+                stepOutStatement = stepOutStatement.next();
+            }
+            if (stepOutStatement != null) {
+                nextStep = (Statement) stepOutStatement;
+            }
             LinkedNode current = currentHaltNode;
             this.currentHaltNode = null;
-            this.stepOutFromCallableUnit = true;
-            continueExecution(current);
+            startExecution(current);
         }
-    }
-
-    /**
-     * Check whether execution is completed.
-     *
-     * @return true, if debug execution is completed.
-     */
-    public boolean isDone() {
-        return done;
     }
 
     /**
@@ -209,12 +199,11 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
      * @param statement to be executed.
      */
     private synchronized void tryNext(AbstractStatement statement) {
-        if (statement instanceof CommentStmt || stepOutFromCallableUnit) {
+        if (statement instanceof CommentStmt) {
             statement.accept(this);
         } else if (stepInToStatement || positionHashMap.containsKey(statement.getNodeLocation().toString()) ||
                 statement == nextStep) {
             currentHaltNode = statement;
-            stepOutFromCallableUnit = false;
             stepInToStatement = false;
             nextStep = null;
             next = null;
@@ -241,10 +230,10 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
         }
         BreakPointInfo breakPointInfo = new BreakPointInfo(current);
         for (StackFrame stackFrame : bContext.getControlStack().getStack()) {
-            String pck =
-                    (stackFrame.getNodeInfo().getPackage() == null ? "default" : stackFrame.getNodeInfo().getPackage());
-            String functionName = stackFrame.getNodeInfo().getName();
-            NodeLocation location = stackFrame.getNodeInfo().getNodeLocation();
+            String pck = (stackFrame.nodeLocation.getPackageDirPath() == null ? "default" :
+                    stackFrame.nodeLocation.getPackageDirPath());
+            String functionName = stackFrame.unitName;
+            NodeLocation location = stackFrame.nodeLocation;
             FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
             HashMap<SymbolName, AbstractMap.SimpleEntry<Integer, String>> variables = stackFrame.variables;
             if (null != variables) {
@@ -258,7 +247,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                             break;
                         case "Service":
                         case "Const":
-                            value = runtimeEnvironment.getStaticMemory().getValue(offSet.getKey());
+                            value = runtimeEnv.getStaticMemory().getValue(offSet.getKey());
                             break;
                         case "Connector":
                             BConnector bConnector = (BConnector) stackFrame.values[0];
@@ -279,42 +268,48 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
         return breakPointInfo;
     }
 
-    public void execute(ResourceInvocationExpr resourceIExpr) {
-        continueExecution(resourceIExpr);
+    public void startExecution(LinkedNode linkedNode) {
+        try {
+            linkedNode.accept(this);
+            continueExecution();
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+            continueExecution();
+        }
+        if (!execute) {
+            notifyComplete();
+            next = null;
+        }
     }
 
-    public void execute(FunctionInvocationExpr functionInvocationExpr) {
-        continueExecution(functionInvocationExpr);
-    }
-
-    public void continueExecution(LinkedNode linkedNode) {
-        linkedNode.accept(this);
-        while (next != null) {
-            try {
+    public void continueExecution() {
+        try {
+            while (next != null && execute) {
                 if (next instanceof AbstractStatement && !(next instanceof BlockStmt)) {
                     tryNext((AbstractStatement) next);
                 } else {
                     next.accept(this);
                 }
-            } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
             }
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+            continueExecution();
         }
     }
 
     @Override
-    public void continueExecution() {
-        while (next != null) {
-            try {
-                if (next instanceof AbstractStatement && !(next instanceof BlockStmt)) {
-                    tryNext((AbstractStatement) next);
-                } else {
-                    next.accept(this);
-                }
-            } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
-            }
-        }
+    public boolean isExecutionCompleted() {
+        return complete || !execute;
+    }
+
+    @Override
+    public void cancelExecution() {
+        execute = false;
+    }
+
+    @Override
+    public boolean isExecutionCanceled() {
+        return !execute;
     }
 
     /* Overwritten Classes */
@@ -322,35 +317,13 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     @Override
     public void visit(EndNode endNode) {
         super.visit(endNode);
-        this.done = true;
-        this.currentHaltNode = null;
-        if (observer != null) {
-            observer.notifyComplete();
+        if (complete) {
+            notifyComplete();
+            this.currentHaltNode = null;
+            if (observer != null) {
+                observer.notifyComplete();
+            }
         }
-    }
-
-    @Override
-    public void visit(ExitNode exitNode) {
-        // We don't want to call system exit here.
-        next = null;
-        this.done = true;
-        this.currentHaltNode = null;
-        if (observer != null) {
-            observer.notifyExit();
-        }
-    }
-
-    @Override
-    public void visit(GotoNode gotoNode) {
-        Integer pop = branchIDStack.pop();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing GotoNode branch:{}", pop);
-        }
-        if (stepOutFromCallableUnit) {
-            this.stepInToStatement = true;
-            this.stepOutFromCallableUnit = false;
-        }
-        next = gotoNode.next(pop);
     }
 
     @Override

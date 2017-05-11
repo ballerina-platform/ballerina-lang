@@ -24,7 +24,6 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
@@ -39,8 +38,6 @@ public class EnvironmentInitializer {
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
 
-        // Load constructors
-        BuiltInNativeConstructLoader.loadConstructs();
 
         BLangProgram bLangProgram = BTestUtils.parseBalFile(sourcePath);
 

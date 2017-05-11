@@ -23,24 +23,8 @@ import org.ballerinalang.model.LinkedNodeVisitor;
  * Represents the start node of a linked execution.
  */
 public class StartNode extends AbstractLinkedNode {
-    private final Originator type;
 
-    public StartNode(Originator type) {
-        this.type = type;
-    }
-
-    public boolean isMainFunctionInvocation() {
-        return this.type == Originator.MAIN_FUNCTION;
-    }
-
-    /**
-     * Start Link type.
-     */
-    public enum Originator {
-        MAIN_FUNCTION,
-        RESOURCE,
-        WORKER,
-        TEST
+    public StartNode() {
     }
 
     @Override

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.runtime.threadpool;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.BLangExecutionVisitor;
 import org.ballerinalang.model.values.BException;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
@@ -40,7 +41,8 @@ public class ResponseWorkerThread extends WorkerThread {
         // Connector callback's done method is called from different locations, i.e: MessageProcessor, from Netty etc.
         // Because of this we have to start new thread from the callback, if non-blocking is enabled.
         BalConnectorCallback connectorCallback = (BalConnectorCallback) this.callback;
-        BLangExecutionVisitor executor = connectorCallback.getContext().getExecutor();
+        Context bContext = connectorCallback.getContext();
+        BLangExecutionVisitor executor = bContext.getExecutor();
         try {
             BException exception = null;
             try {
@@ -61,11 +63,12 @@ public class ResponseWorkerThread extends WorkerThread {
                 executor.handleBException(exception);
                 executor.continueExecution();
             } else {
-                executor.continueExecution(connectorCallback.getCurrentNode().next());
+                executor.startExecution(connectorCallback.getCurrentNode().next());
             }
         } catch (Throwable unhandled) {
             // Root level Error handler. we have to notify server connector.
-            ServerConnectorMessageHandler.handleErrorFromOutbound(connectorCallback.getContext(), unhandled);
+            ServerConnectorMessageHandler.handleError(bContext.getCarbonMessage(), bContext.getBalCallback(), bContext,
+                    unhandled);
         }
     }
 }

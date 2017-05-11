@@ -169,7 +169,7 @@ public class DebugManager {
      */
     public void holdON() {
         try {
-            while (!debugSession.getDebugger().isDone()) {
+            while (!debugSession.getDebugger().isExecutionCompleted()) {
                     sleep(100);
             }
         } catch (InterruptedException e) {

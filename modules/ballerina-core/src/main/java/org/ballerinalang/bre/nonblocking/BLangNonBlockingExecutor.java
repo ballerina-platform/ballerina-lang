@@ -20,8 +20,6 @@ package org.ballerinalang.bre.nonblocking;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.model.LinkedNode;
-import org.ballerinalang.model.expressions.FunctionInvocationExpr;
-import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.values.BException;
 
 /**
@@ -31,37 +29,45 @@ import org.ballerinalang.model.values.BException;
  */
 public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
 
+    private boolean execute;
+
     public BLangNonBlockingExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         super(runtimeEnv, bContext);
+        execute = true;
     }
 
-    public void execute(ResourceInvocationExpr resourceIExpr) {
-        continueExecution(resourceIExpr);
-    }
-
-    public void execute(FunctionInvocationExpr functionInvocationExpr) {
-        continueExecution(functionInvocationExpr);
-    }
-
-    public void continueExecution(LinkedNode linkedNode) {
-        linkedNode.accept(this);
-        while (next != null) {
-            try {
-                next.accept(this);
-            } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
-            }
+    public void startExecution(LinkedNode linkedNode) {
+        try {
+            linkedNode.accept(this);
+            continueExecution();
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+            continueExecution();
+        }
+        if (!execute) {
+            notifyComplete();
+            next = null;
         }
     }
 
     public void continueExecution() {
-        while (next != null) {
-            try {
+        try {
+            while (next != null && execute) {
                 next.accept(this);
-            } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
             }
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+            continueExecution();
         }
     }
 
+    @Override
+    public void cancelExecution() {
+        execute = false;
+    }
+
+    @Override
+    public boolean isExecutionCanceled() {
+        return !execute;
+    }
 }

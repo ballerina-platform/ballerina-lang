@@ -18,14 +18,10 @@
 
 package org.ballerinalang.nativeimpl.connectors;
 
-import org.ballerinalang.bre.SymScope;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -33,17 +29,11 @@ import org.testng.annotations.Test;
  * Test cases for jms client.
  */
 public class JMSClientTest {
-    private SymScope globalScope;
     private BLangProgram bLangProgram;
-    private boolean isNonBlockingEnabled;
 
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("samples/jmsClientConnectorTest.bal");
-        globalScope = new SymScope(SymScope.Name.GLOBAL);
-        BuiltInNativeConstructLoader.loadConstructs();
-        isNonBlockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
-        ModeResolver.getInstance().setNonblockingEnabled(false);
     }
 
     @Test(description = "Test for jms client connector without valid initial context factory",
@@ -72,8 +62,4 @@ public class JMSClientTest {
         BLangFunctions.invoke(bLangProgram, "jmsSendMapMessageWithoutData");
     }
 
-    @AfterClass
-    public void tearDown() {
-        ModeResolver.getInstance().setNonblockingEnabled(isNonBlockingEnabled);
-    }
 }

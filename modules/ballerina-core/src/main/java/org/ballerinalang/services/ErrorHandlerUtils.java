@@ -21,8 +21,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.ControlStack;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.nio.file.Paths;
 import java.util.Stack;
 
 /**
@@ -51,12 +53,103 @@ public class ErrorHandlerUtils {
         return errorMsg;
     }
 
+    public static String getErrorWithStackTrace(Context bContext, Throwable throwable) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getErrorMessage(throwable));
+        String cause = getCause(throwable);
+        if (!"".equals(cause)) {
+            sb.append("\n\t").append(cause);
+        }
+        String stackTrace = ErrorHandlerUtils.getStackTrace(bContext);
+        if (!"".equals(stackTrace)) {
+            sb.append("\n");
+            sb.append(stackTrace);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Get the stack trace from the context.
+     *
+     * @param context Ballerina context
+     * @return Stack trace
+     */
+    public static String getStackTrace(Context context) {
+        // if the context is null, stack trace cannot be generated.
+        if (context == null || context.getControlStack().getStack().size() == 0) {
+            return "";
+        }
+        ControlStack controlStack = context.getControlStack();
+        StringBuilder sb = new StringBuilder();
+        Stack<StackFrame> stack = controlStack.getStack();
+
+        // TODO : ? For stack Trace generation ignores first stackFrame, where execution starts.
+        int lastStackTracePosition = 0;
+        if (context.getServiceName() != null) {
+            // For Resource invocation we have to skip, resources invocation expressions stack frame as well.
+            lastStackTracePosition = 1;
+        }
+        // Adding current node's line to Stack trace.
+        int currentStackLocation = stack.size() - 1;
+
+        while (currentStackLocation >= lastStackTracePosition) {
+            StackFrame stackFrame = stack.get(currentStackLocation);
+            String pkgName = (stackFrame.nodeLocation.getPackageDirPath() != null) ?
+                    stackFrame.nodeLocation.getPackageDirPath() + ":" : "";
+            sb.append("\t at ").append(pkgName);
+            if (currentStackLocation == lastStackTracePosition && context.getServiceName() != null) {
+                // Service Invocation and has to append Service name after package name.
+                sb.append(context.getServiceName()).append(".");
+            }
+            sb.append(stackFrame.unitName).append(getNodeLocation(stackFrame.nodeLocation));
+            if (currentStackLocation > lastStackTracePosition) {
+                sb.append("\n");
+            }
+            currentStackLocation--;
+        }
+        return sb.toString();
+    }
+
+    public static String getCause(Throwable t) {
+        StringBuilder sb = new StringBuilder();
+        getCause(t, sb);
+        return sb.toString();
+    }
+
+    private static void getCause(Throwable t, StringBuilder sb) {
+        if (t instanceof BallerinaException || t instanceof BLangRuntimeException) {
+            return;
+        }
+        sb.append("reason  ").append(makeFirstLetterLowerCase(t.getLocalizedMessage()));
+        if (t.getCause() != null) {
+            sb.append(", ");
+            getCause(t.getCause(), sb);
+        }
+    }
+
+    /**
+     * Get the source location as string in the format of '(fileName:lineNumber)'.
+     *
+     * @param nodeLocation {@link NodeLocation} to get the location
+     * @return source location of this {@link CallableUnitInfo}
+     */
+    private static String getNodeLocation(NodeLocation nodeLocation) {
+        if (nodeLocation != null) {
+            String fileName = Paths.get(nodeLocation.getFileName()).getFileName().toString();
+            int line = nodeLocation.getLineNumber();
+            return "(" + fileName + ":" + line + ")";
+        } else {
+            return "";
+        }
+    }
+
     /**
      * Get the ballerina stack trace from context.
      *
      * @param context Ballerina context
      * @param throwable Throwable associated with the error
      * @return Ballerina stack trace
+     * @deprecated as of 0.8.3
      */
     public static String getServiceStackTrace(Context context, Throwable throwable) {
         if (context == null && throwable instanceof BallerinaException) {
@@ -86,6 +179,7 @@ public class ErrorHandlerUtils {
      * @param context Ballerina context associated with the main function
      * @param throwable Throwable associated with the error
      * @return Ballerina stack trace
+     * @deprecated as of 0.8.3
      */
     public static String getMainFuncStackTrace(Context context, Throwable throwable) {
         // Need to omit the main function invocation from the stack trace. Hence the starting index is 1
@@ -99,6 +193,7 @@ public class ErrorHandlerUtils {
      * @param throwable       Throwable associated with the error occurred
      * @param stackStartIndex Start index of the stack to generate the stack trace
      * @return Stack trace
+     * @deprecated as of 0.8.3
      */
     private static String getStackTrace(Context context, Throwable throwable, int stackStartIndex) {
         ControlStack controlStack = context.getControlStack();
@@ -123,6 +218,7 @@ public class ErrorHandlerUtils {
      *
      * @param nodeInfo {@link CallableUnitInfo} to get the location
      * @return source location of this {@link CallableUnitInfo}
+     * @deprecated as of 0.8.3
      */
     private static String getNodeLocation(CallableUnitInfo nodeInfo) {
         NodeLocation nodeLocation = nodeInfo.getNodeLocation();
@@ -140,6 +236,7 @@ public class ErrorHandlerUtils {
      *
      * @param sb    String buffer to populate the stack trace
      * @param stack Current stack
+     * @deprecated as of 0.8.3
      */
     private static void populateStackOverflowTrace(StringBuilder sb, Stack<StackFrame> stack, int stackStartIndex) {
         for (int i = stack.size() - 1; i >= stack.size() - STACK_TRACE_LIMIT; i--) {

@@ -47,8 +47,14 @@ class BProgramRunner {
         BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
 
         // Check whether there is a main function
-        new BLangProgramRunner().runMain(bLangProgram, args.toArray(new String[0]));
-        Runtime.getRuntime().exit(0);
+        try {
+            new BLangProgramRunner().runMain(bLangProgram, args.toArray(new String[0]));
+            Runtime.getRuntime().exit(0);
+        } catch (Throwable throwable) {
+            PrintStream errPrintStream = System.err;
+            errPrintStream.println(throwable.getMessage());
+            Runtime.getRuntime().exit(1);
+        }
     }
 
     static void runServices(Path[] serviceFilePaths) {

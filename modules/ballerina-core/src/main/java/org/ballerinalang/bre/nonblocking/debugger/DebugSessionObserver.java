@@ -28,11 +28,6 @@ public interface DebugSessionObserver {
     void notifyComplete();
 
     /**
-     * Called when main program exit.
-     */
-    void notifyExit();
-
-    /**
      * Called when executor hits a break point.
      *
      * @param breakPointInfo Break point information.

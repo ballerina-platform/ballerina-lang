@@ -10,29 +10,29 @@ function arrayIndexOutOfBoundTest() {
 }
 
 function testStackTrace() {
-  string[] fruits;
-  string apple;
-  apple = getFruit1(fruits);
+    string[] fruits = [];
+    string apple;
+    apple = getFruit1(fruits);
 }
 
 function getFruit1(string[] fruits) (string) {
-  return getFruit2(fruits);
+    return getFruit2(fruits);
 }
 
 function getFruit2(string[] fruits) (string) {
-  return getApple(fruits);
+    return getApple(fruits);
 }
 
 function getApple(string[] fruits) (string) {
-  return fruits[24];
+    return fruits[24];
 }
 
 function testStackOverflow() {
-	infiniteRecurse();
+    infiniteRecurse();
 }
 
 function infiniteRecurse() {
-	infiniteRecurse();
+    infiniteRecurse();
 }
 
 function testTypeCastException() {
