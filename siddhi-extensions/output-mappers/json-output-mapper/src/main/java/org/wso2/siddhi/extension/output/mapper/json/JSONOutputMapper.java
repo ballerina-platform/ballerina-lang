@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
@@ -34,6 +35,7 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.AttributeType;
 
 @Extension(
         name = "json",
@@ -44,7 +46,6 @@ import com.google.gson.JsonObject;
 // TODO : enable checkstyle, reformat
 public class JSONOutputMapper extends SinkMapper {
     private static final Logger log = Logger.getLogger(JSONOutputMapper.class);
-    private StreamDefinition streamDefinition;
     private static final String EVENT_PARENT_TAG = "event";
     private static final String ENCLOSING_ELEMENT_IDENTIFIER = "enclosing.element";
     private static final String JSON_VALIDATION_IDENTIFIER = "validate.json";
@@ -53,6 +54,8 @@ public class JSONOutputMapper extends SinkMapper {
     private static final String JSON_ARRAY_END_SYMBOL = "]";
     private static final String UNDEFINED = "undefined";
 
+    private StreamDefinition streamDefinition;
+    private String[] attributeNameArray;
     private String enclosingElement = null;
     private boolean isJsonValidationEnabled = false;
 
@@ -70,54 +73,75 @@ public class JSONOutputMapper extends SinkMapper {
      * @param payloadTemplateBuilder Unmapped payload for reference
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
+                     TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader) {
         this.streamDefinition = streamDefinition;
+        attributeNameArray = streamDefinition.getAttributeNameArray();
         enclosingElement = optionHolder.validateAndGetStaticValue(ENCLOSING_ELEMENT_IDENTIFIER, null);
-        isJsonValidationEnabled = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(JSON_VALIDATION_IDENTIFIER, "false"));
+        isJsonValidationEnabled = Boolean.parseBoolean(optionHolder
+                .validateAndGetStaticValue(JSON_VALIDATION_IDENTIFIER, "false"));
     }
 
     @Override
-    public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, SinkListener sinkListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
-        StringBuilder sb = new StringBuilder();
+    public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
+                           SinkListener sinkListener, DynamicOptions dynamicOptions)
+            throws ConnectionUnavailableException {
+        StringBuilder sb = null;
         if (payloadTemplateBuilder == null) {
-            sb.append(constructJsonForDefaultMapping(events));
+            String jsonString = constructJsonForDefaultMapping(events);
+            if (jsonString != null) {
+                sb = new StringBuilder();
+                sb.append(jsonString);
+            }
         } else {
+            sb = new StringBuilder();
             sb.append(constructJsonForCustomMapping(events, payloadTemplateBuilder));
         }
 
-        if (isJsonValidationEnabled && isValidJson(sb.toString())) {
-            sinkListener.publish(sb.toString(), dynamicOptions);
-        } else if (!isJsonValidationEnabled) {
-            sinkListener.publish(sb.toString(), dynamicOptions);
-        } else {
-            log.error("Invalid json string : " + sb.toString());
+        if (sb != null) {
+            if (!isJsonValidationEnabled) {
+                sinkListener.publish(sb.toString(), dynamicOptions);
+            } else if (isJsonValidationEnabled && isValidJson(sb.toString())) {
+                sinkListener.publish(sb.toString(), dynamicOptions);
+            } else {
+                log.error("Invalid json string : " + sb.toString());
+            }
         }
     }
 
     @Override
-    public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, SinkListener sinkListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
-        StringBuilder sb = new StringBuilder();
+    public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
+                           SinkListener sinkListener, DynamicOptions dynamicOptions)
+            throws ConnectionUnavailableException {
+        StringBuilder sb = null;
         if (payloadTemplateBuilder == null) {
-            sb.append(constructJsonForDefaultMapping(event));
+            String jsonString = constructJsonForDefaultMapping(event);
+            if (jsonString != null) {
+                sb = new StringBuilder();
+                sb.append(jsonString);
+            }
         } else {
+            sb = new StringBuilder();
             sb.append(constructJsonForCustomMapping(event, payloadTemplateBuilder));
         }
 
-        if (isJsonValidationEnabled && isValidJson(sb.toString())) {
-            sinkListener.publish(sb.toString(), dynamicOptions);
-        } else if (!isJsonValidationEnabled) {
-            sinkListener.publish(sb.toString(), dynamicOptions);
-        } else {
-            log.error("Invalid json string : " + sb.toString());
+        if (sb != null) {
+            if (!isJsonValidationEnabled) {
+                sinkListener.publish(sb.toString(), dynamicOptions);
+            } else if (isJsonValidationEnabled && isValidJson(sb.toString())) {
+                sinkListener.publish(sb.toString(), dynamicOptions);
+            } else {
+                log.error("Invalid json string : " + sb.toString());
+            }
         }
     }
 
     private String constructJsonForDefaultMapping(Object eventObj) {
-        if (eventObj instanceof Event) {
+        if (eventObj.getClass() == Event.class) {
             Event event = (Event) eventObj;
             JsonObject jsonEvent = constructSingleEventForDefaultMapping(doPartialProcessing(event));
             return jsonEvent.toString();
-        } else if (eventObj instanceof Event[]) {
+        } else if (eventObj.getClass() == Event[].class) {
             JsonArray eventArray = new JsonArray();
             for (Event event : (Event[]) eventObj) {
                 eventArray.add(constructSingleEventForDefaultMapping(doPartialProcessing(event)));
@@ -125,12 +149,13 @@ public class JSONOutputMapper extends SinkMapper {
             return (eventArray.toString());
         } else {
             // TODO : log error
+            log.error("Invalid object type. " + eventObj.toString() + " cannot be converted to an event or event array.");
+            return null;
         }
-        return null;
     }
 
     private String constructJsonForCustomMapping(Object eventObj, TemplateBuilder payloadTemplateBuilder) {
-        if (eventObj instanceof Event) {
+        if (eventObj.getClass() == Event.class) {
             JsonObject jsonObj = new JsonObject();
             Event event = doPartialProcessing((Event) eventObj);
             if (enclosingElement != null) {
@@ -139,13 +164,17 @@ public class JSONOutputMapper extends SinkMapper {
             } else {
                 return payloadTemplateBuilder.build(event);
             }
-        } // TODO : use class name instead of "instance of"
-        else if (eventObj instanceof Event[]) {
+        } // TODO : use class name instead of "instance of" :done
+        else if (eventObj.getClass() == Event[].class) {
             StringBuilder sb = new StringBuilder();
             JsonArray jsonArray = new JsonArray();
             sb.append(JSON_ARRAY_START_SYMBOL);
+            String jsonEvent;
             for (Event event : (Event[]) eventObj) {
-                sb.append(payloadTemplateBuilder.build(doPartialProcessing(event))).append(JSON_EVENT_SEPERATOR).append("\n");
+                jsonEvent = payloadTemplateBuilder.build(doPartialProcessing(event));
+                if (jsonEvent != null) {
+                    sb.append(jsonEvent).append(JSON_EVENT_SEPERATOR).append("\n");
+                }
             }
             sb.delete(sb.length() - 2, sb.length());
             sb.append(JSON_ARRAY_END_SYMBOL);
@@ -156,36 +185,37 @@ public class JSONOutputMapper extends SinkMapper {
             } else {
                 return sb.toString();
             }
+        } else {
+            // TODO : log error
+            log.error("Invalid object type. " + eventObj.toString() + " cannot be converted to an event or event array.");
+            return null;
         }
-        return null;
     }
 
     private JsonObject constructSingleEventForDefaultMapping(Event event) {
         Object[] data = event.getData();
         JsonObject jsonEventObject = new JsonObject();
         JsonObject innerParentObject = new JsonObject();
-
+        String attributeName;
+        Object attributeValue;
+        Attribute.Type attributeType;
+        Gson gson = new Gson();
         for (int i = 0; i < data.length; i++) {
-            // TODO : mote attribute name array to the top
-            String attributeName = streamDefinition.getAttributeNameArray()[i];
-            Object attributeValue = data[i];
+            // TODO : move attribute name array to the top : done
+            attributeName = attributeNameArray[i];
+            attributeValue = data[i];
+            attributeType = streamDefinition.getAttributeType(attributeName);
+
             // TODO : use lambda expressions
             if (attributeValue != null) {
-                if (attributeValue instanceof String) {
+                if (attributeValue.getClass() == String.class) {
                     innerParentObject.addProperty(attributeName, attributeValue.toString());
-                } else if (attributeValue instanceof Integer) {
-                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
-                } else if (attributeValue instanceof Long) {
-                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
-                } else if (attributeValue instanceof Float) {
-                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
-                } else if (attributeValue instanceof Double) {
+                } else if (attributeValue instanceof Number) {
                     innerParentObject.addProperty(attributeName, (Number) attributeValue);
                 } else if (attributeValue instanceof Boolean) {
                     innerParentObject.addProperty(attributeName, (Boolean) attributeValue);
                 } else if (attributeValue instanceof Map) {
                     if (!((Map) attributeValue).isEmpty()) {
-                        Gson gson = new Gson();
                         innerParentObject.add(attributeName, gson.toJsonTree(attributeValue));
                     }
                 }
