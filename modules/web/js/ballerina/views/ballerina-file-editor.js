@@ -262,6 +262,7 @@ class BallerinaFileEditor extends BallerinaView {
                 container: this._$canvasContainer,
                 renderingContext: this.diagramRenderingContext,
                 renderer,
+                overlay: overlay[0],
                 structOperationsRenderer
             }, null);
             ReactDOM.render(
