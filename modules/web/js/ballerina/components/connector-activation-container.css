@@ -2,6 +2,10 @@
     fill-opacity: 0.2;
 }
 
+.connector-activation-container .activation-zone.active.block {
+    fill: red;
+}
+
 .connector-activation-container .activation-zone {
     fill: green;
     fill-opacity: 0;
