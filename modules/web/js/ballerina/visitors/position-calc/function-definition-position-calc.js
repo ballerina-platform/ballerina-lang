@@ -88,10 +88,9 @@ class FunctionDefinitionPositionCalcVisitor {
         // Positioning the resource parameters
         let nextXPositionOfParameter = viewState.components.parametersText.x + viewState.components.parametersText.w;
         if (node.getArguments().length > 0) {
-            for (let i = 0; i < node.getArguments().length; i++) {
-                let argument = node.getArguments()[i];
+            _.forEach(node.getArguments(), argument => {
                 nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter, viewState.bBox.y);
-            }
+            });
         }
 
         // Positioning the closing brack component of the parameters.
@@ -111,10 +110,9 @@ class FunctionDefinitionPositionCalcVisitor {
         // Positioning the resource parameters
         let nextXPositionOfReturnType = viewState.components.returnTypesText.x + viewState.components.returnTypesText.w;
         if (node.getReturnTypes().length > 0) {
-            for (let i = 0; i < node.getReturnTypes().length; i++) {
-                let returnType = node.getReturnTypes()[i];
+            _.forEach(node.getReturnTypes(), returnType => {
                 nextXPositionOfReturnType = this.createPositionForTitleNode(returnType, nextXPositionOfReturnType, viewState.bBox.y);
-            }
+            });
         }
 
         // Positioning the closing brack component of the parameters.

@@ -28,8 +28,8 @@ import ASTNode from './node';
  * @constructor
  */
 class CallableDefinition extends ASTNode {
-    constructor(type) {
-        super(type);
+    constructor(args) {
+        super(args);
         this.connectionDeclarations = [];
         this.variableDeclarations = [];
         this.workerDeclarations = [];

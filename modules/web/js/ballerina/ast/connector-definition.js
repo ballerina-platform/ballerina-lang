@@ -27,8 +27,7 @@ import CommonUtils from '../utils/common-utils';
  */
 class ConnectorDefinition extends ASTNode {
     constructor(args) {
-        super("ConnectorDefinition");
-        this.BallerinaASTFactory = this.getFactory();
+        super('ConnectorDefinition');
         this.connector_name = _.get(args, 'connector_name');
         this.annotations = _.get(args, 'annotations', []);
         this.arguments = _.get(args, 'arguments', []);
@@ -51,18 +50,11 @@ class ConnectorDefinition extends ASTNode {
     }
 
     /**
-     * Get the connector Arguments
-     * @return {Object[]} arguments - Connector Arguments
+     * Get the connector arguments
+     * @return {ParameterDefinition[]} arguments - Connector Arguments
      */
     getArguments() {
-        var argumentsList = [];
-        var self = this;
-        _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isArgument(child)) {
-                argumentsList.push(child);
-            }
-        });
-        return argumentsList;
+        return this.getArgumentParameterDefinitionHolder().getChildren();
     }
 
     /**
@@ -72,18 +64,14 @@ class ConnectorDefinition extends ASTNode {
      */
     addArgument(type, identifier) {
         //creating argument
-        var newArgument = this.BallerinaASTFactory.createArgument();
-        newArgument.setBType(type);
-        newArgument.setIdentifier(identifier);
+        var newArgumentParamDef = this.getFactory().createParameterDefinition();
+        newArgumentParamDef.setTypeName(type);
+        newArgumentParamDef.setName(identifier);
 
-        var self = this;
+        var argParamDefHolder = this.getArgumentParameterDefinitionHolder();
+        var index = argParamDefHolder.getChildren().length;
 
-        // Get the index of the last argument declaration.
-        var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isArgument(child);
-        });
-
-        this.addChild(newArgument, index + 1);
+        argParamDefHolder.addChild(newArgumentParamDef, index + 1);
     }
 
     /**
@@ -92,11 +80,31 @@ class ConnectorDefinition extends ASTNode {
      * @return {Array} - The removed argument.
      */
     removeArgument(identifier) {
-        var self = this;
-        _.remove(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isArgument(child) && child.getIdentifier() === identifier;
-        });
+        this.getArgumentParameterDefinitionHolder().removeChildByName(this.getFactory().isParameterDefinition, identifier);
     }
+
+    getArgumentParameterDefinitionHolder () {
+        var argParamDefHolder = this.findChild(this.getFactory().isArgumentParameterDefinitionHolder);
+        if (_.isUndefined(argParamDefHolder)) {
+            argParamDefHolder = this.getFactory().createArgumentParameterDefinitionHolder();
+            this.addChild(argParamDefHolder);
+        }
+        return argParamDefHolder;
+    }
+
+    /**
+     * Returns the list of arguments as a string separated by commas.
+     * @return {string} - Arguments as string.
+     */
+    getArgumentsAsString () {
+        var argsStringArray = [];
+        var args = this.getArguments();
+        _.forEach(args, function(arg){
+            argsStringArray.push(arg.getParameterDefinitionAsString());
+        });
+        return _.join(argsStringArray, ', ');
+    }
+
 
     /**
      * Set the Connector name
@@ -118,7 +126,7 @@ class ConnectorDefinition extends ASTNode {
      * @param index
      */
     addChild(child, index) {
-        if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
+        if (this.getFactory().isConnectorDeclaration(child)) {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
         } else {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
@@ -272,10 +280,10 @@ class ConnectorDefinition extends ASTNode {
             var child = undefined;
             var childNodeTemp = undefined;
             if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = self.BallerinaASTFactory.createConnectorDeclaration();
+                child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
-                child = self.BallerinaASTFactory.createFromJson(childNode);
+                child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;
             }
             self.addChild(child);
@@ -290,9 +298,9 @@ class ConnectorDefinition extends ASTNode {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        return this.BallerinaASTFactory.isConnectorAction(node)
-            || this.BallerinaASTFactory.isVariableDeclaration(node)
-            || this.BallerinaASTFactory.isConnectorDeclaration(node);
+        return this.getFactory().isConnectorAction(node)
+            || this.getFactory().isVariableDeclaration(node)
+            || this.getFactory().isConnectorDeclaration(node);
     }
 
     /**
