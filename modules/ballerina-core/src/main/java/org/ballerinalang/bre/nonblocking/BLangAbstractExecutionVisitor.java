@@ -46,6 +46,7 @@ import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthAccessExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -72,6 +73,7 @@ import org.ballerinalang.model.nodes.GotoNode;
 import org.ballerinalang.model.nodes.IfElseNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ActionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayInitExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.ArrayLengthAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayMapAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
@@ -1847,4 +1849,31 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
         return arrayVal;
     }
+
+    @Override
+    public void visit(ArrayLengthAccessExpr arrayLengthAccessExpr) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ArrayLengthAccessExpr {}",
+                    getNodeLocation(arrayLengthAccessExpr.getNodeLocation()));
+        }
+        next = arrayLengthAccessExpr.next;
+    }
+
+    @Override
+    public void visit(ArrayLengthAccessExprEndNode arrayLengthAccessExprEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ArrayLengthAccess - EndNode");
+        }
+        next = arrayLengthAccessExprEndNode.next;
+        ArrayLengthAccessExpr arrayLengthAccessExpr = arrayLengthAccessExprEndNode.getExpression();
+        Expression varRef = arrayLengthAccessExpr.getVarRef();
+        BValue value = null;
+        if (varRef instanceof VariableRefExpr) {
+            value = getTempValue(varRef);
+        } else {
+            value = getTempValue(varRef.getTempOffset());
+        }
+        setTempValue(arrayLengthAccessExpr.getTempOffset(), new BInteger(((BArray) value).size()));
+    }
+
 }

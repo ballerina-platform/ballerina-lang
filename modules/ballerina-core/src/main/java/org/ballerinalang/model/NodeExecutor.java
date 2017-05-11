@@ -26,6 +26,7 @@ import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthAccessExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -114,6 +115,8 @@ public interface NodeExecutor {
     BValue visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
     BValue visit(StructFieldAccessExpr structAttributeAccessExpr);
+
+    BValue visit(ArrayLengthAccessExpr arrayLengthAccessExpr);
 
     BValue visit(ArrayInitExpr arrayInitExpr);
 

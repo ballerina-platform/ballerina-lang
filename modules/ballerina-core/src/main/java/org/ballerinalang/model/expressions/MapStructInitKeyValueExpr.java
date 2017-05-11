@@ -55,7 +55,15 @@ public class MapStructInitKeyValueExpr extends AbstractExpression {
         return keyExpr;
     }
 
+    public void setKeyExpr(Expression keyExpr) {
+        this.keyExpr = keyExpr;
+    }
+
     public Expression getValueExpr() {
         return valueExpr;
+    }
+
+    public void setValueExpr(Expression valueExpr) {
+        this.valueExpr = valueExpr;
     }
 }
