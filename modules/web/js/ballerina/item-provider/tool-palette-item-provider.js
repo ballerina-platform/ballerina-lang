@@ -65,6 +65,12 @@ class ToolPaletteItemProvider extends EventChannel {
             action: require('./../../../images/tool-icons/action.svg'),
         };
 
+        this.cssClass = {
+            function: "icon fw fw-function",
+            connector: "icon fw fw-connector",
+            action: "icon fw fw-dgm-action",
+        };
+
         this.icons = {};
         Object.keys(this.iconSrcs).forEach((iconName) => {
             var icon = document.createElement('img');

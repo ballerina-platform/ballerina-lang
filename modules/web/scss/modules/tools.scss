@@ -10,6 +10,9 @@
     }
     
     & .tool-group-body {
+        & .tools-view-modes-controls {
+            margin-bottom: 20px;
+        }
         & .tool-container {
             width: 39px;
             height: 39px;
@@ -20,6 +23,13 @@
             padding: 3px;
             white-space: nowrap;
             text-align: center;
+
+            & .icon {
+                color: $tool-title-color;
+                font-size: 24px;
+                margin-top: 3px;
+                vertical-align: text-bottom;
+            }
         }
 
         & .tool-separator {
@@ -31,7 +41,21 @@
         }
         
         &.tool-group-body-list {
-            .tool-container-vertical {
+            & .tool-container {
+                height: 28px;
+                text-align: left;
+                border: none;
+
+                & .icon {
+                    font-size: 20px;
+                }
+
+                & .tool-title {
+                    color: $tool-title-color;
+                }
+            }
+
+            & .tool-container-vertical {
                 & .tool-container-vertical-icon {
                     width: 25px;
                     height: 25px;
@@ -57,20 +81,12 @@
             display: none;
         }
         
-        &.tool-group-body-list {
-            & .tool-container {
-                height: 28px;
-                text-align: left;
-                border: none;
-            }
-            
-            & .tool-title {
-                display: inline-block;
-            }
-        }
-        
         &.tool-group-body-grid {
+            & .icon {
+                font-size: 24px;
+            }
             & .tool-title {
+                color: $tool-title-color;
                 display: inline-block;
             }
         }
