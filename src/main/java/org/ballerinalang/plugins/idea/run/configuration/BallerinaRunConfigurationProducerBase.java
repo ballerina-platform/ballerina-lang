@@ -72,11 +72,12 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
         PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(packageDeclarationNode,
                 PackagePathNode.class);
         if (packagePathNode != null) {
-            packageInFile = packagePathNode.getText().replaceAll("\\.", File.separator);
+            // Regardless of the OS, separator character will be "/".
+            packageInFile = packagePathNode.getText().replaceAll("\\.", "/");
         }
 
-        // If FunctionDefinitionNode parent is available, that means that the sourceElement is within a function. We need to
-        // check whether this is a main function or not as well.
+        // If FunctionDefinitionNode parent is available, that means that the sourceElement is within a function. We
+        // need to check whether this is a main function or not as well.
         if (BallerinaRunUtil.hasMainFunction(file) && functionNode != null) {
             // Set the configuration info.
             configuration.setName(getConfigurationName(file));

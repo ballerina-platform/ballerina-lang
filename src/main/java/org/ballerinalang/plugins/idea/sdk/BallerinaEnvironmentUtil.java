@@ -33,7 +33,7 @@ public class BallerinaEnvironmentUtil {
     @NotNull
     public static String getBinaryFileNameForPath(@NotNull String path) {
         String resultBinaryName = FileUtil.getNameWithoutExtension(PathUtil.getFileName(path));
-        return SystemInfo.isWindows ? resultBinaryName + ".exe" : resultBinaryName;
+        return SystemInfo.isWindows ? resultBinaryName + ".bat" : resultBinaryName;
     }
 
     @Nullable
