@@ -18,7 +18,11 @@
 
 package org.wso2.siddhi.core.util.statistics.metrics;
 
-import com.codahale.metrics.*;
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Reporter;
+import com.codahale.metrics.ScheduledReporter;
 import org.wso2.siddhi.core.util.statistics.StatisticsManager;
 import org.wso2.siddhi.query.api.annotation.Element;
 
@@ -62,7 +66,8 @@ public class SiddhiStatisticsManager implements StatisticsManager {
                     .build();
             ((JmxReporter) reporter).start();
         } else {
-            throw new UnsupportedOperationException("Only 'ConsoleReporter' and 'JmxReporter' is supported, Reporter type '" + reporter.getClass().getName() + "' is not supported");
+            throw new UnsupportedOperationException("Only 'ConsoleReporter' and 'JmxReporter' is supported, Reporter " +
+                    "type '" + reporter.getClass().getName() + "' is not supported");
         }
     }
 
@@ -72,7 +77,8 @@ public class SiddhiStatisticsManager implements StatisticsManager {
         } else if (reporter instanceof JmxReporter) {
             ((JmxReporter) reporter).stop();
         } else {
-            throw new UnsupportedOperationException("Only 'ConsoleReporter' and 'JmxReporter' is supported, Reporter type '" + reporter.getClass().getName() + "' is not supported");
+            throw new UnsupportedOperationException("Only 'ConsoleReporter' and 'JmxReporter' is supported, Reporter " +
+                    "type '" + reporter.getClass().getName() + "' is not supported");
         }
     }
 

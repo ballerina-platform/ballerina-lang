@@ -66,9 +66,11 @@ public class ScriptTestCase {
                 "};";
         //siddhiManager.defineFunction(concatFunc);
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = ("@info(name = 'query1') from cseEventStream select price , concatS(symbol,' ',price) as concatStr " +
+        String query = ("@info(name = 'query1') from cseEventStream select price , concatS(symbol,' ',price) as " +
+                "concatStr " +
                 "group by volume insert into mailOutput;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc + cseEventStream + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc +
+                cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -107,9 +109,11 @@ public class ScriptTestCase {
                 "};";
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = ("@info(name = 'query1') from cseEventStream select price , concatJ(symbol,' ',price) as concatStr " +
+        String query = ("@info(name = 'query1') from cseEventStream select price , concatJ(symbol,' ',price) as " +
+                "concatStr " +
                 "group by volume insert into mailOutput;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc+cseEventStream + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc +
+                cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -131,7 +135,7 @@ public class ScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected= ExecutionPlanCreationException.class)
+    @Test(expected = ExecutionPlanCreationException.class)
     public void testScalaCompilationFailure() throws InterruptedException {
 
         log.info("testScalaCompilationFailure");
@@ -152,7 +156,7 @@ public class ScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=ExecutionPlanCreationException.class)
+    @Test(expected = ExecutionPlanCreationException.class)
     public void testJavaScriptCompilationFailure() throws InterruptedException {
 
         log.info("testJavaScriptCompilationFailure");
@@ -174,7 +178,7 @@ public class ScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=DuplicateDefinitionException.class)
+    @Test(expected = DuplicateDefinitionException.class)
     public void testDefineFunctionsWithSameFunctionID() throws InterruptedException {
 
         log.info("testDefineFunctionsWithSameFunctionID");
@@ -185,22 +189,22 @@ public class ScriptTestCase {
 
         String concatFunc1 =
                 "define function concat[Scala] return string {\n" +
-                "  var concatenatedString = \"\"\n" +
-                "  for(i <- 0 until data.length) {\n" +
-                "     concatenatedString += data(i).toString\n" +
-                "  }\n" +
-                "  concatenatedString\n" +
-                "};";
+                        "  var concatenatedString = \"\"\n" +
+                        "  for(i <- 0 until data.length) {\n" +
+                        "     concatenatedString += data(i).toString\n" +
+                        "  }\n" +
+                        "  concatenatedString\n" +
+                        "};";
 
         String concatFunc2 =
                 "define function concat[JavaScript] return string {\n" +
-                "  var str1 = data[0];\n" +
-                "  var str2 = data[1];\n" +
-                "  var str3 = data[2];\n" +
-                "  var res = str1.concat(str2,str3);\n" +
-                "  return res;\n" +
-                "};\n";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc1+concatFunc2);
+                        "  var str1 = data[0];\n" +
+                        "  var str2 = data[1];\n" +
+                        "  var str3 = data[2];\n" +
+                        "  var res = str1.concat(str2,str3);\n" +
+                        "  return res;\n" +
+                        "};\n";
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc1 + concatFunc2);
         executionPlanRuntime.shutdown();
     }
 
@@ -215,39 +219,43 @@ public class ScriptTestCase {
 
         String concatSFunc =
                 "define function concatS[Scala] return string {\n" +
-                "  var concatenatedString = \"\"\n" +
-                "  for(i <- 0 until data.length){\n" +
-                "     concatenatedString += data(i).toString\n" +
-                "  }\n" +
-                "  concatenatedString\n" +
-                "};\n";
+                        "  var concatenatedString = \"\"\n" +
+                        "  for(i <- 0 until data.length){\n" +
+                        "     concatenatedString += data(i).toString\n" +
+                        "  }\n" +
+                        "  concatenatedString\n" +
+                        "};\n";
 
         String concatJFunc =
                 "define function concatJ[JavaScript] return string {\n" +
-                "   var str1 = data[0].toString();\n" +
-                "   var str2 = data[1].toString();\n" +
-                "   var str3 = data[2].toString();\n" +
-                "   var res = str1.concat(str2,str3);\n" +
-                "   return res;\n" +
-                "};\n";
+                        "   var str1 = data[0].toString();\n" +
+                        "   var str2 = data[1].toString();\n" +
+                        "   var str3 = data[2].toString();\n" +
+                        "   var res = str1.concat(str2,str3);\n" +
+                        "   return res;\n" +
+                        "};\n";
 
         String toFloatSFunc =
                 "define function toFloatS[Scala] return float {\n" +
-                "   data(0).asInstanceOf[Long].toFloat\n" +
-                "};\n";
+                        "   data(0).asInstanceOf[Long].toFloat\n" +
+                        "};\n";
 
         String toStringJFunc =
                 "define function toStringJ[JavaScript] return string {\n" +
-                "   return data[0].toString();\n" +
-                "};\n";
+                        "   return data[0].toString();\n" +
+                        "};\n";
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);\n";
-        String query1 = ("@info(name = 'query1') from cseEventStream select price , toStringJ(price) as concatStr insert into mailto1;\n");
-        String query2 = ("@info(name = 'query2') from cseEventStream select price , toFloatS(volume) as concatStr insert into mailto2;\n");
-        String query3 = ("@info(name = 'query3') from cseEventStream select price , concatJ(symbol,' ',price) as concatStr insert into mailto3;\n");
-        String query4 = ("@info(name = 'query4') from cseEventStream select price , concatS(symbol,' ',price) as concatStr insert into mailto4;\n");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime( concatSFunc +
-                concatJFunc + toFloatSFunc +  toStringJFunc + cseEventStream + query1 + query2 + query3 + query4);
+        String query1 = ("@info(name = 'query1') from cseEventStream select price , toStringJ(price) as concatStr " +
+                "insert into mailto1;\n");
+        String query2 = ("@info(name = 'query2') from cseEventStream select price , toFloatS(volume) as concatStr " +
+                "insert into mailto2;\n");
+        String query3 = ("@info(name = 'query3') from cseEventStream select price , concatJ(symbol,' ',price) as " +
+                "concatStr insert into mailto3;\n");
+        String query4 = ("@info(name = 'query4') from cseEventStream select price , concatS(symbol,' ',price) as " +
+                "concatStr insert into mailto4;\n");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatSFunc +
+                concatJFunc + toFloatSFunc + toStringJFunc + cseEventStream + query1 + query2 + query3 + query4);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -273,7 +281,7 @@ public class ScriptTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Object value  = inEvents[inEvents.length - 1].getData(1);
+                Object value = inEvents[inEvents.length - 1].getData(1);
                 Assert.assertEquals("WSO2 50", value);
                 count.incrementAndGet();
             }
@@ -310,15 +318,17 @@ public class ScriptTestCase {
 
         String toFloatSFunc =
                 "define function toFloatS[Scala] return float {\n" +
-                "   data(0).asInstanceOf[String].toFloat\n" +
-                "};\n";
+                        "   data(0).asInstanceOf[String].toFloat\n" +
+                        "};\n";
 
         String cseEventStream = "define stream cseEventStream (symbol string, price string, volume long);\n";
 
-        String query1 = ("@info(name = 'query1') from cseEventStream select price , toFloatS(price) as priceF insert into mailto1;\n");
+        String query1 = ("@info(name = 'query1') from cseEventStream select price , toFloatS(price) as priceF insert " +
+                "into mailto1;\n");
         String query2 = ("@info(name = 'query2') from mailto1 select priceF/2 as newPrice insert into mailto2;\n");
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(toFloatSFunc+cseEventStream+query1+query2);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(toFloatSFunc +
+                cseEventStream + query1 + query2);
 
         executionPlanRuntime.addCallback("query2", new QueryCallback() {
             @Override
@@ -340,14 +350,15 @@ public class ScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=ExecutionPlanValidationException.class)
+    @Test(expected = ExecutionPlanValidationException.class)
     public void testMissingReturnType() {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("script:javascript", org.wso2.siddhi.extension.script.EvalJavaScript.class);
         siddhiManager.setExtension("script:scala", org.wso2.siddhi.extension.script.EvalScala.class);
 
-        ExecutionPlan.executionPlan("test").defineFunction((new FunctionDefinition().id("concat").language("Scala").body(
+        ExecutionPlan.executionPlan("test").defineFunction((new FunctionDefinition().id("concat").language("Scala")
+                .body(
                 "var concatenatedString = \"\"\n" +
                         "for(i <- 0 until data.length){\n" +
                         "  concatenatedString += data(i).toString\n" +
@@ -355,7 +366,7 @@ public class ScriptTestCase {
                         + "concatenatedString")));
     }
 
-    @Test(expected=ExecutionPlanValidationException.class)
+    @Test(expected = ExecutionPlanValidationException.class)
     public void testUseUndefinedFunction() throws InterruptedException {
         log.info("testUseUndefinedFunction");
 
@@ -364,7 +375,8 @@ public class ScriptTestCase {
         siddhiManager.setExtension("script:scala", org.wso2.siddhi.extension.script.EvalScala.class);
         //siddhiManager.defineFunction(concatFunc);
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = ("@info(name = 'query1') from cseEventStream select price , undefinedFunc(symbol,' ',price) as concatStr " +
+        String query = ("@info(name = 'query1') from cseEventStream select price , undefinedFunc(symbol,' ',price) as" +
+                " concatStr " +
                 "group by volume insert into mailOutput;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -387,7 +399,7 @@ public class ScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=SiddhiParserException.class)
+    @Test(expected = SiddhiParserException.class)
     public void testMissingFunctionKeyWord() throws InterruptedException {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
@@ -407,7 +419,7 @@ public class ScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=SiddhiParserException.class)
+    @Test(expected = SiddhiParserException.class)
     public void testMissingDefineKeyWord() throws InterruptedException {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
@@ -427,7 +439,7 @@ public class ScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=SiddhiParserException.class)
+    @Test(expected = SiddhiParserException.class)
     public void testMissingFunctionName() throws InterruptedException {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
@@ -447,7 +459,7 @@ public class ScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=SiddhiParserException.class)
+    @Test(expected = SiddhiParserException.class)
     public void testMissingLanguage() throws InterruptedException {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
@@ -467,7 +479,7 @@ public class ScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=SiddhiParserException.class)
+    @Test(expected = SiddhiParserException.class)
     public void testMissingBrackets() throws InterruptedException {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
@@ -487,7 +499,7 @@ public class ScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=SiddhiParserException.class)
+    @Test(expected = SiddhiParserException.class)
     public void testWrongBrackets() throws InterruptedException {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
@@ -507,7 +519,7 @@ public class ScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=SiddhiParserException.class)
+    @Test(expected = SiddhiParserException.class)
     public void testMissingReturnTypeWhileParsing() throws InterruptedException {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 

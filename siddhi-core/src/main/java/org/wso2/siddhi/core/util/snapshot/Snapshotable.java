@@ -19,6 +19,10 @@ package org.wso2.siddhi.core.util.snapshot;
 
 import java.util.Map;
 
+/**
+ * Parent interface which should be implemented by every processing elements of Siddhi event processing chain so
+ * that they can save the current state and poll for previous state in case of an issue.
+ */
 public interface Snapshotable {
 
     /**

@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.query.api.expression.constant;
 
+/**
+ * Constant
+ */
 public interface Constant {
 
 }

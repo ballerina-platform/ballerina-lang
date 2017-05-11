@@ -51,7 +51,8 @@ public class AttributeConverter {
         if (functionMap.containsKey(attributeType)) {
             return functionMap.get(attributeType).apply(propertyValue);
         } else {
-            throw new ExecutionPlanRuntimeException("Attribute type: " + attributeType + " not supported by XML mapping.");
+            throw new ExecutionPlanRuntimeException("Attribute type: " + attributeType + " not supported by XML " +
+                    "mapping.");
         }
     }
 

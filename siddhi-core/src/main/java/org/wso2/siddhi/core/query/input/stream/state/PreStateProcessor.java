@@ -31,11 +31,11 @@ public interface PreStateProcessor extends Processor {
 
     void addEveryState(StateEvent stateEvent);
 
-    void setStateId(int stateId);
-
     ComplexEventChunk processAndReturn(ComplexEventChunk complexEventChunk);
 
     int getStateId();
+
+    void setStateId(int stateId);
 
     void init();
 

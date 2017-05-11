@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -32,6 +33,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate standard deviation based on an event attribute.
+ */
 @Extension(
         name = "stdDev",
         namespace = "",
@@ -43,7 +47,14 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the calculated standard deviation value as a double.",
-                type = {DataType.DOUBLE})
+                type = {DataType.DOUBLE}),
+        examples = @Example(
+                syntax = "from inputStream\n" +
+                        "select stddev(temp) as stdTemp\n" +
+                        "insert into outputStream;",
+                description = "stddev(temp) returns the calculated standard deviation of temp for all the events " +
+                        "based on their arrival and expiry."
+        )
 )
 public class StdDevAttributeAggregator extends AttributeAggregator {
     private StdDevAttributeAggregator stdDevOutputAttributeAggregator;
@@ -132,6 +143,9 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
         stdDevOutputAttributeAggregator.restoreState(state);
     }
 
+    /**
+     * Standard deviation abstrct aggregator for Double values
+     */
     private abstract class StdDevAbstractAttributeAggregatorDouble extends StdDevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double mean, oldMean, stdDeviation, sum;
@@ -208,6 +222,9 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
         }
     }
 
+    /**
+     * Standard deviation aggregator for Double values
+     */
     private class StdDevAttributeAggregatorDouble extends StdDevAbstractAttributeAggregatorDouble {
         @Override
         public Object processAdd(Object data) {
@@ -220,6 +237,9 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
         }
     }
 
+    /**
+     * Standard deviation aggregator for Float values
+     */
     private class StdDevAttributeAggregatorFloat extends StdDevAbstractAttributeAggregatorDouble {
         @Override
         public Object processAdd(Object data) {
@@ -232,6 +252,9 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
         }
     }
 
+    /**
+     * Standard deviation aggregator for Integer values
+     */
     private class StdDevAttributeAggregatorInt extends StdDevAbstractAttributeAggregatorDouble {
         @Override
         public Object processAdd(Object data) {
@@ -244,6 +267,9 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
         }
     }
 
+    /**
+     * Standard deviation aggregator for Long values
+     */
     private class StdDevAttributeAggregatorLong extends StdDevAbstractAttributeAggregatorDouble {
         @Override
         public Object processAdd(Object data) {

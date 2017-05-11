@@ -36,15 +36,20 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Class to parse {@link PartitionRuntime}
+ */
 public class PartitionParser {
 
     public static PartitionRuntime parse(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Partition partition,
                                          ExecutionPlanContext executionPlanContext,
                                          ConcurrentMap<String, AbstractDefinition> streamDefinitionMap) {
-        PartitionRuntime partitionRuntime = new PartitionRuntime(executionPlanRuntimeBuilder.getStreamDefinitionMap(), executionPlanRuntimeBuilder.getStreamJunctions(), partition, executionPlanContext);
+        PartitionRuntime partitionRuntime = new PartitionRuntime(executionPlanRuntimeBuilder.getStreamDefinitionMap()
+                , executionPlanRuntimeBuilder.getStreamJunctions(), partition, executionPlanContext);
         for (Query query : partition.getQueryList()) {
             List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
-            ConcurrentMap<String, AbstractDefinition> combinedStreamMap = new ConcurrentHashMap<String, AbstractDefinition>();
+            ConcurrentMap<String, AbstractDefinition> combinedStreamMap = new ConcurrentHashMap<String,
+                    AbstractDefinition>();
             combinedStreamMap.putAll(streamDefinitionMap);
             combinedStreamMap.putAll(partitionRuntime.getLocalStreamDefinitionMap());
             QueryRuntime queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap,

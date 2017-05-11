@@ -23,7 +23,9 @@ import org.wso2.siddhi.core.stream.output.sink.distributed.DistributionStrategy;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-
+/**
+ * Holder to store {@link DistributionStrategy} Extensions.
+ */
 public class DistributionStrategyExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = DistributionStrategy.class;
 

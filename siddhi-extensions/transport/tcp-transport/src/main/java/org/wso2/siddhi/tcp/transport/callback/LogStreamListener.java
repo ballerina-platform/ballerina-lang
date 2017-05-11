@@ -42,7 +42,7 @@ public class LogStreamListener implements StreamListener {
 
     @Override
     public void onEvent(Event event) {
-        log.info( count.incrementAndGet()+ " " + event);
+        log.info(count.incrementAndGet() + " " + event);
     }
 
     @Override

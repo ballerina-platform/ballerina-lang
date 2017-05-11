@@ -20,14 +20,13 @@ package org.wso2.siddhi.annotation;
 import org.wso2.siddhi.annotation.util.DataType;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
  * Annotation for storing the parameters of a Siddhi Extension.
- *
+ * <p>
  * <pre><code>
  * eg:-
  *      {@literal @}Extension(
@@ -46,11 +45,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface Parameter {
-    String name();
+    String name() default "";
 
-    DataType[] type();
+    DataType[] type() default {};
 
-    String description() default "";        // optional
+    String description() default "";
 
-    boolean optional() default false;       // optional
+    boolean optional() default false;
+
+    boolean dynamic() default false;
 }

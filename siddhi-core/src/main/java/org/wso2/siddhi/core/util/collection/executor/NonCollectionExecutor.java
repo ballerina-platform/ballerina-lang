@@ -28,6 +28,9 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import java.util.Collection;
 import java.util.HashSet;
 
+/**
+ * Implementation of {@link CollectionExecutor} which handles non condition
+ */
 public class NonCollectionExecutor implements CollectionExecutor {
     private ExpressionExecutor expressionExecutor;
 
@@ -36,7 +39,8 @@ public class NonCollectionExecutor implements CollectionExecutor {
         this.expressionExecutor = expressionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner
+            storeEventCloner) {
 
         if ((Boolean) expressionExecutor.execute(matchingEvent)) {
 

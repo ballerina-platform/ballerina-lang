@@ -18,11 +18,33 @@
 package org.wso2.siddhi.query.api.expression;
 
 
-import org.wso2.siddhi.query.api.expression.condition.*;
-import org.wso2.siddhi.query.api.expression.constant.*;
-import org.wso2.siddhi.query.api.expression.math.*;
+import org.wso2.siddhi.query.api.expression.condition.And;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
+import org.wso2.siddhi.query.api.expression.condition.In;
+import org.wso2.siddhi.query.api.expression.condition.IsNull;
+import org.wso2.siddhi.query.api.expression.condition.Not;
+import org.wso2.siddhi.query.api.expression.condition.Or;
+import org.wso2.siddhi.query.api.expression.constant.BoolConstant;
+import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
+import org.wso2.siddhi.query.api.expression.constant.FloatConstant;
+import org.wso2.siddhi.query.api.expression.constant.IntConstant;
+import org.wso2.siddhi.query.api.expression.constant.LongConstant;
+import org.wso2.siddhi.query.api.expression.constant.StringConstant;
+import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
+import org.wso2.siddhi.query.api.expression.math.Add;
+import org.wso2.siddhi.query.api.expression.math.Divide;
+import org.wso2.siddhi.query.api.expression.math.Mod;
+import org.wso2.siddhi.query.api.expression.math.Multiply;
+import org.wso2.siddhi.query.api.expression.math.Subtract;
 
-public abstract class Expression {
+import java.io.Serializable;
+
+/**
+ * Siddhi expression
+ */
+public abstract class Expression implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public static StringConstant value(String value) {
         return new StringConstant(value);
@@ -78,7 +100,7 @@ public abstract class Expression {
     }
 
     public static Expression function(String functionName, Expression... expressions) {
-        return new AttributeFunction("",functionName, expressions);
+        return new AttributeFunction("", functionName, expressions);
     }
 
     public static Expression compare(Expression leftExpression, Compare.Operator operator,
@@ -98,8 +120,8 @@ public abstract class Expression {
         return new Or(leftExpression, rightExpression);
     }
 
-    public static Expression not(Expression Expression) {
-        return new Not(Expression);
+    public static Expression not(Expression expression) {
+        return new Not(expression);
     }
 
     public static Expression isNull(Expression expression) {
@@ -122,6 +144,9 @@ public abstract class Expression {
         return new IsNull(streamId, streamIndex, true);
     }
 
+    /**
+     * Time constant factory class
+     */
     public abstract static class Time {
 
         public static TimeConstant milliSec(long i) {

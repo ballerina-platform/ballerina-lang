@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -31,6 +32,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate average based on an event attribute.
+ */
 @Extension(
         name = "avg",
         namespace = "",
@@ -42,7 +46,12 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the calculated average value as a double.",
-                type = {DataType.DOUBLE})
+                type = {DataType.DOUBLE}),
+        examples = @Example(
+                syntax = "from fooStream#window.timeBatch\n select avg(temp) as avgTemp\n insert into barStream;",
+                description = "avg(temp) returns the average temp value for all the events based on their " +
+                        "arrival and expiry."
+        )
 )
 public class AvgAttributeAggregator extends AttributeAggregator {
 
@@ -55,7 +64,8 @@ public class AvgAttributeAggregator extends AttributeAggregator {
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Avg aggregator has to have exactly 1 parameter, currently " +
                     attributeExpressionExecutors.length + " parameters provided");

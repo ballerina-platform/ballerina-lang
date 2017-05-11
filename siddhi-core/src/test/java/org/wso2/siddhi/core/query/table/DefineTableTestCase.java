@@ -33,7 +33,7 @@ import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
  * Created on 1/17/15.
  */
 public class DefineTableTestCase {
-    static final Logger log = Logger.getLogger(DefineTableTestCase.class);
+    private static final Logger log = Logger.getLogger(DefineTableTestCase.class);
 
     @Test
     public void testQuery1() throws InterruptedException {
@@ -41,7 +41,8 @@ public class DefineTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        TableDefinition tableDefinition = TableDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        TableDefinition tableDefinition = TableDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineTable(tableDefinition);
@@ -244,6 +245,4 @@ public class DefineTableTestCase {
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.shutdown();
     }
-
-
 }

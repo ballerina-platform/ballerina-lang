@@ -23,13 +23,16 @@ import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggrega
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Abstract class to represent attribute aggregations.
+ */
 public abstract class AbstractAggregationAttributeExecutor implements ExpressionExecutor, Snapshotable {
-    private String elementId;
     protected AttributeAggregator attributeAggregator;
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
     protected int size;
     protected String queryName;
+    private String elementId;
 
     public AbstractAggregationAttributeExecutor(AttributeAggregator attributeAggregator,
                                                 ExpressionExecutor[] attributeExpressionExecutors,
@@ -40,7 +43,8 @@ public abstract class AbstractAggregationAttributeExecutor implements Expression
         this.size = attributeExpressionExecutors.length;
         this.queryName = queryName;
         if (elementId == null) {
-            elementId = "AbstractAggregationAttributeExecutor-" + executionPlanContext.getElementIdGenerator().createNewId();
+            elementId = "AbstractAggregationAttributeExecutor-" + executionPlanContext.getElementIdGenerator()
+                    .createNewId();
         }
         executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
     }

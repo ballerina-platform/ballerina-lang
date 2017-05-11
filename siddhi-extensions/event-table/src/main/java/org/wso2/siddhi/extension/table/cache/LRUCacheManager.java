@@ -27,8 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LRUCacheManager implements CacheManager {
 
-    private ConcurrentHashMap<StreamEvent, Long> eventTimestamps;
     private final LinkedList<StreamEvent> cacheList;
+    private ConcurrentHashMap<StreamEvent, Long> eventTimestamps;
     private long limit;
 
     public LRUCacheManager(LinkedList<StreamEvent> cacheList, long limit) {

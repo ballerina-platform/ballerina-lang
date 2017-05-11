@@ -38,11 +38,14 @@ public class CountInnerStateRuntime extends StreamInnerStateRuntime {
 
     @Override
     public InnerStateRuntime clone(String key) {
-        StreamInnerStateRuntime cloned_streamInnerStateRuntime = (StreamInnerStateRuntime) streamInnerStateRuntime.clone(key);
-        CountPreStateProcessor countPreStateProcessor = (CountPreStateProcessor) cloned_streamInnerStateRuntime.getFirstProcessor();
-        CountPostStateProcessor countPostStateProcessor = (CountPostStateProcessor) cloned_streamInnerStateRuntime.getLastProcessor();
+        StreamInnerStateRuntime clonedStreamInnerStateRuntime = (StreamInnerStateRuntime) streamInnerStateRuntime
+                .clone(key);
+        CountPreStateProcessor countPreStateProcessor = (CountPreStateProcessor) clonedStreamInnerStateRuntime
+                .getFirstProcessor();
+        CountPostStateProcessor countPostStateProcessor = (CountPostStateProcessor) clonedStreamInnerStateRuntime
+                .getLastProcessor();
         countPreStateProcessor.setCountPostStateProcessor(countPostStateProcessor);
-        return new CountInnerStateRuntime(cloned_streamInnerStateRuntime);
+        return new CountInnerStateRuntime(clonedStreamInnerStateRuntime);
 
     }
 }

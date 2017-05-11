@@ -18,6 +18,9 @@
 
 package org.wso2.siddhi.core.exception;
 
+/**
+ * Exception class to be used when connections are unavailable.
+ */
 public class ConnectionUnavailableException extends Exception {
 
     public ConnectionUnavailableException() {

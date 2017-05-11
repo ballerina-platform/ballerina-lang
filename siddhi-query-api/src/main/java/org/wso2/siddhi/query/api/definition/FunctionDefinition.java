@@ -18,6 +18,9 @@
 
 package org.wso2.siddhi.query.api.definition;
 
+/**
+ * Siddhi inline function definition
+ */
 public class FunctionDefinition {
 
     private String language;

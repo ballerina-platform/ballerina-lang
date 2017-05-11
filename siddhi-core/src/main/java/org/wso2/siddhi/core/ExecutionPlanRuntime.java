@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -63,6 +64,7 @@ import java.util.stream.Collectors;
  */
 public class ExecutionPlanRuntime {
     private static final Logger log = Logger.getLogger(ExecutionPlanRuntime.class);
+    // Contains event tables.
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String,
             AbstractDefinition>(); // Contains stream definition.
     private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String,
@@ -120,7 +122,7 @@ public class ExecutionPlanRuntime {
         for (Map.Entry<String, List<Source>> sourceEntries : eventSourceMap.entrySet()) {
             InputHandler inputHandler = getInputHandler(sourceEntries.getKey());
             for (Source source : sourceEntries.getValue()) {
-                source.getMapper().setInputHandler(inputHandler);
+                source.getMapper().setInputEventHandler(new InputEventHandler(inputHandler, executionPlanContext));
             }
         }
     }
@@ -131,6 +133,7 @@ public class ExecutionPlanRuntime {
 
     /**
      * Get the stream definition map.
+     *
      * @return Map of {@link StreamDefinition}s.
      */
     public Map<String, StreamDefinition> getStreamDefinitionMap() {
@@ -142,6 +145,7 @@ public class ExecutionPlanRuntime {
 
     /**
      * Get the table definition map.
+     *
      * @return Map of {@link TableDefinition}s.
      */
     public Map<String, TableDefinition> getTableDefinitionMap() {
@@ -153,6 +157,7 @@ public class ExecutionPlanRuntime {
 
     /**
      * Get the names of the available queries.
+     *
      * @return {@link Set<String>} of query names.
      */
     public Set<String> getQueryNames() {

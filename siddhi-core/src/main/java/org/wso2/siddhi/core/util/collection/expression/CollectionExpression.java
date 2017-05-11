@@ -20,11 +20,23 @@ package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Interface for expressions related to collection of events. These will be used by in-memory table implementation.
+ */
 public interface CollectionExpression {
-    enum CollectionScope {NON, INDEXED_ATTRIBUTE, INDEXED_RESULT_SET, OPTIMISED_RESULT_SET, EXHAUSTIVE}
-
     Expression getExpression();
 
     CollectionScope getCollectionScope();
+
+    /**
+     * Enums to hold collection expression scopes.
+     */
+    enum CollectionScope {
+        NON,
+        INDEXED_ATTRIBUTE,
+        INDEXED_RESULT_SET,
+        OPTIMISED_RESULT_SET,
+        EXHAUSTIVE
+    }
 
 }

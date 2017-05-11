@@ -47,6 +47,10 @@ public class Partition implements ExecutionElement {
         return new Partition();
     }
 
+    public static RangePartitionType.RangePartitionProperty range(String partitionKey, Expression condition) {
+        return new RangePartitionType.RangePartitionProperty(partitionKey, condition);
+    }
+
     public Map<String, PartitionType> getPartitionTypeMap() {
         return partitionTypeMap;
     }
@@ -73,12 +77,14 @@ public class Partition implements ExecutionElement {
             throw new ExecutionPlanValidationException("Query should not be null");
         }
         String name = null;
-        Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO, SiddhiConstants.ANNOTATION_ELEMENT_NAME, query.getAnnotations());
+        Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO, SiddhiConstants
+                .ANNOTATION_ELEMENT_NAME, query.getAnnotations());
         if (element != null) {
             name = element.getValue();
         }
         if (name != null && queryNameList.contains(name)) {
-            throw new ExecutionPlanValidationException("Cannot add Query as another Execution Element already uses its name=" + name + " within the same Partition");
+            throw new ExecutionPlanValidationException("Cannot add Query as another Execution Element already uses " +
+                    "its name=" + name + " within the same Partition");
         }
         queryNameList.add(name);
         this.queryList.add(query);
@@ -88,17 +94,15 @@ public class Partition implements ExecutionElement {
     private void addPartitionType(PartitionType partitionType) {
         String partitionedStream = partitionType.getStreamId();
         if (partitionTypeMap.containsKey(partitionedStream)) {
-            throw new ExecutionPlanValidationException("Duplicate partition for Stream " + partitionedStream + "!, " + partitionType.toString() + " cannot be added as " + partitionTypeMap.get(partitionType.getStreamId()) + " already exist.");
+            throw new ExecutionPlanValidationException("Duplicate partition for Stream " + partitionedStream + "!, "
+                    + partitionType.toString() + " cannot be added as " + partitionTypeMap.get(partitionType
+                    .getStreamId()) + " already exist.");
         }
         partitionTypeMap.put(partitionType.getStreamId(), partitionType);
     }
 
     public List<Query> getQueryList() {
         return queryList;
-    }
-
-    public static RangePartitionType.RangePartitionProperty range(String partitionKey, Expression condition) {
-        return new RangePartitionType.RangePartitionProperty(partitionKey, condition);
     }
 
     public Partition annotation(Annotation annotation) {
@@ -133,7 +137,8 @@ public class Partition implements ExecutionElement {
         if (annotations != null ? !annotations.equals(partition.annotations) : partition.annotations != null) {
             return false;
         }
-        if (partitionTypeMap != null ? !partitionTypeMap.equals(partition.partitionTypeMap) : partition.partitionTypeMap != null) {
+        if (partitionTypeMap != null ? !partitionTypeMap.equals(partition.partitionTypeMap) : partition
+                .partitionTypeMap != null) {
             return false;
         }
         if (queryList != null ? !queryList.equals(partition.queryList) : partition.queryList != null) {

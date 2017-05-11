@@ -22,10 +22,13 @@ import org.wso2.siddhi.core.event.Event;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Holder class for general transport options.
+ */
 public class Option {
     private final String key;
-    private String value;
     private final TemplateBuilder templateBuilder;
+    private String value;
     private List<String> variableValues = new ArrayList<>();
     private int dataIndex = -1;
 

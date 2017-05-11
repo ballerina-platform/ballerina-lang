@@ -23,6 +23,10 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 
 import java.util.Map;
 
+/**
+ * Implementation of {@link OutputRateLimiter} which will pass through events without doing any rate limiting. This
+ * is the default rate limiting strategy used by Siddhi.
+ */
 public class PassThroughOutputRateLimiter extends OutputRateLimiter {
     private static final Logger log = Logger.getLogger(PassThroughOutputRateLimiter.class);
     private String id;

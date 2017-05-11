@@ -21,13 +21,21 @@ import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
-import org.wso2.siddhi.query.api.execution.query.output.stream.*;
+import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateOrInsertStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Siddhi Query
+ */
 public class Query implements ExecutionElement {
 
     private InputStream inputStream;
@@ -97,7 +105,8 @@ public class Query implements ExecutionElement {
         this.outputStream = new DeleteStream(outputTableId, onDeletingExpression);
     }
 
-    public void deleteBy(String outputTableId, OutputStream.OutputEventType outputEventType, Expression onDeletingExpression) {
+    public void deleteBy(String outputTableId, OutputStream.OutputEventType outputEventType, Expression
+            onDeletingExpression) {
         this.outputStream = new DeleteStream(outputTableId, outputEventType, onDeletingExpression);
     }
 
@@ -105,7 +114,8 @@ public class Query implements ExecutionElement {
         this.outputStream = new UpdateStream(outputTableId, onUpdateExpression);
     }
 
-    public void updateBy(String outputTableId, OutputStream.OutputEventType outputEventType, Expression onUpdateExpression) {
+    public void updateBy(String outputTableId, OutputStream.OutputEventType outputEventType, Expression
+            onUpdateExpression) {
         this.outputStream = new UpdateStream(outputTableId, outputEventType, onUpdateExpression);
     }
 
@@ -113,7 +123,8 @@ public class Query implements ExecutionElement {
         this.outputStream = new UpdateOrInsertStream(outputTableId, onUpdateExpression);
     }
 
-    public void updateOrInsertBy(String outputTableId, OutputStream.OutputEventType outputEventType, Expression onUpdateExpression) {
+    public void updateOrInsertBy(String outputTableId, OutputStream.OutputEventType outputEventType, Expression
+            onUpdateExpression) {
         this.outputStream = new UpdateOrInsertStream(outputTableId, outputEventType, onUpdateExpression);
     }
 
@@ -151,16 +162,30 @@ public class Query implements ExecutionElement {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Query)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Query)) {
+            return false;
+        }
 
         Query query = (Query) o;
 
-        if (annotations != null ? !annotations.equals(query.annotations) : query.annotations != null) return false;
-        if (inputStream != null ? !inputStream.equals(query.inputStream) : query.inputStream != null) return false;
-        if (outputRate != null ? !outputRate.equals(query.outputRate) : query.outputRate != null) return false;
-        if (outputStream != null ? !outputStream.equals(query.outputStream) : query.outputStream != null) return false;
-        if (selector != null ? !selector.equals(query.selector) : query.selector != null) return false;
+        if (annotations != null ? !annotations.equals(query.annotations) : query.annotations != null) {
+            return false;
+        }
+        if (inputStream != null ? !inputStream.equals(query.inputStream) : query.inputStream != null) {
+            return false;
+        }
+        if (outputRate != null ? !outputRate.equals(query.outputRate) : query.outputRate != null) {
+            return false;
+        }
+        if (outputStream != null ? !outputStream.equals(query.outputStream) : query.outputStream != null) {
+            return false;
+        }
+        if (selector != null ? !selector.equals(query.selector) : query.selector != null) {
+            return false;
+        }
 
         return true;
     }

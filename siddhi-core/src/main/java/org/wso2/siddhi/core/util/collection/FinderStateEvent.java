@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.util.collection;
 import org.wso2.siddhi.core.event.state.StateEvent;
 
 /**
- * Created by suho on 5/21/16.
+ * State Event holder used by {@link org.wso2.siddhi.core.executor.condition.InConditionExpressionExecutor}
  */
 public class FinderStateEvent extends StateEvent {
 

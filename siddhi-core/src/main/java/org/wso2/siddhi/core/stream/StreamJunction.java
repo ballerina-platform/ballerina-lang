@@ -45,6 +45,12 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * Stream Junction is the place where streams are collected and distributed. There will be an Stream Junction per
+ * evey event stream. {@link StreamJunction.Publisher} can be used to publish events to the junction and
+ * {@link StreamJunction.Receiver} can be used to receive events from Stream Junction. Stream Junction will hold the
+ * events till they are consumed by registered Receivers.
+ */
 public class StreamJunction {
     private static final Logger log = Logger.getLogger(StreamJunction.class);
     private final ExecutionPlanContext executionPlanContext;
@@ -80,7 +86,7 @@ public class StreamJunction {
         }
         try {
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ASYNC,
-                    streamDefinition.getAnnotations());
+                                                                   streamDefinition.getAnnotations());
             async = executionPlanContext.isAsync();
             if (annotation != null) {
                 async = true;
@@ -200,7 +206,8 @@ public class StreamJunction {
     private void sendData(long timeStamp, Object[] data) {
         // Set timestamp to system if Siddhi is in playback mode
         if (executionPlanContext.isPlayback()) {
-            ((EventTimeBasedMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator()).setCurrentTimestamp(timeStamp);
+            ((EventTimeBasedMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator())
+                    .setCurrentTimestamp(timeStamp);
         }
         if (throughputTracker != null) {
             throughputTracker.eventIn();
@@ -231,14 +238,15 @@ public class StreamJunction {
                 if (constructor.getParameterTypes().length == 5) {      // If new disruptor classes available
                     ProducerType producerType = ProducerType.MULTI;
                     disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
-                            bufferSize, executorService, producerType, new BlockingWaitStrategy());
+                                                     bufferSize, executorService, producerType,
+                                                     new BlockingWaitStrategy());
                     disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
                     break;
                 }
             }
             if (disruptor == null) {
                 disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
-                        bufferSize, executorService);
+                                                 bufferSize, executorService);
                 disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
             }
             for (Receiver receiver : receivers) {
@@ -288,6 +296,9 @@ public class StreamJunction {
         return streamDefinition;
     }
 
+    /**
+     * Interface to be implemented by all receivers who need to subscribe to Stream Junction and receive events.
+     */
     public interface Receiver {
 
         String getStreamId();
@@ -303,6 +314,9 @@ public class StreamJunction {
         void receive(Event[] events);
     }
 
+    /**
+     * Interface to be implemented to receive events via handlers.
+     */
     public class StreamHandler implements EventHandler<Event> {
 
         private Receiver receiver;
@@ -317,6 +331,9 @@ public class StreamJunction {
         }
     }
 
+    /**
+     * Interface to be implemented to send events into the Stream Junction.
+     */
     public class Publisher implements InputProcessor {
 
         private StreamJunction streamJunction;

@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class StdDevAttributeAggregatorTestCase {
-    static final Logger log = Logger.getLogger(StdDevAttributeAggregatorTestCase.class);
+    private static final Logger log = Logger.getLogger(StdDevAttributeAggregatorTestCase.class);
     private final double epsilon = 0.00001; // difference threshold for two doubles to be treated distinct
     private int inEventCount; // Only used in the Test #1 and #6
 
@@ -227,7 +227,7 @@ public class StdDevAttributeAggregatorTestCase {
     public void stdDevAggregatorTest6() throws InterruptedException {
         log.info("stdDevAggregator Test #6");
 
-        final double[] results = new double[] {0.0, 489.95, 400.09052, 405.11802, 199.96026};
+        final double[] results = new double[]{0.0, 489.95, 400.09052, 405.11802, 199.96026};
 
         SiddhiManager siddhiManager = new SiddhiManager();
 

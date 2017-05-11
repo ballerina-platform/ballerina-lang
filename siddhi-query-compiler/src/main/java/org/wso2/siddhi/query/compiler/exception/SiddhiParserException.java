@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.query.compiler.exception;
 
+/**
+ * Exception thrown when passer errors occur in siddhi
+ */
 public class SiddhiParserException extends RuntimeException {
     public SiddhiParserException() {
         super();

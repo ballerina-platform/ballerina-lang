@@ -16,7 +16,9 @@
 
 package org.wso2.siddhi.core.util;
 
-
+/**
+ * Component activator for Siddhi manager component
+ */
 public class SiddhiComponentActivator {
 
 }

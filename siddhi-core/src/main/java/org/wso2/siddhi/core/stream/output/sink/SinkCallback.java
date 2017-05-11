@@ -26,6 +26,10 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
 import java.util.List;
 
+/**
+ * Sink Callback is used to get {@link Event}s from Siddhi Streams using
+ * {@link org.wso2.siddhi.core.stream.StreamJunction} and send them to {@link SinkMapper}s to do the mapping.
+ */
 public class SinkCallback extends StreamCallback {
     private static final Logger log = Logger.getLogger(SinkCallback.class);
     private AbstractDefinition outputStreamDefinition;

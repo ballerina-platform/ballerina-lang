@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.util;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * unique id generator for elements inside a given execution plan
+ */
 public class ElementIdGenerator {
 
     private String executionPlanName;

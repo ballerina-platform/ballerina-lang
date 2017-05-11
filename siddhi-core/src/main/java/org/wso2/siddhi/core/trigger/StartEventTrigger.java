@@ -24,7 +24,7 @@ import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 
 /**
- * Created on 5/13/15.
+ * Implementation of {@link EventTrigger} which will trigger events when execution plan in started.
  */
 public class StartEventTrigger implements EventTrigger {
     private TriggerDefinition triggerDefinition;
@@ -32,7 +32,8 @@ public class StartEventTrigger implements EventTrigger {
     private StreamJunction streamJunction;
 
     @Override
-    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction streamJunction) {
+    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction
+            streamJunction) {
 
         this.triggerDefinition = triggerDefinition;
         this.executionPlanContext = executionPlanContext;

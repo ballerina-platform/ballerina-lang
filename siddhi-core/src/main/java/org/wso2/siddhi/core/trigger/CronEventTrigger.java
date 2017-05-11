@@ -19,7 +19,17 @@
 package org.wso2.siddhi.core.trigger;
 
 import org.apache.log4j.Logger;
-import org.quartz.*;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.Job;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
+import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
@@ -27,11 +37,11 @@ import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 
 /**
- * Created on 5/13/15.
+ * Implementation of {@link EventTrigger} which will trigger events based on a cron expression.
  */
 public class CronEventTrigger implements EventTrigger, Job {
 
-    protected static final Logger log = Logger.getLogger(CronEventTrigger.class);
+    protected static final Logger LOG = Logger.getLogger(CronEventTrigger.class);
 
     private TriggerDefinition triggerDefinition;
     private ExecutionPlanContext executionPlanContext;
@@ -41,7 +51,8 @@ public class CronEventTrigger implements EventTrigger, Job {
     private String jobGroup = "TriggerGroup";
 
     @Override
-    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction streamJunction) {
+    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction
+            streamJunction) {
 
         this.triggerDefinition = triggerDefinition;
         this.executionPlanContext = executionPlanContext;
@@ -81,7 +92,7 @@ public class CronEventTrigger implements EventTrigger, Job {
                 scheduler.deleteJob(new JobKey(jobName, jobGroup));
             }
         } catch (SchedulerException e) {
-            log.error("Error while removing the cron trigger job, " + e.getMessage(), e);
+            LOG.error("Error while removing the cron trigger job, " + e.getMessage(), e);
         }
     }
 
@@ -112,7 +123,8 @@ public class CronEventTrigger implements EventTrigger, Job {
             scheduler.scheduleJob(job, trigger);
 
         } catch (SchedulerException e) {
-            log.error("Error while instantiating quartz scheduler for trigger '" + triggerDefinition.getId() + "'," + e.getMessage(), e);
+            LOG.error("Error while instantiating quartz scheduler for trigger '" + triggerDefinition.getId() + "'," +
+                    e.getMessage(), e);
         }
     }
 
@@ -122,8 +134,8 @@ public class CronEventTrigger implements EventTrigger, Job {
 
         JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
         CronEventTrigger cronEventTrigger = (CronEventTrigger) dataMap.get("trigger");
-        if (log.isDebugEnabled()) {
-            log.debug("Running Trigger Job '" + cronEventTrigger.getId() + "'");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Running Trigger Job '" + cronEventTrigger.getId() + "'");
         }
         cronEventTrigger.sendEvent();
     }

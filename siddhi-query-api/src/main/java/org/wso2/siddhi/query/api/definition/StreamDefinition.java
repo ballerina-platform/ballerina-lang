@@ -19,7 +19,12 @@ package org.wso2.siddhi.query.api.definition;
 
 import org.wso2.siddhi.query.api.annotation.Annotation;
 
+/**
+ * Siddhi Stream Definition
+ */
 public class StreamDefinition extends AbstractDefinition {
+
+    private static final long serialVersionUID = 1L;
 
     public StreamDefinition() {
     }

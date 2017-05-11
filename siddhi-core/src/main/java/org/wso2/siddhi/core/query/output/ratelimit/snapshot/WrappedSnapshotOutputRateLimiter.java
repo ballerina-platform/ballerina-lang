@@ -37,18 +37,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Implementation of {@link OutputRateLimiter} to be used by Snapshot Output Rate Limiting implementations.
+ */
 public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
-    SnapshotOutputRateLimiter outputRateLimiter;
-    private String id;
     private final Long value;
     private final ScheduledExecutorService scheduledExecutorService;
     private final boolean groupBy;
     private final boolean windowed;
+    SnapshotOutputRateLimiter outputRateLimiter;
+    String queryName;
+    private String id;
     private ExecutionPlanContext executionPlanContext;
     private List<Integer> aggregateAttributePositionList = new ArrayList<Integer>();
-    String queryName;
 
-    public WrappedSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, boolean isGroupBy, boolean isWindowed, ExecutionPlanContext executionPlanContext, String queryName) {
+    public WrappedSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService,
+                                            boolean isGroupBy, boolean isWindowed, ExecutionPlanContext
+                                                    executionPlanContext, String queryName) {
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
@@ -60,7 +65,11 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public OutputRateLimiter clone(String key) {
-        WrappedSnapshotOutputRateLimiter instance = new WrappedSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, groupBy, windowed, executionPlanContext, queryName);
+        WrappedSnapshotOutputRateLimiter instance = new WrappedSnapshotOutputRateLimiter(id + key, value,
+                                                                                         scheduledExecutorService,
+                                                                                         groupBy, windowed,
+                                                                                         executionPlanContext,
+                                                                                         queryName);
         instance.outputRateLimiter = this.outputRateLimiter.clone(key, instance);
         return instance;
     }
@@ -70,7 +79,8 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
         outputRateLimiter.setQueryLock(lockWrapper);
     }
 
-    public void init(int outPutAttributeSize, List<AttributeProcessor> attributeProcessorList, MetaComplexEvent metaComplexEvent) {
+    public void init(int outPutAttributeSize, List<AttributeProcessor> attributeProcessorList, MetaComplexEvent
+            metaComplexEvent) {
         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
             if (attributeProcessor.getExpressionExecutor() instanceof AbstractAggregationAttributeExecutor) {
                 aggregateAttributePositionList.add(attributeProcessor.getOutputPosition());
@@ -80,38 +90,52 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
         if (windowed) {
             if (groupBy) {
                 if (outPutAttributeSize == aggregateAttributePositionList.size()) {   //All Aggregation
-                    outputRateLimiter = new AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext, queryName);
+                    outputRateLimiter = new AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(
+                            id, value, scheduledExecutorService, this, executionPlanContext,
+                            queryName);
                 } else if (aggregateAttributePositionList.size() > 0) {   //Some Aggregation
-                    outputRateLimiter = new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, aggregateAttributePositionList, this, executionPlanContext, queryName);
+                    outputRateLimiter = new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(
+                            id, value, scheduledExecutorService, aggregateAttributePositionList, this,
+                            executionPlanContext, queryName);
                 } else { // No aggregation
                     //GroupBy is same as Non GroupBy
-                    outputRateLimiter = new WindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext, queryName);
+                    outputRateLimiter = new WindowedPerSnapshotOutputRateLimiter(
+                            id, value, scheduledExecutorService, this, executionPlanContext, queryName);
                 }
             } else {
                 if (outPutAttributeSize == aggregateAttributePositionList.size()) {   //All Aggregation
-                    outputRateLimiter = new AllAggregationPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext, queryName);
+                    outputRateLimiter = new AllAggregationPerSnapshotOutputRateLimiter(
+                            id, value, scheduledExecutorService, this, executionPlanContext,
+                            queryName);
                 } else if (aggregateAttributePositionList.size() > 0) {   //Some Aggregation
-                    outputRateLimiter = new AggregationWindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, aggregateAttributePositionList, this, executionPlanContext, queryName);
+                    outputRateLimiter = new AggregationWindowedPerSnapshotOutputRateLimiter(
+                            id, value, scheduledExecutorService, aggregateAttributePositionList, this,
+                            executionPlanContext, queryName);
                 } else { // No aggregation
-                    outputRateLimiter = new WindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext, queryName);
+                    outputRateLimiter = new WindowedPerSnapshotOutputRateLimiter(
+                            id, value, scheduledExecutorService, this, executionPlanContext, queryName);
                 }
             }
 
         } else {
             if (groupBy) {
-                outputRateLimiter = new GroupByPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext, queryName);
+                outputRateLimiter = new GroupByPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService,
+                                                                            this, executionPlanContext, queryName);
             } else {
-                outputRateLimiter = new PerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext, queryName);
+                outputRateLimiter = new PerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this,
+                                                                     executionPlanContext, queryName);
             }
         }
 
 
         if (metaComplexEvent instanceof MetaStateEvent) {
             StateEventPool stateEventPool = new StateEventPool((MetaStateEvent) metaComplexEvent, 5);
-            outputRateLimiter.setStateEventCloner(new StateEventCloner((MetaStateEvent) metaComplexEvent, stateEventPool));
+            outputRateLimiter.setStateEventCloner(new StateEventCloner((MetaStateEvent) metaComplexEvent,
+                                                                       stateEventPool));
         } else {
             StreamEventPool streamEventPool = new StreamEventPool((MetaStreamEvent) metaComplexEvent, 5);
-            outputRateLimiter.setStreamEventCloner(new StreamEventCloner((MetaStreamEvent) metaComplexEvent, streamEventPool));
+            outputRateLimiter.setStreamEventCloner(new StreamEventCloner((MetaStreamEvent) metaComplexEvent,
+                                                                         streamEventPool));
         }
 
     }

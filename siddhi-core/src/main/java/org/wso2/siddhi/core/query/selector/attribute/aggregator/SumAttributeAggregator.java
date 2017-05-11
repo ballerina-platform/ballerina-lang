@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -31,6 +32,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate sum based on an event attribute.
+ */
 @Extension(
         name = "sum",
         namespace = "",
@@ -43,7 +47,16 @@ import java.util.Map;
         returnAttributes = @ReturnAttribute(
                 description = "Returns long if the input parameter type is int or long, and returns double if the " +
                         "input parameter type is float or double.",
-                type = {DataType.LONG, DataType.DOUBLE})
+                type = {DataType.LONG, DataType.DOUBLE}),
+        examples = {
+                @Example(
+                        syntax = "from inputStream\n" +
+                                "select sum(volume) as sumOfVolume\n" +
+                                "insert into outputStream;",
+                        description = "This will returns the sum of volume values as a long value for each event " +
+                                "arrival and expiry."
+                )
+        }
 )
 public class SumAttributeAggregator extends AttributeAggregator {
 

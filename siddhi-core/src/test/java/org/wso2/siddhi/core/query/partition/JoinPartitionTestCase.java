@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.query.partition;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -26,8 +26,8 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,7 +48,8 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+                "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
@@ -88,11 +89,13 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+                "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
-                "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, cseEventStream.volume " +
+                "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, " +
+                "cseEventStream.volume " +
                 "insert all events into outputStream ;" + "" +
                 "end ";
 
@@ -132,11 +135,13 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+                "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
-                "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, cseEventStream.volume " +
+                "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, " +
+                "cseEventStream.volume " +
                 "insert all events into #outputStream ;" +
                 "@info(name = 'query2') from #outputStream select symbol,user insert all events into outStream;" +
                 "end ";
@@ -178,11 +183,13 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+                "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
-                "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, cseEventStream.volume " +
+                "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, " +
+                "cseEventStream.volume " +
                 "insert all events into #outputStream ;" +
                 "@info(name = 'query2') from #outputStream select symbol,user insert all events into outputStream;" +
                 "end ";
@@ -235,10 +242,13 @@ public class JoinPartitionTestCase {
                 "define stream twitterStream (user string, tweet string, company string);" +
                 " " +
                 "partition with (user of cseEventStream) begin " +
-                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert all events into #cseInnerStream;" +
-                "@info(name = 'query1') from #cseInnerStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
+                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert all " +
+                "events into #cseInnerStream;" +
+                "@info(name = 'query1') from #cseInnerStream#window.time(1 sec) join twitterStream#window.time(1 sec)" +
+                " " +
                 "on twitterStream.company== #cseInnerStream.symbol " +
-                "select #cseInnerStream.user as user,twitterStream.tweet as tweet, twitterStream.company, #cseInnerStream.volume ,  #cseInnerStream.symbol " +
+                "select #cseInnerStream.user as user,twitterStream.tweet as tweet, twitterStream.company, " +
+                "#cseInnerStream.volume ,  #cseInnerStream.symbol " +
                 "insert all events into outputStream ;" +
                 "end ";
 
@@ -277,12 +287,16 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+                "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream) begin " +
-                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert all events into #cseEventStream;" +
-                "@info(name = 'query1') from #cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
+                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert all " +
+                "events into #cseEventStream;" +
+                "@info(name = 'query1') from #cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec)" +
+                " " +
                 "on twitterStream.company== #cseEventStream.symbol " +
-                "select #cseEventStream.user as user,twitterStream.tweet as tweet, twitterStream.company, #cseEventStream.volume ,  #cseEventStream.symbol " +
+                "select #cseEventStream.user as user,twitterStream.tweet as tweet, twitterStream.company, " +
+                "#cseEventStream.volume ,  #cseEventStream.symbol " +
                 "insert all events into outputStream ;" +
                 "end ";
 
@@ -320,11 +334,14 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string, volume int);"
-                + "partition with (volume>=100 as 'large' or volume<100 as 'small' of cseEventStream, volume>=100 as 'large' or volume<100 as 'small' of twitterStream) begin @info(name = 'query1') " +
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+                "twitterStream (user string, tweet string, company string, volume int);"
+                + "partition with (volume>=100 as 'large' or volume<100 as 'small' of cseEventStream, volume>=100 as " +
+                "'large' or volume<100 as 'small' of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.user== twitterStream.user " +
-                "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, cseEventStream.volume,twitterStream.company " +
+                "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, " +
+                "cseEventStream.volume,twitterStream.company " +
                 "insert all events into outputStream;" +
                 "end ";
 
@@ -366,7 +383,8 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+                "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
@@ -407,11 +425,13 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+                "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.length(1) unidirectional join twitterStream#window.length(1) " +
                 "on cseEventStream.symbol== twitterStream.company " +
-                "select cseEventStream.user, cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.volume " +
+                "select cseEventStream.user, cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream" +
+                ".volume " +
                 "insert all events into outputStream ;" + "" +
                 "end ";
 
@@ -462,7 +482,8 @@ public class JoinPartitionTestCase {
                 "begin " +
                 "   @info(name = 'query1') " +
                 "   from cseEventStream#window.length(1) unidirectional join twitterStream#window.length(1) " +
-                "   select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.volume, cseEventStream.user" +
+                "   select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.volume, " +
+                "cseEventStream.user" +
                 "   insert all events into outputStream1 ;" + "" +
                 "end;" +
                 "" +

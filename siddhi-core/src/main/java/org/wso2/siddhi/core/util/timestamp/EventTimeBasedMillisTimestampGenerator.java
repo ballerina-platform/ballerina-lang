@@ -35,32 +35,27 @@ import java.util.concurrent.TimeUnit;
 public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerator {
 
     /**
+     * ScheduledExecutorService used to produce heartbeat.
+     */
+    private final ScheduledExecutorService scheduledExecutorService;
+    /**
      * Timestamp as defined by the last event.
      */
     private long lastEventTimestamp;
-
     /**
      * The actual timestamp of last event arrival.
      */
     private long lastSystemTimestamp;
-
     /**
      * The minimum time to wait for new events to arrive.
      * If a new event does not arrive within this time, the generator
      * timestamp will be increased by incrementInMilliseconds.
      */
     private long idleTime = -1;
-
     /**
      * By how many milliseconds, the event timestamp should be increased.
      */
     private long incrementInMilliseconds;
-
-    /**
-     * ScheduledExecutorService used to produce heartbeat.
-     */
-    private final ScheduledExecutorService scheduledExecutorService;
-
     /**
      * A flag used to start the heartbeat clock for the first time only.
      */
@@ -133,13 +128,6 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     }
 
     /**
-     * Listener used to get notification when a new event comes in.
-     */
-    public interface TimeChangeListener {
-        void onTimeChange(long currentTimestamp);
-    }
-
-    /**
      * The {@link ScheduledExecutorService} waits until idleTime from the timestamp of last event
      * and if there are no new events arrived within that period, it will inject a new timestamp.
      *
@@ -169,6 +157,13 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
             scheduledExecutorService.schedule(timeInjector, duration, TimeUnit.MILLISECONDS);
             heartbeatRunning = true;
         }
+    }
+
+    /**
+     * Listener used to get notification when a new event comes in.
+     */
+    public interface TimeChangeListener {
+        void onTimeChange(long currentTimestamp);
     }
 
     /**

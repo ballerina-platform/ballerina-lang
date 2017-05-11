@@ -28,13 +28,17 @@ import org.wso2.siddhi.core.query.selector.QuerySelector;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * StreamRuntime to represent Single streams. Ex: Streams to filter queries.
+ */
 public class SingleStreamRuntime implements StreamRuntime {
 
     private Processor processorChain;
     private MetaComplexEvent metaComplexEvent;
     private ProcessStreamReceiver processStreamReceiver;
 
-    public SingleStreamRuntime(ProcessStreamReceiver processStreamReceiver, Processor processorChain, MetaComplexEvent metaComplexEvent) {
+    public SingleStreamRuntime(ProcessStreamReceiver processStreamReceiver, Processor processorChain,
+                               MetaComplexEvent metaComplexEvent) {
         this.processStreamReceiver = processStreamReceiver;
         this.processorChain = processorChain;
         this.metaComplexEvent = metaComplexEvent;
@@ -86,7 +90,8 @@ public class SingleStreamRuntime implements StreamRuntime {
                         entryValveProcessor = (EntryValveProcessor) clonedProcessor;
                     } else if (clonedProcessor instanceof SchedulingProcessor) {
                         schedulingProcessor = (SchedulingProcessor) clonedProcessor;
-                        schedulingProcessor.setScheduler(((SchedulingProcessor) processor).getScheduler().clone(key, entryValveProcessor));
+                        schedulingProcessor.setScheduler(((SchedulingProcessor) processor).getScheduler().clone(
+                                key, entryValveProcessor));
                     }
                 }
                 processor = processor.getNextProcessor();

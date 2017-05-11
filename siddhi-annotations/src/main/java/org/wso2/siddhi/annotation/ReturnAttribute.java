@@ -48,9 +48,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface ReturnAttribute {
-    String name() default "";   // optional
+    String name() default "";
 
-    DataType[] type();
+    DataType[] type() default {};
 
-    String description() default "";        // optional
+    String description() default "";
 }

@@ -27,7 +27,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created on 5/13/15.
+ * Implementation of {@link EventTrigger} which will trigger events based on a pre-defined period.
  */
 public class PeriodicEventTrigger implements EventTrigger {
     private TriggerDefinition triggerDefinition;
@@ -36,7 +36,8 @@ public class PeriodicEventTrigger implements EventTrigger {
     private ScheduledFuture scheduledFuture;
 
     @Override
-    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction streamJunction) {
+    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction
+            streamJunction) {
 
         this.triggerDefinition = triggerDefinition;
         this.executionPlanContext = executionPlanContext;

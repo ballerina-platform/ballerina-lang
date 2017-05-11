@@ -17,8 +17,9 @@
  */
 package org.wso2.siddhi.core.query.partition;
 
-import junit.framework.Assert;
+//import org.junit.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -29,7 +30,7 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class WindowPartitionTestCase {
-    static final Logger log = Logger.getLogger(WindowPartitionTestCase.class);
+    private static final Logger log = Logger.getLogger(WindowPartitionTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;
@@ -50,7 +51,9 @@ public class WindowPartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "define stream cseEventStream (symbol string, price float,volume int);"
-                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.length(2)  select symbol,sum(price) as price,volume insert expired events into OutStockStream ;  end ";
+                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window" +
+                ".length(2)  select symbol,sum(price) as price,volume insert expired events into OutStockStream ;  " +
+                "end ";
 
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -95,7 +98,9 @@ public class WindowPartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "define stream cseEventStream (symbol string, price float,volume int);"
-                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.lengthBatch(2)  select symbol,sum(price) as price,volume insert all events into OutStockStream ;  end ";
+                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window" +
+                ".lengthBatch(2)  select symbol,sum(price) as price,volume insert all events into OutStockStream ;  " +
+                "end ";
 
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -217,7 +222,8 @@ public class WindowPartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "define stream cseEventStream (symbol string, price float,volume int);"
-                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.length(2)  select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
+                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window" +
+                ".length(2)  select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
 
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);

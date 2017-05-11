@@ -21,6 +21,9 @@ package org.wso2.siddhi.core.executor;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Parent interface for all Expression Executors classes.
+ */
 public interface ExpressionExecutor {
 
     Object execute(ComplexEvent event);

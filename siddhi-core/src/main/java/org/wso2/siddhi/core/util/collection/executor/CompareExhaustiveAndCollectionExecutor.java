@@ -26,18 +26,24 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
 import java.util.Collection;
 
+/**
+ * Implementation of {@link CollectionExecutor}
+ */
 public class CompareExhaustiveAndCollectionExecutor implements CollectionExecutor {
 
     private final CollectionExecutor compareCollectionExecutor;
     private ExhaustiveCollectionExecutor exhaustiveCollectionExecutor;
 
-    public CompareExhaustiveAndCollectionExecutor(CollectionExecutor compareCollectionExecutor, ExhaustiveCollectionExecutor exhaustiveCollectionExecutor) {
+    public CompareExhaustiveAndCollectionExecutor(CollectionExecutor compareCollectionExecutor,
+                                                  ExhaustiveCollectionExecutor exhaustiveCollectionExecutor) {
         this.compareCollectionExecutor = compareCollectionExecutor;
         this.exhaustiveCollectionExecutor = exhaustiveCollectionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
-        Collection<StreamEvent> compareStreamEvents = compareCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner
+            storeEventCloner) {
+        Collection<StreamEvent> compareStreamEvents = compareCollectionExecutor.findEvents(matchingEvent,
+                indexedEventHolder);
         if (compareStreamEvents == null) {
             return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, storeEventCloner);
         } else if (compareStreamEvents.size() > 0) {
@@ -61,7 +67,8 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
     }
 
     public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Collection<StreamEvent> compareStreamEvents = compareCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> compareStreamEvents = compareCollectionExecutor.findEvents(matchingEvent,
+                indexedEventHolder);
         if (compareStreamEvents == null) {
             return null;
         } else if (compareStreamEvents.size() > 0) {

@@ -22,30 +22,27 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.stream.input.source.Source;
+import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.ScheduledExecutorService;
 
 @Extension(
         name = "kafka",
         namespace = "source",
         description = ""
 )
-public class KafkaSource extends Source {
+public class KafkaSource extends Source{
 
-    private SourceEventListener sourceEventListener;
-    private ScheduledExecutorService executorService;
-    private OptionHolder optionHolder;
-    private ConsumerKafkaGroup consumerKafkaGroup;
+    final static String SINGLE_THREADED = "single.thread";
+    final static String TOPIC_WISE = "topic.wise";
+    final static String PARTITION_WISE = "partition.wise";
     private static final Logger log = Logger.getLogger(KafkaSource.class);
-    private Map<String, Map<Integer, Long>> topicOffsetMap = new HashMap<>();
-
     private final static String ADAPTOR_SUBSCRIBER_TOPIC = "topic";
     private final static String ADAPTOR_SUBSCRIBER_GROUP_ID = "group.id";
     private final static String ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS = "bootstrap.servers";
@@ -53,11 +50,43 @@ public class KafkaSource extends Source {
     private final static String ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
     private final static String TOPIC_OFFSET_MAP = "topic.offset.map";
     private final static String THREADING_OPTION = "threading.option";
-    final static String SINGLE_THREADED = "single.thread";
-    final static String TOPIC_WISE = "topic.wise";
-    final static String PARTITION_WISE = "partition.wise";
     private static final String HEADER_SEPARATOR = ",";
     private static final String ENTRY_SEPARATOR = ":";
+    private SourceEventListener sourceEventListener;
+    private ScheduledExecutorService executorService;
+    private OptionHolder optionHolder;
+    private ConsumerKafkaGroup consumerKafkaGroup;
+    private Map<String, Map<Integer, Long>> topicOffsetMap = new HashMap<>();
+
+    private static Properties createConsumerConfig(String zkServerList, String groupId, String optionalConfigs) {
+        Properties props = new Properties();
+        props.put(ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS, zkServerList);
+        if (null != groupId) {
+            props.put(ADAPTOR_SUBSCRIBER_GROUP_ID, groupId);
+        }
+        //If it stops heart-beating for a period of time longer than session.timeout.ms then it will be considered dead
+        // and its partitions will be assigned to another process
+        props.put("session.timeout.ms", "30000");
+        props.put("enable.auto.commit", "false");
+        props.put("auto.offset.reset", "earliest");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+        if (optionalConfigs != null) {
+            String[] optionalProperties = optionalConfigs.split(HEADER_SEPARATOR);
+            if (optionalProperties != null && optionalProperties.length > 0) {
+                for (String header : optionalProperties) {
+                    try {
+                        String[] configPropertyWithValue = header.split(ENTRY_SEPARATOR, 2);
+                        props.put(configPropertyWithValue[0], configPropertyWithValue[1]);
+                    } catch (Exception e) {
+                        log.warn("Optional property '" + header + "' is not defined in the correct format.", e);
+                    }
+                }
+            }
+        }
+        return props;
+    }
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
@@ -79,7 +108,8 @@ public class KafkaSource extends Source {
         partitions = (partitionList != null) ? partitionList.split(HEADER_SEPARATOR) : null;
         String topicList = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_TOPIC);
         String topics[] = topicList.split(HEADER_SEPARATOR);
-        String optionalConfigs = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES, null);
+        String optionalConfigs = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES,
+                null);
         consumerKafkaGroup = new ConsumerKafkaGroup(topics, partitions,
                                                     KafkaSource.createConsumerConfig(zkServerList, groupID,
                                                                                             optionalConfigs),
@@ -92,7 +122,7 @@ public class KafkaSource extends Source {
         if (consumerKafkaGroup != null) {
             consumerKafkaGroup.shutdown();
             log.debug("Kafka Adapter disconnected for topic/s" +
-                        optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_TOPIC));
+                    optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_TOPIC));
         }
     }
 
@@ -121,36 +151,6 @@ public class KafkaSource extends Source {
                         (ADAPTOR_SUBSCRIBER_TOPIC));
             }
         }
-    }
-
-    private static Properties createConsumerConfig(String zkServerList, String groupId, String optionalConfigs) {
-        Properties props = new Properties();
-        props.put(ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS, zkServerList);
-        if (null != groupId) {
-            props.put(ADAPTOR_SUBSCRIBER_GROUP_ID, groupId);
-        }
-        //If it stops heart-beating for a period of time longer than session.timeout.ms then it will be considered dead
-        // and its partitions will be assigned to another process
-        props.put("session.timeout.ms", "30000");
-        props.put("enable.auto.commit", "false");
-        props.put("auto.offset.reset", "earliest");
-        props.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
-
-        if (optionalConfigs != null) {
-            String[] optionalProperties = optionalConfigs.split(HEADER_SEPARATOR);
-            if (optionalProperties != null && optionalProperties.length > 0) {
-                for (String header : optionalProperties) {
-                    try {
-                        String[] configPropertyWithValue = header.split(ENTRY_SEPARATOR, 2);
-                        props.put(configPropertyWithValue[0], configPropertyWithValue[1]);
-                    } catch (Exception e) {
-                        log.warn("Optional property '" + header + "' is not defined in the correct format.", e);
-                    }
-                }
-            }
-        }
-        return props;
     }
 
     @Override

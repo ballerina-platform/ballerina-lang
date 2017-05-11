@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.core.exception;
 
+/**
+ * Exception class to be used when Siddhi cannot load the required extension class.
+ */
 public class CannotLoadClassException extends Exception {
 
     public CannotLoadClassException() {

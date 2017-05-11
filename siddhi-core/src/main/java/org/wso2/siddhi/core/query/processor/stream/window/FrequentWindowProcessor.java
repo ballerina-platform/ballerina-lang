@@ -18,9 +18,9 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -46,8 +46,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This is the implementation of a counting algorithm based on
- * Misra-Gries counting algorithm
+ * Implementation of {@link WindowProcessor} which represent a Window operating based on frequency of incoming events.
+ * Implementation uses a counting algorithm based on Misra-Gries counting algorithm
  */
 @Extension(
         name = "frequent",
@@ -56,7 +56,7 @@ import java.util.concurrent.ConcurrentHashMap;
                 "a given attribute(s). Frequency calculation for this window processor is based on " +
                 "Misra-Gries counting algorithm.",
         parameters = {
-                @Parameter(name = "eventCount",
+                @Parameter(name = "event.count",
                         description = "The number of most frequent events to be emitted to the stream.",
                         type = {DataType.INT}),
                 @Parameter(name = "attribute",
@@ -65,9 +65,23 @@ import java.util.concurrent.ConcurrentHashMap;
                         type = {DataType.STRING},
                         optional = true)
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = {
+                @Example(
+                        syntax = "@info(name = 'query1')\n" +
+                                "from purchase[price >= 30]#window.frequent(2)\n" +
+                                "select cardNo, price\n" +
+                                "insert all events into PotentialFraud;",
+                        description = "This will returns the 2 most frequent events."
+                ),
+                @Example(
+                        syntax = "@info(name = 'query1')\n" +
+                                "from purchase[price >= 30]#window.frequent(2, cardNo)\n" +
+                                "select cardNo, price\n" +
+                                "insert all events into PotentialFraud;",
+                        description = "This will returns the 2 latest events with the most frequently appeared " +
+                                "card numbers."
+                )
+        }
 )
 public class FrequentWindowProcessor extends WindowProcessor implements FindableProcessor {
     private ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<String, Integer>();
@@ -79,7 +93,8 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, boolean
             outputExpectsExpiredEvents, ExecutionPlanContext executionPlanContext) {
-        mostFrequentCount = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue()));
+        mostFrequentCount = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)
+                attributeExpressionExecutors[0]).getValue()));
         variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length - 1];
         for (int i = 1; i < attributeExpressionExecutors.length; i++) {
             variableExpressionExecutors[i - 1] = (VariableExpressionExecutor) attributeExpressionExecutors[i];
@@ -87,7 +102,8 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner) {
         synchronized (this) {
             StreamEvent streamEvent = streamEventChunk.getFirst();
             streamEventChunk.clear();
@@ -164,7 +180,8 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
         countMap = (ConcurrentHashMap<String, Integer>) state.get("CountMap");
     }
 
-    private String generateKey(StreamEvent event) {      // for performance reason if its all attribute we don't do the attribute list check
+    private String generateKey(StreamEvent event) {      // for performance reason if its all attribute we don't do
+        // the attribute list check
         StringBuilder stringBuilder = new StringBuilder();
         if (variableExpressionExecutors.length == 0) {
             for (Object data : event.getOutputData()) {

@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Executor class for Boolean condition. Condition evaluation logic is implemented within executor.
+ */
 public class BoolConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     protected ExpressionExecutor conditionExecutor;
@@ -31,7 +34,8 @@ public class BoolConditionExpressionExecutor extends ConditionExpressionExecutor
         if (conditionExecutor.getReturnType().equals(Attribute.Type.BOOL)) {
             this.conditionExecutor = conditionExecutor;
         } else {
-            throw new OperationNotSupportedException("Return type of condition executor " + conditionExecutor.toString() + " should be of type BOOL. " +
+            throw new OperationNotSupportedException("Return type of condition executor " + conditionExecutor
+                    .toString() + " should be of type BOOL. " +
                     "Actual Type: " + conditionExecutor.getReturnType().toString());
         }
     }

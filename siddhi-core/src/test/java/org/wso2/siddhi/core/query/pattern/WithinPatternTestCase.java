@@ -162,7 +162,8 @@ public class WithinPatternTestCase {
                 "define stream Stream2 (symbol string, price float, volume int); ";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from (every (e1=Stream1[price>20] -> e3=Stream1[price>20]) -> e2=Stream2[price>e1.price]) within 2 sec " +
+                "from (every (e1=Stream1[price>20] -> e3=Stream1[price>20]) -> e2=Stream2[price>e1.price]) within 2 " +
+                "sec " +
                 "select e1.price as price1, e3.price as price3, e2.price as price2 " +
                 "insert into OutputStream ;";
 
@@ -174,7 +175,7 @@ public class WithinPatternTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{53.6f, 53f, 57.7f},inEvents[0].getData());
+                    Assert.assertArrayEquals(new Object[]{53.6f, 53f, 57.7f}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -207,7 +208,6 @@ public class WithinPatternTestCase {
 
         executionPlanRuntime.shutdown();
     }
-
 
 
 }

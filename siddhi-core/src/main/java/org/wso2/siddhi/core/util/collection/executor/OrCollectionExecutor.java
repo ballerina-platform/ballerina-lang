@@ -27,6 +27,9 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import java.util.Collection;
 import java.util.HashSet;
 
+/**
+ * Implementation of {@link CollectionExecutor} which handles or condition
+ */
 public class OrCollectionExecutor implements CollectionExecutor {
 
 
@@ -34,20 +37,23 @@ public class OrCollectionExecutor implements CollectionExecutor {
     private final CollectionExecutor leftCollectionExecutor;
     private CollectionExecutor exhaustiveCollectionExecutor;
 
-    public OrCollectionExecutor(CollectionExecutor leftCollectionExecutor, CollectionExecutor rightCollectionExecutor, CollectionExecutor exhaustiveCollectionExecutor) {
+    public OrCollectionExecutor(CollectionExecutor leftCollectionExecutor, CollectionExecutor
+            rightCollectionExecutor, CollectionExecutor exhaustiveCollectionExecutor) {
 
         this.leftCollectionExecutor = leftCollectionExecutor;
         this.rightCollectionExecutor = rightCollectionExecutor;
         this.exhaustiveCollectionExecutor = exhaustiveCollectionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner
+            storeEventCloner) {
 
         Collection<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (leftStreamEvents == null) {
             return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, storeEventCloner);
         } else {
-            Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+            Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent,
+                    indexedEventHolder);
             if (rightStreamEvents == null) {
                 return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, storeEventCloner);
             } else {
@@ -80,7 +86,8 @@ public class OrCollectionExecutor implements CollectionExecutor {
         if (leftStreamEvents == null) {
             return null;
         } else {
-            Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+            Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent,
+                    indexedEventHolder);
             if (rightStreamEvents == null) {
                 return null;
             } else {
@@ -98,7 +105,8 @@ public class OrCollectionExecutor implements CollectionExecutor {
             return true;
         }
 
-        Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent,
+                indexedEventHolder);
         if (rightStreamEvents != null && rightStreamEvents.size() > 0) {
             return true;
         }
@@ -112,7 +120,8 @@ public class OrCollectionExecutor implements CollectionExecutor {
         if (leftStreamEvents == null) {
             exhaustiveCollectionExecutor.delete(deletingEvent, indexedEventHolder);
         } else {
-            Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(deletingEvent, indexedEventHolder);
+            Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(deletingEvent,
+                    indexedEventHolder);
             if (rightStreamEvents == null) {
                 exhaustiveCollectionExecutor.delete(deletingEvent, indexedEventHolder);
             } else {

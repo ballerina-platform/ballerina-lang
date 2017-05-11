@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -31,40 +32,54 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
+/**
+ * Executor class for Siddhi cast function. Converts the given parameter according to the castTo parameter.
+ * Incompatible arguments cause {@link ClassCastException} if further processed.
+ */
 @Extension(
         name = "cast",
         namespace = "",
-        description = "Converts the first parameter according to the castTo parameter. Incompatible arguments cause " +
+        description = "Converts the first parameter according to the cast.to parameter. Incompatible arguments cause " +
                 "Class Cast exceptions if further processed. This function is used with map extension that returns " +
                 "attributes of the object type. You can use this function to cast the object to an accurate and " +
                 "concrete type.",
         parameters = {
-                @Parameter(name = "toBeCaster",
+                @Parameter(name = "to.be.caster",
                         description = "This specifies the attribute to be casted.",
                         type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
                                 DataType.STRING, DataType.BOOL, DataType.OBJECT}),
-                @Parameter(name = "castTo",
+                @Parameter(name = "cast.to",
                         description = "A string constant parameter expressing the cast to type using one of the " +
                                 "following strings values: int, long, float, double, string, bool.",
                         type = {DataType.STRING})
         },
         returnAttributes = @ReturnAttribute(
-                description = "Returned type will be defined by the castTo string constant value.",
+                description = "Returned type will be defined by the cast.to string constant value.",
                 type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                        DataType.STRING, DataType.BOOL, DataType.OBJECT})
+                        DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+        examples = {
+                @Example(
+                        syntax = "from fooStream\n" +
+                                "select symbol as name, cast(temp, 'double') as temp\n" +
+                                "insert into barStream;",
+                        description = "This will cast the fooStream temp field value into 'double' format.")
+        }
 )
 public class CastFunctionExecutor extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.OBJECT;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 2) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to common:cast() function, " +
-                    "required 2 parameters, but found " + attributeExpressionExecutors.length);
+                                                               "required 2 parameters, but found " +
+                                                               attributeExpressionExecutors.length);
         }
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
             throw new ExecutionPlanValidationException("The second argument has to be a string constant specifying " +
-                    "one of the supported data types (int, long, float, double, string, bool)");
+                                                               "one of the supported data types "
+                                                               + "(int, long, float, double, string, bool)");
         } else {
             String type = attributeExpressionExecutors[1].execute(null).toString();
             if (type.toLowerCase().equals("int")) {
@@ -81,7 +96,7 @@ public class CastFunctionExecutor extends FunctionExecutor {
                 returnType = Attribute.Type.STRING;
             } else {
                 throw new ExecutionPlanValidationException("Type must be one of int, long, float, double, bool, " +
-                        "string");
+                                                                   "string");
             }
         }
     }

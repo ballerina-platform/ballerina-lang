@@ -41,8 +41,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * An abstract implementation of table. Abstract implementation will handle {@link ComplexEventChunk} so that
+ * developer can directly work with event data.
+ */
 public abstract class AbstractRecordTable implements Table {
-
 
     private TableDefinition tableDefinition;
     private StreamEventPool storeEventPool;
@@ -52,7 +55,7 @@ public abstract class AbstractRecordTable implements Table {
     @Override
     public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
                      StreamEventCloner storeEventCloner, ConfigReader configReader, ExecutionPlanContext
-                                 executionPlanContext) {
+                             executionPlanContext) {
         this.tableDefinition = tableDefinition;
         this.storeEventPool = storeEventPool;
         this.storeEventCloner = storeEventCloner;
@@ -200,7 +203,7 @@ public abstract class AbstractRecordTable implements Table {
             Map<String, Object> valueMap = new HashMap<>();
             for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
                 valueMap.put(updateAttributeMapper.getStoreEventAttributeName(),
-                        updateAttributeMapper.getUpdateEventOutputData(stateEvent));
+                             updateAttributeMapper.getUpdateEventOutputData(stateEvent));
             }
             updateValues.add(valueMap);
         }
@@ -241,13 +244,13 @@ public abstract class AbstractRecordTable implements Table {
             Map<String, Object> valueMap = new HashMap<>();
             for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
                 valueMap.put(updateAttributeMapper.getStoreEventAttributeName(),
-                        updateAttributeMapper.getUpdateEventOutputData(stateEvent));
+                             updateAttributeMapper.getUpdateEventOutputData(stateEvent));
             }
             updateValues.add(valueMap);
-            addingRecords.add(stateEvent.getOutputData());
+            addingRecords.add(stateEvent.getStreamEvent(0).getOutputData());
         }
         updateOrAdd(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition, updateValues,
-                addingRecords);
+                    addingRecords);
 
     }
 
@@ -272,7 +275,8 @@ public abstract class AbstractRecordTable implements Table {
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
         ConditionBuilder conditionBuilder = new ConditionBuilder(expression, matchingMetaInfoHolder,
-                executionPlanContext, variableExpressionExecutors, tableMap, queryName);
+                                                                 executionPlanContext, variableExpressionExecutors,
+                                                                 tableMap, queryName);
         CompiledCondition compiledCondition = compileCondition(conditionBuilder);
         Map<String, ExpressionExecutor> expressionExecutorMap = conditionBuilder.getVariableExpressionExecutorMap();
         return new RecordStoreCompiledCondition(expressionExecutorMap, compiledCondition);

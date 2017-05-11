@@ -36,9 +36,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestDebugger {
     private static final Logger log = Logger.getLogger(TestDebugger.class);
+    private static volatile int count;
     private AtomicInteger inEventCount = new AtomicInteger(0);
     private AtomicInteger debugEventCount = new AtomicInteger(0);
-    private static volatile int count;
 
     @Before
     public void init() {
