@@ -79,7 +79,7 @@ class ReplyStatement extends React.Component {
         messageManager.setIsOnDrag(true);
         messageManager.setMessageStart(messageStartX, messageStartY);
         messageManager.setTargetValidationCallback(function (destination) {
-            return model.targetAllowed(destination);
+            return model.messageDrawTargetAllowed(destination);
         });
 
         messageManager.startDrawMessage(function (destination, source) {

@@ -241,6 +241,11 @@ class StatementDecorator extends React.Component {
 		messageManager.setSource(actionInvocation);
 		messageManager.setIsOnDrag(true);
 		messageManager.setMessageStart(messageStartX, messageStartY);
+
+		messageManager.setTargetValidationCallback(function (destination) {
+			return actionInvocation.messageDrawTargetAllowed(destination);
+		});
+
 		messageManager.startDrawMessage(function (source, destination) {
 			source.setAttribute('_connector', destination)
 		});

@@ -61,7 +61,7 @@ class ReplyStatement extends Statement {
         return "reply " + this.getReplyMessage();
     }
 
-    targetAllowed(target) {
+    messageDrawTargetAllowed(target) {
         return this.getFactory().isResourceDefinition(target)
             || this.getFactory().isConnectorAction(target)
             || this.getFactory().isFunctionDefinition(target);
