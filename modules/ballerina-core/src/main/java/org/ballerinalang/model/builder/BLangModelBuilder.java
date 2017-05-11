@@ -28,6 +28,7 @@ import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
@@ -77,7 +78,6 @@ import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
-import org.ballerinalang.model.statements.GlobalVariableDefStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
@@ -206,11 +206,10 @@ public class BLangModelBuilder {
 
     // Packages and import packages
 
-    public void addPackageDcl(String pkgPath) {
-        // TODO Validate whether this file is in the correct package
-        // TODO example this is in com/greet/hello directory, but package Path is come.greet.bye. This is wrong
+    public void addPackageDcl(NodeLocation location, String pkgPath) {
         currentPackagePath = pkgPath;
         bFileBuilder.setPackagePath(currentPackagePath);
+        bFileBuilder.setPackageLocation(location);
     }
 
     public void addImportPackage(NodeLocation location, String pkgPath, String asPkgName) {
@@ -232,7 +231,7 @@ public class BLangModelBuilder {
     }
 
 
-    // Add constant definitions;
+    // Add constant definition
 
     public void addConstantDef(NodeLocation location, SimpleTypeName typeName, String constName) {
         SymbolName symbolName = new SymbolName(constName);
@@ -243,9 +242,29 @@ public class BLangModelBuilder {
         
         // Add constant definition to current file;
         bFileBuilder.addConst(constantDef);
+    }
 
-        // TODO Support annotations for Constants
-        getAnnotationAttachments();
+
+    // Add global variable definition
+
+    public void addGlobalVarDef(NodeLocation location, SimpleTypeName typeName,
+                                String varName, boolean exprAvailable) {
+        SymbolName symbolName = new SymbolName(varName);
+        GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, varName, typeName, currentPackagePath,
+                symbolName, currentScope);
+
+        getAnnotationAttachments().forEach(attachment -> globalVariableDef.addAnnotation(attachment));
+
+        // Create Variable definition statement for the global variable
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
+        variableRefExpr.setVariableDef(globalVariableDef);
+
+        Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
+        VariableDefStmt variableDefStmt = new VariableDefStmt(location, globalVariableDef, variableRefExpr, rhsExpr);
+        globalVariableDef.setVariableDefStmt(variableDefStmt);
+
+        // Add constant definition to current file;
+        bFileBuilder.addGlobalVar(globalVariableDef);
     }
 
 
@@ -267,8 +286,8 @@ public class BLangModelBuilder {
      * @param location  Location of the field in the source file
      * @param fieldName Name of the field in the {@link StructDef}
      */
-    public void addFieldDefinition(NodeLocation location, SimpleTypeName typeName, String fieldName, 
-            boolean defaultValueAvailable) {
+    public void addFieldDefinition(NodeLocation location, SimpleTypeName typeName, String fieldName,
+                                   boolean defaultValueAvailable) {
         SymbolName symbolName = new SymbolName(fieldName);
 
         // Check whether this constant is already defined.
@@ -969,44 +988,11 @@ public class BLangModelBuilder {
                             SemanticErrors.ACTION_INVOCATION_NOT_ALLOWED_HERE);
                     errorMsgs.add(errMsg);
                 }
-
-//                if (rhsExpr instanceof BasicLiteral || rhsExpr instanceof VariableRefExpr) {
-//                    currentCUGroupBuilder.addVariableDef(variableDefStmt);
-//                } else {
-//                    String errMsg = getNodeLocationStr(location) +
-//                            "only a basic literal or a variable reference is allowed here ";
-//                    errorMsgs.add(errMsg);
-//                }
             }
             currentCUGroupBuilder.addVariableDef(variableDefStmt);
         } else {
             addToBlockStmt(variableDefStmt);
         }
-    }
-
-    /**
-     * <p>Method to add global variable definitions.</p>
-     *
-     * @param location of the global variable in file.
-     * @param typeName  of the global variable.
-     * @param varName name of the global variable.
-     * @param exprAvailable rhs has expression or not.
-     */
-    public void addGlobalVariableDefinition(NodeLocation location, SimpleTypeName typeName,
-                                            String varName, boolean exprAvailable) {
-
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
-        SymbolName symbolName = new SymbolName(varName);
-
-        VariableDef variableDef = new VariableDef(location, varName, typeName, symbolName, currentScope);
-        variableRefExpr.setVariableDef(variableDef);
-
-        Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
-        GlobalVariableDefStmt variableDefStmt = new GlobalVariableDefStmt(location, variableDef,
-                variableRefExpr, rhsExpr);
-
-        // Add global variable definition to current file;
-        bFileBuilder.addGlobalVar(variableDefStmt);
     }
 
     public void addCommentStmt(NodeLocation location, String comment) {

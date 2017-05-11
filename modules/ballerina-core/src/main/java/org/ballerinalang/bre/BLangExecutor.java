@@ -1075,6 +1075,10 @@ public class BLangExecutor implements NodeExecutor {
         } else if (memoryLocation instanceof GlobalVarLocation) {
             int globalMemOffset = ((GlobalVarLocation) memoryLocation).getStaticMemAddrOffset();
             runtimeEnv.getStaticMemory().setValue(globalMemOffset, rValue);
+        } else if (memoryLocation instanceof ConstantLocation) {
+            // This is invoked only during the package.<init> function
+            int constMemOffset = ((ConstantLocation) memoryLocation).getStaticMemAddrOffset();
+            runtimeEnv.getStaticMemory().setValue(constMemOffset, rValue);
         }
     }
 

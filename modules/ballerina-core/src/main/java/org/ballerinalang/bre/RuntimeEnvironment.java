@@ -20,7 +20,6 @@ package org.ballerinalang.bre;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFile;
-import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.values.BValue;
@@ -74,16 +73,6 @@ public class RuntimeEnvironment {
      * @param runtimeEnvironment
      */
     private static void initPackages(BLangPackage bLangPackage, RuntimeEnvironment runtimeEnvironment) {
-        for (BLangPackage dependentPkg : bLangPackage.getDependentPackages()) {
-            if (dependentPkg.isPkgInitialized()) {
-                continue;
-            }
-            initPackages(dependentPkg, runtimeEnvironment);
-        }
-        for (ConstDef constant : bLangPackage.getConsts()) {
-            runtimeEnvironment.getStaticMemory().setValue(((ConstantLocation) constant.getMemoryLocation())
-                            .getStaticMemAddrOffset(), constant.getValue());
-        }
         Function pkgInitFunction = bLangPackage.getInitFunction();
         CallableUnitInfo pkgFunctionInfo = new CallableUnitInfo(pkgInitFunction.getName(),
                 pkgInitFunction.getPackagePath(), pkgInitFunction.getNodeLocation());
@@ -94,18 +83,12 @@ public class RuntimeEnvironment {
 
         BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
         pkgInitFunction.getCallableUnitBody().execute(bLangExecutor);
-        bLangPackage.setPkgInitialized(true);
+        //bLangPackage.setPkgInitialized(true);
     }
 
     public static RuntimeEnvironment get(BallerinaFile bFile) {
         StaticMemory staticMemory = new StaticMemory(bFile.getSizeOfStaticMem());
         RuntimeEnvironment runtimeEnvironment = new RuntimeEnvironment(staticMemory);
-
-        int staticMemOffset = 0;
-        for (ConstDef constant : bFile.getConstants()) {
-            staticMemory.setValue(staticMemOffset, constant.getValue());
-            staticMemOffset++;
-        }
 
         if (bFile.getServices().length == 0) {
             return runtimeEnvironment;

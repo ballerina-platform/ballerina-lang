@@ -38,6 +38,7 @@ import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.ConnectorDcl;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.Node;
@@ -123,7 +124,6 @@ import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
-import org.ballerinalang.model.statements.GlobalVariableDefStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
@@ -229,7 +229,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(GlobalVariableDefStmt globalVar) {
+    public void visit(GlobalVariableDef globalVar) {
 
     }
 

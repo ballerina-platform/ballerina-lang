@@ -35,6 +35,7 @@ import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.LinkedNodeVisitor;
@@ -61,7 +62,6 @@ import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.invokers.MainInvoker;
-import org.ballerinalang.model.statements.GlobalVariableDefStmt;
 import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 
@@ -117,7 +117,7 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
     }
 
     @Override
-    public void visit(GlobalVariableDefStmt globalVar) {
+    public void visit(GlobalVariableDef globalVar) {
 
     }
 

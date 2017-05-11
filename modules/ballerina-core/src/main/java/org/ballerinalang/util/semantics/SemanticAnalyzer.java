@@ -42,6 +42,7 @@ import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.FunctionSymbolName;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
@@ -101,7 +102,6 @@ import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
-import org.ballerinalang.model.statements.GlobalVariableDefStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
@@ -170,6 +170,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int whileStmtCount = 0;
     private SymbolScope currentScope;
 
+    private BlockStmt.BlockStmtBuilder pkgInitFuncStmtBuilder;
+
     public SemanticAnalyzer(BLangProgram programScope) {
         currentScope = programScope;
     }
@@ -177,7 +179,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(BLangProgram bLangProgram) {
         BLangPackage mainPkg = bLangProgram.getMainPackage();
-        
+
         if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
             mainPkg.accept(this);
 
@@ -200,12 +202,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BLangPackage bLangPackage) {
-        for (BLangPackage dependentPkg : bLangPackage.getDependentPackages()) {
+        BLangPackage[] dependentPackages = bLangPackage.getDependentPackages();
+        BallerinaFunction[] initFunctions = new BallerinaFunction[dependentPackages.length];
+        for (int i = 0; i < dependentPackages.length; i++) {
+            BLangPackage dependentPkg = dependentPackages[i];
             if (dependentPkg.isSymbolsDefined()) {
                 continue;
             }
 
             dependentPkg.accept(this);
+            initFunctions[i] = dependentPkg.getInitFunction();
         }
 
         currentScope = bLangPackage;
@@ -218,8 +224,29 @@ public class SemanticAnalyzer implements NodeVisitor {
             packageTypeLattice = bLangPackage.getTypeLattice();
         }
 
-        defineConstants(bLangPackage.getConsts());
-        defineGlobalVariables(bLangPackage);
+        // Create package.<init> function
+        NodeLocation pkgLocation = bLangPackage.getNodeLocation();
+        if (pkgLocation == null) {
+            BallerinaFile[] ballerinaFiles = bLangPackage.getBallerinaFiles();
+
+            // TODO filename becomes "" for built-in packages. FIX ME
+            String filename = ballerinaFiles.length == 0 ? "" :
+                    ballerinaFiles[0].getFileName();
+            pkgLocation = new NodeLocation("", filename, 0);
+        }
+
+        BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
+                new BallerinaFunction.BallerinaFunctionBuilder(bLangPackage);
+        functionBuilder.setNodeLocation(pkgLocation);
+        functionBuilder.setName(bLangPackage.getPackagePath() + ".<init>");
+        functionBuilder.setPkgPath(bLangPackage.getPackagePath());
+        pkgInitFuncStmtBuilder = new BlockStmt.BlockStmtBuilder(bLangPackage.getNodeLocation(),
+                bLangPackage);
+
+        // Invoke <init> methods of all the dependent packages
+        addDependentPkgInitCalls(initFunctions, pkgInitFuncStmtBuilder, pkgLocation);
+
+        // Define package level constructs
         defineStructs(bLangPackage.getStructDefs());
         defineConnectors(bLangPackage.getConnectors());
         resolveStructFieldTypes(bLangPackage.getStructDefs());
@@ -227,10 +254,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         defineTypeMappers(bLangPackage.getTypeMappers());
         defineServices(bLangPackage.getServices());
         defineAnnotations(bLangPackage.getAnnotationDefs());
-        
+
         for (CompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
+
+        // Complete the package init function
+        ReturnStmt returnStmt = new ReturnStmt(pkgLocation, new Expression[0]);
+        pkgInitFuncStmtBuilder.addStmt(returnStmt);
+        functionBuilder.setBody(pkgInitFuncStmtBuilder.build());
+        BallerinaFunction initFunction = functionBuilder.buildFunction();
+        initFunction.setReturnParamTypes(new BType[0]);
+        bLangPackage.setInitFunction(initFunction);
 
         bLangPackage.setSymbolsDefined(true);
     }
@@ -245,11 +280,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ConstDef constDef) {
-        for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
-            annotationAttachment.accept(this);
-        }
-        
         SimpleTypeName typeName = constDef.getTypeName();
         BType bType = BTypes.resolveType(typeName, currentScope, constDef.getNodeLocation());
         constDef.setType(bType);
@@ -257,78 +287,41 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.INVALID_TYPE, typeName);
         }
 
+        // Check whether this constant is already defined.
+        SymbolName symbolName = new SymbolName(constDef.getName());
+        if (currentScope.resolve(symbolName) != null) {
+            BLangExceptionHelper.throwSemanticError(constDef,
+                    SemanticErrors.REDECLARED_SYMBOL, constDef.getName());
+        }
+
+        // Define the constant in the package scope
+        currentScope.define(symbolName, constDef);
+
+        for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
+            annotationAttachment.accept(this);
+        }
+
         // Set memory location
         ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
         constDef.setMemoryLocation(memLocation);
 
-        // TODO Figure out how to evaluate constant values properly
-        // TODO This should be done properly in the RuntimeEnvironment
-        BasicLiteral basicLiteral = (BasicLiteral) constDef.getRhsExpr();
-        constDef.setValue(basicLiteral.getBValue());
+        VariableRefExpr varRefExpr = new VariableRefExpr(constDef.getNodeLocation(), constDef.getName());
+        varRefExpr.setVariableDef(constDef);
+        VariableDefStmt varDefStmt = new VariableDefStmt(constDef.getNodeLocation(),
+                constDef, varRefExpr, constDef.getRhsExpr());
+        pkgInitFuncStmtBuilder.addStmt(varDefStmt);
     }
 
     @Override
-    public void visit(GlobalVariableDefStmt globalVar) {
-        // Resolves the type of the variable
-        VariableDef varDef = globalVar.getVariableDef();
-        BType varBType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
-        varDef.setType(varBType);
+    public void visit(GlobalVariableDef globalVarDef) {
+        VariableDefStmt variableDefStmt = globalVarDef.getVariableDefStmt();
+        variableDefStmt.accept(this);
 
-        // Set memory location
-        setMemoryLocation(varDef);
-
-        Expression rExpr = globalVar.getRExpr();
-        if (rExpr == null) {
-            return;
-        }
-
-        // Null can be assigned to only reference types
-        if (rExpr instanceof NullLiteral) {
-            if (BTypes.isValueType(varBType)) {
-                BLangExceptionHelper.throwSemanticError(rExpr, SemanticErrors.INCOMPATIBLE_ASSIGNMENT, rExpr.getType(),
-                                                        varBType);
-            }
-            rExpr.setType(varBType);
-            return;
-        }
-
-        //todo any type support for RefTypeInitExpr
-        if (rExpr instanceof RefTypeInitExpr) {
-            RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
-
-            if (varBType instanceof BMapType) {
-                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                globalVar.setRExpr(refTypeInitExpr);
-            } else if (varBType instanceof StructDef) {
-                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                globalVar.setRExpr(refTypeInitExpr);
-            }
-
-            refTypeInitExpr.setInheritedType(varBType);
-            refTypeInitExpr.accept(this);
-            return;
-        }
-
-        visitSingleValueExpr(rExpr);
-        if (varBType == BTypes.typeAny) {
-            return;
-        }
-        BType rType = rExpr.getType();
-        if (rExpr instanceof TypeCastExpression && rType == null) {
-            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
-        }
-
-        if (!varBType.equals(rType)) {
-
-            TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
-            if (newExpr != null) {
-                newExpr.accept(this);
-                globalVar.setRExpr(newExpr);
-            } else {
-                BLangExceptionHelper.throwSemanticError(globalVar, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                                                        rExpr.getType(), varBType);
-            }
-        }
+        // Create an assignment statement
+        AssignStmt assignStmt = new AssignStmt(variableDefStmt.getNodeLocation(),
+                new Expression[]{variableDefStmt.getLExpr()}, variableDefStmt.getRExpr());
+        pkgInitFuncStmtBuilder.addStmt(assignStmt);
     }
 
     @Override
@@ -1677,7 +1670,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessThanExpression lessThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessThanExpr);
-        
+
         if (compareExprType == BTypes.typeInt) {
             lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_INT_FUNC);
 
@@ -2748,47 +2741,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private void defineConstants(ConstDef[] constDefs) {
-        for (ConstDef constDef : constDefs) {
-            SymbolName symbolName = new SymbolName(constDef.getName());
-            // Check whether this constant is already defined.
-            if (currentScope.resolve(symbolName) != null) {
-                BLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.REDECLARED_SYMBOL, constDef.getName());
-            }
-            // Define the variableRef symbol in the current scope
-            currentScope.define(symbolName, constDef);
-        }
-    }
-
-    private void defineGlobalVariables(BLangPackage bLangPackage) {
-        // Create the '<init>' function and inject it to the connector;
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(
-                bLangPackage.getNodeLocation(), bLangPackage);
-        for (GlobalVariableDefStmt globalVarDef : bLangPackage.getGlobalVariables()) {
-            blockStmtBuilder.addStmt(globalVarDef);
-            VariableDef varDef = globalVarDef.getVariableDef();
-            BType varBType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
-            varDef.setType(varBType);
-
-            // Check whether this variable is already defined, if not define it.
-            SymbolName symbolName = new SymbolName(varDef.getName());
-            BLangSymbol varSymbol = currentScope.resolve(symbolName);
-            if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
-                BLangExceptionHelper.throwSemanticError(varDef, SemanticErrors.REDECLARED_SYMBOL, varDef.getName());
-            }
-            currentScope.define(symbolName, varDef);
-        }
-
-        BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
-                new BallerinaFunction.BallerinaFunctionBuilder(bLangPackage);
-        functionBuilder.setNodeLocation(bLangPackage.getNodeLocation());
-        functionBuilder.setName(bLangPackage.getName() + ".<init>");
-        functionBuilder.setPkgPath(bLangPackage.getPackagePath());
-        functionBuilder.setBody(blockStmtBuilder.build());
-        bLangPackage.setInitFunction(functionBuilder.buildFunction());
-
-    }
-
     private void defineFunctions(Function[] functions) {
         for (Function function : functions) {
             // Resolve input parameters
@@ -3114,4 +3066,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
+    private void addDependentPkgInitCalls(BallerinaFunction[] initFunctions,
+                                          BlockStmt.BlockStmtBuilder blockStmtBuilder,
+                                          NodeLocation initFuncLocation) {
+        for (BallerinaFunction initFunc : initFunctions) {
+            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(initFuncLocation,
+                    initFunc.getName(), null, initFunc.getPackagePath(), new Expression[]{});
+            funcIExpr.setCallableUnit(initFunc);
+            FunctionInvocationStmt funcIStmt = new FunctionInvocationStmt(initFuncLocation, funcIExpr);
+            blockStmtBuilder.addStmt(funcIStmt);
+        }
+    }
 }

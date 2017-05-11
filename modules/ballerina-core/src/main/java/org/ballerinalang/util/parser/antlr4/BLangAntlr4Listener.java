@@ -121,7 +121,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.addPackageDcl(ctx.packageName().getText());
+        modelBuilder.addPackageDcl(getCurrentLocation(ctx), ctx.packageName().getText());
     }
 
     @Override
@@ -363,7 +363,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
         SimpleTypeName typeName = typeNameStack.pop();
         String varName = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
-        modelBuilder.addGlobalVariableDefinition(getCurrentLocation(ctx), typeName, varName, exprAvailable);
+
+        modelBuilder.addGlobalVarDef(getCurrentLocation(ctx), typeName, varName, exprAvailable);
     }
 
     @Override
@@ -1534,12 +1535,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
     protected NodeLocation getCurrentLocation(ParserRuleContext ctx) {
         String fileName = ctx.getStart().getInputStream().getSourceName();
         int lineNo = ctx.getStart().getLine();
-        return new NodeLocation(packageDirPath, fileName, lineNo);
-    }
-
-    protected NodeLocation getCurrentLocation(TerminalNode node) {
-        String fileName = node.getSymbol().getInputStream().getSourceName();
-        int lineNo = node.getSymbol().getLine();
         return new NodeLocation(packageDirPath, fileName, lineNo);
     }
 

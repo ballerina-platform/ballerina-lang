@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.statements.GlobalVariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.natives.NativePackageProxy;
@@ -38,6 +37,9 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     protected String pkgPath;
     protected SymbolName symbolName;
 
+    // This is used to specify a location for the package.<init> function
+    protected NodeLocation pkgLocation;
+
     protected CompilationUnit[] compilationUnits;
     protected BallerinaFile[] ballerinaFiles;
     protected ImportPackage[] importPackages;
@@ -45,7 +47,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     protected BallerinaConnectorDef[] connectors;
     protected Function[] functions;
     protected TypeLattice typeLattice;
-    protected GlobalVariableDefStmt[] globalVariables;
+    protected GlobalVariableDef[] globalVariables;
     protected ConstDef[] consts;
     protected StructDef[] structDefs;
     protected Function mainFunction;
@@ -61,9 +63,6 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
 
     private boolean symbolsDefined = false;
-
-    //This is used to identify whether global level variables are initialized or not.
-    private boolean pkgInitialized = false;
 
     private PackageRepository pkgRepo;
     private boolean isNative = false;
@@ -139,7 +138,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         return typeLattice;
     }
 
-    public GlobalVariableDefStmt[] getGlobalVariables() {
+    public GlobalVariableDef[] getGlobalVariables() {
         return globalVariables;
     }
 
@@ -157,14 +156,6 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     public void setSymbolsDefined(boolean symbolsDefined) {
         this.symbolsDefined = symbolsDefined;
-    }
-
-    public boolean isPkgInitialized() {
-        return pkgInitialized;
-    }
-
-    public void setPkgInitialized(boolean pkgInitialized) {
-        this.pkgInitialized = pkgInitialized;
     }
 
     public PackageRepository getPackageRepository() {
@@ -217,14 +208,14 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         if (name.getPkgPath() == null) {
             return resolve(symbolMap, name);
         }
-        
+
         // resolve the package symbol first
         SymbolName pkgSymbolName = new SymbolName(name.getPkgPath());
         BLangSymbol pkgSymbol = getEnclosingScope().resolve(pkgSymbolName);
         if (pkgSymbol == null) {
             return null;
         }
-        
+
         if (pkgSymbol instanceof NativePackageProxy) {
             pkgSymbol = ((NativePackageProxy) pkgSymbol).load();
         }
@@ -284,7 +275,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     @Override
     public NodeLocation getNodeLocation() {
-        return null;
+        return pkgLocation;
     }
 
     /**
@@ -292,19 +283,20 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
      */
     public static class PackageBuilder {
         private BLangPackage bLangPackage;
+        private NodeLocation pkgLocation;
 
         private Map<String, ImportPackage> importPkgMap = new HashMap<>();
         private List<CompilationUnit> compilationUnitList = new ArrayList<>();
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnectorDef> connectorList = new ArrayList<>();
         private List<Function> functionList = new ArrayList<>();
-        private List<GlobalVariableDefStmt> globalVarList = new ArrayList<>();
+        private List<GlobalVariableDef> globalVarList = new ArrayList<>();
         private List<ConstDef> constList = new ArrayList<>();
         private List<StructDef> structDefList = new ArrayList<>();
         private TypeLattice typeLattice = new TypeLattice();
         private List<TypeMapper> typeMapperList = new ArrayList<>();
         private List<AnnotationDef> annotationDefList = new ArrayList<>();
-        
+
         private List<BallerinaFile> ballerinaFileList = new ArrayList<>();
 
         public PackageBuilder(BLangPackage bLangPackage) {
@@ -317,6 +309,15 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
         public SymbolScope getCurrentScope() {
             return bLangPackage;
+        }
+
+        public void setPackageLocation(NodeLocation pkgLocation) {
+            // Always take the first one
+            if (this.pkgLocation != null) {
+                return;
+            }
+
+            this.pkgLocation = pkgLocation;
         }
 
         public void addFunction(BallerinaFunction function) {
@@ -343,7 +344,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             this.constList.add(constant);
         }
 
-        public void addGlobalVar(GlobalVariableDefStmt globalVariableDef) {
+        public void addGlobalVar(GlobalVariableDef globalVariableDef) {
             this.compilationUnitList.add(globalVariableDef);
             this.globalVarList.add(globalVariableDef);
         }
@@ -377,13 +378,14 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             bLangPackage.services = this.serviceList.toArray(new Service[0]);
             bLangPackage.connectors = this.connectorList.toArray(new BallerinaConnectorDef[0]);
             bLangPackage.structDefs = this.structDefList.toArray(new StructDef[0]);
-            bLangPackage.globalVariables = this.globalVarList.toArray(new GlobalVariableDefStmt[0]);
+            bLangPackage.globalVariables = this.globalVarList.toArray(new GlobalVariableDef[0]);
             bLangPackage.consts = this.constList.toArray(new ConstDef[0]);
             bLangPackage.importPackages = this.importPkgMap.values().toArray(new ImportPackage[0]);
             bLangPackage.typeLattice = this.typeLattice;
             bLangPackage.ballerinaFiles = ballerinaFileList.toArray(new BallerinaFile[0]);
             bLangPackage.typeMappers = this.typeMapperList.toArray(new TypeMapper[0]);
             bLangPackage.annotationDefs = this.annotationDefList.toArray(new AnnotationDef[0]);
+            bLangPackage.pkgLocation = pkgLocation;
             return bLangPackage;
         }
     }
