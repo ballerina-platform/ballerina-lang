@@ -70,6 +70,10 @@ public class PushText extends AbstractNativeFunction {
                 session = ConnectorRegistry.getInstance().
                         getConnectorController(Utils.getConnectorIDFromClientID(clientID)).
                         getConnectionFromClientID(clientID);
+                if (session == null) {
+                    throw new BallerinaException("pushing text from client service is not supported. " +
+                                    "This is only supported for WebSocket to WebSocket mediation");
+                }
             } else {
                 session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
             }
