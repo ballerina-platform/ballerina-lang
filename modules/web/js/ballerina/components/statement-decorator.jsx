@@ -31,6 +31,8 @@ import './statement-decorator.css';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
+import ImageUtil from './image-util';
+import Breakpoint from './breakpoint';
 
 const text_offset = 50;
 
@@ -69,6 +71,31 @@ class StatementDecorator extends React.Component {
 			const container = ballerinaFileEditor._container;
 			$(container).find('.view-source-btn').trigger('click');
 			ballerinaFileEditor.getSourceView().jumpToLine({expression: fullExpression});
+	}
+
+	renderBreakpointIndicator() {
+			const breakpointSize = 14;
+			const pointX = this.statementBox.x + this.statementBox.w - breakpointSize/2;
+			const pointY = this.statementBox.y - breakpointSize/2;
+			return (
+					<Breakpoint
+							x={pointX}
+							y={pointY}
+							size={breakpointSize}
+							isBreakpoint={this.props.model.isBreakpoint}
+							onClick = { () => this.onBreakpointClick() }
+					/>
+			);
+	}
+
+	onBreakpointClick() {
+			const { model } = this.props;
+			const { isBreakpoint = false } = model;
+			if(model.isBreakpoint) {
+					model.removeBreakpoint();
+			} else {
+					model.addBreakpoint();
+			}
 	}
 
 	render() {
@@ -128,6 +155,7 @@ class StatementDecorator extends React.Component {
 		actionBbox.h = DesignerDefaults.actionBox.height;
 		actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
 		actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
+
 		return (
 	    	<g 	className="statement"
             onMouseOut={ this.setActionVisibility.bind(this,false) }
@@ -148,8 +176,10 @@ class StatementDecorator extends React.Component {
 						<ActionBox
 							bBox={ actionBbox }
 							show={ this.state.showActions }
+							isBreakpoint={model.isBreakpoint}
 							onDelete={ () => this.onDelete() }
 							onJumptoCodeLine = { () => this.onJumptoCodeLine() }
+							onBreakpointClick = { () => this.onBreakpointClick() }
 						/>
 
 						{isActionInvocation &&
@@ -166,6 +196,9 @@ class StatementDecorator extends React.Component {
 								{connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
 								{connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
 							</g>
+						}
+						{		model.isBreakpoint &&
+								this.renderBreakpointIndicator()
 						}
 				{this.props.children}
 				</g>);
