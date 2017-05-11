@@ -42,8 +42,8 @@ import java.util.Map;
         description = "Returns the calculated standard deviation for all the events.",
         parameters = {
                 @Parameter(name = "arg",
-                           description = "The value that should be used to calculate the standard deviation.",
-                           type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                        description = "The value that should be used to calculate the standard deviation.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the calculated standard deviation value as a double.",
@@ -71,8 +71,8 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
                         ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("stdDev aggregator has to have exactly 1 parameter, currently " +
-                                                             attributeExpressionExecutors.length
-                                                             + " parameters provided");
+                    attributeExpressionExecutors.length
+                    + " parameters provided");
         }
 
         Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
@@ -228,12 +228,12 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
     private class StdDevAttributeAggregatorDouble extends StdDevAbstractAttributeAggregatorDouble {
         @Override
         public Object processAdd(Object data) {
-            return processAdd(((Double)data).doubleValue());
+            return processAdd(((Double) data).doubleValue());
         }
 
         @Override
         public Object processRemove(Object data) {
-            return processRemove(((Double)data).doubleValue());
+            return processRemove(((Double) data).doubleValue());
         }
     }
 
@@ -243,12 +243,12 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
     private class StdDevAttributeAggregatorFloat extends StdDevAbstractAttributeAggregatorDouble {
         @Override
         public Object processAdd(Object data) {
-            return processAdd(((Float)data).doubleValue());
+            return processAdd(((Float) data).doubleValue());
         }
 
         @Override
         public Object processRemove(Object data) {
-            return processRemove(((Float)data).doubleValue());
+            return processRemove(((Float) data).doubleValue());
         }
     }
 
@@ -258,12 +258,12 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
     private class StdDevAttributeAggregatorInt extends StdDevAbstractAttributeAggregatorDouble {
         @Override
         public Object processAdd(Object data) {
-            return processAdd(((Integer)data).doubleValue());
+            return processAdd(((Integer) data).doubleValue());
         }
 
         @Override
         public Object processRemove(Object data) {
-            return processRemove(((Integer)data).doubleValue());
+            return processRemove(((Integer) data).doubleValue());
         }
     }
 
@@ -273,12 +273,12 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
     private class StdDevAttributeAggregatorLong extends StdDevAbstractAttributeAggregatorDouble {
         @Override
         public Object processAdd(Object data) {
-            return processAdd(((Long)data).doubleValue());
+            return processAdd(((Long) data).doubleValue());
         }
 
         @Override
         public Object processRemove(Object data) {
-            return processRemove(((Long)data).doubleValue());
+            return processRemove(((Long) data).doubleValue());
         }
     }
 }

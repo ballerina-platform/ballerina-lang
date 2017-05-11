@@ -18,6 +18,7 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -31,6 +32,10 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
+/**
+ * Executor class for default function. Function execution sets the default value assigned by the user when attribute
+ * value is null.
+ */
 @Extension(
         name = "default",
         namespace = "",
@@ -49,10 +54,15 @@ import java.util.Map;
         returnAttributes = @ReturnAttribute(
                 description = "Returned type will be same as the 'attribute' and 'default' type.",
                 type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                        DataType.STRING, DataType.BOOL, DataType.OBJECT})
+                        DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+        examples = @Example(
+                syntax = "from TempStream\n" +
+                        "select default(temp, 0.0) as temp, roomNum\n" +
+                        "insert into StandardTempStream;",
+                description = "This will replace TempStream's temp attribute with default value if the temp is null.")
 )
-public class defaultFunctionExecutor extends FunctionExecutor {
-    private static final Logger log = Logger.getLogger(defaultFunctionExecutor.class);
+public class DefaultFunctionExecutor extends FunctionExecutor {
+    private static final Logger log = Logger.getLogger(DefaultFunctionExecutor.class);
     Attribute.Type returnType;
 
     @Override

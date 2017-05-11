@@ -128,6 +128,5 @@ public class CronWindowTestCase {
         executionPlanRuntime.shutdown();
 
     }
-
-
 }
+

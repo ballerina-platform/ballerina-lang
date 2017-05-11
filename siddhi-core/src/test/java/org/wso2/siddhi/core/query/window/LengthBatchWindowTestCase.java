@@ -29,8 +29,8 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class LenghtBatchWindowTestCase {
-    private static final Logger log = Logger.getLogger(LenghtBatchWindowTestCase.class);
+public class LengthBatchWindowTestCase {
+    private static final Logger log = Logger.getLogger(LengthBatchWindowTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private int count;

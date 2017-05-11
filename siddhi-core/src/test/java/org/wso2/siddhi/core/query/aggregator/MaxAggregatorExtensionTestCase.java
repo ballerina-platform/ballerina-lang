@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class MaxAggregatorExtensionTestCase {
-    static final Logger log = Logger.getLogger(MaxAggregatorExtensionTestCase.class);
+    private static final Logger log = Logger.getLogger(MaxAggregatorExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 
@@ -51,10 +51,12 @@ public class MaxAggregatorExtensionTestCase {
                 "from inputStream#window.time(1 sec) " +
                 "select max(price1) as maxForeverValue " +
                 "insert all events into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
-            @Override public void receive(Event[] events) {
+            @Override
+            public void receive(Event[] events) {
                 EventPrinter.print(events);
                 eventArrived = true;
                 for (Event event : events) {
