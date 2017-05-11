@@ -627,16 +627,20 @@ public class TypeCastExprTest {
         BLangFunctions.invoke(bLangProgram, "testIncompatibleJsonToBoolean");
     }
     
-    
-    
-    @Test(description = "Test casting a boolean in JSON to int")
+    @Test(description = "Test casting a boolean in JSON to int",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'int': incompatible types: expected " +
+            "'int', found 'boolean' in json")
     public void testBooleanInJsonToInt() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBooleanInJsonToInt");
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
     
-    @Test(description = "Test casting an integer in JSON to float")
+    @Test(description = "Test casting an integer in JSON to float",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'float': incompatible types: expected " +
+            "'float', found 'int' in json")
     public void testIntInJsonToFloat() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntInJsonToFloat");
         Assert.assertTrue(returns[0] instanceof BFloat);

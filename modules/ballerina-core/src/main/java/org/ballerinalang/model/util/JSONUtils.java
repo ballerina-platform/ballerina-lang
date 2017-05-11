@@ -30,8 +30,6 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeEdge;
-import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -47,7 +45,6 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
-
 import java.util.Set;
 
 /**
@@ -359,63 +356,45 @@ public class JSONUtils {
      * Convert {@link JsonNode} to {@link BInteger}.
      * 
      * @param jsonNode {@link JsonNode} to be converted
-     * @return BInteger value of the JSON, if its a integer or a long JSON node. or if the value can be implicitly
-     * cast to integer. Error, otherwise.
+     * @return BInteger value of the JSON, if its a integer or a long JSON node. Error, otherwise.
      */
     private static BInteger jsonNodeToInteger(JsonNode jsonNode) {
-        BValue jsonVal = getBValue(jsonNode);
-        BType jsonValType = jsonVal.getType();
-        if (jsonValType == BTypes.typeInt) {
-            return (BInteger) jsonVal;
+        if (jsonNode.isInt() || jsonNode.isLong()) {
+            return new BInteger(jsonNode.longValue());
         }
-        TypeEdge edge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(jsonValType, BTypes.typeInt, null);
-        if (edge == null) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                    BTypes.typeInt, jsonValType);
-        }
-        return (BInteger) edge.getTypeMapperFunction().apply(jsonVal, BTypes.typeInt);
+        
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+            BTypes.typeInt, getTypeName(jsonNode));
     }
 
     /**
      * Convert {@link JsonNode} to {@link BFloat}.
      * 
      * @param jsonNode {@link JsonNode} to be converted
-     * @return BFloat value of the JSON, if its a double or a float JSON node. or if the value can be implicitly 
-     * cast to float. Error, otherwise.
+     * @return BFloat value of the JSON, if its a double or a float JSON node. Error, otherwise.
      */
     private static BFloat jsonNodeToFloat(JsonNode jsonNode) {
-        BValue jsonVal = getBValue(jsonNode);
-        BType jsonValType = jsonVal.getType();
-        if (jsonValType == BTypes.typeFloat) {
-            return (BFloat) jsonVal;
+        if (jsonNode.isFloat() || jsonNode.isDouble()) {
+            return new BFloat(jsonNode.doubleValue());
         }
-        TypeEdge edge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(jsonValType, BTypes.typeFloat, null);
-        if (edge == null) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                    BTypes.typeFloat, jsonValType);
-        }
-        return (BFloat) edge.getTypeMapperFunction().apply(jsonVal, BTypes.typeFloat);
+        
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+            BTypes.typeFloat, getTypeName(jsonNode));
     }
     
     /**
      * Convert {@link JsonNode} to {@link BBoolean}. 
      * 
      * @param jsonNode {@link JsonNode} to be converted
-     * @return BBoolean value of the JSON, if its a boolean node, or if the value can be implicitly cast to boolean.
-     * Error, otherwise.
+     * @return BBoolean value of the JSON, if its a boolean node. Error, otherwise.
      */
     private static BBoolean jsonNodeToBoolean(JsonNode jsonNode) {
-        BValue jsonVal = getBValue(jsonNode);
-        BType jsonValType = jsonVal.getType();
-        if (jsonValType == BTypes.typeBoolean) {
-            return (BBoolean) jsonVal;
+        if (jsonNode.isBoolean()) {
+            return new BBoolean(jsonNode.booleanValue());
         }
-        TypeEdge edge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(jsonValType, BTypes.typeBoolean, null);
-        if (edge == null) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                    BTypes.typeBoolean, jsonValType);
-        }
-        return (BBoolean) edge.getTypeMapperFunction().apply(jsonVal, BTypes.typeBoolean);
+        
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+            BTypes.typeBoolean, getTypeName(jsonNode));
     }
     
     /**
