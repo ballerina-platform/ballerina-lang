@@ -25,6 +25,7 @@ import com.google.inject.Injector;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.api.PackagesApi;
 import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
+import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import org.ballerinalang.composer.service.workspace.rest.BallerinaProgramService;
 import org.ballerinalang.composer.service.workspace.rest.ConfigServiceImpl;
 import org.ballerinalang.composer.service.workspace.rest.FileServer;
@@ -88,6 +89,7 @@ public class WorkspaceServiceRunner {
 
         String apiPath = null;
         String launcherPath = null;
+        String debuggerPath = null;
         // reading configurations from workspace-service-config.yaml. Users are expected to drop the
         // workspace-service-config.yaml file inside the $ballerina-tools-distribution/resources/composer/services
         // directory. Default configurations will be set if user hasn't provided workspace-service-config.yaml
@@ -99,6 +101,7 @@ public class WorkspaceServiceRunner {
                         WorkspaceServiceConfig.class);
                 apiPath = workspaceServiceConfig.getApiPath();
                 launcherPath = workspaceServiceConfig.getLauncherPath();
+                debuggerPath = workspaceServiceConfig.getDebuggerPath();
             } catch (IOException e) {
                 logger.error("Error while reading workspace-service-config.yaml");
             }
@@ -139,6 +142,9 @@ public class WorkspaceServiceRunner {
         int launcherPort = apiPort + 1;
         launcherPort = WorkspaceUtils.getAvailablePort(launcherPort);
 
+        // find free port for debugger
+        int debuggerPort = LaunchUtils.getFreePort();
+
         boolean isCloudMode = Boolean.getBoolean(Constants.SYS_WORKSPACE_ENABLE_CLOUD);
 
         Injector injector = Guice.createInjector(new WorkspaceServiceModule(isCloudMode));
@@ -164,8 +170,10 @@ public class WorkspaceServiceRunner {
         ConfigServiceImpl configService = new ConfigServiceImpl();
         configService.setApiPort(apiPort);
         configService.setLauncherPort(launcherPort);
+        configService.setDebuggerPort(debuggerPort);
         configService.setApiPath(apiPath);
         configService.setLauncherPath(launcherPath);
+        configService.setDebuggerPath(debuggerPath);
 
 
         fileServer.setContextRoot(contextRoot);

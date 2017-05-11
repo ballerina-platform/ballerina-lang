@@ -44,6 +44,7 @@ import alerts from 'alerts';
             this.parseBackend = new Backend({"url" : this.app.config.services.parser.endpoint});
             this.validateBackend = new Backend({"url" : this.app.config.services.validator.endpoint});
             this.deserializer = BallerinaASTDeserializer;
+            Ballerina.env.Environment.initialize({app: this.app});
         },
 
         getTitle: function(){

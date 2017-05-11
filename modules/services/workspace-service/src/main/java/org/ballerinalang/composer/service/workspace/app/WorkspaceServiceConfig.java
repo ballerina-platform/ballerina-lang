@@ -22,6 +22,7 @@ public class WorkspaceServiceConfig {
 
     private String apiPath;
     private String launcherPath;
+    private String debuggerPath;
 
     public String getApiPath() {
         return apiPath;
@@ -37,6 +38,14 @@ public class WorkspaceServiceConfig {
 
     public void setLauncherPath(String launcherPath) {
         this.launcherPath = launcherPath;
+    }
+
+    public String getDebuggerPath() {
+        return debuggerPath;
+    }
+
+    public void setDebuggerPath(String debuggerPath) {
+        this.debuggerPath = debuggerPath;
     }
 
 }
