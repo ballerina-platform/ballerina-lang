@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
@@ -78,9 +79,9 @@ public class TypeLattice {
         implicitCastLattice.addEdge(booleanV, floatV, NativeCastMapper.BOOLEAN_TO_FLOAT_FUNC);
         implicitCastLattice.addEdge(booleanV, jsonV, NativeCastMapper.BOOLEAN_TO_JSON_FUNC);
         
-        implicitCastLattice.addEdge(jsonV, mapV, NativeCastMapper.JSON_TO_MAP_FUNC);
+//        implicitCastLattice.addEdge(jsonV, mapV, NativeCastMapper.JSON_TO_MAP_FUNC);
         
-        implicitCastLattice.addEdge(mapV, jsonV, NativeCastMapper.MAP_TO_JSON_FUNC);
+//        implicitCastLattice.addEdge(mapV, jsonV, NativeCastMapper.MAP_TO_JSON_FUNC);
     }
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
@@ -152,11 +153,11 @@ public class TypeLattice {
         explicitCastLattice.addEdge(jsonV, intV, NativeCastMapper.JSON_TO_INT_FUNC);
         explicitCastLattice.addEdge(jsonV, floatV, NativeCastMapper.JSON_TO_FLOAT_FUNC);
         explicitCastLattice.addEdge(jsonV, booleanV, NativeCastMapper.JSON_TO_BOOLEAN_FUNC);
-        explicitCastLattice.addEdge(jsonV, mapV, NativeCastMapper.JSON_TO_MAP_FUNC);
+//        explicitCastLattice.addEdge(jsonV, mapV, NativeCastMapper.JSON_TO_MAP_FUNC);
         
         explicitCastLattice.addEdge(xmlV, anyV, NativeCastMapper.XML_TO_ANY_FUNC);
         
-        explicitCastLattice.addEdge(mapV, jsonV, NativeCastMapper.MAP_TO_JSON_FUNC);
+//        explicitCastLattice.addEdge(mapV, jsonV, NativeCastMapper.MAP_TO_JSON_FUNC);
         
 //        explicitCastLattice.addEdge(jsonV, xmlV, new JSONToXML(), TypeConstants.NATIVE_PACKAGE);
 //        explicitCastLattice.addEdge(xmlV, jsonV, new XMLToJSON(), TypeConstants.NATIVE_PACKAGE);
@@ -323,13 +324,14 @@ public class TypeLattice {
     
     private static void addImplicitEdges(StructDef structDef, SymbolScope scope) {
         TypeVertex structV = new TypeVertex(structDef);
-        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
-        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
+//        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
+//        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
+        
         implicitCastLattice.addVertex(structV, false);
-        implicitCastLattice.addEdge(structV, mapV, NativeCastMapper.STRUCT_TO_MAP_FUNC);
-        implicitCastLattice.addEdge(structV, jsonV, NativeCastMapper.STRUCT_TO_JSON_FUNC);
-        implicitCastLattice.addEdge(jsonV, structV, NativeCastMapper.JSON_TO_STRUCT_FUNC);
-        implicitCastLattice.addEdge(mapV, structV, NativeCastMapper.MAP_TO_STRUCT_FUNC);
+//        implicitCastLattice.addEdge(structV, mapV, NativeCastMapper.STRUCT_TO_MAP_FUNC);
+//        implicitCastLattice.addEdge(structV, jsonV, NativeCastMapper.STRUCT_TO_JSON_FUNC);
+//        implicitCastLattice.addEdge(jsonV, structV, NativeCastMapper.JSON_TO_STRUCT_FUNC);
+//        implicitCastLattice.addEdge(mapV, structV, NativeCastMapper.MAP_TO_STRUCT_FUNC);
         
         // For all the structs in all the packages imported, check for possibility of casting.
         // Add an edge to the lattice, if casting is possible.
@@ -343,11 +345,11 @@ public class TypeLattice {
                 if (symbol instanceof StructDef && symbol != structDef) {
                     TypeVertex otherStructV = new TypeVertex(symbol);
                     
-                    if (isAssignable(structDef, (StructDef) symbol)) {
+                    if (isAssignCompatible(structDef, (StructDef) symbol)) {
                         implicitCastLattice.addEdge(otherStructV, structV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
                     }
                     
-                    if (isAssignable((StructDef) symbol, structDef)) {
+                    if (isAssignCompatible((StructDef) symbol, structDef)) {
                         implicitCastLattice.addEdge(structV, otherStructV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
                     }
                 }
@@ -357,14 +359,14 @@ public class TypeLattice {
     
     private static void addExplicitEdges(StructDef structDef, SymbolScope scope) {
         TypeVertex structV = new TypeVertex(structDef);
-        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
-        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
+//        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
+//        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         
         explicitCastLattice.addVertex(structV, false);
-        explicitCastLattice.addEdge(structV, mapV, NativeCastMapper.STRUCT_TO_MAP_FUNC);
-        explicitCastLattice.addEdge(structV, jsonV, NativeCastMapper.STRUCT_TO_JSON_FUNC);
-        explicitCastLattice.addEdge(jsonV, structV, NativeCastMapper.JSON_TO_STRUCT_FUNC);
-        explicitCastLattice.addEdge(mapV, structV, NativeCastMapper.MAP_TO_STRUCT_FUNC);
+//        explicitCastLattice.addEdge(structV, mapV, NativeCastMapper.STRUCT_TO_MAP_FUNC);
+//        explicitCastLattice.addEdge(structV, jsonV, NativeCastMapper.STRUCT_TO_JSON_FUNC);
+//        explicitCastLattice.addEdge(jsonV, structV, NativeCastMapper.JSON_TO_STRUCT_FUNC);
+//        explicitCastLattice.addEdge(mapV, structV, NativeCastMapper.MAP_TO_STRUCT_FUNC);
         
         // For all the structs in all the packages imported, check for possibility of casting.
         // Add an edge to the lattice, if casting is possible.
@@ -378,11 +380,11 @@ public class TypeLattice {
                 if (symbol instanceof StructDef && symbol != structDef) {
                     TypeVertex otherStructV = new TypeVertex(symbol);
                     
-                    if (isAssignable(structDef, (StructDef) symbol)) {
+                    if (isAssignCompatible(structDef, (StructDef) symbol)) {
                         explicitCastLattice.addEdge(otherStructV, structV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
                     }
                     
-                    if (isAssignable((StructDef) symbol, structDef)) {
+                    if (isAssignCompatible((StructDef) symbol, structDef)) {
                         explicitCastLattice.addEdge(structV, otherStructV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
                     }
                 }
@@ -390,31 +392,27 @@ public class TypeLattice {
         }
     }
     
-    private static boolean isAssignable(StructDef targetStructDef, StructDef sourceStructDef) {
+    private static boolean isAssignCompatible(StructDef targetStructDef, StructDef sourceStructDef) {
         for (VariableDefStmt fieldDef : targetStructDef.getFieldDefStmts()) {
             VariableDef targetFieldDef = fieldDef.getVariableDef();
             BType targetFieldType = targetFieldDef.getType();
             SymbolName fieldSymbolName = targetFieldDef.getSymbolName();
             VariableDef sourceFieldDef = (VariableDef) sourceStructDef.resolveMembers(fieldSymbolName);
             
+            // field has to exists
             if (sourceFieldDef == null) {
                 return false;
             }
-
-            BType sourceFieldType = sourceFieldDef.getType();
-            if (NativeCastMapper.isCompatible(targetFieldType, sourceFieldType)) {
-                continue;
-            }
             
-            // TODO: remove this if-block once the array casting is supported
-            if (targetFieldType instanceof BArrayType) {
+            // struct memory index of both the fields has to be same. i.e: order of the fields
+            // must be same in the target and the source structs
+            if (((StructVarLocation) targetFieldDef.getMemoryLocation()).getStructMemAddrOffset() != 
+                    ((StructVarLocation) sourceFieldDef.getMemoryLocation()).getStructMemAddrOffset()) {
                 return false;
             }
             
-            // If the two types are not compatible, check for possibility of implicit casting
-            TypeEdge newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(sourceFieldType, targetFieldType,
-                    null);
-            if (newEdge == null) {
+            BType sourceFieldType = sourceFieldDef.getType();
+            if (!NativeCastMapper.isCompatible(targetFieldType, sourceFieldType)) {
                 return false;
             }
         }

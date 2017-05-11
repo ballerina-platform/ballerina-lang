@@ -249,9 +249,9 @@ function testGetStringFromPrimitive() (string) {
 }
 
 function testJsonArrayWithVariable() (json) {
-    map m = {"name":"supun"};
-    json j = ["a", "b", "c", m];
-    return j;
+    // map m = {"name":"supun"};
+    // json j = ["a", "b", "c", m];
+    // return j;
 }
 
 function testUpdateNestedElement() (json) {

@@ -369,25 +369,25 @@ public class BJSONValueTest   {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetStringFromPrimitive");
     }
     
-    @Test
-    public void testJsonArrayWithVariable() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonArrayWithVariable");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",\"c\",{\"name\":\"supun\"}]");
-    }
+//    @Test
+//    public void testJsonArrayWithVariable() {
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonArrayWithVariable");
+//        Assert.assertTrue(returns[0] instanceof BJSON);
+//        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",\"c\",{\"name\":\"supun\"}]");
+//    }
     
     @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "json-array-with-unsupported-types.bal:3: incompatible types: " +
             "'message' cannot be converted to 'json'")
     public void testJsonArrayWithUnsupportedtypes() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/values/json-array-with-unsupported-types.bal");
+        BTestUtils.parseBalFile("lang/values/json-array-with-unsupported-types.bal");
     }
     
     @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "json-init-with-unsupported-types.bal:3: incompatible types: " +
             "'message' cannot be converted to 'json'")
     public void testJsonInitWithUnsupportedtypes() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/values/json-init-with-unsupported-types.bal");
+        BTestUtils.parseBalFile("lang/values/json-init-with-unsupported-types.bal");
     }
     
     @Test

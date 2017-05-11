@@ -19,7 +19,6 @@ package org.ballerinalang.natives.typemappers;
 
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.types.BArrayType;
@@ -278,42 +277,21 @@ public class NativeCastMapper {
     /**
      * Function to cast a given struct to another.
      * A struct can be cast to another struct if and only if, source struct has at least the set of fields 
-     * (matching both in name and type) that the target struct expects.
-     * TODO: compatibility for inner fields of structs can be checked during semantic analyzing, and the mapping
-     * functions can also be set at the same phase. No need to do this during runtime.
+     * (matching both in name and type) that the target struct expects, in the same order.
      */
     public static final BiFunction<BValue, BType, BValue> STRUCT_TO_STRUCT_FUNC = (rVal, targetType) -> {
         if (rVal == null) {
             return null;
         }
         BStruct struct = (BStruct) rVal;
-        StructDef sourceStructDef = (StructDef) struct.getType();
         StructDef targetStructDef = (StructDef) targetType;
-        BValue[] structMemoryBlock = new BValue[targetStructDef.getStructMemorySize()];
-        for (VariableDefStmt fieldDef : targetStructDef.getFieldDefStmts()) {
-            VariableDef targetFieldDef = fieldDef.getVariableDef();
-            BType targetFieldType = targetFieldDef.getType();
-            SymbolName fieldSymbolName = targetFieldDef.getSymbolName();
-            BValue fieldVal = null;
-            try {
-                // No any validation for field names is done here, as it is already done during semantic analyzer phase
-                VariableDef sourceFieldDef = (VariableDef) sourceStructDef.resolveMembers(fieldSymbolName);
-                BType sourceFieldType = sourceFieldDef.getType();
-                fieldVal = struct.getValue(getStructMemoryOffset(sourceFieldDef));
-
-                // If the two types are not compatible, then do implicit casting. Here also,
-                // validation for existence of casting function is done during semantic analyzer phase.
-                if (fieldVal != null && !isCompatible(targetFieldType, sourceFieldType)) {
-                    TypeEdge newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(sourceFieldType, 
-                            targetFieldType, null);
-                    fieldVal = newEdge.getTypeMapperFunction().apply(fieldVal, targetFieldType);
-                }
-            } catch (BallerinaException e) {
-                handleError(rVal.getType(), targetType, e, fieldSymbolName.toString());
-            }
-
-            structMemoryBlock[getStructMemoryOffset(targetFieldDef)] = fieldVal;
+        int noOfFields = targetStructDef.getStructMemorySize();
+        BValue[] structMemoryBlock = new BValue[noOfFields];
+        
+        for (int i = 0; i < noOfFields; i++) {
+            structMemoryBlock[i] = struct.getValue(i);;
         }
+        
         return new BStruct(targetStructDef, structMemoryBlock);
     };
     
