@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.connectors.ws.connectormanager;
+package org.ballerinalang.nativeimpl.connectors.ws;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

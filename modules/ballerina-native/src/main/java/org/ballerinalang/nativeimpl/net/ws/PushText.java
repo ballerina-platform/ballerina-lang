@@ -23,7 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.connectors.ws.Utils;
-import org.ballerinalang.nativeimpl.connectors.ws.connectormanager.ConnectorRegistry;
+import org.ballerinalang.nativeimpl.connectors.ws.ConnectorRegistry;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;

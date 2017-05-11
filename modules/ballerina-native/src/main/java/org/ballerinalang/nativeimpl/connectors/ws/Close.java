@@ -22,8 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.ws.connectormanager.ConnectorController;
-import org.ballerinalang.nativeimpl.connectors.ws.connectormanager.ConnectorRegistry;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
