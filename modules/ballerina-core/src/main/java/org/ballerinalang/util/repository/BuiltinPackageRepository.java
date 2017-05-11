@@ -63,7 +63,7 @@ public class BuiltinPackageRepository extends PackageRepository {
             skipNatives = false;
         }
         
-        this.packageDirPath = packageDirPath.toString().replace("\\", "/");
+        this.packageDirPath = packageDirPath.toString().replace("\\", "/") + File.separator;
         Map<String, InputStream> sourceFileStreamMap = new HashMap<String, InputStream>();
         ClassLoader classLoader = nativePackageProvider.getClassLoader();
 
@@ -73,7 +73,7 @@ public class BuiltinPackageRepository extends PackageRepository {
         // Read all resources as input streams and create the package source 
         for (String fileName : fileNames) {
             InputStream balSourceStream = classLoader.getResourceAsStream(BASE_DIR + this.packageDirPath
-                    + "/" + fileName);
+                    + fileName);
             sourceFileStreamMap.put(fileName, balSourceStream);
         }
         return new PackageSource(packageDirPath, sourceFileStreamMap, this);
@@ -106,7 +106,7 @@ public class BuiltinPackageRepository extends PackageRepository {
         BufferedReader reader = null;
         try {
             InputStream fileNamesStream =
-                    nativePackageProvider.getClassLoader().getResourceAsStream(pkgRelPath + File.separator);
+                    nativePackageProvider.getClassLoader().getResourceAsStream(pkgRelPath);
             if (fileNamesStream != null) {
                 reader = new BufferedReader(new InputStreamReader(fileNamesStream));
                 String fileName;
