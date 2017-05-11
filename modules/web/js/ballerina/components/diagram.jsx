@@ -100,6 +100,7 @@ class Diagram extends React.Component {
             messageManager: this.props.messageManager,
             container : this.props.container,
             renderer: this.props.renderer,
+            overlay: this.props.overlay,
             renderingContext: this.props.renderingContext,
             structOperationsRenderer: this.props.structOperationsRenderer
         };
@@ -124,6 +125,7 @@ Diagram.childContextTypes = {
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
     container: PropTypes.instanceOf(Object).isRequired,
     renderer: PropTypes.instanceOf(Renderer).isRequired,
+    overlay: PropTypes.instanceOf(Object).isRequired,
     renderingContext: PropTypes.instanceOf(Object).isRequired,
     structOperationsRenderer: PropTypes.instanceOf(StructOperationsRenderer).isRequired,
 };
