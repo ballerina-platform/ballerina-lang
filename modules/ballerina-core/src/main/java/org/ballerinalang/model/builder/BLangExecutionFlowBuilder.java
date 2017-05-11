@@ -82,6 +82,7 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.VariableRefTypeAccessExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
 import org.ballerinalang.model.nodes.AbstractLinkedNode;
 import org.ballerinalang.model.nodes.EndNode;
@@ -108,6 +109,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprEndNode
 import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.UnaryExpressionEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.VariableRefTypeAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.AssignStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
@@ -1060,6 +1062,25 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             indexExpr.accept(this);
         }
         endNode.setNext(findNext(endNode));
+    }
+
+    @Override
+    public void visit(VariableRefTypeAccessExpr variableRefTypeAccessExpr) {
+        calculateTempOffSet(variableRefTypeAccessExpr);
+        VariableRefTypeAccessExprEndNode endNode = new VariableRefTypeAccessExprEndNode(variableRefTypeAccessExpr);
+        if (variableRefTypeAccessExpr.getVarRef() instanceof StructFieldAccessExpr) {
+            StructFieldAccessExprEndNode varNode =
+                    new StructFieldAccessExprEndNode((StructFieldAccessExpr) variableRefTypeAccessExpr.getVarRef());
+            variableRefTypeAccessExpr.setNext(varNode);
+            varNode.setNext(endNode);
+        } else if (variableRefTypeAccessExpr.getVarRef() instanceof ArrayMapAccessExpr) {
+            variableRefTypeAccessExpr.setNext(variableRefTypeAccessExpr.getVarRef());
+            variableRefTypeAccessExpr.getVarRef().setNextSibling(endNode);
+            variableRefTypeAccessExpr.getVarRef().accept(this);
+        } else {
+            variableRefTypeAccessExpr.setNext(endNode);
+        }
+        endNode.setNext(findNext(variableRefTypeAccessExpr));
     }
 
     @Override

@@ -59,6 +59,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprEndNode
 import org.ballerinalang.model.nodes.fragments.expressions.StructInitExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.UnaryExpressionEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.VariableRefTypeAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.AssignStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
@@ -221,4 +222,6 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(TypeCastExpressionEndNode typeCastExpressionEndNode);
 
     void visit(UnaryExpressionEndNode unaryExpressionEndNode);
+
+    void visit(VariableRefTypeAccessExprEndNode variableRefTypeAccessExprEndNode);
 }

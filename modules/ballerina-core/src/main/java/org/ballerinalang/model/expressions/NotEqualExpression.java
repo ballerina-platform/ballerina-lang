@@ -52,6 +52,9 @@ public class NotEqualExpression extends BinaryEqualityExpression {
     public NotEqualExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
         super(location, lExpr, NOT_EQUAL, rExpr);
     }
+
+    public static final BiFunction<BValue, BValue, BValueType> NOT_EQUAL_TYPE_FUNC =
+            (lVal, rVal) -> new BBoolean(lVal.getType() != rVal.getType());
     
     @Override
     public void accept(NodeVisitor visitor) {

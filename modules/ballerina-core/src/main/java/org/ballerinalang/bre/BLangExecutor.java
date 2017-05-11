@@ -54,6 +54,7 @@ import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.VariableRefTypeAccessExpr;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -83,6 +84,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
@@ -719,6 +721,10 @@ public class BLangExecutor implements NodeExecutor {
         if (rExpr.getType() == BTypes.typeNull || lExpr.getType() == BTypes.typeNull) {
             return binaryEqualityExpr.getRefTypeEvalFunc().apply(lValue, rValue);
         }
+
+        if ((rExpr instanceof VariableRefTypeAccessExpr) && (lExpr instanceof VariableRefTypeAccessExpr)) {
+            return binaryEqualityExpr.getRefTypeEvalFunc().apply(lValue, rValue);
+        }
         
         return binaryEqualityExpr.getEvalFunc().apply((BValueType) lValue, (BValueType) rValue);
     }
@@ -1100,6 +1106,13 @@ public class BLangExecutor implements NodeExecutor {
         Expression varRef = structFieldAccessExpr.getVarRef();
         BValue value = varRef.execute(this);
         return getFieldExprValue(structFieldAccessExpr, value);
+    }
+
+    @Override
+    public BValue visit(VariableRefTypeAccessExpr variableRefTypeAccessExpr) {
+        Expression varRef = variableRefTypeAccessExpr.getVarRef();
+        BValue value = varRef.execute(this);
+        return new BTypeValue(value.getType());
     }
 
     @Override
