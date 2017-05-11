@@ -20,7 +20,6 @@ package org.ballerinalang.util.repository;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -63,7 +62,9 @@ public class BuiltinPackageRepository extends PackageRepository {
             skipNatives = false;
         }
         
-        this.packageDirPath = packageDirPath.toString().replace("\\", "/") + File.separator;
+        // Replace system dependent file-separator with forward-slash
+        this.packageDirPath = packageDirPath.toString().replace("\\", "/") + "/";
+        
         Map<String, InputStream> sourceFileStreamMap = new HashMap<String, InputStream>();
         ClassLoader classLoader = nativePackageProvider.getClassLoader();
 
