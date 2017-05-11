@@ -21,8 +21,6 @@ package org.ballerinalang.nativeimpl.connectors.ws;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.ws.connectormanager.ConnectorController;
-import org.ballerinalang.nativeimpl.connectors.ws.connectormanager.ConnectorRegistry;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
