@@ -105,9 +105,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             stringBuilder.append(element.getText());
 
             // Get parameters.
-            ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(parent, ParameterListNode.class);
-            List<String> presentations = BallerinaParameterInfoHandler.getParameterPresentations(parameterListNode);
-            String params = StringUtil.join(presentations, ", ");
+            String params = getParameterString(parent, false);
             // Add parameters.
             stringBuilder.append("(");
             stringBuilder.append(params);
@@ -128,9 +126,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             stringBuilder.append(element.getText());
 
             // Get parameters.
-            ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(parent, ParameterListNode.class);
-            List<String> presentations = BallerinaParameterInfoHandler.getParameterPresentations(parameterListNode);
-            String params = StringUtil.join(presentations, ", ");
+            String params = getParameterString(parent, false);
             // Add parameters.
             stringBuilder.append("(");
             stringBuilder.append(params);
@@ -151,9 +147,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             stringBuilder.append(element.getText());
 
             // Get parameters.
-            ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(parent, ParameterListNode.class);
-            List<String> presentations = BallerinaParameterInfoHandler.getParameterPresentations(parameterListNode);
-            String params = StringUtil.join(presentations, ", ");
+            String params = getParameterString(parent, false);
             // Add parameters.
             stringBuilder.append("(");
             stringBuilder.append(params);
@@ -177,6 +171,29 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
             }
         }
         // Return the signature.
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Returns parameters as a single string concatenated with ",". Leading and Trailering parenthesis will be added
+     * if the {@literal withParenthesis} is true.
+     *
+     * @param parent          parent element (definition element)
+     * @param withParenthesis indicate whether we want to enclose the parameters with parenthesis
+     * @return a string containing the parameters.
+     */
+    @NotNull
+    public static String getParameterString(PsiElement parent, boolean withParenthesis) {
+        ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(parent, ParameterListNode.class);
+        List<String> presentations = BallerinaParameterInfoHandler.getParameterPresentations(parameterListNode);
+        StringBuilder stringBuilder = new StringBuilder();
+        if (withParenthesis) {
+            stringBuilder.append("(");
+        }
+        stringBuilder.append(StringUtil.join(presentations, ", "));
+        if (withParenthesis) {
+            stringBuilder.append(")");
+        }
         return stringBuilder.toString();
     }
 
