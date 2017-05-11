@@ -190,8 +190,9 @@ import 'bootstrap';
                 }
 
                 function openModel(source){
+                    let parserServiceURL = app.config.services.parser.endpoint;
                     $.ajax({
-                        url: "http://localhost:8289/ballerina/model/content",
+                        url: parserServiceURL,
                         type: "POST",
                         data: JSON.stringify(source),
                         contentType: "application/json; charset=utf-8",
@@ -226,7 +227,7 @@ import 'bootstrap';
                 function openConfiguration() {
                     var defaultView = {configLocation: location.val()};
 
-                    var workspaceServiceURL = "http://localhost:8289/service/workspace";
+                    var workspaceServiceURL = app.config.services.workspace.endpoint;
                     var saveServiceURL = workspaceServiceURL + "/read";
 
                     var path = defaultView.configLocation;
