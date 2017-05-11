@@ -43,8 +43,11 @@ public class ConfigServiceImpl {
 
     private int launcherPort;
 
+    private int debuggerPort;
+
     private String apiPath;
     private String launcherPath;
+    private String debuggerPath;
 
     @GET
     @Produces("application/json")
@@ -90,12 +93,15 @@ public class ConfigServiceImpl {
         if (launcherPath == null || "".equals(launcherPath)) {
             launcherPath = "ws://" + request.getProperties().get("LOCAL_NAME") + ":" + launcherPort;
         }
+        if (debuggerPath == null || "".equals(debuggerPath)) {
+            debuggerPath = "ws://" + request.getProperties().get("LOCAL_NAME") + ":" + debuggerPort;
+        }
 
         JsonObject workspace = new JsonObject();
         workspace.addProperty("endpoint", apiPath + "/service/workspace");
 
         JsonObject packages = new JsonObject();
-        packages.addProperty("endpoint", apiPath + "/ballerina/editor/packages");
+        packages.addProperty("endpoint", apiPath + "/service/packages");
 
         JsonObject swagger = new JsonObject();
         swagger.addProperty("endpoint", apiPath + "/service/swagger/");
@@ -109,6 +115,12 @@ public class ConfigServiceImpl {
         JsonObject launcher = new JsonObject();
         launcher.addProperty("endpoint", launcherPath + "/launch");
 
+        JsonObject debugger = new JsonObject();
+        debugger.addProperty("endpoint", debuggerPath + "/debug");
+
+        JsonObject programNativeTypes = new JsonObject();
+        programNativeTypes.addProperty("endpoint", apiPath + "/service/program/native/types");
+
         JsonObject services = new JsonObject();
         services.add("workspace", workspace);
         services.add("packages", packages);
@@ -116,6 +128,8 @@ public class ConfigServiceImpl {
         services.add("parser", parser);
         services.add("validator", validator);
         services.add("launcher", launcher);
+        services.add("debugger", debugger);
+        services.add("programNativeTypes", programNativeTypes);
 
         JsonObject config = new JsonObject();
         config.add("services", services);
@@ -153,5 +167,21 @@ public class ConfigServiceImpl {
 
     public void setLauncherPath(String launcherPath) {
         this.launcherPath = launcherPath;
+    }
+
+    public void setDebuggerPort(int debuggerPort) {
+        this.debuggerPort = debuggerPort;
+    }
+
+    public int getDebuggerPort() {
+        return debuggerPort;
+    }
+
+    public void setDebuggerPath(String debuggerPath) {
+        this.debuggerPath = debuggerPath;
+    }
+
+    public String getDebuggerPath() {
+        return debuggerPath;
     }
 }

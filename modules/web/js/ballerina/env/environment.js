@@ -31,10 +31,17 @@ var instance;
 class BallerinaEnvironment extends EventChannel {
     constructor(args) {
         super();
+        this.initialized = false;
         this._packages = _.get(args, 'packages', []);
         this._types = _.get(args, 'types', []);
-        this.initializeNativeTypes();
-        this.initializePackages();
+    }
+
+    initialize(opts){
+        if(!this.initialized){
+             this.initializeNativeTypes(opts.app);
+             this.initializePackages(opts.app);
+             this.initialized = true;
+        }
     }
 
     /**
@@ -84,10 +91,10 @@ class BallerinaEnvironment extends EventChannel {
     /**
      * Initialize packages from BALLERINA_HOME and/or Ballerina Repo
      */
-    initializePackages() {
+    initializePackages(app) {
 
         var self = this;
-        var packagesJson = EnvironmentContent.getPackages();
+        var packagesJson = EnvironmentContent.getPackages(app);
 
         _.each(packagesJson, function (packageNode) {
             var pckg = BallerinaEnvFactory.createPackage();
@@ -99,9 +106,9 @@ class BallerinaEnvironment extends EventChannel {
     /**
      * Initialize native types from Ballerina Program
      */
-    initializeNativeTypes() {
+    initializeNativeTypes(app) {
         var self = this;
-        var nativeTypesJson = EnvironmentContent.getNativeTypes();
+        var nativeTypesJson = EnvironmentContent.getNativeTypes(app);
         _.each(nativeTypesJson, function (nativeType) {
             if (!_.isNil(nativeType)) {
                 self._types.push(nativeType);
