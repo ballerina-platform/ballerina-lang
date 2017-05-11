@@ -158,9 +158,11 @@ class MessageManager {
             self.setMessageEnd(m[0] - 5, self.getMessageStart().y);
             if (self.getMessageEnd().x > self.getMessageStart().x) {
                 const currentDrawOnMouseMoveFlag = self.getArrowDecorator().state.drawOnMouseMoveFlag;
+                self.getBackwardArrowDecorator().setState({drawOnMouseMoveFlag: -1});
                 self.getArrowDecorator().setState({drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1)});
             } else {
                 const currentDrawOnMouseMoveFlag = self.getBackwardArrowDecorator().state.drawOnMouseMoveFlag;
+                self.getArrowDecorator().setState({drawOnMouseMoveFlag: -1});
                 self.getBackwardArrowDecorator().setState({drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1)});
             }
 
