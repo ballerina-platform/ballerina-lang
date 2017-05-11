@@ -88,7 +88,7 @@ class StatementContainer extends React.Component {
   							dragDropManager.clearActivatedDropTarget();
   							this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
   					}
-  			} else if (messageManager.isOnDrag() && ASTFactory.isWorkerDeclaration(dropTarget)) {
+  			} else if (messageManager.isOnDrag()) {
 				this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
 				messageManager.setDestination(undefined);
 			}

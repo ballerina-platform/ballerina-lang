@@ -214,6 +214,10 @@ class ActionInvocationExpression extends Expression {
     getExpression() {
         return this._expression;
     }
+
+    messageDrawTargetAllowed(target) {
+        return this.getFactory().isConnectorDeclaration(target);
+    }
 }
 
 export default ActionInvocationExpression;
