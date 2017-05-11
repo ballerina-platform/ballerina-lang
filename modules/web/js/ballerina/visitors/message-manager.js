@@ -47,6 +47,7 @@ class MessageManager {
         this._arrowDecorator = undefined;
         this._backwardArrowDecorator = undefined;
         this._container = undefined;
+        this._targetValidationCallback = undefined;
     }
 
     /**
@@ -127,6 +128,14 @@ class MessageManager {
         return this._container;
     }
 
+    setTargetValidationCallback(validationCallback) {
+        this._targetValidationCallback = validationCallback;
+    }
+
+    getTargetValidationCallback() {
+        return this._targetValidationCallback;
+    }
+
     reset() {
         /**
          * @event MessageManager#drag-stop
@@ -139,7 +148,7 @@ class MessageManager {
         this.setIsOnDrag(false);
     }
 
-    startDrawMessage(mouseUpCallback) {
+    startDrawMessage(mouseUpCallback, targetValidationCallback) {
 
         var self = this,
             container = d3.select('.svg-container');
@@ -163,9 +172,16 @@ class MessageManager {
             container.on('mouseup', null);
             const messageSource= self.getSource();
             const messageDestination = self.getDestination();
+            const validDestination = self.isAtValidDestination();
             self.reset();
-            mouseUpCallback(messageSource, messageDestination);
+            if (validDestination) {
+                mouseUpCallback(messageSource, messageDestination);
+            }
         });
+    }
+
+    isAtValidDestination() {
+        return this._targetValidationCallback(this.getDestination());
     }
 }
 

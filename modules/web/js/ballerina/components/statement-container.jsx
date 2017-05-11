@@ -73,8 +73,8 @@ class StatementContainer extends React.Component {
 				/**
 				 * Hover on a worker declaration while drawing an arrow starting from a worker invocation
 				 */
-				this.setState({statementDropZoneActivated: true, dropZoneDropNotAllowed: false});
 				messageManager.setDestination(dropTarget);
+				this.setState({statementDropZoneActivated: true, dropZoneDropNotAllowed: !messageManager.isAtValidDestination()});
 			}
         e.stopPropagation();
   	}
