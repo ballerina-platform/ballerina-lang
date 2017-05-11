@@ -32,6 +32,7 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
@@ -441,7 +442,8 @@ public class BallerinaCompletionUtils {
     static void addFunctionsAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> functions) {
         for (PsiElement function : functions) {
             LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
-                    .withTypeText("Function").withTailText("()", true).withIcon(BallerinaIcons.FUNCTION)
+                    .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
+                    .withTailText(BallerinaDocumentationProvider.getParameterString(function.getParent(), true))
                     .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY));
         }
@@ -467,7 +469,8 @@ public class BallerinaCompletionUtils {
     static void addConnectorsAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> connectors) {
         for (PsiElement connector : connectors) {
             LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
-                    .withTypeText("Connector").withIcon(BallerinaIcons.CONNECTOR);
+                    .withTypeText("Connector").withIcon(BallerinaIcons.CONNECTOR).bold()
+                    .withTailText(BallerinaDocumentationProvider.getParameterString(connector.getParent(), true));
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY));
         }
     }
@@ -481,7 +484,8 @@ public class BallerinaCompletionUtils {
     static void addActionsAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> actions) {
         for (PsiElement action : actions) {
             LookupElementBuilder builder = LookupElementBuilder.create(action.getText())
-                    .withTypeText("Action").withIcon(BallerinaIcons.ACTION)
+                    .withTypeText("Action").withIcon(BallerinaIcons.ACTION).bold()
+                    .withTailText(BallerinaDocumentationProvider.getParameterString(action.getParent(), true))
                     .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY));
         }
