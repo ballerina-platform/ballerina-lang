@@ -85,6 +85,10 @@ class WorkerInvocationStatement extends Statement {
         });
         this.setDestination(workerInstance);
     }
+
+    messageDrawTargetAllowed(target) {
+        return this.getFactory().isWorkerDeclaration(target);
+    }
 }
 
 export default WorkerInvocationStatement;

@@ -73,6 +73,11 @@ class WorkerInvocationStatement extends React.Component {
         messageManager.setSource(model);
         messageManager.setIsOnDrag(true);
         messageManager.setMessageStart(messageStartX, messageStartY);
+
+        messageManager.setTargetValidationCallback(function (destination) {
+            return model.messageDrawTargetAllowed(destination);
+        });
+
         messageManager.startDrawMessage(function (source, destination) {
             source.setAttribute('_destination', destination)
         });
