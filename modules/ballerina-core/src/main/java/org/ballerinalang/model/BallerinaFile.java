@@ -19,6 +19,7 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.bre.SymScope;
+import org.ballerinalang.model.statements.GlobalVariableDefStmt;
 import org.ballerinalang.model.types.TypeLattice;
 
 import java.util.ArrayList;
@@ -198,6 +199,11 @@ public class BallerinaFile implements Node {
         public void addConst(ConstDef constant) {
             this.compilationUnitList.add((constant));
             this.packageBuilder.addConst(constant);
+        }
+
+        public void addGlobalVar(GlobalVariableDefStmt globalVariableDef) {
+            this.compilationUnitList.add(globalVariableDef);
+            this.packageBuilder.addGlobalVar(globalVariableDef);
         }
 
         public void addTypeMapper(TypeMapper typeMapper) {

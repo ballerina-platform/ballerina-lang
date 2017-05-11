@@ -19,6 +19,7 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -62,6 +63,7 @@ import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
+import org.ballerinalang.model.statements.GlobalVariableDefStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
@@ -88,6 +90,8 @@ public interface NodeVisitor {
     void visit(ImportPackage importPkg);
 
     void visit(ConstDef constant);
+
+    void visit(GlobalVariableDefStmt globalVar);
 
     void visit(Service service);
 
@@ -215,6 +219,8 @@ public interface NodeVisitor {
     void visit(StackVarLocation stackVarLocation);
 
     void visit(ServiceVarLocation serviceVarLocation);
+
+    void visit(GlobalVarLocation globalVarLocation);
 
     void visit(ConnectorVarLocation connectorVarLocation);
 

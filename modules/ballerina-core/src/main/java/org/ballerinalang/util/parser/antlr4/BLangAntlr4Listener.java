@@ -350,6 +350,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterGlobalVariableDefinitionStatement(BallerinaParser.GlobalVariableDefinitionStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitGlobalVariableDefinitionStatement(BallerinaParser.GlobalVariableDefinitionStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        SimpleTypeName typeName = typeNameStack.pop();
+        String varName = ctx.Identifier().getText();
+        boolean exprAvailable = ctx.expression() != null;
+        modelBuilder.addGlobalVariableDefinition(getCurrentLocation(ctx), typeName, varName, exprAvailable);
+    }
+
+    @Override
     public void enterAttachmentPoint(AttachmentPointContext ctx) {
 
     }
@@ -1063,8 +1080,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
         if (ctx.exception == null) {
-            String varName = ctx.getText();
-            modelBuilder.createVarRefExpr(getCurrentLocation(ctx), varName);
+            modelBuilder.createVarRefExpr(getCurrentLocation(ctx), nameReferenceStack.pop());
         }
     }
 
@@ -1074,10 +1090,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) {
-        if (ctx.exception == null && ctx.Identifier() != null) {
-            String mapArrayVarName = ctx.Identifier().getText();
+        if (ctx.exception == null) {
             int dimensions = (ctx.getChildCount() - 1) / 3;
-            modelBuilder.createMapArrayVarRefExpr(getCurrentLocation(ctx), mapArrayVarName, dimensions);
+            modelBuilder.createMapArrayVarRefExpr(getCurrentLocation(ctx), nameReferenceStack.pop(), dimensions);
         }
     }
 
