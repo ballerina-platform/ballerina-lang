@@ -16,7 +16,7 @@ function testMultiValuedStructInlineInit() (Person) {
     return p1;
 }
 
-function testAccessJsonInStruct() (string, string, string, string) {
+function testAccessJsonInStruct() (string, string, string) {
     Person p1 = { name:"aaa",
                   age:25, 
                   parent:{ name:"bbb", 
@@ -27,7 +27,7 @@ function testAccessJsonInStruct() (string, string, string, string) {
                   info:{status:"single"}
                  };
     string statusKey = "status";
-    return p1.parent.info.status, p1["parent"]["info"]["status"], p1["parent"].info["status"], p1[parent][info][statusKey];
+    return (string)p1.parent.info.status, (string)p1["parent"]["info"]["status"], (string)p1["parent"].info["status"];
 }
 
 function testAccessMapInStruct() (any, any, any, string) {

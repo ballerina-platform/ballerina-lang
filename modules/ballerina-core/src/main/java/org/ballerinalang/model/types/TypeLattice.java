@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
@@ -77,10 +78,6 @@ public class TypeLattice {
         implicitCastLattice.addEdge(booleanV, floatV, NativeCastMapper.BOOLEAN_TO_FLOAT_FUNC);
         implicitCastLattice.addEdge(booleanV, jsonV, NativeCastMapper.BOOLEAN_TO_JSON_FUNC);
         
-        implicitCastLattice.addEdge(jsonV, stringV, NativeCastMapper.JSON_TO_STRING_FUNC);
-        implicitCastLattice.addEdge(jsonV, intV, NativeCastMapper.JSON_TO_INT_FUNC);
-        implicitCastLattice.addEdge(jsonV, floatV, NativeCastMapper.JSON_TO_FLOAT_FUNC);
-        implicitCastLattice.addEdge(jsonV, booleanV, NativeCastMapper.JSON_TO_BOOLEAN_FUNC);
         implicitCastLattice.addEdge(jsonV, mapV, NativeCastMapper.JSON_TO_MAP_FUNC);
         
         implicitCastLattice.addEdge(mapV, jsonV, NativeCastMapper.MAP_TO_JSON_FUNC);
@@ -293,7 +290,6 @@ public class TypeLattice {
             }
         }
 
-
         this.vertices.put(vertex.toString(), vertex);
         return true;
     }
@@ -335,17 +331,25 @@ public class TypeLattice {
         implicitCastLattice.addEdge(jsonV, structV, NativeCastMapper.JSON_TO_STRUCT_FUNC);
         implicitCastLattice.addEdge(mapV, structV, NativeCastMapper.MAP_TO_STRUCT_FUNC);
         
-        for (Entry<SymbolName, BLangSymbol> entry : scope.getSymbolMap().entrySet()) {
-            BLangSymbol symbol = entry.getValue();
-            if (symbol instanceof StructDef && symbol != structDef) {
-                TypeVertex otherStructV = new TypeVertex(symbol);
-                
-                if (isAssignable(structDef, (StructDef) symbol)) {
-                    implicitCastLattice.addEdge(otherStructV, structV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
-                }
-                
-                if (isAssignable((StructDef) symbol, structDef)) {
-                    implicitCastLattice.addEdge(structV, otherStructV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
+        // For all the structs in all the packages imported, check for possibility of casting.
+        // Add an edge to the lattice, if casting is possible.
+        for (Entry<SymbolName, BLangSymbol> pkg : scope.getEnclosingScope().getSymbolMap().entrySet()) {
+            BLangSymbol pkgSymbol = pkg.getValue();
+            if (!(pkgSymbol instanceof BLangPackage)) {
+                continue;
+            }
+            for (Entry<SymbolName, BLangSymbol> entry : ((BLangPackage) pkgSymbol).getSymbolMap().entrySet()) {
+                BLangSymbol symbol = entry.getValue();
+                if (symbol instanceof StructDef && symbol != structDef) {
+                    TypeVertex otherStructV = new TypeVertex(symbol);
+                    
+                    if (isAssignable(structDef, (StructDef) symbol)) {
+                        implicitCastLattice.addEdge(otherStructV, structV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
+                    }
+                    
+                    if (isAssignable((StructDef) symbol, structDef)) {
+                        implicitCastLattice.addEdge(structV, otherStructV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
+                    }
                 }
             }
         }
@@ -362,17 +366,25 @@ public class TypeLattice {
         explicitCastLattice.addEdge(jsonV, structV, NativeCastMapper.JSON_TO_STRUCT_FUNC);
         explicitCastLattice.addEdge(mapV, structV, NativeCastMapper.MAP_TO_STRUCT_FUNC);
         
-        for (Entry<SymbolName, BLangSymbol> entry : scope.getSymbolMap().entrySet()) {
-            BLangSymbol symbol = entry.getValue();
-            if (symbol instanceof StructDef && symbol != structDef) {
-                TypeVertex otherStructV = new TypeVertex(symbol);
-                
-                if (isAssignable(structDef, (StructDef) symbol)) {
-                    explicitCastLattice.addEdge(otherStructV, structV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
-                }
-                
-                if (isAssignable((StructDef) symbol, structDef)) {
-                    explicitCastLattice.addEdge(structV, otherStructV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
+        // For all the structs in all the packages imported, check for possibility of casting.
+        // Add an edge to the lattice, if casting is possible.
+        for (Entry<SymbolName, BLangSymbol> pkg : scope.getEnclosingScope().getSymbolMap().entrySet()) {
+            BLangSymbol pkgSymbol = pkg.getValue();
+            if (!(pkgSymbol instanceof BLangPackage)) {
+                continue;
+            }
+            for (Entry<SymbolName, BLangSymbol> entry : ((BLangPackage) pkgSymbol).getSymbolMap().entrySet()) {
+                BLangSymbol symbol = entry.getValue();
+                if (symbol instanceof StructDef && symbol != structDef) {
+                    TypeVertex otherStructV = new TypeVertex(symbol);
+                    
+                    if (isAssignable(structDef, (StructDef) symbol)) {
+                        explicitCastLattice.addEdge(otherStructV, structV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
+                    }
+                    
+                    if (isAssignable((StructDef) symbol, structDef)) {
+                        explicitCastLattice.addEdge(structV, otherStructV, NativeCastMapper.STRUCT_TO_STRUCT_FUNC);
+                    }
                 }
             }
         }
@@ -384,23 +396,26 @@ public class TypeLattice {
             BType targetFieldType = targetFieldDef.getType();
             SymbolName fieldSymbolName = targetFieldDef.getSymbolName();
             VariableDef sourceFieldDef = (VariableDef) sourceStructDef.resolveMembers(fieldSymbolName);
+            
             if (sourceFieldDef == null) {
                 return false;
             }
 
             BType sourceFieldType = sourceFieldDef.getType();
-
+            if (NativeCastMapper.isCompatible(targetFieldType, sourceFieldType)) {
+                continue;
+            }
+            
+            // TODO: remove this if-block once the array casting is supported
+            if (targetFieldType instanceof BArrayType) {
+                return false;
+            }
+            
             // If the two types are not compatible, check for possibility of implicit casting
-            if (!NativeCastMapper.isCompatible(targetFieldType, sourceFieldType)) {
-                if (targetFieldType instanceof BArrayType) {
-                    // TODO: remove this if-block once the array casting is supported
-                    return false;
-                }
-                TypeEdge newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(sourceFieldType, 
-                        targetFieldType, null);
-                if (newEdge == null) {
-                    return false;
-                }
+            TypeEdge newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(sourceFieldType, targetFieldType,
+                    null);
+            if (newEdge == null) {
+                return false;
             }
         }
         return true;

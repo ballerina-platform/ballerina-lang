@@ -65,6 +65,12 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      * Flag indicating whether the entire expression is a left hand side expression.
      */
     private boolean isLHSExpr;
+    
+    /**
+     * Flag indicating whether the varRef represented by this {@link FieldAccessExpr}
+     * is a static key or not.
+     */
+    private boolean isStaticField = false;
 
     /**
      * Creates a field access expression.
@@ -244,5 +250,13 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
     @Override
     public boolean hasTemporaryValues() {
         return varRefExpr.hasTemporaryValues();
+    }
+    
+    public void setIsStaticField(boolean isStaticField) {
+        this.isStaticField = isStaticField;
+    }
+    
+    public boolean isStaticField() {
+        return isStaticField;
     }
 }

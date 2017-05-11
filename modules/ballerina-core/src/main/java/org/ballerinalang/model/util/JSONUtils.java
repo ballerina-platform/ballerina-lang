@@ -57,6 +57,8 @@ import java.util.Set;
  */
 public class JSONUtils {
 
+    private static final String NULL = "null";
+    
     /**
      * Convert {@link BJSON} to {@link BInteger}.
      * 
@@ -136,7 +138,7 @@ public class JSONUtils {
             try {
                 BValue bvalue = map.get(key);
                 if (bvalue == null) {
-                    jsonNode.set(key.stringValue(), new BJSON("null").value());
+                    jsonNode.set(key.stringValue(), new BJSON(NULL).value());
                 } else if (bvalue.getType() == BTypes.typeString) {
                     jsonNode.put(key.stringValue(), bvalue.stringValue());
                 } else if (bvalue.getType() == BTypes.typeInt) {
@@ -161,7 +163,7 @@ public class JSONUtils {
                 handleError(e, key.stringValue());
             }
         }
-        return new BJSON(jsonNode);
+        return bjson;
     }
     
     /**
@@ -176,7 +178,7 @@ public class JSONUtils {
         for (int i = 0; i < array.size(); i++) {
             BValue bvalue = array.get(i);
             if (bvalue == null) {
-                arrayNode.add(new BJSON("null").value());
+                arrayNode.add(new BJSON(NULL).value());
             } else if (bvalue.getType() == BTypes.typeString) {
                 arrayNode.add(bvalue.stringValue());
             } else if (bvalue.getType() == BTypes.typeInt) {
@@ -198,7 +200,7 @@ public class JSONUtils {
                         BTypes.typeJSON, bvalue.getType());
             }
         }
-        return new BJSON(arrayNode);
+        return bjson;
     }
     
     /**
@@ -217,7 +219,7 @@ public class JSONUtils {
             String key = fieldDef.getVariableDef().getSymbolName().getName();
             try {
                 if (bvalue == null) {
-                    jsonNode.set(key, new BJSON("null").value());
+                    jsonNode.set(key, new BJSON(NULL).value());
                 } else if (bvalue.getType() == BTypes.typeString) {
                     jsonNode.put(key, bvalue.stringValue());
                 } else if (bvalue.getType() == BTypes.typeInt) {
@@ -243,7 +245,7 @@ public class JSONUtils {
             }
         }
 
-        return new BJSON(jsonNode);
+        return bjson;
     }
     
     /**

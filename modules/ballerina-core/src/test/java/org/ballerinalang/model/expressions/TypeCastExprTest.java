@@ -177,6 +177,27 @@ public class TypeCastExprTest {
     }
 
     @Test
+    public void testJsonToInt() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonToInt");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+    
+    @Test
+    public void testJsonToFloat() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonToFloat");
+        Assert.assertTrue(returns[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 7.65);
+    }
+    
+    @Test
+    public void testJsonToBoolean() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonToBoolean");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+    }
+    
+    @Test
     public void testIntArrayToLongArray() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "intarrtofloatarr");
         Assert.assertTrue(returns[0] instanceof BArray);
@@ -188,7 +209,6 @@ public class TypeCastExprTest {
         Assert.assertTrue(result.get(2) instanceof BFloat);
         Assert.assertEquals(((BFloat) result.get(2)).floatValue(), 889.0, DELTA);
     }
-    
     
     @Test
     public void testSimpleJsonToMap() {
@@ -884,5 +904,11 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'xml' to type 'json'")
     public void testAnyXmlToJson() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyXmlToJson");
+    }
+    
+    @Test(description = "Test casting a struct to another struct in a different package")
+    public void testCastToStructInDifferentPkg() {
+        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/expressions/type/cast/foo");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCastToStructInDifferentPkg");
     }
 }

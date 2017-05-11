@@ -53,7 +53,22 @@ function intarrtofloatarr()(float[]) {
 }
 
 function testJsonToString(json j) (string) {
-    return j;
+    return (string)j;
+}
+
+function testJsonToInt() (int){
+    json j = 5;
+    return (int)j;
+}
+
+function testJsonToFloat() (float){
+    json j = 7.65;
+    return (float)j;
+}
+
+function testJsonToBoolean() (boolean){
+    json j = true;
+    return (boolean)j;
 }
 
 function testStringToJson(string s) (json) {
@@ -405,32 +420,32 @@ function testStructWithXmlToJson() (json) {
 
 function testJsonIntToString() (string) {
     json j = 5;
-    return j; 
+    return (int)j; 
 }
 
 function testBooleanInJsonToInt() (int) {
     json j = true;
-    return j;
+    return (int)j;
 }
 
 function testIncompatibleJsonToInt() (int) {
     json j = "hello";
-    return j;
+    return (int)j;
 }
 
 function testIntInJsonToFloat() (float) {
     json j = 7;
-    return j;
+    return (float)j;
 }
 
 function testIncompatibleJsonToFloat() (float) {
     json j = "hello";
-    return j;
+    return (float)j;
 }
 
 function testIncompatibleJsonToBoolean() (boolean) {
     json j = "hello";
-    return j;
+    return (boolean)j;
 }
 
 struct Address {
@@ -513,22 +528,22 @@ function testNonArrayJsonToArray() (StringArray) {
 
 function testNullJsonToString() (string) {
     json j;
-    return j;
+    return (string)j;
 }
 
 function testNullJsonToInt() (int) {
     json j;
-    return j;
+    return (int)j;
 }
 
 function testNullJsonToFloat() (float) {
     json j;
-    return j;
+    return (float)j;
 }
 
 function testNullJsonToBoolean() (boolean) {
     json j;
-    return j;
+    return (boolean)j;
 }
 
 function testNullJsonToMap() (map) {

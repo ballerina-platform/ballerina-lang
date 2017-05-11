@@ -76,9 +76,6 @@ public class TypeUnificationTest   {
         
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "married");
-        
-        Assert.assertTrue(returns[3] instanceof BString);
-        Assert.assertEquals(returns[3].stringValue(), "married");
     }
     
     @Test

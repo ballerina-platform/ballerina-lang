@@ -44,9 +44,6 @@ public class BJSONValueTest   {
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON person = ((BJSON) returns[0]);
         Assert.assertEquals(person.value().asText(), "Supun");
-
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "Supun");
     }
     
     @Test(description = "Test initializing json with an integer")
@@ -55,9 +52,6 @@ public class BJSONValueTest   {
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON person = ((BJSON) returns[0]);
         Assert.assertEquals(person.value().asInt(), 5);
-
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 5);
     }
     
     @Test(description = "Test initializing json with a float")
@@ -66,9 +60,6 @@ public class BJSONValueTest   {
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON person = ((BJSON) returns[0]);
         Assert.assertEquals(person.value().asDouble(), 7.65);
-
-        Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 7.65, DELTA);
     }
     
     @Test(description = "Test initializing json with a boolean")
@@ -77,9 +68,6 @@ public class BJSONValueTest   {
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON person = ((BJSON) returns[0]);
         Assert.assertEquals(person.value().asBoolean(), true);
-
-        Assert.assertTrue(returns[1] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
     }
     
     @Test(description = "Test initializing json with a null")
