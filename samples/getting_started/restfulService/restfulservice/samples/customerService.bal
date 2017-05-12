@@ -13,11 +13,11 @@ service CustomerMgtService {
         json payload = {};
         string httpMethod = http:getMethod(m);
         if (strings:equalsIgnoreCase(httpMethod, "GET")) {
-            payload = `{"Customer": {"ID": "987654", "Name": "ABC PQR","Description": "Sample Customer."}}`;
+            payload = {"Customer": {"ID": "987654", "Name": "ABC PQR","Description": "Sample Customer."}};
 
         }
         else {
-            payload = `{"Status":"Customer is successfully added."}`;
+            payload = {"Status":"Customer is successfully added."};
 
         }
         message response = {};
