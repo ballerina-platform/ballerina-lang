@@ -187,7 +187,7 @@ public abstract class SinkMapper implements Snapshotable {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-            state.put("LastEventId", lastEventId);
+        state.put("LastEventId", lastEventId);
         return state;
     }
 
