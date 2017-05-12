@@ -124,4 +124,22 @@ under the License.
             <class name="org.ballerinalang.any.BAnyTypeNativeSuccessScenariosTest"/>
         </classes>
     </test>
+
+    <test name="ballerina-global-var-test-suite">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
+        </classes>
+    </test>
+    <!-- Non Blocking Test Cases -->
+    <test name="ballerina-global-var-test-suite-non-blocking">
+        <parameter name="enableNonBlocking" value="true" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
+        </classes>
+    </test>
 </suite>

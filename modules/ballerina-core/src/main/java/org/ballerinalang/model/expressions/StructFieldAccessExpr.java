@@ -45,6 +45,10 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
      */
     private String varName;
 
+    private String pkgName;
+
+    private String pkgPath;
+
     /**
      * Unique identifier or this expression.
      */
@@ -85,6 +89,15 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
         this.varRefExpr = structVarRefExpr;
     }
 
+    public StructFieldAccessExpr(NodeLocation location, SymbolName symbolName, String pkgName, String pkgPath,
+                                 ReferenceExpr structVarRefExpr) {
+        super(location, null, structVarRefExpr);
+        this.symbolName = symbolName;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+        this.varRefExpr = structVarRefExpr;
+    }
+
     /**
      * Creates a Struct field access expression.
      *
@@ -101,6 +114,16 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
     @Override
     public String getVarName() {
         return null;
+    }
+
+    @Override
+    public String getPkgName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPkgPath() {
+        return pkgPath;
     }
 
     /**

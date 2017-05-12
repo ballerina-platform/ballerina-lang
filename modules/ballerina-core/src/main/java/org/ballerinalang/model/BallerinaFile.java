@@ -181,6 +181,10 @@ public class BallerinaFile implements Node {
             this.packageBuilder = packageBuilder;
         }
 
+        public void setPackageLocation(NodeLocation pkgLocation) {
+            this.packageBuilder.setPackageLocation(pkgLocation);
+        }
+
         public void setPackagePath(String pkgName) {
             this.pkgName = pkgName;
         }
@@ -208,6 +212,11 @@ public class BallerinaFile implements Node {
         public void addConst(ConstDef constant) {
             this.compilationUnitList.add((constant));
             this.packageBuilder.addConst(constant);
+        }
+
+        public void addGlobalVar(GlobalVariableDef globalVariableDef) {
+            this.compilationUnitList.add(globalVariableDef);
+            this.packageBuilder.addGlobalVar(globalVariableDef);
         }
 
         public void addTypeMapper(TypeMapper typeMapper) {
