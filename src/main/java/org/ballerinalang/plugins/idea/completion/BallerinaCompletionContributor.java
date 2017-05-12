@@ -425,8 +425,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         }
                     } else {
                         // Eg: function test(){t<caret>}
-                        addValueTypesAsLookups(resultSet);
-                        addReferenceTypesAsLookups(resultSet);
+                        addTypeNames(resultSet);
                         addLookups(resultSet, originalFile, true, true, true, true);
                         addVariableTypesAsLookups(resultSet, originalFile, element);
                     }
@@ -470,8 +469,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             }
         } else {
             // Eg: function test(){ <caret> \n OTHER_CODES }
-            addValueTypesAsLookups(resultSet);
-            addReferenceTypesAsLookups(resultSet);
+            addTypeNames(resultSet);
             addLookups(resultSet, originalFile, true, true, true, true);
             addVariableTypesAsLookups(resultSet, originalFile, element);
         }
@@ -587,13 +585,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 }
             } else {
                 // Eg: function test(s<caret>){ }
-                addValueTypesAsLookups(resultSet);
-                addReferenceTypesAsLookups(resultSet);
+                addTypeNames(resultSet);
                 addLookups(resultSet, originalFile, true, false, true, true);
             }
             if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
-                addValueTypesAsLookups(resultSet);
-                addReferenceTypesAsLookups(resultSet);
+                addTypeNames(resultSet);
                 addStructsAsLookups(resultSet, originalFile);
             }
         } else {
@@ -634,8 +630,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             }
         } else if (elementType == BallerinaTypes.LPAREN || elementType == BallerinaTypes.COMMA) {
             // Eg: function test(<caret>) { }
-            addValueTypesAsLookups(resultSet);
-            addReferenceTypesAsLookups(resultSet);
+            addTypeNames(resultSet);
             addLookups(resultSet, originalFile, true, false, true, true);
         } else if (elementType == BallerinaTypes.AT) {
             addAllImportedPackagesAsLookups(resultSet, originalFile);
@@ -659,8 +654,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         PsiFile originalFile = parameters.getOriginalFile();
 
         addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
-        addValueTypesAsLookups(resultSet);
-        addReferenceTypesAsLookups(resultSet);
+        addTypeNames(resultSet);
         addCommonKeywords(resultSet);
         addFunctionSpecificKeywords(parameters, resultSet);
         addResourceSpecificKeywords(parameters, resultSet);
@@ -840,8 +834,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addCommonKeywords(resultSet);
             }
             if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
-                addValueTypesAsLookups(resultSet);
-                addReferenceTypesAsLookups(resultSet);
+                addTypeNames(resultSet);
             }
         } else {
             PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
@@ -890,8 +883,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             }
         } else {
             PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
-            addValueTypesAsLookups(resultSet);
-            addReferenceTypesAsLookups(resultSet);
+            addTypeNames(resultSet);
             addLookups(resultSet, originalFile, true, true, true, true);
             addVariableTypesAsLookups(resultSet, originalFile, currentElement);
             addFunctionSpecificKeywords(parameters, resultSet);
@@ -904,8 +896,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void handleOtherTypesInStatement(@NotNull CompletionParameters parameters,
                                              @NotNull CompletionResultSet resultSet, @NotNull PsiElement prevElement) {
         PsiFile originalFile = parameters.getOriginalFile();
-        addValueTypesAsLookups(resultSet);
-        addReferenceTypesAsLookups(resultSet);
+        addTypeNames(resultSet);
         addLookups(resultSet, originalFile, true, true, false, false);
         addVariableTypesAsLookups(resultSet, originalFile, prevElement);
         addFunctionSpecificKeywords(parameters, resultSet);

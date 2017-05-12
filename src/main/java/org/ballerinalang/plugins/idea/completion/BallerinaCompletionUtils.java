@@ -79,6 +79,9 @@ public class BallerinaCompletionUtils {
     static final LookupElementBuilder ATTACH;
     private static final LookupElementBuilder PARAMETER;
 
+    // Any type
+    private static final LookupElementBuilder ANY;
+
     // Simple types
     private static final LookupElementBuilder BOOLEAN;
     private static final LookupElementBuilder INT;
@@ -115,17 +118,19 @@ public class BallerinaCompletionUtils {
         ATTACH = createKeywordLookupElement("attach", AddSpaceInsertHandler.INSTANCE);
         PARAMETER = createKeywordLookupElement("parameter", AddSpaceInsertHandler.INSTANCE);
 
-        BOOLEAN = createSimpleTypeLookupElement("boolean", AddSpaceInsertHandler.INSTANCE);
-        INT = createSimpleTypeLookupElement("int", AddSpaceInsertHandler.INSTANCE);
-        FLOAT = createSimpleTypeLookupElement("float", AddSpaceInsertHandler.INSTANCE);
-        STRING = createSimpleTypeLookupElement("string", AddSpaceInsertHandler.INSTANCE);
+        ANY = createTypeLookupElement("any", AddSpaceInsertHandler.INSTANCE);
 
-        MESSAGE = createReferenceTypeLookupElement("message", AddSpaceInsertHandler.INSTANCE);
-        XML = createReferenceTypeLookupElement("xml", AddSpaceInsertHandler.INSTANCE);
-        JSON = createReferenceTypeLookupElement("json", AddSpaceInsertHandler.INSTANCE);
-        EXCEPTION = createReferenceTypeLookupElement("exception", AddSpaceInsertHandler.INSTANCE);
-        MAP = createReferenceTypeLookupElement("map", AddSpaceInsertHandler.INSTANCE);
-        DATATABLE = createReferenceTypeLookupElement("datatable", AddSpaceInsertHandler.INSTANCE);
+        BOOLEAN = createTypeLookupElement("boolean", AddSpaceInsertHandler.INSTANCE);
+        INT = createTypeLookupElement("int", AddSpaceInsertHandler.INSTANCE);
+        FLOAT = createTypeLookupElement("float", AddSpaceInsertHandler.INSTANCE);
+        STRING = createTypeLookupElement("string", AddSpaceInsertHandler.INSTANCE);
+
+        MESSAGE = createTypeLookupElement("message", AddSpaceInsertHandler.INSTANCE);
+        XML = createTypeLookupElement("xml", AddSpaceInsertHandler.INSTANCE);
+        JSON = createTypeLookupElement("json", AddSpaceInsertHandler.INSTANCE);
+        EXCEPTION = createTypeLookupElement("exception", AddSpaceInsertHandler.INSTANCE);
+        MAP = createTypeLookupElement("map", AddSpaceInsertHandler.INSTANCE);
+        DATATABLE = createTypeLookupElement("datatable", AddSpaceInsertHandler.INSTANCE);
 
         REPLY = createKeywordLookupElement("reply", AddSpaceInsertHandler.INSTANCE);
         RETURN = createKeywordLookupElement("return", AddSpaceInsertHandler.INSTANCE);
@@ -166,35 +171,40 @@ public class BallerinaCompletionUtils {
     }
 
     /**
-     * Creates a <b>Simple Type</b> lookup element.
+     * Creates a <b>Type</b> lookup element.
      *
      * @param name          name of the lookup
      * @param insertHandler insert handler of the lookup
      * @return {@link LookupElementBuilder} which will be used to create the lookup element.
      */
     @NotNull
-    private static LookupElementBuilder createSimpleTypeLookupElement(@NotNull String name,
-                                                                      @Nullable InsertHandler<LookupElement>
-                                                                              insertHandler) {
-        return createLookupElement(name, insertHandler).withTypeText("Simple Type", true);
+    private static LookupElementBuilder createTypeLookupElement(@NotNull String name,
+                                                                @Nullable InsertHandler<LookupElement> insertHandler) {
+        return createLookupElement(name, insertHandler).withTypeText("Type");
     }
 
     /**
-     * Creates a <b>Reference Type</b> lookup element.
+     * Add type names as lookups. Types include <b>any, simple types, reference types</b>.
      *
-     * @param name          name of the lookup
-     * @param insertHandler insert handler of the lookup
-     * @return {@link LookupElementBuilder} which will be used to create the lookup element.
+     * @param resultSet result list which is used to add lookups
      */
-    @NotNull
-    private static LookupElementBuilder createReferenceTypeLookupElement(@NotNull String name,
-                                                                         @Nullable InsertHandler<LookupElement>
-                                                                                 insertHandler) {
-        return createLookupElement(name, insertHandler).withTypeText("Reference Type", true);
+    static void addTypeNames(@NotNull CompletionResultSet resultSet) {
+        addAnyTypeAsLookup(resultSet);
+        addValueTypesAsLookups(resultSet);
+        addReferenceTypesAsLookups(resultSet);
     }
 
     /**
-     * Helper method to add value types as lookup elements.
+     * Adds any type as a lookup.
+     *
+     * @param resultSet result list which is used to add lookups
+     */
+    private static void addAnyTypeAsLookup(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(ANY, VALUE_TYPES_PRIORITY));
+    }
+
+    /**
+     * Adds value types as lookups.
      *
      * @param resultSet result list which is used to add lookups
      */
@@ -206,11 +216,11 @@ public class BallerinaCompletionUtils {
     }
 
     /**
-     * Helper method to add reference types as lookup elements.
+     * Adds reference types as lookups.
      *
      * @param resultSet result list which is used to add lookups
      */
-    static void addReferenceTypesAsLookups(@NotNull CompletionResultSet resultSet) {
+    private static void addReferenceTypesAsLookups(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(MESSAGE, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(JSON, REFERENCE_TYPES_PRIORITY));

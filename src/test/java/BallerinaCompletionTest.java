@@ -303,6 +303,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
+        expectedLookups.add("any");
         doTest("function test () { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -314,11 +315,12 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
+        expectedLookups.add("any");
         doTest("function test (int arg) { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithConst() {
-        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg", "GREETING");
+        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg", "GREETING", "any");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
@@ -337,6 +339,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("pack");
         expectedLookups.add("test");
+        expectedLookups.add("any");
         doTest("import org.pack; function test () { <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -381,6 +384,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("args");
         expectedLookups.add("test");
         expectedLookups.add("main");
+        expectedLookups.add("any");
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ <caret> \ntest:getA(); }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -681,6 +685,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("s1");
         expectedLookups.add("s2");
         expectedLookups.add("A");
+        expectedLookups.add("any");
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -694,6 +699,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("s1");
         expectedLookups.add("s2");
         expectedLookups.add("A");
+        expectedLookups.add("any");
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> \nstring s4 = \"\";}",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -719,6 +725,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("any");
         doTest("function test(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -727,6 +734,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        expectedLookups.add("any");
         doTest("import org.test; function B(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -743,6 +751,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("any");
         doTest("function test(string s,<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -750,6 +759,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("any");
         doTest("function test(<caret>string s)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -758,6 +768,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        expectedLookups.add("any");
         doTest("import org.test; function test(string s,<caret>)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -767,6 +778,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        expectedLookups.add("any");
         doTest("import org.test; function test(<caret>string s)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -942,6 +954,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("any");
         doTest("service S { resource R(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -950,6 +963,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        expectedLookups.add("any");
         doTest("import org.test; service S { resource R(<caret>)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -967,6 +981,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("any");
         doTest("service S { resource R(string s,<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -974,6 +989,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("any");
         doTest("service S { resource R(<caret>string s)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -982,6 +998,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        expectedLookups.add("any");
         doTest("import org.test; service S { resource R(string s,<caret>)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -991,6 +1008,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        expectedLookups.add("any");
         doTest("import org.test; service S { resource R(<caret>string s)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1066,6 +1084,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("C");
+        expectedLookups.add("any");
         doTest("connector C(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
