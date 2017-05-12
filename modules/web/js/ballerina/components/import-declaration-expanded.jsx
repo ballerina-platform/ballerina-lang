@@ -29,13 +29,20 @@ export default class importDeclarationExpanded extends React.Component {
         const importDeclarationWidth = 300;
         const leftPadding = 10;
         const topGutter = 10;
+        const topBarHeight = 25;
         const iconSize = 20;
         const importElements = [];
-        let lastImportElementY = bBox.y + topGutter;
+
+        const topBarBbox = {
+            x: bBox.x,
+            y: bBox.y + topGutter
+        }
+
+        let lastImportElementY = topBarBbox.y + topBarHeight;
 
         this.props.imports.forEach((importDec, count) => {
             importElements.push(
-                <g className='package-declaration-item'>
+                <g className='package-declaration-item' key={importDec.id}>
                     <rect x={ bBox.x } y={ lastImportElementY } height={importDeclarationHeight} width={importDeclarationWidth} />
                     <text x={ bBox.x + leftPadding } y={ lastImportElementY + importDeclarationHeight/2 } rx="0" ry="0">
                         {importDec._packageName}
@@ -62,11 +69,12 @@ export default class importDeclarationExpanded extends React.Component {
 
         return (
             <g className="package-definitions-collection">
-                {importElements}
-                <rect x={ bBox.x } y={ lastImportElementY } height={importInputHeight} width={importDeclarationWidth} style={ { fill: "#eee"} } />
+                <rect x={ topBarBbox.x } y={ topBarBbox.y } height={importInputHeight} width={importDeclarationWidth} style={ { fill: "#ddd"} } />
                 <image width={ iconSize } height={ iconSize } className="property-pane-action-button-delete"
                     onClick={this.props.onCollapse} xlinkHref={ ImageUtil.getSVGIconString('hide') }
-                    x={bBox.x + importDeclarationWidth - iconSize - 6 } y={bBox.y + topGutter + 3}/>
+                    x={bBox.x + importDeclarationWidth - iconSize - 6 } y={topBarBbox.y + (topBarHeight-iconSize)/2}/>
+                {importElements}
+                <rect x={ bBox.x } y={ lastImportElementY } height={importInputHeight} width={importDeclarationWidth} style={ { fill: "#eee"} } />
             </g>
         );
     }

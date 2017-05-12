@@ -74,6 +74,16 @@ class SizingUtil {
         };
     }
 
+    getOnlyTextWidth(text, options={}) {
+        const {fontSize} = options;
+        this.textElement.innerHTML = _.escape(text);
+        const currentFZ = this.textElement.style.fontSize;
+        this.textElement.style.fontSize = fontSize;
+        const tl = this.textElement.getComputedTextLength();
+        this.textElement.style.fontSize = currentFZ;
+        return tl;
+    }
+
     populateSimpleStatementBBox(expression, viewState) {
         let textViewState = util.getTextWidth(expression);
         let dropZoneHeight = statement.gutter.v;
