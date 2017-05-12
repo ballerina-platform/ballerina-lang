@@ -32,7 +32,7 @@ public abstract class AbstractAggregationAttributeExecutor implements Expression
     protected ExecutionPlanContext executionPlanContext;
     protected int size;
     protected String queryName;
-    private String elementId;
+    private String elementId = null;
 
     public AbstractAggregationAttributeExecutor(AttributeAggregator attributeAggregator,
                                                 ExpressionExecutor[] attributeExpressionExecutors,
