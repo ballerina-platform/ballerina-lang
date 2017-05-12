@@ -75,6 +75,7 @@ public final class Constants {
         public static final String CLOB = "CLOB";
         public static final String DATE = "DATE";
         public static final String TIME = "TIME";
+        public static final String DATETIME = "DATETIME";
         public static final String TIMESTAMP = "TIMESTAMP";
         public static final String ARRAY = "ARRAY";
         public static final String STRUCT = "STRUCT";

@@ -351,6 +351,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 SQLConnectorUtils.setDateValue(stmt, value, index, direction, Types.DATE);
                 break;
             case Constants.SQLDataTypes.TIMESTAMP:
+            case Constants.SQLDataTypes.DATETIME:
                 SQLConnectorUtils.setTimeStampValue(stmt, value, index, direction, Types.TIMESTAMP);
                 break;
             case Constants.SQLDataTypes.TIME:
@@ -466,7 +467,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 paramValue.setValue(1, new BString(SQLConnectorUtils.getString(value)));
             }
             break;
-            case Constants.SQLDataTypes.TIMESTAMP: {
+            case Constants.SQLDataTypes.TIMESTAMP:
+            case Constants.SQLDataTypes.DATETIME: {
                 Timestamp value = stmt.getTimestamp(index + 1);
                 paramValue.setValue(1, new BString(SQLConnectorUtils.getString(value)));
             }
