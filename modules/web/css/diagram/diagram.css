@@ -6,6 +6,14 @@
     fill: "black"
 }
 
+.condition-text {
+    text-anchor: start;
+    dominant-baseline: central;
+    width: 120px;
+    max-width: 250px;
+    fill: "black"
+}
+
 .statement-rect {
     fill: #ffffff;
     stroke: #000000;

@@ -19,6 +19,7 @@ import log from 'log';
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
+import {util} from './../sizing-utils';
 
 class WhileStatementDimensionCalculatorVisitor {
 
@@ -38,6 +39,7 @@ class WhileStatementDimensionCalculatorVisitor {
     endVisit(node) {
         log.debug('End Visit WhileStatementDimensionCalculatorVisitor');
         let viewState = node.getViewState();
+        let expression = node.getCondition();
         let bBox = viewState.bBox;
         let components = {};
         let statementContainerWidth = 0;
@@ -69,6 +71,14 @@ class WhileStatementDimensionCalculatorVisitor {
 
         components['statementContainer'].h = statementContainerHeight;
         components['statementContainer'].w = statementContainerWidth;
+
+        // for compound statement like while we need to render condition expression
+        // we will calculate the width of the expression and adjest the block statement
+        if(expression != undefined){
+            // see how much space we have to draw the condition
+            let available = statementContainerWidth - DesignerDefaults.blockStatement.heading.width - 10;            
+            components['expression'] = util.getTextWidth(expression,0,available);
+        }        
 
         viewState.components = components;
     }

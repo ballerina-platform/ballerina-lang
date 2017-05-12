@@ -95,10 +95,9 @@ class SizingUtil {
         return sortedWorkers.length > 0 ? sortedWorkers[sortedWorkers.length - 1].getViewState().components.statementContainer.h : -1;
     }
 
-    populateCompoundStatementChild(node) {
+    populateCompoundStatementChild(node, expression = undefined ) {
         let viewState = node.getViewState();
         let components = {};
-
         components['statementContainer'] = new SimpleBBox();
         let statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
         let statementContainerWidth = 0;
@@ -121,6 +120,14 @@ class SizingUtil {
 
         statementContainerWidth += (statementContainerWidth > 0 ?
             (blockStatement.body.padding.left + blockStatement.body.padding.right) : blockStatement.width);
+
+        // for compound statement like if , while we need to render condition expression
+        // we will calculate the width of the expression and adjest the block statement
+        if(expression != undefined){
+            // see how much space we have to draw the condition
+            let available = statementContainerWidth - blockStatement.heading.width - 10;            
+            components['expression'] = this.getTextWidth(expression,0,available);
+        }
 
         components['statementContainer'].h = statementContainerHeight;
         components['statementContainer'].w = statementContainerWidth;

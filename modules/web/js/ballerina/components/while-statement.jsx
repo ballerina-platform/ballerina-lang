@@ -36,6 +36,7 @@ class WhileStatement extends React.Component {
 	render() {
 		let model = this.props.model,
 			bBox = model.viewState.bBox;
+		let expression = model.viewState.components.expression;
 		let blockStatementBBox = new SimpleBBox();
 		blockStatementBBox.x = bBox.x;
 		blockStatementBBox.y = bBox.y + model.viewState.components['drop-zone'].h;
@@ -51,7 +52,7 @@ class WhileStatement extends React.Component {
             className={dropZoneClassName}
             onMouseOver={(e) => this.onDropZoneActivate(e)}
             onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
-			<BlockStatementDecorator dropTarget={model} bBox={blockStatementBBox} title={"While"}>
+			<BlockStatementDecorator dropTarget={model} bBox={blockStatementBBox} title={"While"} expression={expression} >
 				{children}
 			</BlockStatementDecorator>
 		</g>);
