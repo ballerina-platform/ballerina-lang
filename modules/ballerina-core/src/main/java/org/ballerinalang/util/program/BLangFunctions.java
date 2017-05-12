@@ -167,9 +167,20 @@ public class BLangFunctions {
             // Invoke main function
             BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
 
+            // TODO: Fix this properly.
+            Expression[] exprs = new Expression[args.length];
+            for (int i = 0; i < args.length; i++) {
+                VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(),
+                        new SymbolName("arg" + i));
+
+                variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
+                StackVarLocation location = new StackVarLocation(i);
+                variableRefExpr.setMemoryLocation(location);
+                exprs[i] = variableRefExpr;
+            }
             // Start the workers if there is any
             for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
-                executor.executeWorker(worker);
+                executor.executeWorker(worker, exprs);
             }
             function.getCallableUnitBody().execute(executor);
             return returnValues;

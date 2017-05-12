@@ -101,34 +101,18 @@ function testSimpleWorker(message msg)(message) {
 
 }
 
-function testAccessFunctionArgumentsWorker(message msg)(message) {
-    message result;
-    int x = 100;
-    float y;
-    map p = { "a" : 1, "b" : 2};
-    p, x ->sampleWorker;
-    system:println("Worker calling function test started");
-    y, result <-sampleWorker;
-    string s = messages:getStringPayload(result);
-    system:println(s);
-    system:println("Value received from worker is " + (int)p["a"]);
-    return result;
+function testFunctionArgumentAccessFromWorker(int x)(int q) {
+    system:println("Argument in default worker " + x);
+    int y;
+    y <- sampleWorker2;
+    system:println("Argument received from sampleWorker2 " + y);
+    return;
 
-    worker sampleWorker {
-    message result;
-    message m;
-    int a;
-    map q;
-    float b = 12.34;
-    q, a <-default;
-    q["a"] = 12;
-    system:println("passed in value is " + (int)q["a"]);
-    json j;
-    j = `{"name":"chanaka"}`;
-    messages:setJsonPayload(msg, j);
-    b, msg ->default;
-}
-
+    worker sampleWorker2 {
+    system:println("Argument in sampleWorker2 " + x);
+    int p = 1000 + x;
+    p -> default;
+    }
 }
 
 

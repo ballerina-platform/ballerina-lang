@@ -18,6 +18,7 @@
 package org.ballerinalang.core.lang.worker;
 
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
@@ -54,6 +55,16 @@ public class WorkerInFunctionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMessage);
         final String expected = "{\"name\":\"chanaka\"}";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(description = "Test worker accessing parameters passed into function")
+    public void testWorkerAccessingFunctionParameters() {
+        BValue[] args = {new BInteger(100)};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testFunctionArgumentAccessFromWorker", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        final String expected = "1100";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 }

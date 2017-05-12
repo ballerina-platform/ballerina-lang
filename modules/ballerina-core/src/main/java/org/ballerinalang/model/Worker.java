@@ -324,6 +324,10 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
         isFlowBuilderVisited = flowBuilderVisited;
     }
 
+    public void setParameterDefs(ParameterDef[] parameterDefs) {
+        this.parameterDefs = parameterDefs;
+    }
+
     /**
      * {@code WorkerBuilder} is responsible for building a {@code Worker} node.
      *

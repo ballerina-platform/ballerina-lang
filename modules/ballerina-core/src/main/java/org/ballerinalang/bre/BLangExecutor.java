@@ -615,7 +615,7 @@ public class BLangExecutor implements NodeExecutor {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             // Start the workers defined within the function
             for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
-                executeWorker(worker);
+                executeWorker(worker, funcIExpr.getArgExprs());
             }
             bFunction.getCallableUnitBody().execute(this);
         } else {
@@ -666,7 +666,7 @@ public class BLangExecutor implements NodeExecutor {
             BallerinaAction bAction = (BallerinaAction) action;
             // Start the workers within the action
             for (Worker worker : bAction.getWorkers()) {
-                executeWorker(worker);
+                executeWorker(worker, actionIExpr.getArgExprs());
             }
             bAction.getCallableUnitBody().execute(this);
         } else {
@@ -710,7 +710,7 @@ public class BLangExecutor implements NodeExecutor {
 
         // Start the workers within the resource
         for (Worker worker : resource.getWorkers()) {
-            executeWorker(worker);
+            executeWorker(worker, resourceIExpr.getArgExprs());
         }
         resource.getResourceBody().execute(this);
 
@@ -1437,6 +1437,55 @@ public class BLangExecutor implements NodeExecutor {
 
         // Get values for all the worker arguments
         int valueCounter = 0;
+
+        for (ParameterDef returnParam : worker.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (returnParam.getName() == null) {
+                break;
+            }
+
+            localVals[valueCounter] = returnParam.getType().getEmptyValue();
+            valueCounter++;
+        }
+
+
+        // Create an arrays in the stack frame to hold return values;
+        BValue[] returnVals = new BValue[1];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and worker invocation location;
+        CallableUnitInfo functionInfo = new CallableUnitInfo(worker.getName(), worker.getPackagePath(),
+                worker.getNodeLocation());
+
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        Context workerContext = new Context();
+        workerContext.getControlStack().pushFrame(stackFrame);
+        WorkerCallback workerCallback = new WorkerCallback(workerContext);
+        workerContext.setBalCallback(workerCallback);
+        BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+
+        ExecutorService executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
+        WorkerExecutor workerRunner = new WorkerExecutor(workerExecutor, workerContext, worker);
+        executor.submit(workerRunner);
+//        Future<BMessage> future = executor.submit(workerRunner);
+//        worker.setResultFuture(future);
+
+        // Start workers within the worker
+        for (Worker worker1 : worker.getWorkers()) {
+            executeWorker(worker1);
+        }
+    }
+
+    public void executeWorker(Worker worker, Expression[] parentParameters) {
+        int sizeOfValueArray = worker.getStackFrameSize();
+        BValue[] localVals = new BValue[sizeOfValueArray];
+
+        // Get values for all the worker arguments
+        //int valueCounter = 0;
+
+        // Get values for all the function arguments
+        int valueCounter = populateArgumentValues(parentParameters, localVals);
 
         for (ParameterDef returnParam : worker.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
