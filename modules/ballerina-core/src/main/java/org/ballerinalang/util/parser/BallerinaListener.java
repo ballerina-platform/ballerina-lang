@@ -388,6 +388,36 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitTransformStatement(BallerinaParser.TransformStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transformInnerStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransformInnerStatement(BallerinaParser.TransformInnerStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transformInnerStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransformInnerStatement(BallerinaParser.TransformInnerStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transformAssignmentStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransformAssignmentStatement(BallerinaParser.TransformAssignmentStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transformAssignmentStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransformAssignmentStatement(BallerinaParser.TransformAssignmentStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transformVariableDefinitionStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransformVariableDefinitionStatement(BallerinaParser.TransformVariableDefinitionStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transformVariableDefinitionStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransformVariableDefinitionStatement(BallerinaParser.TransformVariableDefinitionStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#variableDefinitionStatement}.
 	 * @param ctx the parse tree
 	 */

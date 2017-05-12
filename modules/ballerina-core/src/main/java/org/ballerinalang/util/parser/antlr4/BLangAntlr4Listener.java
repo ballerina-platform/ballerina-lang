@@ -671,6 +671,50 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterTransformInnerStatement(BallerinaParser.TransformInnerStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitTransformInnerStatement(BallerinaParser.TransformInnerStatementContext ctx) {
+
+    }
+
+    @Override
+    public void enterTransformAssignmentStatement(BallerinaParser.TransformAssignmentStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitTransformAssignmentStatement(BallerinaParser.TransformAssignmentStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx));
+    }
+
+    @Override
+    public void enterTransformVariableDefinitionStatement(
+            BallerinaParser.TransformVariableDefinitionStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitTransformVariableDefinitionStatement(
+            BallerinaParser.TransformVariableDefinitionStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        SimpleTypeName typeName = typeNameStack.pop();
+        String varName = ctx.Identifier().getText();
+        boolean exprAvailable = (ctx.expression() != null) ;
+        modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), typeName, varName, exprAvailable);
+
+    }
+
+    @Override
     public void enterVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
 
     }

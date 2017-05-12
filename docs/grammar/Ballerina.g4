@@ -209,23 +209,22 @@ statement
     ;
 
 transformStatement
-    :   'transform' variableReference (',' variableReference)* '->' variableReference (',' variableReference)* '{'statement*'}'';'
+    :   'transform' variableReference (',' variableReference)* '->' variableReference (',' variableReference)* '{'transformInnerStatement*'}'';'
     ;
 
-//transformInnerStatement
-//    :   transformAssignmentStatement
-//    |   transformVariableDefinitionStatement
-//    |   transformStatement
-//    |   transformStatement
-//    ;
-//
-//transformAssignmentStatement
-//    :   variableReferenceList '=' expression ';'
-//    ;
-//
-//transformVariableDefinitionStatement
-//    :   typeName Identifier '=' expression ';'
-//    ;
+transformInnerStatement
+    :   transformAssignmentStatement
+    |   transformVariableDefinitionStatement
+    |   transformStatement
+    ;
+
+transformAssignmentStatement
+    :   variableReferenceList '=' expression ';'
+    ;
+
+transformVariableDefinitionStatement
+    :   typeName Identifier '=' expression ';'
+    ;
 
 variableDefinitionStatement
     :   typeName Identifier ('=' (connectorInitExpression | actionInvocation | expression) )? ';'
@@ -394,7 +393,6 @@ expression
     |   expression ('==' | '!=') expression             # binaryEqualExpression
     |   expression '&&' expression                      # binaryAndExpression
     |   expression '||' expression                      # binaryOrExpression
-//    |   expression '?' expression ':' expression        # ternaryConditionExpression
     ;
 
 //reusable productions
