@@ -169,6 +169,13 @@ DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
     return variableDefinitionStatement;
 };
 
+
+DefaultBallerinaASTFactory.createTransformStatement = function (args) {
+    var transformStatement = BallerinaASTFactory.createTransformStatement(args);
+    return transformStatement;
+};
+
+
 /**
  * creates typeMapperDefinition with default statement
  * @param {Object} args - object for typeMapperDefinition creation

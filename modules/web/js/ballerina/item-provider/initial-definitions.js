@@ -88,14 +88,6 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
             nodeFactoryMethod: BallerinaASTFactory.createStructDefinition
         };
 
-        var createTypeMapperDefTool = {
-            id: "typeMapper",
-            name: "Data Mapper",
-            iconSrc: require("./../../../images/tool-icons/type-converter.svg"),
-            title: "Data Mapper",
-            nodeFactoryMethod: DefaultBallerinaASTFactory.createTypeMapperDefinition
-        };
-
         var createWorkerDecTool = {
             id: "worker",
             name: "Worker",
@@ -114,7 +106,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
             createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
-            createTypeMapperDefTool, createWorkerDecTool, createAnnotationDefTool];
+            createWorkerDecTool, createAnnotationDefTool];
 
         var elements = new ToolGroup({
             toolGroupName: "Elements",
@@ -161,6 +153,14 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
             iconSrc: require("./../../../images/tool-icons/assign.svg"),
             title: "Assignment",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createAggregatedAssignmentStatement
+        };
+
+        var createTransformStatementTool = {
+            id: "Transform",
+            name: "Transform",
+            iconSrc: require("./../../../images/tool-icons/type-converter.svg"),
+            title: "Transform",
+            nodeFactoryMethod: DefaultBallerinaASTFactory.createTransformStatement
         };
 
         // TODO: change the icon with the new one
@@ -220,7 +220,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
             nodeFactoryMethod: DefaultBallerinaASTFactory.createThrowStatement
         };
 
-        var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
+        var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool, createTransformStatementTool,
             createVariableDefinitionStatementTool,  createFunctionInvocationTool, createReturnStatementTool,
             createReplyStatementTool, createWhileStatementTool, createBreakStatementTool, createTryCatchStatementTool, createThrowStatementTool,
             createWorkerInvocationStatementTool, createWorkerReplyStatementTool];

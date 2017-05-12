@@ -49,6 +49,7 @@ import importDeclaration from './import-declaration';
 import resourceParameter from './resource-parameter';
 import assignment from './assignment';
 import assignmentStatement from './statements/assignment-statement';
+import transformStatement from './statements/transform-statement';
 import functionInvocationStatement from './statements/function-invocation-statement';
 import functionInvocationExpression from './expressions/function-invocation-expression';
 import variableReferenceExpression from './expressions/variable-reference-expression';
@@ -328,6 +329,15 @@ BallerinaASTFactory.createAssignment = function (args) {
  */
 BallerinaASTFactory.createAssignmentStatement = function (args) {
     return new assignmentStatement(args);
+};
+
+/**
+ * creates AssignmentStatement
+ * @param {Object} args
+ * @returns {AssignmentStatement}
+ */
+BallerinaASTFactory.createTransformStatement = function (args) {
+    return new transformStatement(args);
 };
 
 /**
@@ -1044,6 +1054,16 @@ BallerinaASTFactory.isAssignment = function (child) {
 BallerinaASTFactory.isAssignmentStatement = function (child) {
     return child instanceof assignmentStatement;
 };
+
+/**
+ * instanceof check for Assignment Statement
+ * @param child
+ * @returns {boolean}
+ */
+BallerinaASTFactory.isTransformStatement = function (child) {
+    return child instanceof transformStatement;
+};
+
 
 /**
  * instanceof check for BasicLiteralExpression
