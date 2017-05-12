@@ -24,7 +24,6 @@ import ParameterView from './parameter-view';
 import ReturnTypeView from './return-type-view';
 import {getComponentForNodeArray} from './utils';
 import {lifeLine} from './../configs/designer-defaults';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 class FunctionDefinition extends React.Component {
 
@@ -35,9 +34,6 @@ class FunctionDefinition extends React.Component {
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getFunctionName();
-        let annotations = this.props.model.getChildren().filter(function(child){
-             return BallerinaASTFactory.isAnnotation(child);
-        });
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
 
         //lets calculate function worker lifeline bounding box.
@@ -85,7 +81,7 @@ class FunctionDefinition extends React.Component {
             }
         ];
 
-        return (<PanelDecorator icon={icons} title={name} annotations={annotations} bBox={bBox}
+        return (<PanelDecorator icon={icons} title={name} bBox={bBox}
                         model={this.props.model}
                         dropTarget={this.props.model}
                         dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}

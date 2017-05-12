@@ -23,7 +23,6 @@ import PanelDecorator from './panel-decorator';
 import ParameterView from './parameter-view';
 import {getComponentForNodeArray} from './utils';
 import {lifeLine} from './../configs/designer-defaults';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 class ResourceDefinition extends React.Component {
 
@@ -31,9 +30,6 @@ class ResourceDefinition extends React.Component {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getResourceName();
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
-        let annotations = this.props.model.getChildren().filter(function(child){
-            return BallerinaASTFactory.isAnnotation(child);
-        });
 
         //lets calculate function worker lifeline bounding box.
         let resource_worker_bBox = {};
@@ -60,7 +56,7 @@ class ResourceDefinition extends React.Component {
         }
             ];
 
-        return (<PanelDecorator icon="tool-icons/resource" title={name} annotations={annotations} bBox={bBox}
+        return (<PanelDecorator icon="tool-icons/resource" title={name} bBox={bBox}
                         model={this.props.model}
                         dropTarget={this.props.model}
                         dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
