@@ -89,7 +89,7 @@ import annotationAttributeDefinition from './annotation-attribute-definition';
 import annotation from './annotations/annotation';
 import annotationEntry from './annotations/annotation-entry';
 import annotationEntryArray from './annotations/annotation-entry-array';
-
+import transformStatement from './statements/transform-statement';
 
 /**
  * @class BallerinaASTFactory
@@ -620,12 +620,21 @@ BallerinaASTFactory.createThrowStatement = function (args) {
 };
 
 /**
- * crates CommentStatement
+ * creates CommentStatement
  * @param {Object} args - Arguments for creating a new comment statement.
  * @returns {CommentStatement}
  */
 BallerinaASTFactory.createCommentStatement = function (args) {
     return new commentStatement(args);
+};
+
+/**
+ * creates TransformStatement
+ * @param {Object} args - Arguments for creating a new transform statement.
+ * @returns {TransformStatement}
+ */
+BallerinaASTFactory.createTransformStatement = function (args) {
+    return new transformStatement(args);
 };
 
 /**
@@ -980,6 +989,15 @@ BallerinaASTFactory.isResourceParameter = function (child) {
  */
 BallerinaASTFactory.isActionInvocationStatement = function (child) {
     return child instanceof actionInvocationStatement;
+};
+
+/**
+ * instanceof check for TransformStatement
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isTransformStatement = function (child) {
+    return child instanceof transformStatement;
 };
 
 /**
@@ -1452,6 +1470,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
             break;
         case 'annotation_attribute_definition':
             node = BallerinaASTFactory.createAnnotationAttributeDefinition();
+            break;
+        case 'transform_statement':
+            node = BallerinaASTFactory.createTransformStatement();
             break;
         default:
             throw new Error('Unknown node definition for ' + jsonNode.type);

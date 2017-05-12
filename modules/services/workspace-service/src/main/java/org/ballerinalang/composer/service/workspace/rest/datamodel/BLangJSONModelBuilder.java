@@ -98,6 +98,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -733,6 +734,21 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(TransformStmt transformStmt) {
+        JsonObject transformStmtObj = new JsonObject();
+        transformStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                                     BLangJSONModelConstants.TRANSFORM_STATEMENT);
+        this.addPosition(transformStmtObj, transformStmt.getNodeLocation());
+        tempJsonArrayRef.push(new JsonArray());
+        if (transformStmt.getBody() != null) {
+            transformStmt.getBody().accept(this);
+        }
+        transformStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(transformStmtObj);
+    }
+
+    @Override
     public void visit(BreakStmt breakStmt) {
         JsonObject breakObject = new JsonObject();
         breakObject.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.BREAK_STATEMENT);
@@ -829,10 +845,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
         JsonObject workerInvokeStmtObj = new JsonObject();
-        workerInvokeStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants
-                .WORKER_INVOCATION_STATEMENT);
-        workerInvokeStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME, workerInvocationStmt.getCallableUnitName
-                ());
+        workerInvokeStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                                        BLangJSONModelConstants.WORKER_INVOCATION_STATEMENT);
+        workerInvokeStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME,
+                                        workerInvocationStmt.getCallableUnitName());
         tempJsonArrayRef.push(new JsonArray());
         if (workerInvocationStmt.getInMsg() != null) {
             workerInvocationStmt.getInMsg().accept(this);
@@ -938,11 +954,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(BasicLiteral basicLiteral) {
         JsonObject basicLiteralObj = new JsonObject();
-        basicLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
-                .BASIC_LITERAL_EXPRESSION);
+        basicLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                                    BLangJSONModelConstants.BASIC_LITERAL_EXPRESSION);
         basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_TYPE, basicLiteral.getTypeName().getName());
-        basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_VALUE, basicLiteral.getBValue().stringValue
-                ());
+        basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_VALUE,
+                                    basicLiteral.getBValue().stringValue());
         this.addPosition(basicLiteralObj, basicLiteral.getNodeLocation());
         tempJsonArrayRef.peek().add(basicLiteralObj);
     }
@@ -1055,8 +1071,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(NotEqualExpression notEqualExpression) {
         JsonObject notequalExprObj = new JsonObject();
         this.addPosition(notequalExprObj, notEqualExpression.getNodeLocation());
-        notequalExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
-                .NOT_EQUAL_EXPRESSION);
+        notequalExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                                    BLangJSONModelConstants.NOT_EQUAL_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
         notEqualExpression.getLExpr().accept(this);
         notEqualExpression.getRExpr().accept(this);
@@ -1069,8 +1085,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(GreaterEqualExpression greaterEqualExpression) {
         JsonObject greaterEqualExprObj = new JsonObject();
         this.addPosition(greaterEqualExprObj, greaterEqualExpression.getNodeLocation());
-        greaterEqualExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
-                .GREATER_EQUAL_EXPRESSION);
+        greaterEqualExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                                        BLangJSONModelConstants.GREATER_EQUAL_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
         greaterEqualExpression.getLExpr().accept(this);
         greaterEqualExpression.getRExpr().accept(this);
@@ -1124,10 +1140,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(VariableRefExpr variableRefExpr) {
         JsonObject variableRefObj = new JsonObject();
         this.addPosition(variableRefObj, variableRefExpr.getNodeLocation());
-        variableRefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
-                .VARIABLE_REFERENCE_EXPRESSION);
-        variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableRefExpr.getSymbolName()
-                .getName());
+        variableRefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
+                                   BLangJSONModelConstants.VARIABLE_REFERENCE_EXPRESSION);
+        variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableRefExpr.getSymbolName().getName());
         if (variableRefExpr.getVariableDef() != null) {
             tempJsonArrayRef.push(new JsonArray());
             variableRefExpr.getVariableDef().accept(this);
@@ -1197,8 +1212,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(BacktickExpr backtickExpr) {
         JsonObject backtickExprObj = new JsonObject();
         this.addPosition(backtickExprObj, backtickExpr.getNodeLocation());
-        backtickExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
-                .BACK_TICK_EXPRESSION);
+        backtickExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                                    BLangJSONModelConstants.BACK_TICK_EXPRESSION);
         backtickExprObj.addProperty(BLangJSONModelConstants.BACK_TICK_ENCLOSED_STRING, backtickExpr.getTemplateStr());
         tempJsonArrayRef.peek().add(backtickExprObj);
     }
