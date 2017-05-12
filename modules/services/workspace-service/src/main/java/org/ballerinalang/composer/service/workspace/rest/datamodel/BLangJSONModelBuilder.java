@@ -739,6 +739,17 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         transformStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                                      BLangJSONModelConstants.TRANSFORM_STATEMENT);
         this.addPosition(transformStmtObj, transformStmt.getNodeLocation());
+
+        tempJsonArrayRef.push(new JsonArray());
+        transformStmt.getInputReference().accept(this);
+        transformStmtObj.add(BLangJSONModelConstants.TRANSFORM_INPUT, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+        tempJsonArrayRef.push(new JsonArray());
+        transformStmt.getOutputReference().accept(this);
+        transformStmtObj.add(BLangJSONModelConstants.TRANSFORM_OUTPUT, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
         tempJsonArrayRef.push(new JsonArray());
         if (transformStmt.getBody() != null) {
             transformStmt.getBody().accept(this);
