@@ -20,7 +20,6 @@ package org.ballerinalang.bre;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFile;
-import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.values.BValue;
@@ -44,16 +43,12 @@ public class RuntimeEnvironment {
     public static RuntimeEnvironment get(BLangProgram bLangProgram) {
         StaticMemory staticMemory = new StaticMemory(bLangProgram.getSizeOfStaticMem());
         RuntimeEnvironment runtimeEnvironment = new RuntimeEnvironment(staticMemory);
-
-        int staticMemOffset = 0;
-        for (BLangPackage bLangPackage : bLangProgram.getPackages()) {
-            for (ConstDef constant : bLangPackage.getConsts()) {
-                staticMemory.setValue(staticMemOffset, constant.getValue());
-                staticMemOffset++;
-            }
+        if (bLangProgram.getMainPackage() != null) {
+            initPackages(bLangProgram.getMainPackage(), runtimeEnvironment);
         }
 
         for (BLangPackage servicePackage : bLangProgram.getServicePackages()) {
+            initPackages(servicePackage, runtimeEnvironment);
             for (Service service : servicePackage.getServices()) {
                 Function initFunction = service.getInitFunction();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(),
@@ -71,15 +66,29 @@ public class RuntimeEnvironment {
         return runtimeEnvironment;
     }
 
+    /**
+     * Helper method to initialize packages, in this, global variables will get initialized.
+     *
+     * @param bLangPackage
+     * @param runtimeEnvironment
+     */
+    private static void initPackages(BLangPackage bLangPackage, RuntimeEnvironment runtimeEnvironment) {
+        Function pkgInitFunction = bLangPackage.getInitFunction();
+        CallableUnitInfo pkgFunctionInfo = new CallableUnitInfo(pkgInitFunction.getName(),
+                pkgInitFunction.getPackagePath(), pkgInitFunction.getNodeLocation());
+        StackFrame currentStackFrame = new StackFrame(new BValue[0], new BValue[0], pkgFunctionInfo);
+
+        Context bContext = new Context();
+        bContext.getControlStack().pushFrame(currentStackFrame);
+
+        BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
+        pkgInitFunction.getCallableUnitBody().execute(bLangExecutor);
+        //bLangPackage.setPkgInitialized(true);
+    }
+
     public static RuntimeEnvironment get(BallerinaFile bFile) {
         StaticMemory staticMemory = new StaticMemory(bFile.getSizeOfStaticMem());
         RuntimeEnvironment runtimeEnvironment = new RuntimeEnvironment(staticMemory);
-
-        int staticMemOffset = 0;
-        for (ConstDef constant : bFile.getConstants()) {
-            staticMemory.setValue(staticMemOffset, constant.getValue());
-            staticMemOffset++;
-        }
 
         if (bFile.getServices().length == 0) {
             return runtimeEnvironment;

@@ -120,7 +120,7 @@ public class GreaterLessThanExprTest {
 
     @Test(description = "Test greater-than check for two different types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "lang/expressions[/\\\\]type[/\\\\]incompatible[/\\\\]gt[/\\\\]"
+            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]gt[/\\\\]"
                     + "incompatible-type-greater-than.bal:6: invalid operation: incompatible types 'int' and 'string'")
     public void testIncompatibleGreaterThan() {
         BTestUtils.parseBalFile("lang/expressions/type/incompatible/gt");
