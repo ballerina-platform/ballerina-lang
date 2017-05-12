@@ -24,6 +24,12 @@ package org.ballerinalang.util.parser.antlr4;
  * @since 0.9.0
  */
 public class WhiteSpaceRegions {
+    // whitespace regions related to BFile
+    public static final int BFILE_START = 0;
+    public static final int BFILE_PKG_KEYWORD_TO_PKG_NAME_START = 1;
+    public static final int BFILE_PKG_NAME_END_TO_SEMICOLON = 2;
+    public static final int BFILE_PKG_DEC_END_TO_NEXT_TOKEN = 3;
+
     // whitespace regions in a import declaration
     public static final int IMPORT_DEC_IMPORT_KEYWORD_TO_PKG_NAME_START = 0;
     public static final int IMPORT_DEC_PKG_NAME_END_TO_SEMICOLAN = 1;

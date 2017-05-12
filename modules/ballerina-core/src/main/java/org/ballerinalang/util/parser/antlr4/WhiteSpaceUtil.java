@@ -69,4 +69,15 @@ public class WhiteSpaceUtil {
         }
         return whitespaceBuilder.toString();
     }
+
+    public static WhiteSpaceDescriptor getPackageDeclarationWS(CommonTokenStream tokenStream, BallerinaParser.PackageDeclarationContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.BFILE_PKG_KEYWORD_TO_PKG_NAME_START,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.BFILE_PKG_NAME_END_TO_SEMICOLON,
+                getWhitespaceToRight(tokenStream, ctx.packageName().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.BFILE_PKG_DEC_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }

@@ -123,7 +123,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
         if (isVerboseMode) {
-            String fileStartingWhiteSpace = WhiteSpaceUtil.getWhitespaceToLeft(tokenStream, 1);
+            // getting whitespace from file start to first token
+            String whiteSpace = WhiteSpaceUtil.getWhitespaceToLeft(tokenStream, 1);
+            modelBuilder.addBFileWhiteSpaceRegion(WhiteSpaceRegions.BFILE_START, whiteSpace);
         }
     }
 
@@ -140,7 +142,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
+        if (isVerboseMode) {
+            // getting whitespace related to package declaration node
+            WhiteSpaceDescriptor wsDescriptor = WhiteSpaceUtil.getPackageDeclarationWS(tokenStream, ctx);
+            if (wsDescriptor != null) {
+                // file start whitespace & package declaration related whitespace is stored in BFile
+                wsDescriptor.getWhiteSpaceRegions().forEach(modelBuilder::addBFileWhiteSpaceRegion);
+            }
+        }
         modelBuilder.addPackageDcl(getCurrentLocation(ctx), ctx.packageName().getText());
     }
 

@@ -204,6 +204,14 @@ public class BLangModelBuilder {
         return bFileBuilder.build();
     }
 
+    public void addBFileWhiteSpaceRegion(int regionId, String whitespace) {
+        if(bFileBuilder.getWhiteSpaceDescriptor() == null) {
+            bFileBuilder.setWhiteSpaceDescriptor(new WhiteSpaceDescriptor());
+        }
+        bFileBuilder.getWhiteSpaceDescriptor()
+                        .addWhitespaceRegion(regionId, whitespace);
+    }
+
 
     // Packages and import packages
 
