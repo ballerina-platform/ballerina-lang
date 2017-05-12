@@ -88,9 +88,7 @@ public class ExecutionPlanRuntimeBuilder {
     public void defineStream(StreamDefinition streamDefinition) {
         DefinitionParserHelper.validateDefinition(streamDefinition, streamDefinitionMap, tableDefinitionMap,
                 windowDefinitionMap);
-        if (!streamDefinitionMap.containsKey(streamDefinition.getId())) {
-            streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-        }
+        streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
         DefinitionParserHelper.addStreamJunction(streamDefinition, streamJunctionMap, executionPlanContext);
         DefinitionParserHelper.addEventSource(streamDefinition, eventSourceMap, executionPlanContext);
         DefinitionParserHelper.addEventSink(streamDefinition, eventSinkMap, executionPlanContext);
@@ -99,9 +97,7 @@ public class ExecutionPlanRuntimeBuilder {
     public void defineTable(TableDefinition tableDefinition) {
         DefinitionParserHelper.validateDefinition(tableDefinition, streamDefinitionMap, tableDefinitionMap,
                 windowDefinitionMap);
-        if (!tableDefinitionMap.containsKey(tableDefinition.getId())) {
-            tableDefinitionMap.putIfAbsent(tableDefinition.getId(), tableDefinition);
-        }
+         tableDefinitionMap.put(tableDefinition.getId(), tableDefinition);
         DefinitionParserHelper.addTable(tableDefinition, tableMap, executionPlanContext);
     }
 
@@ -109,9 +105,7 @@ public class ExecutionPlanRuntimeBuilder {
         DefinitionParserHelper.validateDefinition(windowDefinition, streamDefinitionMap, tableDefinitionMap,
                 windowDefinitionMap);
         DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, executionPlanContext);
-        if (!windowDefinitionMap.containsKey(windowDefinition.getId())) {
-            windowDefinitionMap.putIfAbsent(windowDefinition.getId(), windowDefinition);
-        }
+        windowDefinitionMap.put(windowDefinition.getId(), windowDefinition);
         DefinitionParserHelper.addWindow(windowDefinition, eventWindowMap, executionPlanContext);
         // defineStream(windowDefinition);
         // DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, executionPlanContext);
@@ -119,7 +113,7 @@ public class ExecutionPlanRuntimeBuilder {
 
     public void defineTrigger(TriggerDefinition triggerDefinition) {
         DefinitionParserHelper.validateDefinition(triggerDefinition);
-        triggerDefinitionMap.putIfAbsent(triggerDefinition.getId(), triggerDefinition);
+        triggerDefinitionMap.put(triggerDefinition.getId(), triggerDefinition);
         DefinitionParserHelper.addEventTrigger(triggerDefinition, eventTriggerMap, streamJunctionMap,
                 executionPlanContext);
     }
