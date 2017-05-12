@@ -82,6 +82,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -1500,6 +1501,29 @@ public class BLangModelBuilder {
         }
     }
 
+    public void startTransformStmt(NodeLocation location) {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(blockStmtBuilder);
+        currentScope = blockStmtBuilder.getCurrentScope();
+    }
+
+    public void createTransformStmt(NodeLocation location) {
+        // Create a transform statement builder
+        TransformStmt.TransformStmtBuilder transformStmtBuilder = new TransformStmt.TransformStmtBuilder();
+        transformStmtBuilder.setNodeLocation(location);
+
+        // Get the statement block at the top of the block statement stack and set as the transform body.
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        BlockStmt blockStmt = blockStmtBuilder.build();
+        transformStmtBuilder.setTransformBody(blockStmt);
+
+        // Close the current scope and open the enclosing scope
+        currentScope = blockStmt.getEnclosingScope();
+
+        // Add the transform statement to the statement block which is at the top of the stack.
+        TransformStmt transformStmt = transformStmtBuilder.build();
+        blockStmtBuilderStack.peek().addStmt(transformStmt);
+    }
 
     /**
      * This class represents CallableUnitName used in function and action invocation expressions.

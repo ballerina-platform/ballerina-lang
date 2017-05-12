@@ -127,6 +127,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -652,6 +653,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
         workerReplyStmt.setNext(findNext(workerReplyStmt));
+    }
+
+    @Override
+    public void visit(TransformStmt transformStmt) {
+
     }
 
     @Override

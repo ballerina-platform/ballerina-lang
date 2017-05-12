@@ -636,6 +636,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterTransformStatement(BallerinaParser.TransformStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startTransformStmt(getCurrentLocation(ctx));
+    }
+
+    @Override
+    public void exitTransformStatement(BallerinaParser.TransformStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        modelBuilder.createTransformStmt(getCurrentLocation(ctx));
+    }
+
+    @Override
     public void enterVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
 
     }

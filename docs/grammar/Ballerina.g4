@@ -200,7 +200,27 @@ statement
     |   commentStatement
     |   actionInvocationStatement
     |   functionInvocationStatement
+    |   transformStatement
     ;
+
+transformStatement
+    :   'transform' variableReference (',' variableReference)* '->' variableReference (',' variableReference)* '{'statement*'}'';'
+    ;
+
+//transformInnerStatement
+//    :   transformAssignmentStatement
+//    |   transformVariableDefinitionStatement
+//    |   transformStatement
+//    |   transformStatement
+//    ;
+//
+//transformAssignmentStatement
+//    :   variableReferenceList '=' expression ';'
+//    ;
+//
+//transformVariableDefinitionStatement
+//    :   typeName Identifier '=' expression ';'
+//    ;
 
 variableDefinitionStatement
     :   typeName Identifier ('=' (connectorInitExpression | actionInvocation | expression) )? ';'
@@ -369,6 +389,7 @@ expression
     |   expression ('==' | '!=') expression             # binaryEqualExpression
     |   expression '&&' expression                      # binaryAndExpression
     |   expression '||' expression                      # binaryOrExpression
+//    |   expression '?' expression ':' expression        # ternaryConditionExpression
     ;
 
 //reusable productions
