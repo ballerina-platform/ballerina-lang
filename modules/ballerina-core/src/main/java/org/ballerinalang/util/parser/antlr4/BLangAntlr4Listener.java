@@ -19,12 +19,12 @@ package org.ballerinalang.util.parser.antlr4;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.util.parser.BallerinaListener;
@@ -123,7 +123,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
         if (isVerboseMode) {
-            String fileStartingWhiteSpace = getWhitespaceToLeft(1);
+            String fileStartingWhiteSpace = WhiteSpaceUtil.getWhitespaceToLeft(tokenStream, 1);
         }
     }
 
@@ -164,7 +164,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         String pkgPath = ctx.packageName().getText();
         String asPkgName = (ctx.Identifier() != null) ? ctx.Identifier().getText() : null;
-        modelBuilder.addImportPackage(getCurrentLocation(ctx), pkgPath, asPkgName);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getImportDeclarationWS(tokenStream, ctx);
+        }
+        modelBuilder.addImportPackage(getCurrentLocation(ctx), whiteSpaceDescriptor, pkgPath, asPkgName);
     }
 
     @Override
@@ -1580,31 +1584,5 @@ public class BLangAntlr4Listener implements BallerinaListener {
         // Here childCount is always an odd number.
         // noOfArguments = childCount mod 2 + 1
         return childCountExprList / 2 + 1;
-    }
-
-    protected String getWhitespaceToRight(int tokenIndex) {
-        StringBuilder whitespaceBuilder = new StringBuilder();
-        if (this.tokenStream != null) {
-            List<Token> hiddenTokensToRight = this.tokenStream.getHiddenTokensToRight(tokenIndex, Token.HIDDEN_CHANNEL);
-            if (hiddenTokensToRight != null) {
-                for (Token next : hiddenTokensToRight) {
-                    whitespaceBuilder.append(next.getText());
-                }
-            }
-        }
-        return whitespaceBuilder.toString();
-    }
-
-    protected String getWhitespaceToLeft(int tokenIndex) {
-        StringBuilder whitespaceBuilder = new StringBuilder();
-        if (this.tokenStream != null) {
-            List<Token> hiddenTokensToRight = this.tokenStream.getHiddenTokensToLeft(tokenIndex, Token.HIDDEN_CHANNEL);
-            if (hiddenTokensToRight != null) {
-                for (Token next : hiddenTokensToRight) {
-                    whitespaceBuilder.append(next.getText());
-                }
-            }
-        }
-        return whitespaceBuilder.toString();
     }
 }

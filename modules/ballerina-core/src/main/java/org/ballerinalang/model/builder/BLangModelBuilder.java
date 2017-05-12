@@ -40,6 +40,7 @@ import org.ballerinalang.model.StructuredUnit;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
@@ -212,12 +213,13 @@ public class BLangModelBuilder {
         bFileBuilder.setPackageLocation(location);
     }
 
-    public void addImportPackage(NodeLocation location, String pkgPath, String asPkgName) {
+    public void addImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor,
+                                String pkgPath, String asPkgName) {
         ImportPackage importPkg;
         if (asPkgName != null) {
-            importPkg = new ImportPackage(location, pkgPath, asPkgName);
+            importPkg = new ImportPackage(location, wsDescriptor, pkgPath, asPkgName);
         } else {
-            importPkg = new ImportPackage(location, pkgPath);
+            importPkg = new ImportPackage(location, wsDescriptor, pkgPath);
         }
 
         if (importPkgMap.get(importPkg.getName()) != null) {

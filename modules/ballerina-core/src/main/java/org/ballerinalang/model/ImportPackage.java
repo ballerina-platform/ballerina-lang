@@ -56,13 +56,15 @@ public class ImportPackage implements Node {
         this.symbolName = new SymbolName(this.path);
     }
 
-    public ImportPackage(NodeLocation location, String path) {
+    public ImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor, String path) {
         this(path);
         this.location = location;
+        this.whiteSpaceDescriptor = wsDescriptor;
     }
 
-    public ImportPackage(NodeLocation location, String path, String asName) {
+    public ImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor, String path, String asName) {
         this.location = location;
+        this.whiteSpaceDescriptor = wsDescriptor;
         this.path = path;
         this.name = asName;
         this.asName = asName;
