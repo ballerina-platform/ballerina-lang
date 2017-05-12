@@ -26,6 +26,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import EditableText from './editable-text';
 import './panel-decorator.css';
 import { panel } from '../configs/designer-defaults.js';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 class PanelDecorator extends React.Component {
 
@@ -82,8 +83,12 @@ class PanelDecorator extends React.Component {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
         }
         let titleComponents = this.getTitleComponents(this.props.titleComponentData);
-        let annotationString = this.getAnnotationsString();
-        let annotationComponents = this.getAnnotationComponents(this.props.annotations, bBox, titleHeight);
+        
+        let annotations = this.props.model.getChildren().filter(function(child){
+            return BallerinaASTFactory.isAnnotation(child);
+        });
+        let annotationString = this.getAnnotationsString(annotations);
+        let annotationComponents = this.getAnnotationComponents(annotations, bBox, titleHeight);
 
         return (<g className="panel">
             <g className={annotationBodyClassName}>
@@ -206,11 +211,11 @@ class PanelDecorator extends React.Component {
     }
 
 
-    getAnnotationsString() {
+    getAnnotationsString(annotations) {
         let annotationString = '';
         // TODO: Fix Me
-        if (!_.isNil(this.props.annotations)) {
-            this.props.annotations.forEach(function (annotation) {
+        if (!_.isNil(annotations)) {
+            annotations.forEach(function (annotation) {
                 annotationString = annotationString + annotation.toString() + '  ';
             });
         }
