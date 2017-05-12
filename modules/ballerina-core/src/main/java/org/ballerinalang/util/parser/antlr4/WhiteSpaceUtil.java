@@ -19,6 +19,7 @@ package org.ballerinalang.util.parser.antlr4;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.util.parser.BallerinaParser;
@@ -32,6 +33,11 @@ import java.util.List;
  * @since 0.9.0
  */
 public class WhiteSpaceUtil {
+
+    public static final String KEYWORD_RESOURCE = "resource";
+    public static final String STARTING_PAREN = "(";
+    public static final String CLOSING_PAREN = ")";
+    public static final String KEYWORD_AS = "as";
 
     public static String getFileStartingWhiteSpace(CommonTokenStream tokenStream) {
         // find first non-whitespace token
@@ -51,10 +57,9 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.packageName().stop.getTokenIndex()));
 
         // if (as Identifier) is present, there can be five whitespace regions
-        if (ctx.Identifier() != null && ctx.children.size() == 5) {
-            Token asToken = ((TerminalNode) ctx.getChild(2)).getSymbol();
+        if (ctx.Identifier() != null) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.IMPORT_DEC_AS_KEYWORD_TO_IDENTIFIER,
-                    getWhitespaceToRight(tokenStream, asToken.getTokenIndex()));
+                    getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, KEYWORD_AS).getTokenIndex()));
             ws.addWhitespaceRegion(WhiteSpaceRegions.IMPORT_DEC_IDENTIFIER_TO_IMPORT_DEC_END,
                     getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
         }
@@ -115,4 +120,32 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.serviceBody().stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getResourceDefinitionWS(CommonTokenStream tokenStream,
+                                                               BallerinaParser.ResourceDefinitionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RESOURCE_DEF_RESOURCE_KEYWORD_TO_IDENTIFIER,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, KEYWORD_RESOURCE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RESOURCE_DEF_IDENTIFIER_TO_PARAM_LIST_START,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RESOURCE_DEF_PARAM_LIST_START_TO_FIRST_PARAM,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RESOURCE_DEF_PARAM_LIST_END_TO_BODY_START,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RESOURCE_DEF_BODY_START_TO_FIRST_CHILD,
+                getWhitespaceToRight(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RESOURCE_DEF_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.callableUnitBody().stop.getTokenIndex()));
+        return ws;
+    }
+
+    protected static Token getFirstTokenWithText(List<ParseTree> children, String text) {
+        return ((TerminalNode) children.stream()
+                .filter((child) -> child instanceof TerminalNode)
+                .filter((node) -> ((TerminalNode) node).getSymbol().getText().equals(text))
+                .findFirst().get()).getSymbol();
+    }
+
+
 }

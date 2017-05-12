@@ -7,6 +7,8 @@ import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.Resource;
+import org.ballerinalang.model.Service;
 import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.parser.BallerinaLexer;
@@ -86,5 +88,22 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.BFILE_PKG_NAME_END_TO_SEMICOLON), "   ");
         Assert.assertEquals(bFile.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.BFILE_PKG_DEC_END_TO_NEXT_TOKEN), "\n\n\n");
+    }
+
+    @Test(description = "Test captured whitespace regions of resource definition node")
+    public void testWhiteSpaceCaptureInResourceDefinition() {
+        Resource resource = ((Service) bFile.getCompilationUnits()[0]).getResources()[0];
+        Assert.assertEquals(resource.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_RESOURCE_KEYWORD_TO_IDENTIFIER), "   ");
+        Assert.assertEquals(resource.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_IDENTIFIER_TO_PARAM_LIST_START), "    ");
+        Assert.assertEquals(resource.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_PARAM_LIST_START_TO_FIRST_PARAM), "     ");
+        Assert.assertEquals(resource.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_PARAM_LIST_END_TO_BODY_START), "  ");
+        Assert.assertEquals(resource.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_BODY_START_TO_FIRST_CHILD), "\n\n      ");
+        Assert.assertEquals(resource.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_END_TO_NEXT_TOKEN), "\n");
     }
 }

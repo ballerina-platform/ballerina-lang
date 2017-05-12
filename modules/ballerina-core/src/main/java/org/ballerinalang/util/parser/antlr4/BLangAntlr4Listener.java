@@ -237,7 +237,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         String resourceName = ctx.Identifier().getText();
         int annotationCount = ctx.annotationAttachment() != null ? ctx.annotationAttachment().size() : 0;
-        modelBuilder.addResource(getCurrentLocation(ctx), resourceName, annotationCount);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getResourceDefinitionWS(tokenStream, ctx);
+        }
+        modelBuilder.addResource(getCurrentLocation(ctx), whiteSpaceDescriptor, resourceName, annotationCount);
 
     }
 

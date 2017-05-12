@@ -871,8 +871,10 @@ public class BLangModelBuilder {
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
-    public void addResource(NodeLocation location, String name, int annotationCount) {
+    public void addResource(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                            String name, int annotationCount) {
         currentCUBuilder.setNodeLocation(location);
+        currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
 

@@ -42,4 +42,12 @@ public class WhiteSpaceRegions {
     public static final int SERVICE_DEF_IDENTIFIER_TO_BODY_START = 1;
     public static final int SERVICE_DEF_BODY_START_TO_FIRST_CHILD = 2;
     public static final int SERVICE_DEF_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in a resource definition
+    public static final int RESOURCE_DEF_RESOURCE_KEYWORD_TO_IDENTIFIER = 0;
+    public static final int RESOURCE_DEF_IDENTIFIER_TO_PARAM_LIST_START = 1;
+    public static final int RESOURCE_DEF_PARAM_LIST_START_TO_FIRST_PARAM = 2;
+    public static final int RESOURCE_DEF_PARAM_LIST_END_TO_BODY_START = 3;
+    public static final int RESOURCE_DEF_BODY_START_TO_FIRST_CHILD = 4;
+    public static final int RESOURCE_DEF_END_TO_NEXT_TOKEN = 5;
 }
