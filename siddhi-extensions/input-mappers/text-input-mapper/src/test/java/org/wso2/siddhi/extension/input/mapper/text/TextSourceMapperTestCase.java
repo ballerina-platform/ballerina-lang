@@ -31,6 +31,9 @@ import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 public class TextSourceMapperTestCase {
     static final Logger log = Logger.getLogger(TextSourceMapperTestCase.class);
 
@@ -71,13 +74,13 @@ public class TextSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(75.6f, event.getData(1));
+                            assertEquals(75.6f, event.getData(1));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            fail();
                     }
                 }
             }
@@ -90,7 +93,7 @@ public class TextSourceMapperTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of events", 2, count.get());
+        assertEquals("Number of events", 2, count.get());
         executionPlanRuntime.shutdown();
     }
 // TODO: 2/11/17 Fix these

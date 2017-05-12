@@ -19,7 +19,6 @@
 package org.wso2.siddhi.core.query.window.external;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -32,6 +31,9 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 import java.text.MessageFormat;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ExternalTimeBatchWindowTestCase {
 
@@ -98,9 +100,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 2, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        assertEquals("Event arrived", true, eventArrived);
+        assertEquals("In Events ", 2, inEventCount);
+        assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
     }
 
@@ -154,9 +156,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 2, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        assertEquals("Event arrived", true, eventArrived);
+        assertEquals("In Events ", 2, inEventCount);
+        assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
 
@@ -213,9 +215,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 3, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        assertEquals("Event arrived", true, eventArrived);
+        assertEquals("In Events ", 3, inEventCount);
+        assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
 
@@ -273,9 +275,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 3, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        assertEquals("Event arrived", true, eventArrived);
+        assertEquals("In Events ", 3, inEventCount);
+        assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
 
@@ -329,9 +331,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(5000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 1, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        assertEquals("Event arrived", true, eventArrived);
+        assertEquals("In Events ", 1, inEventCount);
+        assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
     }
@@ -388,9 +390,9 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(5000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 2, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        assertEquals("Event arrived", true, eventArrived);
+        assertEquals("In Events ", 2, inEventCount);
+        assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
 
@@ -452,9 +454,9 @@ public class ExternalTimeBatchWindowTestCase {
         inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 4, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        assertEquals("Event arrived", true, eventArrived);
+        assertEquals("In Events ", 4, inEventCount);
+        assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
 
@@ -492,15 +494,15 @@ public class ExternalTimeBatchWindowTestCase {
                 for (Event event : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(4L, event.getData(2));
+                        assertEquals(4L, event.getData(2));
                     } else if (inEventCount == 2) {
-                        Assert.assertEquals(3L, event.getData(2));
+                        assertEquals(3L, event.getData(2));
                     } else if (inEventCount == 3) {
-                        Assert.assertEquals(5L, event.getData(2));
+                        assertEquals(5L, event.getData(2));
                     } else if (inEventCount == 4) {
-                        Assert.assertEquals(7L, event.getData(2));
+                        assertEquals(7L, event.getData(2));
                     } else if (inEventCount == 5) {
-                        Assert.assertEquals(2L, event.getData(2));
+                        assertEquals(2L, event.getData(2));
                     }
                 }
                 eventArrived = true;
@@ -529,9 +531,9 @@ public class ExternalTimeBatchWindowTestCase {
         inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 5, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        assertEquals("Event arrived", true, eventArrived);
+        assertEquals("In Events ", 5, inEventCount);
+        assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
     }
 
@@ -604,7 +606,7 @@ public class ExternalTimeBatchWindowTestCase {
 
 
         Thread.sleep(10000);
-        Assert.assertEquals(10 * 10000, sum);
+        assertEquals(10 * 10000, sum);
         executionPlanRuntime.shutdown();
     }
 
@@ -639,15 +641,15 @@ public class ExternalTimeBatchWindowTestCase {
                 for (Event event : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(4L, event.getData(2));
+                        assertEquals(4L, event.getData(2));
                     } else if (inEventCount == 2) {
-                        Assert.assertEquals(3L, event.getData(2));
+                        assertEquals(3L, event.getData(2));
                     } else if (inEventCount == 3) {
-                        Assert.assertEquals(5L, event.getData(2));
+                        assertEquals(5L, event.getData(2));
                     } else if (inEventCount == 4) {
-                        Assert.assertEquals(7L, event.getData(2));
+                        assertEquals(7L, event.getData(2));
                     } else if (inEventCount == 5) {
-                        Assert.assertEquals(2L, event.getData(2));
+                        assertEquals(2L, event.getData(2));
                     }
                 }
                 eventArrived = true;
@@ -676,9 +678,9 @@ public class ExternalTimeBatchWindowTestCase {
         inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 5, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        assertEquals("Event arrived", true, eventArrived);
+        assertEquals("In Events ", 5, inEventCount);
+        assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
     }
 
@@ -713,9 +715,9 @@ public class ExternalTimeBatchWindowTestCase {
                 for (Event event : inEvents) {
                     inEventCount++;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(4L, event.getData(2));
+                        assertEquals(4L, event.getData(2));
                     } else if (inEventCount == 2) {
-                        Assert.assertEquals(7L, event.getData(2));
+                        assertEquals(7L, event.getData(2));
                     }
                 }
                 eventArrived = true;
@@ -744,9 +746,9 @@ public class ExternalTimeBatchWindowTestCase {
         inputHandler.send(new Object[]{1366335806690L, "192.10.1.10"});
         Thread.sleep(3000);
 
-        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
-        junit.framework.Assert.assertEquals("In Events ", 2, inEventCount);
-        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        assertEquals("Event arrived", true, eventArrived);
+        assertEquals("In Events ", 2, inEventCount);
+        assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
     }
 
@@ -802,9 +804,9 @@ public class ExternalTimeBatchWindowTestCase {
             cseEventStreamHandler.send(new Object[]{1366335805341L, "WSO2", 75.6f, 100});
             cseEventStreamHandler.send(new Object[]{1366335806541L, "WSO2", 57.6f, 100});
             Thread.sleep(1000);
-            junit.framework.Assert.assertEquals(2, inEventCount);
-            junit.framework.Assert.assertEquals(0, removeEventCount);
-            junit.framework.Assert.assertTrue(eventArrived);
+            assertEquals(2, inEventCount);
+            assertEquals(0, removeEventCount);
+            assertTrue(eventArrived);
         } finally {
             executionPlanRuntime.shutdown();
         }
@@ -862,9 +864,9 @@ public class ExternalTimeBatchWindowTestCase {
             cseEventStreamHandler.send(new Object[]{1366335805341L, "WSO2", 75.6f, 100});
             cseEventStreamHandler.send(new Object[]{1366335806541L, "WSO2", 57.6f, 100});
             Thread.sleep(1000);
-            junit.framework.Assert.assertEquals(2, inEventCount);
-            junit.framework.Assert.assertEquals(1, removeEventCount);
-            junit.framework.Assert.assertTrue(eventArrived);
+            assertEquals(2, inEventCount);
+            assertEquals(1, removeEventCount);
+            assertTrue(eventArrived);
         } finally {
             executionPlanRuntime.shutdown();
         }
@@ -892,16 +894,16 @@ public class ExternalTimeBatchWindowTestCase {
         runtime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                Assert.assertEquals(1, inEvents.length);
+                assertEquals(1, inEvents.length);
                 recCount.incrementAndGet();
                 double avgCpu = (Double) inEvents[0].getData()[0];
                 if (recCount.get() == 1) {
-                    Assert.assertEquals(15, avgCpu, 0);
+                    assertEquals(15, avgCpu, 0);
                 } else if (recCount.get() == 2) {
-                    Assert.assertEquals(85, avgCpu, 0);
+                    assertEquals(85, avgCpu, 0);
                 }
                 long count = (Long) inEvents[0].getData()[1];
-                Assert.assertEquals(3, count);
+                assertEquals(3, count);
             }
         });
 
@@ -924,7 +926,7 @@ public class ExternalTimeBatchWindowTestCase {
 
         Thread.sleep(1000);
 
-        Assert.assertEquals(2, recCount.get());
+        assertEquals(2, recCount.get());
     }
 
     @Test
@@ -1002,8 +1004,8 @@ public class ExternalTimeBatchWindowTestCase {
 
         plan.shutdown();
         Thread.sleep(1000);
-        Assert.assertEquals(round * eventsPerRound + eventsPerRound, counter.get());
-        Assert.assertEquals(round, queryWideCounter.get());
+        assertEquals(round * eventsPerRound + eventsPerRound, counter.get());
+        assertEquals(round, queryWideCounter.get());
     }
 
     // one round of sending events
@@ -1047,11 +1049,11 @@ public class ExternalTimeBatchWindowTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (count == 0) {
-                    Assert.assertEquals(1, inEvents[0].getData(0));
+                    assertEquals(1, inEvents[0].getData(0));
                 } else if (count == 1) {
-                    Assert.assertEquals(6, inEvents[0].getData(0));
+                    assertEquals(6, inEvents[0].getData(0));
                 } else if (count == 2) {
-                    Assert.assertEquals(13, inEvents[0].getData(0));
+                    assertEquals(13, inEvents[0].getData(0));
                 }
                 count += 1;
             }
@@ -1116,11 +1118,11 @@ public class ExternalTimeBatchWindowTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (count == 0) {
-                    Assert.assertEquals(0L, inEvents[0].getData(0));
-                    Assert.assertEquals(11L, inEvents[inEvents.length - 1].getData(0));
+                    assertEquals(0L, inEvents[0].getData(0));
+                    assertEquals(11L, inEvents[inEvents.length - 1].getData(0));
                 }
                 if (count == 1) {
-                    Assert.assertEquals(12L, inEvents[0].getData(0));
+                    assertEquals(12L, inEvents[0].getData(0));
                 }
                 count += 1;
 
@@ -1162,15 +1164,15 @@ public class ExternalTimeBatchWindowTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 if (count == 0) {
-                    Assert.assertEquals(1, inEvents[0].getData(0));
+                    assertEquals(1, inEvents[0].getData(0));
                 } else if (count == 1) {
-                    Assert.assertEquals(6, inEvents[0].getData(0));
+                    assertEquals(6, inEvents[0].getData(0));
                 } else if (count == 2) {
-                    Assert.assertEquals(11, inEvents[0].getData(0));
+                    assertEquals(11, inEvents[0].getData(0));
                 } else if (count == 3) {
-                    Assert.assertEquals(14, inEvents[0].getData(0));
+                    assertEquals(14, inEvents[0].getData(0));
                 } else if (count == 4) {
-                    Assert.assertEquals(15, inEvents[0].getData(0));
+                    assertEquals(15, inEvents[0].getData(0));
                 }
                 count += 1;
             }

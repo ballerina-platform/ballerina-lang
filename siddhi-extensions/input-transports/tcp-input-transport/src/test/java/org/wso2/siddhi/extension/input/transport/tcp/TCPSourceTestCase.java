@@ -18,13 +18,15 @@
 
 package org.wso2.siddhi.extension.input.transport.tcp;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -32,6 +34,8 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.tcp.transport.TCPNettyClient;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class TCPSourceTestCase {
     static final Logger log = Logger.getLogger(TCPSourceTestCase.class);
