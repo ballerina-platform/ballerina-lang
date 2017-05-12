@@ -47,6 +47,7 @@ import BallerinaDiagram from './../components/diagram';
 import MessageManager from './../visitors/message-manager';
 import Renderer from '../components/renderer';
 import StructOperationsRenderer from '../components/struct-operations-renderer';
+import FindDebugHitVisitor from './../visitors/find-debug-hit-visitor';
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -794,38 +795,22 @@ class BallerinaFileEditor extends BallerinaView {
         return this._sourceView;
     }
 
-    highlightExecutionPoint() {
-        this._sourceView._editor.selection.moveCursorToPosition({row: 1, column: 0});
-        this._sourceView._editor.selection.selectLine();
-    }
-
     debugHit(position) {
         this._sourceView.debugHit(position);
         this._debugHitDesignView(position);
     }
 
     _debugHitDesignView(position) {
-        var self = this;
-        var modelMap = this.diagramRenderingContext.getViewModelMap();
-        // hide previous debug hit
-        if(this._currentDebugHit) {
-            this._currentDebugHit.clearDebugHit();
-        }
-        _.each(modelMap, function(aView) {
-            if(!_.isNil(aView.getModel)) {
-                var lineNumber = aView.getModel().getLineNumber();
-                if(lineNumber === position.lineNumber && !_.isNil(aView.showDebugHit)) {
-                    aView.showDebugHit();
-                    self._currentDebugHit = aView;
-                }
-            }
-        });
+        const findDebugHitVisitor = new FindDebugHitVisitor(this._model);
+        findDebugHitVisitor.setPosition(position);
+        this._model.accept(findDebugHitVisitor);
     }
 
     _clearExistingDebugHit() {
-        if(this._currentDebugHit) {
-            this._currentDebugHit.clearDebugHit();
-        }
+        this._currentDebugHit = {};
+        const findDebugHitVisitor = new FindDebugHitVisitor(this._model);
+        findDebugHitVisitor.setPosition({});
+        this._model.accept(findDebugHitVisitor);
         this._sourceView.clearExistingDebugHit();
     }
 

@@ -155,6 +155,10 @@ class StatementDecorator extends React.Component {
 		actionBbox.h = DesignerDefaults.actionBox.height;
 		actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
 		actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
+		let statementRectClass = "statement-rect";
+		if(model.isDebugHit) {
+				statementRectClass = `${statementRectClass} debug-hit`;
+		}
 
 		return (
 	    	<g 	className="statement"
@@ -168,7 +172,7 @@ class StatementDecorator extends React.Component {
 			                className={dropZoneClassName} {...fill}
 						 		onMouseOver={(e) => this.onDropZoneActivate(e)}
 								onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
-						<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className="statement-rect"
+						<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
 							  onClick={(e) => this.openExpressionEditor(e)} />
 						<g className="statement-body">
 							<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
