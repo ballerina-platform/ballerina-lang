@@ -18,36 +18,30 @@
 
 import ASTVisitor from './ast-visitor';
 
-class FindBreakpointsVisitor extends ASTVisitor {
+class FindBreakpointNodesVisitor extends ASTVisitor {
     constructor() {
         super();
         this._breakpoints = [];
-        this._breakpointNodes = [];
     }
     setBreakpoints(breakpoints = []) {
         this._breakpoints = breakpoints;
     }
-    getBreakPoints(){
-        return this._breakpoints;
-    }
-    visit(node) {
+    beginVisit(node) {
         const lineNumber = node.getLineNumber();
-        if(this.getBreakPoints().indexOf(lineNumber) !== -1){
-            node.isBreakpoint = true;
-        } else {
-            node.isBreakpoint = false;
+        const breakpointIndex = this._breakpoints.indexOf(lineNumber);
+        if(breakpointIndex !== -1){
+            node.addBreakpoint();
+            // to avoid setting isBreakpoint attribute to children
+            this._breakpoints.splice(breakpointIndex, 1);
         }
-        if(node.isBreakpoint) {
-            this._breakpointNodes.push(node);
+        if(node.isBreakpoint && breakpointIndex === -1){
+            // breakpoint has removed but model is not updated
+            node.removeBreakpoint();
         }
-
     }
     canVisit() {
         return true;
     }
-    getBreakpointNodes() {
-        return this._breakpointNodes;
-    }
 }
 
-export default FindBreakpointsVisitor;
+export default FindBreakpointNodesVisitor;

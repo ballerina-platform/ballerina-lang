@@ -1,4 +1,8 @@
 body {
+    .editor-wrapper {
+        height: 100%;
+    }
+    
     .ace-twilight {
         background-color: $source-editor-bgcolor;
         color: $source-editor-color;

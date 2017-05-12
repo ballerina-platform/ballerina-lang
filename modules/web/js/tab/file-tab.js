@@ -111,7 +111,6 @@ import alerts from 'alerts';
             }, this);
 
             fileEditor.on('design-view-activated', () => {
-                // const breakpoints = DebugManager.getDebugPoints(this._file.getName()) || [];
                 const breakpoints = fileEditor._sourceView.getBreakpoints() || [];
                 fileEditor._showDesignViewBreakpoints(breakpoints);
             }, this);

@@ -21,7 +21,7 @@ let config = {
     },
     // you can overide service urls by uncommenting the following.
     // if the following are not set they will be taken automatically from the composer file server.
-    services: {
+    /*services: {
         workspace:  {
             endpoint: "http://localhost:8289/service/workspace"
         },
@@ -38,9 +38,9 @@ let config = {
             endpoint: "http://localhost:8289/ballerina/validate"
         },
         launcher: {
-            endpoint: "ws://localhost:9097/launch"
+            endpoint: "ws://localhost:8290/launch"
         }
-    },
+    },*/
     alerts: {
         container: "#alerts-container",
         cssClass: {

@@ -47,6 +47,7 @@ class MessageManager {
         this._arrowDecorator = undefined;
         this._backwardArrowDecorator = undefined;
         this._container = undefined;
+        this._targetValidationCallback = undefined;
     }
 
     /**
@@ -127,6 +128,14 @@ class MessageManager {
         return this._container;
     }
 
+    setTargetValidationCallback(validationCallback) {
+        this._targetValidationCallback = validationCallback;
+    }
+
+    getTargetValidationCallback() {
+        return this._targetValidationCallback;
+    }
+
     reset() {
         /**
          * @event MessageManager#drag-stop
@@ -139,7 +148,7 @@ class MessageManager {
         this.setIsOnDrag(false);
     }
 
-    startDrawMessage(mouseUpCallback) {
+    startDrawMessage(mouseUpCallback, targetValidationCallback) {
 
         var self = this,
             container = d3.select('.svg-container');
@@ -149,9 +158,11 @@ class MessageManager {
             self.setMessageEnd(m[0] - 5, self.getMessageStart().y);
             if (self.getMessageEnd().x > self.getMessageStart().x) {
                 const currentDrawOnMouseMoveFlag = self.getArrowDecorator().state.drawOnMouseMoveFlag;
+                self.getBackwardArrowDecorator().setState({drawOnMouseMoveFlag: -1});
                 self.getArrowDecorator().setState({drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1)});
             } else {
                 const currentDrawOnMouseMoveFlag = self.getBackwardArrowDecorator().state.drawOnMouseMoveFlag;
+                self.getArrowDecorator().setState({drawOnMouseMoveFlag: -1});
                 self.getBackwardArrowDecorator().setState({drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1)});
             }
 
@@ -163,9 +174,16 @@ class MessageManager {
             container.on('mouseup', null);
             const messageSource= self.getSource();
             const messageDestination = self.getDestination();
+            const validDestination = self.isAtValidDestination();
             self.reset();
-            mouseUpCallback(messageSource, messageDestination);
+            if (validDestination) {
+                mouseUpCallback(messageSource, messageDestination);
+            }
         });
+    }
+
+    isAtValidDestination() {
+        return this._targetValidationCallback(this.getDestination());
     }
 }
 

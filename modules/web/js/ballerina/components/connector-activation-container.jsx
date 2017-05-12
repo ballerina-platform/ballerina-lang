@@ -26,13 +26,14 @@ class ConnectorActivationContainer extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {activationZoneActivated: false}
+        this.state = {activationZoneActivated: false, dropZoneDropNotAllowed: false}
     }
 
     render() {
         const bBox = this.props.bBox;
         const dropZoneActivated = this.state.activationZoneActivated;
-        const dropZoneClassName = dropZoneActivated ? 'activation-zone active' : 'activation-zone';
+        const dropZoneNotAllowed = this.state.dropZoneDropNotAllowed;
+        const dropZoneClassName = (dropZoneActivated ? 'activation-zone active' : 'activation-zone') + (dropZoneNotAllowed ? ' block' : '');
         return (<g className="connector-activation-container">
             <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h }
                   className={dropZoneClassName}
@@ -48,7 +49,7 @@ class ConnectorActivationContainer extends React.Component {
             let activationTarget = this.props.activationTarget;
         if(messageManager.isOnDrag()) {
             messageManager.setDestination(activationTarget);
-            this.setState({activationZoneActivated: true});
+            this.setState({activationZoneActivated: true, dropZoneDropNotAllowed: !messageManager.isAtValidDestination()});
         }
         e.stopPropagation();
     }
