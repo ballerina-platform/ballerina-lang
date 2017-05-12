@@ -100,7 +100,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         }
 
         // Generate the native ballerina files
-        generateNativeBalFiles(options, srcDir);
+        // generateNativeBalFiles(options, srcDir);
 
         // Generate the construct provider class. This should be invoked after 
         // generating the native ballerina files
@@ -139,7 +139,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      *
      * @param srcDir Path to the ballerina source directory
      */
-    private void generateNativeBalFiles(Map<String, String> options, String srcDir) {
+    public void generateNativeBalFiles(Map<String, String> options, String srcDir) {
         String targetDir = options.get(TARGET_DIR);
         if (targetDir == null) {
             throw new BallerinaException("target directory to store the generated ballerina files, must be specified.");

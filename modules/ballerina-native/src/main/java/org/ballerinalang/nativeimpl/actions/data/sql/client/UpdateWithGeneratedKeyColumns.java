@@ -80,7 +80,7 @@ public class UpdateWithGeneratedKeyColumns extends AbstractSQLAction {
         String query = getArgument(context, 1).stringValue();
         BArray parameters = (BArray) getArgument(context, 2);
         BArray<BString> keyColumns = ((BArray<BString>) getArgument(context, 3));
-        BMap sharedMap = (BMap) bConnector.getValue(0);
+        BMap sharedMap = (BMap) bConnector.getValue(1);
         SQLDatasource datasource = null;
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) != null) {
             datasource = (SQLDatasource) sharedMap.get(new BString(Constants.DATASOURCE_KEY));

@@ -177,6 +177,7 @@ public class BLangModelBuilder {
         this.currentScope = packageBuilder.getCurrentScope();
         this.packageScope = currentScope;
         bFileBuilder = new BallerinaFile.BFileBuilder(bFileName, packageBuilder);
+        currentPackagePath = ".";
 
     }
 
@@ -790,6 +791,7 @@ public class BLangModelBuilder {
 
     public void addFunction(String name, boolean isNative) {
         currentCUBuilder.setName(name);
+        currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
 
         getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
@@ -883,6 +885,7 @@ public class BLangModelBuilder {
 
     public void addAction(String name, boolean isNative, int annotationCount) {
         currentCUBuilder.setName(name);
+        currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
 
         getAnnotationAttachments(annotationCount).forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
@@ -1356,6 +1359,7 @@ public class BLangModelBuilder {
         checkForUndefinedPackagePath(location, pkgName, importPkg, () -> pkgName + ":" + name);
 
         if (importPkg == null) {
+            nameReference.setPkgPath(currentPackagePath);
             return;
         }
 

@@ -73,7 +73,7 @@ public class Select extends AbstractSQLAction {
         BConnector bConnector = (BConnector) getArgument(context, 0);
         String query = getArgument(context, 1).stringValue();
         BArray parameters = (BArray) getArgument(context, 2);
-        BMap sharedMap = (BMap) bConnector.getValue(0);
+        BMap sharedMap = (BMap) bConnector.getValue(1);
         SQLDatasource datasource = null;
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) != null) {
             datasource = (SQLDatasource) sharedMap.get(new BString(Constants.DATASOURCE_KEY));

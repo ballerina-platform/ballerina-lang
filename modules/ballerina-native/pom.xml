@@ -238,6 +238,7 @@
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
         
         <!-- Path to the generated natives ballerina files temp directory -->
-        <generated.ballerina.source.directory>${project.build.directory}/natives</generated.ballerina.source.directory>
+        <!--<generated.ballerina.source.directory>${project.build.directory}/natives</generated.ballerina.source.directory>-->
+        <generated.ballerina.source.directory>${project.build.directory}/../src/main/ballerina</generated.ballerina.source.directory>
     </properties>
 </project>

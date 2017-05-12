@@ -27,13 +27,21 @@ import java.nio.file.Path;
 public class FileSystemPackageRepository extends PackageRepository {
     private Path programDirPath;
 
+    private BuiltinPackageRepository[] pkgRepositories;
 
-    public FileSystemPackageRepository(Path programDirPath) {
+    public FileSystemPackageRepository(Path programDirPath, BuiltinPackageRepository[] pkgRepositories) {
         this.programDirPath = programDirPath;
+        this.pkgRepositories = pkgRepositories;
     }
 
     @Override
     public PackageSource loadPackage(Path packageDirPath) {
+        for (BuiltinPackageRepository pkgRepository : pkgRepositories) {
+            PackageSource packageSource = pkgRepository.loadPackage(packageDirPath);
+            if (packageSource != null) {
+                return packageSource;
+            }
+        }
         return loadPackageFromDirectory(packageDirPath, programDirPath);
     }
 

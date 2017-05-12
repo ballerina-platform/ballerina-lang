@@ -20,11 +20,13 @@ package org.ballerinalang;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.util.BLangDiagnosticListener;
 import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.ballerinalang.util.repository.BLangProgramArchive;
+import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.FileSystemPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
 import org.ballerinalang.util.semantics.SemanticAnalyzer;
@@ -52,12 +54,15 @@ public class BLangProgramLoader {
 
         // Get the global scope
         GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+        NativeScope nativeScope = BLangPrograms.populateNativeScope();
+
+        BuiltinPackageRepository[] pkgRepositories = BLangPrograms.populateBuiltinPackageRepositories();
 
         // Creates program scope for this Ballerina program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.MAIN_PROGRAM);
+        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.MAIN_PROGRAM);
         bLangProgram.setProgramFilePath(sourcePath);
 
-        BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram);
+        BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram, pkgRepositories);
         BLangPackage mainPackage = bLangPackages[0];
 
         bLangProgram.setMainPackage(mainPackage);
@@ -78,12 +83,15 @@ public class BLangProgramLoader {
 
         // Get the global scope
         GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+        NativeScope nativeScope = BLangPrograms.populateNativeScope();
+
+        BuiltinPackageRepository[] pkgRepositories = BLangPrograms.populateBuiltinPackageRepositories();
 
         // Creates program scope for this Ballerina program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.SERVICE_PROGRAM);
+        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.SERVICE_PROGRAM);
         bLangProgram.setProgramFilePath(servicePath);
 
-        BLangPackage[] servicePackages = loadPackages(programDirPath, servicePath, bLangProgram);
+        BLangPackage[] servicePackages = loadPackages(programDirPath, servicePath, bLangProgram, pkgRepositories);
 
         for (BLangPackage servicePkg : servicePackages) {
             bLangProgram.addServicePackage(servicePkg);
@@ -104,12 +112,15 @@ public class BLangProgramLoader {
 
         // Get the global scope
         GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+        NativeScope nativeScope = BLangPrograms.populateNativeScope();
+
+        BuiltinPackageRepository[] pkgRepositories = BLangPrograms.populateBuiltinPackageRepositories();
 
         // Creates program scope for this Ballerina program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.LIBRARY_PROGRAM);
+        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.LIBRARY_PROGRAM);
         bLangProgram.setProgramFilePath(sourcePath);
 
-        BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram);
+        BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram, pkgRepositories);
 
         // TODO Find cyclic dependencies
         for (BLangPackage bLangPackage : bLangPackages) {
@@ -143,12 +154,13 @@ public class BLangProgramLoader {
 
     private BLangPackage[] loadPackages(Path programDirPath,
                                         Path sourcePath,
-                                        BLangProgram bLangProgram) {
+                                        BLangProgram bLangProgram,
+                                        BuiltinPackageRepository[] pkgRepositories) {
 
         sourcePath = BLangPrograms.validateAndResolveSourcePath(programDirPath, sourcePath,
                 bLangProgram.getProgramCategory());
 
-        PackageRepository packageRepository = new FileSystemPackageRepository(programDirPath);
+        PackageRepository packageRepository = new FileSystemPackageRepository(programDirPath, pkgRepositories);
         if (Files.isDirectory(sourcePath, LinkOption.NOFOLLOW_LINKS)) {
             Path packagePath = programDirPath.relativize(sourcePath);
             BLangPackage bLangPackage = BLangPackages.loadPackage(packagePath, packageRepository, bLangProgram);

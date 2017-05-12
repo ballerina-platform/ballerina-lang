@@ -188,7 +188,8 @@ public class Utils {
      */
     public static String getActionQualifiedName(BallerinaAction balAction, String connectorName, String connectorPkg) {
         if (balAction.actionName().equals("init")) {
-            StringBuilder actionNameBuilder = new StringBuilder(Constants.NON_CALLABLE_NATIVE_ACTION_INIT);
+            StringBuilder actionNameBuilder =
+                    new StringBuilder(Constants.NON_CALLABLE_NATIVE_ACTION_INIT.replace("$name", connectorName));
             return actionNameBuilder.toString();
         }
         StringBuilder actionNameBuilder = new StringBuilder(Constants.NATIVE_ACTION_PREFIX + "."

@@ -70,6 +70,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         symbolMap = new HashMap<>();
     }
 
+    public BLangPackage(NativeScope nativeScope) {
+        this.enclosingScope = nativeScope;
+        symbolMap = new HashMap<>();
+    }
+
     public BLangPackage(String packagePath, PackageRepository packageRepo, BLangProgram programScope) {
         this.pkgPath = packagePath;
         this.pkgRepo = packageRepo;
@@ -201,7 +206,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             pkgSymbol = ((NativePackageProxy) pkgSymbol).load();
         }
 
-        return ((BLangPackage) pkgSymbol).resolveMembers(new SymbolName(name.getName()));
+        return ((BLangPackage) pkgSymbol).resolveMembers(name);
     }
 
     @Override

@@ -66,10 +66,11 @@ public class Init extends AbstractSQLAction {
         try {
             lock.lock();
             BConnector bConnector = (BConnector) getArgument(context, 0);
-            BMap sharedMap = (BMap) bConnector.getValue(0);
+            BMap optionMap = (BMap) bConnector.getValue(0);
+            BMap sharedMap = (BMap) bConnector.getValue(1);
             if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) == null) {
                 SQLDatasource datasource = new SQLDatasource();
-                datasource.init(sharedMap);
+                datasource.init(optionMap);
                 sharedMap.put(new BString(Constants.DATASOURCE_KEY), datasource);
             }
             return null;

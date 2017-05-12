@@ -116,7 +116,12 @@ public class BTypes {
 
     public static BType resolveType(SimpleTypeName typeName, SymbolScope symbolScope, NodeLocation location) {
         BType bType = null;
-        BLangSymbol symbol = symbolScope.resolve(typeName.getSymbolName());
+        BLangSymbol symbol = null;
+        symbol = symbolScope.resolve(new SymbolName(typeName.getSymbolName().getName()));
+        if (symbol == null) {
+            symbol = symbolScope.resolve(typeName.getSymbolName());
+        }
+
         if (symbol instanceof BType) {
             bType = (BType) symbol;
         }
@@ -127,8 +132,12 @@ public class BTypes {
 
         // Now check whether this is an arrays type
         if (typeName.isArrayType()) {
-            BLangSymbol bTypeSymbol = symbolScope.resolve(new SymbolName(typeName.getName(), 
-                    typeName.getPackagePath()));
+            BLangSymbol bTypeSymbol = null;
+            bTypeSymbol = symbolScope.resolve(new SymbolName(typeName.getName()));
+            if (bTypeSymbol == null) {
+                bTypeSymbol = symbolScope.resolve(new SymbolName(typeName.getName(),
+                        typeName.getPackagePath()));
+            }
             if (bTypeSymbol instanceof BType) {
                 bType = (BType) bTypeSymbol;
             }
@@ -140,7 +149,8 @@ public class BTypes {
             if (typeName.getDimensions() == 1) {
                 BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
                         bType, bType.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
-                bType.getSymbolScope().define(new SymbolName(typeName.getSymbolName().getName()), bArrayType);
+                bType.getSymbolScope().define(new SymbolName(typeName.getSymbolName().getName(),
+                        typeName.getSymbolName().getPkgPath()), bArrayType);
                 return bArrayType;
             } else {
                 SimpleTypeName childSimpleType = new SimpleTypeName(typeName.getName(),
@@ -150,7 +160,8 @@ public class BTypes {
                 BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
                         BTypes.resolveType(childSimpleType, symbolScope, location), bType.getPackagePath(),
                         bType.getSymbolScope(), typeName.getDimensions());
-                bType.getSymbolScope().define(new SymbolName(typeName.getSymbolName().getName()), bArrayType);
+                bType.getSymbolScope().define(new SymbolName(typeName.getSymbolName().getName(),
+                        typeName.getSymbolName().getPkgPath()), bArrayType);
 
                 return bArrayType;
             }

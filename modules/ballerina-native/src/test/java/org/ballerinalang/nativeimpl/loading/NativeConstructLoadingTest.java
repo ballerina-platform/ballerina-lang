@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.loading;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.symbols.BLangSymbol;
@@ -39,17 +40,19 @@ import org.testng.annotations.Test;
 public class NativeConstructLoadingTest {
 
     GlobalScope globalScope;
+    NativeScope nativeScope;
 
     @BeforeClass
     public void setup() {
         globalScope = GlobalScope.getInstance();
-        BuiltInNativeConstructLoader.loadConstructs(globalScope);
+        nativeScope = NativeScope.getInstance();
+        BuiltInNativeConstructLoader.loadConstructs(nativeScope);
         BTypes.loadBuiltInTypes(globalScope);
     }
 
     @Test
     public void testLoadingExistingConstruct() {
-        BLangSymbol pkgSymbol = globalScope.resolve(new SymbolName("ballerina.lang.system"));
+        BLangSymbol pkgSymbol = nativeScope.resolve(new SymbolName("ballerina.lang.system"));
         Assert.assertTrue(pkgSymbol instanceof NativePackageProxy);
 
         BLangPackage bLangPkg = ((NativePackageProxy) pkgSymbol).load();
@@ -62,7 +65,7 @@ public class NativeConstructLoadingTest {
 
     @Test
     public void testLoadingNonExistingConstruct() {
-        BLangSymbol pkgSymbol = globalScope.resolve(new SymbolName("ballerina.lang.system"));
+        BLangSymbol pkgSymbol = nativeScope.resolve(new SymbolName("ballerina.lang.system"));
         Assert.assertTrue(pkgSymbol instanceof NativePackageProxy);
 
         BLangPackage bLangPkg = ((NativePackageProxy) pkgSymbol).load();
@@ -76,7 +79,7 @@ public class NativeConstructLoadingTest {
     public void testLoadingUnimplemenmtedConstruct() {
         registerNonExistingNativeFunction();
 
-        BLangSymbol pkgSymbol = globalScope.resolve(new SymbolName("ballerina.lang.system"));
+        BLangSymbol pkgSymbol = nativeScope.resolve(new SymbolName("ballerina.lang.system"));
         Assert.assertTrue(pkgSymbol instanceof NativePackageProxy);
 
         BLangPackage bLangPkg = ((NativePackageProxy) pkgSymbol).load();
@@ -87,8 +90,8 @@ public class NativeConstructLoadingTest {
     }
     
     private void registerNonExistingNativeFunction() {
-        globalScope.define(new SymbolName("ballerina.lang.system"), new NativePackageProxy(() -> {
-            BLangPackage nativePackage = new BLangPackage(globalScope);
+        nativeScope.define(new SymbolName("ballerina.lang.system"), new NativePackageProxy(() -> {
+            BLangPackage nativePackage = new BLangPackage(nativeScope);
             nativePackage.setPackagePath("ballerina.lang.system");
             nativePackage.define(new SymbolName("unimplementedFunction"), new NativeUnitProxy(() -> {
                 NativeUnit nativeCallableUnit = null;
@@ -108,6 +111,6 @@ public class NativeConstructLoadingTest {
                 return nativeCallableUnit;
             }));
             return nativePackage;
-        }, globalScope));
+        }, nativeScope));
     }
 }
