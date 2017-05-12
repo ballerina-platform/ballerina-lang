@@ -59,6 +59,8 @@ under the License.
         <classes>
             <!-- Negative Test cases -->
             <class name="org.ballerinalang.core.parser.negative.InvalidSyntaxParserTest"/>
+            <!-- whitespace capture test cases -->
+            <class name="org.ballerinalang.core.parser.whitespace.WhiteSpaceCaptureTest"/>
         </classes>
     </test>
 

@@ -205,7 +205,7 @@ public class BLangModelBuilder {
     }
 
     public void addBFileWhiteSpaceRegion(int regionId, String whitespace) {
-        if(bFileBuilder.getWhiteSpaceDescriptor() == null) {
+        if (bFileBuilder.getWhiteSpaceDescriptor() == null) {
             bFileBuilder.setWhiteSpaceDescriptor(new WhiteSpaceDescriptor());
         }
         bFileBuilder.getWhiteSpaceDescriptor()
