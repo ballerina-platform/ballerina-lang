@@ -35,7 +35,6 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.AttributeType;
 
 @Extension(
         name = "json",
@@ -48,10 +47,14 @@ public class JSONOutputMapper extends SinkMapper {
     private static final Logger log = Logger.getLogger(JSONOutputMapper.class);
     private static final String EVENT_PARENT_TAG = "event";
     private static final String ENCLOSING_ELEMENT_IDENTIFIER = "enclosing.element";
+    private static final String DEFAULT_ENCLOSING_ELEMENT = "$";
     private static final String JSON_VALIDATION_IDENTIFIER = "validate.json";
     private static final String JSON_EVENT_SEPERATOR = ",";
+    private static final String JSON_KEYVALUE_SEPERATOR = ":";
     private static final String JSON_ARRAY_START_SYMBOL = "[";
     private static final String JSON_ARRAY_END_SYMBOL = "]";
+    private static final String JSON_EVENT_START_SYMBOL = "{";
+    private static final String JSON_EVENT_END_SYMBOL = "}";
     private static final String UNDEFINED = "undefined";
 
     private StreamDefinition streamDefinition;
@@ -137,7 +140,7 @@ public class JSONOutputMapper extends SinkMapper {
     }
 
     private String constructJsonForDefaultMapping(Object eventObj) {
-        if (eventObj.getClass() == Event.class) {
+        /*if (eventObj.getClass() == Event.class) {
             Event event = (Event) eventObj;
             JsonObject jsonEvent = constructSingleEventForDefaultMapping(doPartialProcessing(event));
             return jsonEvent.toString();
@@ -151,44 +154,123 @@ public class JSONOutputMapper extends SinkMapper {
             // TODO : log error
             log.error("Invalid object type. " + eventObj.toString() + " cannot be converted to an event or event array.");
             return null;
+        }*/
+
+        StringBuilder sb = new StringBuilder();
+        int numberOfOuterObjects = 0;
+        if (enclosingElement != null) {
+            String[] nodeNames = enclosingElement.split("\\.");
+            if (DEFAULT_ENCLOSING_ELEMENT.equals(nodeNames[0])) {
+                numberOfOuterObjects = nodeNames.length - 1;
+            } else {
+                numberOfOuterObjects = nodeNames.length;
+            }
+            for (String nodeName : nodeNames) {
+                if (!DEFAULT_ENCLOSING_ELEMENT.equals(nodeName)) {
+                    sb.append(JSON_EVENT_START_SYMBOL).append("\"").append(nodeName).append("\"")
+                            .append(JSON_KEYVALUE_SEPERATOR);
+                }
+            }
+            if (eventObj.getClass() == Event.class) {
+                Event event = (Event) eventObj;
+                JsonObject jsonEvent = constructSingleEventForDefaultMapping(doPartialProcessing(event));
+                sb.append(jsonEvent);
+            } else if (eventObj.getClass() == Event[].class) {
+                JsonArray eventArray = new JsonArray();
+                for (Event event : (Event[]) eventObj) {
+                    eventArray.add(constructSingleEventForDefaultMapping(doPartialProcessing(event)));
+                }
+                sb.append(eventArray.toString());
+            } else {
+                // TODO : log error
+                log.error("Invalid object type. " + eventObj.toString() +
+                        " cannot be converted to an event or event array. Hence dropping message.");
+                return null;
+            }
+            for (int i = 0; i < numberOfOuterObjects; i++) {
+                sb.append(JSON_EVENT_END_SYMBOL);
+            }
+            return sb.toString();
+        } else {
+            if (eventObj.getClass() == Event.class) {
+                Event event = (Event) eventObj;
+                JsonObject jsonEvent = constructSingleEventForDefaultMapping(doPartialProcessing(event));
+                return jsonEvent.toString();
+            } else if (eventObj.getClass() == Event[].class) {
+                JsonArray eventArray = new JsonArray();
+                for (Event event : (Event[]) eventObj) {
+                    eventArray.add(constructSingleEventForDefaultMapping(doPartialProcessing(event)));
+                }
+                return (eventArray.toString());
+            } else {
+                // TODO : log error
+                log.error("Invalid object type. " + eventObj.toString() + " cannot be converted to an event or event array.");
+                return null;
+            }
         }
     }
 
     private String constructJsonForCustomMapping(Object eventObj, TemplateBuilder payloadTemplateBuilder) {
-        if (eventObj.getClass() == Event.class) {
-            JsonObject jsonObj = new JsonObject();
-            Event event = doPartialProcessing((Event) eventObj);
-            if (enclosingElement != null) {
-                jsonObj.addProperty(enclosingElement, payloadTemplateBuilder.build(event));
-                return jsonObj.toString();
+        StringBuilder sb = new StringBuilder();
+        int numberOfOuterObjects = 0;
+        if (enclosingElement != null) {
+            String[] nodeNames = enclosingElement.split("\\.");
+            if (DEFAULT_ENCLOSING_ELEMENT.equals(nodeNames[0])) {
+                numberOfOuterObjects = nodeNames.length - 1;
             } else {
-                return payloadTemplateBuilder.build(event);
+                numberOfOuterObjects = nodeNames.length;
             }
-        } // TODO : use class name instead of "instance of" :done
-        else if (eventObj.getClass() == Event[].class) {
-            StringBuilder sb = new StringBuilder();
-            JsonArray jsonArray = new JsonArray();
-            sb.append(JSON_ARRAY_START_SYMBOL);
-            String jsonEvent;
-            for (Event event : (Event[]) eventObj) {
-                jsonEvent = payloadTemplateBuilder.build(doPartialProcessing(event));
-                if (jsonEvent != null) {
-                    sb.append(jsonEvent).append(JSON_EVENT_SEPERATOR).append("\n");
+            for (String nodeName : nodeNames) {
+                if (!DEFAULT_ENCLOSING_ELEMENT.equals(nodeName)) {
+                    sb.append(JSON_EVENT_START_SYMBOL).append("\"").append(nodeName).append("\"")
+                            .append(JSON_KEYVALUE_SEPERATOR);
                 }
             }
-            sb.delete(sb.length() - 2, sb.length());
-            sb.append(JSON_ARRAY_END_SYMBOL);
-            if (enclosingElement != null) {
-                JsonObject jsonObj = new JsonObject();
-                jsonObj.addProperty(enclosingElement, jsonArray.toString());
-                return jsonObj.toString();
+            if (eventObj.getClass() == Event.class) {
+                Event event = doPartialProcessing((Event) eventObj);
+                sb.append(payloadTemplateBuilder.build(event));
+            } else if (eventObj.getClass() == Event[].class) {
+                String jsonEvent;
+                sb.append(JSON_ARRAY_START_SYMBOL);
+                for (Event e : (Event[]) eventObj) {
+                    jsonEvent = payloadTemplateBuilder.build(doPartialProcessing(e));
+                    if (jsonEvent != null) {
+                        sb.append(jsonEvent).append(JSON_EVENT_SEPERATOR).append("\n");
+                    }
+                }
+                sb.delete(sb.length() - 2, sb.length());
+                sb.append(JSON_ARRAY_END_SYMBOL);
             } else {
-                return sb.toString();
+                // TODO : log error
+                log.error("Invalid object type. " + eventObj.toString() +
+                        " cannot be converted to an event or event array. Hence dropping message.");
+                return null;
             }
+            for (int i = 0; i < numberOfOuterObjects; i++) {
+                sb.append(JSON_EVENT_END_SYMBOL);
+            }
+            return sb.toString();
         } else {
-            // TODO : log error
-            log.error("Invalid object type. " + eventObj.toString() + " cannot be converted to an event or event array.");
-            return null;
+            if (eventObj.getClass() == Event.class) {
+                return payloadTemplateBuilder.build(doPartialProcessing((Event) eventObj));
+            } else if (eventObj.getClass() == Event[].class) {
+                String jsonEvent;
+                sb.append(JSON_ARRAY_START_SYMBOL);
+                for (Event event : (Event[]) eventObj) {
+                    jsonEvent = payloadTemplateBuilder.build(doPartialProcessing(event));
+                    if (jsonEvent != null) {
+                        sb.append(jsonEvent).append(JSON_EVENT_SEPERATOR).append("\n");
+                    }
+                }
+                sb.delete(sb.length() - 2, sb.length());
+                sb.append(JSON_ARRAY_END_SYMBOL);
+                return sb.toString();
+            } else {
+                // TODO : log error
+                log.error("Invalid object type. " + eventObj.toString() +
+                        " cannot be converted to an event or event array. Hence dropping message.");
+                return null;
+            }
         }
     }
 
@@ -198,14 +280,11 @@ public class JSONOutputMapper extends SinkMapper {
         JsonObject innerParentObject = new JsonObject();
         String attributeName;
         Object attributeValue;
-        Attribute.Type attributeType;
         Gson gson = new Gson();
         for (int i = 0; i < data.length; i++) {
             // TODO : move attribute name array to the top : done
             attributeName = attributeNameArray[i];
             attributeValue = data[i];
-            attributeType = streamDefinition.getAttributeType(attributeName);
-
             // TODO : use lambda expressions
             if (attributeValue != null) {
                 if (attributeValue.getClass() == String.class) {
