@@ -1,8 +1,10 @@
 package org.wso2.siddhi.core.util.parser;
 
+import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
@@ -18,10 +20,12 @@ import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
+import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
@@ -57,6 +61,10 @@ public class AggregationParser {
             throw new ExecutionPlanCreationException("AggregationDefinition's timePeriod is null. " +
                     "Hence, can't create the execution plan");
         }
+        if (definition.getSelector() == null) {
+            throw new ExecutionPlanCreationException("AggregationDefinition's output attributes are not defined. " +
+                    "Hence, can't create the execution plan");
+        }
 
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         Element nameElement = null;
@@ -64,12 +72,12 @@ public class AggregationParser {
         LockWrapper lockWrapper = null;
         AggregationRuntime aggregationRuntime = null;
         try {
-            nameElement = AnnotationHelper.getAnnotationElement("info", "name", definition.getAnnotations());
-            String queryName = null;
+            nameElement = AnnotationHelper.getAnnotationElement("info", "name", definition.getAnnotations()); // TODO: 5/9/17 this gives null
+            String queryName = null; // TODO: 5/9/17 queryName or aggregatorName? Should Aggregator be accessible like this?
             if (nameElement != null) {
                 queryName = nameElement.getValue();
             } else {
-                queryName = "query_" + UUID.randomUUID().toString();
+                queryName = "aggregator_" + UUID.randomUUID().toString(); // TODO: 5/9/17 "query_" or "aggregator_"
             }
 
             if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
@@ -96,10 +104,11 @@ public class AggregationParser {
 
             List<OutputAttribute> outputAttributes = definition.getSelector().getSelectionList(); // TODO: 3/15/17 null checking ...
             List<AttributeFunction> functionsAttributes = new ArrayList<>();
-            for (int i = 1; i < outputAttributes.size(); i++) { // TODO: 3/15/17 this logic is wrong will be corrected later
-                OutputAttribute tmp = outputAttributes.get(i);
-
-                functionsAttributes.add((AttributeFunction) tmp.getExpression());
+            for (int i = 0; i < outputAttributes.size(); i++) { // TODO: 3/15/17 this logic is wrong will be corrected later (changed)
+                Expression expression = outputAttributes.get(i).getExpression();
+                if (expression instanceof AttributeFunction) {
+                    functionsAttributes.add((AttributeFunction) expression);
+                }
             }
 
             List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(definition.getTimePeriod());
@@ -117,10 +126,10 @@ public class AggregationParser {
             }
 
             aggregationRuntime = new AggregationRuntime(definition, executionPlanContext, streamRuntime, metaComplexEvent);
-
+            aggregationRuntime.setIncrementalExecutor(child); // TODO: 5/9/17 How to set incremental executor?
 
         } catch (RuntimeException ex) {
-
+            throw ex; // TODO: 5/12/17 should we log?
         }
         return aggregationRuntime;
     }
@@ -138,26 +147,40 @@ public class AggregationParser {
             case MINUTES:
                 return IncrementalExecutor.minute(functionsAttributes, child, metaEvent, currentState, tableMap,
                         executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+            case HOURS:
+                return IncrementalExecutor.hour(functionsAttributes, child, metaEvent, currentState, tableMap,
+                        executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+            case DAYS:
+                return IncrementalExecutor.day(functionsAttributes, child, metaEvent, currentState, tableMap,
+                        executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+            case WEEKS:
+                return IncrementalExecutor.week(functionsAttributes, child, metaEvent, currentState, tableMap,
+                        executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+            case MONTHS:
+                return IncrementalExecutor.month(functionsAttributes, child, metaEvent, currentState, tableMap,
+                        executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+            case YEARS:
+                return IncrementalExecutor.year(functionsAttributes, child, metaEvent, currentState, tableMap,
+                        executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
             default:
-                // TODO: 3/15/17 Throws an exception
-                return null;
+                throw new EnumConstantNotPresentException(TimePeriod.Duration.class, "Aggregation is not defined for time period "+duration);
         }
     }
 
     private static Variable getGroupByAttribute(Selector selector) {
-        if (selector == null) {
-            // TODO: 3/10/17 : Exception
-        }
+        // TODO: 5/12/17 null check done in line 62
         List<Variable> groupByAttributes = selector.getGroupByList();
         // TODO: 3/10/17 : Can we groupBy two or more attributes?
+
         // TODO: 3/10/17 : if groupByAttributes is empty throw an exception
+        if (groupByAttributes.size() == 0) {
+            throw new ExecutionPlanCreationException("Group by attribute must be provided to perform aggregation");
+        }
         return groupByAttributes.get(0);
     }
 
     private static boolean isRange(TimePeriod timePeriod) {
-        if (timePeriod == null) {
-            // TODO: 3/10/17 : Exception
-        }
+        // TODO: 5/12/17 null check for timePeriod already done (line 58)
         if (timePeriod.getOperator() == TimePeriod.Operator.RANGE) {
             return true;
         }
@@ -165,9 +188,7 @@ public class AggregationParser {
     }
 
     private static List<TimePeriod.Duration> getSortedPeriods(TimePeriod timePeriod) {
-        if (timePeriod == null) {
-            // TODO: 3/10/17 : Exception
-        }
+        // TODO: 5/12/17 null check for timePeriod already done (line 58)
         List<TimePeriod.Duration> durations = timePeriod.getDurations();
         if (isRange(timePeriod)) {
             durations = fillGap(durations.get(0), durations.get(1));
@@ -202,7 +223,7 @@ public class AggregationParser {
         int endIndex = end.ordinal();
 
         if (startIndex > endIndex) {
-            // TODO: 3/10/17 Exception
+            throw new ExecutionPlanRuntimeException("Start time period must be less than end time period for range aggregation calculation");
         }
 
         if (startIndex == endIndex) {
@@ -210,9 +231,12 @@ public class AggregationParser {
             filledDurations.add(start);
 
         } else {
-            for (int i = startIndex; i <= endIndex; i++) { // TODO: 3/10/17 : Array Copy ?
+            TimePeriod.Duration[] temp = new TimePeriod.Duration[endIndex-startIndex+1];
+            System.arraycopy(durations, startIndex, temp, 0, endIndex-startIndex+1);
+            filledDurations = Arrays.asList(temp);
+            /*for (int i = startIndex; i <= endIndex; i++) { // TODO: 3/10/17 : Array Copy ?
                 filledDurations.add(durations[i]);
-            }
+            }*/
         }
         return filledDurations;
     }

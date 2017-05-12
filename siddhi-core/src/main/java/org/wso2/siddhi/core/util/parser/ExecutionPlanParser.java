@@ -214,6 +214,17 @@ public class ExecutionPlanParser {
                     executionPlanRuntimeBuilder.addQuery(queryRuntime);
                 }else if (executionElement instanceof AggregationDefinition){
                     // TODO: 3/24/17 add aggregator
+                    AggregationRuntime aggregationRuntime = AggregationParser.parse((AggregationDefinition) executionElement, executionPlanContext,
+                            executionPlanRuntimeBuilder.getStreamDefinitionMap(),
+                            executionPlanRuntimeBuilder.getTableDefinitionMap(),
+                            executionPlanRuntimeBuilder.getWindowDefinitionMap(),
+                            executionPlanRuntimeBuilder.getTableMap(),
+                            executionPlanRuntimeBuilder.getEventWindowMap(),
+                            executionPlanRuntimeBuilder.getEventSourceMap(),
+                            executionPlanRuntimeBuilder.getEventSinkMap(),
+                            executionPlanRuntimeBuilder.getLockSynchronizer());
+                    executionPlanRuntimeBuilder.addAggregator(aggregationRuntime);
+                    // TODO: 5/11/17 add aggregationRuntime to executionPlanRuntimeBuilder
                 } else {
                     PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntimeBuilder,
                             (Partition) executionElement, executionPlanContext,

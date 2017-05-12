@@ -65,6 +65,7 @@ public class IncrementalExecutor {
     }
 
     private List<Object> calculateAggregators(String groupBy) {
+        // TODO: 5/11/17 This returns  
         List<Object> aggregatorValues = new ArrayList<>();
         for (CompositeAggregator compositeAggregator : this.compositeAggregators) {
             // key will be attribute name + function name, examples price+ave, age+count etc
@@ -200,9 +201,9 @@ public class IncrementalExecutor {
                                              ExecutionPlanContext executionPlanContext, boolean groupBy,
                                              int defaultStreamEventIndex, String queryName,
                                              Variable groupByVariable) {
-        IncrementalExecutor second = new IncrementalExecutor(TimePeriod.Duration.SECONDS, child, functionAttributes,
-                metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
-        return second;
+        return new IncrementalExecutor(TimePeriod.Duration.SECONDS, child, functionAttributes,
+                metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
+                defaultStreamEventIndex, queryName, groupByVariable);
     }
 
     public static IncrementalExecutor minute(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -212,10 +213,9 @@ public class IncrementalExecutor {
                                              ExecutionPlanContext executionPlanContext, boolean groupBy,
                                              int defaultStreamEventIndex, String queryName,
                                              Variable groupByVariable) {
-        IncrementalExecutor minute = new IncrementalExecutor(TimePeriod.Duration.MINUTES, child, functionAttributes,
+        return new IncrementalExecutor(TimePeriod.Duration.MINUTES, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
-        return minute;
     }
 
     public static IncrementalExecutor hour(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -225,10 +225,9 @@ public class IncrementalExecutor {
                                            ExecutionPlanContext executionPlanContext, boolean groupBy,
                                            int defaultStreamEventIndex, String queryName,
                                            Variable groupByVariable) {
-        IncrementalExecutor hour = new IncrementalExecutor(TimePeriod.Duration.HOURS, child, functionAttributes,
+        return new IncrementalExecutor(TimePeriod.Duration.HOURS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
-        return hour;
     }
 
     public static IncrementalExecutor day(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -238,10 +237,9 @@ public class IncrementalExecutor {
                                           ExecutionPlanContext executionPlanContext, boolean groupBy,
                                           int defaultStreamEventIndex, String queryName,
                                           Variable groupByVariable) {
-        IncrementalExecutor day = new IncrementalExecutor(TimePeriod.Duration.DAYS, child, functionAttributes,
+        return new IncrementalExecutor(TimePeriod.Duration.DAYS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
-        return day;
     }
 
     public static IncrementalExecutor week(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -250,10 +248,9 @@ public class IncrementalExecutor {
                                            List<VariableExpressionExecutor> executorList,
                                            ExecutionPlanContext executionPlanContext, boolean groupBy,
                                            int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
-        IncrementalExecutor week = new IncrementalExecutor(TimePeriod.Duration.WEEKS, child, functionAttributes,
+        return new IncrementalExecutor(TimePeriod.Duration.WEEKS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
-        return week;
     }
 
     public static IncrementalExecutor month(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -262,10 +259,9 @@ public class IncrementalExecutor {
                                             List<VariableExpressionExecutor> executorList,
                                             ExecutionPlanContext executionPlanContext, boolean groupBy,
                                             int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
-        IncrementalExecutor month = new IncrementalExecutor(TimePeriod.Duration.MONTHS, child, functionAttributes,
+        return new IncrementalExecutor(TimePeriod.Duration.MONTHS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
-        return month;
     }
 
     public static IncrementalExecutor year(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -274,10 +270,9 @@ public class IncrementalExecutor {
                                            List<VariableExpressionExecutor> executorList,
                                            ExecutionPlanContext executionPlanContext, boolean groupBy,
                                            int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
-        IncrementalExecutor year = new IncrementalExecutor(TimePeriod.Duration.YEARS, child, functionAttributes,
+        return new IncrementalExecutor(TimePeriod.Duration.YEARS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
-        return year;
     }
 
     private class ExpressionExecutorDetails {

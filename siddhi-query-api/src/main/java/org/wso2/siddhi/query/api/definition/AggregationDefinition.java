@@ -19,18 +19,23 @@ package org.wso2.siddhi.query.api.definition;
 
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.annotation.Annotation;
+import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-public class AggregationDefinition extends AbstractDefinition {
+import java.util.ArrayList;
+import java.util.List;
+
+public class AggregationDefinition extends AbstractDefinition implements ExecutionElement{
 
     private InputStream inputStream = null;
     private Selector selector = null;
     private Variable aggregateAttribute = null;
     private TimePeriod timePeriod = null;
-    private Annotation annotation = null;
+//    private Annotation annotation = null; // TODO: 5/9/17 list of annotations?
+    private List<Annotation> annotations = new ArrayList<>();
 
 
     protected AggregationDefinition(String id) {
@@ -82,12 +87,12 @@ public class AggregationDefinition extends AbstractDefinition {
     }
 
     public AggregationDefinition annotation(Annotation annotation) {
-        this.annotation = annotation;
+        annotations.add(annotation);
         return this;
     }
 
-    public Annotation getAnnotation() {
-        return this.annotation;
+    public List<Annotation> getAnnotation() {
+        return this.annotations;
     }
 
     @Override
@@ -102,7 +107,7 @@ public class AggregationDefinition extends AbstractDefinition {
         if (selector != null ? !selector.equals(that.selector) : that.selector != null) return false;
         if (!aggregateAttribute.equals(that.aggregateAttribute)) return false;
         if (timePeriod != null ? !timePeriod.equals(that.timePeriod) : that.timePeriod != null) return false;
-        return annotation != null ? annotation.equals(that.annotation) : that.annotation == null;
+        return annotations != null ? annotations.equals(that.annotations) : that.annotations == null;
     }
 
     @Override
@@ -112,7 +117,7 @@ public class AggregationDefinition extends AbstractDefinition {
         result = 31 * result + (selector != null ? selector.hashCode() : 0);
         result = 31 * result + aggregateAttribute.hashCode();
         result = 31 * result + (timePeriod != null ? timePeriod.hashCode() : 0);
-        result = 31 * result + (annotation != null ? annotation.hashCode() : 0);
+        result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
         return result;
     }
 }

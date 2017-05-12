@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 public class InMemoryIncrementalStore implements IncrementalStore {
     private ConcurrentMap<String, List<FunctionExecutor>> incrementalStore = null;
 
-    public InMemoryIncrementalStore(List<FunctionExecutor> baseFunctionExecutors) {
+    public InMemoryIncrementalStore(List<FunctionExecutor> baseFunctionExecutors) { // TODO: 5/11/17 ExpressionExecutors?
         incrementalStore = new ConcurrentHashMap<>();
         for(FunctionExecutor executor : baseFunctionExecutors){
            // incrementalStore.putIfAbsent(executor);

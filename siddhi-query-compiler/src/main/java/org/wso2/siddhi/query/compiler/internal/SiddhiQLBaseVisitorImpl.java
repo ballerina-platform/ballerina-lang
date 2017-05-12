@@ -112,6 +112,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             } else if (executionElement instanceof Query) {
                 executionPlan.addQuery((Query) executionElement);
 
+            } else if (executionElement instanceof AggregationDefinition) { // TODO: 5/11/17 aggregation def is execution element?
+                executionPlan.addAggregator((AggregationDefinition) executionElement);
+
             } else {
                 throw newSiddhiParserException(ctx);
             }

@@ -25,15 +25,16 @@ public class TimePeriod {
         return this.durations;
     }
 
+    // TODO: 5/12/17 check whether names "range", "interval" are ok
     public static TimePeriod range(Duration left, Duration right) { // range sec ... min
-        TimePeriod timePeriod = new TimePeriod(Operator.INTERVAL);
+        TimePeriod timePeriod = new TimePeriod(Operator.RANGE);
         timePeriod.durations.add(left);
         timePeriod.durations.add(right);
         return timePeriod;
     }
 
     public static TimePeriod interval(Duration... durations) { // interval sec, min, time
-        TimePeriod timePeriod = new TimePeriod(Operator.RANGE);
+        TimePeriod timePeriod = new TimePeriod(Operator.INTERVAL);
         for (Duration duration : durations) {
             timePeriod.durations.add(duration);
         }
