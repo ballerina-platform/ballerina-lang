@@ -257,6 +257,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
 
         public BTypeMapper buildTypeMapper() {
             bTypeCon.location = this.location;
+            bTypeCon.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             bTypeCon.name = this.name;
             bTypeCon.pkgPath = this.pkgPath;
             bTypeCon.isNative = this.isNative;

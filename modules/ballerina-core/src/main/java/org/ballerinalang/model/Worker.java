@@ -341,6 +341,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
         public Worker buildWorker() {
             bWorker.location = this.location;
+            bWorker.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             bWorker.name = this.name;
             bWorker.pkgPath = this.pkgPath;
             bWorker.symbolName = new SymbolName(name, pkgPath);

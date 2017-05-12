@@ -303,6 +303,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
 
         public Resource buildResource() {
             resource.location = this.location;
+            resource.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             resource.name = this.name;
             resource.pkgPath = this.pkgPath;
             resource.symbolName = new SymbolName(name, pkgPath);

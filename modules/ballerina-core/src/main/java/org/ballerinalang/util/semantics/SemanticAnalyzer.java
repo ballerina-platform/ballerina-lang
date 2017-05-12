@@ -3070,7 +3070,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                                           BlockStmt.BlockStmtBuilder blockStmtBuilder,
                                           NodeLocation initFuncLocation) {
         for (BallerinaFunction initFunc : initFunctions) {
-            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(initFuncLocation,
+            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(initFuncLocation, null,
                     initFunc.getName(), null, initFunc.getPackagePath(), new Expression[]{});
             funcIExpr.setCallableUnit(initFunc);
             FunctionInvocationStmt funcIStmt = new FunctionInvocationStmt(initFuncLocation, funcIExpr);

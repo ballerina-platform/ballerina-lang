@@ -220,6 +220,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
         public BallerinaConnectorDef buildConnector() {
             this.connectorDef.location = this.location;
+            this.connectorDef.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             this.connectorDef.typeName = this.name;
             this.connectorDef.pkgPath = this.pkgPath;
             this.connectorDef.symbolName = new SymbolName(name, pkgPath);

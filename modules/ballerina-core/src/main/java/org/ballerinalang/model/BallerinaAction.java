@@ -269,6 +269,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
         public BallerinaAction buildAction() {
             bAction.location = this.location;
+            bAction.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             bAction.name = this.name;
             bAction.pkgPath = this.pkgPath;
             bAction.symbolName = new SymbolName(name, pkgPath);

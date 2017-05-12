@@ -139,7 +139,7 @@ public class BLangFunctions {
 
             // 3) Create a function invocation expression
             FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
-                    function.getNodeLocation(), functionName, null, null, exprs);
+                    function.getNodeLocation(), null, functionName, null, null, exprs);
             funcIExpr.setOffset(args.length);
             funcIExpr.setCallableUnit(function);
             // Linking.

@@ -213,6 +213,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
 
         public Service buildService() {
             this.service.location = this.location;
+            this.service.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             this.service.name = this.name;
             this.service.pkgPath = this.pkgPath;
             this.service.symbolName = new SymbolName(name, pkgPath);

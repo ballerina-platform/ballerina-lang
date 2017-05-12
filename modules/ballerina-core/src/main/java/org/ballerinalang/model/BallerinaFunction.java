@@ -289,6 +289,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
         public BallerinaFunction buildFunction() {
             bFunc.location = this.location;
+            bFunc.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             bFunc.name = this.name;
             bFunc.pkgPath = this.pkgPath;
             bFunc.symbolName = new SymbolName(name, pkgPath);
