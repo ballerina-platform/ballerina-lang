@@ -93,8 +93,17 @@ function positionInnerPanelLevelConnectors(connectors, connectorIndex, workers, 
     let xPosition;
     if (connectorIndex === 0) {
         if (workers.length > 0) {
-            xPosition = workers[workers.length - 1].getViewState().components.statementContainer.getRight() +
-                DesignerDefaults.lifeLine.gutter.h;
+            /**
+             * Due to the model order in ast, at the moment, workers and the parent's statement positioning have not
+             * calculated. Therefore we need to consider the widths of them to get the connector x position
+             */
+            let totalWorkerStmtContainerWidth = 0;
+            _.forEach(workers, function (worker) {
+                totalWorkerStmtContainerWidth += worker.getViewState().components.statementContainer.w;
+            });
+            xPosition = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +
+                parentViewState.components.statementContainer.w + totalWorkerStmtContainerWidth +
+                (DesignerDefaults.lifeLine.gutter.h) * (workers.length + 1);
         } else {
             xPosition = parentViewState.components.statementContainer.getRight() +
                 DesignerDefaults.lifeLine.gutter.h;

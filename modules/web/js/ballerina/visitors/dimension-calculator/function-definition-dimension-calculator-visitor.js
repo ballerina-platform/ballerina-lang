@@ -68,20 +68,19 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
         components['statementContainer'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementWidth = 0;
+
+        const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
+            DesignerDefaults.statementContainer.padding.right;
+
+        var statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
         var statementHeight = 0;
 
         _.forEach(statementChildren, function(child) {
             statementHeight += child.viewState.bBox.h;
-            if(child.viewState.bBox.w > statementWidth){
-                statementWidth = child.viewState.bBox.w;
+            if((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth){
+                statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }
         });
-
-        //if statement width is 0 set default
-        if(statementWidth == 0){
-            statementWidth = DesignerDefaults.statement.width;
-        }
 
         /* Lets add an extra gap to the bottom of the lifeline.
            This will prevent last statement touching bottom box of the life line.*/
