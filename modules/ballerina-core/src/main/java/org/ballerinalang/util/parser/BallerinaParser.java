@@ -29,7 +29,7 @@ public class BallerinaParser extends Parser {
 		T__66=67, T__67=68, T__68=69, T__69=70, T__70=71, T__71=72, T__72=73, 
 		T__73=74, T__74=75, IntegerLiteral=76, FloatingPointLiteral=77, BooleanLiteral=78, 
 		QuotedStringLiteral=79, BacktickStringLiteral=80, NullLiteral=81, Identifier=82, 
-		WS=83, LINE_COMMENT=84;
+		WS=83, NEW_LINE=84, LINE_COMMENT=85;
 	public static final int
 		RULE_compilationUnit = 0, RULE_packageDeclaration = 1, RULE_packageName = 2, 
 		RULE_importDeclaration = 3, RULE_definition = 4, RULE_serviceDefinition = 5, 
@@ -103,7 +103,7 @@ public class BallerinaParser extends Parser {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
 		null, null, null, null, "IntegerLiteral", "FloatingPointLiteral", "BooleanLiteral", 
 		"QuotedStringLiteral", "BacktickStringLiteral", "NullLiteral", "Identifier", 
-		"WS", "LINE_COMMENT"
+		"WS", "NEW_LINE", "LINE_COMMENT"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -6119,7 +6119,7 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3V\u03ed\4\2\t\2\4"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3W\u03ed\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -6427,7 +6427,7 @@ public class BallerinaParser extends Parser {
 		"\u0335\5\u0080A\2\u0334\u0332\3\2\2\2\u0334\u0333\3\2\2\2\u0335}\3\2\2"+
 		"\2\u0336\u0337\7T\2\2\u0337\u0338\7?\2\2\u0338\u0339\7T\2\2\u0339\u033a"+
 		"\7\4\2\2\u033a\177\3\2\2\2\u033b\u033c\7T\2\2\u033c\u033d\7@\2\2\u033d"+
-		"\u033e\7T\2\2\u033e\u033f\7\4\2\2\u033f\u0081\3\2\2\2\u0340\u0341\7V\2"+
+		"\u033e\7T\2\2\u033e\u033f\7\4\2\2\u033f\u0081\3\2\2\2\u0340\u0341\7W\2"+
 		"\2\u0341\u0083\3\2\2\2\u0342\u0343\bC\1\2\u0343\u034e\5\u0092J\2\u0344"+
 		"\u0349\5\u0092J\2\u0345\u0346\7\37\2\2\u0346\u0347\5\u0090I\2\u0347\u0348"+
 		"\7 \2\2\u0348\u034a\3\2\2\2\u0349\u0345\3\2\2\2\u034a\u034b\3\2\2\2\u034b"+
