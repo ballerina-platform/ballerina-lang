@@ -26,7 +26,7 @@ class ActionBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {inGracePeriod: false};
-    this.isFirstRender = true;
+    this.isHiddenToHidden = true;
   }
 
   render() {
@@ -35,7 +35,7 @@ class ActionBox extends React.Component {
     const iconSize = 14;
     const y = bBox.y + (bBox.h - iconSize) / 2
     const horizontalGap = (bBox.w - iconSize * numIcons) / (numIcons + 1);
-    const className = this.isFirstRender ? 'hide-action' : ( this.props.show ? "show-action" : "delayed-hide-action");
+    const className = this.isHiddenToHidden ? 'hide-action' : ( this.props.show ? "show-action" : "delayed-hide-action");
 
     return (<g className={className}>
                    <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h } rx="0" ry="0" className="property-pane-action-button-wrapper"></rect>
@@ -57,8 +57,8 @@ class ActionBox extends React.Component {
                 </g>);
   }
 
-  componentDidMount(){
-    this.isFirstRender = false;
+  componentWillReceiveProps(nextProps, nextState){
+    this.isHiddenToHidden = !(this.props.show || nextProps.show);
   }
 
 }
