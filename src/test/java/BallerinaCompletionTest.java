@@ -221,12 +221,12 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     public void testAnnotationAttachmentPoints() {
         doTest("annotation A attach <caret>", "service", "connector", "action", "function", "typemapper", "struct",
-                "const", "parameter");
+                "const", "parameter", "annotation", "resource");
     }
 
     public void testMultipleAnnotationAttachmentPoints() {
         doTest("annotation A attach service, <caret>", "service", "connector", "action", "function", "typemapper",
-                "struct", "const", "parameter");
+                "struct", "const", "parameter", "annotation", "resource");
     }
 
     /**

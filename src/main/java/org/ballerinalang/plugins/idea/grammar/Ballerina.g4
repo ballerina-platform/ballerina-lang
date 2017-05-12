@@ -97,6 +97,7 @@ attachmentPoint
      | 'struct'
      | 'const'
      | 'parameter'
+     | 'annotation'
      ;
 
 annotationBody

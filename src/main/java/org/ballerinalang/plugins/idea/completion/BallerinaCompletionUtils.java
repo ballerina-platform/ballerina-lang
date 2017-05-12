@@ -249,14 +249,16 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      */
     static void addAttachmentPointsAsLookups(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, CONST, KEYWORDS_PRIORITY);
         addKeywordAsLookup(resultSet, SERVICE, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, FUNCTION, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, RESOURCE, KEYWORDS_PRIORITY);
         addKeywordAsLookup(resultSet, CONNECTOR, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, STRUCT, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, TYPEMAPPER, KEYWORDS_PRIORITY);
         addKeywordAsLookup(resultSet, ACTION, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, FUNCTION, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, TYPEMAPPER, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, STRUCT, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, CONST, KEYWORDS_PRIORITY);
         addKeywordAsLookup(resultSet, PARAMETER, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, ANNOTATION, KEYWORDS_PRIORITY);
     }
 
     /**
