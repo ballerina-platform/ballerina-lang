@@ -32,6 +32,15 @@ import java.util.List;
  */
 public class WhiteSpaceUtil {
 
+    public static String getFileStartingWhiteSpace(CommonTokenStream tokenStream) {
+        // find first non-whitespace token
+        Token firstNonWhiteSpaceToken = tokenStream.getTokens().stream()
+                .filter(token -> token.getChannel() != Token.HIDDEN_CHANNEL)
+                .findFirst()
+                .get();
+        return getWhitespaceToLeft(tokenStream, firstNonWhiteSpaceToken.getTokenIndex());
+    }
+
     public static WhiteSpaceDescriptor getImportDeclarationWS(CommonTokenStream tokenStream,
                                                               BallerinaParser.ImportDeclarationContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
@@ -70,14 +79,29 @@ public class WhiteSpaceUtil {
         return whitespaceBuilder.toString();
     }
 
-    public static WhiteSpaceDescriptor getPackageDeclarationWS(CommonTokenStream tokenStream, BallerinaParser.PackageDeclarationContext ctx) {
+    public static WhiteSpaceDescriptor getPackageDeclarationWS(CommonTokenStream tokenStream,
+                                                               BallerinaParser.PackageDeclarationContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.BFILE_PKG_KEYWORD_TO_PKG_NAME_START,
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.BFILE_PKG_NAME_END_TO_SEMICOLON,
-                getWhitespaceToRight(tokenStream, ctx.packageName().start.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.packageName().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.BFILE_PKG_DEC_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getServiceDefinitionWS(CommonTokenStream tokenStream,
+                                                              BallerinaParser.ServiceDefinitionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_SERVICE_KEYWORD_TO_IDENTIFIER,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_IDENTIFIER_TO_BODY_START,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_BODY_START_TO_FIRST_CHILD,
+                getWhitespaceToRight(tokenStream, ctx.serviceBody().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.serviceBody().stop.getTokenIndex()));
         return ws;
     }
 }

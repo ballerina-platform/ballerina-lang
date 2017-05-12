@@ -122,15 +122,15 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
-        if (isVerboseMode) {
-            // getting whitespace from file start to first token
-            String whiteSpace = WhiteSpaceUtil.getWhitespaceToLeft(tokenStream, 1);
-            modelBuilder.addBFileWhiteSpaceRegion(WhiteSpaceRegions.BFILE_START, whiteSpace);
-        }
     }
 
     @Override
     public void exitCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
+        if (isVerboseMode) {
+            // getting whitespace from file start to first token
+            String whiteSpace = WhiteSpaceUtil.getFileStartingWhiteSpace(tokenStream);
+            modelBuilder.addBFileWhiteSpaceRegion(WhiteSpaceRegions.BFILE_START, whiteSpace);
+        }
     }
 
     @Override
@@ -195,7 +195,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
         modelBuilder.startServiceDef(getCurrentLocation(ctx));
     }
 
@@ -204,9 +203,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
         String serviceName = ctx.Identifier().getText();
-        modelBuilder.createService(serviceName);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getServiceDefinitionWS(tokenStream, ctx);
+        }
+        modelBuilder.createService(whiteSpaceDescriptor, serviceName);
     }
 
     @Override

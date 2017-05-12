@@ -950,7 +950,8 @@ public class BLangModelBuilder {
         currentScope = currentCUGroupBuilder.getCurrentScope();
     }
 
-    public void createService(String name) {
+    public void createService(WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+        currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setName(name);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
