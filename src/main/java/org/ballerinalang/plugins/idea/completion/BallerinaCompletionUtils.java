@@ -609,7 +609,32 @@ public class BallerinaCompletionUtils {
     }
 
     /**
-     * Adds variables, parameters, constants as lookups.
+     * Helper method to add global variables as lookup elements.
+     *
+     * @param resultSet result list which is used to add lookups
+     * @param file      original file which we are editing
+     */
+    private static void addGlobalVariablesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+        List<PsiElement> constants = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(file.getParent());
+        addGlobalVariablesAsLookups(resultSet, constants);
+    }
+
+    /**
+     * Helper method to add global variables as lookup elements.
+     *
+     * @param resultSet result list which is used to add lookups
+     * @param constants list of constants which needs to be added
+     */
+    static void addGlobalVariablesAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> constants) {
+        for (PsiElement constant : constants) {
+            LookupElementBuilder builder = LookupElementBuilder.create(constant.getText())
+                    .withTypeText("Variable").withIcon(BallerinaIcons.GLOBAL_VARIABLE);
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+        }
+    }
+
+    /**
+     * Adds variables, parameters, constants, global variables as lookups.
      *
      * @param resultSet result list which is used to add lookups
      * @param file      file which is currently being edited
@@ -620,6 +645,7 @@ public class BallerinaCompletionUtils {
         addVariablesAsLookups(resultSet, element);
         addParametersAsLookups(resultSet, element);
         addConstantsAsLookups(resultSet, file);
+        addGlobalVariablesAsLookups(resultSet, file);
     }
 
     static void addLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file, boolean withPackages,

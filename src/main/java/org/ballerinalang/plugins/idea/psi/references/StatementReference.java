@@ -28,6 +28,7 @@ import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -53,7 +54,7 @@ public class StatementReference extends BallerinaElementReference {
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof PackageNameNode || def instanceof VariableDefinitionNode || def instanceof ParameterNode
                 || def instanceof ConstantDefinitionNode || def instanceof TypeNameNode
-                || def instanceof StructDefinitionNode;
+                || def instanceof StructDefinitionNode || def instanceof GlobalVariableDefinitionStatementNode;
     }
 
     @NotNull
@@ -125,6 +126,23 @@ public class StatementReference extends BallerinaElementReference {
                 results.add(new PsiElementResolveResult(nameIdentifier));
             }
         }
+
+        // We need to check global variables in the package as well.
+        List<PsiElement> globalVariablesInCurrentPackage =
+                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(myElement.getContainingFile().getParent());
+        for (PsiElement variable : globalVariablesInCurrentPackage) {
+            if (!(variable instanceof IdentifierPSINode)) {
+                continue;
+            }
+            PsiElement nameIdentifier = ((IdentifierPSINode) variable).getNameIdentifier();
+            if (nameIdentifier == null) {
+                continue;
+            }
+            if (myElement.getText().equals(nameIdentifier.getText())) {
+                results.add(new PsiElementResolveResult(nameIdentifier));
+            }
+        }
+        // Return results.
         return results.toArray(new ResolveResult[results.size()]);
     }
 

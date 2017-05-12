@@ -54,6 +54,7 @@ import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.MapStructLiteralNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
@@ -71,6 +72,7 @@ import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
@@ -301,6 +303,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     this::handleOtherTypesInParameter);
             return;
         }
+
+        if (handleGlobalVariableDefinition(parameters, resultSet)) {
+            return;
+        }
         if (handleServiceBodyInReferenceNode(resultSet, parent)) {
             return;
         }
@@ -315,6 +321,36 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 this::handleIdentifierInNameReference,
                 this::handleLeafElementInNameReference,
                 null);
+    }
+
+    private boolean handleGlobalVariableDefinition(@NotNull CompletionParameters parameters,
+                                                   @NotNull CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement element = parameters.getPosition();
+
+        GlobalVariableDefinitionStatementNode globalVariableNode = PsiTreeUtil.getParentOfType(element,
+                GlobalVariableDefinitionStatementNode.class);
+        if (globalVariableNode != null) {
+            PsiElement e = parameters.getPosition();
+            checkPrevNodeAndHandle(parameters, resultSet, e.getTextOffset(),
+                    (p, r, prevElement) -> {
+                        addTypeNames(resultSet);
+                        addLookups(resultSet, originalFile, true, false, true, true);
+                    },
+                    (p, r, prevElement) -> {
+                        IElementType elementType = ((LeafPsiElement) prevElement).getElementType();
+                        if (elementType == BallerinaTypes.SEMI) {
+                            addTypeNames(resultSet);
+                            addLookups(resultSet, originalFile, true, false, true, true);
+                        } else if (elementType == BallerinaTypes.COLON) {
+                            PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                            suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true, true, false);
+                        }
+                    },
+                    null);
+            return true;
+        }
+        return false;
     }
 
     private boolean handleServiceBodyInReferenceNode(@NotNull CompletionResultSet resultSet, PsiElement parent) {
@@ -423,6 +459,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         if (attachmentType != null) {
                             suggestAnnotationsFromPackage(parameters, resultSet, null, attachmentType);
                         }
+                    } else if (elementType == BallerinaTypes.LBRACE) {
+                        addStructFields(parameters, resultSet, element);
                     } else {
                         // Eg: function test(){t<caret>}
                         addTypeNames(resultSet);
@@ -467,6 +505,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             if (attachmentType != null) {
                 suggestAnnotationsFromPackage(parameters, resultSet, null, attachmentType);
             }
+        } else if (elementType == BallerinaTypes.LBRACE) {
+            addStructFields(parameters, resultSet, element);
         } else {
             // Eg: function test(){ <caret> \n OTHER_CODES }
             addTypeNames(resultSet);
@@ -709,14 +749,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         PsiFile originalFile = parameters.getOriginalFile();
         PsiElement element = parameters.getPosition();
         // If we are in the {} of a struct variable reference node, we need to show fields.
-        VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(element,
-                VariableDefinitionNode.class);
-        if (variableDefinitionNode != null) {
-            ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(element, ExpressionNode.class);
-            if (expressionNode == null) {
-                addStructFields(parameters, resultSet, null, variableDefinitionNode, true, true);
-                return;
-            }
+        if (addStructFields(parameters, resultSet, element)) {
+            return;
         }
 
         checkPrevNodeAndHandle(parameters, resultSet, parameters.getOffset(),
@@ -788,6 +822,21 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addStructFields(parameters, resultSet, variableReferenceNode.getNameIdentifier(), null, true, true);
             }
         }
+    }
+
+    private boolean addStructFields(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet resultSet,
+                                    PsiElement element) {
+        // If we are in the {} of a struct variable reference node, we need to show fields.
+        VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                VariableDefinitionNode.class);
+        if (variableDefinitionNode != null) {
+            ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(element, ExpressionNode.class);
+            if (expressionNode == null) {
+                addStructFields(parameters, resultSet, null, variableDefinitionNode, true, true);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -1037,6 +1086,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                 BallerinaPsiImplUtil.getAllConstantsFromPackage(psiDirectories[0]);
                         addConstantsAsLookups(resultSet, constants);
                     }
+
+                    List<PsiElement> constants =
+                            BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(psiDirectories[0]);
+                    addConstantsAsLookups(resultSet, constants);
                 }
                 // Else situation cannot/should not happen since all the imported packages are unique.
                 // This should be highlighted using an annotator.

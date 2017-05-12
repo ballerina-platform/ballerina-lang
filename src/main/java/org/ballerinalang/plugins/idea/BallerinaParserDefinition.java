@@ -50,6 +50,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
 import org.ballerinalang.plugins.idea.psi.MapStructLiteralNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -274,6 +275,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new VariableReferenceListNode(node);
             case BallerinaParser.RULE_mapStructLiteral:
                 return new MapStructLiteralNode(node);
+            case BallerinaParser.RULE_globalVariableDefinitionStatement:
+                return new GlobalVariableDefinitionStatementNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

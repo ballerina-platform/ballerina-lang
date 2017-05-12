@@ -39,6 +39,7 @@ definition
     |   typeMapperDefinition
     |   constantDefinition
     |   annotationDefinition
+    |   globalVariableDefinitionStatement
     ;
 
 serviceDefinition
@@ -85,6 +86,10 @@ structBody
 
 annotationDefinition
     : 'annotation' Identifier ('attach' attachmentPoint (',' attachmentPoint)*)? '{' annotationBody '}'
+    ;
+
+globalVariableDefinitionStatement
+    :   typeName Identifier ('=' expression )? ';'
     ;
 
 attachmentPoint
@@ -308,8 +313,8 @@ commentStatement
     ;
 
 variableReference
-    :   Identifier                                  # simpleVariableIdentifier// simple identifier
-    |   Identifier ('['expression']')+              # mapArrayVariableIdentifier// arrays and map reference
+    :   nameReference                               # simpleVariableIdentifier// simple identifier
+    |   nameReference ('['expression']')+           # mapArrayVariableIdentifier// arrays and map reference
     |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
     ;
 

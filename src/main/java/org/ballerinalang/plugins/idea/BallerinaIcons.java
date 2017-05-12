@@ -32,6 +32,7 @@ public class BallerinaIcons {
     public static final Icon PACKAGE = AllIcons.Nodes.Package;
     public static final Icon FUNCTION = AllIcons.Nodes.Field;
     public static final Icon VARIABLE = AllIcons.Nodes.Variable;
+    public static final Icon GLOBAL_VARIABLE = new LayeredIcon(AllIcons.Nodes.Variable, AllIcons.Nodes.StaticMark);
     public static final Icon PARAMETER = AllIcons.Nodes.Parameter;
     public static final Icon CONSTANT = AllIcons.Nodes.Class;
     public static final Icon CONNECTOR = AllIcons.Nodes.Class;
@@ -47,7 +48,7 @@ public class BallerinaIcons {
     }
 
     @NotNull
-    public static LayeredIcon createIconWithShift(@NotNull Icon base, Icon mark) {
+    private static LayeredIcon createIconWithShift(@NotNull Icon base, Icon mark) {
         LayeredIcon icon = new LayeredIcon(2) {
             @Override
             public int getIconHeight() {

@@ -27,6 +27,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
@@ -51,8 +52,9 @@ public class NameReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return (def instanceof FunctionDefinitionNode) || (def instanceof ConnectorDefinitionNode) || (def instanceof StructDefinitionNode)
-                || (def instanceof VariableDefinitionNode) || (def instanceof AnnotationDefinitionNode);
+        return (def instanceof FunctionDefinitionNode) || (def instanceof ConnectorDefinitionNode)
+                || (def instanceof StructDefinitionNode) || (def instanceof VariableDefinitionNode)
+                || (def instanceof AnnotationDefinitionNode) || (def instanceof GlobalVariableDefinitionStatementNode);
     }
 
     @NotNull
@@ -108,12 +110,18 @@ public class NameReference extends BallerinaElementReference {
             if (parentDirectory == null) {
                 return new ResolveResult[0];
             }
-            List<PsiElement> allAnnotations =
-                    BallerinaPsiImplUtil.getAllAnnotationsInCurrentPackage(parentDirectory);
-            // Add matching functions to results.
-            for (PsiElement psiElement : allAnnotations) {
-                if (getElement().getText().equals(psiElement.getText())) {
-                    results.add(new PsiElementResolveResult(psiElement));
+            List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInCurrentPackage(parentDirectory);
+            // Add matching annotations to results.
+            for (PsiElement annotation : annotations) {
+                if (getElement().getText().equals(annotation.getText())) {
+                    results.add(new PsiElementResolveResult(annotation));
+                }
+            }
+            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(parentDirectory);
+            // Add matching annotations to results.
+            for (PsiElement variable : globalVariables) {
+                if (getElement().getText().equals(variable.getText())) {
+                    results.add(new PsiElementResolveResult(variable));
                 }
             }
             return results.toArray(new ResolveResult[results.size()]);
@@ -139,43 +147,39 @@ public class NameReference extends BallerinaElementReference {
         for (ResolveResult resolveResult : resolveResults) {
             // Get the element from the resolve result.
             PsiElement element = resolveResult.getElement();
-            if(element==null){
+            if (element == null) {
                 continue;
             }
             // Get all functions in the package.
-            List<PsiElement> allFunctions =
-                    BallerinaPsiImplUtil.getAllFunctionsFromPackage((PsiDirectory) element);
+            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage((PsiDirectory) element);
             // Add matching functions to results.
-            for (PsiElement psiElement : allFunctions) {
+            for (PsiElement psiElement : functions) {
                 if (getElement().getText().equals(psiElement.getText())) {
                     results.add(new PsiElementResolveResult(psiElement));
                 }
             }
             // Get all connectors in the package.
-            List<PsiElement> allConnectors =
-                    BallerinaPsiImplUtil.getAllConnectorsInPackage((PsiDirectory) element);
-            // Add matching functions to results.
-            for (PsiElement psiElement : allConnectors) {
-                if (getElement().getText().equals(psiElement.getText())) {
-                    results.add(new PsiElementResolveResult(psiElement));
+            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInPackage((PsiDirectory) element);
+            // Add matching connectors to results.
+            for (PsiElement connector : connectors) {
+                if (getElement().getText().equals(connector.getText())) {
+                    results.add(new PsiElementResolveResult(connector));
                 }
             }
             // Get all annotations in the package.
-            List<PsiElement> allAnnotations =
-                    BallerinaPsiImplUtil.getAllAnnotationsInPackage((PsiDirectory) element);
-            // Add matching functions to results.
-            for (PsiElement psiElement : allAnnotations) {
-                if (getElement().getText().equals(psiElement.getText())) {
-                    results.add(new PsiElementResolveResult(psiElement));
+            List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage((PsiDirectory) element);
+            // Add matching annotations to results.
+            for (PsiElement annotation : annotations) {
+                if (getElement().getText().equals(annotation.getText())) {
+                    results.add(new PsiElementResolveResult(annotation));
                 }
             }
             // Get all structs in the package.
-            List<PsiElement> allStructs =
-                    BallerinaPsiImplUtil.getAllStructsFromPackage((PsiDirectory) element);
-            // Add matching functions to results.
-            for (PsiElement psiElement : allStructs) {
-                if (getElement().getText().equals(psiElement.getText())) {
-                    results.add(new PsiElementResolveResult(psiElement));
+            List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage((PsiDirectory) element);
+            // Add matching structs to results.
+            for (PsiElement struct : structs) {
+                if (getElement().getText().equals(struct.getText())) {
+                    results.add(new PsiElementResolveResult(struct));
                 }
             }
         }

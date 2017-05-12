@@ -90,6 +90,9 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 if (parentNode != null) {
                     return "Action";
                 }
+                break;
+            case RULE_globalVariableDefinitionStatement:
+                return "Global Variable";
         }
         return "";
     }
