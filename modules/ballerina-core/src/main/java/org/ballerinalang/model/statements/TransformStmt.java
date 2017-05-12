@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.expressions.Expression;
 
 /**
  * {@code TransformStmt} represents a transform statement.
@@ -28,10 +29,15 @@ import org.ballerinalang.model.NodeVisitor;
  */
 public class TransformStmt extends AbstractStatement {
     private BlockStmt transformBody;
+    private Expression inputReference;
+    private Expression outputReference;
 
-    private TransformStmt(NodeLocation location, BlockStmt transformBody) {
+    private TransformStmt(NodeLocation location, Expression inputReference, Expression outputReference,
+                          BlockStmt transformBody) {
         super(location);
         this.transformBody = transformBody;
+        this.inputReference = inputReference;
+        this.outputReference = outputReference;
     }
 
     public BlockStmt getBody() {
@@ -48,6 +54,14 @@ public class TransformStmt extends AbstractStatement {
         executor.visit(this);
     }
 
+    public Expression getInputReference() {
+        return inputReference;
+    }
+
+    public Expression getOutputReference() {
+        return outputReference;
+    }
+
     /**
      * Builds a {@code TransformStmt} statement.
      *
@@ -56,6 +70,8 @@ public class TransformStmt extends AbstractStatement {
     public static class TransformStmtBuilder {
         private NodeLocation location;
         private BlockStmt transformBody;
+        private Expression inputReference;
+        private Expression outputReference;
 
         public void setNodeLocation(NodeLocation location) {
             this.location = location;
@@ -65,8 +81,16 @@ public class TransformStmt extends AbstractStatement {
             this.transformBody = transformBody;
         }
 
+        public void setInputReference(Expression inputReference) {
+            this.inputReference = inputReference;
+        }
+
+        public void setOutputReference(Expression outputReference) {
+            this.outputReference = outputReference;
+        }
+
         public TransformStmt build() {
-            return new TransformStmt(location, transformBody);
+            return new TransformStmt(location, inputReference, outputReference, transformBody);
         }
     }
 }

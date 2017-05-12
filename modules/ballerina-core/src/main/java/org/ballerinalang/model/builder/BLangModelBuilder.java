@@ -1540,6 +1540,9 @@ public class BLangModelBuilder {
         TransformStmt.TransformStmtBuilder transformStmtBuilder = new TransformStmt.TransformStmtBuilder();
         transformStmtBuilder.setNodeLocation(location);
 
+        transformStmtBuilder.setInputReference(exprStack.pop());
+        transformStmtBuilder.setOutputReference(exprStack.pop());
+
         // Get the statement block at the top of the block statement stack and set as the transform body.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt blockStmt = blockStmtBuilder.build();

@@ -709,7 +709,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         SimpleTypeName typeName = typeNameStack.pop();
         String varName = ctx.Identifier().getText();
-        boolean exprAvailable = (ctx.expression() != null) ;
+        boolean exprAvailable = (ctx.expression() != null);
         modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), typeName, varName, exprAvailable);
 
     }
