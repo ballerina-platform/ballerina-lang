@@ -44,7 +44,7 @@ public class SystemTimeBasedScheduler extends Scheduler {
     @Override
     public void schedule(long time) {
         if (!running && toNotifyQueue.size() == 1) {
-            synchronized (toNotifyQueue) {
+            synchronized (this) {
                 if (!running) {
                     running = true;
                     long timeDiff = time - executionPlanContext.getTimestampGenerator().currentTime();
@@ -91,7 +91,7 @@ public class SystemTimeBasedScheduler extends Scheduler {
                         scheduledExecutorService.schedule(eventCaller, toNotifyTime - currentTime, TimeUnit
                                 .MILLISECONDS);
                     } else {
-                        synchronized (toNotifyQueue) {
+                        synchronized (this) {
                             running = false;
                             if (toNotifyQueue.peek() != null) {
                                 running = true;
