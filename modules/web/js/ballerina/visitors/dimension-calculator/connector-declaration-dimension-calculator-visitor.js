@@ -42,7 +42,9 @@ class ConnectorDeclarationDimensionCalculatorVisitor {
         var components = {};
 
         components['statementContainer'] = new SimpleBBox();
-        var statementContainerWidth = DesignerDefaults.statementContainer.width;
+        const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
+            DesignerDefaults.statementContainer.padding.right;
+        var statementContainerWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
         var statementContainerHeight = DesignerDefaults.statementContainer.height;
 
         viewState.bBox.h = statementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;

@@ -145,7 +145,13 @@ export const canvas = {
 export const statementContainer = {
     width: 120,
     // Default statement container height is the height of two simple statements
-    height: 135
+    height: 135,
+    padding: {
+        top: 0,
+        right: 20,
+        bottom: 0,
+        left: 20
+    }
 };
 
 export const packageDefinition = {

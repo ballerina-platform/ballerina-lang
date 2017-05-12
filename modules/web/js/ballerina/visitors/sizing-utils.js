@@ -161,13 +161,15 @@ class SizingUtil {
 
         components['statementContainer'] = new SimpleBBox();
         let statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        let statementWidth = DesignerDefaults.statementContainer.width;
+        const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
+            DesignerDefaults.statementContainer.padding.right;
+        let statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
         let statementHeight = 0;
 
         _.forEach(statementChildren, function (child) {
             statementHeight += child.viewState.bBox.h + DesignerDefaults.statement.gutter.v;
-            if (child.viewState.bBox.w > statementWidth) {
-                statementWidth = child.viewState.bBox.w;
+            if ((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth) {
+                statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }
         });
 
