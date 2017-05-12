@@ -18,6 +18,7 @@
 import log from 'log';
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
+import SimpleBBox from './../../ast/simple-bounding-box';
 
 class TryCatchStatementDimensionCalculatorVisitor {
 
@@ -61,7 +62,11 @@ class TryCatchStatementDimensionCalculatorVisitor {
             statementHeight += child.getViewState().bBox.h;
         });
 
-        viewState.bBox.h = statementHeight + DesignerDefaults.statement.gutter.v;
+        let dropZoneHeight = DesignerDefaults.statement.gutter.v;
+        viewState.components['drop-zone'] = new SimpleBBox();
+        viewState.components['drop-zone'].h = dropZoneHeight;
+
+        viewState.bBox.h = statementHeight + dropZoneHeight;
         viewState.bBox.w = statementWidth;
     }
 }

@@ -38,8 +38,8 @@ class WhileStatement extends React.Component {
 			bBox = model.viewState.bBox;
 		let blockStatementBBox = new SimpleBBox();
 		blockStatementBBox.x = bBox.x;
-		blockStatementBBox.y = bBox.y + DesignerDefaults.statement.gutter.v;
-		blockStatementBBox.h = bBox.h - DesignerDefaults.statement.gutter.v;
+		blockStatementBBox.y = bBox.y + model.viewState.components['drop-zone'].h;
+		blockStatementBBox.h = bBox.h - model.viewState.components['drop-zone'].h;
 		blockStatementBBox.w = bBox.w;
     const innerDropZoneActivated = this.state.innerDropZoneActivated;
 		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
@@ -47,7 +47,7 @@ class WhileStatement extends React.Component {
 											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 		const children = getComponentForNodeArray(this.props.model.getChildren());
 		return (<g>
-			<rect x={bBox.x} y={bBox.y} width={bBox.w} height={DesignerDefaults.statement.gutter.v}
+			<rect x={bBox.x} y={bBox.y} width={bBox.w} height={model.viewState.components['drop-zone'].h}
             className={dropZoneClassName}
             onMouseOver={(e) => this.onDropZoneActivate(e)}
             onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
