@@ -19,6 +19,7 @@ package org.ballerinalang.util.parser.antlr4;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.util.parser.BallerinaParser;
 
@@ -46,8 +47,18 @@ public class WhiteSpaceUtil {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.IMPORT_DEC_IMPORT_KEYWORD_TO_PKG_NAME_START,
                                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.IMPORT_DEC_PKG_NAME_END_TO_SEMICOLAN,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.IMPORT_DEC_PKG_NAME_END_TO_NEXT,
                 getWhitespaceToRight(tokenStream, ctx.packageName().stop.getTokenIndex()));
+
+        // if (as Identifier) is present, there can be five whitespace regions
+        if (ctx.Identifier() != null && ctx.children.size() == 5) {
+            Token asToken = ((TerminalNode) ctx.getChild(2)).getSymbol();
+            ws.addWhitespaceRegion(WhiteSpaceRegions.IMPORT_DEC_AS_KEYWORD_TO_IDENTIFIER,
+                    getWhitespaceToRight(tokenStream, asToken.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.IMPORT_DEC_IDENTIFIER_TO_IMPORT_DEC_END,
+                    getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        }
+
         ws.addWhitespaceRegion(WhiteSpaceRegions.IMPORT_DEC_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;

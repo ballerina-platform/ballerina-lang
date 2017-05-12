@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.parser.BallerinaLexer;
@@ -59,6 +60,22 @@ public class WhiteSpaceCaptureTest {
     public void testWhiteSpaceCaptureInBFileStart() {
         Assert.assertEquals(bFile.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.BFILE_START), "\n\n");
+    }
+
+    @Test(description = "Test captured whitespace regions of import declarations")
+    public void testWhiteSpaceCaptureInImportDec() {
+        ImportPackage importPackage = bFile.getImportPackages()[0];
+        Assert.assertNotNull(importPackage);
+        Assert.assertEquals(importPackage.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.IMPORT_DEC_IMPORT_KEYWORD_TO_PKG_NAME_START), "   ");
+        Assert.assertEquals(importPackage.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.IMPORT_DEC_PKG_NAME_END_TO_NEXT), "    ");
+        Assert.assertEquals(importPackage.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.IMPORT_DEC_AS_KEYWORD_TO_IDENTIFIER), "  ");
+        Assert.assertEquals(importPackage.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.IMPORT_DEC_IDENTIFIER_TO_IMPORT_DEC_END), "   ");
+        Assert.assertEquals(importPackage.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.IMPORT_DEC_END_TO_NEXT_TOKEN), "\n\n\n  ");
     }
 
     @Test(description = "Test captured whitespace regions of package declaration node")

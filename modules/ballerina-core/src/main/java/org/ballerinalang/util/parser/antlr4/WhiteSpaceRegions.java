@@ -32,8 +32,10 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in a import declaration
     public static final int IMPORT_DEC_IMPORT_KEYWORD_TO_PKG_NAME_START = 0;
-    public static final int IMPORT_DEC_PKG_NAME_END_TO_SEMICOLAN = 1;
-    public static final int IMPORT_DEC_END_TO_NEXT_TOKEN = 2;
+    public static final int IMPORT_DEC_PKG_NAME_END_TO_NEXT = 1;
+    public static final int IMPORT_DEC_AS_KEYWORD_TO_IDENTIFIER = 2;
+    public static final int IMPORT_DEC_IDENTIFIER_TO_IMPORT_DEC_END = 3;
+    public static final int IMPORT_DEC_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions in a service definition
     public static final int SERVICE_DEF_SERVICE_KEYWORD_TO_IDENTIFIER = 0;
