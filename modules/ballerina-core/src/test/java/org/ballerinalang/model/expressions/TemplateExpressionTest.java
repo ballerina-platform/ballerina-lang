@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.runtime.internal.GlobalScopeHolder;
+import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -38,6 +39,7 @@ import org.testng.annotations.Test;
  */
 public class TemplateExpressionTest {
     private BLangProgram bLangProgram;
+    
     @BeforeClass
     public void setup() {
         // Add Native functions.
@@ -118,16 +120,6 @@ public class TemplateExpressionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-//    @Test(description = "Test JSON backtick expression with parts of json added into full JSON")
-//    public void testBacktickPartsJSON() {
-//        BValue[] args = { new BString("{\"name\":"), new BString("\"chanaka\"}")};
-//        BValue[] returns = Functions.invoke(bFile, "backticJSONParts", args);
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertSame(returns[0].getClass(), BJSON.class);
-//        String expected =  "{\"name\":\"chanaka\"}";
-//        Assert.assertEquals(returns[0].stringValue(), expected);
-//    }
-
     @Test(description = "Test JSON backtick expression with int and string arrays variable reference")
     public void testArrayVariableAccessInJSONInit() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testArrayVariableAccessInJSONInit");
@@ -172,5 +164,12 @@ public class TemplateExpressionTest {
         String expected = "{\"intStrIndex0\":\"0\",\"intStrIndex1\":\"1\","
                 + "\"boolStrIndex0\":\"true\",\"boolStrIndex1\":\"false\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+    
+    @Test(description = "Test backtick expression for JSON type",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "json-backtick-expr.bal:2: incompatible types: expected xml")
+    public void testBacktickJSON() {
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/json-backtick-expr.bal");
     }
 }

@@ -28,6 +28,7 @@ import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
@@ -202,11 +203,10 @@ public class BLangModelBuilder {
 
     // Packages and import packages
 
-    public void addPackageDcl(String pkgPath) {
-        // TODO Validate whether this file is in the correct package
-        // TODO example this is in com/greet/hello directory, but package Path is come.greet.bye. This is wrong
+    public void addPackageDcl(NodeLocation location, String pkgPath) {
         currentPackagePath = pkgPath;
         bFileBuilder.setPackagePath(currentPackagePath);
+        bFileBuilder.setPackageLocation(location);
     }
 
     public void addImportPackage(NodeLocation location, String pkgPath, String asPkgName) {
@@ -228,7 +228,7 @@ public class BLangModelBuilder {
     }
 
 
-    // Add constant definitions;
+    // Add constant definition
 
     public void addConstantDef(NodeLocation location, SimpleTypeName typeName, String constName) {
         SymbolName symbolName = new SymbolName(constName);
@@ -239,9 +239,29 @@ public class BLangModelBuilder {
         
         // Add constant definition to current file;
         bFileBuilder.addConst(constantDef);
+    }
 
-        // TODO Support annotations for Constants
-        getAnnotationAttachments();
+
+    // Add global variable definition
+
+    public void addGlobalVarDef(NodeLocation location, SimpleTypeName typeName,
+                                String varName, boolean exprAvailable) {
+        SymbolName symbolName = new SymbolName(varName);
+        GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, varName, typeName, currentPackagePath,
+                symbolName, currentScope);
+
+        getAnnotationAttachments().forEach(attachment -> globalVariableDef.addAnnotation(attachment));
+
+        // Create Variable definition statement for the global variable
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
+        variableRefExpr.setVariableDef(globalVariableDef);
+
+        Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
+        VariableDefStmt variableDefStmt = new VariableDefStmt(location, globalVariableDef, variableRefExpr, rhsExpr);
+        globalVariableDef.setVariableDefStmt(variableDefStmt);
+
+        // Add constant definition to current file;
+        bFileBuilder.addGlobalVar(globalVariableDef);
     }
 
 
@@ -263,8 +283,8 @@ public class BLangModelBuilder {
      * @param location  Location of the field in the source file
      * @param fieldName Name of the field in the {@link StructDef}
      */
-    public void addFieldDefinition(NodeLocation location, SimpleTypeName typeName, String fieldName, 
-            boolean defaultValueAvailable) {
+    public void addFieldDefinition(NodeLocation location, SimpleTypeName typeName, String fieldName,
+                                   boolean defaultValueAvailable) {
         SymbolName symbolName = new SymbolName(fieldName);
 
         // Check whether this constant is already defined.
@@ -489,23 +509,31 @@ public class BLangModelBuilder {
      * </ol>
      *
      * @param location Location of the variable reference expression in the source file
-     * @param varName  name of the variable
+     * @param nameReference  nameReference of the variable
      */
-    public void createVarRefExpr(NodeLocation location, String varName) {
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
+    public void createVarRefExpr(NodeLocation location, NameReference nameReference) {
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, nameReference.name,
+                nameReference.pkgName, nameReference.pkgPath);
         exprStack.push(variableRefExpr);
     }
 
-    public void createMapArrayVarRefExpr(NodeLocation location, String varName, int dimensions) {
+    /**
+     * <p>Create map array variable reference expression.</p>
+     *
+     * @param location location of the variable reference expression in the source file.
+     * @param nameReference nameReference of the variable.
+     * @param dimensions dimensions of map array.
+     */
+    public void createMapArrayVarRefExpr(NodeLocation location, NameReference nameReference, int dimensions) {
         FieldAccessExpr fieldExpr = null;
         for (int i = 0; i <= dimensions; i++) {
             Expression parent;
             if (i == dimensions) {
-                parent = new VariableRefExpr(location, varName);
+                parent = new VariableRefExpr(location, nameReference.name, nameReference.pkgName, 
+                        nameReference.pkgPath);
             } else {
                 parent = exprStack.pop();
             }
-
             FieldAccessExpr parentExpr = new FieldAccessExpr(location, parent, fieldExpr);
             fieldExpr = parentExpr;
         }
@@ -949,14 +977,6 @@ public class BLangModelBuilder {
                             SemanticErrors.ACTION_INVOCATION_NOT_ALLOWED_HERE);
                     errorMsgs.add(errMsg);
                 }
-
-//                if (rhsExpr instanceof BasicLiteral || rhsExpr instanceof VariableRefExpr) {
-//                    currentCUGroupBuilder.addVariableDef(variableDefStmt);
-//                } else {
-//                    String errMsg = getNodeLocationStr(location) +
-//                            "only a basic literal or a variable reference is allowed here ";
-//                    errorMsgs.add(errMsg);
-//                }
             }
             currentCUGroupBuilder.addVariableDef(variableDefStmt);
         } else {
@@ -1412,11 +1432,32 @@ public class BLangModelBuilder {
         if (exprStack.size() < 2) {
             return;
         }
+/*        ReferenceExpr field = (ReferenceExpr) exprStack.pop();
+        StructFieldAccessExpr fieldExpr;
+        if (field.getPkgPath() != null) {
+            throw BLangExceptionHelper.getParserException(location,
+                    ParserErrors.STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER, field.getPkgName() + ":" + field.getVarName());
+        }
+        if (field instanceof StructFieldAccessExpr) {
+            fieldExpr = (StructFieldAccessExpr) field;
+        } else {
+            fieldExpr = new StructFieldAccessExpr(location, field.getSymbolName(), field.getPkgName(),
+                    field.getPkgPath(), field);
+        }
+*/
 
         // Accessing a field with syntax x.y.z means y and z are static field names, but x is a variable ref.
         // Hence the varRefs are replaced with a basic literal, upto the very first element in the chain. 
         // First element is treated as a variableRef.
-        Expression childExpr = exprStack.pop();
+        ReferenceExpr childExpr = (ReferenceExpr) exprStack.pop();
+        
+        if (childExpr.getPkgPath() != null) {
+            String errMsg = BLangExceptionHelper.constructSemanticError(location, 
+                    SemanticErrors.STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER, childExpr.getPkgName() + ":" + 
+                    childExpr.getVarName());
+            errorMsgs.add(errMsg);
+        }
+        
         if (childExpr instanceof FieldAccessExpr) {
             FieldAccessExpr fieldExpr = (FieldAccessExpr) childExpr;
             Expression varRefExpr = fieldExpr.getVarRef();
@@ -1426,23 +1467,24 @@ public class BLangModelBuilder {
                         new BString(((VariableRefExpr) varRefExpr).getVarName()));
                 fieldExpr.setVarRef(varRefExpr);
             }
-        } else  {
-            if (childExpr instanceof VariableRefExpr) {
-                childExpr = new BasicLiteral(childExpr.getNodeLocation(), 
-                        new SimpleTypeName(TypeConstants.STRING_TNAME),
-                        new BString(((VariableRefExpr) childExpr).getVarName()));
-            }
+        } else if (childExpr instanceof VariableRefExpr) {
+            BasicLiteral fieldNameLietral = new BasicLiteral(childExpr.getNodeLocation(), 
+                    new SimpleTypeName(TypeConstants.STRING_TNAME),
+                    new BString(((VariableRefExpr) childExpr).getVarName()));
+            childExpr = new FieldAccessExpr(location, fieldNameLietral);
+        } else {
             childExpr = new FieldAccessExpr(location, childExpr);
         }
 
-        Expression parentExpr = (ReferenceExpr) exprStack.pop();
+        ReferenceExpr parentExpr = (ReferenceExpr) exprStack.pop();
         Expression newParentExpr;
         if (parentExpr instanceof FieldAccessExpr) {
             FieldAccessExpr fieldOfParent = ((FieldAccessExpr) parentExpr).getFieldExpr();
             fieldOfParent.setFieldExpr((FieldAccessExpr) childExpr);
             newParentExpr = parentExpr;
         } else {
-            newParentExpr = new FieldAccessExpr(location, parentExpr, (FieldAccessExpr) childExpr);
+            newParentExpr = new FieldAccessExpr(location, parentExpr.getPkgName(), parentExpr.getPkgPath(), parentExpr,
+                    (FieldAccessExpr) childExpr);
         }
         exprStack.push(newParentExpr);
     }

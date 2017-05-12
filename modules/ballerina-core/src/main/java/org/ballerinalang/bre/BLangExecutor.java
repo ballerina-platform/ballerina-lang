@@ -1003,6 +1003,13 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
+    public BValue visit(GlobalVarLocation globalVarLocation) {
+        int offset = globalVarLocation.getStaticMemAddrOffset();
+        RuntimeEnvironment.StaticMemory staticMemory = runtimeEnv.getStaticMemory();
+        return staticMemory.getValue(offset);
+    }
+
+    @Override
     public BValue visit(StructVarLocation structLocation) {
         throw new IllegalArgumentException("struct value is required to get the value of a field");
     }
@@ -1108,6 +1115,13 @@ public class BLangExecutor implements NodeExecutor {
         } else if (memoryLocation instanceof StructVarLocation) {
             int structMemOffset = ((StructVarLocation) memoryLocation).getStructMemAddrOffset();
             controlStack.setValue(structMemOffset, rValue);
+        } else if (memoryLocation instanceof GlobalVarLocation) {
+            int globalMemOffset = ((GlobalVarLocation) memoryLocation).getStaticMemAddrOffset();
+            runtimeEnv.getStaticMemory().setValue(globalMemOffset, rValue);
+        } else if (memoryLocation instanceof ConstantLocation) {
+            // This is invoked only during the package.<init> function
+            int constMemOffset = ((ConstantLocation) memoryLocation).getStaticMemAddrOffset();
+            runtimeEnv.getStaticMemory().setValue(constMemOffset, rValue);
         }
     }
 

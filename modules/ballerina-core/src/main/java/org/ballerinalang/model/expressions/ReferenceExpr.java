@@ -39,5 +39,8 @@ public interface ReferenceExpr extends Expression {
      * @return  Symbolic name
      */
     SymbolName getSymbolName();
-    
+
+    String getPkgName();
+
+    String getPkgPath();
 }

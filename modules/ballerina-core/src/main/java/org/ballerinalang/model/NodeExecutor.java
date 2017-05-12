@@ -19,6 +19,7 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -148,6 +149,8 @@ public interface NodeExecutor {
     BValue visit(ConstantLocation constantLocation);
 
     BValue visit(ServiceVarLocation serviceVarLocation);
+
+    BValue visit(GlobalVarLocation globalVarLocation);
 
     BValue visit(ConnectorVarLocation connectorVarLocation);
 

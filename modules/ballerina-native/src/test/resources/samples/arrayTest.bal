@@ -36,10 +36,10 @@ function testJSONArrayLength(json[] arg)(int, int){
     json[] defined;
     json v1;
     json v2;
-    v1 = `{ "test" : "1"}`;
-    v2 = `{ "test" : "2"}`;
+    v1 = { "test" : "1"};
+    v2 = { "test" : "2"};
     defined = [v1, v2];
-    defined[2] = `{ "test" : "3"}`;
+    defined[2] = { "test" : "3"};
     return arrays:length(arg) , arrays:length(defined);
 }
 
@@ -93,9 +93,9 @@ function testXMLArrayCopy(xml[] arg)(xml[]){
 function testJSONArrayCopy(json[] arg)(json[]){
     json[] defined;
     defined = arrays:copyOf(arg);
-    defined[0] = `{ "test" : "1"}`;
-    defined[1] = `{ "test" : "2"}`;
-    defined[2] = `{ "test" : "3"}`;
+    defined[0] = { "test" : "1"};
+    defined[1] = { "test" : "2"};
+    defined[2] = { "test" : "3"};
     return defined;
 }
 

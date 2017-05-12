@@ -40,6 +40,10 @@ import org.ballerinalang.model.values.BValue;
  */
 public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
 
+    private String pkgName;
+
+    private String pkgPath;
+
     /**
      * Unique identifier or this expression.
      */
@@ -101,6 +105,15 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
         }
     }
 
+    public FieldAccessExpr(NodeLocation location, SymbolName symbolName, String pkgName, String pkgPath,
+                                 ReferenceExpr structVarRefExpr) {
+        super(location, null, structVarRefExpr);
+        this.symbolName = symbolName;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+        this.varRefExpr = structVarRefExpr;
+    }
+
     /**
      * Creates a field access expression.
      *
@@ -117,6 +130,26 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
             this.symbolName = ((ReferenceExpr) varRefExpr).getSymbolName();
         }
     }
+    
+    /**
+     * Creates a field access expression.
+     *
+     * @param location File name and the line number of the field access expression
+     * @param varRefExpr Variable reference represented by the current field
+     * @param fieldRefExpr Reference to the child field of the current field
+     */
+    public FieldAccessExpr(NodeLocation location, String pkgName, String pkgPath, Expression varRefExpr, 
+            FieldAccessExpr fieldRefExpr) {
+        super(location, null, fieldRefExpr);
+        this.varRefExpr = varRefExpr;
+        this.fieldRefExpr = fieldRefExpr;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+        
+        if (varRefExpr instanceof ReferenceExpr) {
+            this.symbolName = ((ReferenceExpr) varRefExpr).getSymbolName();
+        }
+    }
 
     @Override
     public String getVarName() {
@@ -124,6 +157,16 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
             return ((ReferenceExpr) varRefExpr).getVarName();
         }
         return null;
+    }
+
+    @Override
+    public String getPkgName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPkgPath() {
+        return pkgPath;
     }
 
     /**
