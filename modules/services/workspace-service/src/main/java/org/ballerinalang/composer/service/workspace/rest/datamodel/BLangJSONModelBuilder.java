@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -42,6 +43,7 @@ import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConnectorDcl;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -1458,6 +1460,16 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         modExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(modExprObj);
+    }
+    
+    @Override
+    public void visit(GlobalVariableDef globalVariableDef) {
+
+    }
+
+    @Override
+    public void visit(GlobalVarLocation globalVarLocation) {
+
     }
 
     //    public void visit(WorkerVarLocation workerVarLocation){
