@@ -157,14 +157,8 @@ public class TypeLattice {
         
         explicitCastLattice.addEdge(xmlV, anyV, NativeCastMapper.XML_TO_ANY_FUNC);
         
+        explicitCastLattice.addEdge(mapV, anyV, NativeCastMapper.MAP_TO_ANY_FUNC);
 //        explicitCastLattice.addEdge(mapV, jsonV, NativeCastMapper.MAP_TO_JSON_FUNC);
-        
-//        explicitCastLattice.addEdge(jsonV, xmlV, new JSONToXML(), TypeConstants.NATIVE_PACKAGE);
-//        explicitCastLattice.addEdge(xmlV, jsonV, new XMLToJSON(), TypeConstants.NATIVE_PACKAGE);
-//        explicitCastLattice.addEdge(stringV, jsonV, new StringToJSON(), TypeConstants.NATIVE_PACKAGE);
-//        explicitCastLattice.addEdge(stringV, xmlV, new StringToXML(), TypeConstants.NATIVE_PACKAGE);
-//        explicitCastLattice.addEdge(xmlV, stringV, new XMLToString(), TypeConstants.NATIVE_PACKAGE);
-//        explicitCastLattice.addEdge(jsonV, stringV, new JSONToString(), TypeConstants.NATIVE_PACKAGE);
     }
 
     /**
@@ -359,6 +353,7 @@ public class TypeLattice {
     
     private static void addExplicitEdges(StructDef structDef, SymbolScope scope) {
         TypeVertex structV = new TypeVertex(structDef);
+        TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
 //        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
 //        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         
@@ -367,6 +362,8 @@ public class TypeLattice {
 //        explicitCastLattice.addEdge(structV, jsonV, NativeCastMapper.STRUCT_TO_JSON_FUNC);
 //        explicitCastLattice.addEdge(jsonV, structV, NativeCastMapper.JSON_TO_STRUCT_FUNC);
 //        explicitCastLattice.addEdge(mapV, structV, NativeCastMapper.MAP_TO_STRUCT_FUNC);
+        explicitCastLattice.addEdge(anyV, structV, NativeCastMapper.ANY_TO_STRUCT_FUNC);
+        explicitCastLattice.addEdge(structV, anyV, NativeCastMapper.STRUCT_TO_ANY_FUNC);
         
         // For all the structs in all the packages imported, check for possibility of casting.
         // Add an edge to the lattice, if casting is possible.

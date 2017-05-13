@@ -218,3 +218,64 @@ function testAnyXmlToJson() (json) {
     any a = x;
     return (json) a;
 }
+
+function testStructAsAnyToStruct() (Person) {
+    Person p1 = { name:"Supun", 
+                 age:25, 
+                 parent:{name:"Parent", age:50}, 
+                 address:{"city":"Kandy", "country":"SriLanka"}, 
+                 info:{status:"single"},
+                 marks:[24, 81]
+               };
+    any a = p1;
+    Person p2 = (Person) a;
+    return p2;
+}
+
+function testAnyToStruct() (Person) {
+    any a = { name:"Supun", 
+                 age:25, 
+                 parent:{name:"Parent", age:50}, 
+                 address:{"city":"Kandy", "country":"SriLanka"}, 
+                 info:{status:"single"},
+                 marks:[24, 81]
+               };
+    Person p2 = (Person) a;
+    return p2;
+}
+
+function testAnyNullToStruct() (Person) {
+    any a;
+    return (Person) a;
+}
+
+function testAnyNullToMap() (map) {
+    any a;
+    return (map) a;
+}
+
+function testAnyNullToXml() (xml) {
+    any a;
+    return (xml) a;
+}
+
+function testMapToAny() (any) {
+    map m = {};
+    return (any) m;
+}
+
+function testStructToAnyExplicit() (any) {
+    Person p = { name:"Supun", 
+                 age:25, 
+                 parent:{name:"Parent", age:50}, 
+                 address:{"city":"Kandy", "country":"SriLanka"}, 
+                 info:{status:"single"},
+                 marks:[24, 81]
+               };
+    return (any) p;
+}
+
+function testMapToAnyExplicit() (any) {
+    map m = {name:"supun"};
+    return (any) m;
+}

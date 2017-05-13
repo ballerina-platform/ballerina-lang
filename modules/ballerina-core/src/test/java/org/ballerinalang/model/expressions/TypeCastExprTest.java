@@ -945,4 +945,103 @@ public class TypeCastExprTest {
     public void testJsonToStruct() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/json-to-struct.bal");
     }
+    
+    @Test(description = "Test casting struct stored as any to struct")
+    public void testStructAsAnyToStruct() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructAsAnyToStruct");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        BStruct student = (BStruct) returns[0];
+        
+        BValue name = student.getValue(0);
+        Assert.assertTrue(name instanceof BString);
+        Assert.assertEquals(name.stringValue(), "Supun");
+
+        BValue age = student.getValue(1);
+        Assert.assertTrue(age instanceof BInteger);
+        Assert.assertEquals(((BInteger) age).intValue(), 25);
+
+        BValue address = student.getValue(2);
+        Assert.assertTrue(address instanceof BMap<?, ?>);
+        BMap<BString, ?> addressMap = (BMap<BString, ?>) address;
+        Assert.assertEquals(addressMap.get(new BString("city")).stringValue(), "Kandy");
+        Assert.assertEquals(addressMap.get(new BString("country")).stringValue(), "SriLanka");
+        
+        BValue marks = student.getValue(3);
+        Assert.assertTrue(marks instanceof BArray);
+        BArray<BInteger> marksArray = (BArray<BInteger>) marks;
+        Assert.assertEquals(marksArray.size(), 2);
+        Assert.assertEquals(marksArray.get(0).intValue(), 24);
+        Assert.assertEquals(marksArray.get(1).intValue(), 81);
+        
+        BValue score = student.getValue(7);
+        Assert.assertTrue(score instanceof BFloat);
+        Assert.assertEquals(((BFloat) score).floatValue(), 0.0);
+    }
+    
+    @Test(description = "Test casting any to struct",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'map' to type 'Person'")
+    public void testAnyToStruct() {
+        BLangFunctions.invoke(bLangProgram, "testAnyToStruct");
+    }
+    
+    @Test(description = "Test casting a null stored as any to struct")
+    public void testAnyNullToStruct() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyNullToStruct");
+        Assert.assertNull(returns[0]);
+    }
+    
+    @Test(description = "Test casting a null stored as any to map")
+    public void testAnyNullToMap() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyNullToMap");
+        Assert.assertNull(returns[0]);
+    }
+    
+    @Test(description = "Test casting a null stored as any to xml")
+    public void testAnyNullToXml() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyNullToXml");
+        Assert.assertNull(returns[0]);
+    }
+    
+    @Test(description = "Test explicit casting struct to any")
+    public void testStructToAnyExplicit() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructToAnyExplicit");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        BStruct student = (BStruct) returns[0];
+        
+        BValue name = student.getValue(0);
+        Assert.assertTrue(name instanceof BString);
+        Assert.assertEquals(name.stringValue(), "Supun");
+
+        BValue age = student.getValue(1);
+        Assert.assertTrue(age instanceof BInteger);
+        Assert.assertEquals(((BInteger) age).intValue(), 25);
+
+        BValue address = student.getValue(2);
+        Assert.assertTrue(address instanceof BMap<?, ?>);
+        BMap<BString, ?> addressMap = (BMap<BString, ?>) address;
+        Assert.assertEquals(addressMap.get(new BString("city")).stringValue(), "Kandy");
+        Assert.assertEquals(addressMap.get(new BString("country")).stringValue(), "SriLanka");
+        
+        BValue marks = student.getValue(3);
+        Assert.assertTrue(marks instanceof BArray);
+        BArray<BInteger> marksArray = (BArray<BInteger>) marks;
+        Assert.assertEquals(marksArray.size(), 2);
+        Assert.assertEquals(marksArray.get(0).intValue(), 24);
+        Assert.assertEquals(marksArray.get(1).intValue(), 81);
+        
+        BValue score = student.getValue(7);
+        Assert.assertTrue(score instanceof BFloat);
+        Assert.assertEquals(((BFloat) score).floatValue(), 0.0);
+    }
+    
+    @Test(description = "Test explicit casting struct to any")
+    public void testMapToAnyExplicit() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testMapToAnyExplicit");
+        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
+        BMap<BString, ?> map = (BMap<BString, ?>) returns[0];
+        Assert.assertEquals(map.get(new BString("name")).stringValue(), "supun");
+    }
 }
