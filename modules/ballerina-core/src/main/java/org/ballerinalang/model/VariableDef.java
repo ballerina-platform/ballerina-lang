@@ -44,17 +44,19 @@ public class VariableDef implements BLangSymbol, Node {
     protected boolean isNative = false;
     protected SymbolName symbolName;
     protected SymbolScope symbolScope;
+    protected boolean isLiteral = false;
 
     public VariableDef(NodeLocation location,
                        String name,
                        SimpleTypeName typeName,
                        SymbolName symbolName,
-                       SymbolScope symbolScope) {
+                       SymbolScope symbolScope, boolean isLiteral) {
         this.location = location;
         this.name = name;
         this.symbolName = symbolName;
         this.typeName = typeName;
         this.symbolScope = symbolScope;
+        this.isLiteral = isLiteral;
     }
 
     public VariableDef(NodeLocation location, BType type, SymbolName symbolName) {
@@ -115,6 +117,9 @@ public class VariableDef implements BLangSymbol, Node {
         return symbolScope;
     }
 
+    public boolean isLiteral() {
+        return isLiteral;
+    }
 
     // Methods in Node interface
 

@@ -40,9 +40,9 @@ public class ConstDef extends VariableDef implements CompilationUnit {
                     String pkgPath,
                     SymbolName symbolName,
                     SymbolScope symbolScope,
-                    Expression rhsExpr) {
+                    Expression rhsExpr, boolean isLiteral) {
 
-        super(location, name, typeName, symbolName, symbolScope);
+        super(location, name, typeName, symbolName, symbolScope, isLiteral);
         this.pkgPath = pkgPath;
         this.rhsExpr = rhsExpr;
         this.annotations = new ArrayList<>();

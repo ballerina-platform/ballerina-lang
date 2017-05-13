@@ -318,10 +318,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         VariableDefStmt variableDefStmt = globalVarDef.getVariableDefStmt();
         variableDefStmt.accept(this);
 
-        // Create an assignment statement
-        AssignStmt assignStmt = new AssignStmt(variableDefStmt.getNodeLocation(),
-                new Expression[]{variableDefStmt.getLExpr()}, variableDefStmt.getRExpr());
-        pkgInitFuncStmtBuilder.addStmt(assignStmt);
+        if (variableDefStmt.getRExpr() != null) {
+            // Create an assignment statement
+            AssignStmt assignStmt = new AssignStmt(variableDefStmt.getNodeLocation(),
+                    new Expression[]{variableDefStmt.getLExpr()}, variableDefStmt.getRExpr());
+            pkgInitFuncStmtBuilder.addStmt(assignStmt);
+        }
     }
 
     @Override

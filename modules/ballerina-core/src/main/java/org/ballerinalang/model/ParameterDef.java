@@ -36,7 +36,7 @@ public class ParameterDef extends VariableDef implements Node {
     private List<AnnotationAttachment> annotations;
 
     public ParameterDef(BType type, SymbolName symbolName) {
-        super(null, null, null, null, null);
+        super(null, null, null, null, null, false);
         this.type = type;
         this.symbolName = symbolName;
         this.annotations = new ArrayList<AnnotationAttachment>();
@@ -46,9 +46,9 @@ public class ParameterDef extends VariableDef implements Node {
                         String name,
                         SimpleTypeName typeName,
                         SymbolName symbolName,
-                        SymbolScope symbolScope) {
+                        SymbolScope symbolScope, boolean isLiteral) {
 
-        super(location, name, typeName, symbolName, symbolScope);
+        super(location, name, typeName, symbolName, symbolScope, isLiteral);
         this.annotations = new ArrayList<AnnotationAttachment>();
     }
     

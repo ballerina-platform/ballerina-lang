@@ -121,6 +121,7 @@ import java.util.regex.Pattern;
  * @since 0.8.0
  */
 public class BLangModelBuilder {
+    private static final String LITERAL_START = "|";
     protected String currentPackagePath;
     protected BallerinaFile.BFileBuilder bFileBuilder;
 
@@ -234,9 +235,14 @@ public class BLangModelBuilder {
     // Add constant definition
 
     public void addConstantDef(NodeLocation location, SimpleTypeName typeName, String constName) {
+        boolean isLiteral = false;
+        if (constName != null && constName.startsWith(LITERAL_START)) {
+            constName = constName.substring(1, constName.length() - 1);
+            isLiteral = true;
+        }
         SymbolName symbolName = new SymbolName(constName);
         ConstDef constantDef = new ConstDef(location, constName, typeName, currentPackagePath,
-                symbolName, currentScope, exprStack.pop());
+                symbolName, currentScope, exprStack.pop(), isLiteral);
 
         getAnnotationAttachments().forEach(attachment -> constantDef.addAnnotation(attachment));
         
@@ -249,9 +255,14 @@ public class BLangModelBuilder {
 
     public void addGlobalVarDef(NodeLocation location, SimpleTypeName typeName,
                                 String varName, boolean exprAvailable) {
+        boolean isLiteral = false;
+        if (varName != null && varName.startsWith(LITERAL_START)) {
+            varName = varName.substring(1, varName.length() - 1);
+            isLiteral = true;
+        }
         SymbolName symbolName = new SymbolName(varName);
         GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, varName, typeName, currentPackagePath,
-                symbolName, currentScope);
+                symbolName, currentScope, isLiteral);
 
         getAnnotationAttachments().forEach(attachment -> globalVariableDef.addAnnotation(attachment));
 
@@ -288,6 +299,11 @@ public class BLangModelBuilder {
      */
     public void addFieldDefinition(NodeLocation location, SimpleTypeName typeName, String fieldName,
                                    boolean defaultValueAvailable) {
+        boolean isLiteral = false;
+        if (fieldName != null && fieldName.startsWith(LITERAL_START)) {
+            fieldName = fieldName.substring(1, fieldName.length() - 1);
+            isLiteral = true;
+        }
         SymbolName symbolName = new SymbolName(fieldName);
 
         // Check whether this constant is already defined.
@@ -305,7 +321,7 @@ public class BLangModelBuilder {
         }
         
         if (currentScope instanceof StructDef) {
-            VariableDef fieldDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
+            VariableDef fieldDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope, isLiteral);
             VariableRefExpr fieldRefExpr = new VariableRefExpr(location, fieldName);
             fieldRefExpr.setVariableDef(fieldDef);
             VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
@@ -455,6 +471,11 @@ public class BLangModelBuilder {
      */
     public void addParam(NodeLocation location, SimpleTypeName typeName, String paramName,
                          int annotationCount, boolean isReturnParam) {
+        boolean isLiteral = false;
+        if (paramName != null && paramName.startsWith(LITERAL_START)) {
+            paramName = paramName.substring(1, paramName.length() - 1);
+            isLiteral = true;
+        }
         SymbolName symbolName = new SymbolName(paramName);
 
         // Check whether this parameter is already defined.
@@ -465,7 +486,7 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope, isLiteral);
         getAnnotationAttachments(annotationCount).forEach(attachment -> paramDef.addAnnotation(attachment));
 
         if (currentCUBuilder != null) {
@@ -485,7 +506,8 @@ public class BLangModelBuilder {
 
     public void addReturnTypes(NodeLocation location, SimpleTypeName[] returnTypeNames) {
         for (SimpleTypeName typeName : returnTypeNames) {
-            ParameterDef paramDef = new ParameterDef(location, null, typeName, null, currentScope);
+            ParameterDef paramDef = new ParameterDef(location, null, typeName, null,
+                    currentScope, false);
             currentCUBuilder.addReturnParameter(paramDef);
         }
     }
@@ -876,13 +898,18 @@ public class BLangModelBuilder {
     }
 
     public void createWorker(NodeLocation sourceLocation, String name, String paramName) {
+        boolean isLiteral = false;
+        if (name != null && name.startsWith(LITERAL_START)) {
+            name = name.substring(1, name.length() - 1);
+            isLiteral = true;
+        }
         currentCUBuilder.setName(name);
         currentCUBuilder.setNodeLocation(sourceLocation);
 
         // define worker parameter
         SymbolName paramSymbolName = new SymbolName(paramName);
         ParameterDef paramDef = new ParameterDef(sourceLocation, paramName,
-            new SimpleTypeName(BTypes.typeMessage.getName()), paramSymbolName, currentScope);
+            new SimpleTypeName(BTypes.typeMessage.getName()), paramSymbolName, currentScope, isLiteral);
         currentScope.define(paramSymbolName, paramDef);
         currentCUBuilder.addParameter(paramDef);
         
@@ -971,11 +998,15 @@ public class BLangModelBuilder {
 
     public void addVariableDefinitionStmt(NodeLocation location, SimpleTypeName typeName,
                                           String varName, boolean exprAvailable) {
-
+        boolean isLiteral = false;
+        if (varName != null && varName.startsWith(LITERAL_START)) {
+            varName = varName.substring(1, varName.length() - 1);
+            isLiteral = true;
+        }
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
         SymbolName symbolName = new SymbolName(varName);
 
-        VariableDef variableDef = new VariableDef(location, varName, typeName, symbolName, currentScope);
+        VariableDef variableDef = new VariableDef(location, varName, typeName, symbolName, currentScope, isLiteral);
         variableRefExpr.setVariableDef(variableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
@@ -1174,6 +1205,11 @@ public class BLangModelBuilder {
     }
 
     public void addCatchClause(NodeLocation location, SimpleTypeName exceptionType, String argName) {
+        boolean isLiteral = false;
+        if (argName != null && argName.startsWith(LITERAL_START)) {
+            argName = argName.substring(1, argName.length() - 1);
+            isLiteral = true;
+        }
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         if (!TypeConstants.EXCEPTION_TNAME.equals(exceptionType.getName())) {
@@ -1188,7 +1224,7 @@ public class BLangModelBuilder {
 
         SymbolName symbolName = new SymbolName(argName);
         ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), argName, exceptionType, symbolName,
-                currentScope);
+                currentScope, isLiteral);
         currentScope.resolve(symbolName);
         currentScope.define(symbolName, paramDef);
         tryCatchStmtBuilder.getCatchBlock().setParameterDef(paramDef);
@@ -1228,6 +1264,11 @@ public class BLangModelBuilder {
     }
 
     public void endJoinClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+        boolean isLiteral = false;
+        if (paramName != null && paramName.startsWith(LITERAL_START)) {
+            paramName = paramName.substring(1, paramName.length() - 1);
+            isLiteral = true;
+        }
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt forkJoinStmt = blockStmtBuilder.build();
@@ -1241,7 +1282,7 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope, isLiteral);
         forkJoinStmtBuilder.setJoinBlock(forkJoinStmt);
         forkJoinStmtBuilder.setJoinResult(paramDef);
         currentScope = forkJoinStmtBuilder.getJoin().getEnclosingScope();
@@ -1275,6 +1316,11 @@ public class BLangModelBuilder {
     }
 
     public void endTimeoutClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+        boolean isLiteral = false;
+        if (paramName != null && paramName.startsWith(LITERAL_START)) {
+            paramName = paramName.substring(1, paramName.length() - 1);
+            isLiteral = true;
+        }
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt timeoutStmt = blockStmtBuilder.build();
@@ -1290,7 +1336,7 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope, isLiteral);
         forkJoinStmtBuilder.setTimeoutResult(paramDef);
         currentScope = forkJoinStmtBuilder.getTimeout().getEnclosingScope();
     }
