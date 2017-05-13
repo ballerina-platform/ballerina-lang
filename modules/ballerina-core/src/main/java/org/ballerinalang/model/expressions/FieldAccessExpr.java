@@ -26,24 +26,23 @@ import org.ballerinalang.model.values.BValue;
 
 /**
  * <p>
- * {@code StructfieldAccessExpr} represents struct field access operation.
- * {@link StructFieldAccessExpr} is a chain of {@link StructFieldAccessExpr}s, similar to a
+ * {@code FieldAccessExpr} represents struct field access operation.
+ * {@link FieldAccessExpr} is a chain of {@link FieldAccessExpr}s, similar to a
  * linked list, with references to the parent expression and child expressions, that are in either
  * side of this expression.
  * </p>
  * eg:
  * <p>
  * In the expression <b>person[3].name.firstName</b> each variable reference separated by '.', is
- * represented by a {@link StructFieldAccessExpr}, with links to the nearest neighbor.
+ * represented by a {@link FieldAccessExpr}, with links to the nearest neighbor.
  * </p>
  * @since 1.0.0
  */
-public class StructFieldAccessExpr extends UnaryExpression implements ReferenceExpr {
+public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
 
-    /**
-     * Name of the variable reference.
-     */
-    private String varName;
+    private String pkgName;
+
+    private String pkgPath;
 
     /**
      * Unique identifier or this expression.
@@ -53,54 +52,121 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
     /**
      * Holds a reference to the actual variable, stated in the expression.
      */
-    private ReferenceExpr varRefExpr;
+    private Expression varRefExpr;
 
     /**
      * Expression of the child field of the current expression.
      * Is null for the last child in the chain.
      */
-    private StructFieldAccessExpr fieldRefExpr;
+    private FieldAccessExpr fieldRefExpr;
 
     /**
      * Expression precedes the current expression in the chain.
      * Is null for the root of the chain.
      */
-//    private StructFieldAccessExpr parentExpr;
 
     /**
      * Flag indicating whether the entire expression is a left hand side expression.
      */
     private boolean isLHSExpr;
+    
+    /**
+     * Flag indicating whether the varRef represented by this {@link FieldAccessExpr}
+     * is a static key or not.
+     */
+    private boolean isStaticField = false;
 
     /**
-     * Creates a Struct field access expression.
+     * Creates a field access expression.
      *
      * @param location location of the expression in the source file
      * @param symbolName Symbol Name of the current field
-     * @param structVarRefExpr Variable reference represented by the current field
+     * @param varRefExpr Variable reference represented by the current field
      */
-    public StructFieldAccessExpr(NodeLocation location, SymbolName symbolName, ReferenceExpr structVarRefExpr) {
+    @Deprecated
+    public FieldAccessExpr(NodeLocation location, SymbolName symbolName, Expression varRefExpr) {
+        super(location, null, varRefExpr);
+        this.symbolName = symbolName;
+        this.varRefExpr = varRefExpr;
+    }
+    
+    /**
+     * Creates a field access expression.
+     * 
+     * @param location Location of the expression in the source file
+     * @param varRefExpr Variable reference represented by the current field
+     */
+    public FieldAccessExpr(NodeLocation location, Expression varRefExpr) {
+        super(location, null, varRefExpr);
+        this.varRefExpr = varRefExpr;
+        
+        if (varRefExpr instanceof ReferenceExpr) {
+            this.symbolName = ((ReferenceExpr) varRefExpr).getSymbolName();
+        }
+    }
+
+    public FieldAccessExpr(NodeLocation location, SymbolName symbolName, String pkgName, String pkgPath,
+                                 ReferenceExpr structVarRefExpr) {
         super(location, null, structVarRefExpr);
         this.symbolName = symbolName;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
         this.varRefExpr = structVarRefExpr;
     }
 
     /**
-     * Creates a Struct field access expression.
+     * Creates a field access expression.
      *
-     * @param location         file name and the line number of the field access expression
-     * @param varRefExpr       Variable reference of the Struct
-     * @param fieldRefExpr       field variable reference of the Struct
+     * @param location File name and the line number of the field access expression
+     * @param varRefExpr Variable reference represented by the current field
+     * @param fieldRefExpr Reference to the child field of the current field
      */
-    public StructFieldAccessExpr(NodeLocation location, ReferenceExpr varRefExpr, StructFieldAccessExpr fieldRefExpr) {
+    public FieldAccessExpr(NodeLocation location, Expression varRefExpr, FieldAccessExpr fieldRefExpr) {
         super(location, null, fieldRefExpr);
         this.varRefExpr = varRefExpr;
         this.fieldRefExpr = fieldRefExpr;
+        
+        if (varRefExpr instanceof ReferenceExpr) {
+            this.symbolName = ((ReferenceExpr) varRefExpr).getSymbolName();
+        }
+    }
+    
+    /**
+     * Creates a field access expression.
+     *
+     * @param location File name and the line number of the field access expression
+     * @param varRefExpr Variable reference represented by the current field
+     * @param fieldRefExpr Reference to the child field of the current field
+     */
+    public FieldAccessExpr(NodeLocation location, String pkgName, String pkgPath, Expression varRefExpr, 
+            FieldAccessExpr fieldRefExpr) {
+        super(location, null, fieldRefExpr);
+        this.varRefExpr = varRefExpr;
+        this.fieldRefExpr = fieldRefExpr;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+        
+        if (varRefExpr instanceof ReferenceExpr) {
+            this.symbolName = ((ReferenceExpr) varRefExpr).getSymbolName();
+        }
     }
 
     @Override
     public String getVarName() {
+        if (varRefExpr instanceof ReferenceExpr) {
+            return ((ReferenceExpr) varRefExpr).getVarName();
+        }
         return null;
+    }
+
+    @Override
+    public String getPkgName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPkgPath() {
+        return pkgPath;
     }
 
     /**
@@ -112,11 +178,11 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
     }
 
     /**
-     * Get the variable reference expression represented by this {@link StructFieldAccessExpr}.
+     * Get the variable reference expression represented by this {@link FieldAccessExpr}.
      *
-     * @return Variable reference expression represented by this {@link StructFieldAccessExpr}.
+     * @return Variable reference expression represented by this {@link FieldAccessExpr}.
      */
-    public StructFieldAccessExpr getFieldExpr() {
+    public FieldAccessExpr getFieldExpr() {
         return fieldRefExpr;
     }
 
@@ -139,30 +205,12 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
     }
 
     /**
-     * Set the parent of this field expression.
-     *
-     * @param parent Parent of this field expression.
-     */
-    public void setParent(StructFieldAccessExpr parent) {
-//        this.parentExpr = parent;
-    }
-
-    /**
      * Set the child field of this field expression.
      *
-     * @param fieldAccessExpr Child field of this field expression.
+     * @param fieldExpr Child field of this field expression.
      */
-    public void setFieldExpr(StructFieldAccessExpr fieldAccessExpr) {
-        this.fieldRefExpr = fieldAccessExpr;
-    }
-
-    /**
-     * Get the parent of this field expression.
-     *
-     * @return Parent of this field expression.
-     */
-    public StructFieldAccessExpr getParent() {
-        return null;
+    public void setFieldExpr(FieldAccessExpr fieldExpr) {
+        this.fieldRefExpr = fieldExpr;
     }
 
     /**
@@ -170,10 +218,18 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
      *
      * @return Variable reference represented by this field expression.
      */
-    public ReferenceExpr getVarRef() {
+    public Expression getVarRef() {
         return varRefExpr;
     }
 
+    /**
+     * Set the variable reference represented by this field expression.
+     * @param varRefExpr variable reference
+     */
+    public void setVarRef(Expression varRefExpr) {
+        this.varRefExpr = varRefExpr;
+    }
+    
     /**
      * Get the type of the variable represented by this field expression.
      *
@@ -182,7 +238,7 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
     public BType getRefVarType() {
         return varRefExpr.getType();
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -222,5 +278,28 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
      */
     public BType getExpressionType() {
         return this.type;
+    }
+    
+    @Override
+    public void setTempOffset(int index) {
+        this.varRefExpr.setTempOffset(index);
+    }
+    
+    @Override
+    public int getTempOffset() {
+        return varRefExpr.getTempOffset();
+    }
+    
+    @Override
+    public boolean hasTemporaryValues() {
+        return varRefExpr.hasTemporaryValues();
+    }
+    
+    public void setIsStaticField(boolean isStaticField) {
+        this.isStaticField = isStaticField;
+    }
+    
+    public boolean isStaticField() {
+        return isStaticField;
     }
 }

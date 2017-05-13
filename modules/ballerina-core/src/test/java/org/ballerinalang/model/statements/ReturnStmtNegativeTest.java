@@ -85,7 +85,7 @@ public class ReturnStmtNegativeTest {
     @Test(description = "Test type mismatch",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "return-type-mismatch-2.bal:2: incompatible types in return statement." +
-            " expected 'string', found 'int'")
+            " expected 'boolean', found 'int'")
     public void testInputTypeMismatch2() {
         BTestUtils.parseBalFile("lang/statements/returnstmt/return-type-mismatch-2.bal");
     }

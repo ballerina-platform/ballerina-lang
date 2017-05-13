@@ -13,7 +13,7 @@ connector TestConnector(string param1, string param2, int param3) {
             float a;
             json j;
 
-            j = `{"name":"chanaka"}`;
+            j = {"name":"chanaka"};
             messages:setJsonPayload(m, j);
             sumD = 123d;
             amount = 222d;
