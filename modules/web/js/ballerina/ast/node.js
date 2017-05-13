@@ -447,6 +447,14 @@ class ASTNode extends EventChannel {
         this.isBreakpoint = false;
     }
 
+    addDebugHit() {
+        this.setAttribute('isDebugHit', true);
+    }
+
+    removeDebugHit() {
+        this.setAttribute('isDebugHit', false);
+    }
+
     setLineNumber(lineNumber, options) {
         this.setAttribute('_lineNumber', parseInt(lineNumber), options);
     }

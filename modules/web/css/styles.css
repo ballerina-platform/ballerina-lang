@@ -221,6 +221,14 @@ ol#breadcrumbList {
     max-width: 250px;
 }
 
+.condition-text {
+    text-anchor: start;
+    dominant-baseline: central;
+    width: 120px;
+    max-width: 250px;
+    fill: "black"
+}
+
 /*//////////////////////////////////////////////////*/
 /** Service container related styles | Start -> **/
 

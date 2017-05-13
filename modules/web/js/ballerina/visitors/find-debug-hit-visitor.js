@@ -15,28 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
-import {util} from './../sizing-utils';
 
-class CatchStatementDimensionCalculatorVisitor {
+import ASTVisitor from './ast-visitor';
 
-    canVisit(node) {
-        log.debug('Can Visit CatchStatementDimensionCalculatorVisitor');
-        return true;
+class FindDebugHitVisitor extends ASTVisitor {
+    constructor() {
+        super();
+        this._position = {};
     }
-
+    setPosition(position) {
+        this._position = position;
+    }
     beginVisit(node) {
-        log.debug('Can Visit CatchStatementDimensionCalculatorVisitor');
+        if(node.getLineNumber() === this._position.lineNumber){
+            node.addDebugHit();
+        }
+        if(node.isDebugHit && node.getLineNumber() !== this._position.lineNumber){
+            // debughit has removed but model is not updated
+            node.removeDebugHit();
+        }
     }
-
-    visit(node) {
-        log.debug('Visit CatchStatementDimensionCalculatorVisitor');
-    }
-
-    endVisit(node) {
-        log.debug('End Visit CatchStatementDimensionCalculatorVisitor');
-        util.populateCompoundStatementChild(node, node.getParameter());
+    canVisit() {
+        return true;
     }
 }
 
-export default CatchStatementDimensionCalculatorVisitor;
+export default FindDebugHitVisitor;

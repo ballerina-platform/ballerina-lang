@@ -36,22 +36,32 @@ class WhileStatement extends React.Component {
 	render() {
 		let model = this.props.model,
 			bBox = model.viewState.bBox;
+		let expression = model.viewState.components.expression;
 		let blockStatementBBox = new SimpleBBox();
 		blockStatementBBox.x = bBox.x;
-		blockStatementBBox.y = bBox.y + DesignerDefaults.statement.gutter.v;
-		blockStatementBBox.h = bBox.h - DesignerDefaults.statement.gutter.v;
+		blockStatementBBox.y = bBox.y + model.viewState.components['drop-zone'].h;
+		blockStatementBBox.h = bBox.h - model.viewState.components['drop-zone'].h;
 		blockStatementBBox.w = bBox.w;
     const innerDropZoneActivated = this.state.innerDropZoneActivated;
 		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
 		const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
 											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 		const children = getComponentForNodeArray(this.props.model.getChildren());
+
+		this.editorOptions = {
+            propertyType: 'text',
+            key: 'Condition',
+            model: model,
+            getterMethod: model.getCondition,
+            setterMethod: model.setCondition
+        };        	
+
 		return (<g>
-			<rect x={bBox.x} y={bBox.y} width={bBox.w} height={DesignerDefaults.statement.gutter.v}
+			<rect x={bBox.x} y={bBox.y} width={bBox.w} height={model.viewState.components['drop-zone'].h}
             className={dropZoneClassName}
             onMouseOver={(e) => this.onDropZoneActivate(e)}
             onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
-			<BlockStatementDecorator dropTarget={model} bBox={blockStatementBBox} title={"While"}>
+			<BlockStatementDecorator dropTarget={model} bBox={blockStatementBBox} title={"While"} expression={expression} editorOptions={this.editorOptions}>
 				{children}
 			</BlockStatementDecorator>
 		</g>);

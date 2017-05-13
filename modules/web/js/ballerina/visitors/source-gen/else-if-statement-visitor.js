@@ -32,7 +32,7 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitElseIfStatement(elseIfStatement) {
         this.node = elseIfStatement;
-        this.appendSource(' elseIf (' + elseIfStatement.getCondition() + ') {\n');
+        this.appendSource(' else if (' + elseIfStatement.getCondition() + ') {\n');
         this.indent();
         log.debug('Begin Visit Else If Statement Definition');
     }

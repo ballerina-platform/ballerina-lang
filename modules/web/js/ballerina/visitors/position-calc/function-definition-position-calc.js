@@ -79,45 +79,47 @@ class FunctionDefinitionPositionCalcVisitor {
         // Setting positions of function parameters.
         // Positioning the openning bracket component of the parameters.
         viewState.components.openingParameter.x = viewState.bBox.x + viewState.titleWidth;
-        viewState.components.openingParameter.y = viewState.bBox.y;
+        viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
 
         // Positioning the Parameters text component.
         viewState.components.parametersText.x = viewState.components.openingParameter.x + viewState.components.openingParameter.w;
-        viewState.components.parametersText.y = viewState.bBox.y;
+        viewState.components.parametersText.y = viewState.bBox.y + viewState.components.annotation.h;
 
         // Positioning the resource parameters
         let nextXPositionOfParameter = viewState.components.parametersText.x + viewState.components.parametersText.w;
         if (node.getArguments().length > 0) {
-            _.forEach(node.getArguments(), argument => {
-                nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter, viewState.bBox.y);
-            });
+            for (let i = 0; i < node.getArguments().length; i++) {
+                let argument = node.getArguments()[i];
+                nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter, viewState.bBox.y + viewState.components.annotation.h);
+            }
         }
 
         // Positioning the closing brack component of the parameters.
         viewState.components.closingParameter.x = nextXPositionOfParameter;
-        viewState.components.closingParameter.y = viewState.bBox.y;
+        viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
 
         //// Positioning return types
         // Setting positions of return types.
         // Positioning the openning bracket component of the return types.
         viewState.components.openingReturnType.x = viewState.components.closingParameter.x + viewState.components.closingParameter.w + 20;
-        viewState.components.openingReturnType.y = viewState.bBox.y;
+        viewState.components.openingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
 
         // Positioning the Parameters text component.
         viewState.components.returnTypesText.x = viewState.components.openingReturnType.x + viewState.components.openingReturnType.w;
-        viewState.components.returnTypesText.y = viewState.bBox.y;
+        viewState.components.returnTypesText.y = viewState.bBox.y + viewState.components.annotation.h;
 
         // Positioning the resource parameters
         let nextXPositionOfReturnType = viewState.components.returnTypesText.x + viewState.components.returnTypesText.w;
         if (node.getReturnTypes().length > 0) {
-            _.forEach(node.getReturnTypes(), returnType => {
-                nextXPositionOfReturnType = this.createPositionForTitleNode(returnType, nextXPositionOfReturnType, viewState.bBox.y);
-            });
+            for (let i = 0; i < node.getReturnTypes().length; i++) {
+                let returnType = node.getReturnTypes()[i];
+                nextXPositionOfReturnType = this.createPositionForTitleNode(returnType, nextXPositionOfReturnType, viewState.bBox.y + viewState.components.annotation.h);
+            }
         }
 
         // Positioning the closing brack component of the parameters.
         viewState.components.closingReturnType.x = nextXPositionOfReturnType;
-        viewState.components.closingReturnType.y = viewState.bBox.y;
+        viewState.components.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
 
         log.debug('begin visit FunctionDefinitionPositionCalc');
     }

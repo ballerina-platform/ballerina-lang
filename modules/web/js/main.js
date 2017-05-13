@@ -102,6 +102,18 @@ class Application {
         this.debugger = new Debugger(debuggerOpts);
 
         DebugManager.init(debuggerOpts);
+
+        // handle resize events
+        // this is to resize the diagrams when the browser window is resized.
+        jQuery(window).on('resize', _.debounce(_.bind(this.reRender, this), 150));        
+    }
+
+    reRender(){
+        this.tabController.forEach(function(tab){
+            if (typeof tab.reRender === "function") { 
+                tab.reRender();
+            }
+        });  
     }
 
     validateConfig(config) {

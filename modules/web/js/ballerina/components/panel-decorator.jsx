@@ -26,13 +26,14 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import EditableText from './editable-text';
 import TagController from './utils/tag-component';
 import './panel-decorator.css';
-import {panel} from '../configs/designer-defaults.js';
+import { panel } from '../configs/designer-defaults.js';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 class PanelDecorator extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {dropZoneActivated: false, dropZoneDropNotAllowed: false, titleEditing: false};
+        this.state = { dropZoneActivated: false, dropZoneDropNotAllowed: false, titleEditing: false };
     }
 
     onCollapseClick() {
@@ -83,50 +84,36 @@ class PanelDecorator extends React.Component {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
         }
         let titleComponents = this.getTitleComponents(this.props.titleComponentData);
-        let annotationString = this.getAnnotationsString();
-        let annotationComponents = this.getAnnotationComponents(this.props.annotations, bBox, titleHeight);
+        let annotations = this.props.model.getChildren().filter(function(child){
+            return BallerinaASTFactory.isAnnotation(child);
+        });
+        let annotationString = this.getAnnotationsString(annotations);
+        let annotationComponents = this.getAnnotationComponents(annotations, bBox, titleHeight);
 
         return (<g className="panel">
             <g className={annotationBodyClassName}>
-                <rect x={bBox.x} y={bBox.y} width={bBox.w} height={annotationBodyHeight} rx="0" ry="0"
-                      className="annotationRect" data-original-title="" title=""></rect>
+                <rect x={bBox.x} y={bBox.y} width={bBox.w} height={annotationBodyHeight} rx="0" ry="0" className="annotationRect" data-original-title="" title=""></rect>
                 {!annotationViewCollapsed && annotationComponents}
-                {annotationViewCollapsed &&
-                <text x={bBox.x + 5} y={bBox.y + titleHeight / 2 + 5}>{annotationString}</text>}
+                {annotationViewCollapsed && <text x={bBox.x + 5} y={bBox.y + titleHeight / 2 + 5}>{annotationString}</text>}
                 <g className="panel-header-controls">
-                    <image x={bBox.x + bBox.w - 19.5} y={bBox.y + 5.5} width={iconSize} height={iconSize}
-                           className="control"
-                           xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')}
-                           onClick={() => this.onAnnotaionCollapseClick()}/>
-                </g>
+                    <image x={bBox.x + bBox.w - 19.5} y={bBox.y + 5.5} width={iconSize} height={iconSize} className="control"
+                           xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')} onClick={() => this.onAnnotaionCollapseClick()} /></g>
             </g>
             <g className="panel-header">
-                <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
-                      className="headingRect" data-original-title="" title=""></rect>
+                <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0" className="headingRect" data-original-title="" title=""></rect>
                 <EditableText x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + 5 + annotationBodyHeight}
-                              onBlur={() => {
-                                  this.onTitleInputBlur()
-                              }} onClick={() => {
-                    this.onTitleClick()
-                }} editing={this.state.titleEditing}
-                              onChange={e => {
-                                  this.onTitleInputChange(e)
-                              }}>
+                              onBlur={() => {this.onTitleInputBlur()}} onClick={() => {this.onTitleClick()}} editing={this.state.titleEditing}
+                              onChange={e => {this.onTitleInputChange(e)}}>
                     {this.props.title}
                 </EditableText>
-                <image x={bBox.x + 5} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize}
-                       xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}/>
+                <image x={bBox.x + 5} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize} xlinkHref={ImageUtil.getSVGIconString(this.props.icon)} />
                 {titleComponents}
                 <g className="panel-header-controls">
-                    <rect x={bBox.x + bBox.w - 54} y={bBox.y + annotationBodyHeight} width={iconSize} height={iconSize}
-                          className="panel-header-controls-wrapper"></rect>
-                    <image x={bBox.x + bBox.w - 44.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize}
-                           height={iconSize} className="control"
-                           xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}/>
-                    <image x={bBox.x + bBox.w - 19.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize}
-                           height={iconSize} className="control"
-                           xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')}
-                           onClick={() => this.onCollapseClick()}/>
+                    <rect x={bBox.x + bBox.w - 54} y={bBox.y + annotationBodyHeight} width={iconSize} height={iconSize} className="panel-header-controls-wrapper"> </rect>
+                    <image x={bBox.x + bBox.w - 44.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize} height={iconSize} className="control"
+                           xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()} />
+                    <image x={bBox.x + bBox.w - 19.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize} height={iconSize} className="control"
+                           xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')} onClick={() => this.onCollapseClick()} />
                 </g>
             </g>
             <g className={panelBodyClassName}>
@@ -136,12 +123,11 @@ class PanelDecorator extends React.Component {
                     transitionEnterTimeout={300}
                     transitionLeaveTimeout={300}>
                     {!collapsed &&
-                    <rect x={bBox.x} y={bBox.y + titleHeight + annotationBodyHeight} width={bBox.w}
-                          height={bBox.h - titleHeight - annotationBodyHeight}
+                    <rect x={bBox.x} y={bBox.y + titleHeight + annotationBodyHeight} width={bBox.w} height={bBox.h - titleHeight - annotationBodyHeight}
                           rx="0" ry="0" fill="#fff"
                           className={dropZoneClassName}
                           onMouseOver={(e) => this.onDropZoneActivate(e)}
-                          onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
+                          onMouseOut={(e) => this.onDropZoneDeactivate(e)} />
                     }
                     {!collapsed && this.props.children}
                 </CSSTransitionGroup>
@@ -167,7 +153,7 @@ class PanelDecorator extends React.Component {
                 dropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()
             });
             dragDropManager.once('drop-target-changed', () => {
-                this.setState({dropZoneActivated: false, dropZoneDropNotAllowed: false});
+                this.setState({ dropZoneActivated: false, dropZoneDropNotAllowed: false });
             });
         }
         e.stopPropagation();
@@ -179,7 +165,7 @@ class PanelDecorator extends React.Component {
         if (!_.isNil(dropTarget) && dragDropManager.isOnDrag()) {
             if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
                 dragDropManager.clearActivatedDropTarget();
-                this.setState({dropZoneActivated: false, dropZoneDropNotAllowed: false});
+                this.setState({ dropZoneActivated: false, dropZoneDropNotAllowed: false });
             }
         }
         e.stopPropagation();
@@ -229,11 +215,11 @@ class PanelDecorator extends React.Component {
     }
 
 
-    getAnnotationsString() {
+    getAnnotationsString(annotations) {
         let annotationString = '';
         // TODO: Fix Me
-        if (!_.isNil(this.props.annotations)) {
-            this.props.annotations.forEach(function (annotation) {
+        if (!_.isNil(annotations)) {
+            annotations.forEach(function (annotation) {
                 annotationString = annotationString + annotation.toString() + '  ';
             });
         }

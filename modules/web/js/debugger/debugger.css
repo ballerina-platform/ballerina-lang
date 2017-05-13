@@ -146,7 +146,7 @@ table.debug-frames {
     color: white;
 }
 
-.highlight-statement{
+.statement-rect.debug-hit{
     fill: #b2d4ff;
 }
 
