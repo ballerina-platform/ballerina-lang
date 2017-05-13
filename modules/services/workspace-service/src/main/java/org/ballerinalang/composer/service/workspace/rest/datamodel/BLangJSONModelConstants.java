@@ -305,4 +305,6 @@ public class BLangJSONModelConstants {
     public static final String ARGUMENT_PARAMETER_DEFINITIONS = "argument_parameter_definitions";
 
     public static final String RETURN_PARAMETER_DEFINITIONS = "return_parameter_definitions";
+
+    public static final String TRANSFORM_STATEMENT = "transform_statement";
 }

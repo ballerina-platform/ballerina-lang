@@ -36,22 +36,22 @@ class TypeMapperVariableDefinitionStatementVisitor extends AbstractStatementSour
     }
 
     beginVisitVariableDefinitionStatement(variableDefinitionStatement) {
-        this.appendSource(variableDefinitionStatement.getLeftExpression());
-        if (variableDefinitionStatement.getRightExpression() != null) {
-            this.appendSource(" = "+ variableDefinitionStatement.getRightExpression());
-        }
+//        this.appendSource(variableDefinitionStatement.getLeftExpression());
+//        if (variableDefinitionStatement.getRightExpression() != null) {
+//            this.appendSource(" = "+ variableDefinitionStatement.getRightExpression());
+//        }
         log.debug('Begin Visit Type Mapper Variable Definition Statement');
     }
 
     endVisitVariableDefinitionStatement(variableDefinitionStatement) {
-        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+      //  this.getParent().appendSource(this.getGeneratedSource() + ";\n");
         log.debug('End Visit Type Mapper Variable Definition Statement');
     }
 
     visitRightOperandExpression(expression) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-        expression.accept(statementVisitor);
+//        var statementVisitorFactory = new StatementVisitorFactory();
+//        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+//        expression.accept(statementVisitor);
     }
 }
 

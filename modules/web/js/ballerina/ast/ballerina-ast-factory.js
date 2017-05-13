@@ -91,6 +91,7 @@ import returnParameterDefinitionHolder from './return-parameter-definition-holde
 import annotation from './annotations/annotation';
 import annotationEntry from './annotations/annotation-entry';
 import annotationEntryArray from './annotations/annotation-entry-array';
+import transformStatement from './statements/transform-statement';
 
 /**
  * @class BallerinaASTFactory
@@ -329,6 +330,15 @@ BallerinaASTFactory.createAssignment = function (args) {
  */
 BallerinaASTFactory.createAssignmentStatement = function (args) {
     return new assignmentStatement(args);
+};
+
+/**
+ * creates AssignmentStatement
+ * @param {Object} args
+ * @returns {AssignmentStatement}
+ */
+BallerinaASTFactory.createTransformStatement = function (args) {
+    return new transformStatement(args);
 };
 
 /**
@@ -621,12 +631,21 @@ BallerinaASTFactory.createThrowStatement = function (args) {
 };
 
 /**
- * crates CommentStatement
+ * creates CommentStatement
  * @param {Object} args - Arguments for creating a new comment statement.
  * @returns {CommentStatement}
  */
 BallerinaASTFactory.createCommentStatement = function (args) {
     return new commentStatement(args);
+};
+
+/**
+ * creates TransformStatement
+ * @param {Object} args - Arguments for creating a new transform statement.
+ * @returns {TransformStatement}
+ */
+BallerinaASTFactory.createTransformStatement = function (args) {
+    return new transformStatement(args);
 };
 
 /**
@@ -1000,6 +1019,15 @@ BallerinaASTFactory.isActionInvocationStatement = function (child) {
 };
 
 /**
+ * instanceof check for TransformStatement
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isTransformStatement = function (child) {
+    return child instanceof transformStatement;
+};
+
+/**
  * instanceof check for ActionInvocationExpression
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
@@ -1061,6 +1089,16 @@ BallerinaASTFactory.isAssignment = function (child) {
 BallerinaASTFactory.isAssignmentStatement = function (child) {
     return child instanceof assignmentStatement;
 };
+
+/**
+ * instanceof check for Assignment Statement
+ * @param child
+ * @returns {boolean}
+ */
+BallerinaASTFactory.isTransformStatement = function (child) {
+    return child instanceof transformStatement;
+};
+
 
 /**
  * instanceof check for BasicLiteralExpression
@@ -1504,6 +1542,8 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
             break;
         case 'return_parameter_definitions':
             node = BallerinaASTFactory.createReturnParameterDefinitionHolder();
+        case 'transform_statement':
+            node = BallerinaASTFactory.createTransformStatement();
             break;
         default:
             throw new Error('Unknown node definition for ' + jsonNode.type);

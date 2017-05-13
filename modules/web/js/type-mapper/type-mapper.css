@@ -36,18 +36,36 @@
     padding: 10px;
 }
 
-.struct {
+.leftType{
     border: 1px solid gray;
     width: 400px;
+    height: 600px;
+    top: 170px;
+    left :210px;
+    background: #ffffff;
+    color: #3d3d3d;
+    position: absolute;
+}
+
+.rightType{
+    border: 1px solid gray;
+    width: 400px;
+    height: 600px;
+    right:210px;
+    top  :170px;
+    background: #ffffff;
+    color: #3d3d3d;
+    position: absolute;
+}
+.struct {
+    width: 400px;
     height: auto;
-    background: #3d3d3d;
-    color: #ffffff;
+    color: #3d3d3d;
     position: absolute;
 }
 .property {
     padding: 5;
     font-size: 16px;
-    background-color: #ffffff;
     color: black;
 }
 
@@ -55,16 +73,8 @@ svg.plumbConnect path {
     stroke:#3d3d3d;
 }
 
-.jstree-default .jstree-last {
-    background: #ffffff;
-}
-
 .typeMapperList {
     display: none;
-}
-
-.tree-container{
-    background: #ffffff;
 }
 
 .jstree-default .jstree-hovered {
@@ -72,7 +82,6 @@ svg.plumbConnect path {
 }
 
 .jstree-default .jstree-clicked {
-    background : #ffffff;
     color: #000000;
 }
 
@@ -133,4 +142,50 @@ svg.plumbConnect path {
     color: #446191;
     position:absolute; right:0
 
+}
+
+.type-mapper-combo, .source-view > .select2-container, .target-view > .select2-container {
+    top:0px;
+    left:0px;
+    width:395px;
+    position:absolute;
+}
+
+.transformOverlay {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 999; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+
+.transformOverlay-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    height: 670px;
+}
+
+/* The Close Button */
+.close-transform {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-transform:hover,
+.close-transform:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
 }

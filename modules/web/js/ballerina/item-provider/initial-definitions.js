@@ -95,15 +95,6 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
             nodeFactoryMethod: BallerinaASTFactory.createStructDefinition
         };
 
-        var createTypeMapperDefTool = {
-            id: "typeMapper",
-            name: "Data Mapper",
-            iconSrc: require("./../../../images/tool-icons/type-converter.svg"),
-            cssClass: "icon fw fw-type-converter",
-            title: "Data Mapper",
-            nodeFactoryMethod: DefaultBallerinaASTFactory.createTypeMapperDefinition
-        };
-
         var createWorkerDecTool = {
             id: "worker",
             name: "Worker",
@@ -124,7 +115,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
             createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
-            createTypeMapperDefTool, createWorkerDecTool, createAnnotationDefTool];
+            createWorkerDecTool, createAnnotationDefTool];
 
         var elements = new ToolGroup({
             toolGroupName: "Elements",
@@ -176,6 +167,15 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
             cssClass: "icon fw fw-assign",
             title: "Assignment",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createAggregatedAssignmentStatement
+        };
+
+        var createTransformStatementTool = {
+            id: "Transform",
+            name: "Transform",
+            iconSrc: require("./../../../images/tool-icons/type-converter.svg"),
+            cssClass: "icon fw fw-type-converter",
+            title: "Transform",
+            nodeFactoryMethod: DefaultBallerinaASTFactory.createTransformStatement
         };
 
         // TODO: change the icon with the new one
@@ -245,7 +245,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
             createVariableDefinitionStatementTool,  createFunctionInvocationTool, createReturnStatementTool,
             createReplyStatementTool, createWhileStatementTool, createBreakStatementTool, createTryCatchStatementTool, createThrowStatementTool,
-            createWorkerInvocationStatementTool, createWorkerReplyStatementTool];
+            createWorkerInvocationStatementTool, createWorkerReplyStatementTool,createTransformStatementTool];
 
         // Create statements tool group
         var statements = new ToolGroup({
