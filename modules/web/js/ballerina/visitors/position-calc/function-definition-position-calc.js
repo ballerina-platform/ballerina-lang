@@ -95,12 +95,12 @@ class FunctionDefinitionPositionCalcVisitor {
         }
 
         // Positioning the closing brack component of the parameters.
-        viewState.components.closingParameter.x = nextXPositionOfParameter;
+        viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
         viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
 
         //// Positioning return types
         // Setting positions of return types.
-        // Positioning the openning bracket component of the return types.
+        // Positioning the opening bracket component of the return types.
         viewState.components.openingReturnType.x = viewState.components.closingParameter.x + viewState.components.closingParameter.w + 20;
         viewState.components.openingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
 
@@ -118,7 +118,7 @@ class FunctionDefinitionPositionCalcVisitor {
         }
 
         // Positioning the closing brack component of the parameters.
-        viewState.components.closingReturnType.x = nextXPositionOfReturnType;
+        viewState.components.closingReturnType.x = nextXPositionOfReturnType + 110;
         viewState.components.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
 
         log.debug('begin visit FunctionDefinitionPositionCalc');
@@ -140,13 +140,13 @@ class FunctionDefinitionPositionCalcVisitor {
      * @param {number} y The y position
      * @returns The x position of the next parameter node.
      * 
-     * @memberof ResourceDefinitionPositionCalcVisitor
+     * @memberof FunctionDefinitionPositionCalc
      */
     createPositionForTitleNode(parameter, x, y) {
         let viewState = parameter.getViewState();
         // Positioning the parameter
-        viewState.x = x;
-        viewState.y = y;
+        viewState.bBox.x = x;
+        viewState.bBox.y = y;
 
         // Positioning the delete icon
         viewState.components.deleteIcon.x = x + viewState.w;

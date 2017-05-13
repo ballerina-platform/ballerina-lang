@@ -28,7 +28,7 @@ class ReturnTypeView extends React.Component {
     render() {
         let model = this.props.model;
         let viewState = model.viewState;
-        let returnTypeAsString = model.getArgumentAsString();
+        let returnTypeAsString = model.getParameterDefinitionAsString();
         return (<g><rect x={viewState.x} y={viewState.y + 3} width={viewState.w} height={viewState.h} rx="0" ry="0" className="return-type-wrapper"></rect>
             <text x={viewState.x + 5} y={viewState.y + 3} className="return-type-text">{returnTypeAsString}</text>
             <rect x={viewState.components.deleteIcon.x} y={viewState.components.deleteIcon.y + 3} width={viewState.components.deleteIcon.w} height={viewState.components.deleteIcon.h} rx="0" ry="0" className="return-type-delete-icon-wrapper"></rect>

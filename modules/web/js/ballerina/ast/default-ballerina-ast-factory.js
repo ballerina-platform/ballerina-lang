@@ -37,8 +37,14 @@ DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
         packageName: 'swagger',
         identifier: 'ServiceInfo'
     });
-    let annotationEntryForInfoTitle = BallerinaASTFactory.createAnnotationEntry({leftValue: 'title', rightValue: '\"Sample Service\"'});
-    let annotationEntryForInfoVersion = BallerinaASTFactory.createAnnotationEntry({leftValue: 'version', rightValue: '\"1.0.0\"'});
+    let annotationEntryForInfoTitle = BallerinaASTFactory.createAnnotationEntry({
+        leftValue: 'title',
+        rightValue: '\"Sample Service\"'
+    });
+    let annotationEntryForInfoVersion = BallerinaASTFactory.createAnnotationEntry({
+        leftValue: 'version',
+        rightValue: '\"1.0.0\"'
+    });
     serviceInfoAnnotation.addChild(annotationEntryForInfoTitle);
     serviceInfoAnnotation.addChild(annotationEntryForInfoVersion);
     serviceDef.addChild(serviceInfoAnnotation);
@@ -49,12 +55,18 @@ DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
         packageName: 'swagger',
         identifier: 'Swagger'
     });
-    let annotationEntryForSwaggerVersion = BallerinaASTFactory.createAnnotationEntry({leftValue: 'version', rightValue: '\"2.0\"'});
+    let annotationEntryForSwaggerVersion = BallerinaASTFactory.createAnnotationEntry({
+        leftValue: 'version',
+        rightValue: '\"2.0\"'
+    });
     swaggerAnnotation.addChild(annotationEntryForSwaggerVersion);
     serviceDef.addChild(swaggerAnnotation);
 
     // Creating BasePath annotation.
-    let annotationEntryForBasePath = BallerinaASTFactory.createAnnotationEntry({leftValue: 'value', rightValue: '\"/\"'});
+    let annotationEntryForBasePath = BallerinaASTFactory.createAnnotationEntry({
+        leftValue: 'value',
+        rightValue: '\"/\"'
+    });
     let basePathAnnotation = BallerinaASTFactory.createAnnotation({
         fullPackageName: 'ballerina.net.http',
         packageName: 'http',
@@ -90,14 +102,20 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
         packageName: 'http',
         identifier: 'Path'
     });
-    let annotationEntryForPathValue = BallerinaASTFactory.createAnnotationEntry({leftValue: 'value', rightValue: '\"/\"'});
+    let annotationEntryForPathValue = BallerinaASTFactory.createAnnotationEntry({
+        leftValue: 'value',
+        rightValue: '\"/\"'
+    });
     pathAnnotation.addChild(annotationEntryForPathValue);
     resourceDef.addChild(pathAnnotation, 1);
 
-    let resourceArg = BallerinaASTFactory.createResourceParameter();
-    resourceArg.setBType('message');
-    resourceArg.setIdentifier('m');
-    resourceDef.addChild(resourceArg);
+    let parameterDef = BallerinaASTFactory.createParameterDefinition(args);
+    parameterDef.setTypeName('message');
+    parameterDef.setName('m');
+
+    let argumentParameterDefinitionHolder = BallerinaASTFactory.createArgumentParameterDefinitionHolder();
+    argumentParameterDefinitionHolder.addChild(parameterDef);
+    resourceDef.addChild(argumentParameterDefinitionHolder);
 
     let responsesAnnotation = BallerinaASTFactory.createAnnotation({
         fullPackageName: 'ballerina.net.http.swagger',
@@ -116,10 +134,19 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
         packageName: 'swagger',
         identifier: 'Response'
     });
-    responsesAnnotationArray.addChild(BallerinaASTFactory.createAnnotationEntry({leftValue: '', rightValue: responseAnnotation}));
-    let responsesDefaultAnnotationCodeEntryValue = BallerinaASTFactory.createAnnotationEntry({leftValue: 'code', rightValue: '\"default\"'});
+    responsesAnnotationArray.addChild(BallerinaASTFactory.createAnnotationEntry({
+        leftValue: '',
+        rightValue: responseAnnotation
+    }));
+    let responsesDefaultAnnotationCodeEntryValue = BallerinaASTFactory.createAnnotationEntry({
+        leftValue: 'code',
+        rightValue: '\"default\"'
+    });
     responseAnnotation.addChild(responsesDefaultAnnotationCodeEntryValue);
-    let responsesDefaultAnnotationDescriptionEntryValue = BallerinaASTFactory.createAnnotationEntry({leftValue: 'description', rightValue: '\"Default Response\"'});
+    let responsesDefaultAnnotationDescriptionEntryValue = BallerinaASTFactory.createAnnotationEntry({
+        leftValue: 'description',
+        rightValue: '\"Default Response\"'
+    });
     responseAnnotation.addChild(responsesDefaultAnnotationDescriptionEntryValue);
 
     resourceDef.addChild(responsesAnnotation, 2);
@@ -127,33 +154,25 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
     return resourceDef;
 };
 
-    /**
-     * creates ConnectorDefinition
-     * @param args
-     */
-    DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
-        var connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
-        var actionDef = DefaultBallerinaASTFactory.createConnectorAction(args);
-        var connectorArg = BallerinaASTFactory.createResourceParameter();
-        connectorArg.setBType("message");
-        connectorArg.setIdentifier("m");
-        connectorDef.addChild(actionDef);
-        connectorDef.addChild(connectorArg);
-        return connectorDef;
-    };
+/**
+ * creates ConnectorDefinition
+ * @param args
+ */
+DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
+    let connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
+    connectorDef.addArgument('message', 'm');
+    return connectorDef;
+};
 
-    /**
-     * creates ConnectorAction
-     * @param args
-     */
-    DefaultBallerinaASTFactory.createConnectorAction = function (args) {
-        var actionDef = BallerinaASTFactory.createConnectorAction(args);
-        var actionArg = BallerinaASTFactory.createResourceParameter();
-        actionArg.setBType("message");
-        actionArg.setIdentifier("m");
-        actionDef.addChild(actionArg);
-        return actionDef;
-    };
+/**
+ * creates ConnectorAction
+ * @param args
+ */
+DefaultBallerinaASTFactory.createConnectorAction = function (args) {
+    let actionDef = BallerinaASTFactory.createConnectorAction(args);
+    actionDef.addArgument('message', 'm');
+    return actionDef;
+};
 
 /**
  * Creates a variable definition statement with default values.
@@ -163,7 +182,7 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
  * @see {@link VariableDefinitionStatement}
  */
 DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
-    var variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
+    let variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
     variableDefinitionStatement.setLeftExpression('int i');
     variableDefinitionStatement.setRightExpression('0');
     return variableDefinitionStatement;
@@ -245,7 +264,7 @@ DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
  */
 DefaultBallerinaASTFactory.createThrowStatement = function (args) {
     var throwStatement = BallerinaASTFactory.createThrowStatement(args);
-    throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableName:"e"}));
+    throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableName: "e"}));
     return throwStatement;
 };
 
