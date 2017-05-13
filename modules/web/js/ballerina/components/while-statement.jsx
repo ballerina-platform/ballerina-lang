@@ -47,12 +47,21 @@ class WhileStatement extends React.Component {
 		const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
 											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 		const children = getComponentForNodeArray(this.props.model.getChildren());
+
+		this.editorOptions = {
+            propertyType: 'text',
+            key: 'Condition',
+            model: model,
+            getterMethod: model.getCondition,
+            setterMethod: model.setCondition
+        };        	
+
 		return (<g>
 			<rect x={bBox.x} y={bBox.y} width={bBox.w} height={model.viewState.components['drop-zone'].h}
             className={dropZoneClassName}
             onMouseOver={(e) => this.onDropZoneActivate(e)}
             onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
-			<BlockStatementDecorator dropTarget={model} bBox={blockStatementBBox} title={"While"} expression={expression} >
+			<BlockStatementDecorator dropTarget={model} bBox={blockStatementBBox} title={"While"} expression={expression} editorOptions={this.editorOptions}>
 				{children}
 			</BlockStatementDecorator>
 		</g>);

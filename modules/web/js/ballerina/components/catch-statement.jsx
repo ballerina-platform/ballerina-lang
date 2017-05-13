@@ -22,6 +22,17 @@ import {getComponentForNodeArray} from './utils';
 
 class CatchStatement extends React.Component {
 
+    constructor(props){
+        super(props);
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'Catch parameter',
+            model: props.model,
+            getterMethod: props.model.getParameter,
+            setterMethod: props.model.setParameter
+        };
+    }
+
     render() {
         let model = this.props.model,
             bBox = model.viewState.bBox;

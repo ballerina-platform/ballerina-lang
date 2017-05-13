@@ -22,6 +22,7 @@ import {blockStatement, statement} from '../configs/designer-defaults.js';
 import StatementContainer from './statement-container';
 import ASTNode from '../ast/node';
 import SimpleBBox from '../ast/simple-bounding-box';
+import ExpressionEditor from 'expression_editor_utils';
 
 class BlockStatementDecorator extends React.Component {
 
@@ -50,11 +51,13 @@ class BlockStatementDecorator extends React.Component {
             expression_x = p3_x + statement.padding.left;
         }
 
+        this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, title_h) 
+
         return (<g>
             <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect"/>
-            <rect x={bBox.x} y={bBox.y} width={bBox.w} height={title_h} rx="0" ry="0" className="statement-title-rect"/>
+            <rect x={bBox.x} y={bBox.y} width={bBox.w} height={title_h} rx="0" ry="0" className="statement-title-rect"  onClick={(e) => this.openExpressionEditor(e)}/>
             <text x={title_x} y={title_y} className="statement-text">{title}</text>
-            {(expression) ? <text x={expression_x} y={title_y} className="condition-text">{expression.text}</text> : null}
+            {(expression) ? <text x={expression_x} y={title_y} className="condition-text" onClick={(e) => this.openExpressionEditor(e)} >{expression.text}</text> : null}
             <polyline points={`${p1_x},${p1_y} ${p2_x},${p2_y} ${p3_x},${p3_y}`} className="statement-title-polyline"/>
             <StatementContainer bBox={statementContainerBBox} dropTarget={dropTarget}>
 		            {this.props.children}
@@ -62,6 +65,16 @@ class BlockStatementDecorator extends React.Component {
         </g>);
 
     }
+
+	openExpressionEditor(e){
+		let options = this.props.editorOptions;
+		if(this.props.expression && options){
+			new ExpressionEditor( this.conditionBox , this.context.container , (text) => this.onUpdate(text), options );
+		}
+	}
+
+	onUpdate(text){
+	}    
 }
 
 BlockStatementDecorator.propTypes = {
@@ -73,6 +86,11 @@ BlockStatementDecorator.propTypes = {
 	}),
 	dropTarget: PropTypes.instanceOf(ASTNode).isRequired,
 };
+
+BlockStatementDecorator.contextTypes = {
+	 container: PropTypes.instanceOf(Object).isRequired,
+};
+
 
 
 export default BlockStatementDecorator;
