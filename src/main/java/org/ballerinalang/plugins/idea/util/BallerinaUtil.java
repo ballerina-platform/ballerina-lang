@@ -17,6 +17,7 @@
 package org.ballerinalang.plugins.idea.util;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.OrderRootType;
@@ -24,6 +25,7 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,6 +101,46 @@ public class BallerinaUtil {
                 // Replace all other separators with . to get the package path
                 trimmedPath = trimmedPath.replaceAll("/", ".");
                 return trimmedPath;
+            } else if (project == null) {
+                project = directory.getProject();
+                if (project == null) {
+                    return "";
+                }
+                VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
+
+                for (VirtualFile contentRoot : contentRoots) {
+
+                    if (!directory.getVirtualFile().getPath().startsWith(contentRoot.getPath())) {
+                        continue;
+                    }
+                    // Get the relative path of the file in the project
+                    String trimmedPath = virtualFile.getPath().replace(contentRoot.getPath(), "");
+                    // Node: In virtual file paths, separators will always be "/" regardless of the OS.
+                    // Remove the separator at the beginning of the string
+                    trimmedPath = trimmedPath.replaceFirst("/", "");
+                    // Replace all other separators with . to get the package path
+                    trimmedPath = trimmedPath.replaceAll("/", ".");
+                    return trimmedPath;
+
+                }
+                // Get all project source roots and find matching directories.
+                Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+                if (projectSdk != null) {
+                    VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
+                    for (VirtualFile root : roots) {
+                        if (!directory.getVirtualFile().getPath().startsWith(root.getPath())) {
+                            continue;
+                        }
+                        // Get the relative path of the file in the project
+                        String trimmedPath = virtualFile.getPath().replace(root.getPath(), "");
+                        // Node: In virtual file paths, separators will always be "/" regardless of the OS.
+                        // Remove the separator at the beginning of the string
+                        trimmedPath = trimmedPath.replaceFirst("/", "");
+                        // Replace all other separators with . to get the package path
+                        trimmedPath = trimmedPath.replaceAll("/", ".");
+                        return trimmedPath;
+                    }
+                }
             }
             // If the package name cannot be constructed, return empty string
             return "";

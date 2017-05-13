@@ -353,7 +353,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             if ((prevSibling instanceof LeafPsiElement)) {
                 IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
                 if (elementType == BallerinaTypes.AT) {
-                    addAllImportedPackagesAsLookups(resultSet, originalFile);
+                    addLookups(resultSet, originalFile, true, false, false, false);
                     checkPrevNodeAndHandle(parameters, resultSet, parameters.getOffset(),
                             this::handleIdentifierInNameReference,
                             this::handleLeafElementInNameReference,
@@ -463,7 +463,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             addLookups(resultSet, originalFile, true, true, true, true);
             addVariableTypesAsLookups(resultSet, originalFile, element);
         } else if (elementType == BallerinaTypes.AT) {
-            addAllImportedPackagesAsLookups(resultSet, originalFile);
+            addLookups(resultSet, originalFile, true, false, false, false);
             String attachmentType = getAttachmentType(parameters);
             if (attachmentType != null) {
                 suggestAnnotationsFromPackage(parameters, resultSet, null, attachmentType);
@@ -493,7 +493,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             PsiElement packageNode = originalFile.findElementAt(prev.getTextOffset() - 2);
                             suggestAnnotationsFromPackage(parameters, resultSet, packageNode, attachmentType);
                         } else {
-                            addAllImportedPackagesAsLookups(resultSet, originalFile);
+                            addLookups(resultSet, originalFile, true, false, false, false);
                             suggestAnnotationsFromPackage(parameters, resultSet, null, attachmentType);
                         }
                     } else {
@@ -509,7 +509,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         PsiElement packageNode = originalFile.findElementAt(prev.getTextOffset() - 2);
                         suggestAnnotationsFromPackage(parameters, resultSet, packageNode, attachmentType);
                     } else if (elementType == BallerinaTypes.AT) {
-                        addAllImportedPackagesAsLookups(resultSet, originalFile);
+                        addLookups(resultSet, originalFile, true, false, false, false);
                         suggestAnnotationsFromPackage(parameters, resultSet, null, attachmentType);
                     }
                 },
@@ -594,7 +594,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
                 addValueTypesAsLookups(resultSet);
                 addReferenceTypesAsLookups(resultSet);
-                addStructsAsLookups(resultSet, originalFile);
+                addLookups(resultSet, originalFile, false, false, false, true);
             }
         } else {
             PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
@@ -638,7 +638,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             addReferenceTypesAsLookups(resultSet);
             addLookups(resultSet, originalFile, true, false, true, true);
         } else if (elementType == BallerinaTypes.AT) {
-            addAllImportedPackagesAsLookups(resultSet, originalFile);
+            addLookups(resultSet, originalFile, true, false, false, false);
             String attachmentType = getAttachmentType(parameters);
             if (attachmentType == null) {
                 return;
@@ -737,8 +737,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             addStructFields(parameters, resultSet, structReferenceNode, null, false, false);
                         } else if (elementType == BallerinaTypes.COLON) {
                             // Eg: Person p = {name:n<caret>}
+                            addLookups(resultSet, originalFile, false, true, false, false);
                             addVariableTypesAsLookups(resultSet, originalFile, prev);
-                            addFunctionsAsLookups(resultSet, originalFile);
                         } else {
                             MapStructLiteralNode mapStructLiteralNode = PsiTreeUtil.getParentOfType(prev,
                                     MapStructLiteralNode.class);
@@ -766,8 +766,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         addStructFields(parameters, resultSet, structReferenceNode, null, false, false);
                     } else if (elementType == BallerinaTypes.COLON) {
                         // Eg: Person p = {name:<caret>}
+                        addLookups(resultSet, originalFile, false, true, false, false);
                         addVariableTypesAsLookups(resultSet, originalFile, prev);
-                        addFunctionsAsLookups(resultSet, originalFile);
                     } else {
                         MapStructLiteralNode mapStructLiteralNode = PsiTreeUtil.getParentOfType(prev,
                                 MapStructLiteralNode.class);
@@ -862,8 +862,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
             suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true, true, true);
         } else if (isExpressionSeparator(elementType)) {
-            addFunctionsAsLookups(resultSet, originalFile);
-            addAllImportedPackagesAsLookups(resultSet, originalFile);
+            addLookups(resultSet, originalFile, true, true, false, false);
             addVariableTypesAsLookups(resultSet, originalFile, element);
             if (elementType == BallerinaTypes.ASSIGN) {
                 addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);

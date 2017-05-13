@@ -16,11 +16,14 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -30,12 +33,19 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.search.FileTypeIndex;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.psi.util.PsiModificationTracker;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.containers.ContainerUtil;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
+import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
@@ -47,6 +57,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
+import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
@@ -560,7 +571,8 @@ public class BallerinaPsiImplUtil {
                 if (resolved != null) {
                     // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native
                     // actions.
-                    ConnectorDefinitionNode connectorNode = PsiTreeUtil.getParentOfType(resolved, ConnectorDefinitionNode.class);
+                    ConnectorDefinitionNode connectorNode = PsiTreeUtil.getParentOfType(resolved,
+                            ConnectorDefinitionNode.class);
                     // Get all actions/native actions.
                     List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
                     for (PsiElement action : allActions) {
@@ -580,7 +592,8 @@ public class BallerinaPsiImplUtil {
                         }
                         // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native
                         // actions.
-                        ConnectorDefinitionNode connectorNode = PsiTreeUtil.getParentOfType(resolvedElement, ConnectorDefinitionNode.class);
+                        ConnectorDefinitionNode connectorNode = PsiTreeUtil.getParentOfType(resolvedElement,
+                                ConnectorDefinitionNode.class);
                         // Get all actions/native actions.
                         List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
                         for (PsiElement action : allActions) {
@@ -849,5 +862,67 @@ public class BallerinaPsiImplUtil {
             }
         }
         return null;
+    }
+
+    public static List<PsiDirectory> getAllPackagesInResolvableScopes(@NotNull Project project) {
+        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+        // Todo - Update dependency
+        //        Collection<VirtualFile> files = FileTypeIndex.getFiles(BallerinaFileType.INSTANCE, scope);
+        //        return CachedValuesManager.getManager(project).getCachedValue(project,
+        //                () -> CachedValueProvider.Result.create(getAllPackagesInResolvableScopes(project, scope),
+        //                        ProjectRootManager.getInstance(project)));
+        return getAllPackagesInResolvableScopes(project, scope);
+    }
+
+    private static List<PsiDirectory> getAllPackagesInResolvableScopes(@NotNull Project project,
+                                                                       @NotNull GlobalSearchScope scope) {
+        LinkedList<PsiDirectory> results = new LinkedList<>();
+        for (VirtualFile file : FileTypeIndex.getFiles(BallerinaFileType.INSTANCE, scope)) {
+            ProgressManager.checkCanceled();
+            VirtualFile directory = file.getParent();
+            if (directory == null || !directory.isDirectory()) {
+                continue;
+            }
+            PsiDirectory psiDirectory = PsiManager.getInstance(project).findDirectory(directory);
+            if (psiDirectory != null && !results.contains(psiDirectory) && !psiDirectory.getName().startsWith(".")
+                    && !project.getBaseDir().equals(directory)) {
+                results.add(psiDirectory);
+            }
+        }
+        return results;
+    }
+
+
+    public static void addImport(PsiFile file, String importPath) {
+        Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
+                ImportDeclarationNode.class);
+        Project project = file.getProject();
+        ImportDeclarationNode importDeclaration = BallerinaElementFactory.createImportDeclaration(project, importPath);
+        if (importDeclarationNodes.isEmpty()) {
+            Collection<PackageDeclarationNode> packageDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
+                    PackageDeclarationNode.class);
+            if (packageDeclarationNodes.isEmpty()) {
+                PsiElement[] children = file.getChildren();
+                if (children.length > 0) {
+                    PsiElement nonEmptyElement = PsiTreeUtil.skipSiblingsForward(children[0], PsiWhiteSpace.class,
+                            PsiComment.class);
+                    if (nonEmptyElement == null) {
+                        nonEmptyElement = children[0];
+                    }
+                    file.addBefore(importDeclaration, nonEmptyElement);
+                    file.addBefore(BallerinaElementFactory.createDoubleNewLine(project), nonEmptyElement);
+                }
+            } else {
+                PackageDeclarationNode packageDeclarationNode = packageDeclarationNodes.iterator().next();
+                PsiElement parent = packageDeclarationNode.getParent();
+                parent.addAfter(importDeclaration, packageDeclarationNode);
+                parent.addAfter(BallerinaElementFactory.createDoubleNewLine(project), packageDeclarationNode);
+            }
+        } else {
+            LinkedList<ImportDeclarationNode> importDeclarations = new LinkedList<>(importDeclarationNodes);
+            ImportDeclarationNode lastImport = importDeclarations.getLast();
+            lastImport.getParent().addAfter(importDeclaration, lastImport);
+            lastImport.getParent().addAfter(BallerinaElementFactory.createNewLine(project), lastImport);
+        }
     }
 }

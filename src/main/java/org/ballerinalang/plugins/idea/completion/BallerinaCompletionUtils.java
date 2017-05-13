@@ -50,6 +50,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BallerinaCompletionUtils {
 
@@ -422,6 +423,22 @@ public class BallerinaCompletionUtils {
         }
     }
 
+    static void addAllUnImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(file);
+        List<String> importedPackageNames = importedPackages.stream()
+                .map(PsiElement::getText)
+                .collect(Collectors.toList());
+        List<PsiDirectory> packages = BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(file.getProject());
+        for (PsiDirectory pack : packages) {
+            if (!importedPackageNames.contains(pack.getText())) {
+                LookupElementBuilder builder = LookupElementBuilder.create(pack)
+                        .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
+                        .withInsertHandler(BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+            }
+        }
+    }
+
     /**
      * Helper method to add functions as lookup elements.
      *
@@ -597,6 +614,7 @@ public class BallerinaCompletionUtils {
                            boolean withFunctions, boolean withConnectors, boolean withStructs) {
         if (withPackages) {
             addAllImportedPackagesAsLookups(resultSet, file);
+            addAllUnImportedPackagesAsLookups(resultSet, file);
         }
         if (withFunctions) {
             addFunctionsAsLookups(resultSet, file);
