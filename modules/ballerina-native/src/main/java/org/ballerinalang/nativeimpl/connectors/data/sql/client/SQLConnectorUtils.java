@@ -1087,31 +1087,36 @@ public class SQLConnectorUtils {
                 String fractionPart = fractionStr.substring(1, fractionStr.lastIndexOf("Z"));
                 miliSecond = Integer.parseInt(fractionPart);
                 milliSecondPartLength = fractionPart.trim().length();
-            } else if ((fractionStr.lastIndexOf("+") > 0) || (fractionStr.lastIndexOf("-") > 0)) { //timezone +/-hh:mm
-                String timeOffSetStr = null;
-                if (fractionStr.lastIndexOf("+") > 0) {
-                    timeOffSetStr = fractionStr.substring(fractionStr.lastIndexOf("+") + 1);
-                    String fractionPart = fractionStr.substring(1, fractionStr.lastIndexOf("+"));
-                    miliSecond = Integer.parseInt(fractionPart);
-                    milliSecondPartLength = fractionPart.trim().length();
-                    timeZoneOffSet = 1;
-                } else if (fractionStr.lastIndexOf("-") > 0) {
-                    timeOffSetStr = fractionStr.substring(fractionStr.lastIndexOf("-") + 1);
-                    miliSecond = Integer.parseInt(fractionStr.substring(1, fractionStr.lastIndexOf("-")));
-                    milliSecondPartLength = fractionStr.substring(1, fractionStr.lastIndexOf("-")).trim().length();
-                    timeZoneOffSet = -1;
-                }
-                if (timeOffSetStr != null) {
-                    if (timeOffSetStr.charAt(2) != ':') {
-                        throw new BallerinaException("invalid time zone format: " + fractionStr);
+            } else {
+                int lastIndexOfPlus = fractionStr.lastIndexOf("+");
+                int lastIndexofMinus = fractionStr.lastIndexOf("-");
+                if ((lastIndexOfPlus > 0) || (lastIndexofMinus > 0)) { //timezone +/-hh:mm
+                    String timeOffSetStr = null;
+                    if (lastIndexOfPlus > 0) {
+                        timeOffSetStr = fractionStr.substring(lastIndexOfPlus + 1);
+                        String fractionPart = fractionStr.substring(1, lastIndexOfPlus);
+                        miliSecond = Integer.parseInt(fractionPart);
+                        milliSecondPartLength = fractionPart.trim().length();
+                        timeZoneOffSet = 1;
+                    } else if (lastIndexofMinus > 0) {
+                        timeOffSetStr = fractionStr.substring(lastIndexofMinus + 1);
+                        String fractionPart = fractionStr.substring(1, lastIndexofMinus);
+                        miliSecond = Integer.parseInt(fractionPart);
+                        milliSecondPartLength = fractionPart.trim().length();
+                        timeZoneOffSet = -1;
                     }
-                    int hours = Integer.parseInt(timeOffSetStr.substring(0, 2));
-                    int minits = Integer.parseInt(timeOffSetStr.substring(3, 5));
-                    timeZoneOffSet = ((hours * 60) + minits) * 60000 * timeZoneOffSet;
+                    if (timeOffSetStr != null) {
+                        if (timeOffSetStr.charAt(2) != ':') {
+                            throw new BallerinaException("invalid time zone format: " + fractionStr);
+                        }
+                        int hours = Integer.parseInt(timeOffSetStr.substring(0, 2));
+                        int minits = Integer.parseInt(timeOffSetStr.substring(3, 5));
+                        timeZoneOffSet = ((hours * 60) + minits) * 60000 * timeZoneOffSet;
+                    }
+                } else { //no timezone
+                    miliSecond = Integer.parseInt(fractionStr.substring(1));
+                    milliSecondPartLength = fractionStr.substring(1).trim().length();
                 }
-            } else { //no timezone
-                miliSecond = Integer.parseInt(fractionStr.substring(1));
-                milliSecondPartLength = fractionStr.substring(1).trim().length();
             }
             if (milliSecondPartLength != 3) {
                 // milisecond part represenst the fraction of the second so we have to
