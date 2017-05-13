@@ -29,13 +29,13 @@ public class BLangJSONModelConstants {
 
     public static final String DEFINITION_TYPE = "type";
 
-    public static final String CONNECTOR_DEFINITION = "connector";
+    public static final String CONNECTOR_DEFINITION = "connector_definition";
 
     public static final String FUNCTION_DEFINITION = "function_definition";
 
     public static final String TYPE_MAPPER_DEFINITION = "type_mapper_definition";
 
-    public static final String ACTION_DEFINITION = "action";
+    public static final String ACTION_DEFINITION = "action_definition";
 
     public static final String FUNCTIONS_NAME = "function_name";
 
@@ -88,6 +88,9 @@ public class BLangJSONModelConstants {
     public static final String ANNOTATION_ATTACHMENT = "annotation_attachment";
     
     public static final String ANNOTATION_ATTACHMENTS = "annotation_attachments";
+
+    public static final String PARAMETER_DEFINITION = "parameter_definition";
+
     
     public static final String ANNOTATION = "annotation";
     
@@ -103,11 +106,7 @@ public class BLangJSONModelConstants {
 
     public static final String ANNOTATION_PACKAGE_PATH = "annotation_package_path";
 
-    public static final String PARAMETER_DEFINITION = "argument_declaration";
-
-    public static final String CONNECTOR_DECLARATION = "connector_declaration";
-
-    public static final String VARIABLE_DECLARATION = "variable_declaration";
+    public static final String RESOURCE_ARGUMENT = "resource_argument";
 
     public static final String VARIABLE_DEFINITION = "variable_definition";
 
@@ -221,6 +220,10 @@ public class BLangJSONModelConstants {
 
     public static final String VARIABLE_REFERENCE_EXPRESSION = "variable_reference_expression";
 
+    public static final String VARIABLE_REFERENCE_TYPE = "variable_reference_type";
+
+    public static final String VARIABLE_REFERENCE_NAME = "variable_reference_name";
+
     public static final String ARRAY_INIT_EXPRESSION = "array_init_expression";
 
     public static final String ARRAY_MAP_ACCESS_EXPRESSION = "array_map_access_expression";
@@ -299,6 +302,9 @@ public class BLangJSONModelConstants {
 
     public static final String THROW_STATEMENT = "throw_statement";
 
-    public static final String TRANSFORM_STATEMENT = "transform_statement";
+    public static final String ARGUMENT_PARAMETER_DEFINITIONS = "argument_parameter_definitions";
 
+    public static final String RETURN_PARAMETER_DEFINITIONS = "return_parameter_definitions";
+
+    public static final String TRANSFORM_STATEMENT = "transform_statement";
 }

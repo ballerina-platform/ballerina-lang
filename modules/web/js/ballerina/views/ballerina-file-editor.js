@@ -38,8 +38,6 @@ import alerts from 'alerts';
 import 'typeahead.js';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
-import DimensionCalculatorVisitor from './../visitors/dimension-calculator-visitor';
-import PositionCalculatorVisitor from './../visitors/position-calculator-visitor';
 import DebugManager from './../../debugger/debug-manager';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -852,6 +850,14 @@ class BallerinaFileEditor extends BallerinaView {
 
     getFile() {
         return this._file;
+    }
+
+    /**
+     * This function will rerender the diagram and tool palette. 
+     * Will be used to re adjest diagram when browser window resized.
+     */
+    reRender(){
+        this.trigger("update-diagram");
     }
 
     /**

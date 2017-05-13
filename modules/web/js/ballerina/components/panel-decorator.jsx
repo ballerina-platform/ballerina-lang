@@ -24,6 +24,7 @@ import ASTNode from '../ast/node';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import EditableText from './editable-text';
+import TagController from './utils/tag-component';
 import './panel-decorator.css';
 import { panel } from '../configs/designer-defaults.js';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
@@ -83,7 +84,6 @@ class PanelDecorator extends React.Component {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
         }
         let titleComponents = this.getTitleComponents(this.props.titleComponentData);
-        
         let annotations = this.props.model.getChildren().filter(function(child){
             return BallerinaASTFactory.isAnnotation(child);
         });
@@ -173,23 +173,27 @@ class PanelDecorator extends React.Component {
 
     getTitleComponents(titleComponentData) {
         let model = this.props.model;
+        let setter = this.props.setter;
         let components = [];
         if (!_.isUndefined(titleComponentData)) {
             for (let componentData of titleComponentData) {
                 let modelComponents = [];
-                for (let model of componentData.models) {
+                for (let childModel of componentData.models) {
                     modelComponents.push(React.createElement(componentData.rComponent, {
-                        model: model,
-                        key: model.getID()
+                        model: childModel,
+                        key: childModel.getID()
                     }, null));
                 }
 
-                components.push(<g key={componentData.title}>
-                    <text x={componentData.components.openingBracket.x} y={componentData.components.openingBracket.y + 3} className={componentData.openingBracketClassName}>(</text>
-                    <text x={componentData.components.titleText.x} y={componentData.components.titleText.y + 3} className={componentData.prefixTextClassName}>{componentData.title}</text>
-                    {modelComponents}
-                    <text x={componentData.components.closingBracket.x + 10} y={componentData.components.closingBracket.y + 3} className={componentData.closingBracketClassName}>)</text>
-                </g>);
+                // components.push(<g key={componentData.title}>
+                //     <text x={componentData.components.openingBracket.x} y={componentData.components.openingBracket.y + 3} className={componentData.openingBracketClassName}>(</text>
+                //     <text x={componentData.components.titleText.x} y={componentData.components.titleText.y + 3} className={componentData.prefixTextClassName}>{componentData.title}</text>
+                //     {modelComponents}
+                //     <text x={componentData.components.closingBracket.x + 10} y={componentData.components.closingBracket.y + 3} className={componentData.closingBracketClassName}>)</text>
+                // </g>);
+
+                components.push(<TagController key={model.getID()} model={model} setter={setter}
+                                               modelComponents={modelComponents} componentData={componentData}/>);
             }
         }
         return components;
@@ -234,7 +238,7 @@ PanelDecorator.propTypes = {
     model: PropTypes.instanceOf(ASTNode).isRequired,
     dropTarget: PropTypes.instanceOf(ASTNode),
     dropSourceValidateCB: PropTypes.func
-}
+};
 
 PanelDecorator.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
