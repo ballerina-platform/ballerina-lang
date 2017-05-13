@@ -44,6 +44,7 @@ import alerts from 'alerts';
             this.parseBackend = new Backend({"url" : this.app.config.services.parser.endpoint});
             this.validateBackend = new Backend({"url" : this.app.config.services.validator.endpoint});
             this.deserializer = BallerinaASTDeserializer;
+            Ballerina.env.Environment.initialize({app: this.app});
         },
 
         getTitle: function(){
@@ -111,7 +112,6 @@ import alerts from 'alerts';
             }, this);
 
             fileEditor.on('design-view-activated', () => {
-                // const breakpoints = DebugManager.getDebugPoints(this._file.getName()) || [];
                 const breakpoints = fileEditor._sourceView.getBreakpoints() || [];
                 fileEditor._showDesignViewBreakpoints(breakpoints);
             }, this);

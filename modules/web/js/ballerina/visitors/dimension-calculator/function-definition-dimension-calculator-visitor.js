@@ -20,6 +20,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import ASTFactory from './../../ast/ballerina-ast-factory';
 import {util} from './../sizing-utils';
 
 class FunctionDefinitionDimensionCalculatorVisitor {
@@ -44,22 +45,42 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
 
+        let annotationHeight = 0;
+ 
+        /**
+         * calculate the height of annotation view
+         */
+        let annotations = node.filterChildren(function (child) {
+            return ASTFactory.isAnnotation(child)
+        });
+ 
+        _.forEach(annotations, function (annotation) {
+            annotationHeight = annotationHeight+ 25;
+        });
+ 
+        components['annotation'] = new SimpleBBox();
+ 
+        if(node.viewState.annotationViewCollapsed){
+            components['annotation'].h = 25; 
+        }else{
+            components['annotation'].h = annotationHeight; 
+        }
+
         components['statementContainer'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementWidth = 0;
+
+        const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
+            DesignerDefaults.statementContainer.padding.right;
+
+        var statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
         var statementHeight = 0;
 
         _.forEach(statementChildren, function(child) {
             statementHeight += child.viewState.bBox.h;
-            if(child.viewState.bBox.w > statementWidth){
-                statementWidth = child.viewState.bBox.w;
+            if((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth){
+                statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }
         });
-
-        //if statement width is 0 set default
-        if(statementWidth == 0){
-            statementWidth = DesignerDefaults.statement.width;
-        }
 
         /* Lets add an extra gap to the bottom of the lifeline.
            This will prevent last statement touching bottom box of the life line.*/
@@ -110,19 +131,42 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
             DesignerDefaults.panel.body.padding.left + lifeLineWidth;
+        components['annotation'].w = components['body'].w;
 
-        viewState.bBox.h = components['heading'].h + components['body'].h;
+        viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
         viewState.bBox.w = components['heading'].w + components['body'].w;
+
+        viewState.components = components;
 
         viewState.titleWidth = util.getTextWidth(node.getFunctionName()).w;
 
-        components['parametersPrefixContainer'] = {};
-        components['parametersPrefixContainer'].w = util.getTextWidth('Parameters: ').w;
+        //// Creating components for parameters of the function
+        // Creating component for openning bracket of the parameters view.
+        viewState.components.openingParameter = {};
+        viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
 
-        components['returnTypesPrefixContainer'] = {};
-        components['returnTypesPrefixContainer'].w = util.getTextWidth('Return Types: ').w;
+        // Creating component for the Parameters text.
+        viewState.components.parametersText = {};
+        viewState.components.parametersText.w = util.getTextWidth('Parameters:', 0).w;
 
-        viewState.components = components;
+        // Creating component for closing bracket of the parameters view. 
+        viewState.components.closingParameter = {};
+        viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
+
+
+        //// Creating components for return types of the function
+        // Creating component for openning bracket of the return types view.
+        viewState.components.openingReturnType = {};
+        viewState.components.openingReturnType.w = util.getTextWidth('(', 0).w;
+
+        // Creating component for the Return type text.
+        viewState.components.returnTypesText = {};
+        viewState.components.returnTypesText.w = util.getTextWidth('Return Types:', 0).w;
+
+        // Creating component for closing bracket of the return types view. 
+        viewState.components.closingReturnType = {};
+        viewState.components.closingReturnType.w = util.getTextWidth(')', 0).w;
+
     }
 }
 

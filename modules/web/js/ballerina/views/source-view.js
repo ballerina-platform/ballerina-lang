@@ -198,8 +198,7 @@ class SourceView extends EventChannel {
         var row = e.getDocumentPosition().row;
         if(_.isUndefined(breakpoints[row])){
             e.editor.session.setBreakpoint(row);
-        }
-        else{
+        } else {
             this._editor.getSession().removeMarker(this._markers[row]);
             e.editor.session.clearBreakpoint(row);
         }

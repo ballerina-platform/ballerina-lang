@@ -31,6 +31,8 @@ import './statement-decorator.css';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
+import ImageUtil from './image-util';
+import Breakpoint from './breakpoint';
 
 const text_offset = 50;
 
@@ -42,10 +44,12 @@ class StatementDecorator extends React.Component {
         dragDropManager.on('drag-start', this.startDropZones.bind(this));
         dragDropManager.on('drag-stop', this.stopDragZones.bind(this));
 
-		this.state = {innerDropZoneActivated: false,
-                      innerDropZoneDropNotAllowed: false,
-                      innerDropZoneExist: false,
-                      showActions: false };
+		this.state = {
+		    innerDropZoneActivated: false,
+	        innerDropZoneDropNotAllowed: false,
+	        innerDropZoneExist: false,
+	        showActions: false
+		};
 	}
 
 	startDropZones() {
@@ -58,6 +62,40 @@ class StatementDecorator extends React.Component {
 
     onDelete() {
         this.props.model.remove();
+    }
+
+	onJumptoCodeLine() {
+			const {viewState: {fullExpression}} = this.props;
+			const {renderingContext: {ballerinaFileEditor}} = this.context;
+
+			const container = ballerinaFileEditor._container;
+			$(container).find('.view-source-btn').trigger('click');
+			ballerinaFileEditor.getSourceView().jumpToLine({expression: fullExpression});
+	}
+
+	renderBreakpointIndicator() {
+			const breakpointSize = 14;
+			const pointX = this.statementBox.x + this.statementBox.w - breakpointSize/2;
+			const pointY = this.statementBox.y - breakpointSize/2;
+			return (
+					<Breakpoint
+							x={pointX}
+							y={pointY}
+							size={breakpointSize}
+							isBreakpoint={this.props.model.isBreakpoint}
+							onClick = { () => this.onBreakpointClick() }
+					/>
+			);
+	}
+
+	onBreakpointClick() {
+			const { model } = this.props;
+			const { isBreakpoint = false } = model;
+			if(model.isBreakpoint) {
+					model.removeBreakpoint();
+			} else {
+					model.addBreakpoint();
+			}
 	}
 
 	render() {
@@ -117,6 +155,7 @@ class StatementDecorator extends React.Component {
 		actionBbox.h = DesignerDefaults.actionBox.height;
 		actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
 		actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
+
 		return (
 	    	<g 	className="statement"
             onMouseOut={ this.setActionVisibility.bind(this,false) }
@@ -134,7 +173,15 @@ class StatementDecorator extends React.Component {
 						<g className="statement-body">
 							<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
 						</g>
-			                        <ActionBox bBox={ actionBbox } show={ this.state.showActions } onDelete={this.onDelete.bind(this)}/>
+						<ActionBox
+							bBox={ actionBbox }
+							show={ this.state.showActions }
+							isBreakpoint={model.isBreakpoint}
+							onDelete={ () => this.onDelete() }
+							onJumptoCodeLine = { () => this.onJumptoCodeLine() }
+							onBreakpointClick = { () => this.onBreakpointClick() }
+						/>
+
 						{isActionInvocation &&
 							<g>
 								<circle cx={arrowStartPointX}
@@ -150,6 +197,10 @@ class StatementDecorator extends React.Component {
 								{connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
 							</g>
 						}
+						{		model.isBreakpoint &&
+								this.renderBreakpointIndicator()
+						}
+				{this.props.children}
 				</g>);
 	}
 
@@ -223,6 +274,11 @@ class StatementDecorator extends React.Component {
 		messageManager.setSource(actionInvocation);
 		messageManager.setIsOnDrag(true);
 		messageManager.setMessageStart(messageStartX, messageStartY);
+
+		messageManager.setTargetValidationCallback(function (destination) {
+			return actionInvocation.messageDrawTargetAllowed(destination);
+		});
+
 		messageManager.startDrawMessage(function (source, destination) {
 			source.setAttribute('_connector', destination)
 		});
@@ -259,7 +315,8 @@ StatementDecorator.propTypes = {
 StatementDecorator.contextTypes = {
 	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
 	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-	 container: PropTypes.instanceOf(Object).isRequired
+	 container: PropTypes.instanceOf(Object).isRequired,
+	 renderingContext: PropTypes.instanceOf(Object).isRequired,
 };
 
 

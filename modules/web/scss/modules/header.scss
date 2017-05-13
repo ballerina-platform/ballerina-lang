@@ -1,0 +1,54 @@
+.header.header-default {
+    background-color: $header-bgcolor;
+    min-height: 27px;
+
+    & .brand {
+        color: $header-brand-color;
+        
+        & a {
+            color: $header-brand-color;
+        }
+    }
+}
+
+.menu-bar .menu-group {
+    & > a {
+        color: $menubar-link-color;
+
+        &:hover {
+            background-color: $menubar-link-hover-bgcolor;
+            color: $menubar-link-hover-color;
+        }
+    }
+    & > .file-dropdown-menu {
+        background-color: $menubar-file-dropdown-menu-bgcolor;
+        margin-top: 17px;
+        width: 210px;
+        
+        & > li {
+            & > a {
+                &:hover, &:focus {
+                    text-decoration: none;
+                    color: $menubar-file-dropdown-menu-link-hover-color;
+                    background-color: $menubar-file-dropdown-menu-link-hover-bgcolor;
+                    cursor: pointer;
+                }
+            }
+            &.menu-item-disabled > a {
+                color: $menubar-link-disabled-color;
+                padding: 3px 10px;
+                height: 27px;
+                
+                & > .shortcut-label {
+                    color: $menubar-link-disabled-color;
+                }
+                
+                &:hover, &:focus {
+                    color: $menubar-link-disabled-color;
+                    background-color: $menubar-file-dropdown-menu-bgcolor;
+                    cursor: default;
+                }
+            }
+        } 
+    }
+}

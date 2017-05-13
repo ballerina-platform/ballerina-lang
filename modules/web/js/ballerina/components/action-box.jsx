@@ -18,7 +18,8 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import ImageUtil from './image-util';
-import './action-box.css'
+import './action-box.css';
+import Breakpoint from './breakpoint';
 
 class ActionBox extends React.Component {
 
@@ -40,18 +41,25 @@ class ActionBox extends React.Component {
                    <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h } rx="0" ry="0" className="property-pane-action-button-wrapper"></rect>
                    <image width={ iconSize } height={ iconSize } className="property-pane-action-button-delete"
                       onClick={this.props.onDelete} xlinkHref={ ImageUtil.getSVGIconString("delete") } x={bBox.x + horizontalGap} y={y}/>
-                   <image width={ iconSize } height={ iconSize } className="property-pane-action-button-breakpoint"
-                      onClick={this.props.onBreakPoint} xlinkHref={ ImageUtil.getSVGIconString("debug-point") } x={bBox.x + iconSize + horizontalGap * 2} y={y}/>
+                  <Breakpoint
+                      x={bBox.x + iconSize + horizontalGap * 2}
+                      y={y}
+                      size={iconSize}
+                      isBreakpoint={this.props.isBreakpoint}
+                      onClick={this.props.onBreakpointClick}
+                  />
                    <image width={ iconSize } height={ iconSize } className="property-pane-action-button-jump"
-                      xlinkHref={ ImageUtil.getSVGIconString("code-design") } x={bBox.x + iconSize * 2 + horizontalGap * 3} y={y}/>
+                      xlinkHref={ ImageUtil.getSVGIconString("code-design") }
+                      x={bBox.x + iconSize * 2 + horizontalGap * 3}
+                      y={y}
+                      onClick={this.props.onJumptoCodeLine}
+                  />
                 </g>);
   }
 
   componentDidMount(){
     this.isFirstRender = false;
   }
-
-
 
 }
 
@@ -61,7 +69,9 @@ ActionBox.propTypes = {
     y: PropTypes.number.isRequired,
     w: PropTypes.number.isRequired,
     h: PropTypes.number.isRequired,
-  })
+  }),
+  isBreakpoint: PropTypes.bool,
+  onBreakpointClick: PropTypes.func
 }
 
 

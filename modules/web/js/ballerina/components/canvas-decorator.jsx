@@ -24,6 +24,7 @@ import MessageManager from './../visitors/message-manager';
 import './canvas-decorator.css';
 import {setCanvasOverlay, getCanvasOverlay} from '../configs/app-context';
 import ArrowDecorator from './arrow-decorator';
+import BackwardArrowDecorator from './backward-arrow-decorator';
 
 class CanvasDecorator extends React.Component {
     constructor(props) {
@@ -59,6 +60,7 @@ class CanvasDecorator extends React.Component {
                         onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
                     {this.props.children}
                     <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true} moveWithMessageManager={true}/>
+                    <BackwardArrowDecorator start={arrowStart} end={arrowEnd} enable={true} moveWithMessageManager={true}/>
                 </svg>
             </div>
         );

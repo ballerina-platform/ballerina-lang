@@ -35,7 +35,7 @@ class TryStatementPositionCalcVisitor {
         let x, y, statementContainerX, statementContainerY;
 
         x = parentBBox.x;
-        y = parentBBox.y + DesignerDefaults.statement.gutter.v;
+        y = parentBBox.y + parentViewState.components['drop-zone'].h;
         statementContainerX = x;
         statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
 

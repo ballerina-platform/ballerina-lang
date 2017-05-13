@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { statement } from './../configs/designer-defaults';
-import { blockStatement } from './../configs/designer-defaults';
+import {statement} from './../configs/designer-defaults';
+import {blockStatement} from './../configs/designer-defaults';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory'
 import SimpleBBox from './../ast/simple-bounding-box';
 import * as DesignerDefaults from './../configs/designer-defaults';
@@ -26,7 +26,7 @@ import _ from 'lodash';
 
 class SizingUtil {
     constructor() {
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttribute('style', 'border: 1px solid black');
         svg.setAttribute('width', '600');
         svg.setAttribute('height', '250');
@@ -36,21 +36,29 @@ class SizingUtil {
         document.body.appendChild(svg);
     }
 
-    getTextWidth(text, statementMinWidth = statement.width) {
+    /**
+     * Get width of a given text and processed text
+     * considering provided min and max widths.
+     * @param {string} text
+     * @param {number} minWidth
+     * @param {number} maxWidth
+     * @return {object} {width,text}
+     * */
+    getTextWidth(text, minWidth = statement.width, maxWidth = statement.maxWidth) {
         this.textElement.innerHTML = _.escape(text);
         let width = statement.padding.left + this.textElement.getComputedTextLength() + statement.padding.right;
         // if the width is more then max width crop the text
-        if (width <= statementMinWidth) {
+        if (width <= minWidth) {
             //set the width to minimam width
-            width = statementMinWidth;
-        } else if (width > statementMinWidth && width <= statement.maxWidth) {
+            width = minWidth;
+        } else if (width > minWidth && width <= maxWidth) {
             // do nothing
         } else {
             // We need to truncate displayText and show an ellipses at the end.
-            var ellipses = '...';
-            var possibleCharactersCount = 0;
-            for (var i = (text.length - 1); 1 < i; i--) {
-                if ((statement.padding.left + this.textElement.getSubStringLength(0, i) + statement.padding.right) < statement.maxWidth) {
+            let ellipses = '...';
+            let possibleCharactersCount = 0;
+            for (let i = (text.length - 1); 1 < i; i--) {
+                if ((statement.padding.left + this.textElement.getSubStringLength(0, i) + statement.padding.right) < maxWidth) {
                     possibleCharactersCount = i;
                     break;
                 }
@@ -58,7 +66,7 @@ class SizingUtil {
             // We need room for the ellipses as well, hence removing 'ellipses.length' no. of characters.
             text = text.substring(0, (possibleCharactersCount - ellipses.length)) + ellipses; // Appending ellipses.
 
-            width = statement.maxWidth;
+            width = maxWidth;
         }
         return {
             w: width,
@@ -67,7 +75,7 @@ class SizingUtil {
     }
 
     populateSimpleStatementBBox(expression, viewState) {
-        var textViewState = util.getTextWidth(expression);
+        let textViewState = util.getTextWidth(expression);
         let dropZoneHeight = statement.gutter.v;
         viewState.components['drop-zone'] = new SimpleBBox();
         viewState.components['drop-zone'].h = dropZoneHeight;
@@ -76,6 +84,7 @@ class SizingUtil {
         viewState.bBox.h = statement.height + viewState.components['drop-zone'].h;
 
         viewState.expression = textViewState.text;
+        viewState.fullExpression = expression;
         return viewState;
     }
 
@@ -91,9 +100,9 @@ class SizingUtil {
         let components = {};
 
         components['statementContainer'] = new SimpleBBox();
-        var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementContainerWidth = 0;
-        var statementContainerHeight = 0;
+        let statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        let statementContainerWidth = 0;
+        let statementContainerHeight = 0;
 
         _.forEach(statementChildren, function (child) {
             statementContainerHeight += child.viewState.bBox.h;
@@ -123,21 +132,44 @@ class SizingUtil {
     }
 
     populatePanelDecoratorBBox(node, name) {
-        var viewState = node.getViewState();
-        var components = {};
+        let viewState = node.getViewState();
+        let components = {};
 
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
 
+        let annotationHeight = 0;
+
+        /**
+         * calculate the height of annotation view
+         */
+        let annotations = node.filterChildren(function (child) {
+            return ASTFactory.isAnnotation(child)
+        });
+
+        _.forEach(annotations, function (annotation) {
+            annotationHeight = annotationHeight + 25;
+        });
+
+        components['annotation'] = new SimpleBBox();
+
+        if (node.viewState.annotationViewCollapsed) {
+            components['annotation'].h = 25;
+        } else {
+            components['annotation'].h = annotationHeight;
+        }
+
         components['statementContainer'] = new SimpleBBox();
-        var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementWidth = DesignerDefaults.statementContainer.width;
-        var statementHeight = 0;
+        let statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
+            DesignerDefaults.statementContainer.padding.right;
+        let statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
+        let statementHeight = 0;
 
         _.forEach(statementChildren, function (child) {
             statementHeight += child.viewState.bBox.h + DesignerDefaults.statement.gutter.v;
-            if (child.viewState.bBox.w > statementWidth) {
-                statementWidth = child.viewState.bBox.w;
+            if ((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth) {
+                statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }
         });
 
@@ -165,9 +197,16 @@ class SizingUtil {
         });
 
         const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
-        const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
 
-        var lifeLineWidth = 0;
+        /**
+         * If the current default worker's statement container height is less than the highest worker's statement container
+         * we set the default statement container height to the highest statement container's height
+         */
+        components['statementContainer'].h = _.max([components['statementContainer'].h, highestStatementContainerHeight]);
+
+        const defaultWorkerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
+
+        let lifeLineWidth = 0;
         _.forEach(workerChildren.concat(connectorChildren), function (child) {
             lifeLineWidth += child.viewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
             child.getViewState().bBox.h = _.max([components['statementContainer'].h, highestStatementContainerHeight]) +
@@ -179,21 +218,16 @@ class SizingUtil {
         if (node.viewState.collapsed) {
             components['body'].h = 0;
         } else {
-            components['body'].h = ((DesignerDefaults.panel.body.height < workerLifeLineHeight) ? workerLifeLineHeight : DesignerDefaults.panel.body.height)
+            components['body'].h = ((DesignerDefaults.panel.body.height < defaultWorkerLifeLineHeight) ? defaultWorkerLifeLineHeight : DesignerDefaults.panel.body.height)
                 + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         }
-
-        /**
-         * If the current default worker's statement container height is less than the highest worker's statement container
-         * we set the default statement container height to the highest statement container's height
-         */
-        components['statementContainer'].h = _.max([components['statementContainer'].h, highestStatementContainerHeight]);
 
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
             DesignerDefaults.panel.body.padding.left + lifeLineWidth;
         components['heading'].w = components['body'].w;
+        components['annotation'].w = components['body'].w;
 
-        viewState.bBox.h = components['heading'].h + components['body'].h;
+        viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
         viewState.bBox.w = components['body'].w;
 
         viewState.titleWidth = util.getTextWidth(name).w;
@@ -220,7 +254,9 @@ class SizingUtil {
         //Initial statement height include panel heading and panel padding.
         let bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         // Set the width initial value to the padding left and right
-        var bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
+        let bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
+
+        let annotationHeight = 0;
 
         /**
          * If there are service level connectors, their height depends on the heights of the resources
@@ -277,30 +313,49 @@ class SizingUtil {
             bodyHeight = DesignerDefaults.innerPanel.body.height;
         }
 
+
+        /**
+         * calculate the height of annotation view
+         */
+        let annotations = node.filterChildren(function (child) {
+            return ASTFactory.isAnnotation(child)
+        });
+
+        _.forEach(annotations, function (annotation) {
+            annotationHeight = annotationHeight + 25;
+        });
+
         components['heading'] = new SimpleBBox();
         components['body'] = new SimpleBBox();
+        components['annotation'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
         if (node.viewState.collapsed) {
             components['body'].h = 0;
         } else {
             components['body'].h = bodyHeight;
         }
+        if (node.viewState.annotationViewCollapsed) {
+            components['annotation'].h = 25;
+        } else {
+            components['annotation'].h = annotationHeight;
+        }
         components['body'].w = bodyWidth;
         components['heading'].w = bodyWidth;
+        components['annotation'].w = bodyWidth;
 
-        viewState.bBox.h = components['heading'].h + components['body'].h;
+        viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
         viewState.bBox.w = components['body'].w;
 
         viewState.components = components;
     }
 
     getStatementHeightBefore(statement) {
-        var parent = statement.getParent();
-        var statements = parent.filterChildren(BallerinaASTFactory.isStatement);
-        var currentStatementIndex = _.indexOf(statements, statement);
-        var statementsBefore = _.slice(statements, 0, currentStatementIndex);
+        let parent = statement.getParent();
+        let statements = parent.filterChildren(BallerinaASTFactory.isStatement);
+        let currentStatementIndex = _.indexOf(statements, statement);
+        let statementsBefore = _.slice(statements, 0, currentStatementIndex);
 
-        var height = 0;
+        let height = 0;
         _.forEach(statementsBefore, function (stmt) {
             height += stmt.getViewState().bBox.h;
         });

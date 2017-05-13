@@ -1,0 +1,41 @@
+.panel {
+    .panel-header {
+        & > rect {
+            fill: $panel-header-bgcolor;
+            stroke: $panel-header-border-color;
+            stroke-width: 2px;
+        }
+
+        & > text {
+            fill: $panel-header-color;
+        }
+    }
+
+    .panel-body {
+        & .panel-body-rect {
+            fill: $panel-body-bgcolor;
+            fill-opacity: 0.4;
+            stroke-width: 2px;
+            //shape-rendering: crispEdges;
+            stroke: $panel-body-border-color;
+
+            &.rect.drop-zone {
+               fill: $panel-body-dropzone-bgcolor;
+               fill-opacity: 0;
+            }
+        }
+    }
+}
+
+.default-worker-life-line line {
+    stroke: $worker-life-line-color;
+}
+
+.package-definition-header {
+    fill: $package-configs-bgcolor;
+}
+
+.package-definition-label {
+    dominant-baseline: central;
+    fill: $package-definition-color;
+}

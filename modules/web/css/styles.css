@@ -1,11 +1,3 @@
-body {
-    background: #232323;
-}
-
-.footer {
-    background: #282b2f;
-}
-
 #alerts-container {
     display: none
 }
@@ -1464,6 +1456,10 @@ a:hover {
 
 .panel-default {
     border: 0;
+}
+
+.annotation-body{
+    padding: 0;
 }
 
 .sidebar-left {

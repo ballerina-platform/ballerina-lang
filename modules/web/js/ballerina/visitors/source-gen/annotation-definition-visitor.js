@@ -29,16 +29,17 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitAnnotationDefinition(annotationDefinition) {
-        var constructedSourceSegment = '\nannotation ' + annotationDefinition.getAnnotationName() ;
-        if (annotationDefinition.getAttachmentPoints().length > 0){
-            constructedSourceSegment += ' attach '+ _.join(annotationDefinition.getAttachmentPoints(), ', ');
+        let constructedSourceSegment = '\nannotation ' + annotationDefinition.getAnnotationName();
+        let self = this;
+        if (annotationDefinition.getAttachmentPoints().length > 0) {
+            constructedSourceSegment += ' attach ' + _.join(annotationDefinition.getAttachmentPoints(), ', ');
         }
-        constructedSourceSegment +=' {\n';
+        constructedSourceSegment += ' {\n';
         this.indent();
         _.each(annotationDefinition.getAnnotationAttributeDefinitions(), function (attrDefinition, count) {
-            constructedSourceSegment += (this.getIndentation() + attrDefinition.getAttributeStatementString() + ';');
-            if(count < annotationDefinition.getAnnotationAttributeDefinitions().length){
-                constructedSourceSegment+= '\n';
+            constructedSourceSegment += (self.getIndentation() + attrDefinition.getAttributeStatementString() + ';');
+            if (count < annotationDefinition.getAnnotationAttributeDefinitions().length) {
+                constructedSourceSegment += '\n';
             }
         });
 

@@ -46,8 +46,13 @@ class WorkerDeclarationPositionCalcVisitor {
              * we keep the first worker right next to the parent statement boundary.
              */
             if (parentViewState.components.statementContainer) {
-                x = parentViewState.components.statementContainer.getRight() +
-                    DesignerDefaults.lifeLine.gutter.h;
+                /**
+                 * Due to the model order of the ast, when worker declaration visits, position visitor for the parent's
+                 * statements have not been calculated. so we need to use the width's of the parent
+                 * statement container to get the x position
+                 */
+                x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +
+                    parentViewState.components.statementContainer.w + DesignerDefaults.lifeLine.gutter.h;
             } else {
                 x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h;
             }

@@ -46,6 +46,7 @@ class ConnectorDeclaration extends React.Component {
         const statementContainerBBox = this.props.model.viewState.components.statementContainer;
         let connectorBBox = {};
         let model = this.props.model;
+        const connectorName = model.getConnectorVariable();
         var children = getComponentForNodeArray(this.props.model.getChildren());
         connectorBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width)/2;
         connectorBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
@@ -54,7 +55,7 @@ class ConnectorDeclaration extends React.Component {
 
         return (<g>
                 <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model}/>
-                <LifeLine title="Connector" bBox={connectorBBox}/>
+                <LifeLine title={connectorName} bBox={connectorBBox}/>
                 {children}
             </g>
         );

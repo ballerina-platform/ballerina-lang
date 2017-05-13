@@ -19,22 +19,79 @@ import React from "react";
 import StatementDecorator from "./statement-decorator";
 import StartArrowConnection from "./start-arrow-connection";
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import * as DesignerDefaults from './../configs/designer-defaults';
+import MessageManager from './../visitors/message-manager';
 
 class WorkerInvocationStatement extends React.Component {
 
     render() {
         let model = this.props.model,
             expression = model.viewState.expression;
-        if (!_.isUndefined(model.getDestination())) {
-            return (<g>
-                      <StatementDecorator model={model} viewState={model.viewState} expression={expression} />);
-                      <StartArrowConnection start={model.viewState} end={model.getDestination().viewState} />
-                    </g>);
-        } else {
-            return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} />);
-        }
+        const bBox = model.getViewState().bBox;
+        const arrowStartPointX = bBox.getRight();
+        const arrowStartPointY = bBox.getTop() + (bBox.h + DesignerDefaults.statement.gutter.v)/2;
+
+        return (<g>
+            <StatementDecorator model={model} viewState={model.viewState} expression={expression} />
+            <g>
+                <circle cx={arrowStartPointX}
+                        cy={arrowStartPointY}
+                        r={10}
+                        fill="#444"
+                        fillOpacity={0}
+                        onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
+                        onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
+                        onMouseDown={(e) => this.onMouseDown(e)}
+                        onMouseUp={(e) => this.onMouseUp(e)}
+                />
+            </g>
+            {
+                (!_.isNil(model.getDestination())) &&
+                <StartArrowConnection start={model.viewState} end={model.getDestination().viewState} />
+            }
+        </g>);
+    }
+
+    onArrowStartPointMouseOver (e) {
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0.5;
+        e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
+    }
+
+    onArrowStartPointMouseOut (e) {
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0;
+    }
+
+    onMouseDown (e) {
+        const messageManager = this.context.messageManager;
+        const model = this.props.model;
+        const bBox = model.getViewState().bBox;
+        const messageStartX = bBox.getRight();
+        const messageStartY = bBox.getTop() + (bBox.h + DesignerDefaults.statement.gutter.v)/2;
+        messageManager.setSource(model);
+        messageManager.setIsOnDrag(true);
+        messageManager.setMessageStart(messageStartX, messageStartY);
+
+        messageManager.setTargetValidationCallback(function (destination) {
+            return model.messageDrawTargetAllowed(destination);
+        });
+
+        messageManager.startDrawMessage(function (source, destination) {
+            source.setAttribute('_destination', destination)
+        });
+    }
+
+    onMouseUp (e) {
+        const messageManager = this.context.messageManager;
+        messageManager.reset();
     }
 }
+
+WorkerInvocationStatement.contextTypes = {
+    messageManager: PropTypes.instanceOf(MessageManager).isRequired
+};
 
 WorkerInvocationStatement.propTypes = {
     bBox: PropTypes.shape({
@@ -43,7 +100,6 @@ WorkerInvocationStatement.propTypes = {
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
     })
-}
-
+};
 
 export default WorkerInvocationStatement;

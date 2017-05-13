@@ -42,13 +42,15 @@ class WorkerDeclarationDimensionCalculatorVisitor {
 
         components['statementContainer'] = new SimpleBBox();
         var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementWidth = DesignerDefaults.lifeLine.width;
+        const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
+            DesignerDefaults.statementContainer.padding.right;
+        var statementWidth = DesignerDefaults.lifeLine.width + statementContainerWidthPadding;
         var statementHeight = 0;
 
         _.forEach(statementChildren, function(child) {
             statementHeight += child.viewState.bBox.h + DesignerDefaults.statement.gutter.v;
-            if(child.viewState.bBox.w > statementWidth){
-                statementWidth = child.viewState.bBox.w;
+            if((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth){
+                statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }
         });
 
@@ -56,7 +58,7 @@ class WorkerDeclarationDimensionCalculatorVisitor {
          * We add an extra gap to the statement container height, in order to maintain the gap between the
          * last statement's bottom margin and the default worker bottom rect's top margin
          */
-        statementHeight += DesignerDefaults.statement.gutter.v;
+        statementHeight += DesignerDefaults.statement.gutter.v * 2;
 
         viewState.bBox.h = statementHeight + DesignerDefaults.lifeLine.head.height * 2;
         viewState.bBox.w = statementWidth;
