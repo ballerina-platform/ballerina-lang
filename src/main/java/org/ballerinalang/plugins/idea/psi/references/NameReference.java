@@ -23,9 +23,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -99,7 +102,8 @@ public class NameReference extends BallerinaElementReference {
         // Get the PackageNameNode. We need this to resolve the package.
         PackageNameNode[] packageNameNodes =
                 PsiTreeUtil.getChildrenOfType(packagePathNode, PackageNameNode.class);
-        if (packageNameNodes == null) {
+
+        if (packageNameNodes == null || isStructFieldAccess()) {
             // Even though the package name is null, the name reference node might be an annotation node. So we need to
             // get all annotations in the current.
             PsiFile containingFile = myElement.getContainingFile();
@@ -184,6 +188,18 @@ public class NameReference extends BallerinaElementReference {
             }
         }
         return results.toArray(new ResolveResult[results.size()]);
+    }
+
+    private boolean isStructFieldAccess() {
+        int offset = myElement.getTextOffset() + myElement.getTextLength();
+        PsiElement element = myElement.getContainingFile().findElementAt(offset);
+        if (element != null && element instanceof LeafPsiElement) {
+            IElementType elementType = ((LeafPsiElement) element).getElementType();
+            if (elementType == BallerinaTypes.DOT) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

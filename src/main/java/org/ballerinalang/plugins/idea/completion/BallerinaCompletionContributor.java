@@ -55,6 +55,7 @@ import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
+import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.MapStructLiteralNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
@@ -72,7 +73,6 @@ import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
@@ -303,7 +303,12 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     this::handleOtherTypesInParameter);
             return;
         }
-
+        AnnotationDefinitionNode annotationDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                AnnotationDefinitionNode.class);
+        if (annotationDefinitionNode != null) {
+            addAttachmentPointsAsLookups(resultSet);
+            return;
+        }
         if (handleGlobalVariableDefinition(parameters, resultSet)) {
             return;
         }
@@ -317,6 +322,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         if (superParent instanceof AnnotationAttachmentNode && handleAnnotationAttachmentNode(parameters, resultSet)) {
             return;
         }
+
         checkPrevNodeAndHandle(parameters, resultSet, parameters.getOffset(),
                 this::handleIdentifierInNameReference,
                 this::handleLeafElementInNameReference,
@@ -334,20 +340,42 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             PsiElement e = parameters.getPosition();
             checkPrevNodeAndHandle(parameters, resultSet, e.getTextOffset(),
                     (p, r, prevElement) -> {
-                        addTypeNames(resultSet);
-                        addLookups(resultSet, originalFile, true, false, true, true);
+                        PsiElement parent = prevElement.getParent();
+                        if (parent instanceof AnnotationDefinitionNode) {
+                            addKeywordAsLookup(resultSet, ATTACH, KEYWORDS_PRIORITY);
+                        } else {
+                            addTypeNamesAsLookups(resultSet);
+                            addLookups(resultSet, originalFile, true, false, true, true);
+                        }
                     },
                     (p, r, prevElement) -> {
                         IElementType elementType = ((LeafPsiElement) prevElement).getElementType();
                         if (elementType == BallerinaTypes.SEMI) {
-                            addTypeNames(resultSet);
+                            addFileLevelKeywordsAsLookups(resultSet, false, true);
+                            addTypeNamesAsLookups(resultSet);
                             addLookups(resultSet, originalFile, true, false, true, true);
                         } else if (elementType == BallerinaTypes.COLON) {
-                            PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                            suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true, true, false);
+                            if (element.getParent().getText().matches("@.*")) {
+                                String type = getAttachmentType(parameters);
+                                if (type == null) {
+                                    return;
+                                }
+                                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                                suggestAnnotationsFromPackage(parameters, resultSet, packageNode, type);
+                            } else {
+                                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                                suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true,
+                                        true, false);
+                            }
+                        } else if (prevElement instanceof PsiWhiteSpace) {
+                            addFileLevelKeywordsAsLookups(resultSet, true, true);
+                            addTypeNamesAsLookups(resultSet);
                         }
                     },
-                    null);
+                    (p, r, prevElement) -> {
+                        addTypeNamesAsLookups(resultSet);
+                        addFileLevelKeywordsAsLookups(resultSet, true, true);
+                    });
             return true;
         }
         return false;
@@ -396,7 +424,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             null);
                     return true;
                 } else if (elementType == BallerinaTypes.COLON) {
-
                     if (element.getParent().getText().matches("@.*")) {
                         String type = getAttachmentType(parameters);
                         if (type == null) {
@@ -446,9 +473,22 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     } else if (elementType == BallerinaTypes.COLON) {
                         // This will be called instead of handle statement node if there are codes after the caret.
                         // Eg: function test(){ test:te<caret> \n some_other_codes}
-                        PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                        suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true,
-                                true, true);
+                        if (prevElement.getParent() instanceof NameReferenceNode) {
+                            // Eg: User user = { name: get<caret> }
+                            PsiElement prevSibling = prevElement.getPrevSibling();
+                            if (prevSibling != null && prevSibling.getText().matches(".*:.*")) {
+                                // Eg: User user = { name: utils:get<caret> }
+                                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                                suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true, true, true);
+                            } else {
+                                addLookups(resultSet, originalFile, true, true, true, true);
+                                addVariableTypesAsLookups(resultSet, originalFile, element);
+                            }
+                        } else {
+                            // Eg: User user = { name: <caret> }
+                            PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                            suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true, true, false);
+                        }
                     } else if (elementType == BallerinaTypes.DOT) {
                         // Eg: person.n<caret>
                         PsiElement structReference = originalFile.findElementAt(token.getTextOffset() - 2);
@@ -459,11 +499,12 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         if (attachmentType != null) {
                             suggestAnnotationsFromPackage(parameters, resultSet, null, attachmentType);
                         }
-                    } else if (elementType == BallerinaTypes.LBRACE) {
+                    } else if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.COMMA) {
+                        // Eg: User user = {n<caret>}
                         addStructFields(parameters, resultSet, element);
                     } else {
                         // Eg: function test(){t<caret>}
-                        addTypeNames(resultSet);
+                        addTypeNamesAsLookups(resultSet);
                         addLookups(resultSet, originalFile, true, true, true, true);
                         addVariableTypesAsLookups(resultSet, originalFile, element);
                     }
@@ -489,8 +530,21 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             addVariableTypesAsLookups(resultSet, originalFile, element);
         } else if (elementType == BallerinaTypes.COLON) {
             // Eg: function test(){ test:<caret> }
-            PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-            suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true, true, false);
+            // Eg: User user = { name:<caret> }
+            if (prevElement.getParent() instanceof MapStructKeyValueNode) {
+                PsiElement prevSibling = prevElement.getPrevSibling();
+                if (prevSibling != null && prevSibling.getText().matches(".+:.+")) {
+                    // Eg: User user = { name: utils:<caret> }
+                    PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                    suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true, true, true);
+                } else {
+                    addLookups(resultSet, originalFile, true, true, true, true);
+                    addVariableTypesAsLookups(resultSet, originalFile, element);
+                }
+            } else {
+                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true, true, false);
+            }
         } else if (elementType == BallerinaTypes.DOT) {
             // Eg: person.<caret>
             PsiElement structReference = originalFile.findElementAt(prevElement.getTextOffset() - 2);
@@ -505,11 +559,12 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             if (attachmentType != null) {
                 suggestAnnotationsFromPackage(parameters, resultSet, null, attachmentType);
             }
-        } else if (elementType == BallerinaTypes.LBRACE) {
+        } else if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.COMMA) {
+            // Eg: User user = {<caret>}
             addStructFields(parameters, resultSet, element);
         } else {
             // Eg: function test(){ <caret> \n OTHER_CODES }
-            addTypeNames(resultSet);
+            addTypeNamesAsLookups(resultSet);
             addLookups(resultSet, originalFile, true, true, true, true);
             addVariableTypesAsLookups(resultSet, originalFile, element);
         }
@@ -625,11 +680,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 }
             } else {
                 // Eg: function test(s<caret>){ }
-                addTypeNames(resultSet);
+                addTypeNamesAsLookups(resultSet);
                 addLookups(resultSet, originalFile, true, false, true, true);
             }
             if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
-                addTypeNames(resultSet);
+                addTypeNamesAsLookups(resultSet);
                 addLookups(resultSet, originalFile, false, false, false, true);
             }
         } else {
@@ -670,7 +725,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             }
         } else if (elementType == BallerinaTypes.LPAREN || elementType == BallerinaTypes.COMMA) {
             // Eg: function test(<caret>) { }
-            addTypeNames(resultSet);
+            addTypeNamesAsLookups(resultSet);
             addLookups(resultSet, originalFile, true, false, true, true);
         } else if (elementType == BallerinaTypes.AT) {
             addLookups(resultSet, originalFile, true, false, false, false);
@@ -694,7 +749,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         PsiFile originalFile = parameters.getOriginalFile();
 
         addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
-        addTypeNames(resultSet);
+        addTypeNamesAsLookups(resultSet);
         addCommonKeywords(resultSet);
         addFunctionSpecificKeywords(parameters, resultSet);
         addResourceSpecificKeywords(parameters, resultSet);
@@ -831,7 +886,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 VariableDefinitionNode.class);
         if (variableDefinitionNode != null) {
             ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(element, ExpressionNode.class);
-            if (expressionNode == null) {
+            if (expressionNode == null || expressionNode.getText().contains("IntellijIdeaRulezzz")) {
                 addStructFields(parameters, resultSet, null, variableDefinitionNode, true, true);
                 return true;
             }
@@ -883,7 +938,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addCommonKeywords(resultSet);
             }
             if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
-                addTypeNames(resultSet);
+                addTypeNamesAsLookups(resultSet);
             }
         } else {
             PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
@@ -931,7 +986,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             }
         } else {
             PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
-            addTypeNames(resultSet);
+            addTypeNamesAsLookups(resultSet);
             addLookups(resultSet, originalFile, true, true, true, true);
             addVariableTypesAsLookups(resultSet, originalFile, currentElement);
             addFunctionSpecificKeywords(parameters, resultSet);
@@ -944,7 +999,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void handleOtherTypesInStatement(@NotNull CompletionParameters parameters,
                                              @NotNull CompletionResultSet resultSet, @NotNull PsiElement prevElement) {
         PsiFile originalFile = parameters.getOriginalFile();
-        addTypeNames(resultSet);
+        addTypeNamesAsLookups(resultSet);
         addLookups(resultSet, originalFile, true, true, false, false);
         addVariableTypesAsLookups(resultSet, originalFile, prevElement);
         addFunctionSpecificKeywords(parameters, resultSet);

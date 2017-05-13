@@ -189,7 +189,7 @@ public class BallerinaCompletionUtils {
      *
      * @param resultSet result list which is used to add lookups
      */
-    static void addTypeNames(@NotNull CompletionResultSet resultSet) {
+    static void addTypeNamesAsLookups(@NotNull CompletionResultSet resultSet) {
         addAnyTypeAsLookup(resultSet);
         addValueTypesAsLookups(resultSet);
         addReferenceTypesAsLookups(resultSet);
@@ -761,7 +761,7 @@ public class BallerinaCompletionUtils {
     public static PsiElement getPreviousNonEmptyElement(PsiFile originalFile, int offset) {
         int count = 1;
         PsiElement prevElement = originalFile.findElementAt(offset - count++);
-        while (prevElement instanceof PsiWhiteSpace) {
+        while (prevElement instanceof PsiWhiteSpace && prevElement.getTextOffset() > 0) {
             prevElement = originalFile.findElementAt(offset - count++);
         }
         return prevElement;
