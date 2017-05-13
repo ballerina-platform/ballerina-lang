@@ -1451,6 +1451,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
         }
+
+        returnStmt.setReturns(true);
     }
 
 
