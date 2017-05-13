@@ -31,14 +31,13 @@ class TransformStatement extends Statement {
 
     /**
      * initialize from json
-     * @param jsonNode
+     * @param {Object[]} jsonNode.children - Children elements of the transform statement.
      */
     initFromJson(jsonNode) {
-        var self = this;
-        _.each(jsonNode.children, (childNode) => {
-            var child = self.getFactory().createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) =>  {
+            var child = this.getFactory().createFromJson(childNode);
             this.addChild(child);
-            this.initFromJson(childNode);
+            child.initFromJson(childNode);
         });
     }
 }

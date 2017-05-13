@@ -295,8 +295,4 @@ public class BLangJSONModelConstants {
 
     public static final String TRANSFORM_STATEMENT = "transform_statement";
 
-    public static final String TRANSFORM_INPUT = "transform_input";
-
-    public static final String TRANSFORM_OUTPUT = "transform_output";
-
 }

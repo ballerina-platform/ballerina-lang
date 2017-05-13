@@ -735,25 +735,38 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(TransformStmt transformStmt) {
+
         JsonObject transformStmtObj = new JsonObject();
-        transformStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
-                                     BLangJSONModelConstants.TRANSFORM_STATEMENT);
         this.addPosition(transformStmtObj, transformStmt.getNodeLocation());
-
+        transformStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants
+                .TRANSFORM_STATEMENT);
         tempJsonArrayRef.push(new JsonArray());
-        transformStmt.getInputReference().accept(this);
-        transformStmtObj.add(BLangJSONModelConstants.TRANSFORM_INPUT, tempJsonArrayRef.peek());
+
+        JsonObject lExprObj = new JsonObject();
+        lExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.LEFT_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        for (Expression expression : transformStmt.getLhsExprs()) {
+            expression.accept(this);
+        }
+        lExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(lExprObj);
 
+        JsonObject rExprObj = new JsonObject();
+        rExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.RIGHT_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
-        transformStmt.getOutputReference().accept(this);
-        transformStmtObj.add(BLangJSONModelConstants.TRANSFORM_OUTPUT, tempJsonArrayRef.peek());
+        for (Expression expression : transformStmt.getRhsExprs()) {
+            expression.accept(this);
+        }
+        rExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(rExprObj);
 
-        tempJsonArrayRef.push(new JsonArray());
+
         if (transformStmt.getBody() != null) {
             transformStmt.getBody().accept(this);
         }
+
         transformStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(transformStmtObj);
