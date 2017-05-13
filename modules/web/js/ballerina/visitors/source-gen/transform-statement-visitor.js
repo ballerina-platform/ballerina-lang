@@ -21,41 +21,45 @@ import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import TransformStatement from '../../ast/statements/transform-statement';
 import StatementVisitorFactory from './statement-visitor-factory';
+import TypeMapperBlockStatementVisitor from './type-mapper-block-statement-visitor';
 
 class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
         super(parent);
     }
 
-    canVisitTransformStatement(assignmentStatement) {
-        return assignmentStatement instanceof TransformStatement;
+    canVisitTransformStatement(typeMapperDefinition) {
+        return true;
     }
 
-    beginVisitTransformStatement(assignmentStatement) {
-        log.debug('Begin Visit Assignment Statement');
+    beginVisitTransformStatement(typeMapperDefinition) {
+        /**
+         * set the configuration start for the type mapper definition language construct
+         * If we need to add additional parameters which are dynamically added to the configuration start
+         * that particular source generation has to be constructed here
+         */
+
+        var constructedSourceSegment = '\n' + this.getIndentation() + 'transform ' +
+            typeMapperDefinition.getInputParamAndIdentifier() + ' -> ' + typeMapperDefinition.getReturnType() +
+            '  {\n';
+        this.appendSource(constructedSourceSegment);
+        this.indent();
+        log.debug('Begin Visit TypeMapperDefinition');
     }
 
-    visitLeftOperandExpression(expression) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-        expression.accept(statementVisitor);
+    visitTransformStatement(typeMapperDefinition) {
+        log.debug('Visit TypeMapperDefinition');
     }
 
-    visitRightOperandExpression(expression) {
-        // FIXME: right expression should neglect indentation inherited through
-        // parent scope, hence the temp swap of indentCount, should be fixed
-        // in a proper way
-        let indentCountTmp = this.indentCount;
-        this.indentCount = 0;
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-        this.indentCount = indentCountTmp;
-        expression.accept(statementVisitor);
+    endVisitTransformStatement(typeMapperDefinition) {
+        this.appendSource( "}\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit TypeMapperDefinition');
     }
 
-    endVisitTransformStatement(assignmentStatement) {
-        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
-        log.debug('End Visit Assignment Statement');
+    visitBlockStatement(blockStatement) {
+        var blockStatementVisitor = new TypeMapperBlockStatementVisitor(this);
+        blockStatement.accept(blockStatementVisitor);
     }
 }
 

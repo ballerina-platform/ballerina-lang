@@ -172,6 +172,22 @@ DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
 
 DefaultBallerinaASTFactory.createTransformStatement = function (args) {
     var transformStatement = BallerinaASTFactory.createTransformStatement(args);
+    var blockStatement = BallerinaASTFactory.createBlockStatement(args);
+    var returnStatement = BallerinaASTFactory.createReturnStatement(args);
+    var variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
+    var rightOperandExpression = BallerinaASTFactory.createRightOperandExpression(args);
+    var referenceTypeInitiExpression = BallerinaASTFactory.createReferenceTypeInitExpression(args);
+
+    rightOperandExpression.addChild(referenceTypeInitiExpression);
+
+    var returnStatementVariableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
+    returnStatement.addChild(returnStatementVariableReferenceExpression);
+
+    variableDefinitionStatement.addChild(rightOperandExpression);
+
+    blockStatement.addChild(variableDefinitionStatement);
+    blockStatement.addChild(returnStatement);
+    transformStatement.addChild(blockStatement);
     return transformStatement;
 };
 

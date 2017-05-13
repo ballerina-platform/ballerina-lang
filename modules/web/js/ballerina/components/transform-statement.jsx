@@ -16,7 +16,7 @@
  * under the License.
  */
 import React from "react";
-import StatementDecorator from "./statement-decorator";
+import StatementDecorator from "./transform-statement-decorator";
 import PropTypes from "prop-types"
 
 /**
@@ -40,7 +40,7 @@ class TransformStatement extends React.Component {
      * */
     render() {
         let model = this.props.model,
-            expression = "x = y";
+        expression = this.props.model.getInputParamAndIdentifier() + "->" + this.props.model.getReturnType();
 
          const xPos =   model.viewState.bBox.x;
          const yPos =   model.viewState.bBox.y;
