@@ -51,6 +51,9 @@ typemapper studentToPerson  (Student m)    (Person)     {
 
 }
 
+const int  SAMPLE_CONST   =    30     ;
+
+
 struct  Teacher   {
 
 }

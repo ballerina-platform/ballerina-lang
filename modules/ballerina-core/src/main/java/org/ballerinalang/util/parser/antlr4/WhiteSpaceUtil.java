@@ -43,6 +43,7 @@ public class WhiteSpaceUtil {
     public static final String SYMBOL_COLON = ":";
     public static final String NATIVE_KEYWORD = "native";
     public static final String KEYWORD_THROWS = "throws";
+    public static final String EQUAL_OPERATOR = "=";
 
     public static String getFileStartingWhiteSpace(CommonTokenStream tokenStream) {
         // find first non-whitespace token
@@ -262,6 +263,22 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.typeMapperBody().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_MAP_DEF_BODY_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.typeMapperBody().stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getConstantDefWS(CommonTokenStream tokenStream,
+                                                        BallerinaParser.ConstantDefinitionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_CONST_KEYWORD_TO_VAL_TYPE,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_VAL_TYPE_TO_IDENTIFIER,
+                getWhitespaceToLeft(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_IDENTIFIER_TO_EQUAL_OPERATOR,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, EQUAL_OPERATOR).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
 

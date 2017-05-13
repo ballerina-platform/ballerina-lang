@@ -243,9 +243,10 @@ public class BLangModelBuilder {
 
     // Add constant definition
 
-    public void addConstantDef(NodeLocation location, SimpleTypeName typeName, String constName) {
+    public void addConstantDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                               SimpleTypeName typeName, String constName) {
         SymbolName symbolName = new SymbolName(constName);
-        ConstDef constantDef = new ConstDef(location, constName, typeName, currentPackagePath,
+        ConstDef constantDef = new ConstDef(location, whiteSpaceDescriptor, constName, typeName, currentPackagePath,
                 symbolName, currentScope, exprStack.pop());
 
         getAnnotationAttachments().forEach(attachment -> constantDef.addAnnotation(attachment));
@@ -260,8 +261,8 @@ public class BLangModelBuilder {
     public void addGlobalVarDef(NodeLocation location, SimpleTypeName typeName,
                                 String varName, boolean exprAvailable) {
         SymbolName symbolName = new SymbolName(varName);
-        GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, varName, typeName, currentPackagePath,
-                symbolName, currentScope);
+        GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, null, varName, typeName,
+                currentPackagePath, symbolName, currentScope);
 
         getAnnotationAttachments().forEach(attachment -> globalVariableDef.addAnnotation(attachment));
 
@@ -315,7 +316,7 @@ public class BLangModelBuilder {
         }
         
         if (currentScope instanceof StructDef) {
-            VariableDef fieldDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
+            VariableDef fieldDef = new VariableDef(location, null, fieldName, typeName, symbolName, currentScope);
             VariableRefExpr fieldRefExpr = new VariableRefExpr(location, fieldName);
             fieldRefExpr.setVariableDef(fieldDef);
             VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
@@ -486,7 +487,7 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, null, paramName, typeName, symbolName, currentScope);
         getAnnotationAttachments(annotationCount).forEach(attachment -> paramDef.addAnnotation(attachment));
 
         if (currentCUBuilder != null) {
@@ -506,7 +507,7 @@ public class BLangModelBuilder {
 
     public void addReturnTypes(NodeLocation location, SimpleTypeName[] returnTypeNames) {
         for (SimpleTypeName typeName : returnTypeNames) {
-            ParameterDef paramDef = new ParameterDef(location, null, typeName, null, currentScope);
+            ParameterDef paramDef = new ParameterDef(location, null, null, typeName, null, currentScope);
             currentCUBuilder.addReturnParameter(paramDef);
         }
     }
@@ -907,7 +908,7 @@ public class BLangModelBuilder {
 
         // define worker parameter
         SymbolName paramSymbolName = new SymbolName(paramName);
-        ParameterDef paramDef = new ParameterDef(sourceLocation, paramName,
+        ParameterDef paramDef = new ParameterDef(sourceLocation, null, paramName,
             new SimpleTypeName(BTypes.typeMessage.getName()), paramSymbolName, currentScope);
         currentScope.define(paramSymbolName, paramDef);
         currentCUBuilder.addParameter(paramDef);
@@ -1003,7 +1004,7 @@ public class BLangModelBuilder {
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
         SymbolName symbolName = new SymbolName(varName);
 
-        VariableDef variableDef = new VariableDef(location, varName, typeName, symbolName, currentScope);
+        VariableDef variableDef = new VariableDef(location, null, varName, typeName, symbolName, currentScope);
         variableRefExpr.setVariableDef(variableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
@@ -1215,7 +1216,7 @@ public class BLangModelBuilder {
         currentScope = catchBlock.getEnclosingScope();
 
         SymbolName symbolName = new SymbolName(argName);
-        ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), argName, exceptionType, symbolName,
+        ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), null, argName, exceptionType, symbolName,
                 currentScope);
         currentScope.resolve(symbolName);
         currentScope.define(symbolName, paramDef);
@@ -1269,7 +1270,7 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, null, paramName, typeName, symbolName, currentScope);
         forkJoinStmtBuilder.setJoinBlock(forkJoinStmt);
         forkJoinStmtBuilder.setJoinResult(paramDef);
         currentScope = forkJoinStmtBuilder.getJoin().getEnclosingScope();
@@ -1318,7 +1319,7 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, null, paramName, typeName, symbolName, currentScope);
         forkJoinStmtBuilder.setTimeoutResult(paramDef);
         currentScope = forkJoinStmtBuilder.getTimeout().getEnclosingScope();
     }

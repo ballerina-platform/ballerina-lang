@@ -92,4 +92,11 @@ public class WhiteSpaceRegions {
     public static final int TYPE_MAP_DEF_PARAM_WRAPPER_END_TO_RETURN_TYPE_WRAPPER_START = 3;
     public static final int TYPE_MAP_DEF_RETURN_TYPE_WRAPPER_TO_BODY_START = 4;
     public static final int TYPE_MAP_DEF_BODY_END_TO_NEXT_TOKEN = 5;
+
+    // whitespace regions in a constant definition
+    public static final int CONST_DEF_CONST_KEYWORD_TO_VAL_TYPE = 0;
+    public static final int CONST_DEF_VAL_TYPE_TO_IDENTIFIER = 1;
+    public static final int CONST_DEF_IDENTIFIER_TO_EQUAL_OPERATOR = 2;
+    public static final int CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START = 3;
+    public static final int CONST_DEF_END_TO_NEXT_TOKEN = 4;
 }

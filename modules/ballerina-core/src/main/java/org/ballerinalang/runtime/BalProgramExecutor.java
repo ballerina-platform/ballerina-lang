@@ -72,7 +72,8 @@ public class BalProgramExecutor {
             String parameterName = parameter.getName();
             VariableRefExpr variableRefExpr = new VariableRefExpr(nodeLocation, parameterName);
             StackVarLocation location = new StackVarLocation(locationCounter);
-            VariableDef variableDef = new VariableDef(nodeLocation, parameter.getType(), new SymbolName(parameterName));
+            VariableDef variableDef = new VariableDef(nodeLocation, null, parameter.getType(),
+                    new SymbolName(parameterName));
             variableRefExpr.setVariableDef(variableDef);
             variableRefExpr.setMemoryLocation(location);
             variableRefExpr.setType(parameter.getType());

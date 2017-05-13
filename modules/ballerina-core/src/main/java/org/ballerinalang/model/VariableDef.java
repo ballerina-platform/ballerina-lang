@@ -47,18 +47,21 @@ public class VariableDef implements BLangSymbol, Node {
     protected SymbolScope symbolScope;
 
     public VariableDef(NodeLocation location,
+                       WhiteSpaceDescriptor whiteSpaceDescriptor,
                        String name,
                        SimpleTypeName typeName,
                        SymbolName symbolName,
                        SymbolScope symbolScope) {
         this.location = location;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.name = name;
         this.symbolName = symbolName;
         this.typeName = typeName;
         this.symbolScope = symbolScope;
     }
 
-    public VariableDef(NodeLocation location, BType type, SymbolName symbolName) {
+    public VariableDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, BType type,
+                       SymbolName symbolName) {
         this.location = location;
         this.type = type;
         this.symbolName = symbolName;

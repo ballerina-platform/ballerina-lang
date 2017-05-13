@@ -504,8 +504,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         SimpleTypeName typeName = typeNameStack.pop();
         String constName = ctx.Identifier().getText();
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getConstantDefWS(tokenStream, ctx);
+        }
 
-        modelBuilder.addConstantDef(getCurrentLocation(ctx), typeName, constName);
+        modelBuilder.addConstantDef(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, constName);
     }
 
     @Override

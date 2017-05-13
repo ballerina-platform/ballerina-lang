@@ -9,6 +9,7 @@ import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.ImportPackage;
@@ -217,5 +218,23 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_RETURN_TYPE_WRAPPER_TO_BODY_START), "     ");
         Assert.assertEquals(typeMapper.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
+    }
+
+
+    @Test(description = "Test captured whitespace regions of constant definition node")
+    public void testWhiteSpaceCaptureInConstantDef() {
+        ConstDef constDef = (ConstDef) bFile.getCompilationUnits()[9];
+        Assert.assertNotNull(constDef);
+        Assert.assertEquals(constDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONST_DEF_CONST_KEYWORD_TO_VAL_TYPE), " ");
+        Assert.assertEquals(constDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONST_DEF_VAL_TYPE_TO_IDENTIFIER), "  ");
+        Assert.assertEquals(constDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions()
+                .get(WhiteSpaceRegions.CONST_DEF_IDENTIFIER_TO_EQUAL_OPERATOR), "   ");
+        Assert.assertEquals(constDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START), "    ");
+        Assert.assertEquals(constDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONST_DEF_END_TO_NEXT_TOKEN), "\n\n\n");
     }
 }
