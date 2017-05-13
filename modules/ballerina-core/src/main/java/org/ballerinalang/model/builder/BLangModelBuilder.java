@@ -1598,6 +1598,9 @@ public class BLangModelBuilder {
         private String pkgPath;
 
         public NameReference(String pkgName, String name) {
+            if (name != null && name.startsWith(LITERAL_START)) {
+                name = name.substring(1, name.length() - 1);
+            }
             this.name = name;
             this.pkgName = pkgName;
         }

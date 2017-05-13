@@ -1381,16 +1381,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.Identifier().size() == 2) {
             String pkgName = ctx.Identifier(0).getText();
             String name = ctx.Identifier(1).getText();
-            if (name != null && name.startsWith("|")) {
-                name = name.substring(1, name.length() - 1);
-            }
             nameReference = new BLangModelBuilder.NameReference(pkgName, name);
 
         } else {
             String name = ctx.Identifier(0).getText();
-            if (name != null && name.startsWith("|")) {
-                name = name.substring(1, name.length() - 1);
-            }
             nameReference = new BLangModelBuilder.NameReference(null, name);
         }
         modelBuilder.validateAndSetPackagePath(getCurrentLocation(ctx), nameReference);
