@@ -331,6 +331,15 @@ BallerinaASTFactory.createAssignmentStatement = function (args) {
 };
 
 /**
+ * creates AssignmentStatement
+ * @param {Object} args
+ * @returns {AssignmentStatement}
+ */
+BallerinaASTFactory.createTransformStatement = function (args) {
+    return new transformStatement(args);
+};
+
+/**
  * Creates Variable Definition Statement
  * @param {Object} [args]
  * @returns {VariableDefinitionStatement}
@@ -1062,6 +1071,16 @@ BallerinaASTFactory.isAssignment = function (child) {
 BallerinaASTFactory.isAssignmentStatement = function (child) {
     return child instanceof assignmentStatement;
 };
+
+/**
+ * instanceof check for Assignment Statement
+ * @param child
+ * @returns {boolean}
+ */
+BallerinaASTFactory.isTransformStatement = function (child) {
+    return child instanceof transformStatement;
+};
+
 
 /**
  * instanceof check for BasicLiteralExpression

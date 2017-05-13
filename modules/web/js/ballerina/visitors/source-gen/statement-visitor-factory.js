@@ -28,6 +28,7 @@ import ElseStatementVisitor from './else-statement-visitor';
 import ElseIfStatementVisitor from './else-if-statement-visitor';
 import WhileStatementVisitor from './while-statement-visitor';
 import AssignmentStatementVisitor from './assignment-statement-visitor';
+import TransformStatementVisitor from './transform-statement-visitor';
 import ActionInvocationStatementVisitor from './action-invocation-statement-visitor';
 import ReplyStatementVisitor from './reply-statement-visitor';
 import ReturnStatementVisitor from './return-statement-visitor';
@@ -63,6 +64,8 @@ class StatementVisitorFactor {
             return new WhileStatementVisitor(parent);
         } else if (statement instanceof AST.AssignmentStatement) {
             return new AssignmentStatementVisitor(parent);
+        }  else if (statement instanceof AST.TransformStatement) {
+            return new TransformStatementVisitor(parent);
         } else if (statement instanceof AST.ReplyStatement) {
             return new ReplyStatementVisitor(parent);
         } else if (statement instanceof AST.ReturnStatement) {

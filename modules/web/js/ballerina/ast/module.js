@@ -49,6 +49,7 @@ import PackageDefinition from './package-definition';
 import ImportDeclaration from './import-declaration';
 import Assignment from './assignment';
 import AssignmentStatement from './statements/assignment-statement';
+import TransformStatement from './statements/transform-statement';
 import FunctionInvocation from './statements/function-invocation-statement';
 import ActionInvocationExpression from './expressions/action-invocation-expression';
 import BallerinaASTDeserializer from './ballerina-ast-deserializer';
@@ -110,6 +111,7 @@ import AnnotationEntryArray from './annotations/annotation-entry-array';
             ImportDeclaration: ImportDeclaration,
             Assignment: Assignment,
             AssignmentStatement: AssignmentStatement,
+            TransformStatement: TransformStatement,
             LeftOperandExpression: LeftOperandExpression,
             RightOperandExpression: RightOperandExpression,
             FunctionInvocation: FunctionInvocation,
