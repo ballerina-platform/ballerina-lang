@@ -41,6 +41,16 @@ struct  Person   {
 
 }
 
-struct  Item   {
+struct  Student   {
+
+}
+
+
+typemapper studentToPerson  (Student m)    (Person)     {
+
+
+}
+
+struct  Teacher   {
 
 }

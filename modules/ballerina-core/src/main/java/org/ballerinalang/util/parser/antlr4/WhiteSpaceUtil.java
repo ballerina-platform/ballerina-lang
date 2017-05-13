@@ -243,6 +243,28 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
+    public static WhiteSpaceDescriptor getTypeMapperDef(CommonTokenStream tokenStream,
+                                                        BallerinaParser.TypeMapperDefinitionContext ctx) {
+        boolean isNative = NATIVE_KEYWORD.equals(ctx.getChild(0).getText());
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        if (isNative) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_MAP_DEF_NATIVE_KEYWORD_TO_SIGNATURE_START,
+                    getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        }
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_MAP_DEF_TYPEMAPPER_KEYWORD_TO_IDENTIFIER,
+                getWhitespaceToRight(tokenStream, ctx.typeMapperSignature().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_MAP_DEF_IDENTIFIER_PARAM_WRAPPER_START,
+                getWhitespaceToRight(tokenStream, ctx.typeMapperSignature().Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_MAP_DEF_PARAM_WRAPPER_END_TO_RETURN_TYPE_WRAPPER_START,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.typeMapperSignature().children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_MAP_DEF_RETURN_TYPE_WRAPPER_TO_BODY_START,
+                getWhitespaceToLeft(tokenStream, ctx.typeMapperBody().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_MAP_DEF_BODY_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.typeMapperBody().stop.getTokenIndex()));
+        return ws;
+    }
+
     protected static Token getFirstTokenWithText(List<ParseTree> children, String text) {
         Optional<ParseTree> terminalNode = children.stream()
                 .filter((child) -> child instanceof TerminalNode)
@@ -250,5 +272,4 @@ public class WhiteSpaceUtil {
                 .findFirst();
         return (terminalNode.isPresent()) ? ((TerminalNode) terminalNode.get()).getSymbol() : null;
     }
-
 }

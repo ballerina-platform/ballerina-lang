@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.Function;
@@ -198,5 +199,23 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.STRUCT_DEF_IDENTIFIER_TO_BODY_START), "   ");
         Assert.assertEquals(structDef.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.STRUCT_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
+    }
+
+
+    @Test(description = "Test captured whitespace regions of type mapper definition node")
+    public void testWhiteSpaceCaptureInTypeMapperDef() {
+        BTypeMapper typeMapper = (BTypeMapper) bFile.getCompilationUnits()[8];
+        Assert.assertNotNull(typeMapper);
+        Assert.assertEquals(typeMapper.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_TYPEMAPPER_KEYWORD_TO_IDENTIFIER), " ");
+        Assert.assertEquals(typeMapper.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_IDENTIFIER_PARAM_WRAPPER_START), "  ");
+        Assert.assertEquals(typeMapper.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions()
+                .get(WhiteSpaceRegions.TYPE_MAP_DEF_PARAM_WRAPPER_END_TO_RETURN_TYPE_WRAPPER_START), "    ");
+        Assert.assertEquals(typeMapper.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_RETURN_TYPE_WRAPPER_TO_BODY_START), "     ");
+        Assert.assertEquals(typeMapper.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
     }
 }

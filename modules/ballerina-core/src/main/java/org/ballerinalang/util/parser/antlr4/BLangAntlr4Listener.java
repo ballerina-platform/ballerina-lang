@@ -460,7 +460,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
         boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
         String typeMapperName = ctx.typeMapperSignature().Identifier().getText();
         SimpleTypeName returnTypeName = typeNameStack.pop();
-        modelBuilder.addTypeMapper(getCurrentLocation(ctx), typeMapperName, returnTypeName, isNative);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getTypeMapperDef(tokenStream, ctx);
+        }
+        modelBuilder.addTypeMapper(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                typeMapperName, returnTypeName, isNative);
     }
 
     @Override

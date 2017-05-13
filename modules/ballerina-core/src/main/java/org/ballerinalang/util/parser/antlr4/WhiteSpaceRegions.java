@@ -84,4 +84,12 @@ public class WhiteSpaceRegions {
     public static final int STRUCT_DEF_STRUCT_KEYWORD_TO_IDENTIFIER = 0;
     public static final int STRUCT_DEF_IDENTIFIER_TO_BODY_START = 1;
     public static final int STRUCT_DEF_BODY_END_TO_NEXT_TOKEN = 2;
+
+    // whitespace regions in a type mapper definition
+    public static final int TYPE_MAP_DEF_NATIVE_KEYWORD_TO_SIGNATURE_START = 0;
+    public static final int TYPE_MAP_DEF_TYPEMAPPER_KEYWORD_TO_IDENTIFIER = 1;
+    public static final int TYPE_MAP_DEF_IDENTIFIER_PARAM_WRAPPER_START = 2;
+    public static final int TYPE_MAP_DEF_PARAM_WRAPPER_END_TO_RETURN_TYPE_WRAPPER_START = 3;
+    public static final int TYPE_MAP_DEF_RETURN_TYPE_WRAPPER_TO_BODY_START = 4;
+    public static final int TYPE_MAP_DEF_BODY_END_TO_NEXT_TOKEN = 5;
 }

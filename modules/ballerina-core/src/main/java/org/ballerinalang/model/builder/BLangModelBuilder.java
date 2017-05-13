@@ -860,10 +860,12 @@ public class BLangModelBuilder {
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
-    public void addTypeMapper(NodeLocation location, String name, SimpleTypeName returnTypeName, boolean isNative) {
+    public void addTypeMapper(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
+                              SimpleTypeName returnTypeName, boolean isNative) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
+        currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         addReturnTypes(location, new SimpleTypeName[]{returnTypeName});
 
         getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
