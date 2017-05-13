@@ -147,6 +147,4 @@ public class VariableDefinitionTest {
         double f = ((BFloat) returns[3]).floatValue();
         Assert.assertEquals(f, v5, DELTA);
     }
-
-
 }

@@ -25,18 +25,18 @@ import org.ballerinalang.model.NodeVisitor;
  *
  * @since 0.8.0
  */
-public class MapStructInitKeyValueExpr extends AbstractExpression {
+public class KeyValueExpr extends AbstractExpression {
     private String key;
     private Expression keyExpr;
     private Expression valueExpr;
 
-    public MapStructInitKeyValueExpr(NodeLocation location, String key, Expression valueExpr) {
+    public KeyValueExpr(NodeLocation location, String key, Expression valueExpr) {
         super(location);
         this.key = key;
         this.valueExpr = valueExpr;
     }
 
-    public MapStructInitKeyValueExpr(NodeLocation location, Expression keyExpr, Expression valueExpr) {
+    public KeyValueExpr(NodeLocation location, Expression keyExpr, Expression valueExpr) {
         super(location);
         this.keyExpr = keyExpr;
         this.valueExpr = valueExpr;
@@ -57,5 +57,13 @@ public class MapStructInitKeyValueExpr extends AbstractExpression {
 
     public Expression getValueExpr() {
         return valueExpr;
+    }
+    
+    public void setValueExpr(Expression valueExpr) {
+        this.valueExpr = valueExpr;
+    }
+    
+    public void setKeyExpr(Expression keyExpr) {
+        this.keyExpr = keyExpr;
     }
 }

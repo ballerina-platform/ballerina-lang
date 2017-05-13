@@ -33,7 +33,7 @@ service GlobalVar {
         int pkgInt = var:glbVarInt;
         string pkgString = var:glbVarString;
         float pkgFloat = var:glbVarFloat;
-        json responseJson = `{"glbVarInt":${pkgInt}, "glbVarString":${pkgString}, "glbVarFloat":${pkgFloat}}`;
+        json responseJson = {"glbVarInt":pkgInt, "glbVarString":pkgString, "glbVarFloat":pkgFloat};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -43,7 +43,7 @@ service GlobalVar {
     resource assignGlobalVarFromOtherPkg (message m) {
         message response = {};
 
-        json responseJson = `{"glbVarFloat1":${glbVarFloat1}}`;
+        json responseJson = {"glbVarFloat1":glbVarFloat1};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -52,7 +52,7 @@ service GlobalVar {
     @http:Path {value:"/func-inv-from-same-pkg"}
     resource assignFuncInvocationToGlobalVarFromSamePkg (message m) {
         message response = {};
-        json responseJson = `{"glbVarFunc":${glbVarFunc}}`;
+        json responseJson = {"glbVarFunc":glbVarFunc};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -61,7 +61,7 @@ service GlobalVar {
     @http:Path {value:"/func-inv-from-diff-pkg"}
     resource assignFuncInvocationToGlobalVarFromDiffPkg (message m) {
         message response = {};
-        json responseJson = `{"glbVarPkgFunc":${glbVarPkgFunc}}`;
+        json responseJson = {"glbVarPkgFunc":glbVarPkgFunc};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -70,7 +70,7 @@ service GlobalVar {
     @http:Path {value:"/assign-to-service-var-from-diff-pkg"}
     resource assignGlobalVarToServiceVarFromDiffPkg (message m) {
         message response = {};
-        json responseJson = `{"serviceVarString":${serviceVarString}}`;
+        json responseJson = {"serviceVarString":serviceVarString};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -98,7 +98,7 @@ service GlobalVarSecond {
     resource getChangedGlobalVarAtResourceLevel (message m) {
         message response = {};
         float changeVarFloat = var:glbVarFloatChange;
-        json responseJson = `{"changeVarFloat":${changeVarFloat}}`;
+        json responseJson = {"changeVarFloat":changeVarFloat};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
