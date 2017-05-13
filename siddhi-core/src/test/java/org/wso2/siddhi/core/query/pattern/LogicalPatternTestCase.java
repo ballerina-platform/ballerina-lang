@@ -497,7 +497,6 @@ public class LogicalPatternTestCase {
 
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
         InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
 
         executionPlanRuntime.start();
