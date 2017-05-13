@@ -38,6 +38,7 @@ public class WhiteSpaceUtil {
     public static final String STARTING_PAREN = "(";
     public static final String CLOSING_PAREN = ")";
     public static final String KEYWORD_AS = "as";
+    public static final String OPENNING_CURLEY_BRACE = "{";
 
     public static String getFileStartingWhiteSpace(CommonTokenStream tokenStream) {
         // find first non-whitespace token
@@ -140,12 +141,26 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
+    public static WhiteSpaceDescriptor getAnnotationAttachmentWS(CommonTokenStream tokenStream,
+                                                                 BallerinaParser.AnnotationAttachmentContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATCHMNT_AT_KEYWORD_TO_IDENTIFIER,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATCHMNT_IDENTIFIER_TO_ATTRIB_LIST_START,
+                getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATCHMNT_ATTRIB_LIST_START_TO_FIRST_ATTRIB,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, OPENNING_CURLEY_BRACE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATCHMNT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
     protected static Token getFirstTokenWithText(List<ParseTree> children, String text) {
         return ((TerminalNode) children.stream()
                 .filter((child) -> child instanceof TerminalNode)
                 .filter((node) -> ((TerminalNode) node).getSymbol().getText().equals(text))
                 .findFirst().get()).getSymbol();
     }
-
 
 }

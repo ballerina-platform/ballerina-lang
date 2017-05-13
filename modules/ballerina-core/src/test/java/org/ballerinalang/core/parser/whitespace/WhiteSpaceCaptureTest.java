@@ -3,6 +3,7 @@ package org.ballerinalang.core.parser.whitespace;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
@@ -105,5 +106,21 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_BODY_START_TO_FIRST_CHILD), "\n\n      ");
         Assert.assertEquals(resource.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_END_TO_NEXT_TOKEN), "\n");
+    }
+
+    @Test(description = "Test captured whitespace regions of annotation attachment node")
+    public void testWhiteSpaceCaptureInAnnotationAttachment() {
+        AnnotationAttachment annotationAttachment = ((Service) bFile.getCompilationUnits()[0])
+                                                            .getResources()[0].getAnnotations()[1];
+        Assert.assertEquals(annotationAttachment.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATCHMNT_AT_KEYWORD_TO_IDENTIFIER), "  ");
+        Assert.assertEquals(annotationAttachment.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATCHMNT_IDENTIFIER_TO_ATTRIB_LIST_START),
+                        "   ");
+        Assert.assertEquals(annotationAttachment.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATCHMNT_ATTRIB_LIST_START_TO_FIRST_ATTRIB),
+                        "    ");
+        Assert.assertEquals(annotationAttachment.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATCHMNT_END_TO_NEXT_TOKEN), "\n\n  ");
     }
 }

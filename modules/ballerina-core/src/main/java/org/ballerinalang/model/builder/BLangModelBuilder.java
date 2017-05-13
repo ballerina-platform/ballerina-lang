@@ -361,12 +361,14 @@ public class BLangModelBuilder {
         annotationBuilder.addAttributeNameValuePair(key, annotationAttributeValues.pop());
     }
 
-    public void addAnnotationAttachment(NodeLocation location, NameReference nameReference, int attributesCount) {
+    public void addAnnotationAttachment(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                        NameReference nameReference, int attributesCount) {
         AnnotationAttachment.AnnotationBuilder annonAttachmentBuilder = annonAttachmentBuilderStack.pop();
         annonAttachmentBuilder.setName(nameReference.getName());
         annonAttachmentBuilder.setPkgName(nameReference.getPackageName());
         annonAttachmentBuilder.setPkgPath(nameReference.getPackagePath());
         annonAttachmentBuilder.setNodeLocation(location);
+        annonAttachmentBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         annonAttachmentStack.add(annonAttachmentBuilder.build());
     }
 

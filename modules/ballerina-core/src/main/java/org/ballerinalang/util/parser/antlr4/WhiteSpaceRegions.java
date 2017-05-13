@@ -50,4 +50,10 @@ public class WhiteSpaceRegions {
     public static final int RESOURCE_DEF_PARAM_LIST_END_TO_BODY_START = 3;
     public static final int RESOURCE_DEF_BODY_START_TO_FIRST_CHILD = 4;
     public static final int RESOURCE_DEF_END_TO_NEXT_TOKEN = 5;
+
+    // whitespace regions in a annotation attachment
+    public static final int ANNOTATION_ATCHMNT_AT_KEYWORD_TO_IDENTIFIER = 0;
+    public static final int ANNOTATION_ATCHMNT_IDENTIFIER_TO_ATTRIB_LIST_START = 1;
+    public static final int ANNOTATION_ATCHMNT_ATTRIB_LIST_START_TO_FIRST_ATTRIB = 2;
+    public static final int ANNOTATION_ATCHMNT_END_TO_NEXT_TOKEN = 3;
 }

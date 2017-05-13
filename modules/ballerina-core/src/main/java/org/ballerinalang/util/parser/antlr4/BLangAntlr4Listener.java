@@ -625,7 +625,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         int attribuesAvailable = ctx.annotationAttributeList() == null ? 0 :
                 ctx.annotationAttributeList().annotationAttribute().size();
-        modelBuilder.addAnnotationAttachment(getCurrentLocation(ctx), nameReferenceStack.pop(), attribuesAvailable);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAnnotationAttachmentWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationAttachment(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                nameReferenceStack.pop(), attribuesAvailable);
     }
 
     @Override
