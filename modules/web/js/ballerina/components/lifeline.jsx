@@ -16,23 +16,48 @@
  * under the License.
  */
  
-import React from 'react'
+import React from "react";
+import PropTypes from 'prop-types';
+import SimpleBBox from '../ast/simple-bounding-box';
+import {lifeLine} from '../configs/designer-defaults.js';
+import ExpressionEditor from 'expression_editor_utils';
 
 class LifeLine extends React.Component {
-//{x: 330.8, w: 120, h:320, y:260}
+    
+    constructor(props){
+        super(props);
+        let bBox = this.props.bBox;
+        this.topBox = new SimpleBBox( bBox.x, bBox.y, bBox.w , lifeLine.head.height );
+    }
+
     render() {
         const bBox = this.props.bBox;
         const centerX = bBox.x + (bBox.w / 2);
         const y2 = bBox.h + bBox.y;
-        const titleBoxH = 30;
+        const titleBoxH = lifeLine.head.height;
+
         return (<g className="default-worker-life-line">
                     <line x1={ centerX } y1={ bBox.y + titleBoxH / 2} x2={ centerX } y2={ y2 - titleBoxH / 2 }></line>
-                    <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleBoxH } rx="0" ry="0" className="connector-life-line-top-polygon"></rect>
+                    <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleBoxH } rx="0" ry="0" className="connector-life-line-top-polygon" onClick={(e) => this.openExpressionEditor(e)} ></rect>
                     <rect x={ bBox.x } y={ y2 - titleBoxH } width={ bBox.w } height={ titleBoxH } rx="0" ry="0" className="connector-life-line-bottom-polygon"></rect>
-                    <text x={ centerX } y={ bBox.y + titleBoxH / 2 } textAnchor="middle" alignmentBaseline="central" dominantBaseline="central" className="life-line-title genericT">{ this.props.title }</text>
+                    <text x={ centerX } y={ bBox.y + titleBoxH / 2 } textAnchor="middle" alignmentBaseline="central" dominantBaseline="central" className="life-line-title genericT" onClick={(e) => this.openExpressionEditor(e)} >{ this.props.title }</text>
                     <text x={ centerX } y={ y2 - titleBoxH / 2 } textAnchor="middle" alignmentBaseline="central" dominantBaseline="central" className="life-line-title genericT">{ this.props.title }</text>
                 </g>);
     }
+
+	openExpressionEditor(e){
+		let options = this.props.editorOptions;
+		if(options){
+			new ExpressionEditor( this.topBox , this.context.container , (text) => this.onUpdate(text), options );
+		}
+	}
+
+	onUpdate(text){
+	}     
 }
+
+LifeLine.contextTypes = {
+	 container: PropTypes.instanceOf(Object).isRequired,
+};
 
 export default LifeLine;

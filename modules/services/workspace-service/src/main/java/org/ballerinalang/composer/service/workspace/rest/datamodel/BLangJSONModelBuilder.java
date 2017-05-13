@@ -714,6 +714,21 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             ifElseStmtObj.add(BLangJSONModelConstants.ELSE_STATEMENT, tempJsonArrayRef.peek());
             tempJsonArrayRef.pop();
         }
+        if (ifElseStmt.getElseIfBlocks().length > 0) {
+            tempJsonArrayRef.push(new JsonArray());
+            IfElseStmt.ElseIfBlock[] elseIfBlocks = ifElseStmt.getElseIfBlocks();
+            for (IfElseStmt.ElseIfBlock elseIfBlock : elseIfBlocks) {
+                JsonObject elseIfObj = new JsonObject();
+                elseIfObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                        BLangJSONModelConstants.ELSE_IF_STATEMENT);
+                tempJsonArrayRef.push(new JsonArray());
+                elseIfBlock.getElseIfBody().accept(this);
+                elseIfObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+                tempJsonArrayRef.pop();
+                tempJsonArrayRef.peek().add(elseIfObj);
+            }
+            ifElseStmtObj.add(BLangJSONModelConstants.ELSE_IF_BLOCKS, tempJsonArrayRef.peek());
+        }
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(ifElseStmtObj);
     }

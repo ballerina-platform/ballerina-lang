@@ -24,12 +24,11 @@ import ConditionalStatement from './conditional-statement';
  * @constructor
  */
 class ElseIfStatement extends ConditionalStatement {
-    constructor(condition, statements) {
+    constructor(condition) {
         super();
         if(!_.isNil(condition)){
             this._condition = condition;
         }
-        this._statements = statements || [];
         this.type = "ElseIfStatement";
     }
 

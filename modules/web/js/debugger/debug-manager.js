@@ -30,8 +30,8 @@ class DebugManager extends EventChannel {
         this.channel = undefined;
         this.active = false;
 
-        this.on('breakpoint-added', () => { this.publishBreakPoints(); });
-        this.on('breakpoint-removed', () => { this.publishBreakPoints(); });
+        this.on('breakpoint-added', () => { this.publishBreakpoints(); });
+        this.on('breakpoint-removed', () => { this.publishBreakpoints(); });
     }
 
     stepIn() {
@@ -126,7 +126,7 @@ class DebugManager extends EventChannel {
         this.trigger('breakpoint-removed', fileName);
     }
 
-    publishBreakPoints() {
+    publishBreakpoints() {
         try{
             const message = { 'command': 'SET_POINTS', points: this.debugPoints };
             this.channel.sendMessage(message);
@@ -161,7 +161,7 @@ class DebugManager extends EventChannel {
             return item.fileName === fileName;
         });
         log.debug('removed all debugpoints for fileName', fileName);
-        this.publishBreakPoints();
+        this.publishBreakpoints();
     }
 
     createDebugPoint(lineNumber, fileName) {
