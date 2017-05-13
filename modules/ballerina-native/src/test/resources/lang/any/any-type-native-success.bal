@@ -8,7 +8,7 @@ function successfulXmlCasting()(xml) {
 }
 
 function jsonReturnFunction()(json) {
-  json val = `{"PropertyName" : "Value"}`;
+  json val = {"PropertyName" : "Value"};
   return val;
 }
 

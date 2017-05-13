@@ -1,4 +1,4 @@
-function testInputTypeMismatch(string s) (string, int, string){
+function testInputTypeMismatch(string s) (string, int, boolean){
     return split(s), 5, 5;
 }
 
