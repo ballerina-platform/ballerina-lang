@@ -430,7 +430,7 @@ public class BallerinaCompletionUtils {
                 .collect(Collectors.toList());
         List<PsiDirectory> packages = BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(file.getProject());
         for (PsiDirectory pack : packages) {
-            if (!importedPackageNames.contains(pack.getText())) {
+            if (!importedPackageNames.contains(pack.getName())) {
                 LookupElementBuilder builder = LookupElementBuilder.create(pack)
                         .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
                         .withInsertHandler(BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);

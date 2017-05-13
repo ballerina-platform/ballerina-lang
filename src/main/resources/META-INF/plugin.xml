@@ -151,10 +151,7 @@
         <!--documentation-->
         <lang.documentationProvider language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider"/>
 
-        <applicationService serviceImplementation="org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings"/>
-        <!--<completion.contributor language="Ballerina" order="last"-->
-                                <!--implementationClaorg.ballerinalang.plugins.idea.completion.BallerinaAutoImportCompletionContributorributorutor"/>-->
-    </extensions>
+   </extensions>
 
     <actions>
         <!-- Add your actions here -->

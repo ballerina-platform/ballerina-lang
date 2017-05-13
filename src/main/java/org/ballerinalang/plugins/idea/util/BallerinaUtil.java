@@ -106,24 +106,15 @@ public class BallerinaUtil {
                 if (project == null) {
                     return "";
                 }
+                // Check directories in content roots.
                 VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
-
                 for (VirtualFile contentRoot : contentRoots) {
-
                     if (!directory.getVirtualFile().getPath().startsWith(contentRoot.getPath())) {
                         continue;
                     }
-                    // Get the relative path of the file in the project
-                    String trimmedPath = virtualFile.getPath().replace(contentRoot.getPath(), "");
-                    // Node: In virtual file paths, separators will always be "/" regardless of the OS.
-                    // Remove the separator at the beginning of the string
-                    trimmedPath = trimmedPath.replaceFirst("/", "");
-                    // Replace all other separators with . to get the package path
-                    trimmedPath = trimmedPath.replaceAll("/", ".");
-                    return trimmedPath;
-
+                    return getImportPath(virtualFile, contentRoot);
                 }
-                // Get all project source roots and find matching directories.
+                // Check directories in project source roots
                 Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
                 if (projectSdk != null) {
                     VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
@@ -131,14 +122,7 @@ public class BallerinaUtil {
                         if (!directory.getVirtualFile().getPath().startsWith(root.getPath())) {
                             continue;
                         }
-                        // Get the relative path of the file in the project
-                        String trimmedPath = virtualFile.getPath().replace(root.getPath(), "");
-                        // Node: In virtual file paths, separators will always be "/" regardless of the OS.
-                        // Remove the separator at the beginning of the string
-                        trimmedPath = trimmedPath.replaceFirst("/", "");
-                        // Replace all other separators with . to get the package path
-                        trimmedPath = trimmedPath.replaceAll("/", ".");
-                        return trimmedPath;
+                        return getImportPath(virtualFile, root);
                     }
                 }
             }
@@ -147,6 +131,24 @@ public class BallerinaUtil {
         }
         // If the directory is null, return empty string
         return "";
+    }
+
+    /**
+     * Returns the import path.
+     *
+     * @param virtualFile file which we are checking
+     * @param root        root directory which contains the file
+     * @return import path of the file
+     */
+    private static String getImportPath(VirtualFile virtualFile, VirtualFile root) {
+        // Get the relative path of the file in the project
+        String trimmedPath = virtualFile.getPath().replace(root.getPath(), "");
+        // Node: In virtual file paths, separators will always be "/" regardless of the OS.
+        // Remove the separator at the beginning of the string
+        trimmedPath = trimmedPath.replaceFirst("/", "");
+        // Replace all other separators with . to get the package path
+        trimmedPath = trimmedPath.replaceAll("/", ".");
+        return trimmedPath;
     }
 
     public static String suggestPackageNameForFile(Project project, VirtualFile virtualFile) {

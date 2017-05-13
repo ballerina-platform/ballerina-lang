@@ -26,9 +26,10 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.jetbrains.annotations.NotNull;
 
-public class BallerinaElementFactory {
+class BallerinaElementFactory {
 
     private BallerinaElementFactory() {
+
     }
 
     @NotNull
@@ -40,7 +41,6 @@ public class BallerinaElementFactory {
     @NotNull
     public static ImportDeclarationNode createImportDeclaration(@NotNull Project project,
                                                                 @NotNull String importString) {
-
         BallerinaFile file = createFileFromText(project, "import " + importString + ";");
         return PsiTreeUtil.findChildOfType(file, ImportDeclarationNode.class);
     }

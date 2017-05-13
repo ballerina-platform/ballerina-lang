@@ -866,7 +866,7 @@ public class BallerinaPsiImplUtil {
 
     public static List<PsiDirectory> getAllPackagesInResolvableScopes(@NotNull Project project) {
         GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-        // Todo - Update dependency
+        // Todo - Use caching
         //        Collection<VirtualFile> files = FileTypeIndex.getFiles(BallerinaFileType.INSTANCE, scope);
         //        return CachedValuesManager.getManager(project).getCachedValue(project,
         //                () -> CachedValueProvider.Result.create(getAllPackagesInResolvableScopes(project, scope),
@@ -891,7 +891,6 @@ public class BallerinaPsiImplUtil {
         }
         return results;
     }
-
 
     public static void addImport(PsiFile file, String importPath) {
         Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
