@@ -46,6 +46,7 @@ public class EnvironmentInitializer {
 
         BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
         for (BLangPackage servicePackage : bLangProgram.getPackages()) {
+            bLangProgram.addServicePackage(servicePackage);
             for (Service service : servicePackage.getServices()) {
                 service.setBLangProgram(bLangProgram);
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->

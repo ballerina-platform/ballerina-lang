@@ -19,6 +19,7 @@ package org.ballerinalang.model.builder;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -37,6 +38,7 @@ import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.ConnectorDcl;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.Node;
@@ -224,6 +226,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(ConstDef constant) {
+    }
+
+    @Override
+    public void visit(GlobalVariableDef globalVar) {
+
     }
 
     /**
@@ -1440,6 +1447,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(ServiceVarLocation serviceVarLocation) {
+
+    }
+
+    @Override
+    public void visit(GlobalVarLocation globalVarLocation) {
 
     }
 
