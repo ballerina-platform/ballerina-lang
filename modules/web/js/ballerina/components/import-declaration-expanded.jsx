@@ -20,8 +20,27 @@ import './import-declaration-expanded.css'
 import ImageUtil from './image-util';
 import PropTypes from 'prop-types';
 import Renderer from './renderer';
+import SuggestionsText from './suggestions-text';
+import BallerinaEnvironment from '../env/environment';
 
 export default class importDeclarationExpanded extends React.Component {
+    constructor() {
+        super();
+        this.packageSuggestions = BallerinaEnvironment.getPackages().map(p => {
+            return {
+                name: p.getName()
+            }
+        });
+        this.handleMouseLeave = this.handleMouseLeave.bind(this);
+    }
+
+    handleMouseLeave(e) {
+        if(e.relatedTarget.className === 'react-autosuggest__input'){
+            return;
+        }
+        this.props.onMouseLeave(e);
+    }
+
     render() {
         const bBox = this.props.bBox;
         const importDeclarationHeight = 30;
@@ -65,16 +84,16 @@ export default class importDeclarationExpanded extends React.Component {
             initialValue: '',
         }
 
-        this.context.renderer.renderTextBox(options);
-
         return (
-            <g className="package-definitions-collection">
+            <g className="package-definitions-collection" onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.handleMouseLeave}>
                 <rect x={ topBarBbox.x } y={ topBarBbox.y } height={importInputHeight} width={importDeclarationWidth} style={ { fill: "#ddd"} } />
                 <image width={ iconSize } height={ iconSize } className="property-pane-action-button-delete"
                     onClick={this.props.onCollapse} xlinkHref={ ImageUtil.getSVGIconString('hide') }
                     x={bBox.x + importDeclarationWidth - iconSize - 6 } y={topBarBbox.y + (topBarHeight-iconSize)/2}/>
                 {importElements}
-                <rect x={ bBox.x } y={ lastImportElementY } height={importInputHeight} width={importDeclarationWidth} style={ { fill: "#eee"} } />
+                <SuggestionsText x={ bBox.x } y={lastImportElementY} height={importInputHeight}
+                    width={importDeclarationWidth} suggestionsPool={this.packageSuggestions} show={this.props.showSuggestions}
+                    onEnter={this.props.onAddImport}/>
             </g>
         );
     }
