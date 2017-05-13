@@ -14,11 +14,11 @@ service Banklocator {
         string zipCode = jsons:getString(jsonRequest, "$.BranchLocator.ZipCode");
         json payload = {};
         if (zipCode == "95999") {
-            payload = `{"ABCBank": {"BranchCode":"123"}}`;
+            payload = {"ABCBank": {"BranchCode":"123"}};
             
         }
         else {
-            payload = `{"ABCBank": {"BranchCode":"-1"}}`;
+            payload = {"ABCBank": {"BranchCode":"-1"}};
             
         }
         messages:setJsonPayload(response, payload);
