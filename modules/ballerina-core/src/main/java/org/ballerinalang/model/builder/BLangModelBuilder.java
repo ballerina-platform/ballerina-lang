@@ -1540,8 +1540,11 @@ public class BLangModelBuilder {
         TransformStmt.TransformStmtBuilder transformStmtBuilder = new TransformStmt.TransformStmtBuilder();
         transformStmtBuilder.setNodeLocation(location);
 
-        transformStmtBuilder.setInputReference(exprStack.pop());
-        transformStmtBuilder.setOutputReference(exprStack.pop());
+        List<Expression> lhsExprsList = exprListStack.pop();
+        List<Expression> rhsExprsList = exprListStack.pop();
+
+        transformStmtBuilder.setRhsExprs(rhsExprsList.toArray(new Expression[rhsExprsList.size()]));
+        transformStmtBuilder.setLhsExprs(lhsExprsList.toArray(new Expression[lhsExprsList.size()]));
 
         // Get the statement block at the top of the block statement stack and set as the transform body.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();

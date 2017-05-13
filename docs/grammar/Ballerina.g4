@@ -209,7 +209,7 @@ statement
     ;
 
 transformStatement
-    :   'transform' variableReference (',' variableReference)* '->' variableReference (',' variableReference)* '{'transformInnerStatement*'}'';'
+    :   variableReferenceList '=' 'transform' variableReferenceList '{'transformInnerStatement*'}'';'
     ;
 
 transformInnerStatement

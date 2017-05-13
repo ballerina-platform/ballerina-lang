@@ -29,15 +29,15 @@ import org.ballerinalang.model.expressions.Expression;
  */
 public class TransformStmt extends AbstractStatement {
     private BlockStmt transformBody;
-    private Expression inputReference;
-    private Expression outputReference;
+    private Expression[] rhsExprs;
+    private Expression[] lhsExprs;
 
-    private TransformStmt(NodeLocation location, Expression inputReference, Expression outputReference,
+    private TransformStmt(NodeLocation location, Expression[] rhsExprs, Expression[] outputExpressions,
                           BlockStmt transformBody) {
         super(location);
         this.transformBody = transformBody;
-        this.inputReference = inputReference;
-        this.outputReference = outputReference;
+        this.rhsExprs = rhsExprs;
+        this.lhsExprs = outputExpressions;
     }
 
     public BlockStmt getBody() {
@@ -54,12 +54,12 @@ public class TransformStmt extends AbstractStatement {
         executor.visit(this);
     }
 
-    public Expression getInputReference() {
-        return inputReference;
+    public Expression[] getRhsExprs() {
+        return rhsExprs;
     }
 
-    public Expression getOutputReference() {
-        return outputReference;
+    public Expression[] getLhsExprs() {
+        return lhsExprs;
     }
 
     /**
@@ -70,8 +70,8 @@ public class TransformStmt extends AbstractStatement {
     public static class TransformStmtBuilder {
         private NodeLocation location;
         private BlockStmt transformBody;
-        private Expression inputReference;
-        private Expression outputReference;
+        private Expression[] rhsExprs;
+        private Expression[] lhsExprs;
 
         public void setNodeLocation(NodeLocation location) {
             this.location = location;
@@ -81,16 +81,16 @@ public class TransformStmt extends AbstractStatement {
             this.transformBody = transformBody;
         }
 
-        public void setInputReference(Expression inputReference) {
-            this.inputReference = inputReference;
+        public void setRhsExprs(Expression[] rhsExprs) {
+            this.rhsExprs = rhsExprs;
         }
 
-        public void setOutputReference(Expression outputReference) {
-            this.outputReference = outputReference;
+        public void setLhsExprs(Expression[] lhsExprs) {
+            this.lhsExprs = lhsExprs;
         }
 
         public TransformStmt build() {
-            return new TransformStmt(location, inputReference, outputReference, transformBody);
+            return new TransformStmt(location, rhsExprs, lhsExprs, transformBody);
         }
     }
 }
