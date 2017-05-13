@@ -422,8 +422,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         SimpleTypeName typeName = typeNameStack.pop();
         String varName = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
-
-        modelBuilder.addGlobalVarDef(getCurrentLocation(ctx), typeName, varName, exprAvailable);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getGlobalVariableDefWS(tokenStream, ctx);
+        }
+        modelBuilder.addGlobalVarDef(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, varName, exprAvailable);
     }
 
     @Override

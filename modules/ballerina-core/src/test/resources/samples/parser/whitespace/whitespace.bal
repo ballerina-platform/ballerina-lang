@@ -62,3 +62,7 @@ struct  Teacher   {
 annotation Util  attach   service, resource, connector     {
 
 }
+
+any GLOBAL_VAR1  =   2    ;
+
+

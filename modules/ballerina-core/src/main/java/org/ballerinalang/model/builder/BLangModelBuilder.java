@@ -256,10 +256,10 @@ public class BLangModelBuilder {
 
     // Add global variable definition
 
-    public void addGlobalVarDef(NodeLocation location, SimpleTypeName typeName,
-                                String varName, boolean exprAvailable) {
+    public void addGlobalVarDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                SimpleTypeName typeName, String varName, boolean exprAvailable) {
         SymbolName symbolName = new SymbolName(varName);
-        GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, null, varName, typeName,
+        GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, whiteSpaceDescriptor, varName, typeName,
                 currentPackagePath, symbolName, currentScope);
 
         getAnnotationAttachments().forEach(attachment -> globalVariableDef.addAnnotation(attachment));

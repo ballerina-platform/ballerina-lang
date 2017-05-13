@@ -314,4 +314,21 @@ public class WhiteSpaceUtil {
         return (terminalNode.isPresent()) ? ((TerminalNode) terminalNode.get()).getSymbol() : null;
     }
 
+    public static WhiteSpaceDescriptor getGlobalVariableDefWS(CommonTokenStream tokenStream,
+                                                      BallerinaParser.GlobalVariableDefinitionStatementContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.GLOBAL_VAR_DEF_TYPE_NAME_TO_IDENTIFIER,
+                getWhitespaceToRight(tokenStream, ctx.typeName().stop.getTokenIndex()));
+        if (ctx.expression() != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.GLOBAL_VAR_DEF_IDENTIFIER_TO_EQUAL_OPERATOR,
+                    getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.GLOBAL_VAR_DEF_EQUAL_OPERATOR_TO_EXPRESSION_START,
+                    getWhitespaceToLeft(tokenStream, ctx.expression().start.getTokenIndex()));
+        }
+        ws.addWhitespaceRegion(WhiteSpaceRegions.GLOBAL_VAR_DEF_END_TO_LAST_TOKEN,
+                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.GLOBAL_VAR_DEF_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }

@@ -109,4 +109,11 @@ public class WhiteSpaceRegions {
     // whitespace regions in an annotation attachment point
     public static final int ANNOTATION_ATTACHMENT_POINT_PRECEDING_WS = 0;
     public static final int ANNOTATION_ATTACHMENT_POINT_TAILING_WS = 1;
+
+    // whitespace regions in a global variable def node
+    public static final int GLOBAL_VAR_DEF_TYPE_NAME_TO_IDENTIFIER = 0;
+    public static final int GLOBAL_VAR_DEF_IDENTIFIER_TO_EQUAL_OPERATOR = 1;
+    public static final int GLOBAL_VAR_DEF_EQUAL_OPERATOR_TO_EXPRESSION_START = 2;
+    public static final int GLOBAL_VAR_DEF_END_TO_LAST_TOKEN = 3;
+    public static final int GLOBAL_VAR_DEF_END_TO_NEXT_TOKEN = 4;
 }

@@ -12,6 +12,7 @@ import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
@@ -236,5 +237,22 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START), "    ");
         Assert.assertEquals(constDef.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONST_DEF_END_TO_NEXT_TOKEN), "\n\n\n");
+    }
+
+    @Test(description = "Test captured whitespace regions of global variable definition node")
+    public void testWhiteSpaceCaptureInGlobalVariableDef() {
+        GlobalVariableDef varDef = (GlobalVariableDef) bFile.getCompilationUnits()[12];
+        Assert.assertNotNull(varDef);
+        Assert.assertEquals(varDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.GLOBAL_VAR_DEF_TYPE_NAME_TO_IDENTIFIER), " ");
+        Assert.assertEquals(varDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.GLOBAL_VAR_DEF_IDENTIFIER_TO_EQUAL_OPERATOR), "  ");
+        Assert.assertEquals(varDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions()
+                .get(WhiteSpaceRegions.GLOBAL_VAR_DEF_EQUAL_OPERATOR_TO_EXPRESSION_START), "   ");
+        Assert.assertEquals(varDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.GLOBAL_VAR_DEF_END_TO_LAST_TOKEN), "    ");
+        Assert.assertEquals(varDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.GLOBAL_VAR_DEF_END_TO_NEXT_TOKEN), "\n\n\n");
     }
 }
