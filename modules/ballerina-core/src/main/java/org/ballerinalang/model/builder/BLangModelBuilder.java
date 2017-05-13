@@ -1432,19 +1432,6 @@ public class BLangModelBuilder {
         if (exprStack.size() < 2) {
             return;
         }
-/*        ReferenceExpr field = (ReferenceExpr) exprStack.pop();
-        StructFieldAccessExpr fieldExpr;
-        if (field.getPkgPath() != null) {
-            throw BLangExceptionHelper.getParserException(location,
-                    ParserErrors.STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER, field.getPkgName() + ":" + field.getVarName());
-        }
-        if (field instanceof StructFieldAccessExpr) {
-            fieldExpr = (StructFieldAccessExpr) field;
-        } else {
-            fieldExpr = new StructFieldAccessExpr(location, field.getSymbolName(), field.getPkgName(),
-                    field.getPkgPath(), field);
-        }
-*/
 
         // Accessing a field with syntax x.y.z means y and z are static field names, but x is a variable ref.
         // Hence the varRefs are replaced with a basic literal, upto the very first element in the chain. 
