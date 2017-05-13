@@ -120,3 +120,21 @@ function bar(int a, string s, int b) (int) {
     return 4;
 }
 
+function testForkJoin () (message, message) {
+    message m = null;
+    fork (m) {
+        worker foo (message m) {
+            message resp1 = null;
+            reply resp1;
+        }
+
+        worker bar (message m) {
+            message resp2 = {};
+            reply resp2;
+        }
+    }join (all) (message[] allReplies) {
+        return allReplies[0], allReplies[1];
+    } timeout (30000) (message[] msgs) {
+        return null, null;
+    }
+}

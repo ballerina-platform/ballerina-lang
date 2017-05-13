@@ -30,4 +30,7 @@ import org.ballerinalang.model.LinkedNode;
  * @since 0.8.0
  */
 public interface Statement extends LinkedNode, ExecutableStmt {
+    void setReturns(boolean returns);
+
+    boolean resultsInAReturn();
 }
