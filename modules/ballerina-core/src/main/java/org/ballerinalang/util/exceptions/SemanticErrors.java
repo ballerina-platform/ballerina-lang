@@ -32,7 +32,7 @@ public enum SemanticErrors {
     INCOMPATIBLE_TYPES_BOOLEAN_EXPECTED("incompatible.types.boolean.expected", "SEMANTIC_0007"),
     NO_STATEMENTS_WHILE_LOOP("no.statements.while.loop", "SEMANTIC_0008"),
     UNKNOWN_OPERATOR_IN_UNARY("unknown.operator.in.unary", "SEMANTIC_0009"),
-    REF_TYPE_INTI_NOT_ALLOWED_HERE("ref.type.inti.not.allowed.here", "SEMANTIC_0010"),
+    REF_TYPE_INTI_NOT_ALLOWED_HERE("ref.type.init.not.allowed.here", "SEMANTIC_0010"),
     STRUCT_MAP_INIT_NOT_ALLOWED("struct.map.init.not.allowed", "SEMANTIC_0011"),
     CONNECTOR_INIT_NOT_ALLOWED("connector.init.not.allowed", "SEMANTIC_0012"),
     ARRAY_INIT_NOT_ALLOWED_HERE("array.init.not.allowed.here", "SEMANTIC_0013"),
@@ -53,7 +53,7 @@ public enum SemanticErrors {
     TOO_MANY_ARGUMENTS_TO_RETURN("too.many.arguments.to.return", "SEMANTIC_0028"),
     CANNOT_USE_TYPE_IN_RETURN_STATEMENT("cannot.use.type.in.return.statement", "SEMANTIC_0029"),
     CANNOT_USE_CREATE_FOR_VALUE_TYPES("cannot.use.create.for.value.types", "SEMANTIC_0030"),
-    INCOMPATIBLE_TYPES_EXPECTED_JSON_XML("incompatible.types.expected.json.xml", "SEMANTIC_0031"),
+    INCOMPATIBLE_TYPES_EXPECTED_XML("incompatible.types.expected.xml", "SEMANTIC_0031"),
     CANNOT_ASSIGN_VALUE_CONSTANT("cannot.assign.value.constant", "SEMANTIC_0032"),
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch", "SEMANTIC_0033"),
     CANNOT_ASSIGN_IN_MULTIPLE_ASSIGNMENT("cannot.assign.in.multiple.assignment", "SEMANTIC_0034"),
@@ -90,7 +90,10 @@ public enum SemanticErrors {
     INVALID_ATTRIBUTE_TYPE("invalid.attribute.type", "SEMANTIC_0065"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found", "SEMANTIC_0066"),
     INCOMPATIBLE_ASSIGNMENT("incompatible.assignment", "SEMANTIC_0067"),
-    NO_STATEMENTS_TRANSFORM_STATEMENT("no.statements.transform.statement", "SEMANTIC_0068");
+    INDEXING_NOT_SUPPORTED_FOR_MAP_ELEMENT("indexing.not.supported.map.element", "SEMANTIC_0068"),
+    DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT("dynamic.keys.not.supported.for.struct", "SEMANTIC_0069"),
+    STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER("struct.field.child.has.pkg.identifier", "PARSER_0070"),
+    NO_STATEMENTS_TRANSFORM_STATEMENT("no.statements.transform.statement", "SEMANTIC_0071");
     
     private String errorMsgKey;
     private String errorCode;

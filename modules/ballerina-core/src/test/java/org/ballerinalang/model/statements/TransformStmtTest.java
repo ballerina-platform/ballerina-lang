@@ -41,7 +41,7 @@ public class TransformStmtTest {
     }
 
     @Test(description = "Test one to one simple transformation")
-    public void testOneToOneTransformX() {
+    public void testOneToOneTransform() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "oneToOneTransform");
 
         Assert.assertEquals(returns.length, 3);

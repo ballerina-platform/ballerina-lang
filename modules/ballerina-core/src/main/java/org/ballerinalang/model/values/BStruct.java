@@ -20,7 +20,7 @@ import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.types.BType;
 
 /**
- * The {@code BStruct} represents athe value of a user defined struct in Ballerina.
+ * The {@code BStruct} represents the value of a user defined struct in Ballerina.
  *
  * @since 1.0.0
  */
@@ -85,6 +85,6 @@ public final class BStruct implements BRefType<StructDef> {
 
     @Override
     public BType getType() {
-        return null; //todo
+        return structDef;
     }
 }

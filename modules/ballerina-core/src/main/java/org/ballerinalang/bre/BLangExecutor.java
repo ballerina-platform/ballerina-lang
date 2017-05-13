@@ -41,15 +41,18 @@ import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.CallableUnitInvocationExpr;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.JSONArrayInitExpr;
+import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
+import org.ballerinalang.model.expressions.JSONInitExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
@@ -74,6 +77,7 @@ import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.BValueUtils;
+import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
@@ -100,6 +104,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -107,7 +112,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 
 /**
  * {@code BLangExecutor} executes a Ballerina application.
@@ -158,8 +162,8 @@ public class BLangExecutor implements NodeExecutor {
             assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
         } else if (lExpr instanceof ArrayMapAccessExpr) {
             assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
-        } else if (lExpr instanceof StructFieldAccessExpr) {
-            assignValueToStructFieldAccessExpr(rValue, (StructFieldAccessExpr) lExpr);
+        } else if (lExpr instanceof FieldAccessExpr) {
+            assignValueToFieldAccessExpr(rValue, (FieldAccessExpr) lExpr);
         }
     }
 
@@ -185,8 +189,8 @@ public class BLangExecutor implements NodeExecutor {
                 assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
             } else if (lExpr instanceof ArrayMapAccessExpr) {
                 assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
-            } else if (lExpr instanceof StructFieldAccessExpr) {
-                assignValueToStructFieldAccessExpr(rValue, (StructFieldAccessExpr) lExpr);
+            } else if (lExpr instanceof FieldAccessExpr) {
+                assignValueToFieldAccessExpr(rValue, (FieldAccessExpr) lExpr);
             }
         }
     }
@@ -735,7 +739,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue collectionValue = arrayVarRefExpr.execute(this);
 
         if (collectionValue == null) {
-            throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
+            throw new BallerinaException("variable '" + arrayVarRefExpr.getSymbolName() + "' is null");
         }
 
         Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
@@ -773,7 +777,7 @@ public class BLangExecutor implements NodeExecutor {
 
         // Creating a new arrays
         BArray bArray = arrayInitExpr.getType().getEmptyValue();
-
+        
         for (int i = 0; i < argExprs.length; i++) {
             Expression expr = argExprs[i];
             BValue value = expr.execute(this);
@@ -787,17 +791,56 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(MapInitExpr mapInitExpr) {
         Expression[] argExprs = mapInitExpr.getArgExprs();
 
-        // Creating a new arrays
+        // Creating a new map
         BMap bMap = mapInitExpr.getType().getEmptyValue();
 
         for (int i = 0; i < argExprs.length; i++) {
-            MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
+            KeyValueExpr expr = (KeyValueExpr) argExprs[i];
             BValue keyVal = expr.getKeyExpr().execute(this);
             BValue value = expr.getValueExpr().execute(this);
             bMap.put(keyVal, value);
         }
-
         return bMap;
+    }
+    
+    @Override
+    public BValue visit(JSONInitExpr jsonInitExpr) {
+        Expression[] argExprs = jsonInitExpr.getArgExprs();
+        StringJoiner stringJoiner = new StringJoiner(",", "{", "}");
+        for (int i = 0; i < argExprs.length; i++) {
+            KeyValueExpr expr = (KeyValueExpr) argExprs[i];
+            BValue keyVal = expr.getKeyExpr().execute(this);
+            BValue value = expr.getValueExpr().execute(this);
+            String stringVal;
+            if (value == null) {
+                stringVal = null;
+            } else if (value instanceof BString) {
+                stringVal = "\"" + value.stringValue() + "\"";
+            } else  {
+                stringVal = value.stringValue();
+            }
+            stringJoiner.add("\"" + keyVal.stringValue() + "\" : " + stringVal + "");
+        }
+        return new BJSON(stringJoiner.toString());
+    }
+    
+    @Override
+    public BValue visit(JSONArrayInitExpr jsonArrayInitExpr) {
+        Expression[] argExprs = jsonArrayInitExpr.getArgExprs();
+        StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
+        for (int i = 0; i < argExprs.length; i++) {
+            BValue value = argExprs[i].execute(this);
+            String stringVal;
+            if (value == null) {
+                stringVal = null;
+            } else if (value instanceof BString) {
+                stringVal = "\"" + value.stringValue() + "\"";
+            } else  {
+                stringVal = value.stringValue();
+            }
+            stringJoiner.add(stringVal);
+        }
+        return new BJSON(stringJoiner.toString());
     }
 
     @Override
@@ -880,7 +923,7 @@ public class BLangExecutor implements NodeExecutor {
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
             BValue result = (BValue) typeCastExpression.getRExpr().execute(this);
-            return typeCastExpression.getEvalFunc().apply(result);
+            return typeCastExpression.getEvalFunc().apply(result, typeCastExpression.getTargetType());
         } else {
             TypeMapper typeMapper = typeCastExpression.getCallableUnit();
 
@@ -1103,7 +1146,7 @@ public class BLangExecutor implements NodeExecutor {
         // iterate through initialized values and re-populate the memory block
         Expression[] argExprs = structInitExpr.getArgExprs();
         for (int i = 0; i < argExprs.length; i++) {
-            MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
+            KeyValueExpr expr = (KeyValueExpr) argExprs[i];
             VariableRefExpr varRefExpr = (VariableRefExpr) expr.getKeyExpr();
             StructVarLocation structVarLoc = (StructVarLocation) (varRefExpr).getVariableDef().getMemoryLocation();
             structMemBlock[structVarLoc.getStructMemAddrOffset()] = expr.getValueExpr().execute(this);
@@ -1116,12 +1159,21 @@ public class BLangExecutor implements NodeExecutor {
      * Evaluate and return the value of a struct field accessing expression.
      */
     @Override
-    public BValue visit(StructFieldAccessExpr structFieldAccessExpr) {
-        Expression varRef = structFieldAccessExpr.getVarRef();
+    public BValue visit(FieldAccessExpr fieldAccessExpr) {
+        Expression varRef = fieldAccessExpr.getVarRef();
         BValue value = varRef.execute(this);
-        return getFieldExprValue(structFieldAccessExpr, value);
+        return getFieldExprValue(fieldAccessExpr, value);
     }
-
+    
+    @Override
+    public BValue visit(JSONFieldAccessExpr jsonFieldExpr) {
+        FieldAccessExpr varRefExpr = (FieldAccessExpr) jsonFieldExpr.getVarRef();
+        Expression jsonVarRef = varRefExpr.getVarRef();
+        BValue json = jsonVarRef.execute(this);
+        
+        return getJSONElementValue((BJSON) json, varRefExpr.getFieldExpr());
+    }
+    
     @Override
     public BValue visit(WorkerVarLocation workerVarLocation) {
         int offset = workerVarLocation.getworkerMemAddrOffset();
@@ -1129,13 +1181,19 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     /**
-     * Assign a value to a field of a struct, represented by a {@link StructFieldAccessExpr}.
+     * Assign a value to a field of a struct, represented by a {@link FieldAccessExpr}.
      *
      * @param rValue Value to be assigned
-     * @param lExpr  {@link StructFieldAccessExpr} which represents the field of the struct
+     * @param lExpr  {@link FieldAccessExpr} which represents the field of the struct
      */
-    private void assignValueToStructFieldAccessExpr(BValue rValue, StructFieldAccessExpr lExpr) {
+    private void assignValueToFieldAccessExpr(BValue rValue, FieldAccessExpr lExpr) {
         Expression lExprVarRef = lExpr.getVarRef();
+        
+        if (lExprVarRef instanceof ArrayMapAccessExpr) {
+            assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExprVarRef);
+            return;
+        }
+        
         BValue value = lExprVarRef.execute(this);
         setFieldValue(rValue, lExpr, value);
     }
@@ -1143,25 +1201,34 @@ public class BLangExecutor implements NodeExecutor {
     /**
      * Recursively traverse and set the value of the access expression of a field of a struct.
      *
-     * @param rValue     Value to be set
-     * @param expr       StructFieldAccessExpr of the current field
+     * @param rValue Value to be set
+     * @param expr StructFieldAccessExpr of the current field
      * @param currentVal Value of the expression evaluated so far.
      */
-    private void setFieldValue(BValue rValue, StructFieldAccessExpr expr, BValue currentVal) {
-        // currentVal is a BStruct or arrays/map of BStruct. hence get the element value of it.
-        BStruct currentStructVal = (BStruct) getUnitValue(currentVal, expr);
-
-        StructFieldAccessExpr fieldExpr = expr.getFieldExpr();
+    private void setFieldValue(BValue rValue, FieldAccessExpr currentExpr, BValue currentVal) {
+        // currentVal is a unitValue or a array/map. hence get the element value of it.
+        BValue unitVal = getUnitValue(currentVal, currentExpr);
+        
+        if (unitVal == null) {
+            throw new BallerinaException("field '" + currentExpr.getSymbolName() + "' is null");
+        }
+        
+        if (currentExpr.getRefVarType() == BTypes.typeJSON) {
+            setJSONElementValue((BJSON) unitVal, currentExpr.getFieldExpr(), rValue);
+            return;
+        }
+        
+        BStruct currentStructVal = (BStruct) unitVal;
+        FieldAccessExpr fieldExpr = (FieldAccessExpr) currentExpr.getFieldExpr();
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
 
         if (fieldExpr.getFieldExpr() == null) {
-            setUnitValue(rValue, currentStructVal, fieldLocation, fieldExpr);
+            setStructFieldValue(rValue, currentStructVal, fieldLocation, fieldExpr);
             return;
         }
 
         // At this point, field of the field is not null. Means current element,
-        // and its field are both struct types.
-        // get the unit value of the struct field,
+        // and its field are both complex (struct/map/json) types.
         BValue value = currentStructVal.getValue(fieldLocation);
 
         setFieldValue(rValue, fieldExpr, value);
@@ -1182,8 +1249,8 @@ public class BLangExecutor implements NodeExecutor {
 
         // If the expression is a struct-field-access-expression, then get the memory location of the variable
         // referenced by the struct-field-access-expression
-        if (expression instanceof StructFieldAccessExpr) {
-            return getMemoryLocation(((StructFieldAccessExpr) expression).getVarRef());
+        if (expression instanceof FieldAccessExpr) {
+            return getMemoryLocation(((FieldAccessExpr) expression).getVarRef());
         }
 
         // Set the memory location of the variable-reference-expression
@@ -1191,7 +1258,7 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     /**
-     * Set the unit value of the current value.
+     * Set the unit value of the struct field.
      * <br/>
      * i.e: Value represented by a field-access-expression can be one of:
      * <ul>
@@ -1208,26 +1275,26 @@ public class BLangExecutor implements NodeExecutor {
      * @param memoryLocation Location of the field to be set, in the struct 'lExprValue'
      * @param fieldExpr      Field Access Expression of the current field
      */
-    private void setUnitValue(BValue rValue, BStruct lExprValue, int memoryLocation,
-                              StructFieldAccessExpr fieldExpr) {
+    private void setStructFieldValue(BValue rValue, BStruct lExprValue, int memoryLocation,
+                              FieldAccessExpr fieldExpr) {
 
-        Expression[] indexExprs;
-        if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            indexExprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExprs();
-        } else {
-            // If the lExprValue value is not a struct arrays/map, then set the value to the struct
+        if (!(fieldExpr.getVarRef() instanceof ArrayMapAccessExpr)) {
+            // If the lExprValue value is not a struct array/map, then set the value to the struct field
             lExprValue.setValue(memoryLocation, rValue);
             return;
         }
-
+        
+        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+        Expression[] indexExprs = varRef.getIndexExprs();
+        
         // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
         if (arrayMapValue == null) {
-            throw new BallerinaException("field '" + fieldExpr.getVarRef().getSymbolName() + " is null");
+            throw new BallerinaException("field '" + varRef.getSymbolName() + " is null");
         }
 
         // Set the value to arrays/map's index location
-        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+        
         if (varRef.getRExpr().getType() == BTypes.typeMap) {
             BValue indexValue = indexExprs[0].execute(this);
             ((BMap) arrayMapValue).put(indexValue, rValue);
@@ -1243,23 +1310,39 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     /**
-     * Recursively traverse and get the value of the access expression of a field of a struct.
+     * Recursively traverse and get the value of the access expression of a field.
      *
-     * @param expr       StructFieldAccessExpr of the current field
+     * @param currentExpr FieldAccessExpr of the current field
      * @param currentVal Value of the expression evaluated so far.
      * @return Value of the expression after evaluating the current field.
      */
-    private BValue getFieldExprValue(StructFieldAccessExpr expr, BValue currentVal) {
-        // currentVal is a BStruct or arrays/map of BStruct. hence get the element value of it.
-        BStruct currentStructVal = (BStruct) getUnitValue(currentVal, expr);
+    private BValue getFieldExprValue(FieldAccessExpr currentExpr, BValue currentVal) {
+        FieldAccessExpr fieldExpr = currentExpr.getFieldExpr();
+        if (fieldExpr == null) {
+            return currentVal;
+        }
+        
+        if (currentExpr.getRefVarType() == BTypes.typeJSON) {
+            return getJSONElementValue((BJSON) currentVal, fieldExpr);
+        } 
+        
+        // currentVal could be a value type or a array/map. Hence get the single element value of it.
+        BValue unitVal = getUnitValue(currentVal, currentExpr);
+        
+        if (unitVal == null) {
+            throw new BallerinaException("field '" + currentExpr.getVarName() + "' is null");
+        }
+        
+        // if fieldExpr exist means this is a struct.
+        BStruct currentStructVal = (BStruct) unitVal;
 
-        StructFieldAccessExpr fieldExpr = expr.getFieldExpr();
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
 
         // If this is the last field, return the value from memory location
-        if (fieldExpr.getFieldExpr() == null) {
-            // Value stored in the struct can be also an arrays. Hence if its an arrray access,
-            // get the aray element value
+        FieldAccessExpr nestedFieldExpr = fieldExpr.getFieldExpr();
+        if (nestedFieldExpr == null) {
+            // Value stored in the struct can be also an array. Hence if its an array access,
+            // get the array element value
             return getUnitValue(currentStructVal.getValue(fieldLocation), fieldExpr);
         }
 
@@ -1275,27 +1358,24 @@ public class BLangExecutor implements NodeExecutor {
      * i.e: Value represented by a field-access-expression can be one of:
      * <ul>
      * <li>A variable</li>
-     * <li>An element of an arrays/map variable.</li>
+     * <li>An element of an array/map variable.</li>
      * </ul>
      * But the value stored in memory (<b>currentVal</b>) contains the entire variable. This methods
      * retrieves the unit value (either the complete arrays/map or the referenced element of an arrays/map),
      * using the index expression of the 'fieldExpr'.
      *
      * @param currentVal Value of the field expression evaluated so far
-     * @param fieldExpr  Field access expression for the current value
+     * @param currentExpr  Field access expression for the current value
      * @return Unit value of the current value
      */
-    private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
-        ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
-        if (currentVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName() + "' is null");
-        }
-
+    private BValue getUnitValue(BValue currentVal, FieldAccessExpr currentExpr) {
+        ReferenceExpr currentVarRefExpr = (ReferenceExpr) currentExpr.getVarRef();
+        
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
             return currentVal;
         }
 
-        // If the lExprValue value is not a struct arrays/map, then the unit value is same as the struct
+        // If the lExprValue value is not a array/map, then the unit value is same as the struct
         Expression[] indexExprs;
         if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
             indexExprs = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExprs();
@@ -1307,7 +1387,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue indexValue;
         BValue unitVal;
         // Get the value from arrays/map's index location
-        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) currentExpr.getVarRef();
         if (varRef.getRExpr().getType() == BTypes.typeMap) {
             indexValue = indexExprs[0].execute(this);
             unitVal = ((BMap) currentVal).get(indexValue);
@@ -1321,7 +1401,7 @@ public class BLangExecutor implements NodeExecutor {
             unitVal = bArray.get(((BInteger) indexValue).intValue());
         }
 
-        if (unitVal == null) {
+        if (unitVal == null && currentExpr.getFieldExpr() != null) {
             throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" +
                     indexValue.stringValue() + "]' is null");
         }
@@ -1385,5 +1465,64 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.pushFrame(stackFrame);
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
+    }
+    
+    /**
+     * Get the value of element from a given json object.
+     * 
+     * @param json JSON to get the value
+     * @param fieldExpr Field expression represent the element of the json to be extracted
+     * @return value of the element represented by the field expression
+     */
+    private BValue getJSONElementValue(BJSON json, FieldAccessExpr fieldExpr) {
+        if (fieldExpr == null) {
+            return json;
+        }
+        
+        BJSON jsonElement;
+        BValue elementIndex = fieldExpr.getVarRef().execute(this);
+        if (json == null) {
+            throw new BallerinaException("cannot get '" + elementIndex.stringValue() + "' from null");
+        }
+        
+        if (elementIndex.getType() == BTypes.typeInt) {
+            jsonElement = JSONUtils.getArrayElement(json, ((BInteger) elementIndex).intValue());
+        } else {
+            jsonElement = JSONUtils.getElement(json, elementIndex.stringValue());
+        }
+        return getJSONElementValue(jsonElement, fieldExpr.getFieldExpr());
+    }
+    
+    /**
+     * Recursively traverse and set the value of the access expression of a field of a json.
+     * 
+     * @param json JSON to set the value
+     * @param fieldExpr Expression represents the field
+     * @param rValue Value to be set
+     */
+    private void setJSONElementValue(BJSON json, FieldAccessExpr fieldExpr, BValue rValue) {
+        BValue elementIndex = fieldExpr.getVarRef().execute(this);
+        if (json == null) {
+            throw new BallerinaException("cannot set '" + elementIndex.stringValue() + "' of null");
+        }
+        
+        FieldAccessExpr childField = fieldExpr.getFieldExpr();
+        BJSON jsonElement;
+        
+        if (childField == null) {
+            if (elementIndex.getType() == BTypes.typeInt) {
+                JSONUtils.setArrayElement(json, ((BInteger) elementIndex).intValue(), (BJSON) rValue);
+            } else {
+                JSONUtils.setElement(json, elementIndex.stringValue(), (BJSON) rValue);
+            }
+            return;
+        }
+        
+        if (elementIndex.getType() == BTypes.typeInt) {
+            jsonElement = JSONUtils.getArrayElement(json, ((BInteger) elementIndex).intValue());
+        } else {
+            jsonElement = JSONUtils.getElement(json, elementIndex.stringValue());
+        }
+        setJSONElementValue(jsonElement, childField, rValue);
     }
 }

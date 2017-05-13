@@ -81,7 +81,7 @@ public class AssignStmtNegativeTest {
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "backtick-assign-mismatch-1.bal:6: incompatible types: " +
-                    "expected json or xml")
+                    "expected xml")
     public void testTemplateJSONAssignTypeMismatch() {
         BTestUtils.parseBalFile("lang/statements/assignment/backtick-assign-mismatch-1.bal");
     }
