@@ -29,8 +29,11 @@ public class WhiteSpaceDescriptor {
 
     protected Map<Integer, String> whiteSpaceRegions;
 
+    protected Map<String, WhiteSpaceDescriptor> childDescriptors;
+
     public WhiteSpaceDescriptor() {
         this.whiteSpaceRegions = new HashMap<>();
+        this.childDescriptors = new HashMap<>();
     }
 
     public void addWhitespaceRegion(int regionId, String whiteSpace) {
@@ -39,6 +42,18 @@ public class WhiteSpaceDescriptor {
 
     public Map<Integer, String> getWhiteSpaceRegions() {
         return whiteSpaceRegions;
+    }
+
+    public void addChildDescriptor(String descriptorID, WhiteSpaceDescriptor descriptor) {
+        this.childDescriptors.put(descriptorID, descriptor);
+    }
+
+    public WhiteSpaceDescriptor getChildDescriptor(String childID) {
+        return this.childDescriptors.get(childID);
+    }
+
+    public Map<String, WhiteSpaceDescriptor> getChildDescriptors() {
+        return childDescriptors;
     }
 
     public void setWhiteSpaceRegions(Map<Integer, String> whiteSpaceRegions) {

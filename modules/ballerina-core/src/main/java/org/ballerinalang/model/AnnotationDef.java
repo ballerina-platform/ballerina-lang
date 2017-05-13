@@ -208,6 +208,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
      */
     public static class AnnotationDefBuilder {
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private String name;
         private String pkgPath;
         private String pkgName;
@@ -289,7 +290,15 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
         public void addAnnotation(AnnotationAttachment annotation) {
             this.annotationList.add(annotation);
         }
-        
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
         /**
          * Build the annotation definition.
          *
@@ -297,6 +306,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
          */
         public AnnotationDef build() {
             annotationDef.location = location;
+            annotationDef.whiteSpaceDescriptor = whiteSpaceDescriptor;
             annotationDef.attachmentPoints = attachmentPoints.toArray(new String[attachmentPoints.size()]);
             annotationDef.symbolName = new SymbolName(name, pkgPath);
             annotationDef.pkgName = pkgName;

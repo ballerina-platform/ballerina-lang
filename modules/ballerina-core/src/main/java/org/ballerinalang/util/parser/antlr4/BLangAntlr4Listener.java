@@ -75,6 +75,7 @@ import java.util.Stack;
 public class BLangAntlr4Listener implements BallerinaListener {
     protected static final String B_KEYWORD_PUBLIC = "public";
     protected static final String B_KEYWORD_NATIVE = "native";
+    protected static final String ATTACHMENT_POINTS = "attachmentPoints";
     protected String fileName;
     protected String packageDirPath;
     protected String currentPkgName;
@@ -387,8 +388,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
-        modelBuilder.startAnnotationDef(getCurrentLocation(ctx));
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = new WhiteSpaceDescriptor();
+            whiteSpaceDescriptor.addChildDescriptor(ATTACHMENT_POINTS, new WhiteSpaceDescriptor());
+        }
+        modelBuilder.startAnnotationDef(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
@@ -396,8 +401,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
-        modelBuilder.addAnnotationtDef(getCurrentLocation(ctx), ctx.Identifier().getText());
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAnnotationDefWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationtDef(getCurrentLocation(ctx), whiteSpaceDescriptor, ctx.Identifier().getText());
     }
 
     @Override
@@ -428,8 +436,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
-        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), ctx.getText());
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor, ctx.getText());
     }
 
     @Override

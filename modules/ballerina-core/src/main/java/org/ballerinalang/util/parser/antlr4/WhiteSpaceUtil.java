@@ -282,6 +282,30 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
+    public static WhiteSpaceDescriptor getAnnotationDefWS(CommonTokenStream tokenStream,
+                                                          BallerinaParser.AnnotationDefinitionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_DEF_ANNOTATION_KEYWORD_TO_IDENTIFIER,
+                            getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_DEF_IDENTIFIER_TO_ATTACH_KEYWORD,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_DEF_BODY_START_TO_LAST_TOKEN,
+                getWhitespaceToLeft(tokenStream, ctx.annotationBody().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_DEF_BODY_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.annotationBody().stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getAttachmentPointWS(CommonTokenStream tokenStream,
+                                                            BallerinaParser.AttachmentPointContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATTACHMENT_POINT_PRECEDING_WS,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATTACHMENT_POINT_TAILING_WS,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
     protected static Token getFirstTokenWithText(List<ParseTree> children, String text) {
         Optional<ParseTree> terminalNode = children.stream()
                 .filter((child) -> child instanceof TerminalNode)
@@ -289,4 +313,5 @@ public class WhiteSpaceUtil {
                 .findFirst();
         return (terminalNode.isPresent()) ? ((TerminalNode) terminalNode.get()).getSymbol() : null;
     }
+
 }

@@ -122,6 +122,7 @@ import java.util.regex.Pattern;
  * @since 0.8.0
  */
 public class BLangModelBuilder {
+    public static final String ATTACHMENT_POINTS = "attachmentPoints";
     protected String currentPackagePath;
     protected BallerinaFile.BFileBuilder bFileBuilder;
 
@@ -386,8 +387,9 @@ public class BLangModelBuilder {
      * 
      * @param location Location of the annotation definition in the source file
      */
-    public void startAnnotationDef(NodeLocation location) {
+    public void startAnnotationDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         annotationDefBuilder = new AnnotationDef.AnnotationDefBuilder(location, currentScope);
+        annotationDefBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentScope = annotationDefBuilder.getCurrentScope();
     }
     
@@ -397,7 +399,12 @@ public class BLangModelBuilder {
      * @param location Location of this {@code AnnotationDef} in the source file
      * @param name Name of the {@code AnnotationDef}
      */
-    public void addAnnotationtDef(NodeLocation location, String name) {
+    public void addAnnotationtDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+
+        if (whiteSpaceDescriptor != null) {
+            annotationDefBuilder.getWhiteSpaceDescriptor().getWhiteSpaceRegions()
+                    .putAll(whiteSpaceDescriptor.getWhiteSpaceRegions());
+        }
         annotationDefBuilder.setName(name);
         annotationDefBuilder.setPackagePath(currentPackagePath);
         
@@ -417,7 +424,13 @@ public class BLangModelBuilder {
      * @param location Location of the target in the source file
      * @param attachmentPoint Point to which this annotation can be attached
      */
-    public void addAnnotationtAttachmentPoint(NodeLocation location, String attachmentPoint) {
+    public void addAnnotationtAttachmentPoint(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                              String attachmentPoint) {
+        if (whiteSpaceDescriptor != null) {
+            annotationDefBuilder.getWhiteSpaceDescriptor()
+                    .getChildDescriptor(ATTACHMENT_POINTS)
+                    .addChildDescriptor(attachmentPoint, whiteSpaceDescriptor);
+        }
         annotationDefBuilder.addAttachmentPoint(attachmentPoint);
     }
 

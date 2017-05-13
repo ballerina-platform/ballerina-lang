@@ -57,3 +57,8 @@ const int  SAMPLE_CONST   =    30     ;
 struct  Teacher   {
 
 }
+
+
+annotation Util  attach   service, resource, connector     {
+
+}
