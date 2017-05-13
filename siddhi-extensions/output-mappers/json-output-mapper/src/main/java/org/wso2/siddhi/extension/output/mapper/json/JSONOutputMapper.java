@@ -16,6 +16,9 @@
  * under the License.
  */
 package org.wso2.siddhi.extension.output.mapper.json;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
@@ -27,19 +30,20 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
-import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+/**
+ * Mapper class to convert a Siddhi message to a JSON message. User can provide a JSON template or else we will be
+ * using a predefined JSON message format. In some instances
+ * coding best practices have been compensated for performance concerns.
+ */
 
 @Extension(
         name = "json",
         namespace = "sinkMapper",
-        description = "Event to JSON output mapper."
+        description = "Event to JSON mapper."
 )
 
 // TODO : enable checkstyle, reformat
@@ -104,7 +108,7 @@ public class JSONOutputMapper extends SinkMapper {
         if (sb != null) {
             if (!isJsonValidationEnabled) {
                 sinkListener.publish(sb.toString(), dynamicOptions);
-            } else if (isJsonValidationEnabled && isValidJson(sb.toString())) {
+            } else if (isValidJson(sb.toString())) {
                 sinkListener.publish(sb.toString(), dynamicOptions);
             } else {
                 log.error("Invalid json string : " + sb.toString());
@@ -131,7 +135,7 @@ public class JSONOutputMapper extends SinkMapper {
         if (sb != null) {
             if (!isJsonValidationEnabled) {
                 sinkListener.publish(sb.toString(), dynamicOptions);
-            } else if (isJsonValidationEnabled && isValidJson(sb.toString())) {
+            } else if (isValidJson(sb.toString())) {
                 sinkListener.publish(sb.toString(), dynamicOptions);
             } else {
                 log.error("Invalid json string : " + sb.toString());
@@ -140,22 +144,6 @@ public class JSONOutputMapper extends SinkMapper {
     }
 
     private String constructJsonForDefaultMapping(Object eventObj) {
-        /*if (eventObj.getClass() == Event.class) {
-            Event event = (Event) eventObj;
-            JsonObject jsonEvent = constructSingleEventForDefaultMapping(doPartialProcessing(event));
-            return jsonEvent.toString();
-        } else if (eventObj.getClass() == Event[].class) {
-            JsonArray eventArray = new JsonArray();
-            for (Event event : (Event[]) eventObj) {
-                eventArray.add(constructSingleEventForDefaultMapping(doPartialProcessing(event)));
-            }
-            return (eventArray.toString());
-        } else {
-            // TODO : log error
-            log.error("Invalid object type. " + eventObj.toString() + " cannot be converted to an event or event array.");
-            return null;
-        }*/
-
         StringBuilder sb = new StringBuilder();
         int numberOfOuterObjects = 0;
         if (enclosingElement != null) {
@@ -182,7 +170,6 @@ public class JSONOutputMapper extends SinkMapper {
                 }
                 sb.append(eventArray.toString());
             } else {
-                // TODO : log error
                 log.error("Invalid object type. " + eventObj.toString() +
                         " cannot be converted to an event or event array. Hence dropping message.");
                 return null;
@@ -203,8 +190,8 @@ public class JSONOutputMapper extends SinkMapper {
                 }
                 return (eventArray.toString());
             } else {
-                // TODO : log error
-                log.error("Invalid object type. " + eventObj.toString() + " cannot be converted to an event or event array.");
+                log.error("Invalid object type. " + eventObj.toString() +
+                        " cannot be converted to an event or event array.");
                 return null;
             }
         }
@@ -241,7 +228,6 @@ public class JSONOutputMapper extends SinkMapper {
                 sb.delete(sb.length() - 2, sb.length());
                 sb.append(JSON_ARRAY_END_SYMBOL);
             } else {
-                // TODO : log error
                 log.error("Invalid object type. " + eventObj.toString() +
                         " cannot be converted to an event or event array. Hence dropping message.");
                 return null;
@@ -282,10 +268,8 @@ public class JSONOutputMapper extends SinkMapper {
         Object attributeValue;
         Gson gson = new Gson();
         for (int i = 0; i < data.length; i++) {
-            // TODO : move attribute name array to the top : done
             attributeName = attributeNameArray[i];
             attributeValue = data[i];
-            // TODO : use lambda expressions
             if (attributeValue != null) {
                 if (attributeValue.getClass() == String.class) {
                     innerParentObject.addProperty(attributeName, attributeValue.toString());
