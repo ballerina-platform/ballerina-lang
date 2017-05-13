@@ -37,11 +37,11 @@ public class TransformStmtTest {
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/statements/transform-stmt.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/statements/transformStmt/transform-stmt.bal");
     }
 
     @Test(description = "Test one to one simple transformation")
-    public void testOneToOneTransform() {
+    public void testOneToOneTransformX() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "oneToOneTransform");
 
         Assert.assertEquals(returns.length, 3);

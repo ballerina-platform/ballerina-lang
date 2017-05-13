@@ -472,37 +472,37 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTransformInnerStatement(BallerinaParser.TransformInnerStatementContext ctx) { }
+	@Override public void enterTransformStatementBody(BallerinaParser.TransformStatementBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTransformInnerStatement(BallerinaParser.TransformInnerStatementContext ctx) { }
+	@Override public void exitTransformStatementBody(BallerinaParser.TransformStatementBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTransformAssignmentStatement(BallerinaParser.TransformAssignmentStatementContext ctx) { }
+	@Override public void enterExpressionAssignmentStatement(BallerinaParser.ExpressionAssignmentStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTransformAssignmentStatement(BallerinaParser.TransformAssignmentStatementContext ctx) { }
+	@Override public void exitExpressionAssignmentStatement(BallerinaParser.ExpressionAssignmentStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTransformVariableDefinitionStatement(BallerinaParser.TransformVariableDefinitionStatementContext ctx) { }
+	@Override public void enterExpressionVariableDefinitionStatement(BallerinaParser.ExpressionVariableDefinitionStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTransformVariableDefinitionStatement(BallerinaParser.TransformVariableDefinitionStatementContext ctx) { }
+	@Override public void exitExpressionVariableDefinitionStatement(BallerinaParser.ExpressionVariableDefinitionStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

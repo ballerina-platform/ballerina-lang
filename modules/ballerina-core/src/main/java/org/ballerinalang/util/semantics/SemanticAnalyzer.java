@@ -1401,6 +1401,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(TransformStmt transformStmt) {
         BlockStmt blockStmt = transformStmt.getBody();
+        if (blockStmt.getStatements().length == 0) {
+            // This can be optimized later to skip the while statement
+            BLangExceptionHelper.throwSemanticError(blockStmt, SemanticErrors.NO_STATEMENTS_TRANSFORM_STATEMENT);
+        }
         blockStmt.accept(this);
     }
 

@@ -671,22 +671,22 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTransformInnerStatement(BallerinaParser.TransformInnerStatementContext ctx) {
+    public void enterTransformStatementBody(BallerinaParser.TransformStatementBodyContext ctx) {
 
     }
 
     @Override
-    public void exitTransformInnerStatement(BallerinaParser.TransformInnerStatementContext ctx) {
+    public void exitTransformStatementBody(BallerinaParser.TransformStatementBodyContext ctx) {
 
     }
 
     @Override
-    public void enterTransformAssignmentStatement(BallerinaParser.TransformAssignmentStatementContext ctx) {
+    public void enterExpressionAssignmentStatement(BallerinaParser.ExpressionAssignmentStatementContext ctx) {
 
     }
 
     @Override
-    public void exitTransformAssignmentStatement(BallerinaParser.TransformAssignmentStatementContext ctx) {
+    public void exitExpressionAssignmentStatement(BallerinaParser.ExpressionAssignmentStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -695,14 +695,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTransformVariableDefinitionStatement(
-            BallerinaParser.TransformVariableDefinitionStatementContext ctx) {
+    public void enterExpressionVariableDefinitionStatement(
+            BallerinaParser.ExpressionVariableDefinitionStatementContext ctx) {
 
     }
 
     @Override
-    public void exitTransformVariableDefinitionStatement(
-            BallerinaParser.TransformVariableDefinitionStatementContext ctx) {
+    public void exitExpressionVariableDefinitionStatement(
+            BallerinaParser.ExpressionVariableDefinitionStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }

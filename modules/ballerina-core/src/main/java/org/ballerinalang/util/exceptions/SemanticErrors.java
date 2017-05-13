@@ -89,7 +89,8 @@ public enum SemanticErrors {
     INVALID_DEFAULT_VALUE("invalid.default.value", "SEMANTIC_0064"),
     INVALID_ATTRIBUTE_TYPE("invalid.attribute.type", "SEMANTIC_0065"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found", "SEMANTIC_0066"),
-    INCOMPATIBLE_ASSIGNMENT("incompatible.assignment", "SEMANTIC_0067");
+    INCOMPATIBLE_ASSIGNMENT("incompatible.assignment", "SEMANTIC_0067"),
+    NO_STATEMENTS_TRANSFORM_STATEMENT("no.statements.transform.statement", "SEMANTIC_0068");
     
     private String errorMsgKey;
     private String errorCode;

@@ -209,20 +209,20 @@ statement
     ;
 
 transformStatement
-    :   variableReferenceList '=' 'transform' variableReferenceList '{'transformInnerStatement*'}'';'
+    :   variableReferenceList '=' 'transform' variableReferenceList '{'transformStatementBody*'}'';'
     ;
 
-transformInnerStatement
-    :   transformAssignmentStatement
-    |   transformVariableDefinitionStatement
+transformStatementBody
+    :   expressionAssignmentStatement
+    |   expressionVariableDefinitionStatement
     |   transformStatement
     ;
 
-transformAssignmentStatement
+expressionAssignmentStatement
     :   variableReferenceList '=' expression ';'
     ;
 
-transformVariableDefinitionStatement
+expressionVariableDefinitionStatement
     :   typeName Identifier '=' expression ';'
     ;
 

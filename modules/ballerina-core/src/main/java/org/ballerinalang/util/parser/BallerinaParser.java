@@ -43,8 +43,8 @@ public class BallerinaParser extends Parser {
 		RULE_valueTypeName = 27, RULE_builtInReferenceTypeName = 28, RULE_xmlNamespaceName = 29, 
 		RULE_xmlLocalName = 30, RULE_annotationAttachment = 31, RULE_annotationAttributeList = 32, 
 		RULE_annotationAttribute = 33, RULE_annotationAttributeValue = 34, RULE_annotationAttributeArray = 35, 
-		RULE_statement = 36, RULE_transformStatement = 37, RULE_transformInnerStatement = 38, 
-		RULE_transformAssignmentStatement = 39, RULE_transformVariableDefinitionStatement = 40, 
+		RULE_statement = 36, RULE_transformStatement = 37, RULE_transformStatementBody = 38, 
+		RULE_expressionAssignmentStatement = 39, RULE_expressionVariableDefinitionStatement = 40, 
 		RULE_variableDefinitionStatement = 41, RULE_mapStructLiteral = 42, RULE_mapStructKeyValue = 43, 
 		RULE_arrayLiteral = 44, RULE_connectorInitExpression = 45, RULE_assignmentStatement = 46, 
 		RULE_variableReferenceList = 47, RULE_ifElseStatement = 48, RULE_ifClause = 49, 
@@ -71,7 +71,7 @@ public class BallerinaParser extends Parser {
 		"valueTypeName", "builtInReferenceTypeName", "xmlNamespaceName", "xmlLocalName", 
 		"annotationAttachment", "annotationAttributeList", "annotationAttribute", 
 		"annotationAttributeValue", "annotationAttributeArray", "statement", "transformStatement", 
-		"transformInnerStatement", "transformAssignmentStatement", "transformVariableDefinitionStatement", 
+		"transformStatementBody", "expressionAssignmentStatement", "expressionVariableDefinitionStatement", 
 		"variableDefinitionStatement", "mapStructLiteral", "mapStructKeyValue", 
 		"arrayLiteral", "connectorInitExpression", "assignmentStatement", "variableReferenceList", 
 		"ifElseStatement", "ifClause", "elseIfClause", "elseClause", "iterateStatement", 
@@ -2846,11 +2846,11 @@ public class BallerinaParser extends Parser {
 		public VariableReferenceListContext variableReferenceList(int i) {
 			return getRuleContext(VariableReferenceListContext.class,i);
 		}
-		public List<TransformInnerStatementContext> transformInnerStatement() {
-			return getRuleContexts(TransformInnerStatementContext.class);
+		public List<TransformStatementBodyContext> transformStatementBody() {
+			return getRuleContexts(TransformStatementBodyContext.class);
 		}
-		public TransformInnerStatementContext transformInnerStatement(int i) {
-			return getRuleContext(TransformInnerStatementContext.class,i);
+		public TransformStatementBodyContext transformStatementBody(int i) {
+			return getRuleContext(TransformStatementBodyContext.class,i);
 		}
 		public TransformStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -2890,7 +2890,7 @@ public class BallerinaParser extends Parser {
 				{
 				{
 				setState(569);
-				transformInnerStatement();
+				transformStatementBody();
 				}
 				}
 				setState(574);
@@ -2914,33 +2914,33 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TransformInnerStatementContext extends ParserRuleContext {
-		public TransformAssignmentStatementContext transformAssignmentStatement() {
-			return getRuleContext(TransformAssignmentStatementContext.class,0);
+	public static class TransformStatementBodyContext extends ParserRuleContext {
+		public ExpressionAssignmentStatementContext expressionAssignmentStatement() {
+			return getRuleContext(ExpressionAssignmentStatementContext.class,0);
 		}
-		public TransformVariableDefinitionStatementContext transformVariableDefinitionStatement() {
-			return getRuleContext(TransformVariableDefinitionStatementContext.class,0);
+		public ExpressionVariableDefinitionStatementContext expressionVariableDefinitionStatement() {
+			return getRuleContext(ExpressionVariableDefinitionStatementContext.class,0);
 		}
 		public TransformStatementContext transformStatement() {
 			return getRuleContext(TransformStatementContext.class,0);
 		}
-		public TransformInnerStatementContext(ParserRuleContext parent, int invokingState) {
+		public TransformStatementBodyContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_transformInnerStatement; }
+		@Override public int getRuleIndex() { return RULE_transformStatementBody; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTransformInnerStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTransformStatementBody(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTransformInnerStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTransformStatementBody(this);
 		}
 	}
 
-	public final TransformInnerStatementContext transformInnerStatement() throws RecognitionException {
-		TransformInnerStatementContext _localctx = new TransformInnerStatementContext(_ctx, getState());
-		enterRule(_localctx, 76, RULE_transformInnerStatement);
+	public final TransformStatementBodyContext transformStatementBody() throws RecognitionException {
+		TransformStatementBodyContext _localctx = new TransformStatementBodyContext(_ctx, getState());
+		enterRule(_localctx, 76, RULE_transformStatementBody);
 		try {
 			setState(581);
 			_errHandler.sync(this);
@@ -2949,14 +2949,14 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(578);
-				transformAssignmentStatement();
+				expressionAssignmentStatement();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(579);
-				transformVariableDefinitionStatement();
+				expressionVariableDefinitionStatement();
 				}
 				break;
 			case 3:
@@ -2979,30 +2979,30 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TransformAssignmentStatementContext extends ParserRuleContext {
+	public static class ExpressionAssignmentStatementContext extends ParserRuleContext {
 		public VariableReferenceListContext variableReferenceList() {
 			return getRuleContext(VariableReferenceListContext.class,0);
 		}
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TransformAssignmentStatementContext(ParserRuleContext parent, int invokingState) {
+		public ExpressionAssignmentStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_transformAssignmentStatement; }
+		@Override public int getRuleIndex() { return RULE_expressionAssignmentStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTransformAssignmentStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterExpressionAssignmentStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTransformAssignmentStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitExpressionAssignmentStatement(this);
 		}
 	}
 
-	public final TransformAssignmentStatementContext transformAssignmentStatement() throws RecognitionException {
-		TransformAssignmentStatementContext _localctx = new TransformAssignmentStatementContext(_ctx, getState());
-		enterRule(_localctx, 78, RULE_transformAssignmentStatement);
+	public final ExpressionAssignmentStatementContext expressionAssignmentStatement() throws RecognitionException {
+		ExpressionAssignmentStatementContext _localctx = new ExpressionAssignmentStatementContext(_ctx, getState());
+		enterRule(_localctx, 78, RULE_expressionAssignmentStatement);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
@@ -3027,7 +3027,7 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TransformVariableDefinitionStatementContext extends ParserRuleContext {
+	public static class ExpressionVariableDefinitionStatementContext extends ParserRuleContext {
 		public TypeNameContext typeName() {
 			return getRuleContext(TypeNameContext.class,0);
 		}
@@ -3035,23 +3035,23 @@ public class BallerinaParser extends Parser {
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TransformVariableDefinitionStatementContext(ParserRuleContext parent, int invokingState) {
+		public ExpressionVariableDefinitionStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_transformVariableDefinitionStatement; }
+		@Override public int getRuleIndex() { return RULE_expressionVariableDefinitionStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTransformVariableDefinitionStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterExpressionVariableDefinitionStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTransformVariableDefinitionStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitExpressionVariableDefinitionStatement(this);
 		}
 	}
 
-	public final TransformVariableDefinitionStatementContext transformVariableDefinitionStatement() throws RecognitionException {
-		TransformVariableDefinitionStatementContext _localctx = new TransformVariableDefinitionStatementContext(_ctx, getState());
-		enterRule(_localctx, 80, RULE_transformVariableDefinitionStatement);
+	public final ExpressionVariableDefinitionStatementContext expressionVariableDefinitionStatement() throws RecognitionException {
+		ExpressionVariableDefinitionStatementContext _localctx = new ExpressionVariableDefinitionStatementContext(_ctx, getState());
+		enterRule(_localctx, 80, RULE_expressionVariableDefinitionStatement);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
