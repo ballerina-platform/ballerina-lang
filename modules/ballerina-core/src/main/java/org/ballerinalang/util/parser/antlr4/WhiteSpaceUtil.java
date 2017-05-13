@@ -217,6 +217,20 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
+    public static WhiteSpaceDescriptor getConnectorDefWS(CommonTokenStream tokenStream,
+                                                         BallerinaParser.ConnectorDefinitionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_DEF_CONNECTOR_KEYWORD_TO_IDENTIFIER,
+                                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_DEF_IDENTIFIER_TO_PARAM_LIST_START,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START,
+                getWhitespaceToLeft(tokenStream, ctx.connectorBody().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.connectorBody().stop.getTokenIndex()));
+        return ws;
+    }
+
     protected static Token getFirstTokenWithText(List<ParseTree> children, String text) {
         Optional<ParseTree> terminalNode = children.stream()
                 .filter((child) -> child instanceof TerminalNode)

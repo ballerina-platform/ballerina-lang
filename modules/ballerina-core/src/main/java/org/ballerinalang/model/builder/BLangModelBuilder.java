@@ -977,7 +977,8 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(String name) {
+    public void createConnector(WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+        currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setName(name);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 

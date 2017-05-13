@@ -313,7 +313,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         String connectorName = ctx.Identifier().getText();
-        modelBuilder.createConnector(connectorName);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorDefWS(tokenStream, ctx);
+        }
+        modelBuilder.createConnector(whiteSpaceDescriptor, connectorName);
     }
 
     @Override

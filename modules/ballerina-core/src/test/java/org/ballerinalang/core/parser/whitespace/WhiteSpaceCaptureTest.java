@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalScope;
@@ -171,5 +172,18 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN), "  ");
         Assert.assertEquals(function.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n\n");
+    }
+
+    @Test(description = "Test captured whitespace regions of connector definition node")
+    public void testWhiteSpaceCaptureInConnectorDef() {
+        BallerinaConnectorDef connector = (BallerinaConnectorDef) bFile.getCompilationUnits()[4];
+        Assert.assertEquals(connector.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONNECTOR_DEF_CONNECTOR_KEYWORD_TO_IDENTIFIER), " ");
+        Assert.assertEquals(connector.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONNECTOR_DEF_IDENTIFIER_TO_PARAM_LIST_START), "  ");
+        Assert.assertEquals(connector.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START), "   ");
+        Assert.assertEquals(connector.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
     }
 }

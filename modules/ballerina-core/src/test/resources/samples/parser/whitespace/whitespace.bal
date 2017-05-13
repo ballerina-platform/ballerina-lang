@@ -26,3 +26,13 @@ function testBalFunction (message m, int i)
 }
 
 native function testNativeFunction2 (message m, int i) (message) throws exception;
+
+connector twitterConnector  (message m)   {
+
+
+}
+
+connector twitterConnector2  (message m)  {
+
+
+}
