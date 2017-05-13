@@ -40,7 +40,7 @@ public class BArrayValueTest {
     }
 
     @Test(description = "Test lazy arrays creation", expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "array index out of range: Index: 0, Size: 0")
+            expectedExceptionsMessageRegExp = "array index out of range: index: 0, size: 0")
     public void testLazyArrayCreation() {
         BLangFunctions.invoke(bLangProgram, "lazyInitThrowArrayIndexOutOfBound", new BValue[0]);
     }

@@ -58,7 +58,7 @@ public class ArrayIndexTooLargeTest {
 
     @Test(description = "Test adding minus index to an array",
           expectedExceptions = {BallerinaException.class },
-          expectedExceptionsMessageRegExp = "array index out of range: Index: -4, Size: 0")
+          expectedExceptionsMessageRegExp = "array index out of range: index: -4, size: 0")
     public void addMinusIndex() {
         BValue[] args = {new BInteger(-4), new BInteger(7)};
         BLangFunctions.invoke(bLangProgram, "addMinusIndex", args);
@@ -66,7 +66,7 @@ public class ArrayIndexTooLargeTest {
 
     @Test(description = "Test accessing minus index from an array",
           expectedExceptions = {BallerinaException.class },
-          expectedExceptionsMessageRegExp = "array index out of range: Index: -4, Size: 0")
+          expectedExceptionsMessageRegExp = "array index out of range: index: -4, size: 0")
     public void accessMinusIndex() {
         BValue[] args = {new BInteger(-4)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "accessMinusIndex", args);

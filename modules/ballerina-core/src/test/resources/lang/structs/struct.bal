@@ -9,6 +9,7 @@ struct Person {
     map adrs;
     int age = 999;
     Family family;
+    Person parent;
 }
 
 struct Family {
@@ -116,4 +117,9 @@ function testNestedFieldDefaultVal() (string, string, int) {
     dpt.employees = [];
     dpt.employees[0] = {lname:"Smith"};
     return dpt.employees[0].name, dpt.employees[0].lname, dpt.employees[0].age;
+}
+
+function testNestedStructInit() (Person) {
+    Person p1 = {name:"aaa", age:25, parent:{name:"bbb", age:50}};
+    return p1;
 }

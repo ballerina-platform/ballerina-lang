@@ -23,7 +23,7 @@ service GlobalVar {
     resource defineGlobalVar (message m) {
         message response = {};
 
-        json responseJson = `{"glbVarInt":${glbVarInt}, "glbVarString":${glbVarString}, "glbVarFloat":${glbVarFloat}}`;
+        json responseJson = {"glbVarInt":glbVarInt, "glbVarString":glbVarString, "glbVarFloat":glbVarFloat};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -33,7 +33,7 @@ service GlobalVar {
     resource accessGlobalVarAtServiceLevel (message m) {
         message response = {};
 
-        json responseJson = `{"serviceVarFloat":${serviceVarFloat}}`;
+        json responseJson = {"serviceVarFloat":serviceVarFloat};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -43,7 +43,7 @@ service GlobalVar {
     resource changeGlobalVarAtResourceLevel (message m) {
         message response = {};
         glbVarFloatChange = 77.87;
-        json responseJson = `{"glbVarFloatChange":${glbVarFloatChange}}`;
+        json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -53,7 +53,7 @@ service GlobalVar {
     @http:Path {value:"/get-changed-resource-level"}
     resource getChangedGlobalVarAtResourceLevel (message m) {
         message response = {};
-        json responseJson = `{"glbVarFloatChange":${glbVarFloatChange}}`;
+        json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -68,7 +68,7 @@ service GlobalVarSecond {
     @http:Path {value:"/get-changed-resource-level"}
     resource getChangedGlobalVarAtResourceLevel (message m) {
         message response = {};
-        json responseJson = `{"glbVarFloatChange":${glbVarFloatChange}}`;
+        json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }

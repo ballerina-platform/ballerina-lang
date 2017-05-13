@@ -44,15 +44,6 @@ public class BLangExceptionHelper {
         throw new SemanticException(location + errorMsg);
     }
 
-    public static ParserException getParserException(NodeLocation nodeLocation, ParserErrors parserErrors,
-                                                     Object... params) {
-        //todo NodeLocation toString with below
-        String location = nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
-
-        String errorMsg = MessageFormat.format(messageBundle.getString(parserErrors.getErrorMsgKey()), params);
-        return new ParserException(location + errorMsg);
-    }
-
     public static String constructSemanticError(NodeLocation nodeLocation, SemanticErrors semanticError,
             Object... params) {
         String location = nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
