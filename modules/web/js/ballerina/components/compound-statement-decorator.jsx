@@ -19,7 +19,10 @@ import React from "react";
 import PropTypes from 'prop-types';
 import {statement} from './../configs/designer-defaults';
 import {lifeLine} from './../configs/designer-defaults';
+import * as DesignerDefaults from './../configs/designer-defaults';
 import ASTNode from '../ast/node';
+import ActionBox from './action-box';
+import SimpleBBox from './../ast/simple-bounding-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import './compound-statement-decorator.css';
 
@@ -27,7 +30,11 @@ class CompoundStatementDecorator extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false};
+        this.state = {
+            innerDropZoneActivated: false,
+            innerDropZoneDropNotAllowed: false,
+            showActions: false
+        };
     }
 
     render() {
@@ -35,17 +42,45 @@ class CompoundStatementDecorator extends React.Component {
         // we need to draw a drop box above the statement
         let drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
-    		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
-    		const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
+        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
+        const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
     											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 
-        return (<g className="compound-statement">
-            <rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
-                  className={dropZoneClassName}
-                  onMouseOver={(e) => this.onDropZoneActivate(e)}
-                  onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
+        const actionBbox = new SimpleBBox();
+        actionBbox.w = DesignerDefaults.actionBox.width;
+        actionBbox.h = DesignerDefaults.actionBox.height;
+        actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
+        actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
+
+        return (<g className="compound-statement"
+				   onMouseOut={ this.setActionVisibility.bind(this, false) }
+				   onMouseOver={ (e) => {
+                       if (!this.context.dragDropManager.isOnDrag()) {
+                           this.setActionVisibility(true)
+                       }
+                   }}>
+			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
+				  className={dropZoneClassName}
+				  onMouseOver={(e) => this.onDropZoneActivate(e)}
+				  onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
             {this.props.children}
-        </g>);
+			<ActionBox
+				bBox={ actionBbox }
+				show={ this.state.showActions }
+				isBreakpoint={ false }
+				onDelete={ () => this.onDelete() }
+				onJumptoCodeLine={ () => this.onJumptoCodeLine() }
+				onBreakpointClick={ () => this.onBreakpointClick() }
+			/>
+		</g>);
+    }
+
+    setActionVisibility(show) {
+        this.setState({showActions: show})
+    }
+
+    onDelete() {
+        this.props.model.remove();
     }
 
     onDropZoneActivate (e) {
