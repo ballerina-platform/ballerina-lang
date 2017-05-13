@@ -17,10 +17,8 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
-import TransformStatement from '../../ast/statements/transform-statement';
-import StatementVisitorFactory from './statement-visitor-factory';
+// import StatementVisitorFactory from './statement-visitor-factory';
 import TypeMapperBlockStatementVisitor from './type-mapper-block-statement-visitor';
 
 class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
@@ -28,33 +26,36 @@ class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
         super(parent);
     }
 
-    canVisitTransformStatement(typeMapperDefinition) {
+    canVisitTransformStatement() {
         return true;
     }
 
-    beginVisitTransformStatement(typeMapperDefinition) {
+    beginVisitTransformStatement(transformStatement) {
         /**
          * set the configuration start for the type mapper definition language construct
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
 
-        var constructedSourceSegment = '\n' + this.getIndentation() + 'transform ' +
-            typeMapperDefinition.getStatementString() +
-            '  {\n';
+        var constructedSourceSegment = '\n' + this.getIndentation() +
+                   transformStatement.getStatementString() +' {\n';
         this.appendSource(constructedSourceSegment);
-        this.indent();
-        log.debug('Begin Visit TypeMapperDefinition');
+        log.debug('Begin Visit TransformStatement');
     }
 
-    visitTransformStatement(typeMapperDefinition) {
-        log.debug('Visit TypeMapperDefinition');
+    visitTransformStatement(transformStatement) {
+        log.debug('Visit TransformStatement');
     }
 
-    endVisitTransformStatement(typeMapperDefinition) {
-        this.appendSource( "}\n");
+    visitBlockStatement(blockStatement) {
+        var blockStatementVisitor = new TypeMapperBlockStatementVisitor(this);
+        blockStatement.accept(blockStatementVisitor);
+    }
+
+    endVisitTransformStatement() {
+        this.appendSource(this.getIndentation() + '};\n');
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit TypeMapperDefinition');
+        log.debug('End Visit TransformStatement');
     }
 
 
