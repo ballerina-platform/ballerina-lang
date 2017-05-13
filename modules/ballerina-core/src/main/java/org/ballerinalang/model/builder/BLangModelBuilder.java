@@ -356,8 +356,15 @@ public class BLangModelBuilder {
         annonAttachmentBuilderStack.push(annotationBuilder);
     }
 
-    public void createAnnotationKeyValue(String key) {
+    public void createAnnotationKeyValue(WhiteSpaceDescriptor whiteSpaceDescriptor, String key) {
         AnnotationAttachment.AnnotationBuilder annotationBuilder = annonAttachmentBuilderStack.peek();
+        if (whiteSpaceDescriptor != null) {
+            WhiteSpaceDescriptor existingDescriptor = annotationAttributeValues.peek().getWhiteSpaceDescriptor();
+            if (existingDescriptor != null) {
+                annotationAttributeValues.peek().getWhiteSpaceDescriptor()
+                        .getWhiteSpaceRegions().putAll(whiteSpaceDescriptor.getWhiteSpaceRegions());
+            }
+        }
         annotationBuilder.addAttributeNameValuePair(key, annotationAttributeValues.pop());
     }
 
@@ -417,7 +424,7 @@ public class BLangModelBuilder {
      * 
      * @param location Location of the value in the source file
      */
-    public void createLiteralTypeAttributeValue(NodeLocation location) {
+    public void createLiteralTypeAttributeValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression expr = exprStack.pop();
         if (!(expr instanceof BasicLiteral)) {
             String errMsg = BLangExceptionHelper.constructSemanticError(expr.getNodeLocation(),
@@ -426,7 +433,8 @@ public class BLangModelBuilder {
         }
         BasicLiteral basicLiteral = (BasicLiteral) expr;
         BValue value = basicLiteral.getBValue();
-        annotationAttributeValues.push(new AnnotationAttributeValue(value, basicLiteral.getTypeName(), location));
+        annotationAttributeValues.push(new AnnotationAttributeValue(value, basicLiteral.getTypeName(), location,
+                whiteSpaceDescriptor));
     }
     
     /**
@@ -434,10 +442,10 @@ public class BLangModelBuilder {
      * 
      * @param location Location of the value in the source file
      */
-    public void createAnnotationTypeAttributeValue(NodeLocation location) {
+    public void createAnnotationTypeAttributeValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         AnnotationAttachment value = annonAttachmentStack.pop();
         SimpleTypeName valueType = new SimpleTypeName(value.getName(), value.getPkgName(), value.getPkgPath());
-        annotationAttributeValues.push(new AnnotationAttributeValue(value, valueType, location));
+        annotationAttributeValues.push(new AnnotationAttributeValue(value, valueType, location, whiteSpaceDescriptor));
     }
     
     /**
@@ -445,11 +453,11 @@ public class BLangModelBuilder {
      * 
      * @param location Location of the value in the source file
      */
-    public void createArrayTypeAttributeValue(NodeLocation location) {
+    public void createArrayTypeAttributeValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         SimpleTypeName valueType = new SimpleTypeName(null, true, 1);
         AnnotationAttributeValue arrayValue = new AnnotationAttributeValue(
             annotationAttributeValues.toArray(new AnnotationAttributeValue[annotationAttributeValues.size()]),
-            valueType, location);
+            valueType, location, whiteSpaceDescriptor);
         arrayValue.setNodeLocation(location);
         annotationAttributeValues.clear();
         annotationAttributeValues.push(arrayValue);

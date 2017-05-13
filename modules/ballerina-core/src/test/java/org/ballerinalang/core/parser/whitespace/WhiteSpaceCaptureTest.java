@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
@@ -122,5 +123,32 @@ public class WhiteSpaceCaptureTest {
                         "    ");
         Assert.assertEquals(annotationAttachment.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATCHMNT_END_TO_NEXT_TOKEN), "\n\n  ");
+    }
+
+
+    @Test(description = "Test captured whitespace regions of annotation attribute node")
+    public void testWhiteSpaceCaptureInAnnotationAttribute() {
+        AnnotationAttachment annotationAttachment = ((Service) bFile.getCompilationUnits()[0])
+                .getResources()[0].getAnnotations()[1];
+        AnnotationAttributeValue attribute = annotationAttachment.getAttribute("value2");
+        Assert.assertNotNull(attribute);
+        Assert.assertEquals(attribute.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATTRIB_KEY_START_TO_LAST_TOKEN), " ");
+        Assert.assertEquals(attribute.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATTRIB_KEY_TO_COLON), "   ");
+        Assert.assertEquals(attribute.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATTRIB_COLON_TO_VALUE_START), "    ");
+        Assert.assertEquals(attribute.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATTRIB_VALUE_START_TO_LAST_TOKEN), "    ");
+        Assert.assertEquals(attribute.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATTRIB_VALUE_END_TO_NEXT_TOKEN), "     ");
+        AnnotationAttributeValue[] valueArray = attribute.getValueArray();
+        Assert.assertNotNull(valueArray);
+        AnnotationAttributeValue arrayValue = valueArray[0];
+        Assert.assertEquals(arrayValue.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATTRIB_VALUE_START_TO_LAST_TOKEN), "     ");
+        Assert.assertEquals(arrayValue.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATTRIB_VALUE_END_TO_NEXT_TOKEN), "");
+
     }
 }

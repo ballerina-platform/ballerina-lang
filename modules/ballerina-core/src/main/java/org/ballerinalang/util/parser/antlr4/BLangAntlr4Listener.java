@@ -655,7 +655,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
         
         String key = ctx.Identifier().getText();
-        modelBuilder.createAnnotationKeyValue(key);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAnnotationAttributeWS(tokenStream, ctx);
+        }
+        modelBuilder.createAnnotationKeyValue(whiteSpaceDescriptor, key);
     }
 
     @Override
@@ -670,12 +674,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         ParseTree childContext = ctx.getChild(0);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAnnotationAttributeValueWS(tokenStream, ctx);
+        }
         if (childContext instanceof SimpleLiteralContext) {
-            modelBuilder.createLiteralTypeAttributeValue(getCurrentLocation(ctx));
+            modelBuilder.createLiteralTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor);
         } else if (childContext instanceof AnnotationAttachmentContext) {
-            modelBuilder.createAnnotationTypeAttributeValue(getCurrentLocation(ctx));
+            modelBuilder.createAnnotationTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor);
         } else if (childContext instanceof AnnotationAttributeArrayContext) {
-            modelBuilder.createArrayTypeAttributeValue(getCurrentLocation(ctx));
+            modelBuilder.createArrayTypeAttributeValue(getCurrentLocation(ctx), whiteSpaceDescriptor);
         }
     }
 

@@ -39,6 +39,7 @@ public class WhiteSpaceUtil {
     public static final String CLOSING_PAREN = ")";
     public static final String KEYWORD_AS = "as";
     public static final String OPENNING_CURLEY_BRACE = "{";
+    public static final String SYMBOL_COLON = ":";
 
     public static String getFileStartingWhiteSpace(CommonTokenStream tokenStream) {
         // find first non-whitespace token
@@ -156,11 +157,32 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
+    public static WhiteSpaceDescriptor getAnnotationAttributeWS(CommonTokenStream tokenStream,
+                                                                BallerinaParser.AnnotationAttributeContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATTRIB_KEY_START_TO_LAST_TOKEN,
+                getWhitespaceToLeft(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATTRIB_KEY_TO_COLON,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATTRIB_COLON_TO_VALUE_START,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, SYMBOL_COLON).getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getAnnotationAttributeValueWS(CommonTokenStream tokenStream,
+                                                                 BallerinaParser.AnnotationAttributeValueContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATTRIB_VALUE_START_TO_LAST_TOKEN,
+                     getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATTRIB_VALUE_END_TO_NEXT_TOKEN,
+                    getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
     protected static Token getFirstTokenWithText(List<ParseTree> children, String text) {
         return ((TerminalNode) children.stream()
                 .filter((child) -> child instanceof TerminalNode)
                 .filter((node) -> ((TerminalNode) node).getSymbol().getText().equals(text))
                 .findFirst().get()).getSymbol();
     }
-
 }

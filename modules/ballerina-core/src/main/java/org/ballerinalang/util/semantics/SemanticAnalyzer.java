@@ -765,7 +765,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BasicLiteral defaultValue = attributeDef.getAttributeValue();
                 if (defaultValue != null) {
                     annotation.addAttributeNameValuePair(attributeName,
-                        new AnnotationAttributeValue(defaultValue.getBValue(), defaultValue.getTypeName(), null));
+                        new AnnotationAttributeValue(defaultValue.getBValue(), defaultValue.getTypeName(), null, null));
                 }
                 continue;
             }

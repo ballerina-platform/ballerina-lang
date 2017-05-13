@@ -9,7 +9,7 @@ import   ballerina.connectors.twitter    as  tw   ;
   service HelloService {
 
   @POST {}
-  @  Path   {    value:"/tweet"}
+  @  Path   {    value:"/tweet", value2   :    [     "value2"]     }
 
   resource   tweet    (     message m)  {
 

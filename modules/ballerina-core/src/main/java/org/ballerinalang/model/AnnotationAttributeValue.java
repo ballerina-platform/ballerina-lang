@@ -35,24 +35,28 @@ public class AnnotationAttributeValue  implements Node {
     WhiteSpaceDescriptor whiteSpaceDescriptor;
     SimpleTypeName type;
     
-    public AnnotationAttributeValue(BValue bValue, SimpleTypeName valueType, NodeLocation location) {
+    public AnnotationAttributeValue(BValue bValue, SimpleTypeName valueType, NodeLocation location,
+                                    WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.bValue = bValue;
         this.type = valueType;
         this.location = location;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
     
     public AnnotationAttributeValue(AnnotationAttachment annotationValue, SimpleTypeName valueType,
-            NodeLocation location) {
+            NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.annotationValue = annotationValue;
         this.type = valueType;
         this.location = location;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
     
     public AnnotationAttributeValue(AnnotationAttributeValue[] valueArray, SimpleTypeName valueType, 
-            NodeLocation location) {
+            NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.valueArray = valueArray;
         this.type = valueType;
         this.location = location;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
     
     public AnnotationAttachment getAnnotationValue() {

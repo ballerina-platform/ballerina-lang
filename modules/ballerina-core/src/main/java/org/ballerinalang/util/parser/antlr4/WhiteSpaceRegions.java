@@ -56,4 +56,11 @@ public class WhiteSpaceRegions {
     public static final int ANNOTATION_ATCHMNT_IDENTIFIER_TO_ATTRIB_LIST_START = 1;
     public static final int ANNOTATION_ATCHMNT_ATTRIB_LIST_START_TO_FIRST_ATTRIB = 2;
     public static final int ANNOTATION_ATCHMNT_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in a annotation attribute
+    public static final int ANNOTATION_ATTRIB_KEY_START_TO_LAST_TOKEN = 0;
+    public static final int ANNOTATION_ATTRIB_KEY_TO_COLON = 1;
+    public static final int ANNOTATION_ATTRIB_COLON_TO_VALUE_START = 2;
+    public static final int ANNOTATION_ATTRIB_VALUE_START_TO_LAST_TOKEN = 3;
+    public static final int ANNOTATION_ATTRIB_VALUE_END_TO_NEXT_TOKEN = 4;
 }
