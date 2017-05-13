@@ -38,8 +38,8 @@ class FunctionDefinition extends React.Component {
 
         //lets calculate function worker lifeline bounding box.
         let function_worker_bBox = {};
-        function_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width)/2;
-        function_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height ;
+        function_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
+        function_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
         function_worker_bBox.w = lifeLine.width;
         function_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
@@ -48,59 +48,36 @@ class FunctionDefinition extends React.Component {
 
         // change icon for main function
         let icons = "tool-icons/function";
-        if('main' === name){
+        if ('main' === name) {
             icons = "tool-icons/main-function";
         }
 
-        let titleComponentData = [
-            {
-                rComponent: ParameterView,
-                title: 'Parameters: ',
-                components: {
-                    openingBracket: this.props.model.getViewState().components.openingParameter,
-                    titleText: this.props.model.getViewState().components.parametersText,
-                    closingBracket: this.props.model.getViewState().components.closingParameter
-                },
-                openingBracketClassName: 'parameter-opening-brack-text',
-                closingBracketClassName: 'parameter-closing-brack-text',
-                prefixTextClassName: 'parameter-prefix-text',
-                models: this.props.model.getArguments()
-            },
-            {
-                rComponent: ReturnTypeView,
-                title: 'Return Types: ',
-                components: {
-                    openingBracket: this.props.model.getViewState().components.openingReturnType,
-                    titleText: this.props.model.getViewState().components.returnTypesText,
-                    closingBracket: this.props.model.getViewState().components.closingReturnType
-                },
-                openingBracketClassName: 'return-types-opening-brack-text',
-                closingBracketClassName: 'return-types-closing-brack-text',
-                prefixTextClassName: 'return-types-prefix-text',
-                models: this.props.model.getReturnTypes()
-            }
-        ];
+        let titleComponentData = [{
+            model: this.props.model.getArgumentParameterDefinitionHolder()
+        }, {
+            model: this.props.model.getReturnParameterDefinitionHolder()
+        }];
 
         return (<PanelDecorator icon={icons} title={name} bBox={bBox}
-                        model={this.props.model}
-                        dropTarget={this.props.model}
-                        dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
-                        titleComponentData={titleComponentData}>
-                    <LifeLine title="FunctionWorker" bBox={function_worker_bBox}/>
-                    <StatementContainer  dropTarget={this.props.model}
-                      title="StatementContainer" bBox={statementContainerBBox}>
-                      {children}
-                    </StatementContainer>
-                </PanelDecorator>);
+                                model={this.props.model}
+                                dropTarget={this.props.model}
+                                dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
+                                titleComponentData={titleComponentData}>
+            <LifeLine title="FunctionWorker" bBox={function_worker_bBox}/>
+            <StatementContainer dropTarget={this.props.model}
+                                title="StatementContainer" bBox={statementContainerBBox}>
+                {children}
+            </StatementContainer>
+        </PanelDecorator>);
     }
 
-    canDropToPanelBody (nodeBeingDragged) {
-          let nodeFactory = this.props.model.getFactory();
-          // IMPORTANT: override default validation logic
-          // Panel's drop zone is for worker and connector declarations only.
-          // Statements should only be allowed on top of function worker's dropzone.
-          return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-              || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
+    canDropToPanelBody(nodeBeingDragged) {
+        let nodeFactory = this.props.model.getFactory();
+        // IMPORTANT: override default validation logic
+        // Panel's drop zone is for worker and connector declarations only.
+        // Statements should only be allowed on top of function worker's dropzone.
+        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
+            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
     }
 
 

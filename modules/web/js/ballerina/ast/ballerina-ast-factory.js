@@ -1436,7 +1436,7 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         case 'connector':
             node = BallerinaASTFactory.createConnectorDefinition();
             break;
-        case 'action':
+        case 'action_definition':
             node = BallerinaASTFactory.createConnectorAction();
             break;
         case 'constant_definition':

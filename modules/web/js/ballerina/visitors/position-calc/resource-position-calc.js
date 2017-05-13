@@ -56,7 +56,7 @@ class ResourceDefinitionPositionCalcVisitor {
         }
 
         // Positioning the closing brack component of the parameters.
-        viewState.components.closingParameter.x = nextXPositionOfParameter;
+        viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
         viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
     }
 

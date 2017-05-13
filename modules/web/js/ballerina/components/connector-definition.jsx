@@ -20,7 +20,7 @@ import React from 'react'
 import ConnectorActionDefinition from './connector-action-definition.jsx'
 import StatementView from './statement-decorator.jsx'
 import PanelDecorator from './panel-decorator';
-import { getComponentForNodeArray } from './utils';
+import {getComponentForNodeArray} from './utils';
 
 class ConnectorDefinition extends React.Component {
 
@@ -31,12 +31,17 @@ class ConnectorDefinition extends React.Component {
         //get the connector name
         let title = model.getConnectorName();
 
-        var children = getComponentForNodeArray(this.props.model.getChildren());
+        let children = getComponentForNodeArray(this.props.model.getChildren());
+
+        let titleComponentData = [{
+            model: this.props.model.getArgumentParameterDefinitionHolder()
+        }];
 
         return (<PanelDecorator icon="tool-icons/connector" title={title} bBox={bBox}
-            model={model}
-            dropTarget={this.props.model}
-            dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}>
+                                model={model}
+                                dropTarget={this.props.model}
+                                dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
+                                titleComponentData={titleComponentData}>
             {children}
         </PanelDecorator>);
     }

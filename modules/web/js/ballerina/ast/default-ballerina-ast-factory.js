@@ -159,7 +159,7 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
  * @param args
  */
 DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
-    var connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
+    let connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
     connectorDef.addArgument('message', 'm');
     return connectorDef;
 };
@@ -169,7 +169,7 @@ DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
  * @param args
  */
 DefaultBallerinaASTFactory.createConnectorAction = function (args) {
-    var actionDef = BallerinaASTFactory.createConnectorAction(args);
+    let actionDef = BallerinaASTFactory.createConnectorAction(args);
     actionDef.addArgument('message', 'm');
     return actionDef;
 };
@@ -182,7 +182,7 @@ DefaultBallerinaASTFactory.createConnectorAction = function (args) {
  * @see {@link VariableDefinitionStatement}
  */
 DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
-    var variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
+    let variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
     variableDefinitionStatement.setLeftExpression('int i');
     variableDefinitionStatement.setRightExpression('0');
     return variableDefinitionStatement;

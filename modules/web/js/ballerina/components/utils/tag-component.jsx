@@ -59,8 +59,9 @@ class TagController extends React.Component {
             }
 
             // model.getArgumentParameterDefinitionHolder().addChild(parameterDef);
-            setter.addChild(parameterDef);
+            setter(parameterDef);
         }
+        e.target.value = "";
         this.setState({editing: false, editValue: DEFAULT_INPUT_VALUE})
     }
 
@@ -123,19 +124,12 @@ class TagController extends React.Component {
                 <text x={componentData.components.titleText.x} y={componentData.components.titleText.y + 3}
                       className={componentData.prefixTextClassName}>{componentData.title}</text>
                 {modelComponents}
-                <text x={componentData.components.closingBracket.x + 110}
-                      y={componentData.components.closingBracket.y + 3}
-                      className={componentData.closingBracketClassName}>)
-                </text>
 
                 <g>
-                    {this.props.tags}
-                </g>
-                <g>
-                    <rect x={componentData.components.closingBracket.x + 10}
+                    <rect x={componentData.components.closingBracket.x - 100}
                           y={componentData.components.closingBracket.y + 3} width={90} height={18}
                           className="attribute-content-operations-wrapper"/>
-                    <EditableText x={componentData.components.closingBracket.x + 10}
+                    <EditableText x={componentData.components.closingBracket.x - 100}
                                   y={componentData.components.closingBracket.y + 17}
                                   className="tag-component-editable-text-box"
                                   placeHolder={this.state.editValue}
@@ -151,6 +145,10 @@ class TagController extends React.Component {
                                   }}>
                     </EditableText>
                 </g>
+                <text x={componentData.components.closingBracket.x}
+                      y={componentData.components.closingBracket.y + 3}
+                      className={componentData.closingBracketClassName}>)
+                </text>
             </g>
         );
     }

@@ -16,14 +16,38 @@
  * under the License.
  */
 import React from 'react';
+import TagController from './utils/tag-component';
+import {getComponentForNodeArray} from './utils';
+
 class ReturnParameterDefinitionHolder extends React.Component {
 
     constructor() {
         super();
+        this.addReturnParameter = this.addReturnParameter.bind(this);
+    }
+
+    addReturnParameter(node) {
+        this.props.model.addChild(node);
     }
 
     render() {
-        return <text>hi Return</text>;
+        let model = this.props.model;
+        let componentData = {
+            title: 'Return Types: ',
+            components: {
+                openingBracket: this.props.model.parent.getViewState().components.openingReturnType,
+                titleText: this.props.model.parent.getViewState().components.returnTypesText,
+                closingBracket: this.props.model.parent.getViewState().components.closingReturnType
+            },
+            openingBracketClassName: 'return-types-opening-brack-text',
+            closingBracketClassName: 'return-types-closing-brack-text',
+            prefixTextClassName: 'return-types-prefix-text',
+        };
+        let children = getComponentForNodeArray(model.getChildren());
+        return (
+            <TagController key={model.getID()} model={model} setter={this.addReturnParameter}
+                           modelComponents={children} componentData={componentData}/>
+        );
     }
 }
 

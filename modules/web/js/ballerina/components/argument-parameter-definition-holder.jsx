@@ -16,14 +16,39 @@
  * under the License.
  */
 import React from 'react';
+import TagController from './utils/tag-component';
+import {getComponentForNodeArray} from './utils';
+
 class ArgumentParameterDefinitionHolder extends React.Component {
 
     constructor() {
         super();
+        this.addParameter = this.addParameter.bind(this);
+    }
+
+    addParameter(node) {
+        this.props.model.addChild(node);
     }
 
     render() {
-        return <text>hi Argument</text>;
+        let model = this.props.model;
+        let componentData = {
+            title: 'Parameters: ',
+            components: {
+                openingBracket: this.props.model.parent.getViewState().components.openingParameter,
+                titleText: this.props.model.parent.getViewState().components.parametersText,
+                closingBracket: this.props.model.parent.getViewState().components.closingParameter
+            },
+            prefixView: this.props.model.parent.getViewState().components.parametersPrefixContainer,
+            openingBracketClassName: 'parameter-opening-brack-text',
+            closingBracketClassName: 'parameter-closing-brack-text',
+            prefixTextClassName: 'parameter-prefix-text'
+        };
+        let children = getComponentForNodeArray(model.getChildren());
+        return (
+            <TagController key={model.getID()} model={model} setter={this.addParameter}
+                           modelComponents={children} componentData={componentData}/>
+        );
     }
 }
 

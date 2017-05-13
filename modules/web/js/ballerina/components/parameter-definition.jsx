@@ -16,9 +16,9 @@
  * under the License.
  */
 import React from 'react';
-import ImageUtil from './../image-util';
+import ImageUtil from './image-util';
 
-class Tag extends React.Component {
+class ParameterDefinition extends React.Component {
     constructor() {
         super();
     }
@@ -45,4 +45,4 @@ class Tag extends React.Component {
     }
 }
 
-export default Tag;
+export default ParameterDefinition;

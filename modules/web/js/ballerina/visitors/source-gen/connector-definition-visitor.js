@@ -50,14 +50,14 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
         let constructedSourceSegment = '\n';
         _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
-                constructedSourceSegment += this.getIndentation() +  annotationNode.toString() + '\n';
+                constructedSourceSegment += this.getIndentation() + annotationNode.toString() + '\n';
             }
         });
 
-        var argumentsSrc = '';
-        _.forEach(connectorDefinition.getArguments(), function(argument, index){
-            argumentsSrc += argument.type + ' ';
-            argumentsSrc += argument.identifier;
+        let argumentsSrc = '';
+        _.forEach(connectorDefinition.getArguments(), function (argument, index) {
+            argumentsSrc += argument.getTypeName() + ' ';
+            argumentsSrc += argument.getName();
             if (connectorDefinition.getArguments().length - 1 !== index) {
                 argumentsSrc += ', ';
             }
@@ -90,7 +90,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {ConnectorAction} connectorAction
      */
     visitConnectorAction(connectorAction) {
-        var connectorActionVisitor = new ConnectorActionVisitor(this);
+        let connectorActionVisitor = new ConnectorActionVisitor(this);
         connectorAction.accept(connectorActionVisitor);
     }
 
@@ -99,7 +99,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {ConnectorDeclaration} connectorDeclaration
      */
     visitConnectorDeclaration(connectorDeclaration) {
-        var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        let connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 
@@ -108,7 +108,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {VariableDeclaration} variableDeclaration
      */
     visitVariableDeclaration(variableDeclaration) {
-        var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+        let variableDeclarationVisitor = new VariableDeclarationVisitor(this);
         variableDeclaration.accept(variableDeclarationVisitor);
     }
 
@@ -117,8 +117,8 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {Statement} statement
      */
     visitStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        let statementVisitorFactory = new StatementVisitorFactory();
+        let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 }
