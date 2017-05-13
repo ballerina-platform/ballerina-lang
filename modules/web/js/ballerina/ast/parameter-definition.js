@@ -56,7 +56,7 @@ class ParameterDefinition extends VariableDefinition {
     
     addAnnotation() {
         //TODO 
-        var annotation = this.getFactory().createAnnotation();
+        let annotation = this.getFactory().createAnnotation();
         this.addChild(annotation);
     }
 

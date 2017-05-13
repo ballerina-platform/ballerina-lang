@@ -19,8 +19,8 @@
 import React from 'react';
 import LifeLineDecorator from './lifeline.jsx';
 import StatementContainer from './statement-container';
-import PanelDecorator from './panel-decorator';
-import ParameterView from './parameter-view';
+import PanelDecorator from './panel-decorator'
+import Tag from './utils/tag';
 import {getComponentForNodeArray} from './utils';
 import {lifeLine} from './../configs/designer-defaults';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
@@ -31,21 +31,21 @@ class ResourceDefinition extends React.Component {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getResourceName();
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
-        let annotations = this.props.model.getChildren().filter(function(child){
+        let annotations = this.props.model.getChildren().filter(function (child) {
             return BallerinaASTFactory.isAnnotation(child);
         });
 
         //lets calculate function worker lifeline bounding box.
         let resource_worker_bBox = {};
-        resource_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width)/2;
-        resource_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height ;
+        resource_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
+        resource_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
         resource_worker_bBox.w = lifeLine.width;
         resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
-        var children = getComponentForNodeArray(this.props.model.getChildren());
+        let children = getComponentForNodeArray(this.props.model.getChildren());
 
         let titleComponentData = [{
-            rComponent: ParameterView,
+            rComponent: Tag,
             title: 'Parameters: ',
             components: {
                 openingBracket: this.props.model.getViewState().components.openingParameter,
@@ -56,31 +56,33 @@ class ResourceDefinition extends React.Component {
             openingBracketClassName: 'parameter-opening-brack-text',
             closingBracketClassName: 'parameter-closing-brack-text',
             prefixTextClassName: 'parameter-prefix-text',
-            models: this.props.model.getParameters()
-        }
-            ];
+            models: this.props.model.getArgumentParameterDefinitionHolder().getChildren(),
+            parent: this.props.model,
+
+        }];
 
         return (<PanelDecorator icon="tool-icons/resource" title={name} annotations={annotations} bBox={bBox}
-                        model={this.props.model}
-                        dropTarget={this.props.model}
-                        dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
-                        titleComponentData={titleComponentData}>
+                                model={this.props.model}
+                                setter={this.props.model.getArgumentParameterDefinitionHolder()}
+                                dropTarget={this.props.model}
+                                dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
+                                titleComponentData={titleComponentData}>
             <g>
                 <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox}/>
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
-                  {children}
+                    {children}
                 </StatementContainer>
             </g>
         </PanelDecorator>);
     }
 
-    canDropToPanelBody (nodeBeingDragged) {
-          let nodeFactory = this.props.model.getFactory();
-          // IMPORTANT: override default validation logic
-          // Panel's drop zone is for worker and connector declarations only.
-          // Statements should only be allowed on top of resource worker's dropzone.
-          return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-              || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
+    canDropToPanelBody(nodeBeingDragged) {
+        let nodeFactory = this.props.model.getFactory();
+        // IMPORTANT: override default validation logic
+        // Panel's drop zone is for worker and connector declarations only.
+        // Statements should only be allowed on top of resource worker's dropzone.
+        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
+            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
     }
 }
 

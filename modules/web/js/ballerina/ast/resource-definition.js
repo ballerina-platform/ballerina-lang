@@ -45,8 +45,8 @@ class ResourceDefinition extends ASTNode {
     }
 
     getVariableDefinitionStatements() {
-        var variableDefinitionStatements = [];
-        var self = this;
+        let variableDefinitionStatements = [];
+        let self = this;
 
         _.forEach(this.getChildren(), function (child) {
             if (self.getFactory().isVariableDefinitionStatement(child)) {
@@ -57,15 +57,7 @@ class ResourceDefinition extends ASTNode {
     }
 
     getParameters() {
-        var resourceParameters = [];
-        var self = this;
-
-        _.forEach(this.getChildren(), function (child) {
-            if (self.getFactory().isResourceParameter(child)) {
-                resourceParameters.push(child);
-            }
-        });
-        return resourceParameters;
+        return this.getArgumentParameterDefinitionHolder().getChildren();
     }
 
     getResourceName() {
@@ -76,9 +68,9 @@ class ResourceDefinition extends ASTNode {
      * Adds new variable declaration.
      */
     addVariableDeclaration(newVariableDeclaration) {
-        var self = this;
+        let self = this;
         // Get the index of the last variable declaration.
-        var index = _.findLastIndex(this.getChildren(), function (child) {
+        let index = _.findLastIndex(this.getChildren(), function (child) {
             return self.getFactory().isVariableDeclaration(child);
         });
 
@@ -97,9 +89,9 @@ class ResourceDefinition extends ASTNode {
      * Adds new variable declaration.
      */
     removeVariableDeclaration(variableDeclarationIdentifier) {
-        var self = this;
+        let self = this;
         // Removing the variable from the children.
-        var variableDeclarationChild = _.find(this.getChildren(), function (child) {
+        let variableDeclarationChild = _.find(this.getChildren(), function (child) {
             return self.getFactory().isVariableDeclaration(child)
                 && child.getIdentifier() === variableDeclarationIdentifier;
         });
@@ -111,11 +103,11 @@ class ResourceDefinition extends ASTNode {
      * @return {string} - Parameters as string.
      */
     getParametersAsString() {
-        var paramsAsString = "";
-        var params = this.getParameters();
+        let paramsAsString = "";
+        let params = this.getParameters();
 
-        _.forEach(params, function(parameter, index){
-            paramsAsString += parameter.getParameterAsString();
+        _.forEach(params, function (parameter, index) {
+            paramsAsString += parameter.getParameterDefinitionAsString();
             if (params.length - 1 != index) {
                 paramsAsString += ", ";
             }
@@ -133,27 +125,27 @@ class ResourceDefinition extends ASTNode {
      */
     addParameter(annotationType, annotationText, parameterType, parameterIdentifier) {
         // Check if already parameter exists with same identifier.
-        var identifierAlreadyExists = _.findIndex(this.getParameters(), function (parameter) {
-                return parameter.getIdentifier() === parameterIdentifier;
+        let identifierAlreadyExists = _.findIndex(this.getParameters(), function (parameter) {
+                return parameter.getName() === parameterIdentifier;
             }) !== -1;
 
         // If parameter with the same identifier exists, then throw an error. Else create the new parameter.
         if (identifierAlreadyExists) {
-            var errorString = "A resource parameter with identifier '" + parameterIdentifier + "' already exists.";
+            let errorString = "A resource parameter with identifier '" + parameterIdentifier + "' already exists.";
             log.error(errorString);
             throw errorString;
         } else {
             // Creating resource parameter
-            var newParameter = this.getFactory().createResourceParameter();
+            let newParameter = this.getFactory().createResourceParameter();
             newParameter.setAnnotationType(annotationType);
             newParameter.setAnnotationText(annotationText);
             newParameter.setType(parameterType);
-            newParameter.setIdentifier(parameterIdentifier);
+            newParameter.setName(parameterIdentifier);
 
-            var self = this;
+            let self = this;
 
             // Get the index of the last resource parameter declaration.
-            var index = _.findLastIndex(this.getChildren(), function (child) {
+            let index = _.findLastIndex(this.getChildren(), function (child) {
                 return self.getFactory().isResourceParameter(child);
             });
 
@@ -166,9 +158,9 @@ class ResourceDefinition extends ASTNode {
      * @param {string} modelID - The id of the parameter model.
      */
     removeParameter(modelID) {
-        var self = this;
+        let self = this;
         // Deleting the variable from the children.
-        var resourceParameter = _.find(this.getChildren(), function (child) {
+        let resourceParameter = _.find(this.getChildren(), function (child) {
             return self.getFactory().isResourceParameter(child) && child.id === modelID;
         });
 
@@ -184,8 +176,8 @@ class ResourceDefinition extends ASTNode {
     }
 
     getConnectionDeclarations() {
-        var connectorDeclaration = [];
-        var self = this;
+        let connectorDeclaration = [];
+        let self = this;
 
         _.forEach(this.getChildren(), function (child) {
             if (self.getFactory().isConnectorDeclaration(child)) {
@@ -198,8 +190,8 @@ class ResourceDefinition extends ASTNode {
     }
 
     getWorkerDeclarations() {
-        var workerDeclarations = [];
-        var self = this;
+        let workerDeclarations = [];
+        let self = this;
 
         _.forEach(this.getChildren(), function (child) {
             if (self.getFactory().isWorkerDeclaration(child)) {
@@ -209,6 +201,15 @@ class ResourceDefinition extends ASTNode {
         return _.sortBy(workerDeclarations, [function (workerDeclaration) {
             return workerDeclaration.getWorkerName();
         }]);
+    }
+
+    getArgumentParameterDefinitionHolder() {
+        let argParamDefHolder = this.findChild(this.getFactory().isArgumentParameterDefinitionHolder);
+        if (_.isUndefined(argParamDefHolder)) {
+            argParamDefHolder = this.getFactory().createArgumentParameterDefinitionHolder();
+            this.addChild(argParamDefHolder);
+        }
+        return argParamDefHolder;
     }
 
     /**
@@ -237,8 +238,8 @@ class ResourceDefinition extends ASTNode {
         this.setResourceName(jsonNode.resource_name, {doSilently: true});
         let self = this;
         _.each(jsonNode.children, function (childNode) {
-            var child = undefined;
-            var childNodeTemp = undefined;
+            let child = undefined;
+            let childNodeTemp = undefined;
             if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
@@ -316,11 +317,11 @@ class ResourceDefinition extends ASTNode {
      * @return {ConnectorDeclaration}
      */
     getConnectorByName(connectorName) {
-        var connectorReference = _.find(this.getChildren(), (child) => {
+        let connectorReference = _.find(this.getChildren(), (child) => {
             return (this.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
         });
 
-        return !_.isNil(connectorReference) ? connectorReference : this.getParent(). getConnectorByName(connectorName);
+        return !_.isNil(connectorReference) ? connectorReference : this.getParent().getConnectorByName(connectorName);
     }
 
     /**
@@ -328,8 +329,8 @@ class ResourceDefinition extends ASTNode {
      * @return {ConnectorDeclaration[]} connectorReferences
      */
     getConnectorsInImmediateScope() {
-        var factory = this.getFactory();
-        var connectorReferences = _.filter(this.getChildren(), function (child) {
+        let factory = this.getFactory();
+        let connectorReferences = _.filter(this.getChildren(), function (child) {
             return factory.isConnectorDeclaration(child);
         });
 

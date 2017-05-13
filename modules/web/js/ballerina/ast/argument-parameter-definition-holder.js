@@ -27,7 +27,7 @@ class ArgumentParameterDefinitionHolder extends ASTNode{
      * @constructor
      */
     constructor(args) {
-        super(args, 'ArgumentParameterDefinitionHolder');
+        super('ArgumentParameterDefinitionHolder');
     }
 
     /**
@@ -35,10 +35,10 @@ class ArgumentParameterDefinitionHolder extends ASTNode{
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        var self = this;
+        let self = this;
 
         _.each(jsonNode.children, function (childNode){
-            var child = self.getFactory().createFromJson(childNode);
+            let child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
