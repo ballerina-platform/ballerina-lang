@@ -38,7 +38,7 @@ public class FileSystemPackageRepository extends PackageRepository {
     public PackageSource loadPackage(Path packageDirPath) {
         for (BuiltinPackageRepository pkgRepository : pkgRepositories) {
             PackageSource packageSource = pkgRepository.loadPackage(packageDirPath);
-            if (packageSource != null) {
+            if (packageSource != null && !packageSource.getSourceFileStreamMap().isEmpty()) {
                 return packageSource;
             }
         }

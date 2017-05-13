@@ -121,3 +121,8 @@ native function replace (string mainString, string replacePattern, string replac
 @doc:Return { value:"string: String representation of the specified string argument" }
 native function valueOf (string s) (string);
 
+@doc:Description { value:"Splits the string with the given regular expression to produce a string array."}
+@doc:Param { value:"mainString: The original string argument" }
+@doc:Param { value:"regex: The regex to split the string" }
+@doc:Return { value:"string[]: The split string array" }
+native function split (string mainString, string regex) (string[]);

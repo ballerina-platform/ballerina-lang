@@ -34,7 +34,7 @@ public class TypeMapperImportTest {
         bLangProgram = BTestUtils.parseBalFile("lang/expressions/mappers/default");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testStructMapper() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapper");
         Assert.assertTrue(returns[0] instanceof BString);
@@ -42,7 +42,7 @@ public class TypeMapperImportTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testStructMapperLocal() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapperLocal");
         Assert.assertTrue(returns[0] instanceof BString);

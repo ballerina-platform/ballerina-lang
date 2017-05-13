@@ -1237,6 +1237,14 @@ public class BLangExecutor implements NodeExecutor {
         return getFieldExprValue(fieldExpr, value);
     }
 
+    private SymbolName generateErrorSymbolName(SymbolName symbolName) {
+        if (symbolName.getPkgPath() != null && symbolName.getPkgPath().equals(".")) {
+            return new SymbolName(symbolName.getName());
+        } else {
+            return symbolName;
+        }
+    }
+
     /**
      * Get the unit value of the current value.
      * <br/>
@@ -1256,7 +1264,8 @@ public class BLangExecutor implements NodeExecutor {
     private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
         ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
         if (currentVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName() + "' is null");
+            throw new BallerinaException("field '" + generateErrorSymbolName(currentVarRefExpr.getSymbolName())
+                    + "' is null");
         }
 
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {

@@ -456,7 +456,7 @@ public class BLangModelBuilder {
      */
     public void addParam(NodeLocation location, SimpleTypeName typeName, String paramName,
                          int annotationCount, boolean isReturnParam) {
-        SymbolName symbolName = new SymbolName(paramName);
+        SymbolName symbolName = new SymbolName(paramName, currentPackagePath);
 
         // Check whether this parameter is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
@@ -529,7 +529,8 @@ public class BLangModelBuilder {
      * @param dimensions dimensions of map array.
      */
     public void createMapArrayVarRefExpr(NodeLocation location, NameReference nameReference, int dimensions) {
-        VariableRefExpr arrayVarRefExpr = new VariableRefExpr(location, nameReference.name);
+        VariableRefExpr arrayVarRefExpr = new VariableRefExpr(location, nameReference.name,
+                nameReference.pkgName, nameReference.pkgPath);
 
         Expression[] indexExprs = new Expression[dimensions];
         int i = 0;
@@ -881,7 +882,7 @@ public class BLangModelBuilder {
         currentCUBuilder.setNodeLocation(sourceLocation);
 
         // define worker parameter
-        SymbolName paramSymbolName = new SymbolName(paramName);
+        SymbolName paramSymbolName = new SymbolName(paramName, currentPackagePath);
         ParameterDef paramDef = new ParameterDef(sourceLocation, paramName,
             new SimpleTypeName(BTypes.typeMessage.getName()), paramSymbolName, currentScope);
         currentScope.define(paramSymbolName, paramDef);
@@ -1188,7 +1189,7 @@ public class BLangModelBuilder {
         BlockStmt catchBlock = catchBlockBuilder.build();
         currentScope = catchBlock.getEnclosingScope();
 
-        SymbolName symbolName = new SymbolName(argName);
+        SymbolName symbolName = new SymbolName(argName, currentPackagePath);
         ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), argName, exceptionType, symbolName,
                 currentScope);
         currentScope.resolve(symbolName);
@@ -1233,7 +1234,7 @@ public class BLangModelBuilder {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt forkJoinStmt = blockStmtBuilder.build();
-        SymbolName symbolName = new SymbolName(paramName);
+        SymbolName symbolName = new SymbolName(paramName, currentPackagePath);
 
         // Check whether this constant is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
@@ -1323,7 +1324,8 @@ public class BLangModelBuilder {
     }
 
     public void createWorkerInvocationStmt(String receivingMsgRef, String workerName, NodeLocation sourceLocation) {
-        VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef));
+        VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef,
+                currentPackagePath));
         WorkerInvocationStmt workerInvocationStmt = new WorkerInvocationStmt(workerName, sourceLocation);
         //workerInvocationStmt.setLocation(sourceLocation);
         workerInvocationStmt.setInMsg(variableRefExpr);
@@ -1331,7 +1333,8 @@ public class BLangModelBuilder {
     }
 
     public void createWorkerReplyStmt(String receivingMsgRef, String workerName, NodeLocation sourceLocation) {
-        VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef));
+        VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef,
+                currentPackagePath));
         WorkerReplyStmt workerReplyStmt = new WorkerReplyStmt(variableRefExpr, workerName, sourceLocation);
         //workerReplyStmt.setLocation(sourceLocation);
         blockStmtBuilderStack.peek().addStmt(workerReplyStmt);
@@ -1448,9 +1451,10 @@ public class BLangModelBuilder {
         }
         ReferenceExpr field = (ReferenceExpr) exprStack.pop();
         StructFieldAccessExpr fieldExpr;
-        if (field.getPkgPath() != null) {
-            throw BLangExceptionHelper.getParserException(location,
-                    ParserErrors.STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER, field.getPkgName() + ":" + field.getVarName());
+        //TODO
+        if (field.getPkgPath() != null && !field.getPkgPath().equals(".")) {
+             throw  BLangExceptionHelper.getParserException(location,
+                   ParserErrors.STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER, field.getPkgName() + ":" + field.getVarName());
         }
         if (field instanceof StructFieldAccessExpr) {
             fieldExpr = (StructFieldAccessExpr) field;

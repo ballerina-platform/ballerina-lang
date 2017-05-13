@@ -289,7 +289,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Check whether this constant is already defined.
-        SymbolName symbolName = new SymbolName(constDef.getName());
+        SymbolName symbolName = new SymbolName(constDef.getName(), currentPkg);
         if (currentScope.resolve(symbolName) != null) {
             BLangExceptionHelper.throwSemanticError(constDef,
                     SemanticErrors.REDECLARED_SYMBOL, constDef.getName());
@@ -895,7 +895,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         varDef.setType(varBType);
 
         // Check whether this variable is already defined, if not define it.
-        SymbolName symbolName = new SymbolName(varDef.getName());
+        SymbolName symbolName = new SymbolName(varDef.getName(), currentPkg);
         BLangSymbol varSymbol = currentScope.resolve(symbolName);
         if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
             BLangExceptionHelper.throwSemanticError(varDef, SemanticErrors.REDECLARED_SYMBOL, varDef.getName());
@@ -1798,7 +1798,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             VariableRefExpr varRefExpr = (VariableRefExpr) keyExpr;
-            BLangSymbol varDefSymbol = structDef.resolveMembers(varRefExpr.getSymbolName());
+            //TODO fix properly package conflict
+            BLangSymbol varDefSymbol = structDef.resolveMembers(new SymbolName(varRefExpr.getSymbolName().getName(),
+                    structDef.getPackagePath()));
             
             if (varDefSymbol == null) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.UNKNOWN_FIELD_IN_STRUCT,
@@ -1888,7 +1890,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     indexExpr.setType(BTypes.typeInt);
                 }
 
-                SymbolName mapOrArrName = new SymbolName(m.group(2));
+                SymbolName mapOrArrName = new SymbolName(m.group(2), currentPkg);
 
                 ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder =
                         new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
@@ -1905,7 +1907,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 argExprList.add(arrayMapAccessExpr);
             } else {
                 VariableRefExpr variableRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(),
-                        new SymbolName(m.group(1)));
+                        new SymbolName(m.group(1), currentPkg));
                 visit(variableRefExpr);
                 argExprList.add(variableRefExpr);
             }
@@ -1932,9 +1934,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Check whether this symName is declared
         BLangSymbol varDefSymbol = currentScope.resolve(symbolName);
-        
+
         if (varDefSymbol == null) {
-            BLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.UNDEFINED_SYMBOL, symbolName);
+            BLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.UNDEFINED_SYMBOL,
+                    generateErrorSymbolName(symbolName));
         }
         
         if (!(varDefSymbol instanceof VariableDef)) {
@@ -2191,7 +2194,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (lExpr instanceof VariableRefExpr &&
                 ((VariableRefExpr) lExpr).getMemoryLocation() instanceof ConstantLocation) {
             BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.CANNOT_ASSIGN_VALUE_CONSTANT,
-                    ((VariableRefExpr) lExpr).getSymbolName());
+                    generateErrorSymbolName(((VariableRefExpr) lExpr).getSymbolName()));
         }
     }
 
@@ -2494,7 +2497,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             actionSymbol = ((BallerinaConnectorDef) connectorSymbol).resolveMembers(symbolName);
         } else {
             BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED,
-                connectorSymbolName);
+                generateErrorSymbolName(connectorSymbolName));
         }
 
         if ((actionSymbol instanceof BallerinaAction) && (actionSymbol.isNative())) {
@@ -2575,7 +2578,15 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void visitStructField(StructFieldAccessExpr structFieldAccessExpr, SymbolScope currentScope) {
         ReferenceExpr varRefExpr = structFieldAccessExpr.getVarRef();
         SymbolName symbolName = varRefExpr.getSymbolName();
-        BLangSymbol fieldSymbol = currentScope.resolve(symbolName);
+        BLangSymbol fieldSymbol;
+        //TODO resolve packge path conflict
+        if (currentScope instanceof StructDef) {
+            fieldSymbol = ((StructDef) currentScope).resolveMembers(new SymbolName(symbolName.getName(),
+                    ((StructDef) currentScope).getPackagePath()));
+        } else {
+            fieldSymbol = currentScope.resolve(symbolName);
+        }
+
 
         if (fieldSymbol == null) {
             if (currentScope instanceof StructDef) {
@@ -2757,7 +2768,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             function.setParameterTypes(paramTypes);
             FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(function.getName(),
-                                                                            null, paramTypes);
+                                                                            function.getPackagePath(), paramTypes);
             function.setSymbolName(symbolName);
 
             BLangSymbol functionSymbol = currentScope.resolve(symbolName);

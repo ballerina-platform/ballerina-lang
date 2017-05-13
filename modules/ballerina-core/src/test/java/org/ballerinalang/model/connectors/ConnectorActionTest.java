@@ -32,7 +32,8 @@ import org.testng.annotations.Test;
 /**
  * Test class for Connector actions.
  */
-public class ConnectorActionTest {
+public class
+ConnectorActionTest {
     private BLangProgram bLangProgram;
 
     @BeforeClass()
@@ -163,7 +164,8 @@ public class ConnectorActionTest {
 
     @Test(description = "Test incorrect action invocation",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:16: undefined connector 'cal'")
+            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:16: incompatible types: " +
+                    "expected a connector name, found 'cal'")
     public void testIncorrectActionInvocation() {
         BTestUtils.parseBalFile("lang/connectors/incorrect-action-invocation.bal");
     }
