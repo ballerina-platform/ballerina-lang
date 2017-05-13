@@ -204,6 +204,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
      */
     public static class StructBuilder {
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private String name;
         private String pkgPath;
         private List<VariableDefStmt> fields = new ArrayList<VariableDefStmt>();
@@ -213,6 +214,10 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
         public StructBuilder(NodeLocation location, SymbolScope enclosingScope) {
             structDef = new StructDef(enclosingScope);
             this.location = location;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         }
 
         public SymbolScope getCurrentScope() {
@@ -252,6 +257,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
          */
         public StructDef build() {
             this.structDef.location = location;
+            this.structDef.whiteSpaceDescriptor = whiteSpaceDescriptor;
             this.structDef.typeName = name;
             this.structDef.pkgPath = pkgPath;
             this.structDef.annotations = this.annotationList.toArray(

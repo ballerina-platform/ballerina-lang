@@ -365,7 +365,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         String structName = ctx.Identifier().getText();
-        modelBuilder.addStructDef(structName);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getStructDefWS(tokenStream, ctx);
+        }
+        modelBuilder.addStructDef(whiteSpaceDescriptor, structName);
     }
 
     @Override

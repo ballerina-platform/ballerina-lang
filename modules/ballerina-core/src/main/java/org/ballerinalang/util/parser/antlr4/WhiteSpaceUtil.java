@@ -231,6 +231,18 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
+    public static WhiteSpaceDescriptor getStructDefWS(CommonTokenStream tokenStream,
+                                                      BallerinaParser.StructDefinitionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_DEF_STRUCT_KEYWORD_TO_IDENTIFIER,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_DEF_IDENTIFIER_TO_BODY_START,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_DEF_BODY_END_TO_NEXT_TOKEN,
+                getWhitespaceToLeft(tokenStream, ctx.structBody().stop.getTokenIndex()));
+        return ws;
+    }
+
     protected static Token getFirstTokenWithText(List<ParseTree> children, String text) {
         Optional<ParseTree> terminalNode = children.stream()
                 .filter((child) -> child instanceof TerminalNode)
@@ -238,4 +250,5 @@ public class WhiteSpaceUtil {
                 .findFirst();
         return (terminalNode.isPresent()) ? ((TerminalNode) terminalNode.get()).getSymbol() : null;
     }
+
 }

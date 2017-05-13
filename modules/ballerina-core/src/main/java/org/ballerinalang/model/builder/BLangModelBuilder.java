@@ -333,7 +333,8 @@ public class BLangModelBuilder {
      *
      * @param name Name of the {@link StructDef}
      */
-    public void addStructDef(String name) {
+    public void addStructDef(WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+        currentStructBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentStructBuilder.setName(name);
         currentStructBuilder.setPackagePath(currentPackagePath);
         getAnnotationAttachments().forEach(attachment -> currentStructBuilder.addAnnotation(attachment));

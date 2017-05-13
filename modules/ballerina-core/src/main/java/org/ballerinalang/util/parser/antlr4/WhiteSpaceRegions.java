@@ -79,4 +79,9 @@ public class WhiteSpaceRegions {
     public static final int CONNECTOR_DEF_IDENTIFIER_TO_PARAM_LIST_START = 1;
     public static final int CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START = 2;
     public static final int CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in a struct definition
+    public static final int STRUCT_DEF_STRUCT_KEYWORD_TO_IDENTIFIER = 0;
+    public static final int STRUCT_DEF_IDENTIFIER_TO_BODY_START = 1;
+    public static final int STRUCT_DEF_BODY_END_TO_NEXT_TOKEN = 2;
 }

@@ -36,3 +36,11 @@ connector twitterConnector2  (message m)  {
 
 
 }
+
+struct  Person   {
+
+}
+
+struct  Item   {
+
+}

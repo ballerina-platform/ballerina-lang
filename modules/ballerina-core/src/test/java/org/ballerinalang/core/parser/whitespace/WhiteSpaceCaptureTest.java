@@ -13,6 +13,7 @@ import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.parser.BallerinaLexer;
@@ -185,5 +186,17 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START), "   ");
         Assert.assertEquals(connector.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
+    }
+
+    @Test(description = "Test captured whitespace regions of struct definition node")
+    public void testWhiteSpaceCaptureInStructDef() {
+        StructDef structDef = (StructDef) bFile.getCompilationUnits()[6];
+        Assert.assertNotNull(structDef);
+        Assert.assertEquals(structDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.STRUCT_DEF_STRUCT_KEYWORD_TO_IDENTIFIER), "  ");
+        Assert.assertEquals(structDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.STRUCT_DEF_IDENTIFIER_TO_BODY_START), "   ");
+        Assert.assertEquals(structDef.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.STRUCT_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
     }
 }
