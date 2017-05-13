@@ -37,7 +37,7 @@ function useILInStructVar() (string, string, int) {
 }
 
 function useILAsrefType()(json) {
-    |global json| = `{"name" : "James", "age": 30}`;
+    |global json| = {"name" : "James", "age": 30};
     return |global json|;
 }
 

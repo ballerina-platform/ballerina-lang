@@ -177,12 +177,12 @@ under the License.
         </classes>
     </test>
     <!-- Non Blocking Test Cases -->
-    <test name="ballerina-identifier-literal-test-suite-non-blocking">
+    <!-- <test name="ballerina-identifier-literal-test-suite-non-blocking">
         <parameter name="enableNonBlocking" value="true" />
         <classes>
             <class name="org.ballerinalang.TestConfigurationUtil" />
             <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralPackageTest" />
             <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralTest" />
         </classes>
-    </test>
+    </test> -->
 </suite>

@@ -35,7 +35,7 @@ function getGlobalVarFloat1()(float) {
 }
 
 function initializeGlobalVarSeparately()(json, float) {
-    glbVarJson = `{"name" : "James", "age": 30}`;
+    glbVarJson = {"name" : "James", "age": 30};
     glbVarFloatLater = 3432.3423;
     return glbVarJson, glbVarFloatLater;
 }
