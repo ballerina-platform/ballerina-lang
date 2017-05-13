@@ -19,7 +19,7 @@
 package org.ballerinalang.model.globalvar;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.util.exceptions.ParserException;
+import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -33,11 +33,10 @@ public class GlobalVarErrorTest {
 
     }
 
-
     @Test(description = "Test struct fields with packages for child elements",
-            expectedExceptions = {ParserException.class},
-            expectedExceptionsMessageRegExp = "global-var-error-function.bal:5: struct child fields cannot have " +
-                    "package identifiers: 'dd:value'")
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "global-var-error-function.bal:6: struct child fields cannot have " +
+            "package identifiers: 'xyz:name'")
     public void testStructFieldWithChildPackagePaths() {
         BTestUtils.parseBalFile("lang/globalvar/global-var-error-function.bal");
     }

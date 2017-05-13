@@ -22,6 +22,7 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.ParserException;
@@ -127,6 +128,21 @@ public class StructTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
     }
     
+    @Test(description = "Test default value of a nested struct field")
+    public void testNestedStructInit() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNestedStructInit");
+        
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        BStruct person = ((BStruct) returns[0]);
+        Assert.assertEquals(person.getValue(0).stringValue(), "aaa");
+        Assert.assertEquals(((BInteger) person.getValue(3)).intValue(), 25);
+        
+        Assert.assertTrue(person.getValue(5) instanceof BStruct);
+        BStruct parent = ((BStruct) person.getValue(5));
+        Assert.assertEquals(parent.getValue(0).stringValue(), "bbb");
+        Assert.assertEquals(((BInteger) parent.getValue(3)).intValue(), 50);
+    }
+    
     /*
      *  Negative tests
      */
@@ -189,7 +205,7 @@ public class StructTest {
     
     @Test(description = "Test accessing an undeclared struct",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "undeclared-struct-access.bal:4: struct 'dpt1' not found")
+            expectedExceptionsMessageRegExp = "undeclared-struct-access.bal:4: undefined symbol 'dpt1'")
     public void testUndeclaredStructAccess() {
         BTestUtils.parseBalFile("lang/structs/undeclared-struct-access.bal");
     }

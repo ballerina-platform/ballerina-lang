@@ -42,6 +42,7 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
     private ArrayMapAccessExpr(NodeLocation location, String varName,
                                Expression arrayVarRefExpr, Expression[] indexExprs) {
         super(location, null, arrayVarRefExpr);
+        this.symbolName = new SymbolName(varName);
         this.varName = varName;
         this.indexExprs = indexExprs;
     }
