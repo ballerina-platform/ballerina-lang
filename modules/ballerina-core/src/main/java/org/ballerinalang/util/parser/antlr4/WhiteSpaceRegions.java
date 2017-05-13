@@ -63,4 +63,14 @@ public class WhiteSpaceRegions {
     public static final int ANNOTATION_ATTRIB_COLON_TO_VALUE_START = 2;
     public static final int ANNOTATION_ATTRIB_VALUE_START_TO_LAST_TOKEN = 3;
     public static final int ANNOTATION_ATTRIB_VALUE_END_TO_NEXT_TOKEN = 4;
+
+    // whitespace regions in a function definition
+    public static final int FUNCTION_DEF_NATIVE_KEYWORD_TO_FUNCTION_KEYWORD = 0;
+    public static final int FUNCTION_DEF_FUNCTION_KEYWORD_TO_IDENTIFIER_START = 1;
+    public static final int FUNCTION_DEF_IDENTIFIER_TO_PARAM_LIST_START = 2;
+    public static final int FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START = 3;
+    public static final int FUNCTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD = 4;
+    public static final int FUNCTION_DEF_THROWS_KEYWORD_TO_EXCEPTION_KEYWORD = 5;
+    public static final int FUNCTION_DEF_BODY_START_TO_LAST_TOKEN = 6;
+    public static final int FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN = 7;
 }

@@ -280,7 +280,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
         String functionName = ctx.callableUnitSignature().Identifier().getText();
-        modelBuilder.addFunction(functionName, isNative);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionDefWS(tokenStream, ctx);
+        }
+        modelBuilder.addFunction(whiteSpaceDescriptor, functionName, isNative);
     }
 
     @Override

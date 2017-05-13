@@ -25,6 +25,7 @@ import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.util.parser.BallerinaParser;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provide helpers to extract whitespace for each construct from token stream.
@@ -40,6 +41,8 @@ public class WhiteSpaceUtil {
     public static final String KEYWORD_AS = "as";
     public static final String OPENNING_CURLEY_BRACE = "{";
     public static final String SYMBOL_COLON = ":";
+    public static final String NATIVE_KEYWORD = "native";
+    public static final String KEYWORD_THROWS = "throws";
 
     public static String getFileStartingWhiteSpace(CommonTokenStream tokenStream) {
         // find first non-whitespace token
@@ -179,10 +182,46 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
+    public static WhiteSpaceDescriptor getFunctionDefWS(CommonTokenStream tokenStream,
+                                                        BallerinaParser.FunctionDefinitionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        boolean isNative = NATIVE_KEYWORD.equals(ctx.getChild(0).getText());
+        if (isNative) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_NATIVE_KEYWORD_TO_FUNCTION_KEYWORD,
+                    getWhitespaceToRight(tokenStream,
+                            getFirstTokenWithText(ctx.children, NATIVE_KEYWORD).getTokenIndex()));
+        }
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_FUNCTION_KEYWORD_TO_IDENTIFIER_START,
+                getWhitespaceToLeft(tokenStream,
+                        ctx.callableUnitSignature().Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_IDENTIFIER_TO_PARAM_LIST_START,
+                getWhitespaceToRight(tokenStream,
+                        ctx.callableUnitSignature().Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START,
+                getWhitespaceToLeft(tokenStream,
+                        ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
+
+        Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
+        if (throwsToken != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD,
+                    getWhitespaceToLeft(tokenStream, throwsToken.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_THROWS_KEYWORD_TO_EXCEPTION_KEYWORD,
+                    getWhitespaceToRight(tokenStream, throwsToken.getTokenIndex()));
+        }
+        if (!isNative) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN,
+                    getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN,
+                    getWhitespaceToRight(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
+        }
+        return ws;
+    }
+
     protected static Token getFirstTokenWithText(List<ParseTree> children, String text) {
-        return ((TerminalNode) children.stream()
+        Optional<ParseTree> terminalNode = children.stream()
                 .filter((child) -> child instanceof TerminalNode)
                 .filter((node) -> ((TerminalNode) node).getSymbol().getText().equals(text))
-                .findFirst().get()).getSymbol();
+                .findFirst();
+        return (terminalNode.isPresent()) ? ((TerminalNode) terminalNode.get()).getSymbol() : null;
     }
 }

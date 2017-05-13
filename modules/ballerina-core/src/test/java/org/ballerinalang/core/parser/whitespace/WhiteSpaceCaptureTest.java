@@ -7,6 +7,7 @@ import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.Resource;
@@ -150,5 +151,25 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(arrayValue.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATTRIB_VALUE_END_TO_NEXT_TOKEN), "");
 
+    }
+
+    @Test(description = "Test captured whitespace regions of function definition node")
+    public void testWhiteSpaceCaptureInFunctionDef() {
+        Function function = (Function) bFile.getCompilationUnits()[2];
+        Assert.assertEquals(function.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_FUNCTION_KEYWORD_TO_IDENTIFIER_START), " ");
+        Assert.assertEquals(function.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_IDENTIFIER_TO_PARAM_LIST_START), " ");
+        Assert.assertEquals(function.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START),
+                "\n                            ");
+        Assert.assertEquals(function.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD), " ");
+        Assert.assertEquals(function.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_THROWS_KEYWORD_TO_EXCEPTION_KEYWORD), " ");
+        Assert.assertEquals(function.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN), "  ");
+        Assert.assertEquals(function.getWhiteSpaceDescriptor()
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n\n");
     }
 }
