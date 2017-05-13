@@ -883,6 +883,16 @@ public class BallerinaPsiImplUtil {
             if (directory == null || !directory.isDirectory()) {
                 continue;
             }
+            boolean isContentRoot = false;
+            VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
+            for (VirtualFile contentRoot : contentRoots) {
+                if (contentRoot.equals(file.getParent())) {
+                    isContentRoot = true;
+                }
+            }
+            if (isContentRoot) {
+                continue;
+            }
             PsiDirectory psiDirectory = PsiManager.getInstance(project).findDirectory(directory);
             if (psiDirectory != null && !results.contains(psiDirectory) && !psiDirectory.getName().startsWith(".")
                     && !project.getBaseDir().equals(directory)) {
