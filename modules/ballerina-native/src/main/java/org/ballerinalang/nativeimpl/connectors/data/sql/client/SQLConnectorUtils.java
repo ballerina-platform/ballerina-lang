@@ -768,55 +768,48 @@ public class SQLConnectorUtils {
         return new String(encode, Charset.defaultCharset());
     }
 
+    /**
+     * This will retrieve the string value for the given date value.
+     */
     public static String getString(Date value) {
         if (value == null) {
             return null;
         }
-        // lexical form of the date is '-'? yyyy '-' mm '-' dd zzzzzz?
         Calendar calendar = Calendar.getInstance();
         calendar.clear();
         calendar.setTime(value);
-        if (!calendar.isSet(Calendar.ZONE_OFFSET)) {
-            calendar.setTimeZone(TimeZone.getDefault());
-        }
-        StringBuffer dateString = new StringBuffer(16);
-        appendDate(dateString, calendar);
-        appendTimeZone(calendar, dateString);
-        return dateString.toString();
+        return getString(calendar, "date");
     }
 
-    public static String getString(Timestamp sqlTimestamp) {
-        if (sqlTimestamp == null) {
+    /**
+     * This will retrieve the string value for the given timestamp value.
+     */
+    public static String getString(Timestamp value) {
+        if (value == null) {
             return null;
         }
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(sqlTimestamp.getTime());
-        return getString(cal);
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.setTimeInMillis(value.getTime());
+        return getString(calendar, "datetime");
     }
 
-    public static String getString(Time sqlTimestamp) {
-        if (sqlTimestamp == null) {
+    /**
+     * This will retrieve the string value for the given time data.
+     */
+    public static String getString(Time value) {
+        if (value == null) {
             return null;
         }
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(sqlTimestamp.getTime());
-        return getString(cal);
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.setTimeInMillis(value.getTime());
+        return getString(calendar, "time");
     }
 
-    private static String getString(Calendar value) {
-        // lexical form of the calendar is '-'? yyyy '-' mm '-' dd 'T' hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
-        if (value.get(Calendar.ZONE_OFFSET) == -1) {
-            value.setTimeZone(TimeZone.getDefault());
-        }
-        StringBuffer dateString = new StringBuffer(28);
-        appendDate(dateString, value);
-        dateString.append("T");
-        //adding hours
-        appendTime(value, dateString);
-        appendTimeZone(value, dateString);
-        return dateString.toString();
-    }
-
+    /**
+     * This will retrieve the string value for the given array data.
+     */
     public static String getString(Array dataArray) throws SQLException {
         if (dataArray == null) {
             return null;
@@ -831,6 +824,9 @@ public class SQLConnectorUtils {
         return sj.toString();
     }
 
+    /**
+     * This will retrieve the string value for the given struct data.
+     */
     public static String getString(Struct udt) throws SQLException {
         if (udt.getAttributes() != null) {
             StringJoiner sj = new StringJoiner(",", "{", "}");
@@ -841,6 +837,32 @@ public class SQLConnectorUtils {
             return sj.toString();
         }
         return null;
+    }
+
+    private static String getString(Calendar calendar, String type) {
+        if (!calendar.isSet(Calendar.ZONE_OFFSET)) {
+            calendar.setTimeZone(TimeZone.getDefault());
+        }
+        StringBuffer datetimeString = new StringBuffer(28);
+        switch (type) {
+        case "date": //'-'? yyyy '-' mm '-' dd zzzzzz?
+            appendDate(datetimeString, calendar);
+            appendTimeZone(calendar, datetimeString);
+            break;
+        case "time": //hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
+            appendTime(calendar, datetimeString);
+            appendTimeZone(calendar, datetimeString);
+            break;
+        case "datetime": //'-'? yyyy '-' mm '-' dd 'T' hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
+            appendDate(datetimeString, calendar);
+            datetimeString.append("T");
+            appendTime(calendar, datetimeString);
+            appendTimeZone(calendar, datetimeString);
+            break;
+        default:
+            throw new BallerinaException("invalid type for datetime data: " + type);
+        }
+        return datetimeString.toString();
     }
 
     private static byte[] getBytesFromBase64String(String base64Str) {
@@ -960,25 +982,20 @@ public class SQLConnectorUtils {
             if (source.length() > 10) {
                 String restpart = source.substring(10);
                 timeZoneOffSet = getTimeZoneOffset(restpart);
+                calendar.set(Calendar.DST_OFFSET, 0); //set the day light offset only if the time zone is present
             }
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, month - 1);
             calendar.set(Calendar.DAY_OF_MONTH, day);
             calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
-            // set the day light off set only if time zone is present
-            if (source.length() > 10) {
-                calendar.set(Calendar.DST_OFFSET, 0);
-            }
-            calendar.getTimeInMillis();
         } else {
             throw new BallerinaException("invalid date string to parse: " + source);
         }
-        java.util.Date dateVal = calendar.getTime();
-        return new Date(dateVal.getTime());
+        return new Date(calendar.getTime().getTime());
     }
 
     private static Time convertToTime(String source) {
-        //lexical representation of the date time is '-'? yyyy '-' mm '-' dd 'T' hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
+        //lexical representation of the time is hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
         if ((source == null) || source.trim().equals("")) {
             return null;
         }
@@ -1000,16 +1017,13 @@ public class SQLConnectorUtils {
                 int[] offsetData = getTimeZoneWithMilliSeconds(rest);
                 miliSecond = offsetData[0];
                 timeZoneOffSet = offsetData[1];
+                calendar.set(Calendar.DST_OFFSET, 0); //set the day light offset only if the time zone is present
             }
             calendar.set(Calendar.HOUR_OF_DAY, hour);
             calendar.set(Calendar.MINUTE, minite);
             calendar.set(Calendar.SECOND, second);
             calendar.set(Calendar.MILLISECOND, miliSecond);
             calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
-            // set the day light offset only if the time zone is present
-            if (source.length() > 8) {
-                calendar.set(Calendar.DST_OFFSET, 0);
-            }
         } else {
             throw new BallerinaException("time string can not be less than 8 characters: " + source);
         }
@@ -1047,6 +1061,7 @@ public class SQLConnectorUtils {
                 int[] offsetData = getTimeZoneWithMilliSeconds(rest);
                 miliSecond = offsetData[0];
                 timeZoneOffSet = offsetData[1];
+                calendar.set(Calendar.DST_OFFSET, 0); //set the day light offset only if the time zone is present
             }
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, month - 1);
@@ -1056,10 +1071,6 @@ public class SQLConnectorUtils {
             calendar.set(Calendar.SECOND, second);
             calendar.set(Calendar.MILLISECOND, (int) miliSecond);
             calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
-            // set the day light offset only if the time zone is present
-            if (source.length() > 19) {
-                calendar.set(Calendar.DST_OFFSET, 0);
-            }
         } else {
             throw new BallerinaException("datetime string can not be less than 19 characters: " + source);
         }
@@ -1118,7 +1129,7 @@ public class SQLConnectorUtils {
     }
 
     private static int getTimeZoneOffset(String timezoneStr) {
-        int timeZoneOffSet = 0;
+        int timeZoneOffSet;
         if (timezoneStr.startsWith("Z")) { //GMT timezone
             timeZoneOffSet = 0;
         } else if (timezoneStr.startsWith("+") || timezoneStr.startsWith("-")) { //timezone with offset

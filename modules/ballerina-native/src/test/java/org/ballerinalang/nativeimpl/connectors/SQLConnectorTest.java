@@ -337,6 +337,14 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.get(1).stringValue(), "1");
     }
 
+    @Test(groups = "ConnectorTest")
+    public void testInsertTimeData() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDateTimeInParameters");
+        BArray retValue = (BArray) returns[0];
+        Assert.assertEquals(retValue.get(0).stringValue(), "1");
+        Assert.assertEquals(retValue.get(1).stringValue(), "1");
+    }
+
     @Test(dependsOnGroups = "ConnectorTest")
     public void testCloseConnectionPool() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCloseConnectionPool");
