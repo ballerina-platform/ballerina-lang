@@ -1375,13 +1375,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
                 
                 // Check whether implicit casting is possible. Create a casting expression, if so.
-                Expression sourceExpr = returnArgExprs[i];
-                TypeEdge newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(sourceExpr.getType(), 
-                        targetType, null);
-                if (newEdge != null) {
-                    TypeCastExpression newExpr = new TypeCastExpression(sourceExpr.getNodeLocation(), sourceExpr, 
-                            targetType);
-                    newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
+                TypeCastExpression newExpr = checkWideningPossible(targetType, returnArgExprs[i]);
+                if (newExpr != null) {
                     newExpr.accept(this);
                     returnArgExprs[i] = newExpr;
                     continue;
