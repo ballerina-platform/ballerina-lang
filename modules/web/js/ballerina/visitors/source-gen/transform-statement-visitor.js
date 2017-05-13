@@ -40,7 +40,7 @@ class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
          */
 
         var constructedSourceSegment = '\n' + this.getIndentation() + 'transform ' +
-            typeMapperDefinition.getInputParamAndIdentifier() + ' -> ' + typeMapperDefinition.getReturnType() +
+            typeMapperDefinition.getStatementString() +
             '  {\n';
         this.appendSource(constructedSourceSegment);
         this.indent();
@@ -57,10 +57,7 @@ class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
         log.debug('End Visit TypeMapperDefinition');
     }
 
-    visitBlockStatement(blockStatement) {
-        var blockStatementVisitor = new TypeMapperBlockStatementVisitor(this);
-        blockStatement.accept(blockStatementVisitor);
-    }
+
 }
 
 export default TransformStatementVisitor;

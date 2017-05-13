@@ -49,7 +49,6 @@ import importDeclaration from './import-declaration';
 import resourceParameter from './resource-parameter';
 import assignment from './assignment';
 import assignmentStatement from './statements/assignment-statement';
-import transformStatement from './statements/transform-statement';
 import functionInvocationStatement from './statements/function-invocation-statement';
 import functionInvocationExpression from './expressions/function-invocation-expression';
 import variableReferenceExpression from './expressions/variable-reference-expression';

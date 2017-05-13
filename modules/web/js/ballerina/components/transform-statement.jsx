@@ -40,8 +40,7 @@ class TransformStatement extends React.Component {
      * */
     render() {
         let model = this.props.model,
-        expression = this.props.model.getInputParamAndIdentifier() + "->" + this.props.model.getReturnType();
-
+         expression = this.props.model.getStatementString();
          const xPos =   model.viewState.bBox.x;
          const yPos =   model.viewState.bBox.y;
          const hPos =   model.viewState.bBox.h;
