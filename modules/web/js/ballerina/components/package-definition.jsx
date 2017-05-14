@@ -34,6 +34,7 @@ class PackageDefinition extends React.Component {
         this.handlePackageNameInput = this.handlePackageNameInput.bind(this);
         this.handleImportsHeaderClick = this.handleImportsHeaderClick.bind(this);
         this.handleAddImport = this.handleAddImport.bind(this);
+        this.handleDeleteImport = this.handleDeleteImport.bind(this);
     }
 
     handlePackageNameInput(input) {
@@ -49,6 +50,10 @@ class PackageDefinition extends React.Component {
         newImportDeclaration.setPackageName(value);
         newImportDeclaration.setParent(this.props.model.parent);
         this.props.model.parent.addImport(newImportDeclaration);
+    }
+
+    handleDeleteImport(value) {
+        this.props.model.parent.deleteImport(value);
     }
 
     handlePackageNameClick(e) {
@@ -97,7 +102,7 @@ class PackageDefinition extends React.Component {
         }
 
         const expandedImportsBbox = {
-            x: bBox.x + headerPadding.left,
+            x: bBox.x,
             y: bBox.y + headerHeight
         }
 
@@ -137,7 +142,7 @@ class PackageDefinition extends React.Component {
                 {packageNameElement}
                 { expanded ? <ImportDeclarationExpanded
                                 bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}
-                                onAddImport={this.handleAddImport} /> :
+                                onAddImport={this.handleAddImport} onDeleteImport={this.handleDeleteImport}/> :
                              <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick} /> }
             </g>
         );

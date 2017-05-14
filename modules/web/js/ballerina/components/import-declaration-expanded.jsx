@@ -21,6 +21,7 @@ import ImageUtil from './image-util';
 import PropTypes from 'prop-types';
 import Renderer from './renderer';
 import SuggestionsText from './suggestions-text';
+import ImportDeclarationItem from './import-declaration-item';
 import BallerinaEnvironment from '../env/environment';
 
 export default class importDeclarationExpanded extends React.Component {
@@ -50,7 +51,7 @@ export default class importDeclarationExpanded extends React.Component {
         const bBox = this.props.bBox;
         const importDeclarationHeight = 30;
         const importInputHeight = 40;
-        const importDeclarationWidth = 300;
+        const importDeclarationWidth = 310;
         const leftPadding = 10;
         const topGutter = 10;
         const topBarHeight = 25;
@@ -65,14 +66,15 @@ export default class importDeclarationExpanded extends React.Component {
         let lastImportElementY = topBarBbox.y + topBarHeight;
 
         this.props.imports.forEach((importDec, count) => {
-            importElements.push(
-                <g className='package-declaration-item' key={importDec.id}>
-                    <rect x={ bBox.x } y={ lastImportElementY } height={importDeclarationHeight} width={importDeclarationWidth} />
-                    <text x={ bBox.x + leftPadding } y={ lastImportElementY + importDeclarationHeight/2 } rx="0" ry="0">
-                        {importDec._packageName}
-                    </text>
-                </g>
-            );
+            const itemBBox = {
+                x: bBox.x,
+                y: lastImportElementY,
+                h: importDeclarationHeight,
+                w: importDeclarationWidth
+            };
+
+            importElements.push(<ImportDeclarationItem key={importDec.id}
+                bBox={itemBBox} importDec={importDec} onDeleteClick={this.props.onDeleteImport} />);
             lastImportElementY += importDeclarationHeight;
         });
 
