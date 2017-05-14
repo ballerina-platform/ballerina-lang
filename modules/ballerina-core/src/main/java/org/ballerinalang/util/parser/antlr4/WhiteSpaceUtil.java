@@ -700,4 +700,21 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getFunctionInvocationStmtWS(CommonTokenStream tokenStream,
+                                                           BallerinaParser.FunctionInvocationStatementContext ctx) {
+        return null;
+    }
+
+    public static WhiteSpaceDescriptor getFunctionInvocationExprWS(CommonTokenStream tokenStream,
+                                                           BallerinaParser.FunctionInvocationExpressionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_NAME_REF_TO_EXP_LIST,
+                getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }

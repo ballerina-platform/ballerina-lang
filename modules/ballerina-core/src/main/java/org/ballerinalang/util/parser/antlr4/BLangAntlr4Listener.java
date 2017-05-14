@@ -1295,7 +1295,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         boolean argsAvailable = ctx.expressionList() != null;
-        modelBuilder.createFunctionInvocationStmt(getCurrentLocation(ctx), nameReferenceStack.pop(), argsAvailable);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createFunctionInvocationStmt(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                nameReferenceStack.pop(), argsAvailable);
     }
 
     @Override
@@ -1411,7 +1416,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         boolean argsAvailable = ctx.expressionList() != null;
-        modelBuilder.addFunctionInvocationExpr(getCurrentLocation(ctx), nameReferenceStack.pop(), argsAvailable);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationExprWS(tokenStream, ctx);
+        }
+        modelBuilder.addFunctionInvocationExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                nameReferenceStack.pop(), argsAvailable);
     }
 
     @Override
