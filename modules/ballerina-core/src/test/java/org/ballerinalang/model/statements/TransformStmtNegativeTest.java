@@ -31,8 +31,17 @@ public class TransformStmtNegativeTest {
     @Test(description = "Test empty transform statement body",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                    "transform-stmt-empty-body.bal:17: no statements in the transform statement body")
+                    "transform-stmt-empty-body.bal:17: no statements found in the transform statement body")
     public void testEmptyBody() {
         BTestUtils.parseBalFile("lang/statements/transformStmt/transform-stmt-empty-body.bal");
+    }
+
+    @Test(description = "Test invalid input and output combinations",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp =
+                    "transform-stmt-invalid-input-output.bal:19: input and output variables cannot be interchanged " +
+                    "in transform statement")
+    public void testInvalidInputOutput () {
+        BTestUtils.parseBalFile("lang/statements/transformStmt/transform-stmt-invalid-input-output.bal");
     }
 }

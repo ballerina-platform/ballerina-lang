@@ -209,7 +209,7 @@ statement
     ;
 
 transformStatement
-    :   variableReferenceList '=' 'transform' variableReferenceList '{'transformStatementBody*'}'';'
+    :   'transform' '{' transformStatementBody* '}'
     ;
 
 transformStatementBody

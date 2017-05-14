@@ -16,7 +16,7 @@ function oneToOneTransform() (string, int, string){
     Employee e = {};
     transform {
        e.address = p.city;
-       e.name = p.first_name;
+       p.first_name = e.name;
        e.age = p.age;
     }
     return e.name, e.age, e.address;

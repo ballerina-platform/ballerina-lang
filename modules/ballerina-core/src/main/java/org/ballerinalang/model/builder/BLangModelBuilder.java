@@ -1554,16 +1554,18 @@ public class BLangModelBuilder {
         TransformStmt.TransformStmtBuilder transformStmtBuilder = new TransformStmt.TransformStmtBuilder();
         transformStmtBuilder.setNodeLocation(location);
 
-        List<Expression> lhsExprsList = exprListStack.pop();
-        List<Expression> rhsExprsList = exprListStack.pop();
-
-        transformStmtBuilder.setRhsExprs(rhsExprsList.toArray(new Expression[rhsExprsList.size()]));
-        transformStmtBuilder.setLhsExprs(lhsExprsList.toArray(new Expression[lhsExprsList.size()]));
-
         // Get the statement block at the top of the block statement stack and set as the transform body.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt blockStmt = blockStmtBuilder.build();
         transformStmtBuilder.setTransformBody(blockStmt);
+
+        Map<String, Expression> inputs = new HashMap<>(); // right hand expressions by variable
+        Map<String, Expression> outputs = new HashMap<>(); //left hand expressions by variable
+
+        validateTransformStatementBody(blockStmt, inputs, outputs);
+
+        transformStmtBuilder.setInputExprs((inputs.values()).toArray(new Expression[inputs.values().size()]));
+        transformStmtBuilder.setOutputExprs((outputs.values()).toArray(new Expression[outputs.values().size()]));
 
         // Close the current scope and open the enclosing scope
         currentScope = blockStmt.getEnclosingScope();
@@ -1571,6 +1573,47 @@ public class BLangModelBuilder {
         // Add the transform statement to the statement block which is at the top of the stack.
         TransformStmt transformStmt = transformStmtBuilder.build();
         blockStmtBuilderStack.peek().addStmt(transformStmt);
+    }
+
+    private void validateTransformStatementBody(BlockStmt blockStmt, Map<String, Expression> inputs,
+                                                Map<String, Expression> outputs) {
+        for (Statement statement : blockStmt.getStatements()) {
+            if (statement instanceof AssignStmt) {
+                for (Expression lExpr : ((AssignStmt) statement).getLExprs()) {
+                    if (lExpr instanceof FieldAccessExpr) {
+                        String varName = ((FieldAccessExpr) lExpr).getVarName();
+                        if (inputs.get(varName) == null) {
+                            //if variable has not been used as an input before
+                            if (outputs.get(varName) == null) {
+                                List<Statement> stmtList = new ArrayList<>();
+                                stmtList.add(statement);
+                                outputs.put(varName, lExpr);
+                            }
+                        } else {
+                            String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
+                                                  SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                            errorMsgs.add(errMsg);
+                        }
+                    }
+                }
+                Expression rExpr =  ((AssignStmt) statement).getRExpr();
+                if (rExpr instanceof FieldAccessExpr) {
+                    String varName = ((FieldAccessExpr) rExpr).getVarName();
+                    if (outputs.get(varName) == null) {
+                        //if variable has not been used as an output before
+                        if (inputs.get(varName) == null) {
+                            List<Statement> stmtList = new ArrayList<>();
+                            stmtList.add(statement);
+                            inputs.put(varName, rExpr);
+                        }
+                    } else {
+                        String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
+                                               SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                        errorMsgs.add(errMsg);
+                    }
+                }
+            }
+        }
     }
 
     /**
