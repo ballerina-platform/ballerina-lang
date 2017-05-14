@@ -550,6 +550,7 @@ public class BLangModelBuilder {
     public void createVarRefExpr(NodeLocation location, NameReference nameReference) {
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, nameReference.name,
                 nameReference.pkgName, nameReference.pkgPath);
+        variableRefExpr.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
         exprStack.push(variableRefExpr);
     }
 
@@ -1595,6 +1596,7 @@ public class BLangModelBuilder {
      * This class represents CallableUnitName used in function and action invocation expressions.
      */
     public static class NameReference {
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private String pkgName;
         private String name;
         private String pkgPath;
@@ -1618,6 +1620,14 @@ public class BLangModelBuilder {
 
         public void setPkgPath(String pkgPath) {
             this.pkgPath = pkgPath;
+        }
+
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         }
     }
 }

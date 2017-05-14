@@ -152,4 +152,11 @@ public class WhiteSpaceRegions {
     public static final int TYPE_NAME_PRECEDING_WHITESPACE = 0;
     public static final int TYPE_NAME_TAILING_WHITESPACE = 1;
 
+    // whitespace regions in a name ref
+    public static final int NAME_REF_START_TO_LAST_TOKEN = 0;
+    public static final int NAME_REF_PACKAGE_NAME_TO_COLON = 1;
+    public static final int NAME_REF_COLON_TO_REF_NAME = 2;
+    public static final int NAME_REF_END_TO_NEXT_TOKEN = 3;
+
+
 }

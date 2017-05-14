@@ -1503,6 +1503,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
             String name = ctx.Identifier(0).getText();
             nameReference = new BLangModelBuilder.NameReference(null, name);
         }
+        if (isVerboseMode) {
+            nameReference.setWhiteSpaceDescriptor(WhiteSpaceUtil.getNameRefWS(tokenStream, ctx));
+        }
         modelBuilder.validateAndSetPackagePath(getCurrentLocation(ctx), nameReference);
         nameReferenceStack.push(nameReference);
     }

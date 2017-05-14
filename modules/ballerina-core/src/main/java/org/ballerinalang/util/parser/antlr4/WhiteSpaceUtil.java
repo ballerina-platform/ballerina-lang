@@ -463,4 +463,21 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getNameRefWS(CommonTokenStream tokenStream,
+                                                    BallerinaParser.NameReferenceContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.NAME_REF_START_TO_LAST_TOKEN,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        // has a package ref
+        if (ctx.Identifier().size() == 2){
+            ws.addWhitespaceRegion(WhiteSpaceRegions.NAME_REF_PACKAGE_NAME_TO_COLON,
+                    getWhitespaceToRight(tokenStream, ctx.Identifier().get(0).getSymbol().getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.NAME_REF_COLON_TO_REF_NAME,
+                    getWhitespaceToLeft(tokenStream, ctx.Identifier().get(1).getSymbol().getTokenIndex()));
+        }
+        ws.addWhitespaceRegion(WhiteSpaceRegions.NAME_REF_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }
