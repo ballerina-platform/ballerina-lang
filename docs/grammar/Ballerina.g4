@@ -269,7 +269,7 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    : 'fork' '(' variableReference ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
+    : 'fork' '{' workerDeclaration* '}' joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'

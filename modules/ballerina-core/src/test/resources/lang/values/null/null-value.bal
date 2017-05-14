@@ -138,7 +138,7 @@ function testNullInWorker() (any) {
 
 function testNullInForkJoin() (message, message) {
     message m = null;
-    fork (m) {
+    fork {
         worker foo {
             message resp1 = null;
             reply resp1;

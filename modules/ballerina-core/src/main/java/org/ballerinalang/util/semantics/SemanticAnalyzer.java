@@ -1166,15 +1166,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(ForkJoinStmt forkJoinStmt) {
         //open the fork join statement scope
         openScope(forkJoinStmt);
-        // Visit incoming message
-        VariableRefExpr messageReference = forkJoinStmt.getMessageReference();
-        messageReference.accept(this);
+//        // Visit incoming message
+//        VariableRefExpr messageReference = forkJoinStmt.getMessageReference();
+//        messageReference.accept(this);
+//
+//        if (!messageReference.getType().equals(BTypes.typeMessage)) {
+//            throw new SemanticException("Incompatible types: expected a message in " +
+//                    messageReference.getNodeLocation().getFileName() + ":" +
+//                    messageReference.getNodeLocation().getLineNumber());
+//        }
 
-        if (!messageReference.getType().equals(BTypes.typeMessage)) {
-            throw new SemanticException("Incompatible types: expected a message in " +
-                    messageReference.getNodeLocation().getFileName() + ":" +
-                    messageReference.getNodeLocation().getLineNumber());
-        }
 
         // Visit workers
         for (Worker worker: forkJoinStmt.getWorkers()) {

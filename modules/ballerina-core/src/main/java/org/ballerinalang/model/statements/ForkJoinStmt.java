@@ -51,6 +51,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     private Join join;
     private Timeout timeout;
     private VariableRefExpr messageReference;
+    private Expression[] inputValues;
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -217,6 +218,14 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
 
     public VariableRefExpr getMessageReference() {
         return messageReference;
+    }
+
+    public Expression[] getInputValues() {
+        return inputValues;
+    }
+
+    public void setInputValues(Expression[] inputValues) {
+        this.inputValues = inputValues;
     }
 
     @Override

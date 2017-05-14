@@ -6,7 +6,7 @@ function testForkJoinAll(message m)(message[]) {
         message[] results;
         json error;
         system:println("Airfare ");
-        fork (m) {
+        fork {
             worker ABC_Airline {
                 json payload;
                 payload = `{"name":"abc"}`;
@@ -39,7 +39,7 @@ function testForkJoinAny(message m)(message[]) {
         message[] results;
         json error;
         system:println("Airfare ");
-        fork (m) {
+        fork {
             worker ABC_Airline {
                 json payload;
                 payload = `{"name":"abc"}`;
@@ -71,7 +71,7 @@ function testForkJoinAllOfSpecific(message m)(message[]) {
         message[] results;
         json error;
         system:println("Airfare ");
-        fork (m) {
+        fork {
             worker ABC_Airline {
                 json payload;
                 payload = `{"name":"abc"}`;
@@ -111,7 +111,7 @@ function testForkJoinAnyOfSpecific(message m)(message[]) {
         message[] results;
         json error;
         system:println("Airfare ");
-        fork (m) {
+        fork {
             worker ABC_Airline {
                 json payload;
                 payload = `{"name":"abc"}`;

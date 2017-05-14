@@ -429,8 +429,8 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
-        VariableRefExpr expr = forkJoinStmt.getMessageReference();
-        BMessage inMsg = (BMessage) expr.execute(this);
+//        VariableRefExpr expr = forkJoinStmt.getMessageReference();
+//        BMessage inMsg = (BMessage) expr.execute(this);
         List<WorkerRunner> workerRunnerList = new ArrayList<>();
         List<BMessage> resultMsgs = new ArrayList<>();
         long timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
@@ -441,18 +441,29 @@ public class BLangExecutor implements NodeExecutor {
             int sizeOfValueArray = worker.getStackFrameSize();
             BValue[] localVals = new BValue[sizeOfValueArray];
 
-            BValue argValue = inMsg != null ? inMsg.clone() : null;
-            // Setting argument value in the stack frame
-            localVals[0] = argValue;
+
+//            BValue argValue = inMsg != null ? inMsg.clone() : null;
+//            // Setting argument value in the stack frame
+//            localVals[0] = argValue;
 
             // Get values for all the worker arguments
-            int valueCounter = 1;
+            int valueCounter = populateArgumentValuesForWorker(forkJoinStmt.getInputValues(), localVals);
 
-            // Create default values for all declared local variables
-            for (ParameterDef variableDcl : worker.getParameterDefs()) {
-                localVals[valueCounter] = variableDcl.getType().getZeroValue();
+            for (ParameterDef returnParam : worker.getReturnParameters()) {
+                // Check whether these are unnamed set of return types.
+                // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+                if (returnParam.getName() == null) {
+                    break;
+                }
+
+                localVals[valueCounter] = returnParam.getType().getEmptyValue();
                 valueCounter++;
             }
+            // Create default values for all declared local variables
+//            for (ParameterDef variableDcl : worker.getParameterDefs()) {
+//                localVals[valueCounter] = variableDcl.getType().getZeroValue();
+//                valueCounter++;
+//            }
 
             // Create an arrays in the stack frame to hold return values;
             BValue[] returnVals = new BValue[1];
@@ -617,6 +628,11 @@ public class BLangExecutor implements NodeExecutor {
             for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
                 executeWorker(worker, funcIExpr.getArgExprs());
             }
+            for (Statement statement : bFunction.getCallableUnitBody().getStatements()) {
+                if (statement instanceof ForkJoinStmt) {
+                    ((ForkJoinStmt) statement).setInputValues(funcIExpr.getArgExprs());
+                }
+            }
             bFunction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
@@ -668,6 +684,11 @@ public class BLangExecutor implements NodeExecutor {
             for (Worker worker : bAction.getWorkers()) {
                 executeWorker(worker, actionIExpr.getArgExprs());
             }
+            for (Statement statement : bAction.getCallableUnitBody().getStatements()) {
+                if (statement instanceof ForkJoinStmt) {
+                    ((ForkJoinStmt) statement).setInputValues(actionIExpr.getArgExprs());
+                }
+            }
             bAction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeAction nativeAction = (AbstractNativeAction) action;
@@ -711,6 +732,11 @@ public class BLangExecutor implements NodeExecutor {
         // Start the workers within the resource
         for (Worker worker : resource.getWorkers()) {
             executeWorker(worker, resourceIExpr.getArgExprs());
+        }
+        for (Statement statement : resource.getResourceBody().getStatements()) {
+            if (statement instanceof ForkJoinStmt) {
+                ((ForkJoinStmt) statement).setInputValues(resourceIExpr.getArgExprs());
+            }
         }
         resource.getResourceBody().execute(this);
 
@@ -1052,7 +1078,9 @@ public class BLangExecutor implements NodeExecutor {
 
             // If the type is message, then clone and set the value
             if (argType.equals(BTypes.typeMessage)) {
-                argValue = ((BMessage) argValue).clone();
+                if (argValue != null) {
+                    argValue = ((BMessage) argValue).clone();
+                }
             }
 
             // Setting argument value in the stack frame

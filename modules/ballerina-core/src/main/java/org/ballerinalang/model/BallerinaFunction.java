@@ -20,6 +20,8 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.ForkJoinStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
@@ -292,6 +294,16 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
             }
             bFunc.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
             bFunc.functionBody = this.body;
+            if (this.body != null) {
+                for (Statement statement : this.body.getStatements()) {
+                    if (statement instanceof ForkJoinStmt) {
+                        // Set the parameters to the workers if there are any
+                        for (Worker worker : ((ForkJoinStmt) statement).getWorkers()) {
+                            worker.setParameterDefs(bFunc.getParameterDefs());
+                        }
+                    }
+                }
+            }
             bFunc.isNative = this.isNative;
             return bFunc;
         }

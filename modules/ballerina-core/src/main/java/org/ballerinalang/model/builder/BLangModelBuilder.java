@@ -1313,7 +1313,7 @@ public class BLangModelBuilder {
         if (workerList != null) {
             forkJoinStmtBuilder.setWorkers(workerList.toArray(new Worker[workerList.size()]));
         }
-        forkJoinStmtBuilder.setMessageReference((VariableRefExpr) exprStack.pop());
+        //forkJoinStmtBuilder.setMessageReference((VariableRefExpr) exprStack.pop());
         ForkJoinStmt forkJoinStmt = forkJoinStmtBuilder.build();
         addToBlockStmt(forkJoinStmt);
         currentScope = forkJoinStmt.getEnclosingScope();
