@@ -45,6 +45,7 @@ public class WhiteSpaceUtil {
     public static final String KEYWORD_THROWS = "throws";
     public static final String EQUAL_OPERATOR = "=";
     public static final String IF_KEYWORD = "if";
+    public static final String DOT_OPERATOR = ".";
 
     public static String getFileStartingWhiteSpace(CommonTokenStream tokenStream) {
         // find first non-whitespace token
@@ -680,6 +681,22 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.COMMENT_STMT_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.COMMENT_STMT_TAILING_WHITESPACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getActionInvocationStmtWS(CommonTokenStream tokenStream,
+                                                                 BallerinaParser.ActionInvocationContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_NAME_REF_TO_DOT_OPERATOR,
+                getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_DOT_OPERATOR_TO_IDENTIFIER,
+                getWhitespaceToLeft(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_IDENTIFIER_TO_EXP_LIST_WRAPPER,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }

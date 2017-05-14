@@ -1323,10 +1323,17 @@ public class BLangAntlr4Listener implements BallerinaListener {
         NodeLocation nodeLocation = getCurrentLocation(ctx);
         boolean argsAvailable = ctx.expressionList() != null;
 
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getActionInvocationStmtWS(tokenStream, ctx);
+        }
+
         if (processingActionInvocationStmt) {
-            modelBuilder.createActionInvocationStmt(nodeLocation, nameReference, actionName, argsAvailable);
+            modelBuilder.createActionInvocationStmt(nodeLocation, whiteSpaceDescriptor, nameReference, actionName,
+                    argsAvailable);
         } else {
-            modelBuilder.addActionInvocationExpr(nodeLocation, nameReference, actionName, argsAvailable);
+            modelBuilder.addActionInvocationExpr(nodeLocation, whiteSpaceDescriptor, nameReference, actionName,
+                    argsAvailable);
         }
     }
 

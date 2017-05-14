@@ -718,10 +718,11 @@ public class BLangModelBuilder {
         exprStack.push(invocationExpr);
     }
 
-    public void addActionInvocationExpr(NodeLocation location, NameReference nameReference, String actionName,
-                                        boolean argsAvailable) {
+    public void addActionInvocationExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                        NameReference nameReference, String actionName, boolean argsAvailable) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setNodeLocation(location);
+        cIExprBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
 
         if (argsAvailable) {
             List<Expression> argExprList = exprListStack.pop();
@@ -1419,9 +1420,9 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(workerReplyStmt);
     }
 
-    public void createActionInvocationStmt(NodeLocation location, NameReference nameReference, String actionName,
-                                           boolean argsAvailable) {
-        addActionInvocationExpr(location, nameReference, actionName, argsAvailable);
+    public void createActionInvocationStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                           NameReference nameReference, String actionName, boolean argsAvailable) {
+        addActionInvocationExpr(location, whiteSpaceDescriptor, nameReference, actionName, argsAvailable);
         ActionInvocationExpr invocationExpr = (ActionInvocationExpr) exprStack.pop();
 
         ActionInvocationStmt actionInvocationStmt = new ActionInvocationStmt(location, invocationExpr);
