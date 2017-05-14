@@ -701,7 +701,8 @@ public class BLangModelBuilder {
         addExprToList(exprList, exprCount);
     }
 
-    public void addFunctionInvocationExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, NameReference nameReference, boolean argsAvailable) {
+    public void addFunctionInvocationExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                          NameReference nameReference, boolean argsAvailable) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setNodeLocation(location);
 
