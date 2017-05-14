@@ -158,5 +158,13 @@ public class WhiteSpaceRegions {
     public static final int NAME_REF_COLON_TO_REF_NAME = 2;
     public static final int NAME_REF_END_TO_NEXT_TOKEN = 3;
 
+    // whitespace regions in assign statement
+    public static final int ASSIGN_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int ASSIGN_STMT_VAR_REF_LIST_TO_EQUAL_OPERATOR = 1;
+    public static final int ASSIGN_STMT_EQUAL_OPERATOR_TO_EXPRESSION_START = 2;
+    public static final int ASSIGN_STMT_END_TO_NEXT_TOKEN = 3;
+
+
+
 
 }

@@ -1038,11 +1038,12 @@ public class BLangModelBuilder {
         addToBlockStmt(commentStmt);
     }
 
-    public void createAssignmentStmt(NodeLocation location) {
+    public void createAssignmentStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression rExpr = exprStack.pop();
         List<Expression> lExprList = exprListStack.pop();
 
         AssignStmt assignStmt = new AssignStmt(location, lExprList.toArray(new Expression[lExprList.size()]), rExpr);
+        assignStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         addToBlockStmt(assignStmt);
     }
 
