@@ -223,4 +223,18 @@ public class WhiteSpaceRegions {
     public static final int REPLY_STMT_REPLY_KEYWORD_TO_EXPRESSION = 1;
     public static final int REPLY_STMT_END_TO_NEXT_TOKEN = 2;
 
+    // whitespace regions in worker invocation statement
+    public static final int WORKER_INVOKE_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int WORKER_INVOKE_STMT_MSG_ID_TO_ARROW_OPERATOR = 1;
+    public static final int WORKER_INVOKE_STMT_ARROW_OPERATOR_TO_WORKER_ID = 2;
+    public static final int WORKER_INVOKE_STMT_WORKER_ID_TO_END = 3;
+    public static final int WORKER_INVOKE_STMT_END_TO_NEXT_TOKEN = 4;
+
+    // whitespace regions in worker reply statement
+    public static final int WORKER_REPLY_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int WORKER_REPLY_STMT_MSG_ID_TO_ARROW_OPERATOR = 1;
+    public static final int WORKER_REPLY_STMT_ARROW_OPERATOR_TO_WORKER_ID = 2;
+    public static final int WORKER_REPLY_STMT_WORKER_ID_TO_END = 3;
+    public static final int WORKER_REPLY_STMT_END_TO_NEXT_TOKEN = 4;
+
 }

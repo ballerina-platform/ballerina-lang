@@ -641,4 +641,36 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getWorkerInvokeStmtWS(CommonTokenStream tokenStream,
+                                                             BallerinaParser.TriggerWorkerContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_MSG_ID_TO_ARROW_OPERATOR,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().get(0).getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_ARROW_OPERATOR_TO_WORKER_ID,
+                getWhitespaceToLeft(tokenStream, ctx.Identifier().get(1).getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_WORKER_ID_TO_END,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().get(1).getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getWorkerReplyStmtWS(CommonTokenStream tokenStream,
+                                                            BallerinaParser.WorkerReplyContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_REPLY_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_REPLY_STMT_MSG_ID_TO_ARROW_OPERATOR,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().get(0).getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_REPLY_STMT_ARROW_OPERATOR_TO_WORKER_ID,
+                getWhitespaceToLeft(tokenStream, ctx.Identifier().get(1).getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_REPLY_STMT_WORKER_ID_TO_END,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().get(1).getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_REPLY_STMT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }

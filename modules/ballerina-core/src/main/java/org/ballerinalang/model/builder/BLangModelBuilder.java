@@ -1400,17 +1400,21 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
     }
 
-    public void createWorkerInvocationStmt(String receivingMsgRef, String workerName, NodeLocation sourceLocation) {
+    public void createWorkerInvocationStmt(String receivingMsgRef, String workerName, NodeLocation sourceLocation,
+                                           WhiteSpaceDescriptor whiteSpaceDescriptor) {
         VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef));
-        WorkerInvocationStmt workerInvocationStmt = new WorkerInvocationStmt(workerName, sourceLocation);
+        WorkerInvocationStmt workerInvocationStmt = new WorkerInvocationStmt(workerName, sourceLocation,
+                whiteSpaceDescriptor);
         //workerInvocationStmt.setLocation(sourceLocation);
         workerInvocationStmt.setInMsg(variableRefExpr);
         blockStmtBuilderStack.peek().addStmt(workerInvocationStmt);
     }
 
-    public void createWorkerReplyStmt(String receivingMsgRef, String workerName, NodeLocation sourceLocation) {
+    public void createWorkerReplyStmt(String receivingMsgRef, String workerName, NodeLocation sourceLocation,
+                                      WhiteSpaceDescriptor whiteSpaceDescriptor) {
         VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef));
-        WorkerReplyStmt workerReplyStmt = new WorkerReplyStmt(variableRefExpr, workerName, sourceLocation);
+        WorkerReplyStmt workerReplyStmt = new WorkerReplyStmt(variableRefExpr, workerName, sourceLocation,
+                                                whiteSpaceDescriptor);
         //workerReplyStmt.setLocation(sourceLocation);
         blockStmtBuilderStack.peek().addStmt(workerReplyStmt);
     }

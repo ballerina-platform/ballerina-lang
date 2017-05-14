@@ -1192,8 +1192,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitTriggerWorker(BallerinaParser.TriggerWorkerContext ctx) {
         if (ctx.exception == null) {
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getWorkerInvokeStmtWS(tokenStream, ctx);
+            }
             modelBuilder.createWorkerInvocationStmt(ctx.Identifier(0).getText(), ctx.Identifier(1).getText(),
-                    getCurrentLocation(ctx));
+                    getCurrentLocation(ctx), whiteSpaceDescriptor);
         }
     }
 
@@ -1204,8 +1208,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) {
         if (ctx.exception == null) {
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getWorkerReplyStmtWS(tokenStream, ctx);
+            }
             modelBuilder.createWorkerReplyStmt(ctx.Identifier(0).getText(), ctx.Identifier(1).getText(),
-                    getCurrentLocation(ctx));
+                    getCurrentLocation(ctx), whiteSpaceDescriptor);
         }
     }
 
