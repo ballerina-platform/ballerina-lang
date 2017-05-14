@@ -29,8 +29,8 @@ class WorkerReplyStatement extends Statement {
         this._source = _.get(args, 'source');
         this._destination = _.get(args, 'destination');
         this._expressionList = _.get(args, 'expressionList', []);
-        this._replyStatement = _.get(args, 'replyStatement', 'messageName <- workerName');
-        this._workerName = _.get(args, 'workerName', '');
+        this._replyStatement = _.get(args, 'replyStatement', 'm1,m2 <- newWorker1');
+        this._workerName = _.get(args, 'workerName', 'newWorker1');
     }
 
     setSource(source) {
@@ -76,6 +76,7 @@ class WorkerReplyStatement extends Statement {
     canBeAChildOf(node) {
         return this.getFactory().isResourceDefinition(node)
             || this.getFactory().isFunctionDefinition(node)
+            || this.getFactory().isWorkerDeclaration(node)
             || this.getFactory().isConnectorAction(node)
             || (this.getFactory().isStatement(node) && !node._isChildOfWorker);
     }

@@ -61,6 +61,10 @@ class WorkerInvocationStatement extends Statement {
         this._expressionList.push(expression);
     }
 
+    setExpressionList(expressionList) {
+        this._expressionList = expressionList;
+    }
+
     getExpressionList() {
         return this._expressionList;
     }
@@ -76,6 +80,7 @@ class WorkerInvocationStatement extends Statement {
     canBeAChildOf(node) {
         return this.getFactory().isResourceDefinition(node)
             || this.getFactory().isFunctionDefinition(node)
+            || this.getFactory().isWorkerDeclaration(node)
             || this.getFactory().isConnectorAction(node)
             || (this.getFactory().isStatement(node) && !node._isChildOfWorker);
     }
@@ -109,7 +114,10 @@ class WorkerInvocationStatement extends Statement {
     }
 
     messageDrawTargetAllowed(target) {
-        return this.getFactory().isWorkerDeclaration(target);
+        return this.getFactory().isWorkerDeclaration(target)
+            || this.getFactory().isResourceDefinition(target)
+            || this.getFactory().isFunctionDefinition(target)
+            || this.getFactory().isConnectorAction(target);
     }
 }
 
