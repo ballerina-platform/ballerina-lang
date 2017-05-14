@@ -52,6 +52,8 @@ import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExp
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeFunctionNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeTypeMapperNode;
+import org.ballerinalang.model.nodes.fragments.expressions.JSONArrayInitExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.JSONInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.MapInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.RefTypeInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructFieldAccessExprEndNode;
@@ -210,14 +212,18 @@ public interface LinkedNodeVisitor extends NodeVisitor {
 
     void visit(MapInitExprEndNode mapInitExprEndNode);
     
+    void visit(JSONInitExprEndNode jsonInitExprEndNode);
+    
+    void visit(JSONArrayInitExprEndNode jsonArrayInitExprEndNode);
+    
     void visit(RefTypeInitExprEndNode refTypeInitExprEndNode);
-
-    void visit(StructFieldAccessExprEndNode structFieldAccessExprEndNode);
 
     void visit(StructInitExprEndNode structInitExprEndNode);
     
     void visit(StructInitExprStartNode structInitExprStartNode);
-
+    
+    void visit(StructFieldAccessExprEndNode structFieldAccessExprEndNode);
+    
     void visit(TypeCastExpressionEndNode typeCastExpressionEndNode);
 
     void visit(UnaryExpressionEndNode unaryExpressionEndNode);
