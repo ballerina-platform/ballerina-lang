@@ -130,7 +130,7 @@ class TagController extends React.Component {
                           y={componentData.components.closingBracket.y + 3} width={90} height={18}
                           className="attribute-content-operations-wrapper"/>
                     <EditableText x={componentData.components.closingBracket.x - 100}
-                                  y={componentData.components.closingBracket.y + 17}
+                                  y={componentData.components.closingBracket.y + 25/2}
                                   className="tag-component-editable-text-box"
                                   placeHolder={this.state.editValue}
                                   onBlur={e => {

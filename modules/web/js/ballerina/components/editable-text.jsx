@@ -70,17 +70,17 @@ class EditableText extends React.Component {
     }
 
     render() {
-        const {x, y, onClick} = this.props;
+        let {x, y, onClick} = this.props;
         const textProps = {x, y, onClick};
 
         if (this.props.placeHolder) {
             return (
-                <text {...textProps}>{this.props.placeHolder}</text>
+                <text {...textProps} className="panel-label">{this.props.placeHolder}</text>
             )
         } else {
 
             return (
-                <text {...textProps}>{this.props.children}</text>
+                <text {...textProps} className="panel-label">{this.props.children}</text>
             )
         }
     }
