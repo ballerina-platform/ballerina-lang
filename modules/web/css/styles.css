@@ -221,6 +221,10 @@ ol#breadcrumbList {
     max-width: 250px;
 }
 
+.panel-label {
+    dominant-baseline: middle;
+}
+
 .condition-text {
     text-anchor: start;
     dominant-baseline: central;

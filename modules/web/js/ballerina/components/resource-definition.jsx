@@ -20,7 +20,7 @@ import React from 'react';
 import LifeLineDecorator from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
-import Tag from './utils/tag';
+import ParameterDefinition from './parameter-definition';
 import {getComponentForNodeArray} from './utils';
 import {lifeLine} from './../configs/designer-defaults';
 
@@ -33,51 +33,38 @@ class ResourceDefinition extends React.Component {
 
         //lets calculate function worker lifeline bounding box.
         let resource_worker_bBox = {};
-        resource_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width)/2;
-        resource_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height ;
+        resource_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
+        resource_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
         resource_worker_bBox.w = lifeLine.width;
         resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
         let children = getComponentForNodeArray(this.props.model.getChildren());
 
         let titleComponentData = [{
-            rComponent: Tag,
-            title: 'Parameters: ',
-            components: {
-                openingBracket: this.props.model.getViewState().components.openingParameter,
-                titleText: this.props.model.getViewState().components.parametersText,
-                closingBracket: this.props.model.getViewState().components.closingParameter
-            },
-            prefixView: this.props.model.getViewState().components.parametersPrefixContainer,
-            openingBracketClassName: 'parameter-opening-brack-text',
-            closingBracketClassName: 'parameter-closing-brack-text',
-            prefixTextClassName: 'parameter-prefix-text',
-            models: this.props.model.getArgumentParameterDefinitionHolder().getChildren(),
-            parent: this.props.model
+            model: this.props.model.getArgumentParameterDefinitionHolder()
         }];
 
         return (<PanelDecorator icon="tool-icons/resource" title={name} bBox={bBox}
-                        model={this.props.model}
-                        setter={this.props.model.getArgumentParameterDefinitionHolder()}
-                        dropTarget={this.props.model}
-                        dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
-                        titleComponentData={titleComponentData}>
+                                model={this.props.model}
+                                dropTarget={this.props.model}
+                                dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
+                                titleComponentData={titleComponentData}>
             <g>
                 <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox}/>
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
-                  {children}
+                    {children}
                 </StatementContainer>
             </g>
         </PanelDecorator>);
     }
 
-    canDropToPanelBody (nodeBeingDragged) {
-          let nodeFactory = this.props.model.getFactory();
-          // IMPORTANT: override default validation logic
-          // Panel's drop zone is for worker and connector declarations only.
-          // Statements should only be allowed on top of resource worker's dropzone.
-          return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-              || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
+    canDropToPanelBody(nodeBeingDragged) {
+        let nodeFactory = this.props.model.getFactory();
+        // IMPORTANT: override default validation logic
+        // Panel's drop zone is for worker and connector declarations only.
+        // Statements should only be allowed on top of resource worker's dropzone.
+        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
+            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
     }
 }
 

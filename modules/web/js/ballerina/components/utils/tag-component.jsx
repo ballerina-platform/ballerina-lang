@@ -17,10 +17,13 @@
  */
 import React from 'react';
 import EditableText from './../editable-text';
-import Alerts from 'alerts';
+
 
 const DEFAULT_INPUT_VALUE = "Enter Value";
 
+/**
+ * Common Tag Controller to render tag input box.
+ * */
 class TagController extends React.Component {
 
     constructor() {
@@ -28,88 +31,39 @@ class TagController extends React.Component {
         this.state = {editing: false, editValue: DEFAULT_INPUT_VALUE};
     }
 
-    onTitleClick() {
+    /**
+     * Click event handler for input
+     * */
+    onInputClick() {
         this.setState({editing: true, editValue: DEFAULT_INPUT_VALUE});
     }
 
-    onTitleInputBlur(e) {
-        console.log(this.props.model);
-        let model = this.props.model;
+    /**
+     * Blur event handler for input
+     * @param {object} e - Event
+     * */
+    onInputBlur(e) {
         let setter = this.props.setter;
         if (DEFAULT_INPUT_VALUE !== this.state.editValue) {
-            let splitedExpression = this.state.editValue.split(" ");
-            let parameterDef = model.getFactory().createParameterDefinition();
-            let bType = splitedExpression[0];
-            if (this.validateType(bType)) {
-                parameterDef.setTypeName(bType);
-            } else {
-                let errorString = "Incorrect Variable Type: " + bType;
-                Alerts.error(errorString);
+            if(!setter(this.state.editValue)){
                 e.preventDefault();
-                return false;
             }
-
-            if (splitedExpression[1]) {
-                parameterDef.setName(splitedExpression[1]);
-            } else {
-                let errorString = "Invalid Variable Name.";
-                Alerts.error(errorString);
-                e.preventDefault();
-                return false;
-            }
-
-            // model.getArgumentParameterDefinitionHolder().addChild(parameterDef);
-            setter.addChild(parameterDef);
         }
+        e.target.value = "";
         this.setState({editing: false, editValue: DEFAULT_INPUT_VALUE})
     }
 
-    onTitleInputChange(e) {
+    /**
+     * Change event handler for input
+     * @param {object} e - Event
+     * */
+    onInputChange(e) {
+        let validate = this.props.validateInput;
         this.setState({editing: true, editValue: e.target.value.trim()});
         let variableDeclaration = e.target.value.replace("=", "") || e.target.value.replace(";", "");
-        if (this.isValidateInput(variableDeclaration)) {
+        if (validate(variableDeclaration)) {
             this.setState({editing: true, editValue: variableDeclaration});
         }
-    }
-
-    /**
-     * Get types of ballerina to which can be applied when declaring variables.
-     * */
-    getTypeDropdownValues() {
-        let dropdownData = [];
-        // Adding items to the type dropdown.
-        // TODO: Add types to diagram context
-        let bTypes = ["int", "string", "message"];
-        _.forEach(bTypes, function (bType) {
-            dropdownData.push({id: bType, text: bType});
-        });
-
-        let structTypes = [];
-        _.forEach(structTypes, function (sType) {
-            dropdownData.push({id: sType.getAnnotationName(), text: sType.getAnnotationName()});
-        });
-
-        return dropdownData;
-    }
-
-    /**
-     * Validate type.
-     * */
-    validateType(bType) {
-        let isValid = false;
-        let typeList = this.getTypeDropdownValues();
-        let filteredTypeList = _.filter(typeList, function (type) {
-            return type.id === bType;
-        });
-        if (filteredTypeList.length > 0) {
-            isValid = true;
-        }
-        return isValid;
-    }
-
-    isValidateInput(input) {
-        let splitedExpression = input.split(" ");
-        return splitedExpression.length > 1;
     }
 
     render() {
@@ -123,34 +77,33 @@ class TagController extends React.Component {
                 <text x={componentData.components.titleText.x} y={componentData.components.titleText.y + 3}
                       className={componentData.prefixTextClassName}>{componentData.title}</text>
                 {modelComponents}
-                <text x={componentData.components.closingBracket.x + 110}
-                      y={componentData.components.closingBracket.y + 3}
-                      className={componentData.closingBracketClassName}>)
-                </text>
 
                 <g>
-                    {this.props.tags}
-                </g>
-                <g>
-                    <rect x={componentData.components.closingBracket.x + 10}
-                          y={componentData.components.closingBracket.y + 3} width={90} height={18}
+                    <rect x={componentData.components.closingBracket.x - 100}
+                          y={componentData.components.closingBracket.y + 2} width={90} height={20}
                           className="attribute-content-operations-wrapper"/>
-                    <EditableText x={componentData.components.closingBracket.x + 10}
-                                  y={componentData.components.closingBracket.y + 17}
+                    <EditableText x={componentData.components.closingBracket.x - 100}
+                                  y={componentData.components.closingBracket.y + 25/2}
+                                  width = {90}
+                                  height = {20}
                                   className="tag-component-editable-text-box"
                                   placeHolder={this.state.editValue}
                                   onBlur={e => {
-                                      this.onTitleInputBlur(e)
+                                      this.onInputBlur(e)
                                   }}
                                   onClick={() => {
-                                      this.onTitleClick()
+                                      this.onInputClick()
                                   }}
                                   editing={this.state.editing}
                                   onChange={e => {
-                                      this.onTitleInputChange(e)
+                                      this.onInputChange(e)
                                   }}>
                     </EditableText>
                 </g>
+                <text x={componentData.components.closingBracket.x}
+                      y={componentData.components.closingBracket.y + 3}
+                      className={componentData.closingBracketClassName}>)
+                </text>
             </g>
         );
     }
