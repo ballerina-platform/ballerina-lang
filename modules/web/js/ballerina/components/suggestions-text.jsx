@@ -150,6 +150,11 @@ class SuggestionsText extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+        if(!prevProps.show && !this.props.show){
+            // If its not showing previously and still not showing no need to re-render
+            // this also avoids removing other possible html elements from html overlay
+            return;
+        }
         this.renderSuggestionsText();
         this.input && this.input.focus();
     }

@@ -26,23 +26,32 @@ import ImportDeclaration from './import-declaration';
 import ImportDeclarationExpanded from './import-declaration-expanded';
 import BallerinaASTFactory from '../ast/ballerina-ast-factory';
 import ImageUtil from './image-util';
+import EditableText from './editable-text';
 
 class PackageDefinition extends React.Component {
 
     constructor(props) {
         super(props);
-        this.handlePackageNameInput = this.handlePackageNameInput.bind(this);
+        this.state = {
+            packageDefExpanded: false,
+            packageDefValue: this.props.model.getPackageName(),
+            packageNameEditing: false
+        }
         this.handleImportsHeaderClick = this.handleImportsHeaderClick.bind(this);
         this.handleAddImport = this.handleAddImport.bind(this);
         this.handleDeleteImport = this.handleDeleteImport.bind(this);
-    }
-
-    handlePackageNameInput(input) {
-        this.props.model.setPackageName(input);
+        this.handlePackageIconClick = this.handlePackageIconClick.bind(this);
     }
 
     handleImportsHeaderClick() {
         this.props.model.setAttribute('viewState.expanded', !this.props.model.viewState.expanded);
+    }
+
+    handlePackageIconClick() {
+        this.setState({packageDefExpanded: true});
+        if(!this.state.packageDefValue){
+            this.setState({packageNameEditing: true});
+        }
     }
 
     handleAddImport(value) {
@@ -56,33 +65,25 @@ class PackageDefinition extends React.Component {
         this.props.model.parent.deleteImport(value);
     }
 
-    handlePackageNameClick(e) {
-        const model = this.props.model;
-        const bBox = model.viewState.bBox;
-        const headerPadding = packageDefinition.header.padding;
-        const headerHeight = packageDefinition.header.height;
-        const packageDefTextWidth = packageDefinition.textWidth;
-        const packageDefLabelWidth = packageDefinition.labelWidth;
-        const textBoxPadding = 3;
-        const textBoxHeight = 25;
+    onPackageClick() {
+        this.setState({packageNameEditing: true});
+    }
 
-        const textBoxBBox = {
-            x: bBox.x + headerPadding.left + packageDefLabelWidth - textBoxPadding - 2,
-            y: bBox.y + headerHeight/2 - textBoxHeight/2,
-            h: textBoxHeight,
-            w: packageDefTextWidth
-        };
-
-        const options = {
-            bBox: textBoxBBox,
-            onChange: this.handlePackageNameInput,
-            initialValue: model.getPackageName(),
-            styles: {
-                paddingLeft: textBoxPadding
-            }
+    onPackageInputBlur() {
+        if(!this.state.packageDefValue || this.state.packageDefValue.trim().length === 0){
+            this.setState({
+                packageDefExpanded: false,
+                packageNameEditing: false
+            })
+            // TODO: unset package name
+            return;
         }
+        this.props.model.setPackageName(this.state.packageDefValue);
+        this.setState({packageNameEditing: false});
+    }
 
-        this.context.renderer.renderTextBox(options);
+    onPackageInputChange(e) {
+        this.setState({packageDefValue: e.target.value});
     }
 
     render() {
@@ -92,12 +93,11 @@ class PackageDefinition extends React.Component {
         const headerHeight = packageDefinition.header.height;
         const headerPadding = packageDefinition.header.padding;
         const expanded = this.props.model.viewState.expanded;
-        const packageDefTextWidth = packageDefinition.textWidth;
-        const packageDefLabelWidth = packageDefinition.labelWidth;
+        const packageDefTextWidth = 275;
         const iconSize = 20;
 
         const importsBbox = {
-            x: bBox.x + headerPadding.left + packageDefTextWidth + packageDefLabelWidth + 15,
+            x: bBox.x + headerHeight + 15,
             y: bBox.y
         }
 
@@ -106,26 +106,41 @@ class PackageDefinition extends React.Component {
             y: bBox.y + headerHeight
         }
 
+        const packageDefExpanded = this.state.packageDefExpanded || !!this.state.packageDefValue
+        if(packageDefExpanded) {
+            importsBbox.x += packageDefTextWidth
+        }
+
         const astRoot = this.props.model.parent;
         const imports = astRoot.children.filter(c => {return c.constructor.name === 'ImportDeclaration'});
 
         return (
             <g>
-                <rect x={ bBox.x } y={ bBox.y } width={headerHeight} height={headerHeight}
+                <rect x={ bBox.x } y={ bBox.y } width={headerHeight} height={headerHeight} onClick={this.handlePackageIconClick}
                       rx={headerHeight/2} ry={headerHeight/2} className="package-definition-header"/>
-                <image width={ iconSize } height={ iconSize } xlinkHref={ ImageUtil.getSVGIconString('package') }
-                            x={bBox.x + (headerHeight-iconSize)/2 } y={bBox.y + (headerHeight-iconSize)/2}/>
-                { expanded ? <ImportDeclarationExpanded
-                                bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}
-                                onAddImport={this.handleAddImport} onDeleteImport={this.handleDeleteImport}/> :
-                             <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick} /> }
+                {
+                    packageDefExpanded && (
+                        <g>
+                            <rect x={ bBox.x } y={ bBox.y } width={packageDefTextWidth + headerHeight} height={headerHeight} onClick={() => {this.onPackageClick()}}
+                              className="package-definition-header"/>
+                          <EditableText x={bBox.x + headerHeight} y={bBox.y + headerHeight / 2 } width={packageDefTextWidth - 5}
+                                     onBlur={() => {this.onPackageInputBlur()}} onClick={() => {this.onPackageClick()}}
+                                     editing={this.state.packageNameEditing} onChange={e => {this.onPackageInputChange(e)}}>
+                                     {this.state.packageDefValue || ""}
+                            </EditableText>
+                        </g>
+                    )
+               }
+               <image width={ iconSize } height={ iconSize } xlinkHref={ ImageUtil.getSVGIconString('package') }
+                      onClick={this.handlePackageIconClick} x={bBox.x + (headerHeight-iconSize)/2 }
+                      y={bBox.y + (headerHeight-iconSize)/2}/>
+               { expanded ? <ImportDeclarationExpanded
+                            bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}
+                            onAddImport={this.handleAddImport} onDeleteImport={this.handleDeleteImport}/> :
+                         <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick} /> }
             </g>
         );
     }
 }
-
-PackageDefinition.contextTypes = {
-    renderer: PropTypes.instanceOf(Renderer).isRequired,
-};
 
 export default PackageDefinition;
