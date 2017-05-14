@@ -121,6 +121,8 @@ import java.util.regex.Pattern;
 public class BLangModelBuilder {
     public static final String ATTACHMENT_POINTS = "attachmentPoints";
     public static final String IF_CLAUSE = "IfClause";
+    public static final String ELSE_CLAUSE = "ElseClause";
+
     protected String currentPackagePath;
     protected BallerinaFile.BFileBuilder bFileBuilder;
 
@@ -1174,8 +1176,16 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void addElseClause() {
+    public void addElseClause(WhiteSpaceDescriptor whiteSpaceDescriptor) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
+        if (whiteSpaceDescriptor != null) {
+            WhiteSpaceDescriptor ws = ifElseStmtBuilder.getWhiteSpaceDescriptor();
+            if (ws == null) {
+                ws = new WhiteSpaceDescriptor();
+                ifElseStmtBuilder.setWhiteSpaceDescriptor(ws);
+            }
+            ws.addChildDescriptor(ELSE_CLAUSE, whiteSpaceDescriptor);
+        }
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt elseStmt = blockStmtBuilder.build();
         ifElseStmtBuilder.setElseBody(elseStmt);

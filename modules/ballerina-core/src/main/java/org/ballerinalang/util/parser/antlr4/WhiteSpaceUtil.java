@@ -526,4 +526,17 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getElseClauseWS(CommonTokenStream tokenStream,
+                                                       BallerinaParser.ElseClauseContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_CLAUSE_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_CLAUSE_ELSE_KEYWORD_TO_BODY_START,
+                getWhitespaceToLeft(tokenStream,
+                        getFirstTokenWithText(ctx.children, OPENNING_CURLEY_BRACE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_CLAUSE_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }

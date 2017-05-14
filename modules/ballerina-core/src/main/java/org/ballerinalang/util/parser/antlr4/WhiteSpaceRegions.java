@@ -177,6 +177,9 @@ public class WhiteSpaceRegions {
     public static final int ELSE_IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START = 3;
     public static final int ELSE_IF_CLAUSE_BODY_END_TO_NEXT_TOKEN = 4;
 
-
+    // whitespace regions in a else clause
+    public static final int ELSE_CLAUSE_PRECEDING_WHITESPACE = 0;
+    public static final int ELSE_CLAUSE_ELSE_KEYWORD_TO_BODY_START = 1;
+    public static final int ELSE_CLAUSE_END_TO_NEXT_TOKEN = 2;
 
 }
