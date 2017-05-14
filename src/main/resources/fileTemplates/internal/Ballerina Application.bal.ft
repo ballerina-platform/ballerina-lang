@@ -1,3 +1,7 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")
+package ${PACKAGE_NAME};
+#end
+
 import ballerina.lang.system;
 
 function main (string[] args) {
