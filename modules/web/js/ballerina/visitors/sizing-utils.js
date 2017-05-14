@@ -523,13 +523,16 @@ class SizingUtil {
      * @returns {undefined|ASTNode}
      */
     getWorkerReplyStatementTo(parentNode, workerName) {
-        const childNodes = _.filter(parentNode.getChildren(), function (child) {
-            if (BallerinaASTFactory.isWorkerReplyStatement(child)) {
-                return child.getWorkerName() === workerName;
-            } else {
-                return false;
-            }
-        });
+        let childNodes;
+        if (!_.isNil(parentNode)) {
+            childNodes = _.filter(parentNode.getChildren(), function (child) {
+                if (BallerinaASTFactory.isWorkerReplyStatement(child)) {
+                    return child.getWorkerName() === workerName;
+                } else {
+                    return false;
+                }
+            });
+        }
 
         if (_.isNil(childNodes)) {
             return undefined;

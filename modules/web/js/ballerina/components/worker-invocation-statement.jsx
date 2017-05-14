@@ -41,6 +41,7 @@ class WorkerInvocationStatement extends React.Component {
         };
         const statementY = bBox.y + model.getViewState().components['drop-zone'].h;
         const statementHeight = bBox.h - model.getViewState().components['drop-zone'].h;
+        const statementWidth = bBox.w;
         const statementX = bBox.getLeft();
 
         arrowStart.y = statementY + statementHeight/2;
@@ -85,7 +86,19 @@ class WorkerInvocationStatement extends React.Component {
         return (<g>
             <StatementDecorator model={model} viewState={model.viewState} expression={expression} />
             <g>
-                <circle cx={arrowStart.x}
+                <circle cx={statementX}
+                        cy={arrowStart.y}
+                        r={10}
+                        fill="#444"
+                        fillOpacity={0}
+                        onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
+                        onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
+                        onMouseDown={(e) => this.onMouseDown(e)}
+                        onMouseUp={(e) => this.onMouseUp(e)}
+                />
+            </g>
+            <g>
+                <circle cx={statementX + statementWidth}
                         cy={arrowStart.y}
                         r={10}
                         fill="#444"
@@ -126,7 +139,31 @@ class WorkerInvocationStatement extends React.Component {
         });
 
         messageManager.startDrawMessage(function (source, destination) {
-            source.setAttribute('_destination', destination)
+            const expressionsList = ((source.getInvocationStatement().split('->')[0]).trim()).split(',');
+            let expressionString = '';
+            let workerName = '';
+
+            /**
+             * If the destination is not a worker declaration, it should be a top level element
+             * (ie: resource definition, function definition, connector action definition)
+             * For the top level elements, worker name is "default"
+             */
+            if (BallerinaASTFactory.isWorkerDeclaration(destination)) {
+                workerName = destination.getWorkerName();
+            } else {
+                workerName = 'default';
+            }
+            source.setWorkerName(workerName);
+
+            for (let itr = 0; itr < expressionsList.length; itr ++) {
+                expressionString += expressionsList[itr];
+                if (itr !== expressionsList.length - 1) {
+                    expressionString += ',';
+                }
+            }
+            expressionString += '->' + workerName;
+            source.setInvocationStatement(expressionString);
+            source.setAttribute('_destination', destination);
         });
     }
 
