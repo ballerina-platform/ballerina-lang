@@ -717,4 +717,14 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getSimpleLiteralWS(CommonTokenStream tokenStream,
+                                                          BallerinaParser.SimpleLiteralContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SIMPLE_LITERAL_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SIMPLE_LITERAL_TAILING_WHITESPACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }

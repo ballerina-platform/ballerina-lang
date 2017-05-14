@@ -260,5 +260,7 @@ public class WhiteSpaceRegions {
     public static final int FUNCTION_INVOCATION_NAME_REF_TO_EXP_LIST = 1;
     public static final int FUNCTION_INVOCATION_END_TO_NEXT_TOKEN = 2;
 
-
+    // whitespace regions in a simple literal
+    public static final int SIMPLE_LITERAL_PRECEDING_WHITESPACE = 0;
+    public static final int SIMPLE_LITERAL_TAILING_WHITESPACE = 1;
 }

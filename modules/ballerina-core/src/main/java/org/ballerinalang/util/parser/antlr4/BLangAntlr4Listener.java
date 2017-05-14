@@ -1692,15 +1692,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getSimpleLiteralWS(tokenStream, ctx);
+        }
         TerminalNode terminalNode = ctx.IntegerLiteral();
         if (terminalNode != null) {
-            modelBuilder.createIntegerLiteral(getCurrentLocation(ctx), terminalNode.getText());
+            modelBuilder.createIntegerLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, terminalNode.getText());
             return;
         }
 
         terminalNode = ctx.FloatingPointLiteral();
         if (terminalNode != null) {
-            modelBuilder.createFloatLiteral(getCurrentLocation(ctx), terminalNode.getText());
+            modelBuilder.createFloatLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, terminalNode.getText());
             return;
         }
 
@@ -1709,19 +1713,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
             String stringLiteral = terminalNode.getText();
             stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 1);
             stringLiteral = StringEscapeUtils.unescapeJava(stringLiteral);
-            modelBuilder.createStringLiteral(getCurrentLocation(ctx), stringLiteral);
+            modelBuilder.createStringLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor,  stringLiteral);
             return;
         }
 
         terminalNode = ctx.BooleanLiteral();
         if (terminalNode != null) {
-            modelBuilder.createBooleanLiteral(getCurrentLocation(ctx), terminalNode.getText());
+            modelBuilder.createBooleanLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, terminalNode.getText());
             return;
         }
 
         terminalNode = ctx.NullLiteral();
         if (terminalNode != null) {
-            modelBuilder.createNullLiteral(getCurrentLocation(ctx), terminalNode.getText());
+            modelBuilder.createNullLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, terminalNode.getText());
         }
     }
 

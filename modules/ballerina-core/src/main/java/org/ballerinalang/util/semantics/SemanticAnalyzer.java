@@ -1891,6 +1891,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         int i = 0;
         if (literals.length > i) {
             BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(),
+                    backtickExpr.getWhiteSpaceDescriptor(),
                     new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(literals[i]));
             visit(basicLiteral);
             argExprList.add(basicLiteral);
@@ -1908,11 +1909,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (m.group(3) != null) {
                 BasicLiteral indexExpr;
                 if (m.group(5) != null) {
-                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(),
+                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(), backtickExpr.getWhiteSpaceDescriptor(),
                             new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(m.group(5)));
                     indexExpr.setType(BTypes.typeString);
                 } else {
-                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(),
+                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(), backtickExpr.getWhiteSpaceDescriptor(),
                             new SimpleTypeName(TypeConstants.INT_TNAME), new BInteger(Integer.parseInt(m.group(4))));
                     indexExpr.setType(BTypes.typeInt);
                 }
@@ -1940,6 +1941,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             if (literals.length > i) {
                 BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(),
+                        backtickExpr.getWhiteSpaceDescriptor(),
                         new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(literals[i]));
                 visit(basicLiteral);
                 argExprList.add(basicLiteral);
@@ -3269,7 +3271,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             // In maps and json, key is always a string literal.
             if (keyExpr instanceof VariableRefExpr) {
                 BString key = new BString(((VariableRefExpr) keyExpr).getVarName());
-                keyExpr = new BasicLiteral(keyExpr.getNodeLocation(), new SimpleTypeName(TypeConstants.STRING_TNAME),
+                keyExpr = new BasicLiteral(keyExpr.getNodeLocation(), keyExpr.getWhiteSpaceDescriptor(),
+                        new SimpleTypeName(TypeConstants.STRING_TNAME),
                         key);
                 keyValueExpr.setKeyExpr(keyExpr);
             }

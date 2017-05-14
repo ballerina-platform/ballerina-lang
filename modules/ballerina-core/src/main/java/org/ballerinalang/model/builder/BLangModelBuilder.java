@@ -1432,28 +1432,28 @@ public class BLangModelBuilder {
 
     // Literal Values
 
-    public void createIntegerLiteral(NodeLocation location, String value) {
+    public void createIntegerLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String value) {
         BValueType bValue = new BInteger(Long.parseLong(value));
-        createLiteral(location, new SimpleTypeName(TypeConstants.INT_TNAME), bValue);
+        createLiteral(location, whiteSpaceDescriptor, new SimpleTypeName(TypeConstants.INT_TNAME), bValue);
     }
 
-    public void createFloatLiteral(NodeLocation location, String value) {
+    public void createFloatLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String value) {
         BValueType bValue = new BFloat(Double.parseDouble(value));
-        createLiteral(location, new SimpleTypeName(TypeConstants.FLOAT_TNAME), bValue);
+        createLiteral(location, whiteSpaceDescriptor, new SimpleTypeName(TypeConstants.FLOAT_TNAME), bValue);
     }
 
-    public void createStringLiteral(NodeLocation location, String value) {
+    public void createStringLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String value) {
         BValueType bValue = new BString(value);
-        createLiteral(location, new SimpleTypeName(TypeConstants.STRING_TNAME), bValue);
+        createLiteral(location, whiteSpaceDescriptor, new SimpleTypeName(TypeConstants.STRING_TNAME), bValue);
     }
 
-    public void createBooleanLiteral(NodeLocation location, String value) {
+    public void createBooleanLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String value) {
         BValueType bValue = new BBoolean(Boolean.parseBoolean(value));
-        createLiteral(location, new SimpleTypeName(TypeConstants.BOOLEAN_TNAME), bValue);
+        createLiteral(location, whiteSpaceDescriptor, new SimpleTypeName(TypeConstants.BOOLEAN_TNAME), bValue);
     }
 
-    public void createNullLiteral(NodeLocation location, String value) {
-        NullLiteral nullLiteral = new NullLiteral(location);
+    public void createNullLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String value) {
+        NullLiteral nullLiteral = new NullLiteral(location, whiteSpaceDescriptor);
         exprStack.push(nullLiteral);
     }
 
@@ -1479,8 +1479,9 @@ public class BLangModelBuilder {
         blockStmtBuilder.addStmt(stmt);
     }
 
-    private void createLiteral(NodeLocation location, SimpleTypeName typeName, BValueType bValueType) {
-        BasicLiteral basicLiteral = new BasicLiteral(location, typeName, bValueType);
+    private void createLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                               SimpleTypeName typeName, BValueType bValueType) {
+        BasicLiteral basicLiteral = new BasicLiteral(location, whiteSpaceDescriptor, typeName, bValueType);
         exprStack.push(basicLiteral);
     }
 
@@ -1545,14 +1546,14 @@ public class BLangModelBuilder {
             FieldAccessExpr fieldExpr = (FieldAccessExpr) childExpr;
             Expression varRefExpr = fieldExpr.getVarRef();
             if (varRefExpr instanceof VariableRefExpr) {
-                varRefExpr = new BasicLiteral(varRefExpr.getNodeLocation(), 
+                varRefExpr = new BasicLiteral(varRefExpr.getNodeLocation(), varRefExpr.getWhiteSpaceDescriptor(),
                         new SimpleTypeName(TypeConstants.STRING_TNAME),
                         new BString(((VariableRefExpr) varRefExpr).getVarName()));
                 fieldExpr.setVarRef(varRefExpr);
             }
         } else if (childExpr instanceof VariableRefExpr) {
-            BasicLiteral fieldNameLietral = new BasicLiteral(childExpr.getNodeLocation(), 
-                    new SimpleTypeName(TypeConstants.STRING_TNAME),
+            BasicLiteral fieldNameLietral = new BasicLiteral(childExpr.getNodeLocation(),
+                    childExpr.getWhiteSpaceDescriptor(), new SimpleTypeName(TypeConstants.STRING_TNAME),
                     new BString(((VariableRefExpr) childExpr).getVarName()));
             childExpr = new FieldAccessExpr(location, fieldNameLietral);
         } else {
