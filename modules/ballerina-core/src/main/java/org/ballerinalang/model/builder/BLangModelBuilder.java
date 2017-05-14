@@ -1038,8 +1038,8 @@ public class BLangModelBuilder {
         }
     }
 
-    public void addCommentStmt(NodeLocation location, String comment) {
-        CommentStmt commentStmt = new CommentStmt(location, comment);
+    public void addCommentStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String comment) {
+        CommentStmt commentStmt = new CommentStmt(location, whiteSpaceDescriptor, comment);
         addToBlockStmt(commentStmt);
     }
 

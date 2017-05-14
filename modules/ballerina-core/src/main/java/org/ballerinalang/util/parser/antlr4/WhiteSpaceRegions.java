@@ -237,4 +237,8 @@ public class WhiteSpaceRegions {
     public static final int WORKER_REPLY_STMT_WORKER_ID_TO_END = 3;
     public static final int WORKER_REPLY_STMT_END_TO_NEXT_TOKEN = 4;
 
+    // whitespace regions in a comment statement
+    public static final int COMMENT_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int COMMENT_STMT_TAILING_WHITESPACE = 1;
+
 }
