@@ -53,7 +53,6 @@ class PanelDecorator extends React.Component {
     }
 
     onTitleInputBlur() {
-        console.log(this.props.model);
         this.setState({titleEditing: false})
     }
 
@@ -107,7 +106,7 @@ class PanelDecorator extends React.Component {
             <g className="panel-header">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
                       className="headingRect" data-original-title="" title=""></rect>
-                <EditableText x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + 5 + annotationBodyHeight}
+                <EditableText x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
                               onBlur={() => {
                                   this.onTitleInputBlur()
                               }} onClick={() => {
