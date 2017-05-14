@@ -40,7 +40,8 @@ class ActionBox extends React.Component {
     return (<g className={className}>
                    <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h } rx="0" ry="0" className="property-pane-action-button-wrapper"></rect>
                    <image width={ iconSize } height={ iconSize } className="property-pane-action-button-delete"
-                      onClick={this.props.onDelete} xlinkHref={ ImageUtil.getSVGIconString("delete") } x={bBox.x + horizontalGap} y={y}/>
+                          onClick={this.props.onDelete} xlinkHref={ ImageUtil.getSVGIconString("delete-dark") }
+                          x={bBox.x + horizontalGap} y={y}/>
                   <Breakpoint
                       x={bBox.x + iconSize + horizontalGap * 2}
                       y={y}

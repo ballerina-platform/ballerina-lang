@@ -16,6 +16,7 @@
  * under the License.
  */
 import React from "react";
+import ReactDOM from "react-dom";
 import PropTypes from 'prop-types';
 import {statement} from './../configs/designer-defaults';
 import {lifeLine} from './../configs/designer-defaults';
@@ -25,6 +26,7 @@ import ActionBox from './action-box';
 import SimpleBBox from './../ast/simple-bounding-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import './compound-statement-decorator.css';
+import ActiveArbiter from './active-arbiter';
 
 class CompoundStatementDecorator extends React.Component {
 
@@ -33,7 +35,8 @@ class CompoundStatementDecorator extends React.Component {
         this.state = {
             innerDropZoneActivated: false,
             innerDropZoneDropNotAllowed: false,
-            showActions: false
+            showActions: false,
+            active: false
         };
     }
 
@@ -56,27 +59,41 @@ class CompoundStatementDecorator extends React.Component {
 				   onMouseOut={ this.setActionVisibility.bind(this, false) }
 				   onMouseOver={ (e) => {
                        if (!this.context.dragDropManager.isOnDrag()) {
-                           this.setActionVisibility(true)
+                           this.setActionVisibility(true, e)
                        }
                    }}>
 			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
-				  className={dropZoneClassName}
-				  onMouseOver={(e) => this.onDropZoneActivate(e)}
-				  onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
+                  className={dropZoneClassName}/>
             {this.props.children}
 			<ActionBox
-				bBox={ actionBbox }
-				show={ this.state.showActions }
-				isBreakpoint={ false }
-				onDelete={ () => this.onDelete() }
-				onJumptoCodeLine={ () => this.onJumptoCodeLine() }
-				onBreakpointClick={ () => this.onBreakpointClick() }
+                bBox={ actionBbox }
+                show={ this.state.active }
+                isBreakpoint={ false }
+                onDelete={ () => this.onDelete() }
+                onJumptoCodeLine={ () => this.onJumptoCodeLine() }
+                onBreakpointClick={ () => this.onBreakpointClick() }
 			/>
 		</g>);
     }
 
-    setActionVisibility(show) {
-        this.setState({showActions: show})
+    setActionVisibility(show, e) {
+        if (show) {
+            let elm = e.target;
+            const myRoot = ReactDOM.findDOMNode(this);
+            const regex = new RegExp('(^|\\s)(compound-)?statement(\\s|$)');
+            let isInChildStatement = false;
+            while (elm && elm !== myRoot) {
+                if (regex.test(elm.getAttribute('class'))) {
+                    isInChildStatement = true;
+                }
+                elm = elm.parentNode;
+            }
+            if (!isInChildStatement) {
+                this.context.activeArbiter.readyToActivate(this);
+            }
+        } else {
+            this.context.activeArbiter.readyToDeactivate(this);
+        }
     }
 
     onDelete() {
@@ -134,7 +151,8 @@ CompoundStatementDecorator.propTypes = {
 };
 
 CompoundStatementDecorator.contextTypes = {
-	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
+    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
 };
 
 export default CompoundStatementDecorator;

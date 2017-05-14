@@ -27,6 +27,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
 import ASTRoot from '../ast/ballerina-ast-root';
 import Renderer from './renderer';
+import ActiveArbiter from './active-arbiter';
 import StructOperationsRenderer from './struct-operations-renderer';
 
 class Diagram extends React.Component {
@@ -102,7 +103,8 @@ class Diagram extends React.Component {
             renderer: this.props.renderer,
             overlay: this.props.overlay,
             renderingContext: this.props.renderingContext,
-            structOperationsRenderer: this.props.structOperationsRenderer
+            structOperationsRenderer: this.props.structOperationsRenderer,
+            activeArbiter: new ActiveArbiter()
         };
     }
 }
@@ -122,6 +124,7 @@ Diagram.propTypes = {
 
 Diagram.childContextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
     container: PropTypes.instanceOf(Object).isRequired,
     renderer: PropTypes.instanceOf(Renderer).isRequired,

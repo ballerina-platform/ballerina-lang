@@ -33,6 +33,7 @@ import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
 import ImageUtil from './image-util';
 import Breakpoint from './breakpoint';
+import ActiveArbiter from './active-arbiter';
 
 const text_offset = 50;
 
@@ -48,7 +49,8 @@ class StatementDecorator extends React.Component {
 		    innerDropZoneActivated: false,
 	        innerDropZoneDropNotAllowed: false,
 	        innerDropZoneExist: false,
-	        showActions: false
+            showActions: false,
+            active: false
 		};
 	}
 
@@ -209,6 +211,9 @@ class StatementDecorator extends React.Component {
 	}
 
   setActionVisibility (show) {
+      if (show) {
+          this.context.activeArbiter.readyToActivate(this);
+      }
       this.setState({showActions: show})
   }
 
@@ -321,6 +326,7 @@ StatementDecorator.contextTypes = {
 	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 	 container: PropTypes.instanceOf(Object).isRequired,
 	 renderingContext: PropTypes.instanceOf(Object).isRequired,
+    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
 };
 
 
