@@ -198,24 +198,6 @@ public class ExecutionPlan {
         return this;
     }
 
-    // TODO: 5/11/17 addAggregator?
-    public ExecutionPlan addAggregator(AggregationDefinition aggregationDefinition) {
-        if (aggregationDefinition == null) {
-            throw new ExecutionPlanValidationException("Aggregator should not be null");
-        }
-        String name = null;
-        Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO, SiddhiConstants.ANNOTATION_ELEMENT_NAME, aggregationDefinition.getAnnotations());
-        if (element != null) {
-            name = element.getValue();
-        }
-        if (name != null && executionElementNameList.contains(name)) {
-            throw new ExecutionPlanValidationException("Cannot add Aggregator as another Execution Element already uses its name=" + name);
-        }
-        executionElementNameList.add(name);
-        this.executionElementList.add(aggregationDefinition);
-        return this;
-    }
-
     public ExecutionPlan annotation(Annotation annotation) {
         annotations.add(annotation);
         return this;

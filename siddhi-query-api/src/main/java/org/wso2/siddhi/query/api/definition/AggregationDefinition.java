@@ -19,7 +19,6 @@ package org.wso2.siddhi.query.api.definition;
 
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
@@ -28,7 +27,7 @@ import org.wso2.siddhi.query.api.expression.Variable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AggregationDefinition extends AbstractDefinition implements ExecutionElement{
+public class AggregationDefinition extends AbstractDefinition {
 
     private InputStream inputStream = null;
     private Selector selector = null;
