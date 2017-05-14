@@ -128,8 +128,15 @@ class ExpressionEditor{
         });
 
         this._editor.on('blur', (event) => {  
+            let text = this._editor.getSession().getValue();
+            props.setterMethod.call(props.model, text);
+            props.model.trigger('update-property-text', text , props.key);
+            props.model.trigger('focus-out');
             if(!this.removed){         
                 this.distroy();
+            }            
+            if(_.isFunction(callback)){
+                callback(text);
             }
         });
 

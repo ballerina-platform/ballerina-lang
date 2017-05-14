@@ -20,7 +20,7 @@ import log from 'log';
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import ASTFactory from './../../ast/ballerina-ast-factory';
-import { panel } from './../../configs/designer-defaults';
+import {panel} from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
 
 class ConnectorDefinitionPositionCalcVisitor {
@@ -31,12 +31,56 @@ class ConnectorDefinitionPositionCalcVisitor {
 
     beginVisit(node) {
         PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
+
+        //// Positioning parameters.
+        // Setting positions of parameters.
+        let viewState = node.getViewState();
+
+        viewState.components.openingParameter.x = viewState.bBox.x + viewState.titleWidth;
+        viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
+
+        viewState.components.parametersText.x = viewState.components.openingParameter.x + viewState.components.openingParameter.w;
+        viewState.components.parametersText.y = viewState.bBox.y + viewState.components.annotation.h;
+
+        let nextXPositionOfParameter = viewState.components.parametersText.x + viewState.components.parametersText.w;
+        if (node.getArguments().length > 0) {
+            for (let i = 0; i < node.getArguments().length; i++) {
+                let resourceParameter = node.getArguments()[i];
+                nextXPositionOfParameter = this.createPositioningForParameter(resourceParameter, nextXPositionOfParameter, viewState.bBox.y + viewState.components.annotation.h);
+            }
+        }
+
+        viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
+        viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
     }
 
     visit(node) {
     }
 
     endVisit(node) {
+    }
+
+    /**
+     * Sets positioning for a resource parameter.
+     *
+     * @param {ResourceParameter} parameter The resource parameter node.
+     * @param {number} x The x position
+     * @param {number} y The y position
+     * @returns The x position of the next parameter node.
+     *
+     * @memberof ResourceDefinitionPositionCalcVisitor
+     */
+    createPositioningForParameter(parameter, x, y) {
+        let viewState = parameter.getViewState();
+        // Positioning the parameter
+        viewState.bBox.x = x;
+        viewState.bBox.y = y;
+
+        // Positioning the delete icon
+        viewState.components.deleteIcon.x = x + viewState.w;
+        viewState.components.deleteIcon.y = y;
+
+        return viewState.components.deleteIcon.x + viewState.components.deleteIcon.w;
     }
 }
 

@@ -30,31 +30,32 @@ class EditableText extends React.Component {
     }
 
     renderTextBox() {
-        const { x, y, width, height=25, onChange, onBlur, children } = this.props;
+        const {x, y, width, height = 25, onChange, onBlur, children, className = 'text-input', placeHolder} = this.props;
         const inputStyle = {
             position: 'absolute',
-            top: y-height/2,
+            top: y - height / 2,
             left: x,
-            width,
-            height
+            width: width,
+            height: height
         };
 
-        if(!this.props.editing) {
+        if (!this.props.editing) {
             inputStyle.display = 'none';
         }
 
         const inputElement = (
             <input
-                className='text-input'
+                className={className}
                 ref={input => {
                     if (input != null) {
-                      input.focus();
+                        input.focus();
                     }
                 }}
                 style={inputStyle}
                 onChange={onChange}
                 onBlur={onBlur}
                 value={children}
+                placeholder={placeHolder}
             />
         );
         ReactDOM.render(inputElement, this.context.overlay);
@@ -63,18 +64,25 @@ class EditableText extends React.Component {
     componentDidUpdate(prevProps) {
         const editingJustFinished = prevProps.editing && !this.props.editing
 
-        if(this.props.editing || editingJustFinished){
+        if (this.props.editing || editingJustFinished) {
             this.renderTextBox();
         }
     }
 
     render() {
-        const {x, y, onClick} = this.props;
+        let {x, y, onClick} = this.props;
         const textProps = {x, y, onClick};
 
-        return (
-            <text {...textProps}>{this.props.children}</text>
-        )
+        if (this.props.placeHolder) {
+            return (
+                <text {...textProps} className="panel-label">{this.props.placeHolder}</text>
+            )
+        } else {
+
+            return (
+                <text {...textProps} className="panel-label">{this.props.children}</text>
+            )
+        }
     }
 }
 

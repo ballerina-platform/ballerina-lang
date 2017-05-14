@@ -273,6 +273,17 @@ class ASTNode extends EventChannel {
     }
 
     /**
+     * Remove matching child from the predicate function
+     * @param predicateFunction a function returning a boolean to match remove condition from children
+     * @param name of child to remove
+     */
+    removeChildByName(predicateFunction, name) {
+        _.remove(this.getChildren(), function (child) {
+            return predicateFunction && (child.getName() === name);
+        });
+    }
+
+    /**
      * Find last index of matching children from the predicate function
      * @param predicateFunction a function returning a boolean to match find condition from children
      */
@@ -439,6 +450,14 @@ class ASTNode extends EventChannel {
 
     removeBreakpoint() {
         this.isBreakpoint = false;
+    }
+
+    addDebugHit() {
+        this.setAttribute('isDebugHit', true);
+    }
+
+    removeDebugHit() {
+        this.setAttribute('isDebugHit', false);
     }
 
     setLineNumber(lineNumber, options) {

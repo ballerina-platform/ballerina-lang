@@ -48,15 +48,15 @@ class ResourceDefinitionPositionCalcVisitor {
 
         // Positioning the resource parameters
         let nextXPositionOfParameter = viewState.components.parametersText.x + viewState.components.parametersText.w;
-        if (node.getParameters().length > 0) {
-            for (let i = 0; i < node.getParameters().length; i++) {
-                let resourceParameter = node.getParameters()[i];
+        if (node.getArgumentParameterDefinitionHolder().getChildren().length > 0) {
+            for (let i = 0; i < node.getArgumentParameterDefinitionHolder().getChildren().length; i++) {
+                let resourceParameter = node.getArgumentParameterDefinitionHolder().getChildren()[i];
                 nextXPositionOfParameter = this.createPositioningForParameter(resourceParameter, nextXPositionOfParameter, viewState.bBox.y + viewState.components.annotation.h);
             }
         }
 
         // Positioning the closing brack component of the parameters.
-        viewState.components.closingParameter.x = nextXPositionOfParameter;
+        viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
         viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
     }
 
@@ -79,8 +79,8 @@ class ResourceDefinitionPositionCalcVisitor {
     createPositioningForParameter(parameter, x, y) {
         let viewState = parameter.getViewState();
         // Positioning the parameter
-        viewState.x = x;
-        viewState.y = y;
+        viewState.bBox.x = x;
+        viewState.bBox.y = y;
 
         // Positioning the delete icon
         viewState.components.deleteIcon.x = x + viewState.w;

@@ -24,6 +24,7 @@ import './package-definition.css';
 import {getCanvasOverlay} from '../configs/app-context';
 import ImportDeclaration from './import-declaration';
 import ImportDeclarationExpanded from './import-declaration-expanded';
+import BallerinaASTFactory from '../ast/ballerina-ast-factory';
 
 class PackageDefinition extends React.Component {
 
@@ -31,6 +32,9 @@ class PackageDefinition extends React.Component {
         super(props);
         this.handlePackageNameInput = this.handlePackageNameInput.bind(this);
         this.handleImportsHeaderClick = this.handleImportsHeaderClick.bind(this);
+        this.handleImportsMouseEnter = this.handleImportsMouseEnter.bind(this);
+        this.handleImportsMouseLeave = this.handleImportsMouseLeave.bind(this);
+        this.handleAddImport = this.handleAddImport.bind(this);
     }
 
     handlePackageNameInput(input) {
@@ -39,6 +43,22 @@ class PackageDefinition extends React.Component {
 
     handleImportsHeaderClick() {
         this.props.model.setAttribute('viewState.expanded', !this.props.model.viewState.expanded);
+    }
+
+    handleImportsMouseEnter(e) {
+        this.props.model.setAttribute('viewState.addingImport', true);
+    }
+
+    handleImportsMouseLeave(e) {
+        console.log('ml');
+        this.props.model.setAttribute('viewState.addingImport', false);
+    }
+
+    handleAddImport(value) {
+        const newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
+        newImportDeclaration.setPackageName(value);
+        newImportDeclaration.setParent(this.props.model.parent);
+        this.props.model.parent.addImport(newImportDeclaration);
     }
 
     handlePackageNameClick(e) {
@@ -112,8 +132,11 @@ class PackageDefinition extends React.Component {
                     {packageName}
                 </text>
                 { expanded ? <ImportDeclarationExpanded
-                                bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}/> :
-                             <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick}/> }
+                                bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}
+                                onMouseEnter={this.handleImportsMouseEnter} onMouseLeave={this.handleImportsMouseLeave}
+                                showSuggestions={this.props.model.viewState.addingImport}
+                                onAddImport={this.handleAddImport} /> :
+                             <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick} /> }
             </g>
         );
     }

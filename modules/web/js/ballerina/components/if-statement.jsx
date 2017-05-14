@@ -24,13 +24,22 @@ class IfStatement extends React.Component {
 
     constructor(props) {
         super(props);
+		this.editorOptions = {
+            propertyType: 'text',
+            key: 'If condition',
+            model: props.model,
+            getterMethod: props.model.getCondition,
+            setterMethod: props.model.setCondition
+        };        
     }
 
     render() {
         let model = this.props.model,
-            bBox = model.viewState.bBox;
+            bBox = model.viewState.bBox,
+            expression = model.viewState.components['expression'];
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"If"}>
+        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"If"} expression={expression} 
+                    editorOptions={this.editorOptions}>
             {children}
         </BlockStatementDecorator>);
     }

@@ -22,10 +22,10 @@ import StatementContainer from './statement-container';
 import StatementView from './statement-decorator';
 import PanelDecorator from './panel-decorator';
 import LifeLineDecorator from './lifeline.jsx';
-import { getComponentForNodeArray } from './utils';
-import { panel } from './../configs/designer-defaults';
-import { statement } from './../configs/designer-defaults';
-import { lifeLine } from './../configs/designer-defaults';
+import {getComponentForNodeArray} from './utils';
+import {panel} from './../configs/designer-defaults';
+import {statement} from './../configs/designer-defaults';
+import {lifeLine} from './../configs/designer-defaults';
 
 class ConnectorAction extends React.Component {
 
@@ -41,13 +41,21 @@ class ConnectorAction extends React.Component {
         resource_worker_bBox.w = lifeLine.width;
         resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
-        var children = getComponentForNodeArray(this.props.model.getChildren());
+        let children = getComponentForNodeArray(this.props.model.getChildren());
+
+        let titleComponentData = [{
+            model: this.props.model.getArgumentParameterDefinitionHolder()
+        }, {
+            model: this.props.model.getReturnParameterDefinitionHolder()
+        }];
+
         return (<PanelDecorator icon="tool-icons/resource" title={name} bBox={bBox}
-            model={this.props.model}
-            dropTarget={this.props.model}
-            dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}>
+                                model={this.props.model}
+                                dropTarget={this.props.model}
+                                dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
+                                titleComponentData={titleComponentData}>
             <g>
-                <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox} />
+                <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox}/>
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
                     {children}
                 </StatementContainer>

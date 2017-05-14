@@ -22,24 +22,18 @@ import {getComponentForNodeArray} from './utils';
 import StatementContainer from './statement-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
 
-// require possible themes
-function requireAll(requireContext) {
-    let components = {};
-    requireContext.keys().map((item, index) => {
-        var module = requireContext(item);
-        if(module.default){
-            components[module.default.name] = module.default;
-        }
-    });
-    return components;
-}
-var components = requireAll(require.context('./', true, /\.jsx$/));
-
 class WorkerDeclaration extends React.Component {
 
     constructor(props) {
         super(props);
-        this.components = components;
+
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'WorkerDeclaration',
+            model: props.model,
+            getterMethod: props.model.getWorkerDeclarationStatement,
+            setterMethod: props.model.setWorkerDeclarationStatement,
+        };          
     }
 
     render() {
@@ -52,7 +46,7 @@ class WorkerDeclaration extends React.Component {
         workerBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
         return (<g>
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}/>
-                <LifeLine title={this.props.model.getWorkerName()} bBox={workerBBox}/>
+                <LifeLine title={this.props.model.getWorkerName()} bBox={workerBBox}  editorOptions={this.editorOptions} />
                 {children}
             </g>
         );

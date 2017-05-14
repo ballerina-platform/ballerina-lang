@@ -21,7 +21,6 @@ import ResourceDefinition from './resource-definition.jsx'
 import StatementView from './statement-decorator.jsx'
 import PanelDecorator from './panel-decorator';
 import {getComponentForNodeArray} from './utils';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 class ServiceDefinition extends React.Component {
 
@@ -31,12 +30,9 @@ class ServiceDefinition extends React.Component {
 
         //get the service name
         let title = model.getServiceName();
-        let annotations = model.getChildren().filter(function(child){
-            return BallerinaASTFactory.isAnnotation(child);
-        });
 
         var children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<PanelDecorator  icon="tool-icons/service" title={title} annotations={annotations} bBox={bBox}
+        return (<PanelDecorator  icon="tool-icons/service" title={title} bBox={bBox}
                       model={model}
                       dropTarget={this.props.model}
                       dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}>

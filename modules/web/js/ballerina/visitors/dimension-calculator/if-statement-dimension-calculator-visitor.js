@@ -35,7 +35,7 @@ class IfStatementDimensionCalculatorVisitor {
 
     endVisit(node) {
         log.debug('End Visit IfStatementDimensionCalculatorVisitor');
-        util.populateCompoundStatementChild(node);
+        util.populateCompoundStatementChild(node,node.getCondition());
     }
 }
 

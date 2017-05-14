@@ -33,16 +33,10 @@ class AnnotationDefinition extends React.Component {
         let title = model.getAnnotationName();
         let children = getComponentForNodeArray(model.getChildren());
 
-        if (children.length > 0) {
-            return (<PanelDecorator icon="annotation-black" title={title} bBox={bBox} model={model}>
-                <AnnotationAttributeDecorator model={model} bBox={bBox}/>
-                {children}
-            </PanelDecorator>);
-        } else {
-            return (<PanelDecorator icon="annotation-black" title={title} bBox={bBox} model={model}>
-                <AnnotationAttributeDecorator model={model} bBox={bBox}/>
-            </PanelDecorator>);
-        }
+        return (<PanelDecorator icon="annotation-black" title={title} bBox={bBox} model={model}>
+            <AnnotationAttributeDecorator model={model} bBox={bBox}/>
+            {children}
+        </PanelDecorator>);
     }
 }
 
