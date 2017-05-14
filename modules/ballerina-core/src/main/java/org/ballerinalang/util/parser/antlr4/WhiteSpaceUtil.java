@@ -331,4 +331,25 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getVariableDefWS(CommonTokenStream tokenStream,
+                                                        BallerinaParser.VariableDefinitionStatementContext ctx,
+                                                        boolean exprAvailable) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.VAR_DEF_TYPE_NAME_TO_IDENTIFIER,
+                getWhitespaceToRight(tokenStream, ctx.typeName().stop.getTokenIndex()));
+
+        if (exprAvailable) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.VAR_DEF_IDENTIFIER_TO_EQUAL_OPERATOR,
+                    getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.VAR_DEF_EQUAL_OPERATOR_TO_EXPRESSION_START,
+                    getWhitespaceToRight(tokenStream,
+                            getFirstTokenWithText(ctx.children, EQUAL_OPERATOR).getTokenIndex()));
+        }
+        ws.addWhitespaceRegion(WhiteSpaceRegions.VAR_DEF_END_TO_LAST_TOKEN,
+                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.VAR_DEF_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }

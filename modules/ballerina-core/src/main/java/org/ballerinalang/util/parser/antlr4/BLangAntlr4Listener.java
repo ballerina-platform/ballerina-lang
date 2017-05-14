@@ -756,7 +756,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
         boolean exprAvailable = ctx.expression() != null ||
                 ctx.connectorInitExpression() != null ||
                 ctx.actionInvocation() != null;
-        modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), typeName, varName, exprAvailable);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getVariableDefWS(tokenStream, ctx, exprAvailable);
+        }
+        modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, varName,
+                exprAvailable);
     }
 
     @Override

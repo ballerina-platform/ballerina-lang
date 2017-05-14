@@ -1000,13 +1000,14 @@ public class BLangModelBuilder {
 
     // Statements
 
-    public void addVariableDefinitionStmt(NodeLocation location, SimpleTypeName typeName,
-                                          String varName, boolean exprAvailable) {
+    public void addVariableDefinitionStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                          SimpleTypeName typeName, String varName, boolean exprAvailable) {
 
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
         SymbolName symbolName = new SymbolName(varName);
 
-        VariableDef variableDef = new VariableDef(location, null, varName, typeName, symbolName, currentScope);
+        VariableDef variableDef = new VariableDef(location, whiteSpaceDescriptor, varName, typeName, symbolName,
+                                                    currentScope);
         variableRefExpr.setVariableDef(variableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;

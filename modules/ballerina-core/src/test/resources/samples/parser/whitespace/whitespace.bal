@@ -8,6 +8,10 @@ import   ballerina.connectors.twitter    as  tw   ;
 
   service HelloService {
 
+  any SERVICE_VAR1  =   2    ;
+
+
+
   @POST {}
   @  Path   {    value:"/tweet", value2   :    [     "value2"]     }
 

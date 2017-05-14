@@ -17,6 +17,7 @@ import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.parser.BallerinaLexer;
@@ -31,6 +32,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Test whitespace capturing in verbose mode.
@@ -254,5 +256,20 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.GLOBAL_VAR_DEF_END_TO_LAST_TOKEN), "    ");
         Assert.assertEquals(varDef.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.GLOBAL_VAR_DEF_END_TO_NEXT_TOKEN), "\n\n\n");
+    }
+
+    @Test(description = "Test captured whitespace regions of variable definition node")
+    public void testWhiteSpaceCaptureInVariableDef() {
+        Service service = (Service) bFile.getCompilationUnits()[0];
+        WhiteSpaceDescriptor whiteSpaceDescriptor = service.getVariableDefStmts()[0].getVariableDef()
+                .getWhiteSpaceDescriptor();
+        Map<Integer, String> wsRegions = whiteSpaceDescriptor
+                .getWhiteSpaceRegions();
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.VAR_DEF_TYPE_NAME_TO_IDENTIFIER), " ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.VAR_DEF_IDENTIFIER_TO_EQUAL_OPERATOR), "  ");
+        Assert.assertEquals(wsRegions
+                .get(WhiteSpaceRegions.VAR_DEF_EQUAL_OPERATOR_TO_EXPRESSION_START), "   ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.VAR_DEF_END_TO_LAST_TOKEN), "    ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.VAR_DEF_END_TO_NEXT_TOKEN), "\n\n\n\n  ");
     }
 }
