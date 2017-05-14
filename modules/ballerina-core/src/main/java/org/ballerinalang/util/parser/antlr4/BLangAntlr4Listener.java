@@ -578,6 +578,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         // This is 'any' type
         SimpleTypeName typeName = new SimpleTypeName(ctx.getChild(0).getText());
+        if (isVerboseMode) {
+            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getTypeNameWS(tokenStream, ctx);
+            typeName.setWhiteSpaceDescriptor(ws);
+        }
         typeNameStack.push(typeName);
     }
 
@@ -596,6 +600,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
             BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
             SimpleTypeName typeName = new SimpleTypeName(nameReference.getName(),
                     nameReference.getPackageName(), nameReference.getPackagePath());
+            if (isVerboseMode) {
+                WhiteSpaceDescriptor ws = WhiteSpaceUtil.getRefTypeNameWS(tokenStream, ctx);
+                typeName.setWhiteSpaceDescriptor(ws);
+            }
             typeNameStack.push(typeName);
         }
     }
@@ -613,6 +621,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         String valueTypeName = ctx.getChild(0).getText();
         SimpleTypeName simpleTypeName = new SimpleTypeName(valueTypeName);
+        if (isVerboseMode) {
+            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getValueTypeNameWS(tokenStream, ctx);
+            simpleTypeName.setWhiteSpaceDescriptor(ws);
+        }
         typeNameStack.push(simpleTypeName);
     }
 
@@ -629,6 +641,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         String builtInRefTypeName = ctx.getChild(0).getText();
         SimpleTypeName simpleTypeName = new SimpleTypeName(builtInRefTypeName);
+        if (isVerboseMode) {
+            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getBuiltInRefTypeNameWS(tokenStream, ctx);
+            simpleTypeName.setWhiteSpaceDescriptor(ws);
+        }
         typeNameStack.push(simpleTypeName);
     }
 
@@ -1503,7 +1519,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) {
-
     }
 
     @Override

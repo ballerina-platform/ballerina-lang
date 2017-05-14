@@ -216,6 +216,7 @@ public class WhiteSpaceUtil {
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN,
                     getWhitespaceToRight(tokenStream, ctx.callableUnitBody().stop.getTokenIndex()));
         }
+
         return ws;
     }
 
@@ -420,6 +421,46 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_DEC_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getTypeNameWS(CommonTokenStream tokenStream,
+                                                     BallerinaParser.TypeNameContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_TAILING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getValueTypeNameWS(CommonTokenStream tokenStream,
+                                                     BallerinaParser.ValueTypeNameContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_TAILING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getBuiltInRefTypeNameWS(CommonTokenStream tokenStream,
+                                                               BallerinaParser.BuiltInReferenceTypeNameContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_TAILING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getRefTypeNameWS(CommonTokenStream tokenStream,
+                                                        BallerinaParser.ReferenceTypeNameContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_TAILING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
 }

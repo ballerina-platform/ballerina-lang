@@ -147,4 +147,9 @@ public class WhiteSpaceRegions {
     public static final int WORKER_DEC_PARAM_END_TO_PARAM_LIST_END = 4;
     public static final int WORKER_DEC_PARAM_LIST_END_TO_BODY_START = 5;
     public static final int WORKER_DEC_END_TO_NEXT_TOKEN = 6;
+
+    // whitespace regions of a type name
+    public static final int TYPE_NAME_PRECEDING_WHITESPACE = 0;
+    public static final int TYPE_NAME_TAILING_WHITESPACE = 1;
+
 }
