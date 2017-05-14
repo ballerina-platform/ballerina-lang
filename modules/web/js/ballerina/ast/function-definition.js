@@ -20,7 +20,7 @@ import log from 'log';
 import ASTNode from './node';
 import CallableDefinition from './callable-definition';
 import CommonUtils from '../utils/common-utils';
-import SimpleBBox from './simple-bounding-box';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 /**
  * Constructor for FunctionDefinition
@@ -350,9 +350,13 @@ class FunctionDefinition extends CallableDefinition {
      * @param index
      */
     addChild(child, index) {
-        if (this.BallerinaASTFactory.isWorkerDeclaration(child)) {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+        if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child);
         } else {
+            const firstWorkerIndex = _.findIndex(this.getChildren(), function (child) {
+                return BallerinaASTFactory.isWorkerDeclaration(child);
+            });
+            index = _.isNil(firstWorkerIndex) ? undefined : firstWorkerIndex;
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
         }
     }

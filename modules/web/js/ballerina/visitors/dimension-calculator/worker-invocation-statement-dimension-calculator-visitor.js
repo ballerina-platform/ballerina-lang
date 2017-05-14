@@ -35,28 +35,6 @@ class WorkerInvocationStatementDimensionCalculatorVisitor {
 
     endVisit(node) {
         util.populateSimpleStatementBBox(node.getInvocationStatement() , node.getViewState());
-        let workerDeclaration = node.getDestination();
-        if(!_.isUndefined(workerDeclaration)) {
-            let heightFromTop = util.getStatementHeightBefore(node);
-            let workerFirstStatement = workerDeclaration.findChild(BallerinaASTFactory.isStatement);
-            if (!_.isNil(workerFirstStatement)) {
-                workerFirstStatement.getViewState().components['drop-zone'].h += (heightFromTop + util.getDefaultStatementHeight());
-                workerFirstStatement.getViewState().bBox.h = workerFirstStatement.getViewState().bBox.h + (heightFromTop + util.getDefaultStatementHeight());
-
-                let workerStatementContainer = workerDeclaration.getViewState().components.statementContainer;
-                workerStatementContainer.h = 0;
-
-                // Now we need to recalculate the statement container height of the the worker declaration
-                _.forEach(workerDeclaration.getChildren(), function (child) {
-                    workerStatementContainer.h += child.getViewState().bBox.h;
-                });
-
-                workerStatementContainer.h += DesignerDefaults.statement.gutter.v * 2;
-
-                // Reset the worker declaration height
-                workerDeclaration.getViewState().bBox.h = workerStatementContainer.h + DesignerDefaults.lifeLine.head.height * 2
-            }
-        }
     }
 }
 

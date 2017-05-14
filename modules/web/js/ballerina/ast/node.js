@@ -50,9 +50,14 @@ class ASTNode extends EventChannel {
         this._generateUniqueIdentifiers = undefined;
         this._whitespaceTokens = [];
 
+        /**
+         * View State Object to keep track of the model's view properties
+         * @type {{bBox: SimpleBBox, components: {}, dimensionsSynced: boolean}}
+         */
         this.viewState = {
             bBox: new SimpleBBox(),
-            components: {}
+            components: {},
+            dimensionsSynced: false
         }
     }
 
@@ -536,6 +541,22 @@ class ASTNode extends EventChannel {
             returnNode = returnNode.getChildren()[index];
         });
         return returnNode;
+    }
+
+    /**
+     * This returns the top level parent (should be Resource, action definition, function definition or worker declaration
+     * @returns {ASTNode} Parent Node
+     */
+    getTopLevelParent() {
+        const parent = this.getParent();
+        if (BallerinaAstFactory.isResourceDefinition(parent) || BallerinaAstFactory.isResourceDefinition(parent) ||
+            BallerinaAstFactory.isConnectorAction(parent) || BallerinaAstFactory.isFunctionDefinition(parent) ||
+            BallerinaAstFactory.isWorkerDeclaration(parent)) {
+
+            return parent;
+        } else {
+            return parent.getTopLevelParent();
+        }
     }
 }
 
