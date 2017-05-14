@@ -1052,7 +1052,7 @@ public class BLangModelBuilder {
         addToBlockStmt(assignStmt);
     }
 
-    public void createReturnStmt(NodeLocation location) {
+    public void createReturnStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression[] exprs;
         // Get the expression list from the expression list stack
         if (!exprListStack.isEmpty()) {
@@ -1065,7 +1065,7 @@ public class BLangModelBuilder {
             exprs = new Expression[0];
         }
 
-        ReturnStmt returnStmt = new ReturnStmt(location, exprs);
+        ReturnStmt returnStmt = new ReturnStmt(location, whiteSpaceDescriptor, exprs);
         addToBlockStmt(returnStmt);
     }
 

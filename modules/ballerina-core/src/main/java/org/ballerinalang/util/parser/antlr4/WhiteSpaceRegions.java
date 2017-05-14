@@ -212,4 +212,10 @@ public class WhiteSpaceRegions {
     public static final int THROW_STMT_THROW_KEYWORD_TO_EXPRESSION = 1;
     public static final int THROW_STMT_END_TO_NEXT_TOKEN = 2;
 
+    // whitespace regions in return statement
+    public static final int RETURN_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int RETURN_STMT_RETURN_KEYWORD_TO_EXPRESSION_LIST = 1;
+    public static final int RETURN_STMT_END_PRECEDING_WHITESPACE = 2;
+    public static final int RETURN_STMT_END_TO_NEXT_TOKEN = 3;
+
 }

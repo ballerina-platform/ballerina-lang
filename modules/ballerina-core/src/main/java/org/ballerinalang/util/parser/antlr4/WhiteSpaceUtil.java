@@ -611,6 +611,22 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.expression().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.THROW_STMT_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
-        return null;
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getReturnStmtWS(CommonTokenStream tokenStream,
+                                                       BallerinaParser.ReturnStatementContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RETURN_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        if (ctx.expressionList() != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.RETURN_STMT_RETURN_KEYWORD_TO_EXPRESSION_LIST,
+                    getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        }
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RETURN_STMT_END_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.RETURN_STMT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
     }
 }

@@ -262,7 +262,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Complete the package init function
-        ReturnStmt returnStmt = new ReturnStmt(pkgLocation, new Expression[0]);
+        ReturnStmt returnStmt = new ReturnStmt(pkgLocation, null, new Expression[0]);
         pkgInitFuncStmtBuilder.addStmt(returnStmt);
         functionBuilder.setBody(pkgInitFuncStmtBuilder.build());
         BallerinaFunction initFunction = functionBuilder.buildFunction();
