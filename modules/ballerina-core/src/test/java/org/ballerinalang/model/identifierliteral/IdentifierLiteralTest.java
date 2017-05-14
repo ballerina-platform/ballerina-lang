@@ -155,7 +155,7 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(actualString, "sample test");
     }
 
-    @Test(description = "Test TestConnector name with identifier literal")
+    @Test(description = "Test connector name with identifier literal")
     public void testConnectorWithIdentifierLiteral() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectorNameWithIL");
 
@@ -164,7 +164,7 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(((BString) returns[0]).stringValue(), "this is a sample");
     }
 
-    @Test(description = "Test TestConnector action1")
+    @Test(description = "Test connector action with identifier literal")
     public void testConnectorActionWithIdentifierLiteral() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectorActionWithIL");
 
@@ -188,11 +188,20 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(actualInt, 50);
     }
 
+    @Test(description = "Test unicode with identifier literal")
+    public void testUnicodeWithIntegerLiteral() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testUnicodeInIL");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "සිංහල වාක්‍යක්");
+    }
+
     //Error scenarios
     @Test(description = "Test error message when trying to access undefined global var with identifier literal",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "identifier-literal-undefined-variable.bal:5: undefined " +
-                    "symbol 'global v ar'")
+                    "symbol 'global v \" ar'")
     public void testTryToAccessUndefinedGlobalVarWithIdentifierLiteral() {
         BTestUtils.parseBalFile("lang/identifierliteral/identifier-literal-undefined-variable.bal");
     }

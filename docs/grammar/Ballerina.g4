@@ -715,7 +715,7 @@ IdentifierLiteral
 
 fragment
 IdentifierLiteralChar
-    : ~[|"\\\b\f\n\r\t]
+    : ~[|\\\b\f\n\r\t]
     | IdentifierLiteralEscapeSequence
     ;
 
