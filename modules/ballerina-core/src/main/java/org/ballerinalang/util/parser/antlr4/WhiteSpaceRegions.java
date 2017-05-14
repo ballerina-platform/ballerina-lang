@@ -193,4 +193,20 @@ public class WhiteSpaceRegions {
     public static final int BREAK_STMT_BREAK_KEYWORD_TO_END = 1;
     public static final int BREAK_STMT_END_TO_NEXT_TOKEN = 2;
 
+    // whitespace regions in try clause
+    public static final int TRY_CLAUSE_PRECEDING_WHITESPACE = 0;
+    public static final int TRY_CLAUSE_TRY_KEYWORD_TO_BODY_START = 1;
+    public static final int TRY_CALUSE_END_NEXT_TOKEN = 2;
+
+    // whitespace regions in catch clause
+    public static final int CATCH_CLAUSE_PRECEDING_WHITESPACE = 0;
+    public static final int CATCH_CLAUSE_CATCH_KEYWORD_TO_EXCEPTION_WRAPPER = 1;
+    public static final int CATCH_CLAUSE_EXCEPTION_WRAPPER_START_TO_EXCEPTION_TYPE = 2;
+    public static final int CATCH_CLAUSE_EXCEPTION_TYPE_TO_EXCEPTION_IDENTIFIER = 3;
+    public static final int CATCH_CLAUSE_EXCEPTION_IDENTIFIER_TO_EXCEPTION_WRAPPER_END = 4;
+    public static final int CATCH_CLAUSE_EXCEPTION_WRAPPER_END_TO_BODY_START = 5;
+    public static final int CATCH_CLAUSE_END_TO_NEXT_TOKEN = 6;
+
+
+
 }

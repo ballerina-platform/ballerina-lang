@@ -122,6 +122,8 @@ public class BLangModelBuilder {
     public static final String ATTACHMENT_POINTS = "attachmentPoints";
     public static final String IF_CLAUSE = "IfClause";
     public static final String ELSE_CLAUSE = "ElseClause";
+    public static final String CATCH_CLAUSE = "CatchClause";
+    public static final String TRY_CLAUSE = "TryClause";
 
     protected String currentPackagePath;
     protected BallerinaFile.BFileBuilder bFileBuilder;
@@ -1233,8 +1235,18 @@ public class BLangModelBuilder {
         currentScope = catchBlockBuilder.getCurrentScope();
     }
 
-    public void addCatchClause(NodeLocation location, SimpleTypeName exceptionType, String argName) {
+    public void addCatchClause(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                               SimpleTypeName exceptionType, String argName) {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
+
+        if (whiteSpaceDescriptor != null) {
+            WhiteSpaceDescriptor ws = tryCatchStmtBuilder.getWhiteSpaceDescriptor();
+            if (ws == null) {
+                ws = new WhiteSpaceDescriptor();
+                tryCatchStmtBuilder.setWhiteSpaceDescriptor(ws);
+            }
+            ws.addChildDescriptor(CATCH_CLAUSE, whiteSpaceDescriptor);
+        }
 
         if (!TypeConstants.EXCEPTION_TNAME.equals(exceptionType.getName())) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
@@ -1255,8 +1267,16 @@ public class BLangModelBuilder {
         tryCatchStmtBuilder.setCatchBlockStmt(catchBlock);
     }
 
-    public void addTryCatchStmt() {
+    public void addTryCatchStmt(WhiteSpaceDescriptor whiteSpaceDescriptor) {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.pop();
+        if (whiteSpaceDescriptor != null) {
+            WhiteSpaceDescriptor ws = tryCatchStmtBuilder.getWhiteSpaceDescriptor();
+            if (ws == null) {
+                ws = new WhiteSpaceDescriptor();
+                tryCatchStmtBuilder.setWhiteSpaceDescriptor(ws);
+            }
+            ws.addChildDescriptor(TRY_CLAUSE, whiteSpaceDescriptor);
+        }
         TryCatchStmt tryCatchStmt = tryCatchStmtBuilder.build();
         addToBlockStmt(tryCatchStmt);
     }

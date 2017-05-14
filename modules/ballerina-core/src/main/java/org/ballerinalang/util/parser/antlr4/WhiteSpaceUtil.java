@@ -567,4 +567,38 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getCatchClauseWS(CommonTokenStream tokenStream,
+                                                        BallerinaParser.CatchClauseContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_CATCH_KEYWORD_TO_EXCEPTION_WRAPPER,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_EXCEPTION_WRAPPER_START_TO_EXCEPTION_TYPE,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_EXCEPTION_TYPE_TO_EXCEPTION_IDENTIFIER,
+                getWhitespaceToLeft(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_EXCEPTION_IDENTIFIER_TO_EXCEPTION_WRAPPER_END,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_EXCEPTION_WRAPPER_END_TO_BODY_START,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getTryClauseWS(CommonTokenStream tokenStream,
+                                                      BallerinaParser.TryCatchStatementContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_TRY_KEYWORD_TO_BODY_START,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CALUSE_END_NEXT_TOKEN,
+                getWhitespaceToLeft(tokenStream, ctx.catchClause().start.getTokenIndex()));
+        return ws;
+    }
 }

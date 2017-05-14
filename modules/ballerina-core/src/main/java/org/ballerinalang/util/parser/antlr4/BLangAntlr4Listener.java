@@ -1099,7 +1099,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.addTryCatchStmt();
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getTryClauseWS(tokenStream, ctx);
+        }
+        modelBuilder.addTryCatchStmt(whiteSpaceDescriptor);
     }
 
     @Override
@@ -1118,7 +1122,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String key = ctx.Identifier().getText();
         // FIX ME
         SimpleTypeName simpleTypeName = new SimpleTypeName("exception");
-        modelBuilder.addCatchClause(getCurrentLocation(ctx), simpleTypeName, key);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getCatchClauseWS(tokenStream, ctx);
+        }
+        modelBuilder.addCatchClause(getCurrentLocation(ctx), whiteSpaceDescriptor, simpleTypeName, key);
     }
 
     @Override
