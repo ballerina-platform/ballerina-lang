@@ -33,9 +33,18 @@ class SuggestionsText extends React.Component {
             this.setState({suggestions: this.getSuggestions(value)});
         }
 
+        this.onSuggestionsClearRequested = () => {
+            this.setState({suggestions: []});
+        }
+
         this.renderSuggestionsContainer = this.renderSuggestionsContainer.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
+        this.storeInputReference = autosuggest => {
+          if (autosuggest !== null) {
+            this.input = autosuggest.input;
+          }
+        };
     }
 
     renderSuggestion(suggestion) {
@@ -122,6 +131,7 @@ class SuggestionsText extends React.Component {
           value: this.state.value,
           onChange: this.onChange,
           onKeyDown: this.onKeyDown,
+          onBlur: this.props.onBlur,
           style: inputStyle
         };
 
@@ -129,20 +139,24 @@ class SuggestionsText extends React.Component {
           <Autosuggest
             suggestions={this.state.suggestions}
             onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+            onSuggestionsClearRequested={this.onSuggestionsClearRequested}
             getSuggestionValue={this.getSuggestionValue}
             renderSuggestion={this.renderSuggestion}
             renderSuggestionsContainer={this.renderSuggestionsContainer}
             inputProps={inputProps}
+            ref={this.storeInputReference}
           />, this.context.overlay
         );
     }
 
     componentDidUpdate(prevProps) {
-        this.renderSuggestionsText()
+        this.renderSuggestionsText();
+        this.input && this.input.focus();
     }
 
     componentDidMount() {
         this.renderSuggestionsText();
+        this.input && this.input.focus();
     }
 
     render() {

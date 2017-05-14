@@ -25,6 +25,7 @@ import {getCanvasOverlay} from '../configs/app-context';
 import ImportDeclaration from './import-declaration';
 import ImportDeclarationExpanded from './import-declaration-expanded';
 import BallerinaASTFactory from '../ast/ballerina-ast-factory';
+import ImageUtil from './image-util';
 
 class PackageDefinition extends React.Component {
 
@@ -32,8 +33,6 @@ class PackageDefinition extends React.Component {
         super(props);
         this.handlePackageNameInput = this.handlePackageNameInput.bind(this);
         this.handleImportsHeaderClick = this.handleImportsHeaderClick.bind(this);
-        this.handleImportsMouseEnter = this.handleImportsMouseEnter.bind(this);
-        this.handleImportsMouseLeave = this.handleImportsMouseLeave.bind(this);
         this.handleAddImport = this.handleAddImport.bind(this);
     }
 
@@ -43,15 +42,6 @@ class PackageDefinition extends React.Component {
 
     handleImportsHeaderClick() {
         this.props.model.setAttribute('viewState.expanded', !this.props.model.viewState.expanded);
-    }
-
-    handleImportsMouseEnter(e) {
-        this.props.model.setAttribute('viewState.addingImport', true);
-    }
-
-    handleImportsMouseLeave(e) {
-        console.log('ml');
-        this.props.model.setAttribute('viewState.addingImport', false);
     }
 
     handleAddImport(value) {
@@ -93,12 +83,13 @@ class PackageDefinition extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const packageName = model._packageName || 'Undefined';
+        const packageName = model._packageName;
         const headerHeight = packageDefinition.header.height;
         const headerPadding = packageDefinition.header.padding;
         const expanded = this.props.model.viewState.expanded;
         const packageDefTextWidth = packageDefinition.textWidth;
         const packageDefLabelWidth = packageDefinition.labelWidth;
+        const iconSize = 20;
 
         const importsBbox = {
             x: bBox.x + headerPadding.left + packageDefTextWidth + packageDefLabelWidth + 15,
@@ -113,6 +104,26 @@ class PackageDefinition extends React.Component {
         const astRoot = this.props.model.parent;
         const imports = astRoot.children.filter(c => {return c.constructor.name === 'ImportDeclaration'});
 
+        let packageNameElement;
+
+        if(packageName) {
+            packageNameElement = (
+                <text
+                    x={ bBox.x + headerPadding.left + packageDefLabelWidth}
+                    y={ bBox.y + headerHeight/2 }
+                    className={ "package-definition-text  pkg-name-" + packageName }
+                    onClick={e => {this.handlePackageNameClick(e)}}
+                >
+                    {packageName}
+                </text>
+            );
+        } else {
+            // if package name is not defined show package image
+            packageNameElement = <image width={ iconSize } height={ iconSize } xlinkHref={ ImageUtil.getSVGIconString('import-black') }
+                    x={bBox.x + headerPadding.left + packageDefLabelWidth } y={bBox.y}/>
+
+        }
+
         return (
             <g>
                 <rect x={ bBox.x } y={ bBox.y } width={310} height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
@@ -123,18 +134,9 @@ class PackageDefinition extends React.Component {
                 >
                     {'package'}
                 </text>
-                <text
-                    x={ bBox.x + headerPadding.left + packageDefLabelWidth}
-                    y={ bBox.y + headerHeight/2 }
-                    className={ "package-definition-text  pkg-name-" + packageName }
-                    onClick={e => {this.handlePackageNameClick(e)}}
-                >
-                    {packageName}
-                </text>
+                {packageNameElement}
                 { expanded ? <ImportDeclarationExpanded
                                 bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}
-                                onMouseEnter={this.handleImportsMouseEnter} onMouseLeave={this.handleImportsMouseLeave}
-                                showSuggestions={this.props.model.viewState.addingImport}
                                 onAddImport={this.handleAddImport} /> :
                              <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick} /> }
             </g>
