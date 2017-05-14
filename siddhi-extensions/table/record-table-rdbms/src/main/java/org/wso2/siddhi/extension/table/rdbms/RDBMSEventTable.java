@@ -348,14 +348,16 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     private void initializeDatasource(Annotation storeAnnotation) {
         Properties connectionProperties = new Properties();
-        String poolPropertyString = storeAnnotation.getElement(
-                ANNOTATION_ELEMENT_POOL_PROPERTIES);
-        connectionProperties.setProperty("jdbcUrl", storeAnnotation.getElement(
-                ANNOTATION_ELEMENT_URL));
-        connectionProperties.setProperty("dataSource.user", storeAnnotation.getElement(
-                ANNOTATION_ELEMENT_USERNAME));
-        connectionProperties.setProperty("dataSource.password", storeAnnotation.getElement(
-                ANNOTATION_ELEMENT_PASSWORD));
+        String poolPropertyString = storeAnnotation.getElement(ANNOTATION_ELEMENT_POOL_PROPERTIES);
+        String url = storeAnnotation.getElement(ANNOTATION_ELEMENT_URL);
+        String username = storeAnnotation.getElement(ANNOTATION_ELEMENT_USERNAME);
+        String password = storeAnnotation.getElement(ANNOTATION_ELEMENT_PASSWORD);
+        if (RDBMSTableUtils.isEmpty(url) || RDBMSTableUtils.isEmpty(username) || RDBMSTableUtils.isEmpty(password)) {
+            throw new RDBMSTableException("Required parameter(s) for DB connectivity cannot be empty.");
+        }
+        connectionProperties.setProperty("jdbcUrl", url);
+        connectionProperties.setProperty("dataSource.user", username);
+        connectionProperties.setProperty("dataSource.password", password);
         if (poolPropertyString != null) {
             List<String[]> poolProps = RDBMSTableUtils.processKeyValuePairs(poolPropertyString);
             poolProps.forEach(pair -> connectionProperties.setProperty(pair[0], pair[1]));
