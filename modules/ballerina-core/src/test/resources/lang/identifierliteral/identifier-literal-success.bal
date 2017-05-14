@@ -64,3 +64,12 @@ function testCharInIL() (string) {
     return |\| !#[{]}\u2324|;
 }
 
+function testFunctionNameWithIL()(string) {
+    return |test function for identifier|("sample");
+}
+
+function |test function for identifier|(string val) (string) {
+    string s = " test";
+    return val + s;
+}
+

@@ -146,6 +146,15 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(actualString, "sample value");
     }
 
+    @Test(description = "Test function name with identifier literal")
+    public void testFunctionNameWithInIdentifierLiteral() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testFunctionNameWithIL");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        String actualString = ((BString) returns[0]).stringValue();
+        Assert.assertEquals(actualString, "sample test");
+    }
+
     //Error scenarios
     @Test(description = "Test error message when trying to access undefined global var with identifier literal",
             expectedExceptions = {SemanticException.class},
