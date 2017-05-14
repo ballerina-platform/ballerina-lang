@@ -352,4 +352,16 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getParamWS(CommonTokenStream tokenStream,
+                                                  BallerinaParser.ParameterContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_START_TO_LAST_TOKEN,
+                    getWhitespaceToLeft(tokenStream, ctx.typeName().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_TO_IDENTIFIER,
+                getWhitespaceToRight(tokenStream, ctx.typeName().stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }

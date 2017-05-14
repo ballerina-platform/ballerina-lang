@@ -485,8 +485,8 @@ public class BLangModelBuilder {
      * @param paramName name of the function parameter
      * @param location  Location of the parameter in the source file
      */
-    public void addParam(NodeLocation location, SimpleTypeName typeName, String paramName,
-                         int annotationCount, boolean isReturnParam) {
+    public void addParam(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
+                         String paramName, int annotationCount, boolean isReturnParam) {
         SymbolName symbolName = new SymbolName(paramName);
 
         // Check whether this parameter is already defined.
@@ -497,7 +497,8 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, null, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, whiteSpaceDescriptor, paramName, typeName, symbolName,
+                                        currentScope);
         getAnnotationAttachments(annotationCount).forEach(attachment -> paramDef.addAnnotation(attachment));
 
         if (currentCUBuilder != null) {

@@ -1528,7 +1528,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         int annotationCount = ctx.annotationAttachment() != null ? ctx.annotationAttachment().size() : 0;
-        modelBuilder.addParam(getCurrentLocation(ctx), typeNameStack.pop(),
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getParamWS(tokenStream, ctx);
+        }
+        modelBuilder.addParam(getCurrentLocation(ctx), whiteSpaceDescriptor, typeNameStack.pop(),
                 ctx.Identifier().getText(), annotationCount, processingReturnParams);
     }
 

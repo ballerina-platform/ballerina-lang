@@ -123,4 +123,9 @@ public class WhiteSpaceRegions {
     public static final int VAR_DEF_EQUAL_OPERATOR_TO_EXPRESSION_START = 2;
     public static final int VAR_DEF_END_TO_LAST_TOKEN = 3;
     public static final int VAR_DEF_END_TO_NEXT_TOKEN = 4;
+
+    // whitespace regions in a param def node
+    public static final int PARAM_DEF_TYPENAME_START_TO_LAST_TOKEN = 0;
+    public static final int PARAM_DEF_TYPENAME_TO_IDENTIFIER = 1;
+    public static final int PARAM_DEF_END_TO_NEXT_TOKEN = 2;
 }

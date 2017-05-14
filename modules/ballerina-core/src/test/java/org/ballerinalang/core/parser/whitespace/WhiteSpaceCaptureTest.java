@@ -14,6 +14,7 @@ import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
@@ -271,5 +272,17 @@ public class WhiteSpaceCaptureTest {
                 .get(WhiteSpaceRegions.VAR_DEF_EQUAL_OPERATOR_TO_EXPRESSION_START), "   ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.VAR_DEF_END_TO_LAST_TOKEN), "    ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.VAR_DEF_END_TO_NEXT_TOKEN), "\n\n\n\n  ");
+    }
+
+    @Test(description = "Test captured whitespace regions of a parameter definition node")
+    public void testWhiteSpaceCaptureInParamDef() {
+        Resource resource = ((Service) bFile.getCompilationUnits()[0]).getResources()[0];
+        ParameterDef messageParamDef = resource.getParameterDefs()[0];
+        WhiteSpaceDescriptor whiteSpaceDescriptor = messageParamDef.getWhiteSpaceDescriptor();
+        Map<Integer, String> wsRegions = whiteSpaceDescriptor.getWhiteSpaceRegions();
+
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.PARAM_DEF_TYPENAME_START_TO_LAST_TOKEN), "     ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.PARAM_DEF_TYPENAME_TO_IDENTIFIER), "    ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.PARAM_DEF_END_TO_NEXT_TOKEN), "   ");
     }
 }

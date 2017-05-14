@@ -15,7 +15,7 @@ import   ballerina.connectors.twitter    as  tw   ;
   @POST {}
   @  Path   {    value:"/tweet", value2   :    [     "value2"]     }
 
-  resource   tweet    (     message m)  {
+  resource   tweet    (     message    m   ,   int i)  {
 
       tw:TwitterConnector.tweet(t, "");
   }
