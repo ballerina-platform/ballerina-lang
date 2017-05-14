@@ -207,6 +207,9 @@ public class WhiteSpaceRegions {
     public static final int CATCH_CLAUSE_EXCEPTION_WRAPPER_END_TO_BODY_START = 5;
     public static final int CATCH_CLAUSE_END_TO_NEXT_TOKEN = 6;
 
-
+    // whitespace regions in throw statement
+    public static final int THROW_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int THROW_STMT_THROW_KEYWORD_TO_EXPRESSION = 1;
+    public static final int THROW_STMT_END_TO_NEXT_TOKEN = 2;
 
 }

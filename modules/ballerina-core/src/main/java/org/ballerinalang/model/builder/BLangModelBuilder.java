@@ -1281,10 +1281,10 @@ public class BLangModelBuilder {
         addToBlockStmt(tryCatchStmt);
     }
 
-    public void createThrowStmt(NodeLocation location) {
+    public void createThrowStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression expression = exprStack.pop();
         if (expression instanceof VariableRefExpr || expression instanceof FunctionInvocationExpr) {
-            ThrowStmt throwStmt = new ThrowStmt(location, expression);
+            ThrowStmt throwStmt = new ThrowStmt(location, whiteSpaceDescriptor, expression);
             addToBlockStmt(throwStmt);
             return;
         }

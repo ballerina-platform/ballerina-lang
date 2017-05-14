@@ -1138,7 +1138,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.createThrowStmt(getCurrentLocation(ctx));
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getThrowStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createThrowStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
