@@ -74,6 +74,13 @@ public interface NativeUnit {
      */
     void setName(String name);
 
+//    /**
+//     * Set the identifier of this callable unit.
+//     *
+//     * @param identifier  Name of this callable unit.
+//     */
+//    void setIdentifier(Identifier identifier);
+
     /**
      * Set the package of this callable unit.
      *

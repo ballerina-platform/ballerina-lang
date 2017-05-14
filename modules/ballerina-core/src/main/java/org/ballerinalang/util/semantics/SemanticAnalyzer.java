@@ -43,6 +43,7 @@ import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.GlobalVariableDef;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
@@ -240,7 +241,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
                 new BallerinaFunction.BallerinaFunctionBuilder(bLangPackage);
         functionBuilder.setNodeLocation(pkgLocation);
-        functionBuilder.setName(bLangPackage.getPackagePath() + ".<init>");
+        functionBuilder.setIdentifier(new Identifier(bLangPackage.getPackagePath() + ".<init>"));
         functionBuilder.setPkgPath(bLangPackage.getPackagePath());
         pkgInitFuncStmtBuilder = new BlockStmt.BlockStmtBuilder(bLangPackage.getNodeLocation(),
                 bLangPackage);
@@ -3008,7 +3009,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
                     new BallerinaFunction.BallerinaFunctionBuilder(connectorDef);
             functionBuilder.setNodeLocation(connectorDef.getNodeLocation());
-            functionBuilder.setName(connectorName + ".<init>");
+            functionBuilder.setIdentifier(new Identifier(connectorName + ".<init>"));
             functionBuilder.setPkgPath(connectorDef.getPackagePath());
             functionBuilder.setBody(blockStmtBuilder.build());
             connectorDef.setInitFunction(functionBuilder.buildFunction());
@@ -3091,7 +3092,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
                     new BallerinaFunction.BallerinaFunctionBuilder(service);
             functionBuilder.setNodeLocation(service.getNodeLocation());
-            functionBuilder.setName(service.getName() + ".<init>");
+            functionBuilder.setIdentifier(new Identifier(service.getName() + ".<init>"));
             functionBuilder.setPkgPath(service.getPackagePath());
             functionBuilder.setBody(blockStmtBuilder.build());
             service.setInitFunction(functionBuilder.buildFunction());
@@ -3150,7 +3151,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
                     new BallerinaFunction.BallerinaFunctionBuilder(structDef);
             functionBuilder.setNodeLocation(structDef.getNodeLocation());
-            functionBuilder.setName(structDef + ".<init>");
+            functionBuilder.setIdentifier(new Identifier(structDef + ".<init>"));
             functionBuilder.setPkgPath(structDef.getPackagePath());
             functionBuilder.setBody(blockStmtBuilder.build());
             structDef.setInitFunction(functionBuilder.buildFunction());

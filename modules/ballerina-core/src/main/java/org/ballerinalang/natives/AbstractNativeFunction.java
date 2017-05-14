@@ -21,6 +21,7 @@ package org.ballerinalang.natives;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Function;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -53,7 +54,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     public static final BValue[] VOID_RETURN = new BValue[0];
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic = true;
     protected SymbolName symbolName;
@@ -242,7 +243,15 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     @Override
     public String getName() {
-        return name;
+        if (identifier != null) {
+            return identifier.getName();
+        }
+        return null;
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
 
@@ -250,7 +259,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        this.identifier = new Identifier(name);
     }
 
     @Override

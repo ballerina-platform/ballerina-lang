@@ -140,7 +140,7 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     public void setName(String name) {
         this.typeName = name;
     }
-    
+
     @Override
     public void setPackagePath(String packagePath) {
         this.pkgPath = packagePath;

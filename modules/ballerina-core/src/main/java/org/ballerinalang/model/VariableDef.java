@@ -38,25 +38,23 @@ public class VariableDef implements BLangSymbol, Node {
     protected MemoryLocation memoryLocation;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic = false;
     protected boolean isNative = false;
     protected SymbolName symbolName;
     protected SymbolScope symbolScope;
-    protected boolean isLiteral = false;
 
     public VariableDef(NodeLocation location,
-                       String name,
+                       Identifier identifier,
                        SimpleTypeName typeName,
                        SymbolName symbolName,
-                       SymbolScope symbolScope, boolean isLiteral) {
+                       SymbolScope symbolScope) {
         this.location = location;
-        this.name = name;
+        this.identifier = identifier;
         this.symbolName = symbolName;
         this.typeName = typeName;
         this.symbolScope = symbolScope;
-        this.isLiteral = isLiteral;
     }
 
     public VariableDef(NodeLocation location, BType type, SymbolName symbolName) {
@@ -89,7 +87,15 @@ public class VariableDef implements BLangSymbol, Node {
 
     @Override
     public String getName() {
-        return name;
+        if (identifier != null) {
+            return identifier.getName();
+        }
+        return null;
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -115,10 +121,6 @@ public class VariableDef implements BLangSymbol, Node {
     @Override
     public SymbolScope getSymbolScope() {
         return symbolScope;
-    }
-
-    public boolean isLiteral() {
-        return isLiteral;
     }
 
     // Methods in Node interface

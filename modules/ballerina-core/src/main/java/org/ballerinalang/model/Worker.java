@@ -52,7 +52,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     private NodeLocation location;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
@@ -72,8 +72,8 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     private Map<SymbolName, BLangSymbol> symbolMap;
     private boolean isFlowBuilderVisited;
 
-    public Worker(String name) {
-        this.name = name;
+    public Worker(Identifier identifier) {
+        this.identifier = identifier;
     }
 
     private Worker(SymbolScope enclosingScope) {
@@ -108,7 +108,15 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
      */
     @Override
     public String getName() {
-        return this.name;
+        if (identifier != null) {
+            return identifier.getName();
+        }
+        return null;
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return null;
     }
 
     @Override
@@ -331,9 +339,9 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
         public Worker buildWorker() {
             bWorker.location = this.location;
-            bWorker.name = this.name;
+            bWorker.identifier = this.identifier;
             bWorker.pkgPath = this.pkgPath;
-            bWorker.symbolName = new SymbolName(name, pkgPath);
+            bWorker.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
             bWorker.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bWorker.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);

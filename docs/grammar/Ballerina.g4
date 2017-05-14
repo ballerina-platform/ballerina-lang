@@ -676,7 +676,7 @@ NullLiteral
 
 Identifier
     :   ( Letter LetterOrDigit* )
-    |   Identifier_literal
+    |   IdentifierLiteral
     ;
 
 fragment
@@ -709,47 +709,20 @@ LINE_COMMENT
     ;
 
 
+fragment
+IdentifierLiteral
+    : '|' IdentifierLiteralChar+ '|' ;
 
 fragment
-Identifier_literal
-    :   Vertical_bar Char* Vertical_bar
+IdentifierLiteralChar
+    : ~[|"\\\b\f\n\r\t]
+    | IdentifierLiteralEscapeSequence
     ;
 
 fragment
-Char
-    :   Unescaped
-    |   // ( vertical bar, reverse solidus, soliduc, backspace, form feed, line feed, carriage return, tab, uXXXX
-        Escape ( Vertical_bar
-    |   '\u005C'
-    |   '\u002F'
-    |   '\u0008'
-    |   '\u000C'
-    |   '\u000A'
-    |   '\u000D'
-    |   '\u0009'
-    |   '\u0075' HexDigit HexDigit HexDigit HexDigit )
-    ;
-
-// "\"
-fragment
-Escape
-    :   '\u005C'
-    ;
-
-// "|"
-fragment
-Vertical_bar
-    :   '\u007C'
-    ;
-
-//space or !
-//characters with #, $, %, &, ', (, )
-//] to largest unicode code point
-fragment
-Unescaped
-    :   [\u0020-\u0021]
-    |   [\u0023-\u005B]
-    |   [\u005D-\u007B]
-    |   [\u007D-\uffff]
+IdentifierLiteralEscapeSequence
+    : '\\' [|"\\/]
+    | '\\\\' [btnfr]
+    | UnicodeEscape
     ;
 
