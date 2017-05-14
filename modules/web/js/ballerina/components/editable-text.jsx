@@ -35,8 +35,8 @@ class EditableText extends React.Component {
             position: 'absolute',
             top: y - height / 2,
             left: x,
-            width,
-            height
+            width: width,
+            height: height
         };
 
         if (!this.props.editing) {
