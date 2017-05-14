@@ -1069,14 +1069,14 @@ public class BLangModelBuilder {
         addToBlockStmt(returnStmt);
     }
 
-    public void createReplyStmt(NodeLocation location) {
+    public void createReplyStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression argExpr = exprStack.pop();
         if (!(argExpr instanceof VariableRefExpr)) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.REF_TYPE_MESSAGE_ALLOWED);
             errorMsgs.add(errMsg);
         }
-        ReplyStmt replyStmt = new ReplyStmt(location, argExpr);
+        ReplyStmt replyStmt = new ReplyStmt(location, whiteSpaceDescriptor, argExpr);
         addToBlockStmt(replyStmt);
     }
 

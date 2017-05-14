@@ -1169,7 +1169,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         // Here the expression is only a message reference
         //modelBuilder.createVarRefExpr();
         if (ctx.exception == null) {
-            modelBuilder.createReplyStmt(getCurrentLocation(ctx));
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getReplyStmtWS(tokenStream, ctx);
+            }
+            modelBuilder.createReplyStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
         }
     }
 
