@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.table.record.ConditionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSTypeMapping;
 import org.wso2.siddhi.extension.table.rdbms.exception.RDBMSTableException;
@@ -57,7 +58,7 @@ import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
 
 @Extension(
         name = "rdbms",
-        namespace = "type",
+        namespace = "store",
         description = "Using this extension the data source or the connection instructions can be " +
                 "assigned to the event table.",
         parameters = {
@@ -97,7 +98,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     private List<Attribute> attributes;
 
     @Override
-    protected void init(TableDefinition tableDefinition) {
+    protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
         this.attributes = tableDefinition.getAttributeList();
         Annotation storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
         Annotation primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
@@ -177,7 +178,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(containsQuery, condition));
             RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, containsConditionParameterMap, 0);
             rs = stmt.executeQuery();
-            return !rs.isBeforeFirst();
+            return rs.next() && !rs.isBeforeFirst();
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing a contains check on table '" + this.tableName
                     + "': " + e.getMessage(), e);
@@ -539,7 +540,6 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 if (value != null || attribute.getType() == Attribute.Type.STRING) {
                     RDBMSTableUtils.populateStatementWithSingleElement(stmt, i + 1, attribute.getType(), value);
                 } else {
-                    //TODO check behaviour for 1 invalid record (1 null field) for a list of records
                     throw new RDBMSTableException("Cannot Execute Insert/Update: null value detected for " +
                             "attribute '" + attribute.getName() + "'");
                 }

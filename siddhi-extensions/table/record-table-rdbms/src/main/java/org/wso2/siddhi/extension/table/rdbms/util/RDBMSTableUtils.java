@@ -126,7 +126,7 @@ public class RDBMSTableUtils {
     }
 
     public static void resolveCondition(PreparedStatement stmt, RDBMSCompiledCondition compiledCondition,
-                                        Map<String, Object> parameterMap, int seed) throws SQLException {
+                                        Map<String, Object> conditionParameterMap, int seed) throws SQLException {
         SortedMap<Integer, Object> parameters = compiledCondition.getParameters();
         for (Map.Entry<Integer, Object> entry : parameters.entrySet()) {
             Object parameter = entry.getValue();
@@ -137,7 +137,7 @@ public class RDBMSTableUtils {
             } else {
                 Attribute variable = (Attribute) parameter;
                 populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
-                        parameterMap.get(variable.getName()));
+                        conditionParameterMap.get(variable.getName()));
             }
         }
     }
