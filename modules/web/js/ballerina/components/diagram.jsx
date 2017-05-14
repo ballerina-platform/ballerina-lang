@@ -41,7 +41,7 @@ class Diagram extends React.Component {
         this.dimentionCalc = new DimensionCalcVisitor();
         this.positionCalc = new PositionCalcVisitor();
 
-        this.editor.on("update-diagram",()=>{
+        this.editor.on("update-diagram", () => {
             this.setModel(this.editor.getModel());
             this.forceUpdate();
         });
@@ -52,8 +52,8 @@ class Diagram extends React.Component {
         //pass the container width and height to root view state.
         let viewState = this.model.getViewState();
         viewState.container = {
-            width : this.container.width(),
-            height : this.container.height()
+            width: this.container.width(),
+            height: this.container.height()
         };
         this.model.on('tree-modified', () => {
             this.forceUpdate();
@@ -82,7 +82,7 @@ class Diagram extends React.Component {
                 case 'ConstantDefinition':
                     break;
                 default:
-					otherNodes.push(child);
+                    otherNodes.push(child);
             }
         });
         others = getComponentForNodeArray(otherNodes);
@@ -90,15 +90,15 @@ class Diagram extends React.Component {
         //    s CsnvasDecorator and pass child components for that.
         let viewState = this.model.getViewState();
         return <CanvasDecorator dropTarget={this.model} title="StatementContainer" bBox={viewState.bBox}>
-                   {others}
-               </CanvasDecorator>
+            {others}
+        </CanvasDecorator>
     }
 
     getChildContext() {
         return {
-            dragDropManager: this.props.dragDropManager ,
+            dragDropManager: this.props.dragDropManager,
             messageManager: this.props.messageManager,
-            container : this.props.container,
+            container: this.props.container,
             renderer: this.props.renderer,
             overlay: this.props.overlay,
             renderingContext: this.props.renderingContext,
@@ -108,17 +108,17 @@ class Diagram extends React.Component {
 }
 
 Diagram.propTypes = {
-	bBox: PropTypes.shape({
-		x: PropTypes.number.isRequired,
-		y: PropTypes.number.isRequired,
-		w: PropTypes.number.isRequired,
-		h: PropTypes.number.isRequired,
-	}),
-  editor: PropTypes.instanceOf(Object).isRequired,
-  dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired,
+    }),
+    editor: PropTypes.instanceOf(Object).isRequired,
+    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-  renderer: PropTypes.instanceOf(Renderer).isRequired
-}
+    renderer: PropTypes.instanceOf(Renderer).isRequired
+};
 
 Diagram.childContextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
