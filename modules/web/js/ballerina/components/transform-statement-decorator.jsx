@@ -31,7 +31,8 @@ import './statement-decorator.css';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
-import select2 from 'select2'
+import select2 from 'select2';
+import TransformRender from '../../type-mapper/transform-render';
 
 const text_offset = 50;
 
@@ -42,13 +43,14 @@ class TransformStatementDecorator extends React.Component {
         const {dragDropManager} = context;
         dragDropManager.on('drag-start', this.startDropZones.bind(this));
         dragDropManager.on('drag-stop', this.stopDragZones.bind(this));
+        self = this;
+
+        this._package = this.context.renderingContext.getPackagedScopedEnvironment().getCurrentPackage();
 
 		this.state = {innerDropZoneActivated: false,
                       innerDropZoneDropNotAllowed: false,
                       innerDropZoneExist: false,
                       showActions: false };
-
-
                       var sourceId = 'sourceStructs' + this.props.model.id;
                       var targetId = 'targetStructs' + this.props.model.id;
 
@@ -66,7 +68,9 @@ class TransformStatementDecorator extends React.Component {
                           '</select>' +
                           '</div></div>');
 
-                      var transformOverlayContent =  $('<div class="transformOverlay-content">'+
+                      var transformMenuDiv = $('<div id ="transformContextMenu" class ="transformContextMenu"></div>');
+
+                      var transformOverlayContent =  $('<div id = "transformOverlay-content" class="transformOverlay-content">'+
                                                                ' <span class="close-transform">&times;</span>'+
                                                           '    </div>');
 
@@ -76,10 +80,34 @@ class TransformStatementDecorator extends React.Component {
                       transformOverlayContent.append(sourceContent);
                       transformOverlayContent.append(targetContent);
                       transformOverlay.append(transformOverlayContent);
+                      transformOverlayContent.append(transformMenuDiv);
                        $("#tab-content-wrapper" ).append( transformOverlay);
 
                        this.transformOverlayDiv = document.getElementById('transformOverlay');
                        var span = document.getElementsByClassName("close-transform")[0];
+
+
+                      var predefinedStructs = [];
+                      _.forEach(this.props.model.parent.getVariableDefinitionStatements(), variableDefStmt => {
+                       _.forEach(this._package.getStructDefinitions(), predefinedStruct => {
+                              if (variableDefStmt.children[0].children[0].getTypeName() ==  predefinedStruct.getStructName()) {
+                                    var struct = {};
+                                    struct.name = variableDefStmt.children[0].children[0].getName();
+                                    struct.properties = [];
+                                    _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
+                                         var property = {};
+                                         property.name  = stmt.children[0].children[0].getName();
+                                         property.type  = stmt.children[0].children[0].getTypeName();
+                                         struct.properties.push(property);
+                                    });
+                                    predefinedStructs.push(struct);
+                                    self.loadSchemaToComboBox(sourceId, struct.name);
+                                    self.loadSchemaToComboBox(targetId, struct.name);
+                               }
+                        });
+                      });
+
+                       $(".type-mapper-combo").select2();
 
                        span.onclick = function() {
                            document.getElementById('transformOverlay').style.display = "none";
@@ -91,6 +119,27 @@ class TransformStatementDecorator extends React.Component {
                                transformOverlayDiv.style.display = "none";
                            }
                        }
+
+
+                       var onConnectionCallback = function(connection) {
+                            mapper.addConnection(connection);
+                         //   alert("connected");
+                       };
+
+                       var onDisconnectionCallback = function(connection) {
+                          //  alert("disconnected");
+                        };
+
+                       this.mapper = new TransformRender(onConnectionCallback, onDisconnectionCallback);
+
+
+
+
+                       this.mapper.addTargetType(predefinedStructs[0]);
+                       this.mapper.addSourceType(predefinedStructs[1]);
+
+
+
 	}
 
 	startDropZones() {
@@ -292,6 +341,10 @@ class TransformStatementDecorator extends React.Component {
 	onUpdate(text){
 	}
 
+    loadSchemaToComboBox(comboBoxId, name) {
+        $("#" + comboBoxId).append('<option value="' + name + '">' + name + '</option>');
+    }
+
 }
 
 TransformStatementDecorator.propTypes = {
@@ -308,7 +361,8 @@ TransformStatementDecorator.propTypes = {
 TransformStatementDecorator.contextTypes = {
 	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
 	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-	 container: PropTypes.instanceOf(Object).isRequired
+	 container: PropTypes.instanceOf(Object).isRequired,
+	 renderingContext: PropTypes.instanceOf(Object).isRequired
 };
 
 
