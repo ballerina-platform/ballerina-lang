@@ -1084,10 +1084,11 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void createWhileStmt(NodeLocation location) {
+    public void createWhileStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         // Create a while statement builder
         WhileStmt.WhileStmtBuilder whileStmtBuilder = new WhileStmt.WhileStmtBuilder();
         whileStmtBuilder.setNodeLocation(location);
+        whileStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
 
         // Get the expression at the top of the expression stack and set it as the while condition
         Expression condition = exprStack.pop();

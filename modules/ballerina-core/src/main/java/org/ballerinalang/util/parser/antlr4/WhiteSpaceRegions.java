@@ -182,4 +182,10 @@ public class WhiteSpaceRegions {
     public static final int ELSE_CLAUSE_ELSE_KEYWORD_TO_BODY_START = 1;
     public static final int ELSE_CLAUSE_END_TO_NEXT_TOKEN = 2;
 
+    // whitespace regions in a while statement
+    public static final int WHILE_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int WHILE_STMT_WHILE_KEYWORD_TO_CONDITION_WRAPPER = 1;
+    public static final int WHILE_STMT_CONDITION_WRAPPER_TO_BODY_START = 2;
+    public static final int WHILE_STMT_END_TO_NEXT_TOKEN = 3;
+
 }
