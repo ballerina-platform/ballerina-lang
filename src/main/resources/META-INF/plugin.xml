@@ -151,7 +151,7 @@
         <!--documentation-->
         <lang.documentationProvider language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider"/>
 
-    </extensions>
+   </extensions>
 
     <actions>
         <!-- Add your actions here -->
