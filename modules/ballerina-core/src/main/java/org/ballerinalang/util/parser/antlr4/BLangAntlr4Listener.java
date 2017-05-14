@@ -347,7 +347,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
         String actionName = ctx.callableUnitSignature().Identifier().getText();
         int annotationCount = ctx.annotationAttachment() != null ? ctx.annotationAttachment().size() : 0;
-        modelBuilder.addAction(actionName, isNative, annotationCount);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getActionDefWS(tokenStream, ctx);
+        }
+        modelBuilder.addAction(whiteSpaceDescriptor, actionName, isNative, annotationCount);
     }
 
     @Override

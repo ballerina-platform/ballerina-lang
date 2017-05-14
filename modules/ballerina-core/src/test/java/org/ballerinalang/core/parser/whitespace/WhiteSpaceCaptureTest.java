@@ -178,7 +178,7 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(function.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN), "  ");
         Assert.assertEquals(function.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n\n");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
     }
 
     @Test(description = "Test captured whitespace regions of connector definition node")
@@ -192,6 +192,20 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START), "   ");
         Assert.assertEquals(connector.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
+    }
+
+    @Test(description = "Test captured whitespace regions of action definition node")
+    public void testWhiteSpaceCaptureInActionDef() {
+        BallerinaConnectorDef connector = (BallerinaConnectorDef) bFile.getCompilationUnits()[4];
+        Map<Integer, String> ws = connector.getActions()[0].getWhiteSpaceDescriptor()
+                                                        .getWhiteSpaceRegions();
+        Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_ACTION_KEYWORD_TO_IDENTIFIER_START), " ");
+        Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_IDENTIFIER_TO_PARAM_LIST_START), "  ");
+        Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START), "    ");
+        Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD), "      ");
+        Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_THROWS_KEYWORD_TO_EXCEPTION_KEYWORD), " ");
+        Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_BODY_START_TO_LAST_TOKEN), "   ");
+        Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
     }
 
     @Test(description = "Test captured whitespace regions of struct definition node")

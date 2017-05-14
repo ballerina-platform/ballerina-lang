@@ -213,7 +213,7 @@ public class WhiteSpaceUtil {
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN,
                     getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN,
-                    getWhitespaceToRight(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
+                    getWhitespaceToRight(tokenStream, ctx.callableUnitBody().stop.getTokenIndex()));
         }
         return ws;
     }
@@ -362,6 +362,41 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.typeName().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getActionDefWS(CommonTokenStream tokenStream,
+                                                      BallerinaParser.ActionDefinitionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        boolean isNative = NATIVE_KEYWORD.equals(ctx.getChild(0).getText());
+        if (isNative) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_NATIVE_KEYWORD_TO_ACTION_KEYWORD,
+                    getWhitespaceToRight(tokenStream,
+                            getFirstTokenWithText(ctx.children, NATIVE_KEYWORD).getTokenIndex()));
+        }
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_ACTION_KEYWORD_TO_IDENTIFIER_START,
+                getWhitespaceToLeft(tokenStream,
+                        ctx.callableUnitSignature().Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_IDENTIFIER_TO_PARAM_LIST_START,
+                getWhitespaceToRight(tokenStream,
+                        ctx.callableUnitSignature().Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START,
+                getWhitespaceToLeft(tokenStream,
+                        ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
+
+        Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
+        if (throwsToken != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD,
+                    getWhitespaceToLeft(tokenStream, throwsToken.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_THROWS_KEYWORD_TO_EXCEPTION_KEYWORD,
+                    getWhitespaceToRight(tokenStream, throwsToken.getTokenIndex()));
+        }
+        if (!isNative) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_BODY_START_TO_LAST_TOKEN,
+                    getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_BODY_END_TO_NEXT_TOKEN,
+                    getWhitespaceToRight(tokenStream, ctx.callableUnitBody().stop.getTokenIndex()));
+        }
         return ws;
     }
 }

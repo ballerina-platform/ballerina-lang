@@ -33,6 +33,9 @@ native function testNativeFunction2 (message m, int i) (message) throws exceptio
 
 connector twitterConnector  (message m)   {
 
+    action tweet  (   Twitter t, string msg)    (message )      throws exception   {
+
+    }
 
 }
 

@@ -942,7 +942,9 @@ public class BLangModelBuilder {
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
-    public void addAction(String name, boolean isNative, int annotationCount) {
+    public void addAction(WhiteSpaceDescriptor whiteSpaceDescriptor, String name, boolean isNative,
+                          int annotationCount) {
+        currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUBuilder.setName(name);
         currentCUBuilder.setNative(isNative);
 
