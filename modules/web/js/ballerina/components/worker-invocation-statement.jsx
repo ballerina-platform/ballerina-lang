@@ -154,13 +154,7 @@ class WorkerInvocationStatement extends React.Component {
                 workerName = 'default';
             }
             source.setWorkerName(workerName);
-
-            for (let itr = 0; itr < expressionsList.length; itr ++) {
-                expressionString += expressionsList[itr];
-                if (itr !== expressionsList.length - 1) {
-                    expressionString += ',';
-                }
-            }
+            expressionString = _.join(expressionsList, ',');
             expressionString += '->' + workerName;
             source.setInvocationStatement(expressionString);
             source.setAttribute('_destination', destination);
