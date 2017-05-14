@@ -402,4 +402,24 @@ public class WhiteSpaceUtil {
         }
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getWorkerDeclarationWS(CommonTokenStream tokenStream,
+                                                              BallerinaParser.WorkerDeclarationContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_DEC_WORKER_KEYWORD_TO_IDENTIFIER,
+                        getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_DEC_IDENTIFIER_TO_PARAM_LIST_START,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().get(0).getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_DEC_PARAM_LIST_START_TO_PARAM_TYPE,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_DEC_PARAM_TYPE_TO_PARAM_IDENTIFIER,
+                getWhitespaceToLeft(tokenStream, ctx.Identifier().get(1).getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_DEC_PARAM_END_TO_PARAM_LIST_END,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().get(1).getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_DEC_PARAM_LIST_END_TO_BODY_START,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_DEC_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }

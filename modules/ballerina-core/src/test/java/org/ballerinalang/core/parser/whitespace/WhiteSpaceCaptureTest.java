@@ -19,6 +19,7 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.parser.BallerinaLexer;
@@ -298,5 +299,21 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.PARAM_DEF_TYPENAME_START_TO_LAST_TOKEN), "     ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.PARAM_DEF_TYPENAME_TO_IDENTIFIER), "    ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.PARAM_DEF_END_TO_NEXT_TOKEN), "   ");
+    }
+
+    @Test(description = "Test captured whitespace regions of a worker declaration node")
+    public void testWhiteSpaceCaptureInWorkerDeclaration() {
+        Resource resource = ((Service) bFile.getCompilationUnits()[0]).getResources()[0];
+        Worker worker = resource.getWorkers()[0];
+        WhiteSpaceDescriptor whiteSpaceDescriptor = worker.getWhiteSpaceDescriptor();
+        Map<Integer, String> wsRegions = whiteSpaceDescriptor.getWhiteSpaceRegions();
+
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_WORKER_KEYWORD_TO_IDENTIFIER), " ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_IDENTIFIER_TO_PARAM_LIST_START), "  ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_PARAM_LIST_START_TO_PARAM_TYPE), "   ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_PARAM_TYPE_TO_PARAM_IDENTIFIER), "    ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_PARAM_END_TO_PARAM_LIST_END), "     ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_PARAM_LIST_END_TO_BODY_START), "      ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_END_TO_NEXT_TOKEN), "\n\n\n      ");
     }
 }

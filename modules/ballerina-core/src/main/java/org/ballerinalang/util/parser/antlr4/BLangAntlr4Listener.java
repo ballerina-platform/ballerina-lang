@@ -546,7 +546,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
             String workerName = ctx.Identifier().get(0).getText();
             String workerParamName = ctx.Identifier().get(1).getText();
-            modelBuilder.createWorker(getCurrentLocation(ctx), workerName, workerParamName);
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getWorkerDeclarationWS(tokenStream, ctx);
+            }
+            modelBuilder.createWorker(getCurrentLocation(ctx), whiteSpaceDescriptor, workerName, workerParamName);
             isWorkerStarted = false;
         }
     }

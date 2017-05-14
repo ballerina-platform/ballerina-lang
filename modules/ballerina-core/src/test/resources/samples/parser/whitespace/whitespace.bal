@@ -17,7 +17,13 @@ import   ballerina.connectors.twitter    as  tw   ;
 
   resource   tweet    (     message    m   ,   int i)  {
 
+      worker SampleWorker  (   message    m2     )      {
+
+      }
+
+
       tw:TwitterConnector.tweet(t, "");
+
   }
 }
 

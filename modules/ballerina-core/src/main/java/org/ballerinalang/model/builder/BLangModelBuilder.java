@@ -905,9 +905,11 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createWorker(NodeLocation sourceLocation, String name, String paramName) {
+    public void createWorker(NodeLocation sourceLocation, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                             String name, String paramName) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setNodeLocation(sourceLocation);
+        currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
 
         // define worker parameter
         SymbolName paramSymbolName = new SymbolName(paramName);

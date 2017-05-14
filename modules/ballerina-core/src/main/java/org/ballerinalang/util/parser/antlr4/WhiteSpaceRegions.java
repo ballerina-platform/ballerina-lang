@@ -138,4 +138,13 @@ public class WhiteSpaceRegions {
     public static final int PARAM_DEF_TYPENAME_START_TO_LAST_TOKEN = 0;
     public static final int PARAM_DEF_TYPENAME_TO_IDENTIFIER = 1;
     public static final int PARAM_DEF_END_TO_NEXT_TOKEN = 2;
+
+    // whitespace regions in a worker declaration node
+    public static final int WORKER_DEC_WORKER_KEYWORD_TO_IDENTIFIER = 0;
+    public static final int WORKER_DEC_IDENTIFIER_TO_PARAM_LIST_START = 1;
+    public static final int WORKER_DEC_PARAM_LIST_START_TO_PARAM_TYPE = 2;
+    public static final int WORKER_DEC_PARAM_TYPE_TO_PARAM_IDENTIFIER = 3;
+    public static final int WORKER_DEC_PARAM_END_TO_PARAM_LIST_END = 4;
+    public static final int WORKER_DEC_PARAM_LIST_END_TO_BODY_START = 5;
+    public static final int WORKER_DEC_END_TO_NEXT_TOKEN = 6;
 }
