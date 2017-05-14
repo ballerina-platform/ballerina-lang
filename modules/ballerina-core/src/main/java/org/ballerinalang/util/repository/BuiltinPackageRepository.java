@@ -45,7 +45,7 @@ public class BuiltinPackageRepository extends PackageRepository {
     private static final String BAL_FILE_EXT = ".bal";
     private static final String NATIVE_BAL_FILE = "natives.bal";
     private static final String FALSE = "false";
-    private boolean skipNatives = true;
+    private boolean skipNatives = false;
 
     private String packageDirPath;
 
@@ -73,8 +73,8 @@ public class BuiltinPackageRepository extends PackageRepository {
 
         // Read all resources as input streams and create the package source 
         for (String fileName : fileNames) {
-            InputStream balSourceStream = classLoader.getResourceAsStream(BASE_DIR + this.packageDirPath
-                    + fileName);
+            InputStream balSourceStream = classLoader.getResourceAsStream(
+                    BASE_DIR + this.packageDirPath + fileName);
             sourceFileStreamMap.put(fileName, balSourceStream);
         }
         return new PackageSource(packageDirPath, sourceFileStreamMap, this);

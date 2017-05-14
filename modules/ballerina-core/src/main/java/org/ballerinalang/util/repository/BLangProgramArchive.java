@@ -57,8 +57,9 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
     private String[] entryPoints;
     private BLangProgram.Category programCategory;
 
-    public BLangProgramArchive(Path archivePath) {
+    public BLangProgramArchive(Path archivePath, BuiltinPackageRepository[] builtinPackageRepositories) {
         this.archivePath = archivePath;
+        this.builtinPackageRepositories = builtinPackageRepositories;
     }
 
     public String[] getEntryPoints() {
@@ -89,6 +90,12 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
 
     @Override
     public PackageSource loadPackage(Path packageDirPath) {
+        // First try to load from the built-in repositories 
+        PackageSource pkgSource = loadPackageFromBuiltinRepositories(packageDirPath);
+        if (pkgSource != null) {
+            return pkgSource;
+        }
+
         Path zipPkgPath = zipFS.getPath("/", packageDirPath.toString());
         List<Path> pathList = packageFilesMap.get(zipPkgPath.toString());
         Map<String, InputStream> fileStreamMap;

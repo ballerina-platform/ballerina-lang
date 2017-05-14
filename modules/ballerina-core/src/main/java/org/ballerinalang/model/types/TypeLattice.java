@@ -394,8 +394,9 @@ public class TypeLattice {
             VariableDef targetFieldDef = fieldDef.getVariableDef();
             BType targetFieldType = targetFieldDef.getType();
             SymbolName fieldSymbolName = targetFieldDef.getSymbolName();
-            VariableDef sourceFieldDef = (VariableDef) sourceStructDef.resolveMembers(fieldSymbolName);
-            
+            VariableDef sourceFieldDef = (VariableDef) sourceStructDef
+                    .resolveMembers(new SymbolName(fieldSymbolName.getName(), sourceStructDef.getPackagePath()));
+
             // field has to exists
             if (sourceFieldDef == null) {
                 return false;
