@@ -73,3 +73,44 @@ function |test function for identifier|(string val) (string) {
     return val + s;
 }
 
+connector |Test Connector|(string param1, string param2, int param3) {
+    boolean action2Invoked;
+
+    action action1(|Test Connector| testConnector) (string) {
+        string |sample string| = "this is a sample";
+        return |sample string|;
+    }
+
+    action |second action|(|Test Connector| testConnector) (string){
+        string |string \| value| = "sample string";
+        return |string \| value|;
+    }
+}
+
+function testConnectorNameWithIL() (string) {
+    |Test Connector| testConnector = create |Test Connector|("MyParam1", "MyParam2", 5);
+    string value;
+
+    value = |Test Connector|.action1(testConnector);
+    return value;
+}
+
+function testConnectorActionWithIL() (string) {
+    |Test Connector| |test Connector| = create |Test Connector|("MyParam1", "MyParam2", 5);
+    string value;
+
+    value = |Test Connector|.|second action|(|test Connector|);
+    return value;
+}
+
+function useILInStructName() (string, string, int) {
+    |family person| |person one| = {|first name|: "Tom", |last name|:"hank", |current age|: 50};
+    return |person one|.|first name|, |person one|.|last name|, |person one|.|current age|;
+}
+
+struct |family person| {
+    string |first name|;
+    string |last name|;
+    int |current age|;
+}
+

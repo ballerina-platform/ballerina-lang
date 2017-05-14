@@ -77,7 +77,7 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(actualInt, 99934);
     }
 
-    @Test(description = "Test defining local variables with Identifier Literal")
+    @Test(description = "Test defining struct variables with Identifier Literal")
     public void testIdentifierLiteralInStructs() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "useILWithinStruct");
         Assert.assertEquals(returns.length, 3);
@@ -153,6 +153,39 @@ public class IdentifierLiteralTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         String actualString = ((BString) returns[0]).stringValue();
         Assert.assertEquals(actualString, "sample test");
+    }
+
+    @Test(description = "Test TestConnector name with identifier literal")
+    public void testConnectorWithIdentifierLiteral() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectorNameWithIL");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "this is a sample");
+    }
+
+    @Test(description = "Test TestConnector action1")
+    public void testConnectorActionWithIdentifierLiteral() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectorActionWithIL");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "sample string");
+    }
+
+    @Test(description = "Test defining local variables with Identifier Literal")
+    public void testIdentifierLiteralInStructName() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "useILInStructName");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BInteger.class);
+        String actualFirstName = ((BString) returns[0]).stringValue();
+        Assert.assertEquals(actualFirstName, "Tom");
+        String actualLastName = ((BString) returns[1]).stringValue();
+        Assert.assertEquals(actualLastName, "hank");
+        long actualInt = ((BInteger) returns[2]).intValue();
+        Assert.assertEquals(actualInt, 50);
     }
 
     //Error scenarios

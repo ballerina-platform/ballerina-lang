@@ -693,7 +693,7 @@ public class BLangModelBuilder {
             cIExprBuilder.setExpressionList(argExprList);
         }
 
-        cIExprBuilder.setName(actionName);
+        cIExprBuilder.setName((new Identifier(actionName)).getName());
         cIExprBuilder.setPkgName(nameReference.pkgName);
         cIExprBuilder.setPkgPath(nameReference.pkgPath);
         cIExprBuilder.setConnectorName(nameReference.name);
