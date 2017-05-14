@@ -83,7 +83,7 @@ class ConnectorDefinition extends ASTNode {
         this.getArgumentParameterDefinitionHolder().removeChildByName(this.getFactory().isParameterDefinition, identifier);
     }
 
-    getArgumentParameterDefinitionHolder () {
+    getArgumentParameterDefinitionHolder() {
         let argParamDefHolder = this.findChild(this.getFactory().isArgumentParameterDefinitionHolder);
         if (_.isUndefined(argParamDefHolder)) {
             argParamDefHolder = this.getFactory().createArgumentParameterDefinitionHolder();
@@ -96,10 +96,10 @@ class ConnectorDefinition extends ASTNode {
      * Returns the list of arguments as a string separated by commas.
      * @return {string} - Arguments as string.
      */
-    getArgumentsAsString () {
+    getArgumentsAsString() {
         let argsStringArray = [];
         let args = this.getArguments();
-        _.forEach(args, function(arg){
+        _.forEach(args, function (arg) {
             argsStringArray.push(arg.getParameterDefinitionAsString());
         });
         return _.join(argsStringArray, ', ');
