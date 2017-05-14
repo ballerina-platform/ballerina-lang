@@ -430,7 +430,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_TAILING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
 
@@ -440,7 +440,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_TAILING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
 
@@ -450,7 +450,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_TAILING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
 
@@ -460,7 +460,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_NAME_TAILING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
 }
