@@ -44,6 +44,7 @@ public class WhiteSpaceUtil {
     public static final String NATIVE_KEYWORD = "native";
     public static final String KEYWORD_THROWS = "throws";
     public static final String EQUAL_OPERATOR = "=";
+    public static final String IF_KEYWORD = "if";
 
     public static String getFileStartingWhiteSpace(CommonTokenStream tokenStream) {
         // find first non-whitespace token
@@ -470,7 +471,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.NAME_REF_START_TO_LAST_TOKEN,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         // has a package ref
-        if (ctx.Identifier().size() == 2){
+        if (ctx.Identifier().size() == 2) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.NAME_REF_PACKAGE_NAME_TO_COLON,
                     getWhitespaceToRight(tokenStream, ctx.Identifier().get(0).getSymbol().getTokenIndex()));
             ws.addWhitespaceRegion(WhiteSpaceRegions.NAME_REF_COLON_TO_REF_NAME,
@@ -499,13 +500,29 @@ public class WhiteSpaceUtil {
     public static WhiteSpaceDescriptor getIfClauseWS(CommonTokenStream tokenStream,
                                                      BallerinaParser.IfClauseContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-        ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_PRECEFING_WHITESPACE,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_IF_KEYWORD_TO_CONDITION_WRAPPER_START,
                 getWhitespaceToLeft(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_BODY_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getElseIfClauseWS(CommonTokenStream tokenStream,
+                                                         BallerinaParser.ElseIfClauseContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_ELSE_KEYWORD_TO_IF_KEYWORD,
+                getWhitespaceToLeft(tokenStream, getFirstTokenWithText(ctx.children, IF_KEYWORD).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_IF_KEYWORD_TO_CONDITION_WRAPPER_START,
+                getWhitespaceToLeft(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_BODY_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }

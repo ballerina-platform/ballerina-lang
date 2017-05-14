@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.expressions.Expression;
 
 import java.util.ArrayList;
@@ -37,11 +38,13 @@ public class IfElseStmt extends AbstractStatement {
     private Statement elseBody;
 
     private IfElseStmt(NodeLocation location,
+                       WhiteSpaceDescriptor whiteSpaceDescriptor,
                        Expression ifCondition,
                        Statement thenBody,
                        ElseIfBlock[] elseIfBlocks,
                        Statement elseBody) {
         super(location);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.ifCondition = ifCondition;
         this.thenBody = thenBody;
         this.elseIfBlocks = elseIfBlocks;
@@ -79,11 +82,14 @@ public class IfElseStmt extends AbstractStatement {
      */
     public static class ElseIfBlock {
         NodeLocation location;
+        WhiteSpaceDescriptor whiteSpaceDescriptor;
         Expression elseIfCondition;
         BlockStmt elseIfBody;
 
-        public ElseIfBlock(NodeLocation location, Expression elseIfCondition, BlockStmt elseIfBody) {
+        public ElseIfBlock(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                           Expression elseIfCondition, BlockStmt elseIfBody) {
             this.location = location;
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
             this.elseIfCondition = elseIfCondition;
             this.elseIfBody = elseIfBody;
         }
@@ -104,6 +110,7 @@ public class IfElseStmt extends AbstractStatement {
      */
     public static class IfElseStmtBuilder {
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private Expression ifCondition;
         private Statement thenBody;
         private List<ElseIfBlock> elseIfBlockList = new ArrayList<>();
@@ -125,8 +132,9 @@ public class IfElseStmt extends AbstractStatement {
             this.thenBody = thenBody;
         }
 
-        public void addElseIfBlock(NodeLocation location, Expression elseIfCondition, BlockStmt elseIfBody) {
-            this.elseIfBlockList.add(new ElseIfBlock(location, elseIfCondition, elseIfBody));
+        public void addElseIfBlock(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                   Expression elseIfCondition, BlockStmt elseIfBody) {
+            this.elseIfBlockList.add(new ElseIfBlock(location, whiteSpaceDescriptor, elseIfCondition, elseIfBody));
         }
 
         public void setElseBody(BlockStmt elseBody) {
@@ -136,10 +144,19 @@ public class IfElseStmt extends AbstractStatement {
         public IfElseStmt build() {
             return new IfElseStmt(
                     location,
+                    whiteSpaceDescriptor,
                     ifCondition,
                     thenBody,
                     elseIfBlockList.toArray(new ElseIfBlock[elseIfBlockList.size()]),
                     elseBody);
+        }
+
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         }
     }
 }

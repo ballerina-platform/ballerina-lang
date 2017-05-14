@@ -935,7 +935,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.addElseIfClause();
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getElseIfClauseWS(tokenStream, ctx);
+        }
+        modelBuilder.addElseIfClause(whiteSpaceDescriptor);
     }
 
     @Override

@@ -120,6 +120,7 @@ import java.util.regex.Pattern;
  */
 public class BLangModelBuilder {
     public static final String ATTACHMENT_POINTS = "attachmentPoints";
+    public static final String IF_CLAUSE = "IfClause";
     protected String currentPackagePath;
     protected BallerinaFile.BFileBuilder bFileBuilder;
 
@@ -1133,7 +1134,14 @@ public class BLangModelBuilder {
 
     public void addIfClause(WhiteSpaceDescriptor whiteSpaceDescriptor) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
-
+        if (whiteSpaceDescriptor != null) {
+            WhiteSpaceDescriptor ws = ifElseStmtBuilder.getWhiteSpaceDescriptor();
+            if (ws == null) {
+                ws = new WhiteSpaceDescriptor();
+                ifElseStmtBuilder.setWhiteSpaceDescriptor(ws);
+            }
+            ws.addChildDescriptor(IF_CLAUSE, whiteSpaceDescriptor);
+        }
         Expression condition = exprStack.pop();
         checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
         ifElseStmtBuilder.setIfCondition(condition);
@@ -1145,7 +1153,7 @@ public class BLangModelBuilder {
         currentScope = blockStmt.getEnclosingScope();
     }
 
-    public void addElseIfClause() {
+    public void addElseIfClause(WhiteSpaceDescriptor whiteSpaceDescriptor) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
@@ -1153,7 +1161,8 @@ public class BLangModelBuilder {
 
         Expression condition = exprStack.pop();
         checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
-        ifElseStmtBuilder.addElseIfBlock(elseIfStmtBlock.getNodeLocation(), condition, elseIfStmtBlock);
+        ifElseStmtBuilder.addElseIfBlock(elseIfStmtBlock.getNodeLocation(), whiteSpaceDescriptor,
+                                condition, elseIfStmtBlock);
 
         currentScope = elseIfStmtBlock.getEnclosingScope();
     }
