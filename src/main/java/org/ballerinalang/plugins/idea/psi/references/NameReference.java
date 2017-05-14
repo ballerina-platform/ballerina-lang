@@ -103,29 +103,66 @@ public class NameReference extends BallerinaElementReference {
         PackageNameNode[] packageNameNodes =
                 PsiTreeUtil.getChildrenOfType(packagePathNode, PackageNameNode.class);
 
-        if (packageNameNodes == null || isStructFieldAccess()) {
-            // Even though the package name is null, the name reference node might be an annotation node. So we need to
-            // get all annotations in the current.
-            PsiFile containingFile = myElement.getContainingFile();
-            if (containingFile == null) {
+        if (packageNameNodes == null || isDotOperatorAtEnd()) {
+            PsiFile file = myElement.getContainingFile();
+            if (file == null) {
                 return new ResolveResult[0];
             }
-            PsiDirectory parentDirectory = containingFile.getParent();
-            if (parentDirectory == null) {
-                return new ResolveResult[0];
-            }
-            List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInCurrentPackage(parentDirectory);
-            // Add matching annotations to results.
-            for (PsiElement annotation : annotations) {
-                if (getElement().getText().equals(annotation.getText())) {
-                    results.add(new PsiElementResolveResult(annotation));
+            PsiElement prevSibling = myElement.getPrevSibling();
+            if (prevSibling instanceof LeafPsiElement) {
+
+                IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+
+                if (elementType == BallerinaTypes.COLON) {
+
+                    PsiElement packageNode = file.findElementAt(prevSibling.getTextOffset() - 2);
+
+                    if (packageNode != null) {
+                        PsiReference reference = packageNode.getReference();
+                        if (reference != null) {
+                            PsiElement resolvedElement = reference.resolve();
+                            if (resolvedElement != null) {
+                                List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInPackage
+                                        (((PsiDirectory) resolvedElement));
+                                // Add matching annotations to results.
+                                for (PsiElement connector : connectors) {
+                                    if (getElement().getText().equals(connector.getText())) {
+                                        results.add(new PsiElementResolveResult(connector));
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(parentDirectory);
-            // Add matching annotations to results.
-            for (PsiElement variable : globalVariables) {
-                if (getElement().getText().equals(variable.getText())) {
-                    results.add(new PsiElementResolveResult(variable));
+            } else {
+                // Even though the package name is null, the name reference node might be an annotation node. So we
+                // need to get all annotations in the current.
+                PsiDirectory parentDirectory = file.getParent();
+                if (parentDirectory == null) {
+                    return new ResolveResult[0];
+                }
+                List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInCurrentPackage(parentDirectory);
+                // Add matching annotations to results.
+                for (PsiElement annotation : annotations) {
+                    if (getElement().getText().equals(annotation.getText())) {
+                        results.add(new PsiElementResolveResult(annotation));
+                    }
+                }
+                List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(parentDirectory);
+                // Add matching annotations to results.
+                for (PsiElement connector : connectors) {
+                    if (getElement().getText().equals(connector.getText())) {
+                        results.add(new PsiElementResolveResult(connector));
+                    }
+                }
+
+                List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage
+                        (parentDirectory);
+                // Add matching annotations to results.
+                for (PsiElement variable : globalVariables) {
+                    if (getElement().getText().equals(variable.getText())) {
+                        results.add(new PsiElementResolveResult(variable));
+                    }
                 }
             }
             return results.toArray(new ResolveResult[results.size()]);
@@ -190,7 +227,7 @@ public class NameReference extends BallerinaElementReference {
         return results.toArray(new ResolveResult[results.size()]);
     }
 
-    private boolean isStructFieldAccess() {
+    private boolean isDotOperatorAtEnd() {
         int offset = myElement.getTextOffset() + myElement.getTextLength();
         PsiElement element = myElement.getContainingFile().findElementAt(offset);
         if (element != null && element instanceof LeafPsiElement) {

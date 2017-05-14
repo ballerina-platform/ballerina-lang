@@ -320,7 +320,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
         PsiElement definitionNode;
         if (element.getParent() instanceof ActionDefinitionNode) {
             // Action definition itself contains the annotations.
-            definitionNode = element.getParent();
+            definitionNode = element.getParent().getParent();
             // So we directly get all annotations from the action definition node.
             Collection<AnnotationAttachmentNode> attachmentNodes = PsiTreeUtil.findChildrenOfType(definitionNode,
                     AnnotationAttachmentNode.class);

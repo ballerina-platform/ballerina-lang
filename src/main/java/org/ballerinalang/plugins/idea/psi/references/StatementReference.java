@@ -16,13 +16,19 @@
 
 package org.ballerinalang.plugins.idea.psi.references;
 
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
@@ -54,7 +60,8 @@ public class StatementReference extends BallerinaElementReference {
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof PackageNameNode || def instanceof VariableDefinitionNode || def instanceof ParameterNode
                 || def instanceof ConstantDefinitionNode || def instanceof TypeNameNode
-                || def instanceof StructDefinitionNode || def instanceof GlobalVariableDefinitionStatementNode;
+                || def instanceof ConnectorDefinitionNode || def instanceof StructDefinitionNode
+                || def instanceof GlobalVariableDefinitionStatementNode;
     }
 
     @NotNull
@@ -81,6 +88,30 @@ public class StatementReference extends BallerinaElementReference {
         if (bodyNode == null) {
             return results.toArray(new ResolveResult[results.size()]);
         }
+        PsiFile file = myElement.getContainingFile();
+
+        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(file);
+        for (PsiElement importedPackage : importedPackages) {
+            if (myElement.getText().equals(importedPackage.getText())) {
+                if (!(importedPackage instanceof PackageNameNode)) {
+                    continue;
+                }
+                PsiElement nameIdentifier = ((PackageNameNode) importedPackage).getNameIdentifier();
+                if (nameIdentifier == null) {
+                    continue;
+                }
+                PsiReference reference = nameIdentifier.getReference();
+                if (reference == null) {
+                    continue;
+                }
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement == null) {
+                    continue;
+                }
+                results.add(new PsiElementResolveResult(resolvedElement));
+            }
+        }
+
         // First we get all the definitions in the callable unit body.
         Collection<VariableDefinitionNode> variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(bodyNode,
                 VariableDefinitionNode.class);
@@ -111,9 +142,31 @@ public class StatementReference extends BallerinaElementReference {
             }
         }
 
+        PsiElement previousElement = BallerinaCompletionUtils.getPreviousNonEmptyElement(file,
+                myElement.getTextOffset());
+        if (previousElement instanceof LeafPsiElement) {
+            IElementType elementType = ((LeafPsiElement) previousElement).getElementType();
+            if (elementType == BallerinaTypes.COLON) {
+                PsiElement packageNode = file.findElementAt(previousElement.getTextOffset() - 2);
+                if (packageNode != null) {
+                    PsiReference reference = packageNode.getReference();
+                    if (reference != null) {
+                        PsiElement resolvedElement = reference.resolve();
+                        if (resolvedElement != null && resolvedElement instanceof PsiDirectory) {
+                            List<PsiElement> connectors =
+                                    BallerinaPsiImplUtil.getAllConnectorsInPackage((PsiDirectory)resolvedElement);
+                            for (PsiElement connector : connectors) {
+                                results.add(new PsiElementResolveResult(connector));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // We need to check connectors in the package as well.
         List<PsiElement> connectorsInCurrentPackage =
-                BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(myElement.getContainingFile().getParent());
+                BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(file.getParent());
         for (PsiElement connector : connectorsInCurrentPackage) {
             if (!(connector instanceof IdentifierPSINode)) {
                 continue;
@@ -129,7 +182,7 @@ public class StatementReference extends BallerinaElementReference {
 
         // We need to check global variables in the package as well.
         List<PsiElement> globalVariablesInCurrentPackage =
-                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(myElement.getContainingFile().getParent());
+                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(file.getParent());
         for (PsiElement variable : globalVariablesInCurrentPackage) {
             if (!(variable instanceof IdentifierPSINode)) {
                 continue;

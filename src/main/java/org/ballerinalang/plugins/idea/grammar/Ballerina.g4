@@ -68,12 +68,12 @@ connectorDefinition
     ;
 
 connectorBody
-    :   variableDefinitionStatement* actionDefinition*
+    :   variableDefinitionStatement* (annotationAttachment* actionDefinition)*
     ;
 
 actionDefinition
-    :   annotationAttachment* 'native' 'action' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? ';'
-    |   annotationAttachment* 'action' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? '{' callableUnitBody '}'
+    :   'native' 'action' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? ';'
+    |   'action' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? '{' callableUnitBody '}'
     ;
 
 structDefinition

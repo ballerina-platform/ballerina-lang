@@ -449,7 +449,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 }
             }
         } else {
-            addKeywordAsLookup(resultSet, ACTION, KEYWORDS_PRIORITY);
+//            addKeywordAsLookup(resultSet, ACTION, KEYWORDS_PRIORITY);
         }
         return false;
     }
@@ -500,8 +500,19 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             suggestAnnotationsFromPackage(parameters, resultSet, null, attachmentType);
                         }
                     } else if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.COMMA) {
-                        // Eg: User user = {n<caret>}
                         addStructFields(parameters, resultSet, element);
+                        if (element instanceof MapStructKeyValueNode) {
+                            // Eg: User user = {n<caret>}
+                            addStructFields(parameters, resultSet, element);
+                        } else {
+                            addTypeNamesAsLookups(resultSet);
+                            addLookups(resultSet, originalFile, true, true, true, true);
+                            addVariableTypesAsLookups(resultSet, originalFile, element);
+                        }
+                    } else if (isExpressionSeparator(elementType)) {
+                        // Eg: int a = 10 + t<caret>
+                        addLookups(resultSet, originalFile, true, true, true, false);
+                        addVariableTypesAsLookups(resultSet, originalFile, element);
                     } else {
                         // Eg: function test(){t<caret>}
                         addTypeNamesAsLookups(resultSet);
@@ -560,8 +571,18 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 suggestAnnotationsFromPackage(parameters, resultSet, null, attachmentType);
             }
         } else if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.COMMA) {
-            // Eg: User user = {<caret>}
-            addStructFields(parameters, resultSet, element);
+            if (element instanceof MapStructKeyValueNode) {
+                // Eg: User user = {<caret>}
+                addStructFields(parameters, resultSet, element);
+            } else {
+                addTypeNamesAsLookups(resultSet);
+                addLookups(resultSet, originalFile, true, true, true, true);
+                addVariableTypesAsLookups(resultSet, originalFile, element);
+            }
+        } else if (isExpressionSeparator(elementType)) {
+            // Eg: int a = 10 +
+            addLookups(resultSet, originalFile, true, true, true, false);
+            addVariableTypesAsLookups(resultSet, originalFile, element);
         } else {
             // Eg: function test(){ <caret> \n OTHER_CODES }
             addTypeNamesAsLookups(resultSet);
@@ -640,7 +661,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             }
         } else if (nextSibling.getParent() instanceof ResourceDefinitionNode) {
             type = "resource";
-        } else if (nextSibling.getParent() instanceof ActionDefinitionNode || parent instanceof ActionDefinitionNode) {
+        } else if (nextSibling instanceof ActionDefinitionNode
+                || nextSibling.getParent() instanceof ActionDefinitionNode || parent instanceof ActionDefinitionNode) {
             type = "action";
         } else if (nextSibling.getParent() instanceof ParameterNode) {
             type = "parameter";

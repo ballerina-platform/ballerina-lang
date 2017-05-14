@@ -666,7 +666,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     public void testVarDefinitionWithLeadingCode() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = <caret> + \"TEST\" }",
-                "args", "main", "test");
+                "args", "main", "test", "create");
     }
 
     public void testConnectorInit() {
@@ -736,7 +736,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     public void testVariablesWhenMultipleVariablesAvailableBeforeLeafElement() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = <caret> + s2; }",
-                "s1", "s2", "A");
+                "s1", "s2", "A", "create");
     }
 
     public void testVariablesInNewLineWhenMultipleVariablesAvailable() {
@@ -1264,13 +1264,13 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     public void testActionAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
         myFixture.addFileToProject("file.bal", "annotation TEST attach action {}");
-        doCheckResult("test.bal", "connector C(){ <caret> action A()(message) {} } service R{}", null, '@',
+        doCheckResult("test.bal", "connector C(){ @<caret> action A()(message) {} } service R{}", null, null,
                 "TEST");
     }
 
     public void testActionAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
-        doCheckResult("test.bal", "annotation TEST attach action {} connector C(){ <caret> action A()(message) {} }" +
-                " service R{}", null, '@', "TEST");
+        doCheckResult("test.bal", "annotation TEST attach action {} connector C(){ @<caret> action A()(message) {} " +
+                "}" + " service R{}", null, null, "TEST");
     }
 
     /**
