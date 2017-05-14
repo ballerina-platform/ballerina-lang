@@ -198,10 +198,11 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_IDENTIFIER_TO_PARAM_LIST_START,
                 getWhitespaceToRight(tokenStream,
                         ctx.callableUnitSignature().Identifier().getSymbol().getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START,
-                getWhitespaceToLeft(tokenStream,
-                        ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
-
+        if (ctx.callableUnitSignature().returnParameters() != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START,
+                    getWhitespaceToLeft(tokenStream,
+                            ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
+        }
         Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
         if (throwsToken != null) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD,
@@ -380,9 +381,11 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_IDENTIFIER_TO_PARAM_LIST_START,
                 getWhitespaceToRight(tokenStream,
                         ctx.callableUnitSignature().Identifier().getSymbol().getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START,
-                getWhitespaceToLeft(tokenStream,
-                        ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
+        if (ctx.callableUnitSignature().returnParameters() != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START,
+                    getWhitespaceToLeft(tokenStream,
+                            ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
+        }
 
         Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
         if (throwsToken != null) {
