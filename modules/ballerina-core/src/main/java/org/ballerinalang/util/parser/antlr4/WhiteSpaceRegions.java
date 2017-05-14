@@ -164,6 +164,11 @@ public class WhiteSpaceRegions {
     public static final int ASSIGN_STMT_EQUAL_OPERATOR_TO_EXPRESSION_START = 2;
     public static final int ASSIGN_STMT_END_TO_NEXT_TOKEN = 3;
 
+    // whitespace regions in a if clause
+    public static final int IF_CLAUSE_PRECEFING_WHITESPACE = 0;
+    public static final int IF_CLAUSE_IF_KEYWORD_TO_CONDITION_WRAPPER_START = 1;
+    public static final int IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START = 2;
+    public static final int IF_CLAUSE_BODY_END_TO_NEXT_TOKEN = 3;
 
 
 

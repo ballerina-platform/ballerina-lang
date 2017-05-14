@@ -914,7 +914,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitIfClause(BallerinaParser.IfClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.addIfClause();
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getIfClauseWS(tokenStream, ctx);
+            }
+            modelBuilder.addIfClause(whiteSpaceDescriptor);
         }
     }
 

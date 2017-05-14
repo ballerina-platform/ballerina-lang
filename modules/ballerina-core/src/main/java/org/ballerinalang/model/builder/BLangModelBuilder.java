@@ -1131,7 +1131,7 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void addIfClause() {
+    public void addIfClause(WhiteSpaceDescriptor whiteSpaceDescriptor) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
 
         Expression condition = exprStack.pop();
