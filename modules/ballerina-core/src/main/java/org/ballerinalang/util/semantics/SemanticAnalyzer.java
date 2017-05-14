@@ -206,7 +206,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(BLangPackage bLangPackage) {
         BLangPackage[] dependentPackages = bLangPackage.getDependentPackages();
-        BallerinaFunction[] initFunctions = new BallerinaFunction[dependentPackages.length];
+        List<BallerinaFunction> initFunctionList = new ArrayList<>();
         for (int i = 0; i < dependentPackages.length; i++) {
             BLangPackage dependentPkg = dependentPackages[i];
             if (dependentPkg.isSymbolsDefined()) {
@@ -214,7 +214,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             dependentPkg.accept(this);
-            initFunctions[i] = dependentPkg.getInitFunction();
+            initFunctionList.add(dependentPkg.getInitFunction());
         }
 
         currentScope = bLangPackage;
@@ -247,7 +247,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 bLangPackage);
 
         // Invoke <init> methods of all the dependent packages
-        addDependentPkgInitCalls(initFunctions, pkgInitFuncStmtBuilder, pkgLocation);
+        addDependentPkgInitCalls(initFunctionList, pkgInitFuncStmtBuilder, pkgLocation);
 
         // Define package level constructs
         defineStructs(bLangPackage.getStructDefs());
@@ -339,7 +339,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);
             annotationAttachment.accept(this);
         }
-        
+
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
             variableDefStmt.accept(this);
         }
@@ -362,7 +362,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             annotationAttachment.setAttachedPoint(AttachmentPoint.CONNECTOR);
             annotationAttachment.accept(this);
         }
-        
+
         for (ParameterDef parameterDef : connector.getParameterDefs()) {
             parameterDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
             parameterDef.accept(this);
@@ -398,7 +398,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             annotationAttachment.setAttachedPoint(AttachmentPoint.RESOURCE);
             annotationAttachment.accept(this);
         }
-        
+
         for (ParameterDef parameterDef : resource.getParameterDefs()) {
             parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             parameterDef.accept(this);
@@ -430,7 +430,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
-        
+
         for (AnnotationAttachment annotationAttachment : function.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.FUNCTION);
             annotationAttachment.accept(this);
@@ -486,7 +486,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             annotationAttachment.setAttachedPoint(AttachmentPoint.TYPEMAPPER);
             annotationAttachment.accept(this);
         }
-        
+
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
@@ -544,7 +544,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             annotationAttachment.setAttachedPoint(AttachmentPoint.ACTION);
             annotationAttachment.accept(this);
         }
-        
+
         for (ParameterDef parameterDef : action.getParameterDefs()) {
             parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             parameterDef.accept(this);
@@ -995,17 +995,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Now we know that this is a single value assignment statement.
         Expression lExpr = assignStmt.getLExprs()[0];
         BType lExprType = lExpr.getType();
-        
+
         if (rExpr instanceof NullLiteral) {
             if (BTypes.isValueType(lExprType)) {
                 BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                     rExpr.getType(), lExpr.getType());
             }
-            
+
             rExpr.setType(lExprType);
             return;
         }
-        
+
         //todo any type support for RefTypeInitExpr
         if (rExpr instanceof RefTypeInitExpr) {
             RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lExprType);
@@ -1635,7 +1635,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(GreaterThanExpression greaterThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(greaterThanExpr);
-        
+
         if (compareExprType == BTypes.typeInt) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
 
@@ -1650,7 +1650,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessEqualExpression lessEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
-        
+
         if (compareExprType == BTypes.typeInt) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
 
@@ -3223,7 +3223,6 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Recursively visits a nested init expression. Reconstruct the init expression with the
      * specific init expression type, and replaces the generic {@link RefTypeInitExpr}.
      * 
-     * @param valueExpr value expression
      * @param fieldType Type of the current field
      * @return reconstructed nested init expression
      */
@@ -3304,11 +3303,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         
     }
-    
-    private void addDependentPkgInitCalls(BallerinaFunction[] initFunctions,
+
+    private void addDependentPkgInitCalls(List<BallerinaFunction> initFunctionList,
         BlockStmt.BlockStmtBuilder blockStmtBuilder, NodeLocation initFuncLocation) {
-        for (BallerinaFunction initFunc : initFunctions) {
-            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(initFuncLocation, initFunc.getName(), null,
+        for (BallerinaFunction initFunc : initFunctionList) {
+            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(initFuncLocation, initFunc.getName(),
+                    null,
                 initFunc.getPackagePath(), new Expression[] {});
             funcIExpr.setCallableUnit(initFunc);
             FunctionInvocationStmt funcIStmt = new FunctionInvocationStmt(initFuncLocation, funcIExpr);
