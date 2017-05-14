@@ -383,6 +383,183 @@ class SizingUtil {
     getDefaultStatementHeight() {
         return statement.height + statement.gutter.v;
     }
+
+    /**
+     *
+     * @param {ASTNode} parent - parent node
+     * @param {ASTNode} childNode - child node, upto which we need to calculate the total height
+     * @returns {number}
+     */
+    getTotalHeightUpto(parent, childNode) {
+        const self = this;
+        const nodeIndex = _.findIndex(parent.getChildren(), function(child){
+            return child.id === childNode.id;
+        });
+        const slicedChildren = _.slice(parent.getChildren(), 0, nodeIndex);
+        let totalHeight = 0;
+
+        _.forEach(slicedChildren, function (child) {
+            const dimensionSynced = child.getViewState().dimensionsSynced;
+            if (BallerinaASTFactory.isWorkerInvocationStatement(child) && !dimensionSynced) {
+                if (!child.getViewState().dimensionsSynced) {
+                    self.syncWorkerInvocationDimension(child);
+                }
+            } else if (BallerinaASTFactory.isWorkerReplyStatement(child) && !dimensionSynced) {
+                if (!child.getViewState().dimensionsSynced) {
+                    self.syncWorkerReplyDimension(child);
+                }
+            }
+
+            totalHeight += child.getViewState().bBox.h;
+        });
+
+        totalHeight += childNode.getViewState().bBox.h;
+
+        return totalHeight;
+    }
+
+    /**
+     * When given a worker invocation statement, this would sync the dimensions, to make the invocation statement
+     * and the reply statement linear
+     * @param {ASTNode} node - worker invocation node
+     */
+    syncWorkerInvocationDimension(node) {
+        let destinationWorkerName = node.getWorkerName();
+        let topLevelParent = node.getTopLevelParent();
+        const workersParent = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
+            topLevelParent.getParent() : topLevelParent;
+
+        let workerDeclaration;
+        if (destinationWorkerName === 'default') {
+            workerDeclaration = workersParent;
+        } else {
+            workerDeclaration = _.find(workersParent.getChildren(), function (child) {
+                if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+                    return child.getWorkerName() === destinationWorkerName;
+                }
+
+                return false;
+            });
+        }
+
+        if (!_.isNil(workerDeclaration)) {
+            /**
+             * Check whether there is a worker reply at destination, receiving the invocation
+             */
+            const workerName = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
+                topLevelParent.getWorkerName() : 'default';
+            const workerReplyStatement = this.getWorkerReplyStatementTo(workerDeclaration, workerName);
+
+            if (!_.isNil(workerReplyStatement)) {
+                const upToReplyHeight = util.getTotalHeightUpto(workerDeclaration, workerReplyStatement);
+                const upToInvocationTotalHeight = util.getTotalHeightUpto(topLevelParent, node);
+
+                if (upToReplyHeight > upToInvocationTotalHeight) {
+                    node.getViewState().components['drop-zone'].h += upToReplyHeight - upToInvocationTotalHeight;
+                    node.getViewState().bBox.h += upToReplyHeight - upToInvocationTotalHeight;
+                } else {
+                    workerReplyStatement.getViewState().components['drop-zone'].h += upToInvocationTotalHeight - upToReplyHeight;
+                    workerReplyStatement.getViewState().bBox.h += upToInvocationTotalHeight - upToReplyHeight;
+                }
+                workerReplyStatement.getViewState().dimensionsSynced = true;
+            }
+
+            node.getViewState().dimensionsSynced = true;
+        }
+    }
+
+    /**
+     * When given a worker reply statement, this would sync the dimensions in order to make the invocation statement
+     * and the reply statement linear
+     * @param {ASTNode} node - worker reply statement
+     */
+    syncWorkerReplyDimension(node) {
+        let destinationWorkerName = node.getWorkerName();
+        let topLevelParent = node.getTopLevelParent();
+        const workersParent = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
+            topLevelParent.getParent() : topLevelParent;
+        let workerDeclaration;
+        if (destinationWorkerName === 'default') {
+            workerDeclaration = workersParent;
+        } else {
+            workerDeclaration = _.find(workersParent.getChildren(), function (child) {
+                if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+                    return child.getWorkerName() === destinationWorkerName;
+                }
+
+                return false;
+            });
+        }
+        if (!_.isNil(workerDeclaration)) {
+            /**
+             * Check whether there is a worker reply at destination, receiving the invocation
+             */
+            const workerName = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
+                topLevelParent.getWorkerName() : 'default';
+            const workerInvocationStatement = this.getWorkerInvocationStatementFrom(workerDeclaration, workerName);
+
+            if (!_.isNil(workerInvocationStatement)) {
+                const upToInvocationHeight = util.getTotalHeightUpto(workerDeclaration, workerInvocationStatement);
+                const upToReplyTotalHeight = util.getTotalHeightUpto(topLevelParent, node);
+
+                if (upToInvocationHeight > upToReplyTotalHeight) {
+                    node.getViewState().components['drop-zone'].h += upToInvocationHeight - upToReplyTotalHeight;
+                    node.getViewState().bBox.h += upToInvocationHeight - upToReplyTotalHeight;
+                } else {
+                    workerInvocationStatement.getViewState().components['drop-zone'].h += upToReplyTotalHeight - upToInvocationHeight;
+                    workerInvocationStatement.getViewState().bBox.h += upToReplyTotalHeight - upToInvocationHeight;
+                }
+                workerInvocationStatement.getViewState().dimensionsSynced = true;
+            }
+            node.getViewState().dimensionsSynced = true;
+        }
+    }
+
+    /**
+     * Get the worker reply statement, which send the reply to the given top level
+     * node (ie resource, action, function, worker
+     * @param {String} workerName
+     * @param {ASTNode} parentNode - node which encapsulate the children need to be iterated (worker, function, etc)
+     * @returns {undefined|ASTNode}
+     */
+    getWorkerReplyStatementTo(parentNode, workerName) {
+        const childNodes = _.filter(parentNode.getChildren(), function (child) {
+            if (BallerinaASTFactory.isWorkerReplyStatement(child)) {
+                return child.getWorkerName() === workerName;
+            } else {
+                return false;
+            }
+        });
+
+        if (_.isNil(childNodes)) {
+            return undefined;
+        } else {
+            return childNodes[0];
+        }
+    }
+
+    /**
+     * Get the worker reply statement, which send the request from the given top level
+     * node (ie resource, action, function, worker
+     * @param {String} workerName
+     * @param {ASTNode} parentNode - node which encapsulate the children need to be iterated (worker, function, etc)
+     * @returns {undefined|ASTNode}
+     */
+    getWorkerInvocationStatementFrom(parentNode, workerName) {
+        const childNodes = _.filter(parentNode.getChildren(), function (child) {
+            if (BallerinaASTFactory.isWorkerInvocationStatement(child)) {
+                return child.getWorkerName() === workerName;
+            } else {
+                return false;
+            }
+        });
+
+        if (_.isNil(childNodes)) {
+            return undefined;
+        } else {
+            return childNodes[0];
+        }
+    }
 }
 
 
