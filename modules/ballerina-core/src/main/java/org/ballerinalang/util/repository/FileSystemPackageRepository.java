@@ -27,21 +27,19 @@ import java.nio.file.Path;
 public class FileSystemPackageRepository extends PackageRepository {
     private Path programDirPath;
 
-    private BuiltinPackageRepository[] pkgRepositories;
-
     public FileSystemPackageRepository(Path programDirPath, BuiltinPackageRepository[] pkgRepositories) {
         this.programDirPath = programDirPath;
-        this.pkgRepositories = pkgRepositories;
+        this.builtinPackageRepositories = pkgRepositories;
     }
 
     @Override
     public PackageSource loadPackage(Path packageDirPath) {
-        for (BuiltinPackageRepository pkgRepository : pkgRepositories) {
-            PackageSource packageSource = pkgRepository.loadPackage(packageDirPath);
-            if (packageSource != null && !packageSource.getSourceFileStreamMap().isEmpty()) {
-                return packageSource;
-            }
+        // First try to load from the built-in repositories
+        PackageSource pkgSource = loadPackageFromBuiltinRepositories(packageDirPath);
+        if (pkgSource != null) {
+            return pkgSource;
         }
+
         return loadPackageFromDirectory(packageDirPath, programDirPath);
     }
 

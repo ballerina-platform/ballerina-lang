@@ -19,7 +19,6 @@ package org.ballerinalang.natives.typemappers;
 
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.types.BArrayType;
@@ -511,17 +510,8 @@ public class NativeCastMapper {
             return rVal;
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
-                generateErrorSymbolName(rVal.getType().getSymbolName()),
-                generateErrorSymbolName(targetType.getSymbolName()));
+                rVal.getType().getSymbolName(), targetType.getSymbolName());
     };
-
-    private static SymbolName generateErrorSymbolName(SymbolName symbolName) {
-        if (symbolName.getPkgPath() != null && symbolName.getPkgPath().equals(".")) {
-            return new SymbolName(symbolName.getName());
-        } else {
-            return symbolName;
-        }
-    }
 
     /**
      * Check whether a given source type can be assigned to a destination type.

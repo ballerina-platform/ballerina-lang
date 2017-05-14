@@ -110,18 +110,14 @@ public class BTypes {
         initialized = true;
     }
 
-    public static BArrayType getArrayType(String elementTypeName) {
-        return null;
-    }
-
     public static BType resolveType(SimpleTypeName typeName, SymbolScope symbolScope, NodeLocation location) {
-        BType bType = null;
-        BLangSymbol symbol = null;
-        symbol = symbolScope.resolve(new SymbolName(typeName.getSymbolName().getName()));
+        // First check for builtin types. They don't have a package path
+        BLangSymbol symbol = symbolScope.resolve(new SymbolName(typeName.getSymbolName().getName()));
         if (symbol == null) {
             symbol = symbolScope.resolve(typeName.getSymbolName());
         }
 
+        BType bType = null;
         if (symbol instanceof BType) {
             bType = (BType) symbol;
         }
@@ -130,16 +126,15 @@ public class BTypes {
             return bType;
         }
 
-        // Now check whether this is an arrays type
+        // Now check whether this is an array type
         if (typeName.isArrayType()) {
-            BLangSymbol bTypeSymbol = null;
-            bTypeSymbol = symbolScope.resolve(new SymbolName(typeName.getName()));
-            if (bTypeSymbol == null) {
-                bTypeSymbol = symbolScope.resolve(new SymbolName(typeName.getName(),
-                        typeName.getPackagePath()));
+            symbol = symbolScope.resolve(new SymbolName(typeName.getName()));
+            if (symbol == null) {
+                symbol = symbolScope.resolve(new SymbolName(typeName.getName(), typeName.getPackagePath()));
             }
-            if (bTypeSymbol instanceof BType) {
-                bType = (BType) bTypeSymbol;
+
+            if (symbol instanceof BType) {
+                bType = (BType) symbol;
             }
         }
 
@@ -166,8 +161,7 @@ public class BTypes {
                 return bArrayType;
             }
         }
-
-
+        
         throw new SemanticException(getNodeLocationStr(location) + "undefined type '" + typeName + "'");
     }
 

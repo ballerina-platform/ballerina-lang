@@ -22,7 +22,6 @@ import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFunction;
-import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.ParameterDef;
@@ -732,8 +731,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue collectionValue = arrayVarRefExpr.execute(this);
 
         if (collectionValue == null) {
-            throw new BallerinaException("variable '" +
-                    generateErrorSymbolName(arrayVarRefExpr.getSymbolName()) + "' is null");
+            throw new BallerinaException("variable '" + arrayVarRefExpr.getSymbolName() + "' is null");
         }
 
         Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
@@ -847,9 +845,7 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(ConnectorInitExpr connectorInitExpr) {
         BConnector bConnector;
         BValue[] connectorMemBlock;
-        Connector connector = (Connector) connectorInitExpr.getType();
-
-        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connectorInitExpr.getType();
 
         int offset = 0;
         connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
@@ -858,14 +854,13 @@ public class BLangExecutor implements NodeExecutor {
             offset++;
         }
 
-        bConnector = new BConnector(connector, connectorMemBlock);
+        bConnector = new BConnector(connectorDef, connectorMemBlock);
 
         // Invoke the <init> function
         invokeConnectorInitFunction(connectorDef, bConnector);
 
         // Invoke the <init> action
         invokeConnectorInitAction(connectorDef, bConnector);
-
         return bConnector;
     }
 
@@ -1179,8 +1174,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue unitVal = getUnitValue(currentVal, currentExpr);
 
         if (unitVal == null) {
-            throw new BallerinaException("field '" +
-                    generateErrorSymbolName(currentExpr.getSymbolName()) + "' is null");
+            throw new BallerinaException("field '" + currentExpr.getSymbolName() + "' is null");
         }
 
         if (currentExpr.getRefVarType() == BTypes.typeJSON) {
@@ -1320,14 +1314,6 @@ public class BLangExecutor implements NodeExecutor {
 
         // Recursively travel through the struct and get the value
         return getFieldExprValue(fieldExpr, value);
-    }
-
-    private SymbolName generateErrorSymbolName(SymbolName symbolName) {
-        if (symbolName.getPkgPath() != null && symbolName.getPkgPath().equals(".")) {
-            return new SymbolName(symbolName.getName());
-        } else {
-            return symbolName;
-        }
     }
 
     /**

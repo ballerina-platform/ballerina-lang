@@ -143,7 +143,8 @@ ConnectorActionTest {
     
     @Test(description = "Test invoking an undefined action",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "undefined-actions.bal:14: undefined action 'TestConnector.foo'")
+            expectedExceptionsMessageRegExp = "undefined-actions.bal:14: undefined action 'foo' in " +
+                    "connector 'TestConnector'")
     public void testUndefinedAction() {
         BTestUtils.parseBalFile("lang/connectors/undefined-actions.bal");
     }

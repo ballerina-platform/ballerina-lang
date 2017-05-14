@@ -73,8 +73,8 @@ public class BuiltinPackageRepository extends PackageRepository {
 
         // Read all resources as input streams and create the package source 
         for (String fileName : fileNames) {
-            InputStream balSourceStream = classLoader.getResourceAsStream(BASE_DIR + this.packageDirPath
-                    + fileName);
+            InputStream balSourceStream = classLoader.getResourceAsStream(
+                    BASE_DIR + this.packageDirPath + fileName);
             sourceFileStreamMap.put(fileName, balSourceStream);
         }
         return new PackageSource(packageDirPath, sourceFileStreamMap, this);

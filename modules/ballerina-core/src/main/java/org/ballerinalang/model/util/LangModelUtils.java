@@ -54,8 +54,8 @@ public class LangModelUtils {
         return new SymbolName(identifier, pkgPath);
     }
 
-    public static SymbolName getActionSymName(String actionName, String connectorName,
-                                              String pkgPath, BType[] types) {
+    public static SymbolName getActionSymName(String actionName, String pkgPath, String connectorName,
+                                              BType[] types) {
         StringBuilder sBuilder = new StringBuilder(connectorName + "." + actionName);
         for (BType type : types) {
             sBuilder.append(".").append(type);

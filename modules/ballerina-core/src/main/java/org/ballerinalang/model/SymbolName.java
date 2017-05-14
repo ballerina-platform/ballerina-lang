@@ -81,6 +81,6 @@ public class SymbolName {
     }
 
     public String toString() {
-        return (pkgPath == null) ? name : pkgPath + ":" + name;
+        return (pkgPath == null || pkgPath.equals(".")) ? name : pkgPath + ":" + name;
     }
 }
