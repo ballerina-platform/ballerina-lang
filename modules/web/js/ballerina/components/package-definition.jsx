@@ -88,7 +88,7 @@ class PackageDefinition extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const packageName = model._packageName;
+        const packageName = model.getPackageName();
         const headerHeight = packageDefinition.header.height;
         const headerPadding = packageDefinition.header.padding;
         const expanded = this.props.model.viewState.expanded;
@@ -109,37 +109,12 @@ class PackageDefinition extends React.Component {
         const astRoot = this.props.model.parent;
         const imports = astRoot.children.filter(c => {return c.constructor.name === 'ImportDeclaration'});
 
-        let packageNameElement;
-
-        if(packageName) {
-            packageNameElement = (
-                <text
-                    x={ bBox.x + headerPadding.left + packageDefLabelWidth}
-                    y={ bBox.y + headerHeight/2 }
-                    className={ "package-definition-text  pkg-name-" + packageName }
-                    onClick={e => {this.handlePackageNameClick(e)}}
-                >
-                    {packageName}
-                </text>
-            );
-        } else {
-            // if package name is not defined show package image
-            packageNameElement = <image width={ iconSize } height={ iconSize } xlinkHref={ ImageUtil.getSVGIconString('import-black') }
-                    x={bBox.x + headerPadding.left + packageDefLabelWidth } y={bBox.y}/>
-
-        }
-
         return (
             <g>
-                <rect x={ bBox.x } y={ bBox.y } width={310} height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
-                <text
-                    x={ bBox.x + headerPadding.left }
-                    y={ bBox.y + headerHeight/2 }
-                    className="package-definition-label"
-                >
-                    {'package'}
-                </text>
-                {packageNameElement}
+                <rect x={ bBox.x } y={ bBox.y } width={headerHeight} height={headerHeight}
+                      rx={headerHeight/2} ry={headerHeight/2} className="package-definition-header"/>
+                <image width={ iconSize } height={ iconSize } xlinkHref={ ImageUtil.getSVGIconString('package') }
+                            x={bBox.x + (headerHeight-iconSize)/2 } y={bBox.y + (headerHeight-iconSize)/2}/>
                 { expanded ? <ImportDeclarationExpanded
                                 bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}
                                 onAddImport={this.handleAddImport} onDeleteImport={this.handleDeleteImport}/> :
