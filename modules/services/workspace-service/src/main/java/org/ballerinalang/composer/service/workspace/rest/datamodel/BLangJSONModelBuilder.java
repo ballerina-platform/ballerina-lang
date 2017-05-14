@@ -756,7 +756,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(TransformStmt transformStmt) {
-
         JsonObject transformStmtObj = new JsonObject();
         this.addPosition(transformStmtObj, transformStmt.getNodeLocation());
         transformStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants
@@ -766,7 +765,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject lExprObj = new JsonObject();
         lExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.LEFT_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
-        for (Expression expression : transformStmt.getLhsExprs()) {
+        for (Expression expression : transformStmt.getInputExprs()) {
             expression.accept(this);
         }
         lExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -776,7 +775,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject rExprObj = new JsonObject();
         rExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.RIGHT_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
-        for (Expression expression : transformStmt.getRhsExprs()) {
+        for (Expression expression : transformStmt.getOutputExprs()) {
             expression.accept(this);
         }
         rExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
