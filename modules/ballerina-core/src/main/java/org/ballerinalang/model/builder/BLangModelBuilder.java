@@ -1108,9 +1108,10 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(whileStmt);
     }
 
-    public void createBreakStmt(NodeLocation location) {
+    public void createBreakStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         BreakStmt.BreakStmtBuilder breakStmtBuilder = new BreakStmt.BreakStmtBuilder();
         breakStmtBuilder.setNodeLocation(location);
+        breakStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         BreakStmt breakStmt = breakStmtBuilder.build();
         addToBlockStmt(breakStmt);
     }

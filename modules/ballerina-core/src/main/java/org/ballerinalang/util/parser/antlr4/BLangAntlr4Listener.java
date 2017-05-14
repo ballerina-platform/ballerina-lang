@@ -1006,7 +1006,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitBreakStatement(BallerinaParser.BreakStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createBreakStmt(getCurrentLocation(ctx));
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getBreakStatementWS(tokenStream, ctx);
+            }
+            modelBuilder.createBreakStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
         }
     }
 

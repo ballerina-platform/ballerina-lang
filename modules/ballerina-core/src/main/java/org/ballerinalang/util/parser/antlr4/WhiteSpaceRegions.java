@@ -188,4 +188,9 @@ public class WhiteSpaceRegions {
     public static final int WHILE_STMT_CONDITION_WRAPPER_TO_BODY_START = 2;
     public static final int WHILE_STMT_END_TO_NEXT_TOKEN = 3;
 
+    // whitespace regions in break statement
+    public static final int BREAK_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int BREAK_STMT_BREAK_KEYWORD_TO_END = 1;
+    public static final int BREAK_STMT_END_TO_NEXT_TOKEN = 2;
+
 }
