@@ -31,7 +31,8 @@ import './statement-decorator.css';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
-import select2 from 'select2'
+import select2 from 'select2';
+import TransformRender from '../../type-mapper/transform-render';
 
 const text_offset = 50;
 
@@ -42,55 +43,10 @@ class TransformStatementDecorator extends React.Component {
         const {dragDropManager} = context;
         dragDropManager.on('drag-start', this.startDropZones.bind(this));
         dragDropManager.on('drag-stop', this.stopDragZones.bind(this));
-
-		this.state = {innerDropZoneActivated: false,
-                      innerDropZoneDropNotAllowed: false,
-                      innerDropZoneExist: false,
-                      showActions: false };
-
-
-                      var sourceId = 'sourceStructs' + this.props.model.id;
-                      var targetId = 'targetStructs' + this.props.model.id;
-
-                      var sourceContent = $('<div class="leftType">' +
-                          '<div class="source-view">' +
-                          '<select id="' + sourceId + '" class="type-mapper-combo">' +
-                          '<option value="-1">--Select--</option>' +
-                          '</select>' +
-                          '</div></div>');
-
-                      var targetContent = $('<div class="rightType">' +
-                          '<div class="target-view">' +
-                          '<select id="' + targetId + '" class="type-mapper-combo">' +
-                          '<option value="-1">--Select--</option>' +
-                          '</select>' +
-                          '</div></div>');
-
-                      var transformOverlayContent =  $('<div class="transformOverlay-content">'+
-                                                               ' <span class="close-transform">&times;</span>'+
-                                                          '    </div>');
-
-                      var transformOverlay = $( '<div id="transformOverlay" class="transformOverlay">'+
-                                                 '  </div>' );
-
-                      transformOverlayContent.append(sourceContent);
-                      transformOverlayContent.append(targetContent);
-                      transformOverlay.append(transformOverlayContent);
-                       $("#tab-content-wrapper" ).append( transformOverlay);
-
-                       this.transformOverlayDiv = document.getElementById('transformOverlay');
-                       var span = document.getElementsByClassName("close-transform")[0];
-
-                       span.onclick = function() {
-                           document.getElementById('transformOverlay').style.display = "none";
-                       }
-
-                       window.onclick = function(event) {
-                            var transformOverlayDiv = document.getElementById('transformOverlay')
-                           if (event.target == transformOverlayDiv) {
-                               transformOverlayDiv.style.display = "none";
-                           }
-                       }
+        this.state = {innerDropZoneActivated: false,
+                                          innerDropZoneDropNotAllowed: false,
+                                          innerDropZoneExist: false,
+                                          showActions: false };
 	}
 
 	startDropZones() {
@@ -106,7 +62,119 @@ class TransformStatementDecorator extends React.Component {
 	}
 
 	onExpand() {
-	    this.transformOverlayDiv.style.display = "block";
+          self = this;
+          this._package = this.context.renderingContext.getPackagedScopedEnvironment().getCurrentPackage();
+          var sourceId = 'sourceStructs' + this.props.model.id;
+          var targetId = 'targetStructs' + this.props.model.id;
+
+          var sourceContent = $('<div class="leftType">' +
+              '<div class="source-view">' +
+              '<select id="' + sourceId + '" class="type-mapper-combo">' +
+              '<option value="-1">--Select--</option>' +
+              '</select>' +
+              '</div></div>');
+
+          var targetContent = $('<div class="rightType">' +
+              '<div class="target-view">' +
+              '<select id="' + targetId + '" class="type-mapper-combo">' +
+              '<option value="-1">--Select--</option>' +
+              '</select>' +
+              '</div></div>');
+
+          var transformMenuDiv = $('<div id ="transformContextMenu" class ="transformContextMenu"></div>');
+
+          var transformOverlayContent =  $('<div id = "transformOverlay-content" class="transformOverlay-content">'+
+                                                   ' <span class="close-transform">&times;</span>'+
+                                              '    </div>');
+
+          var transformOverlay = $( '<div id="transformOverlay" class="transformOverlay">'+
+                                     '  </div>' );
+
+          transformOverlayContent.append(sourceContent);
+          transformOverlayContent.append(targetContent);
+          transformOverlay.append(transformOverlayContent);
+          transformOverlayContent.append(transformMenuDiv);
+          $("#tab-content-wrapper").append(transformOverlay);
+
+          this.transformOverlayDiv = document.getElementById('transformOverlay');
+          var span = document.getElementsByClassName("close-transform")[0];
+
+          var predefinedStructs = [];
+          _.forEach(this.props.model.parent.getVariableDefinitionStatements(), variableDefStmt => {
+           _.forEach(this._package.getStructDefinitions(), predefinedStruct => {
+                  if (variableDefStmt.children[0].children[0].getTypeName() ==  predefinedStruct.getStructName()) {
+                        var struct = {};
+                        struct.name = variableDefStmt.children[0].children[0].getName();
+                        struct.properties = [];
+                        _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
+                             var property = {};
+                             property.name  = stmt.children[0].children[0].getName();
+                             property.type  = stmt.children[0].children[0].getTypeName();
+                             struct.properties.push(property);
+                        });
+                        predefinedStructs.push(struct);
+                        self.loadSchemaToComboBox(sourceId, struct.name);
+                        self.loadSchemaToComboBox(targetId, struct.name);
+                   }
+            });
+          });
+
+           $(".type-mapper-combo").select2();
+
+           $("#" + sourceId).on("select2:selecting", function (e) {
+               var currentSelection = e.params.args.data.id;
+               var previousSelection = $("#" + sourceId).val();
+               if (currentSelection == -1) {
+                   self.mapper.removeType(previousSelection);
+               } else if (currentSelection != $("#" + targetId).val()) {
+                   var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
+                   self.mapper.removeType(previousSelection);
+                   self.mapper.addSourceType(sourceSelection);
+                    //TODO : Add Left hand child to transform AST
+               } else {
+                   return false;
+               }
+           });
+
+          $("#" + targetId).on("select2:selecting", function (e) {
+               var currentSelection = e.params.args.data.id;
+               var previousSelection = $("#" + targetId).val();
+               if (currentSelection == -1) {
+                   self.mapper.removeType(previousSelection);
+               } else if (currentSelection != $("#" + sourceId).val()) {
+                    var targetSelection = _.find(predefinedStructs, { name: currentSelection});
+                    self.mapper.removeType(previousSelection);
+                    self.mapper.addTargetType(targetSelection);
+                    //TODO : Add Right hand child to transform AST
+               } else {
+                   return false;
+               }
+          });
+
+           span.onclick = function() {
+               document.getElementById('transformOverlay').style.display = "none";
+               $(transformOverlay).remove();
+           }
+
+           window.onclick = function(event) {
+                var transformOverlayDiv = document.getElementById('transformOverlay')
+               if (event.target == transformOverlayDiv) {
+                   transformOverlayDiv.style.display = "none";
+                   $(transformOverlay).remove();
+               }
+           }
+
+           var onConnectionCallback = function(connection) {
+                mapper.addConnection(connection);
+             //TODO : Add assignment statement to transform AST
+           };
+
+           var onDisconnectionCallback = function(connection) {
+              //TODO : Remove assignment statement to transform AST
+            };
+
+           this.mapper = new TransformRender(onConnectionCallback, onDisconnectionCallback);
+           this.transformOverlayDiv.style.display = "block";
 	}
 
 	render() {
@@ -292,6 +360,10 @@ class TransformStatementDecorator extends React.Component {
 	onUpdate(text){
 	}
 
+    loadSchemaToComboBox(comboBoxId, name) {
+        $("#" + comboBoxId).append('<option value="' + name + '">' + name + '</option>');
+    }
+
 }
 
 TransformStatementDecorator.propTypes = {
@@ -308,7 +380,8 @@ TransformStatementDecorator.propTypes = {
 TransformStatementDecorator.contextTypes = {
 	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
 	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-	 container: PropTypes.instanceOf(Object).isRequired
+	 container: PropTypes.instanceOf(Object).isRequired,
+	 renderingContext: PropTypes.instanceOf(Object).isRequired
 };
 
 

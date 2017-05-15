@@ -124,7 +124,7 @@ svg.plumbConnect path {
     display:none !important;
 }
 
-.typeMapperContextMenu {
+.transformContextMenu {
     position:fixed;
     border: 1px solid black;
     padding:5px;
