@@ -48,8 +48,7 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
                                 String pkgPath,
                                 String connectorName,
                                 Expression[] exprs) {
-        super(location);
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        super(location, whiteSpaceDescriptor);
         this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;

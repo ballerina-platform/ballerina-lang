@@ -308,7 +308,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
         constDef.setMemoryLocation(memLocation);
 
-        VariableRefExpr varRefExpr = new VariableRefExpr(constDef.getNodeLocation(), constDef.getName());
+        VariableRefExpr varRefExpr = new VariableRefExpr(constDef.getNodeLocation(), constDef.getWhiteSpaceDescriptor(),
+                                                    constDef.getName());
         varRefExpr.setVariableDef(constDef);
         VariableDefStmt varDefStmt = new VariableDefStmt(constDef.getNodeLocation(),
                 constDef, varRefExpr, constDef.getRhsExpr());
@@ -1298,7 +1299,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression[] returnExprs = new Expression[returnParamsOfCU.length];
             for (int i = 0; i < returnParamsOfCU.length; i++) {
                 VariableRefExpr variableRefExpr = new VariableRefExpr(returnStmt.getNodeLocation(),
-                        returnParamsOfCU[i].getSymbolName());
+                        returnStmt.getWhiteSpaceDescriptor(), returnParamsOfCU[i].getSymbolName());
                 visit(variableRefExpr);
                 returnExprs[i] = variableRefExpr;
             }
@@ -1923,7 +1924,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder =
                         new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
 
-                VariableRefExpr arrayMapVarRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(), mapOrArrName);
+                VariableRefExpr arrayMapVarRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(),
+                        backtickExpr.getWhiteSpaceDescriptor(), mapOrArrName);
                 visit(arrayMapVarRefExpr);
 
                 builder.setArrayMapVarRefExpr(arrayMapVarRefExpr);
@@ -1935,7 +1937,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 argExprList.add(arrayMapAccessExpr);
             } else {
                 VariableRefExpr variableRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(),
-                        new SymbolName(m.group(1)));
+                        backtickExpr.getWhiteSpaceDescriptor(), new SymbolName(m.group(1)));
                 visit(variableRefExpr);
                 argExprList.add(variableRefExpr);
             }
@@ -2167,7 +2169,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                     !(lType.equals(BTypes.typeString)))) {
                 newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rType, lType, null);
                 if (newEdge != null) { // Implicit cast from right to left
-                    newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr, lType);
+                    newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr.getWhiteSpaceDescriptor(),
+                                                rExpr, lType);
                     newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
                     newExpr.accept(this);
                     binaryExpr.setRExpr(newExpr);
@@ -2175,7 +2178,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 } else {
                     newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(lType, rType, null);
                     if (newEdge != null) { // Implicit cast from left to right
-                        newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr, rType);
+                        newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr.getWhiteSpaceDescriptor(),
+                                lExpr, rType);
                         newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
                         newExpr.accept(this);
                         binaryExpr.setLExpr(newExpr);
@@ -2656,7 +2660,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Field of a struct is always a variable reference.
         if (fieldVar instanceof BasicLiteral) {
             String varName = ((BasicLiteral) fieldVar).getBValue().stringValue();
-            VariableRefExpr varRef = new VariableRefExpr(fieldVar.getNodeLocation(), varName);
+            VariableRefExpr varRef = new VariableRefExpr(fieldVar.getNodeLocation(), fieldVar.getWhiteSpaceDescriptor(),
+                    varName);
             fieldExpr.setVarRef(varRef);
             fieldExpr.setIsStaticField(true);
         }
@@ -2687,7 +2692,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else {
             Expression varRefExpr = fieldExpr.getVarRef();
             varRefExpr.accept(this);
-            currentFieldExpr = new JSONFieldAccessExpr(fieldExpr.getNodeLocation(), varRefExpr, nextFieldExpr);
+            currentFieldExpr = new JSONFieldAccessExpr(fieldExpr.getNodeLocation(), fieldExpr.getWhiteSpaceDescriptor(),
+                    varRefExpr, nextFieldExpr);
         }
         parentExpr.setFieldExpr(currentFieldExpr);
         visitJSONAccessExpr(currentFieldExpr, nextFieldExpr);
@@ -2863,7 +2869,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
         if (newEdge != null) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, lhsType);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr.getWhiteSpaceDescriptor(),
+                    rhsExpr, lhsType);
             newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
         }
         return newExpr;
@@ -3232,8 +3239,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 fieldType = BTypes.resolveType(new SimpleTypeName(BTypes.typeAny.getName(), true, 1), currentScope, 
                         expr.getNodeLocation());
             } else if (fieldType == BTypes.typeJSON) {
-                refTypeInitExpr = new JSONArrayInitExpr(refTypeInitExpr.getNodeLocation(), 
-                        refTypeInitExpr.getArgExprs());
+                refTypeInitExpr = new JSONArrayInitExpr(refTypeInitExpr.getNodeLocation(),
+                        refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             }
         } else if (!(refTypeInitExpr instanceof BacktickExpr)) {
             // if the inherited type is any, then default this initializer to a map init expression
@@ -3241,11 +3248,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 fieldType = BTypes.typeMap;
             }
             if (fieldType == BTypes.typeMap) {
-                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(),
+                        refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             } else if (fieldType == BTypes.typeJSON) {
-                refTypeInitExpr = new JSONInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                refTypeInitExpr = new JSONInitExpr(refTypeInitExpr.getNodeLocation(),
+                        refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             } else if (fieldType instanceof StructDef) {
-                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(),
+                        refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             }
         }
         refTypeInitExpr.setInheritedType(fieldType);

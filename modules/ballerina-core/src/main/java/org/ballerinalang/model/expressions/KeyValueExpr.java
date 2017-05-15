@@ -31,16 +31,16 @@ public class KeyValueExpr extends AbstractExpression {
     private Expression keyExpr;
     private Expression valueExpr;
 
-    public KeyValueExpr(NodeLocation location, String key, Expression valueExpr) {
-        super(location);
+    public KeyValueExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String key,
+                        Expression valueExpr) {
+        super(location, whiteSpaceDescriptor);
         this.key = key;
         this.valueExpr = valueExpr;
     }
 
     public KeyValueExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression keyExpr,
                         Expression valueExpr) {
-        super(location);
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        super(location, whiteSpaceDescriptor);
         this.keyExpr = keyExpr;
         this.valueExpr = valueExpr;
     }

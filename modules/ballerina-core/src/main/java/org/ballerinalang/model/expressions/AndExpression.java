@@ -19,6 +19,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValueType;
 
@@ -36,8 +37,9 @@ public class AndExpression extends BinaryLogicalExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> AND_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.booleanValue() && rVal.booleanValue());
 
-    public AndExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
-        super(location, lExpr, AND, rExpr);
+    public AndExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
+                         Expression rExpr) {
+        super(location, whiteSpaceDescriptor, lExpr, AND, rExpr);
     }
 
     @Override

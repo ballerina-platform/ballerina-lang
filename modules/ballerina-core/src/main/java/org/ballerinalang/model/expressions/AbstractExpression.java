@@ -46,8 +46,9 @@ public abstract class AbstractExpression implements Expression {
     private int tempOffset;
     private boolean isTempOffsetSet = false;
 
-    public AbstractExpression(NodeLocation location) {
+    public AbstractExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.location = location;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
 
     public BType getType() {

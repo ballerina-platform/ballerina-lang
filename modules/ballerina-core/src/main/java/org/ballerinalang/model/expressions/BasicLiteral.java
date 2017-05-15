@@ -37,15 +37,13 @@ public class BasicLiteral extends AbstractExpression {
     private BValueType bValue;
 
     public BasicLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, BValueType bValueType) {
-        super(location);
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        super(location, whiteSpaceDescriptor);
         this.bValue = bValueType;
     }
 
     public BasicLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
                         BValueType bValue) {
-        super(location);
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        super(location, whiteSpaceDescriptor);
         this.bValue = bValue;
         this.typeName = typeName;
     }

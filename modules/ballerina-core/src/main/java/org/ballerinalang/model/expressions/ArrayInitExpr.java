@@ -36,8 +36,7 @@ import org.ballerinalang.model.values.BValue;
 public class ArrayInitExpr extends RefTypeInitExpr {
 
     public ArrayInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] argExprs) {
-        super(location, argExprs);
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        super(location, whiteSpaceDescriptor, argExprs);
     }
 
     @Override

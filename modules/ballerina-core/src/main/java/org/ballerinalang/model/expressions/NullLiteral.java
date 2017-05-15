@@ -31,8 +31,7 @@ import org.ballerinalang.model.values.BValue;
 public class NullLiteral extends AbstractExpression {
 
     public NullLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        super(location);
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        super(location, whiteSpaceDescriptor);
     }
 
     public BValue getBValue() {

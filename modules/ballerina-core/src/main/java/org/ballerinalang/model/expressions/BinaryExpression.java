@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 
@@ -39,8 +40,9 @@ public class BinaryExpression extends UnaryExpression {
     protected Expression lExpr;
     protected BiFunction<BValueType, BValueType, BValueType> evalFuncNewNew;
 
-    public BinaryExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
-        super(location, op, rExpr);
+    public BinaryExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
+                            Operator op, Expression rExpr) {
+        super(location, whiteSpaceDescriptor, op, rExpr);
         this.lExpr = lExpr;
     }
 

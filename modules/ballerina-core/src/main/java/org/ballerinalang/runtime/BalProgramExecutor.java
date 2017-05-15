@@ -70,7 +70,7 @@ public class BalProgramExecutor {
         for (ParameterDef parameter : resource.getParameterDefs()) {
             NodeLocation nodeLocation = parameter.getNodeLocation();
             String parameterName = parameter.getName();
-            VariableRefExpr variableRefExpr = new VariableRefExpr(nodeLocation, parameterName);
+            VariableRefExpr variableRefExpr = new VariableRefExpr(nodeLocation, null, parameterName);
             StackVarLocation location = new StackVarLocation(locationCounter);
             VariableDef variableDef = new VariableDef(nodeLocation, null, parameter.getType(),
                     new SymbolName(parameterName));

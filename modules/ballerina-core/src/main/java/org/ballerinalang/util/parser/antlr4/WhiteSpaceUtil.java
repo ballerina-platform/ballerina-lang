@@ -18,6 +18,7 @@
 package org.ballerinalang.util.parser.antlr4;
 
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -754,5 +755,54 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_KEY_VAL_EXP_TAILING_WHITEPSACE,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
+    }
+
+    public static WhiteSpaceDescriptor getMapStructLiteralWS(CommonTokenStream tokenStream,
+                                                             BallerinaParser.MapStructLiteralContext ctx) {
+        return null;
+    }
+
+    public static WhiteSpaceDescriptor getConnectorInitExpWS(CommonTokenStream tokenStream,
+                                                             BallerinaParser.ConnectorInitExpressionContext ctx) {
+        return null;
+    }
+
+    public static WhiteSpaceDescriptor getStructFieldIdentifierWS(CommonTokenStream tokenStream,
+                                                                  BallerinaParser.StructFieldIdentifierContext ctx) {
+        return null;
+    }
+
+    public static WhiteSpaceDescriptor getSimpleVariableIdentifierWS(CommonTokenStream tokenStream,
+                                                                 BallerinaParser.SimpleVariableIdentifierContext ctx) {
+        return null;
+    }
+
+    public static WhiteSpaceDescriptor getMapArrayVarIdentifierWS(CommonTokenStream tokenStream,
+                                                              BallerinaParser.MapArrayVariableIdentifierContext ctx) {
+        return null;
+    }
+
+    public static WhiteSpaceDescriptor getBacktickStringWS(CommonTokenStream tokenStream,
+                                                           BallerinaParser.BacktickStringContext ctx) {
+        return null;
+    }
+
+    public static WhiteSpaceDescriptor getTypeCastingExpWS(CommonTokenStream tokenStream,
+                                                           BallerinaParser.TypeCastingExpressionContext ctx) {
+        return null;
+    }
+
+    public static WhiteSpaceDescriptor getUnaryExpWS(CommonTokenStream tokenStream,
+                                                     BallerinaParser.UnaryExpressionContext ctx) {
+        return null;
+    }
+
+    public static WhiteSpaceDescriptor getFieldDefWS(CommonTokenStream tokenStream,
+                                                     BallerinaParser.FieldDefinitionContext ctx) {
+        return null;
+    }
+
+    public static WhiteSpaceDescriptor getBinaryExprWS(CommonTokenStream tokenStream, ParserRuleContext ctx) {
+        return null;
     }
 }

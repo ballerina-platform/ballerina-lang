@@ -46,8 +46,7 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
                                   String pkgName,
                                   String pkgPath,
                                   Expression[] exprs) {
-        super(location);
-        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        super(location, whiteSpaceDescriptor);
         this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;
