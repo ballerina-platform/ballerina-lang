@@ -108,7 +108,7 @@ public abstract class AbstractRecordTable implements Table {
 
         Iterator<Object[]> records = find(findConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
         ComplexEventChunk<StreamEvent> streamEventComplexEventChunk = new ComplexEventChunk<>(true);
-        if (records != null && records.hasNext()) {
+        if (records != null) {
             while (records.hasNext()) {
                 Object[] record = records.next();
                 StreamEvent streamEvent = storeEventPool.borrowEvent();
