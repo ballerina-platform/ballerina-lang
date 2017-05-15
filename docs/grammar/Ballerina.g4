@@ -319,7 +319,7 @@ triggerWorker
     :   Identifier '->' Identifier ';'
     ;
 
-// below left Identifier is of type 'p' and the right Identifier is of type 'message'
+// below left Identifier is of type 'worker' and the right Identifier is of type 'message'
 workerReply
     :   Identifier '<-' Identifier ';'
     ;
