@@ -497,9 +497,9 @@ public class NativeCastMapper {
             return rVal;
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
-            rVal.getType(), targetType);
+                rVal.getType().getSymbolName(), targetType.getSymbolName());
     };
-    
+
     /**
      * Check whether a given source type can be assigned to a destination type.
      * 

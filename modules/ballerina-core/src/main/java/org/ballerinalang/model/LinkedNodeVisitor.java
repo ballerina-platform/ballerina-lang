@@ -47,6 +47,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitActionStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
@@ -185,6 +186,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(VariableDefStmtEndNode variableDefStmtEndNode);
 
     /* Node Fragments - Expressions */
+
+    void visit(ConnectorInitActionStartNode connectorInitActionStartNode);
 
     void visit(ActionInvocationExprStartNode actionInvocationExprStartNode);
 
