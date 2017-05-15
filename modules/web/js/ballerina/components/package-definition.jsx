@@ -25,33 +25,33 @@ import {getCanvasOverlay} from '../configs/app-context';
 import ImportDeclaration from './import-declaration';
 import ImportDeclarationExpanded from './import-declaration-expanded';
 import BallerinaASTFactory from '../ast/ballerina-ast-factory';
+import ImageUtil from './image-util';
+import EditableText from './editable-text';
 
 class PackageDefinition extends React.Component {
 
     constructor(props) {
         super(props);
-        this.handlePackageNameInput = this.handlePackageNameInput.bind(this);
+        this.state = {
+            packageDefExpanded: false,
+            packageDefValue: this.props.model.getPackageName(),
+            packageNameEditing: false
+        }
         this.handleImportsHeaderClick = this.handleImportsHeaderClick.bind(this);
-        this.handleImportsMouseEnter = this.handleImportsMouseEnter.bind(this);
-        this.handleImportsMouseLeave = this.handleImportsMouseLeave.bind(this);
         this.handleAddImport = this.handleAddImport.bind(this);
-    }
-
-    handlePackageNameInput(input) {
-        this.props.model.setPackageName(input);
+        this.handleDeleteImport = this.handleDeleteImport.bind(this);
+        this.handlePackageIconClick = this.handlePackageIconClick.bind(this);
     }
 
     handleImportsHeaderClick() {
         this.props.model.setAttribute('viewState.expanded', !this.props.model.viewState.expanded);
     }
 
-    handleImportsMouseEnter(e) {
-        this.props.model.setAttribute('viewState.addingImport', true);
-    }
-
-    handleImportsMouseLeave(e) {
-        console.log('ml');
-        this.props.model.setAttribute('viewState.addingImport', false);
+    handlePackageIconClick() {
+        this.setState({packageDefExpanded: true});
+        if(!this.state.packageDefValue){
+            this.setState({packageNameEditing: true});
+        }
     }
 
     handleAddImport(value) {
@@ -61,53 +61,54 @@ class PackageDefinition extends React.Component {
         this.props.model.parent.addImport(newImportDeclaration);
     }
 
-    handlePackageNameClick(e) {
-        const model = this.props.model;
-        const bBox = model.viewState.bBox;
-        const headerPadding = packageDefinition.header.padding;
-        const headerHeight = packageDefinition.header.height;
-        const packageDefTextWidth = packageDefinition.textWidth;
-        const packageDefLabelWidth = packageDefinition.labelWidth;
-        const textBoxPadding = 3;
-        const textBoxHeight = 25;
+    handleDeleteImport(value) {
+        this.props.model.parent.deleteImport(value);
+    }
 
-        const textBoxBBox = {
-            x: bBox.x + headerPadding.left + packageDefLabelWidth - textBoxPadding - 2,
-            y: bBox.y + headerHeight/2 - textBoxHeight/2,
-            h: textBoxHeight,
-            w: packageDefTextWidth
-        };
+    onPackageClick() {
+        this.setState({packageNameEditing: true});
+    }
 
-        const options = {
-            bBox: textBoxBBox,
-            onChange: this.handlePackageNameInput,
-            initialValue: model.getPackageName(),
-            styles: {
-                paddingLeft: textBoxPadding
-            }
+    onPackageInputBlur() {
+        if(!this.state.packageDefValue || this.state.packageDefValue.trim().length === 0){
+            this.setState({
+                packageDefExpanded: false,
+                packageNameEditing: false
+            })
+            // TODO: unset package name
+            return;
         }
+        this.props.model.setPackageName(this.state.packageDefValue);
+        this.setState({packageNameEditing: false});
+    }
 
-        this.context.renderer.renderTextBox(options);
+    onPackageInputChange(e) {
+        this.setState({packageDefValue: e.target.value});
     }
 
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const packageName = model._packageName || 'Undefined';
+        const packageName = model.getPackageName();
         const headerHeight = packageDefinition.header.height;
         const headerPadding = packageDefinition.header.padding;
         const expanded = this.props.model.viewState.expanded;
-        const packageDefTextWidth = packageDefinition.textWidth;
-        const packageDefLabelWidth = packageDefinition.labelWidth;
+        const packageDefTextWidth = 275;
+        const iconSize = 20;
 
         const importsBbox = {
-            x: bBox.x + headerPadding.left + packageDefTextWidth + packageDefLabelWidth + 15,
+            x: bBox.x + headerHeight + 15,
             y: bBox.y
         }
 
         const expandedImportsBbox = {
-            x: bBox.x + headerPadding.left,
+            x: bBox.x,
             y: bBox.y + headerHeight
+        }
+
+        const packageDefExpanded = this.state.packageDefExpanded || !!this.state.packageDefValue
+        if(packageDefExpanded) {
+            importsBbox.x += packageDefTextWidth
         }
 
         const astRoot = this.props.model.parent;
@@ -115,35 +116,31 @@ class PackageDefinition extends React.Component {
 
         return (
             <g>
-                <rect x={ bBox.x } y={ bBox.y } width={310} height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
-                <text
-                    x={ bBox.x + headerPadding.left }
-                    y={ bBox.y + headerHeight/2 }
-                    className="package-definition-label"
-                >
-                    {'package'}
-                </text>
-                <text
-                    x={ bBox.x + headerPadding.left + packageDefLabelWidth}
-                    y={ bBox.y + headerHeight/2 }
-                    className={ "package-definition-text  pkg-name-" + packageName }
-                    onClick={e => {this.handlePackageNameClick(e)}}
-                >
-                    {packageName}
-                </text>
-                { expanded ? <ImportDeclarationExpanded
-                                bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}
-                                onMouseEnter={this.handleImportsMouseEnter} onMouseLeave={this.handleImportsMouseLeave}
-                                showSuggestions={this.props.model.viewState.addingImport}
-                                onAddImport={this.handleAddImport} /> :
-                             <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick} /> }
+                <rect x={ bBox.x } y={ bBox.y } width={headerHeight} height={headerHeight} onClick={this.handlePackageIconClick}
+                      rx={headerHeight/2} ry={headerHeight/2} className="package-definition-header"/>
+                {
+                    packageDefExpanded && (
+                        <g>
+                            <rect x={ bBox.x } y={ bBox.y } width={packageDefTextWidth + headerHeight} height={headerHeight} onClick={() => {this.onPackageClick()}}
+                              className="package-definition-header"/>
+                          <EditableText x={bBox.x + headerHeight} y={bBox.y + headerHeight / 2 } width={packageDefTextWidth - 5}
+                                     onBlur={() => {this.onPackageInputBlur()}} onClick={() => {this.onPackageClick()}}
+                                     editing={this.state.packageNameEditing} onChange={e => {this.onPackageInputChange(e)}}>
+                                     {this.state.packageDefValue || ""}
+                            </EditableText>
+                        </g>
+                    )
+               }
+               <image width={ iconSize } height={ iconSize } xlinkHref={ ImageUtil.getSVGIconString('package') }
+                      onClick={this.handlePackageIconClick} x={bBox.x + (headerHeight-iconSize)/2 }
+                      y={bBox.y + (headerHeight-iconSize)/2}/>
+               { expanded ? <ImportDeclarationExpanded
+                            bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}
+                            onAddImport={this.handleAddImport} onDeleteImport={this.handleDeleteImport}/> :
+                         <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick} /> }
             </g>
         );
     }
 }
-
-PackageDefinition.contextTypes = {
-    renderer: PropTypes.instanceOf(Renderer).isRequired,
-};
 
 export default PackageDefinition;

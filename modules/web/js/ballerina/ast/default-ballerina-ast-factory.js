@@ -188,21 +188,6 @@ DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
     return variableDefinitionStatement;
 };
 
-
-DefaultBallerinaASTFactory.createAggregatedTransformStatement = function (args) {
-    var transformStatement = BallerinaASTFactory.createTransformStatement(args);
-    var leftOperand = BallerinaASTFactory.createLeftOperandExpression(args);
-    leftOperand.setLeftOperandExpressionString('a');
-    var rightOperand = BallerinaASTFactory.createRightOperandExpression(args);
-    rightOperand.setRightOperandExpressionString('b');
-    var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-    assignmentStmt.addChild(leftOperand);
-    assignmentStmt.addChild(rightOperand);
-    transformStatement.addChild(assignmentStmt);
-    return transformStatement;
-};
-
-
 /**
  * creates typeMapperDefinition with default statement
  * @param {Object} args - object for typeMapperDefinition creation

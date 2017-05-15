@@ -25,7 +25,25 @@ import Statement from './statement';
 class TransformStatement extends Statement {
     constructor(args) {
         super(args);
+        this.input =  _.get(args, 'input', []);
+        this.output =  _.get(args, 'output', []);
         this.type = 'TransformStatement';
+    }
+
+    setInput(input) {
+        this.input = input;
+    }
+
+    setOutput(output) {
+        this.output = output;
+    }
+
+    getInput() {
+        return this.input;
+    }
+
+    getOutput() {
+        return this.output;
     }
 
     /**
@@ -33,11 +51,21 @@ class TransformStatement extends Statement {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        var self = this;
+        _.each(jsonNode.transform_input, childNode => {
+            var inputVar = this.getFactory().createFromJson(childNode);
+            inputVar.initFromJson(childNode);
+            this.input.push(inputVar);
+        });
 
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
+        _.each(jsonNode.transform_output, childNode => {
+            var outputVar = this.getFactory().createFromJson(childNode);
+            outputVar.initFromJson(childNode);
+            this.output.push(outputVar);
+        });
+
+        _.each(jsonNode.children, childNode => {
+            var child = this.getFactory().createFromJson(childNode);
+            this.addChild(child);
             child.initFromJson(childNode);
         });
     }

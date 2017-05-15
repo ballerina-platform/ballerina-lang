@@ -135,7 +135,7 @@ class SizingUtil {
         // we will calculate the width of the expression and adjest the block statement
         if(expression != undefined){
             // see how much space we have to draw the condition
-            let available = statementContainerWidth - blockStatement.heading.width - 10;            
+            let available = statementContainerWidth - blockStatement.heading.width - 10;
             components['expression'] = this.getTextWidth(expression,0,available);
         }
 
@@ -325,6 +325,8 @@ class SizingUtil {
         } else if (totalResourceHeight > 0) {
             bodyHeight = totalResourceHeight + DesignerDefaults.panel.body.padding.top +
                 DesignerDefaults.panel.body.padding.bottom + DesignerDefaults.panel.wrapper.gutter.v * (resources.length - 1);
+        } else if(ASTFactory.isStructDefinition(node)){
+            bodyHeight = DesignerDefaults.structDefinition.body.height;
         } else {
             // There are no connectors as well as resources, since we set the default height
             bodyHeight = DesignerDefaults.innerPanel.body.height;
@@ -523,13 +525,16 @@ class SizingUtil {
      * @returns {undefined|ASTNode}
      */
     getWorkerReplyStatementTo(parentNode, workerName) {
-        const childNodes = _.filter(parentNode.getChildren(), function (child) {
-            if (BallerinaASTFactory.isWorkerReplyStatement(child)) {
-                return child.getWorkerName() === workerName;
-            } else {
-                return false;
-            }
-        });
+        let childNodes;
+        if (!_.isNil(parentNode)) {
+            childNodes = _.filter(parentNode.getChildren(), function (child) {
+                if (BallerinaASTFactory.isWorkerReplyStatement(child)) {
+                    return child.getWorkerName() === workerName;
+                } else {
+                    return false;
+                }
+            });
+        }
 
         if (_.isNil(childNodes)) {
             return undefined;
