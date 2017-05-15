@@ -153,12 +153,7 @@ public class ExecutionPlanRuntimeBuilder {
         if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
             InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) outputCallback;
             StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
-
-            AbstractDefinition currentDefinition = streamDefinitionMap.putIfAbsent(streamDefinition.getId(),
-                                                                                   streamDefinition);
-            if (currentDefinition != null) {
-                streamDefinition = (StreamDefinition) currentDefinition;
-            }
+            streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
             DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition
                     .getId()));
             StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
@@ -174,12 +169,7 @@ public class ExecutionPlanRuntimeBuilder {
         } else if (outputCallback != null && outputCallback instanceof InsertIntoWindowCallback) {
             InsertIntoWindowCallback insertIntoWindowCallback = (InsertIntoWindowCallback) outputCallback;
             StreamDefinition streamDefinition = insertIntoWindowCallback.getOutputStreamDefinition();
-
-            AbstractDefinition currentDefinition = windowDefinitionMap.putIfAbsent(streamDefinition.getId(),
-                                                                                   streamDefinition);
-            if (currentDefinition != null) {
-                streamDefinition = (StreamDefinition) currentDefinition;
-            }
+            windowDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
             DefinitionParserHelper.validateOutputStream(streamDefinition, windowDefinitionMap.get(streamDefinition
                     .getId()));
             StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
