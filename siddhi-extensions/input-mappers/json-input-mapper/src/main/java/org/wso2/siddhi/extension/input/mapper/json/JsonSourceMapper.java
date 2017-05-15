@@ -116,14 +116,14 @@ import java.util.List;
         }
 )
 
-public class JsonInputMapper extends SourceMapper {
+public class JsonSourceMapper extends SourceMapper {
 
     private static final String DEFAULT_JSON_MAPPING_PREFIX = "$.";
     private static final String DEFAULT_JSON_EVENT_IDENTIFIER = "event";
     private static final String DEFAULT_ENCLOSING_ELEMENT = "$";
     private static final String FAIL_ON_MISSING_ATTRIBUTE_IDENTIFIER = "fail.on.missing.attribute";
     private static final String ENCLOSING_ELEMENT_IDENTIFIER = "enclosing.element";
-    private static final Logger log = Logger.getLogger(JsonInputMapper.class);
+    private static final Logger log = Logger.getLogger(JsonSourceMapper.class);
 
     private StreamDefinition streamDefinition;
     private MappingPositionData[] mappingPositions;
@@ -192,7 +192,7 @@ public class JsonInputMapper extends SourceMapper {
     private Object convertToEvent(Object eventObject) {
         // Validate the event
         if (eventObject == null) {
-            throw new ExecutionPlanRuntimeException("Null object received from the InputTransport to JsonInputMapper");
+            throw new ExecutionPlanRuntimeException("Null object received from the InputTransport to JsonSourceMapper");
         }
 
         if (!(eventObject instanceof String)) {
@@ -208,7 +208,6 @@ public class JsonInputMapper extends SourceMapper {
 
         Object jsonObj;
         ReadContext readContext = JsonPath.parse(eventObject.toString());
-        int index;
         if (isCustomMappingEnabled) {
             jsonObj = readContext.read(enclosingElement);
             if (jsonObj == null) {
@@ -233,10 +232,6 @@ public class JsonInputMapper extends SourceMapper {
             } else {
                 try {
                     Event event = processCustomEvent(JsonPath.parse(jsonObj));
-                    /*if (failOnMissingAttribute && checkForUnknownAttributes(event)) {
-                        log.error("Event " + event.toString() + " contains missing attributes");
-                        return null;
-                    }*/
                     return event;
                 } catch (ExecutionPlanRuntimeException e) {
                     log.error(e.getMessage());
@@ -254,10 +249,6 @@ public class JsonInputMapper extends SourceMapper {
                         log.error("Event" + eventObject + " contains incompatible attribute types and values.");
                         return null;
                     }
-                    /*if (failOnMissingAttribute && checkForUnknownAttributes(event)) {
-                        log.error("Event " + event.toString() + " contains missing attributes");
-                        return null;
-                    }*/
                     return event;
                 } catch (IOException e) {
                     log.error("Invalid JSON string :" + eventObject.toString() + ". Cannot be converted to an event.");
@@ -274,8 +265,6 @@ public class JsonInputMapper extends SourceMapper {
         Event event = new Event(attributesSize);
         Object[] data = event.getData();
         com.fasterxml.jackson.core.JsonParser parser;
-        //String[] tmpAttributeNameArray = streamDefinition.getAttributeNameArray();
-        //List<String> tmpNameList = Arrays.asList(attributesNameArray);
         int numberOfProvidedAttributes = 0;
         try {
             parser = factory.createParser(eventObject.toString());

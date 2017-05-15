@@ -101,9 +101,8 @@ import java.util.Map;
         }
 )
 
-// TODO : enable checkstyle, reformat
-public class JSONOutputMapper extends SinkMapper {
-    private static final Logger log = Logger.getLogger(JSONOutputMapper.class);
+public class JsonSinkMapper extends SinkMapper {
+    private static final Logger log = Logger.getLogger(JsonSinkMapper.class);
     private static final String EVENT_PARENT_TAG = "event";
     private static final String ENCLOSING_ELEMENT_IDENTIFIER = "enclosing.element";
     private static final String DEFAULT_ENCLOSING_ELEMENT = "$";

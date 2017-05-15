@@ -94,4 +94,8 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <mavan.findbugsplugin.exclude.file>../../../../findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+    </properties>
 </project>
