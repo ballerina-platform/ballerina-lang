@@ -175,7 +175,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
             iconSrc: require("./../../../images/tool-icons/type-converter.svg"),
             cssClass: "icon fw fw-type-converter",
             title: "Transform",
-            nodeFactoryMethod: DefaultBallerinaASTFactory.createTransformStatement
+            nodeFactoryMethod: BallerinaASTFactory.createTransformStatement
         };
 
         // TODO: change the icon with the new one

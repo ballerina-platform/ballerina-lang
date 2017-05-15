@@ -174,6 +174,15 @@ import alerts from 'alerts';
             }
         },
 
+        /**
+         * Re-render current ballerina file.
+         */
+        reRender: function(){
+            if(this._fileEditor){
+                this._fileEditor.reRender();
+            }
+        },
+
         createEmptyBallerinaRoot: function() {
 
             var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;

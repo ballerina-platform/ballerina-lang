@@ -126,7 +126,7 @@ function getCompoundStatementChildPosition(node) {
         x = headerX;
         y = headerY;
         bodyX = headerX;
-        bodyY = headerY + headerBBox.h + annotation.h;;
+        bodyY = headerY + headerBBox.h + annotation.h;
 
         statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
         statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +

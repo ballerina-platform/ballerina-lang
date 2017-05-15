@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import log from 'log';
 import * as PositioningUtils from './utils';
+import {util} from './../sizing-utils';
 
 class WorkerInvocationStatementPositionCalcVisitor {
 
@@ -26,6 +26,7 @@ class WorkerInvocationStatementPositionCalcVisitor {
     }
 
     beginVisit(node) {
+        util.syncWorkerInvocationDimension(node);
         PositioningUtils.getSimpleStatementPosition(node);
     }
 

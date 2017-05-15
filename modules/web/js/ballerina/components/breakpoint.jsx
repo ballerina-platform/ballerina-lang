@@ -52,6 +52,7 @@ class Breakpoint extends React.Component {
       return (
           <image
               xlinkHref={icon}
+              className="property-pane-action-button-breakpoint"
               onMouseOver={ () => { this.showRemoveBreakpointIcon(true) }}
               onMouseOut={ () => { this.showRemoveBreakpointIcon(false) } }
               height={this.props.size}

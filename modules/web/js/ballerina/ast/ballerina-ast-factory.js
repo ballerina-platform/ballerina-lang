@@ -19,7 +19,6 @@
 /**
  * A module representing the factory for Ballerina AST
  */
-import _ from 'lodash';
 import ballerinaAstRoot from './ballerina-ast-root';
 import serviceDefinition from './service-definition';
 import functionDefinition from './function-definition';
@@ -86,6 +85,9 @@ import throwStatement from './statements/throw-statement';
 import commentStatement from './statements/comment-statement';
 import annotationDefinition from './annotation-definition';
 import annotationAttributeDefinition from './annotation-attribute-definition';
+import parameterDefinition from './parameter-definition';
+import argumentParameterDefinitionHolder from './argument-parameter-definition-holder';
+import returnParameterDefinitionHolder from './return-parameter-definition-holder';
 import annotation from './annotations/annotation';
 import annotationEntry from './annotations/annotation-entry';
 import annotationEntryArray from './annotations/annotation-entry-array';
@@ -656,6 +658,22 @@ BallerinaASTFactory.createAnnotation = function (args) {
 };
 
 /**
+* creates ParameterDefinition
+* @param {Object} args - Arguments for creating a new parameter definition.
+* @returns {ParameterDefinition}
+*/
+BallerinaASTFactory.createParameterDefinition = function (args) {
+    return new parameterDefinition(args);
+};
+
+BallerinaASTFactory.createArgumentParameterDefinitionHolder = function (args) {
+    return new argumentParameterDefinitionHolder();
+};
+
+BallerinaASTFactory.createReturnParameterDefinitionHolder = function (args) {
+    return new returnParameterDefinitionHolder();
+};
+/**
  * creates {@link AnnotationEntry}
  * @param {object} args Arguments to create the annotation entry node.
  * @param {string} [args.leftValue='value'] The value of the key.
@@ -1163,7 +1181,6 @@ BallerinaASTFactory.isArrayMapAccessExpression = function (child) {
     return child instanceof arrayMapAccessExpression;
 };
 
-
 /**
  * instanceof check for functionInvocationExpression
  * @param {ASTNode} child - The ast node.
@@ -1270,6 +1287,33 @@ BallerinaASTFactory.isAnnotationEntry = function (child) {
  */
 BallerinaASTFactory.isAnnotationEntryArray = function (child) {
     return child instanceof annotationEntryArray;
+};
+
+/**
+ * instanceof check for ParameterDefinition
+ * @param {ASTNode} child - The ast node
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isParameterDefinition = function (child) {
+    return child instanceof parameterDefinition;
+};
+
+/**
+ * instanceof check for ArgumentParameterDefinitionHolder
+ * @param {ASTNode} child - The ast node
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isArgumentParameterDefinitionHolder = function (child) {
+    return child instanceof argumentParameterDefinitionHolder;
+};
+
+/**
+ * instanceof check for ReturnParameterDefinitionHolder
+ * @param {ASTNode} child - The ast node
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isReturnParameterDefinitionHolder = function (child) {
+    return child instanceof returnParameterDefinitionHolder;
 };
 
 BallerinaASTFactory.createFromJson = function (jsonNode) {
@@ -1430,7 +1474,7 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         case 'connector':
             node = BallerinaASTFactory.createConnectorDefinition();
             break;
-        case 'action':
+        case 'action_definition':
             node = BallerinaASTFactory.createConnectorAction();
             break;
         case 'constant_definition':
@@ -1490,6 +1534,14 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         case 'annotation_attribute_definition':
             node = BallerinaASTFactory.createAnnotationAttributeDefinition();
             break;
+        case 'parameter_definition':
+            node = BallerinaASTFactory.createParameterDefinition();
+            break;
+        case 'argument_parameter_definitions':
+            node = BallerinaASTFactory.createArgumentParameterDefinitionHolder();
+            break;
+        case 'return_parameter_definitions':
+            node = BallerinaASTFactory.createReturnParameterDefinitionHolder();
         case 'transform_statement':
             node = BallerinaASTFactory.createTransformStatement();
             break;
@@ -1502,3 +1554,5 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
 };
 
 export default BallerinaASTFactory;
+
+

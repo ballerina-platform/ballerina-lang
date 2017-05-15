@@ -18,6 +18,7 @@
 
 import log from 'log';
 import * as PositioningUtils from './utils';
+import {util} from './../sizing-utils';
 
 class WorkerReplyStatementPositionCalcVisitor {
 
@@ -28,6 +29,7 @@ class WorkerReplyStatementPositionCalcVisitor {
 
     beginVisit(node) {
         log.debug('visit WorkerReplyStatementPositionCalcVisitor');
+        util.syncWorkerReplyDimension(node);
         PositioningUtils.getSimpleStatementPosition(node);
     }
 

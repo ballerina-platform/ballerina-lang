@@ -50,9 +50,14 @@ class ASTNode extends EventChannel {
         this._generateUniqueIdentifiers = undefined;
         this._whitespaceTokens = [];
 
+        /**
+         * View State Object to keep track of the model's view properties
+         * @type {{bBox: SimpleBBox, components: {}, dimensionsSynced: boolean}}
+         */
         this.viewState = {
             bBox: new SimpleBBox(),
-            components: {}
+            components: {},
+            dimensionsSynced: false
         }
     }
 
@@ -268,6 +273,17 @@ class ASTNode extends EventChannel {
     }
 
     /**
+     * Remove matching child from the predicate function
+     * @param predicateFunction a function returning a boolean to match remove condition from children
+     * @param name of child to remove
+     */
+    removeChildByName(predicateFunction, name) {
+        _.remove(this.getChildren(), function (child) {
+            return predicateFunction && (child.getName() === name);
+        });
+    }
+
+    /**
      * Find last index of matching children from the predicate function
      * @param predicateFunction a function returning a boolean to match find condition from children
      */
@@ -436,6 +452,14 @@ class ASTNode extends EventChannel {
         this.isBreakpoint = false;
     }
 
+    addDebugHit() {
+        this.setAttribute('isDebugHit', true);
+    }
+
+    removeDebugHit() {
+        this.setAttribute('isDebugHit', false);
+    }
+
     setLineNumber(lineNumber, options) {
         this.setAttribute('_lineNumber', parseInt(lineNumber), options);
     }
@@ -536,6 +560,22 @@ class ASTNode extends EventChannel {
             returnNode = returnNode.getChildren()[index];
         });
         return returnNode;
+    }
+
+    /**
+     * This returns the top level parent (should be Resource, action definition, function definition or worker declaration
+     * @returns {ASTNode} Parent Node
+     */
+    getTopLevelParent() {
+        const parent = this.getParent();
+        if (BallerinaAstFactory.isResourceDefinition(parent) || BallerinaAstFactory.isResourceDefinition(parent) ||
+            BallerinaAstFactory.isConnectorAction(parent) || BallerinaAstFactory.isFunctionDefinition(parent) ||
+            BallerinaAstFactory.isWorkerDeclaration(parent)) {
+
+            return parent;
+        } else {
+            return parent.getTopLevelParent();
+        }
     }
 }
 

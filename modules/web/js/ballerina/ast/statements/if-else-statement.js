@@ -37,7 +37,6 @@ class IfElseStatement extends Statement {
 
         var elseStatement = new ElseStatement(args);
         this._elseStatement = elseStatement;
-        this.addChild(elseStatement);
 
         this._elseIfStatements = [];
         this.type = "IfElseStatement";
@@ -86,6 +85,7 @@ class IfElseStatement extends Statement {
      * @param {Object} jsonNode to initialize from
      * @param {Object} [jsonNode.if_statement] - If statement block
      * @param {Object} [jsonNode.else_statement] - Else statement block
+     * @param {Object} [jsonNode.else_if_blocks] - Else If statement blocks
      */
     initFromJson(jsonNode) {
 
@@ -113,6 +113,27 @@ class IfElseStatement extends Statement {
             }
         });
 
+        _.each(jsonNode.else_if_blocks, function (elseIfNode) {
+            let elseIfStatement = new ElseIfStatement('testCondition');
+
+            _.each(elseIfNode.children, function (childNode) {
+                var child = undefined;
+                var childNodeTemp = undefined;
+                //TODO : generalize this logic
+                if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                    child = self.getFactory().createConnectorDeclaration();
+                    childNodeTemp = childNode;
+                } else {
+                    child = self.getFactory().createFromJson(childNode);
+                    childNodeTemp = childNode;
+                }
+                elseIfStatement.addChild(child);
+                child.initFromJson(childNodeTemp);
+            });
+            self._elseIfStatements.push(elseIfStatement);
+            self.addChild(elseIfStatement);
+        });
+
         _.each(jsonNode.else_statement, function (childNode) {
             var child = undefined;
             var childNodeTemp = undefined;
@@ -127,6 +148,10 @@ class IfElseStatement extends Statement {
             self._elseStatement.addChild(child);
             child.initFromJson(childNodeTemp);
         });
+
+        if (jsonNode.else_statement) {
+            this.addChild(this._elseStatement);
+        }
     }
 }
 
