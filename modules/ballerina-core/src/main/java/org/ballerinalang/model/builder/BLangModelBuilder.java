@@ -748,7 +748,8 @@ public class BLangModelBuilder {
         exprStack.push(typeCastExpression);
     }
 
-    public void createArrayInitExpr(NodeLocation location, boolean argsAvailable) {
+    public void createArrayInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                    boolean argsAvailable) {
         List<Expression> argExprList;
         if (argsAvailable) {
             argExprList = exprListStack.pop();
@@ -756,7 +757,7 @@ public class BLangModelBuilder {
             argExprList = new ArrayList<>(0);
         }
 
-        ArrayInitExpr arrayInitExpr = new ArrayInitExpr(location,
+        ArrayInitExpr arrayInitExpr = new ArrayInitExpr(location, whiteSpaceDescriptor,
                 argExprList.toArray(new Expression[argExprList.size()]));
         exprStack.push(arrayInitExpr);
     }

@@ -712,7 +712,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        
+
         String key = ctx.Identifier().getText();
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
@@ -723,7 +723,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterAnnotationAttributeValue(AnnotationAttributeValueContext ctx) {
-        
+
     }
 
     @Override
@@ -834,7 +834,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         boolean argsAvailable = ctx.expressionList() != null;
-        modelBuilder.createArrayInitExpr(getCurrentLocation(ctx), argsAvailable);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getArrayLiteralExpWS(tokenStream, ctx);
+        }
+        modelBuilder.createArrayInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, argsAvailable);
     }
 
     @Override

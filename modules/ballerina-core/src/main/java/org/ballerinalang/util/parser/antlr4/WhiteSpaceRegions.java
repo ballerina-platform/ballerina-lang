@@ -263,4 +263,10 @@ public class WhiteSpaceRegions {
     // whitespace regions in a simple literal
     public static final int SIMPLE_LITERAL_PRECEDING_WHITESPACE = 0;
     public static final int SIMPLE_LITERAL_TAILING_WHITESPACE = 1;
+
+    // whitespace regions in an array init expression
+    public static final int ARRAY_INIT_EXP_PRECEDING_WHITESPACE = 0;
+    public static final int ARRAY_INIT_EXP_OPENING_SQUARE_BRACE_TO_EXP_LIST_START = 1;
+    public static final int ARRAY_INIT_EXP_EXP_LIST_END_TO_CLOSING_SQUARE_BRACE = 2;
+    public static final int ARRAY_INIT_EXP_TAILING_WHITESPACE = 3;
 }
