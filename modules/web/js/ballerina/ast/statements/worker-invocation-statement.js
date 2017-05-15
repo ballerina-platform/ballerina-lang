@@ -70,7 +70,8 @@ class WorkerInvocationStatement extends Statement {
     }
 
     setInvocationStatement(invocationStatement) {
-        this._invokeStatement = invocationStatement;
+        this._workerName = (invocationStatement.split('->')[1]).trim();
+        this.setAttribute('_invokeStatement', invocationStatement);
     }
 
     getInvocationStatement() {

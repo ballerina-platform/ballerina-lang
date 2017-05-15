@@ -49,16 +49,25 @@ class WorkerReplyStatement extends Statement {
         return this._destination;
     }
 
+    /**
+     * Set destination worker Name
+     * @param {string} workerName
+     */
     setWorkerName(workerName) {
         this._workerName = workerName;
     }
 
+    /**
+     * Get destination worker name
+     * @returns {string} _workerName - destination worker name
+     */
     getWorkerName() {
         return this._workerName;
     }
 
     setReplyStatement(replyStatement) {
-        this._replyStatement = replyStatement;
+        this._workerName = (replyStatement.split('<-')[1]).trim();
+        this.setAttribute('_replyStatement', replyStatement);
     }
 
     getReplyStatement() {
