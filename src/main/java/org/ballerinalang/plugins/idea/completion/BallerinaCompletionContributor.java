@@ -1142,7 +1142,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 PsiDirectory[] psiDirectories =
                         BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack).getNameIdentifier());
                 if (psiDirectories.length == 1) {
-                    // Get all functions in the package.
                     if (withFunctions) {
                         List<PsiElement> functions =
                                 BallerinaPsiImplUtil.getAllFunctionsFromPackage(psiDirectories[0]);
@@ -1164,9 +1163,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         addConstantsAsLookups(resultSet, constants);
                     }
 
-                    List<PsiElement> constants =
+                    List<PsiElement> globalVariables =
                             BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(psiDirectories[0]);
-                    addConstantsAsLookups(resultSet, constants);
+                    addGlobalVariablesAsLookups(resultSet, globalVariables);
                 }
                 // Else situation cannot/should not happen since all the imported packages are unique.
                 // This should be highlighted using an annotator.

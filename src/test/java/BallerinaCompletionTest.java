@@ -293,6 +293,43 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     }
 
     /**
+     * Test global variables.
+     */
+    public void testGlobalVariableIdentifier() {
+        doTest("string <caret>");
+    }
+
+    public void testGlobalVariableInSamePackageSameFile() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("any");
+        expectedLookups.add("S");
+        expectedLookups.add("F");
+        doTest("string S=\"\"; function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testGlobalVariableInSamePackageDifferentFile() {
+        myFixture.addFileToProject("file.bal", "string S=\"\";");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("any");
+        expectedLookups.add("S");
+        expectedLookups.add("F");
+        doTest("function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testGlobalVariableInDifferentPackage() {
+        myFixture.addFileToProject("org/test/file.bal", "string S=\"\";");
+        doTest("import org.test; function F(){ test:<caret> }", "S");
+    }
+
+    /**
      * Test function level lookups.
      */
     public void testFunctionIdentifier() {
