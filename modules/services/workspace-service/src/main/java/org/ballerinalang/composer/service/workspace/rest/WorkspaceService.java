@@ -16,6 +16,7 @@
 
 package org.ballerinalang.composer.service.workspace.rest;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import org.ballerinalang.composer.service.workspace.Workspace;
@@ -33,6 +34,7 @@ import java.nio.file.NotDirectoryException;
 import java.nio.file.Paths;
 import java.nio.file.ReadOnlyFileSystemException;
 import java.util.Base64;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.ws.rs.FormParam;
@@ -58,6 +60,8 @@ public class WorkspaceService {
     private static final String SUCCESS = "success";
     private static final String CONTENT = "content";
 
+    private List<java.nio.file.Path> rootPaths;
+
     @Inject
     private Workspace workspace;
 
@@ -66,8 +70,10 @@ public class WorkspaceService {
     @Produces("application/json")
     public Response root() {
         try {
+            JsonArray roots = (rootPaths == null || rootPaths.isEmpty()) ? workspace.listRoots() :
+                    workspace.getRoots(rootPaths);
             return Response.status(Response.Status.OK)
-                    .entity(workspace.listRoots())
+                    .entity(roots)
                     .header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON)
                     .build();
@@ -263,5 +269,13 @@ public class WorkspaceService {
                 .header("Access-Control-Allow-Origin", '*')
                 .type(MediaType.APPLICATION_JSON)
                 .build();
+    }
+
+    public List<java.nio.file.Path> getRootPaths() {
+        return rootPaths;
+    }
+
+    public void setRootPaths(List<java.nio.file.Path> rootPaths) {
+        this.rootPaths = rootPaths;
     }
 }
