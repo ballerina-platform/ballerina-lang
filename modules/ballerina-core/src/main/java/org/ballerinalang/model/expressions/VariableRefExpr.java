@@ -37,11 +37,13 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
     private String pkgPath;
     private SymbolName symbolName;
     private VariableDef variableDef;
+    private boolean isFromArray;
 
     public VariableRefExpr(NodeLocation location, String varName) {
         super(location);
         this.varName = varName;
         this.symbolName = new SymbolName(varName);
+        this.isFromArray = false;
     }
 
     public VariableRefExpr(NodeLocation location, SymbolName symbolName) {
@@ -105,4 +107,11 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
         return executor.visit(this);
     }
 
+    public boolean isFromArray() {
+        return isFromArray;
+    }
+
+    public void setIsFromArray(boolean isFromArray) {
+        this.isFromArray = isFromArray;
+    }
 }

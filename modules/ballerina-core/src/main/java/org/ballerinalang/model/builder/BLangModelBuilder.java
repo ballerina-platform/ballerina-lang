@@ -532,6 +532,7 @@ public class BLangModelBuilder {
             if (i == dimensions) {
                 parent = new VariableRefExpr(location, nameReference.name, nameReference.pkgName, 
                         nameReference.pkgPath);
+                ((VariableRefExpr) parent).setIsFromArray(true);
             } else {
                 parent = exprStack.pop();
             }
