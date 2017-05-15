@@ -87,9 +87,9 @@ public class JoinProcessor implements Processor {
                         joinStateEvent.setEvent(matchingStreamIndex, null);
                         if (foundStreamEvent == null) {
                             if (outerJoinProcessor && !leftJoinProcessor) {
-                                returnEventChunk.add(joinEventBuilder(foundStreamEvent, streamEvent, eventType));
+                                returnEventChunk.add(joinEventBuilder(null, streamEvent, eventType));
                             } else if (outerJoinProcessor && leftJoinProcessor) {
-                                returnEventChunk.add(joinEventBuilder(streamEvent, foundStreamEvent, eventType));
+                                returnEventChunk.add(joinEventBuilder(streamEvent, null, eventType));
                             }
                         } else {
                             while (foundStreamEvent != null) {

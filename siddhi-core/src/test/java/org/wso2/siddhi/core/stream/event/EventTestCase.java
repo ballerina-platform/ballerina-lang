@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.EventFactory;
+import org.wso2.siddhi.core.event.SiddhiEventFactory;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -72,8 +72,8 @@ public class EventTestCase {
 
     @Test
     public void testEventCreation() {
-        EventFactory eventFactory = new EventFactory(2);
-        Assert.assertEquals(2, eventFactory.newInstance().getData().length);
+        SiddhiEventFactory siddhiEventFactory = new SiddhiEventFactory(2);
+        Assert.assertEquals(2, siddhiEventFactory.newInstance().getData().length);
 
         StreamEventFactory streamEventFactory = new StreamEventFactory(2, 3, 4);
         StreamEvent streamEvent = streamEventFactory.newInstance();
