@@ -118,7 +118,7 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in an annotation attachment point
     public static final int ANNOTATION_ATTACHMENT_POINT_PRECEDING_WS = 0;
-    public static final int ANNOTATION_ATTACHMENT_POINT_TAILING_WS = 1;
+    public static final int ANNOTATION_ATTACHMENT_POINT_FOLLOWING_WS = 1;
 
     // whitespace regions in a global variable def node
     public static final int GLOBAL_VAR_DEF_TYPE_NAME_TO_IDENTIFIER = 0;
@@ -150,7 +150,7 @@ public class WhiteSpaceRegions {
 
     // whitespace regions of a type name
     public static final int TYPE_NAME_PRECEDING_WHITESPACE = 0;
-    public static final int TYPE_NAME_TAILING_WHITESPACE = 1;
+    public static final int TYPE_NAME_FOLLOWING_WHITESPACE = 1;
 
     // whitespace regions in a name ref
     public static final int NAME_REF_START_TO_LAST_TOKEN = 0;
@@ -239,7 +239,7 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in a comment statement
     public static final int COMMENT_STMT_PRECEDING_WHITESPACE = 0;
-    public static final int COMMENT_STMT_TAILING_WHITESPACE = 1;
+    public static final int COMMENT_STMT_FOLLOWING_WHITESPACE = 1;
 
     // whitespace regions in an action invocation
     public static final int ACTION_INVOCATION_PRECEDING_WHITESPACE = 0;
@@ -262,27 +262,33 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in a simple literal
     public static final int SIMPLE_LITERAL_PRECEDING_WHITESPACE = 0;
-    public static final int SIMPLE_LITERAL_TAILING_WHITESPACE = 1;
+    public static final int SIMPLE_LITERAL_FOLLOWING_WHITESPACE = 1;
 
     // whitespace regions in an array init expression
     public static final int ARRAY_INIT_EXP_PRECEDING_WHITESPACE = 0;
     public static final int ARRAY_INIT_EXP_OPENING_SQUARE_BRACE_TO_EXP_LIST_START = 1;
     public static final int ARRAY_INIT_EXP_EXP_LIST_END_TO_CLOSING_SQUARE_BRACE = 2;
-    public static final int ARRAY_INIT_EXP_TAILING_WHITESPACE = 3;
+    public static final int ARRAY_INIT_EXP_FOLLOWING_WHITESPACE = 3;
 
     // whitespace regions in an map struct key value expr
     public static final int MAP_STRUCT_KEY_VAL_EXP_PRECEDING_WHITESPACE = 0;
     public static final int MAP_STRUCT_KEY_VAL_EXP_KEY_EXP_TO_COLON = 1;
     public static final int MAP_STRUCT_KEY_VAL_EXP_COLON_TO_VAL_EXP = 2;
-    public static final int MAP_STRUCT_KEY_VAL_EXP_TAILING_WHITESPACE = 3;
+    public static final int MAP_STRUCT_KEY_VAL_EXP_FOLLOWING_WHITESPACE = 3;
 
     // whitespace regions in a binary expression
     public static final int BINARY_EXP_PRECEDING_WHITESPACE = 0;
     public static final int BINARY_EXP_LEFT_EXP_TO_OPERATOR = 1;
     public static final int BINARY_EXP_OPERATOR_TO_RIGHT_EXP = 2;
-    public static final int BINARY_EXP_TAILING_WHITESPACE = 3;
+    public static final int BINARY_EXP_FOLLOWING_WHITESPACE = 3;
 
     // whitespace regions in a map struct literal
     public static final int MAP_STRUCT_LITERAL_PRECEDING_WHITESPACE = 0;
-    public static final int MAP_STRUCT_LITERAL_TRAILING_WHITESPACE = 1;
+    public static final int MAP_STRUCT_LITERAL_FOLLOWING_WHITESPACE = 1;
+
+    // whitespace regions in a connector init expr
+    public static final int CONNECTOR_INIT_EXP_PRECEDING_WHITESPACE = 0;
+    public static final int CONNECTOR_INIT_EXP_CREATE_KEYWORD_TO_NAME_REF = 1;
+    public static final int CONNECTOR_INIT_EXP_NAME_REF_TO_EXP_LIST_WRAPPER = 2;
+    public static final int CONNECTOR_INIT_EXP_FOLLOWING_WHITESPACE = 3;
 }
