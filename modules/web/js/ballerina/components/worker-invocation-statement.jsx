@@ -27,6 +27,17 @@ import ArrowDecorator from './arrow-decorator';
 
 class WorkerInvocationStatement extends React.Component {
 
+    constructor(props){
+        super(props);
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'WorkerInvocationStatement',
+            model: props.model,
+            getterMethod: props.model.getInvocationStatement,
+            setterMethod: props.model.setInvocationStatement
+        };
+    }
+
     render() {
         let model = this.props.model,
             expression = model.viewState.expression;
@@ -84,7 +95,8 @@ class WorkerInvocationStatement extends React.Component {
         }
 
         return (<g>
-            <StatementDecorator model={model} viewState={model.viewState} expression={expression} />
+            <StatementDecorator model={model} viewState={model.viewState}
+                                expression={expression} editorOptions={this.editorOptions} />
             <g>
                 <circle cx={statementX}
                         cy={arrowStart.y}
