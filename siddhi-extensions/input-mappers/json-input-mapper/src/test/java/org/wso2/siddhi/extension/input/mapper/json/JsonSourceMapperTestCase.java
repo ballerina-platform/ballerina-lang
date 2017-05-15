@@ -144,6 +144,12 @@ public class JsonSourceMapperTestCase {
                         case 1:
                             junit.framework.Assert.assertEquals(55.6f, event.getData(1));
                             break;
+                        case 2:
+                            junit.framework.Assert.assertEquals(null, event.getData(1));
+                            break;
+                        case 3:
+                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            break;
                         default:
                             Assert.fail();
                     }
@@ -170,7 +176,6 @@ public class JsonSourceMapperTestCase {
         InMemoryBroker.publish("stock", " {\n" +
                 "      \"event\":{\n" +
                 "         \"symbol\":null,\n" +
-                "         \"price\":55,\n" +
                 "         \"volume\":100\n" +
                 "      }\n" +
                 " }");
@@ -184,7 +189,7 @@ public class JsonSourceMapperTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of events", 1, count.get());
+        Assert.assertEquals("Number of events", 3, count.get());
         executionPlanRuntime.shutdown();
     }
 
@@ -758,10 +763,16 @@ public class JsonSourceMapperTestCase {
                             junit.framework.Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(66.6f, event.getData(1));
+                            junit.framework.Assert.assertEquals(56.6f, event.getData(1));
                             break;
                         case 3:
+                            junit.framework.Assert.assertEquals(null, event.getData(1));
+                            break;
+                        case 4:
                             junit.framework.Assert.assertEquals(76.6f, event.getData(1));
+                            break;
+                        case 5:
+                            junit.framework.Assert.assertEquals(77.6f, event.getData(1));
                             break;
                         default:
                             Assert.fail();
@@ -782,7 +793,7 @@ public class JsonSourceMapperTestCase {
         InMemoryBroker.publish("stock", "\n" +
                 "{\"portfolio\":\n" +
                 "   [" +
-                "       {\"stock\":{\"volume\":100,\"company\":{\"symbol\":\"wso2\"},\"price\":66.6}}," +
+                "       {\"stock\":{\"volume\":100,\"company\":{\"symbol\":\"wso2\"}}}," +
                 "       {\"stock\":{\"volume\":200,\"company\":{\"symbol\":\"wso2\"},\"price\":null}}" +
                 "   ]\n" +
                 "}\n");
@@ -796,7 +807,7 @@ public class JsonSourceMapperTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of events", 3, count.get());
+        Assert.assertEquals("Number of events", 5, count.get());
         executionPlanRuntime.shutdown();
     }
 
