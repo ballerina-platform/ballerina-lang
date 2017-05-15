@@ -21,7 +21,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.SinkListener;
@@ -43,7 +46,59 @@ import java.util.Map;
 @Extension(
         name = "json",
         namespace = "sinkMapper",
-        description = "Event to JSON mapper."
+        description = "Event to JSON output mapper. Transports which publish  messages can utilize this extension"
+                + "to convert the Siddhi event to JSON message. Users can either send a pre-defined JSON "
+                + "format or a custom JSON message.",
+        parameters = {
+                @Parameter(name = "validate.json",
+                        description = "This property will enable JSON validation for generated JSON message. By "
+                                + "default value of the property will be false. When enabled DAS will validate the "
+                                + "generated JSON message and drop the message if it does not adhere to proper JSON "
+                                + "standards. ",
+                        type = {DataType.BOOL}),
+                @Parameter(name = "enclosing.element",
+                        description =
+                                "Used to specify the enclosing element in case of sending multiple events in same "
+                                        + "JSON message. WSO2 DAS will treat the child element of given enclosing "
+                                        + "element as events"
+                                        + " and execute json expressions on child elements. If enclosing.element "
+                                        + "is not provided "
+                                        + "multiple event scenario is disregarded and json path will be evaluated "
+                                        + "with respect to "
+                                        + "root element.",
+                        type = {DataType.STRING})
+        },
+        examples = {
+                @Example(
+                        syntax = "@sink(type='inMemory', topic='stock', @map(type='json'))\n"
+                                + "define stream FooStream (symbol string, price float, volume long);\n",
+                        description = "Above configuration will do a default JSON input mapping which will "
+                                + "generate below "
+                                + "output"
+                                + "{\n"
+                                + "    \"event\":{\n"
+                                + "        \"symbol\":WSO2,\n"
+                                + "        \"price\":55.6,\n"
+                                + "        \"volume\":100\n"
+                                + "    }\n"
+                                + "}\n"),
+                @Example(
+                        syntax = "@sink(type='inMemory', topic='{{symbol}}', @map(type='json', enclosing"
+                                + ".element='$.portfolio', validate.json='true', @payload( "
+                                + "\"{\"StockData\":{\"Symbol\":\"{{symbol}}\",\"Price\":{{price}}}\")))\n"
+                                + "define stream BarStream (symbol string, price float, volume long);",
+                        description = "Above configuration will perform a custom JSON mapping which will "
+                                + "produce below "
+                                + "output JSON message"
+                                + "{"
+                                + "\"portfolio\":{\n"
+                                + "    \"StockData\":{\n"
+                                + "        \"Symbol\":WSO2,\n"
+                                + "        \"Price\":55.6\n"
+                                + "      }\n"
+                                + "  }\n"
+                                + "}")
+        }
 )
 
 // TODO : enable checkstyle, reformat
