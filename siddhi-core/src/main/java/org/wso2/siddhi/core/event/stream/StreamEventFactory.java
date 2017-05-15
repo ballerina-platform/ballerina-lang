@@ -19,10 +19,12 @@ package org.wso2.siddhi.core.event.stream;
 
 import com.lmax.disruptor.EventFactory;
 
+import java.io.Serializable;
+
 /**
  * Event Factory to create new StreamEvents
  */
-public class StreamEventFactory implements EventFactory<StreamEvent> {
+public class StreamEventFactory implements EventFactory<StreamEvent>, Serializable {
 
     private int beforeWindowDataSize;
     private int onAfterWindowDataSize;
