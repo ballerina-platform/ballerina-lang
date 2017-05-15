@@ -222,10 +222,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
 
     @Override
     public String getName() {
-        if (identifier != null) {
-            return identifier.getName();
-        }
-        return null;
+        return identifier.getName();
     }
 
     @Override

@@ -219,10 +219,7 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
 
     @Override
     public String getName() {
-        if (identifier != null) {
-            return identifier.getName();
-        }
-        return null;
+        return identifier.getName();
     }
 
     @Override

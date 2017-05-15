@@ -243,10 +243,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     @Override
     public String getName() {
-        if (identifier != null) {
-            return identifier.getName();
-        }
-        return null;
+        return identifier.getName();
     }
 
     @Override

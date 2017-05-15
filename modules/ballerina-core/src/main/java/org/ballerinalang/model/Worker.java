@@ -108,10 +108,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
      */
     @Override
     public String getName() {
-        if (identifier != null) {
-            return identifier.getName();
-        }
-        return null;
+        return identifier.getName();
     }
 
     @Override

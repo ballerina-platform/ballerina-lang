@@ -168,10 +168,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
 
     @Override
     public String getName() {
-        if (identifier != null) {
-            this.identifier.getName();
-        }
-        return null;
+        this.identifier.getName();
     }
 
     @Override

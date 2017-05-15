@@ -68,10 +68,7 @@ public class AnnotationAttributeDef implements BLangSymbol, Node {
 
     @Override
     public String getName() {
-        if (identifier != null) {
-            return identifier.getName();
-        }
-        return null;
+        return identifier.getName();
     }
 
     @Override

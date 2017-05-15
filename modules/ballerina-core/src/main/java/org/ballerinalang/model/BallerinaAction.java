@@ -191,10 +191,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
     @Override
     public String getName() {
-        if (identifier != null) {
-            return identifier.getName();
-        }
-        return null;
+        return identifier.getName();
     }
 
     @Override

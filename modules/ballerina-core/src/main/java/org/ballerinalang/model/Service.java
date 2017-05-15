@@ -132,10 +132,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
 
     @Override
     public String getName() {
-        if (identifier != null) {
-            return identifier.getName();
-        }
-        return null;
+        return identifier.getName();
     }
 
     @Override

@@ -173,10 +173,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
     
     @Override
     public String getName() {
-        if (identifier != null) {
-            return identifier.getName();
-        }
-        return null;
+        return identifier.getName();
     }
 
     @Override
