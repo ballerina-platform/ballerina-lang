@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import java.sql.SQLException;
 
 import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.TABLE_NAME;
+import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.url;
 
 public class JoinRDBMSTableTest {
     private static final Logger log = Logger.getLogger(JoinRDBMSTableTest.class);
@@ -62,7 +63,7 @@ public class JoinRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -135,7 +136,7 @@ public class JoinRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -207,7 +208,7 @@ public class JoinRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol1 string); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -278,7 +279,7 @@ public class JoinRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -348,7 +349,7 @@ public class JoinRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -419,7 +420,7 @@ public class JoinRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -489,7 +490,7 @@ public class JoinRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -561,7 +562,7 @@ public class JoinRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float); " +
                     "define stream CheckStockStream (symbol string); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -632,7 +633,7 @@ public class JoinRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +

@@ -35,14 +35,16 @@ public class RDBMSTableTestUtils {
     private static final Logger log = Logger.getLogger(RDBMSTableTestUtils.class);
     private static DataSource dataSource;
 
-    private static final String CONNECTION_URL_MYSQL = "jdbc:mysql://localhost:3306/das";
-    private static final String CONNECTION_URL_H2 = "jdbc:h2:~/dasdb";
-    private static final String CONNECTION_URL_ORACLE = "jdbc:oracle:thin:@192.168.18.8:1521/daniddb";
+    private static final String CONNECTION_URL_MYSQL = "jdbc:mysql://localhost:3306/dasdb";
+    private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/dasdb";
+    private static final String CONNECTION_URL_ORACLE = "jdbc:oracle:thin:@192.168.122.2:1521/dasdb";
 
     public static final String TABLE_NAME = "StockTable";
 
     private static final String USERNAME = "root";
     private static final String PASSWORD = "root";
+
+    public static String url = CONNECTION_URL_H2;
 
     public enum TestType {
         MySQL, H2, ORACLE, MSSQL, DB2, POSTGRES
@@ -53,7 +55,7 @@ public class RDBMSTableTestUtils {
     }
 
     public static DataSource getDataSource() {
-        return getDataSource(TestType.MySQL);
+        return getDataSource(TestType.H2);
     }
 
     public static DataSource getDataSource(TestType type) {
@@ -64,7 +66,7 @@ public class RDBMSTableTestUtils {
     }
 
     private static DataSource initDataSource(TestType type) {
-        String url = null;
+        Properties connectionProperties = new Properties();
         switch (type) {
             case MySQL:
                 url = CONNECTION_URL_MYSQL;
@@ -76,7 +78,6 @@ public class RDBMSTableTestUtils {
                 url = CONNECTION_URL_ORACLE;
                 break;
         }
-        Properties connectionProperties = new Properties();
         connectionProperties.setProperty("jdbcUrl", url);
         connectionProperties.setProperty("dataSource.user", USERNAME);
         connectionProperties.setProperty("dataSource.password", PASSWORD);

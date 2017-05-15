@@ -32,6 +32,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import java.sql.SQLException;
 
 import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.TABLE_NAME;
+import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.url;
 
 public class UpdateRDBMSTableTest {
     private static final Logger log = Logger.getLogger(UpdateRDBMSTableTest.class);
@@ -61,7 +62,7 @@ public class UpdateRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -105,7 +106,7 @@ public class UpdateRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -149,7 +150,7 @@ public class UpdateRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -209,7 +210,7 @@ public class UpdateRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -269,7 +270,7 @@ public class UpdateRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -328,7 +329,7 @@ public class UpdateRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -389,7 +390,7 @@ public class UpdateRDBMSTableTest {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (comp string, prc float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -473,7 +474,7 @@ public class UpdateRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -517,7 +518,7 @@ public class UpdateRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +

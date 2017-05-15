@@ -23,6 +23,7 @@ import org.wso2.siddhi.extension.table.rdbms.RDBMSCompiledCondition;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfiguration;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.exception.RDBMSTableException;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -180,6 +181,24 @@ public class RDBMSTableUtils {
     }
 
     /**
+     * Util method which validates the elements from an annotation to verify that they comply to the accepted standards.
+     *
+     * @param annotation the annotation to be validated.
+     */
+    public static void validateAnnotation(Annotation annotation) {
+        if (annotation == null) {
+            return;
+        }
+        List<Element> elements = annotation.getElements();
+        for (Element element : elements) {
+            if (isEmpty(element.getValue())) {
+                throw new RDBMSTableException("Annotation '" + annotation.getName() + "' contains illegal value(s). " +
+                        "Please check your query and try again.");
+            }
+        }
+    }
+
+    /**
      * Util method used to convert a list of elements in an annotation to a comma-separated string.
      *
      * @param elements the list of annotation elements.
@@ -279,8 +298,12 @@ public class RDBMSTableUtils {
      */
     private static RDBMSConfigurationMapper loadRDBMSConfigurationMapper() throws CannotLoadConfigurationException {
         if (mapper == null) {
-            RDBMSQueryConfiguration config = loadQueryConfiguration();
-            mapper = new RDBMSConfigurationMapper(config);
+            synchronized (RDBMSTableUtils.class) {
+                if (mapper == null) {
+                    RDBMSQueryConfiguration config = loadQueryConfiguration();
+                    mapper = new RDBMSConfigurationMapper(config);
+                }
+            }
         }
         return mapper;
     }
@@ -383,7 +406,7 @@ public class RDBMSTableUtils {
 
         public RDBMSQueryConfigurationEntry lookupEntry(String dbName, double version) {
             List<RDBMSQueryConfigurationEntry> dbResults = this.extractMatchingConfigEntries(dbName.toLowerCase());
-            if (dbResults == null || dbResults.isEmpty()) {
+            if (dbResults.isEmpty()) {
                 return null;
             }
             List<RDBMSQueryConfigurationEntry> versionResults = new ArrayList<>();

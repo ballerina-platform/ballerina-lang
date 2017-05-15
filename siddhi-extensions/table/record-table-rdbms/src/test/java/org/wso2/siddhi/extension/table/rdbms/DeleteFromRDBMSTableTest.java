@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import java.sql.SQLException;
 
 import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.TABLE_NAME;
+import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.url;
 
 public class DeleteFromRDBMSTableTest {
     private static final Log log = LogFactory.getLog(DeleteFromRDBMSTableTest.class);
@@ -54,7 +55,7 @@ public class DeleteFromRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -101,7 +102,7 @@ public class DeleteFromRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -147,7 +148,7 @@ public class DeleteFromRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -191,7 +192,7 @@ public class DeleteFromRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -237,7 +238,7 @@ public class DeleteFromRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -284,7 +285,7 @@ public class DeleteFromRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -329,7 +330,7 @@ public class DeleteFromRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -373,7 +374,7 @@ public class DeleteFromRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -418,7 +419,7 @@ public class DeleteFromRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -462,7 +463,7 @@ public class DeleteFromRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +

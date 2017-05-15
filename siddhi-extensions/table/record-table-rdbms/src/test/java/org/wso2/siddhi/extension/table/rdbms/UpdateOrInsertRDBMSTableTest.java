@@ -35,6 +35,7 @@ import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import java.sql.SQLException;
 
 import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.TABLE_NAME;
+import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.url;
 
 public class UpdateOrInsertRDBMSTableTest {
     private static final Logger log = Logger.getLogger(UpdateOrInsertRDBMSTableTest.class);
@@ -64,7 +65,7 @@ public class UpdateOrInsertRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -105,7 +106,7 @@ public class UpdateOrInsertRDBMSTableTest {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -143,7 +144,7 @@ public class UpdateOrInsertRDBMSTableTest {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -227,7 +228,7 @@ public class UpdateOrInsertRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -309,7 +310,7 @@ public class UpdateOrInsertRDBMSTableTest {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
                     "define stream UpdateStockStream (comp string, vol long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -321,7 +322,7 @@ public class UpdateOrInsertRDBMSTableTest {
                     "" +
                     "@info(name = 'query2') " +
                     "from UpdateStockStream " +
-                    "select comp as symboL, vol as volume " +
+                    "select comp as symbol, vol as volume " +
                     "update or insert into StockTable " +
                     "   on StockTable.symbol==symbol;";
 
@@ -370,7 +371,7 @@ public class UpdateOrInsertRDBMSTableTest {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long); " +
                     "define stream UpdateStockStream (comp string, vol long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -383,7 +384,7 @@ public class UpdateOrInsertRDBMSTableTest {
                     "" +
                     "@info(name = 'query2') " +
                     "from UpdateStockStream " +
-                    "select comp as symboL, 0f as price, vol as volume " +
+                    "select comp as symbol, 0f as price, vol as volume " +
                     "update or insert into StockTable " +
                     "   on StockTable.symbol==symbol;" +
                     "" +
@@ -458,7 +459,7 @@ public class UpdateOrInsertRDBMSTableTest {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long, price float); " +
                     "define stream UpdateStockStream (comp string, vol long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -470,7 +471,7 @@ public class UpdateOrInsertRDBMSTableTest {
                     "" +
                     "@info(name = 'query2') " +
                     "from UpdateStockStream " +
-                    "select comp as symboL,  5f as price, vol as volume " +
+                    "select comp as symbol,  5f as price, vol as volume " +
                     "update or insert into StockTable " +
                     "   on StockTable.symbol==symbol;" +
                     "" +
@@ -540,7 +541,7 @@ public class UpdateOrInsertRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long, price float); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -548,7 +549,7 @@ public class UpdateOrInsertRDBMSTableTest {
             String query = "" +
                     "@info(name = 'query2') " +
                     "from StockStream " +
-                    "select symboL, price, volume " +
+                    "select symbol, price, volume " +
                     "update or insert into StockTable " +
                     "   on StockTable.symbol==symbol;" +
                     "" +
@@ -618,7 +619,7 @@ public class UpdateOrInsertRDBMSTableTest {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long, price float); " +
                     "define stream UpdateStockStream (comp string, vol long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -631,7 +632,7 @@ public class UpdateOrInsertRDBMSTableTest {
                     "@info(name = 'query2') " +
                     "from UpdateStockStream left outer join StockTable " +
                     "   on UpdateStockStream.comp == StockTable.symbol " +
-                    "select  symboL, ifThenElse(price is nulL,0F,price) as price, vol as volume " +
+                    "select  symbol, ifThenElse(price is nulL,0F,price) as price, vol as volume " +
                     "update or insert into StockTable " +
                     "   on StockTable.symbol==symbol;" +
                     "" +
@@ -704,7 +705,7 @@ public class UpdateOrInsertRDBMSTableTest {
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream CheckStockStream (symbol string, volume long, price float); " +
                     "define stream UpdateStockStream (comp string, vol long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -717,7 +718,7 @@ public class UpdateOrInsertRDBMSTableTest {
                     "@info(name = 'query2') " +
                     "from UpdateStockStream left outer join StockTable " +
                     "   on UpdateStockStream.comp == StockTable.symbol " +
-                    "select comp as symboL, ifThenElse(price is nulL,5F,price) as price, vol as volume " +
+                    "select comp as symbol, ifThenElse(price is nulL,5F,price) as price, vol as volume " +
                     "update or insert into StockTable " +
                     "   on StockTable.symbol==symbol;" +
                     "" +
@@ -787,7 +788,7 @@ public class UpdateOrInsertRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +
@@ -831,7 +832,7 @@ public class UpdateOrInsertRDBMSTableTest {
             String streams = "" +
                     "define stream StockStream (symbol string, price float, volume long); " +
                     "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                    "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                    "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
                     "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                     //"@PrimaryKey(\"symbol\")" +
                     //"@Index(\"volume\")" +

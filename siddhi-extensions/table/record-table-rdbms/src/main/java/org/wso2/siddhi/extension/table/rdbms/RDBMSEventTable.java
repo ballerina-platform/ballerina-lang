@@ -143,6 +143,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 tableDefinition.getAnnotations());
         Annotation indices = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX,
                 tableDefinition.getAnnotations());
+        RDBMSTableUtils.validateAnnotation(primaryKeys);
+        RDBMSTableUtils.validateAnnotation(indices);
         String jndiResourceName = storeAnnotation.getElement(ANNOTATION_ELEMENT_JNDI_RESOURCE);
         if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
             try {
@@ -187,7 +189,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
-        ResultSet rs = null;
+        ResultSet rs;
         try {
             stmt = RDBMSTableUtils.isEmpty(condition) ?
                     conn.prepareStatement(selectQuery.replace(PLACEHOLDER_CONDITION, "")) :
@@ -198,7 +200,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
             //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
             return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
         } catch (SQLException e) {
-            RDBMSTableUtils.cleanupConnection(rs, stmt, conn);
+            RDBMSTableUtils.cleanupConnection(null, stmt, conn);
             throw new RDBMSTableException("Error retrieving records from table '" + this.tableName + "': "
                     + e.getMessage(), e);
         }
@@ -505,6 +507,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
         String indexQuery = this.resolveTableName(this.queryConfigurationEntry.getIndexCreateQuery());
         Map<String, String> fieldLengths = RDBMSTableUtils.processFieldLengths(storeAnnotation.getElement(
                 ANNOTATION_ELEMENT_FIELD_LENGTHS));
+        this.validateFieldLengths(fieldLengths);
         this.attributes.forEach(attribute -> {
             builder.append(attribute.getName()).append(WHITESPACE);
             switch (attribute.getType()) {
@@ -530,7 +533,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     builder.append(typeMapping.getStringType());
                     if (this.queryConfigurationEntry.getStringSize() != null) {
                         builder.append(OPEN_PARENTHESIS);
-                        if (fieldLengths.containsKey(attribute.getName().toLowerCase())) {
+                        if (fieldLengths.containsKey(attribute.getName())) {
                             builder.append(fieldLengths.get(attribute.getName()));
                         } else {
                             builder.append(this.queryConfigurationEntry.getStringSize());
@@ -559,6 +562,22 @@ public class RDBMSEventTable extends AbstractRecordTable {
         } catch (SQLException e) {
             throw new RDBMSTableException("Unable to initialize table '" + this.tableName + "': " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Method used to validate the field length specifications and ensure that the table definition contains them.
+     *
+     * @param fieldLengths the specified list of custom string field lengths.
+     */
+    private void validateFieldLengths(Map<String, String> fieldLengths) {
+        List<String> attributeNames = new ArrayList<>();
+        this.attributes.forEach(attribute -> attributeNames.add(attribute.getName()));
+        fieldLengths.keySet().forEach(field -> {
+            if (!attributeNames.contains(field)) {
+                throw new RDBMSTableException("Field '" + field + "' (for which a size of " + fieldLengths.get(field)
+                        + " has been specified) does not exist in the table's list of fields.");
+            }
+        });
     }
 
     /**
