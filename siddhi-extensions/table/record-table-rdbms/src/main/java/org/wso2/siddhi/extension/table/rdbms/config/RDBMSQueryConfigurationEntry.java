@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * This class contains all the Siddhi RDBMS query configuration mappings.
+ * This class contains all the Siddhi RDBMS Event Table SQL query configuration mappings.
  */
 @XmlRootElement(name = "database")
 public class RDBMSQueryConfigurationEntry {

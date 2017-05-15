@@ -18,7 +18,7 @@
 package org.wso2.siddhi.extension.table.rdbms.config;
 
 /**
- * This class represents the type mappings required by Siddhi RDBMS Table when using connections to a database.
+ * This class represents the SQL datatype mappings required by Siddhi RDBMS Event Tables per supported DB vendor.
  */
 public class RDBMSTypeMapping {
 

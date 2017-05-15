@@ -17,14 +17,17 @@
 */
 package org.wso2.siddhi.extension.table.rdbms.util;
 
+/**
+ * Class which holds the constants required by the RDBMS Event Table implementation.
+ */
 public class RDBMSTableConstants {
 
+    //Constants for retrieving database metadata information
     public static final String VERSION = "Version";
     public static final String DATABASE_PRODUCT_NAME = "Database Product Name";
 
     //Placeholder strings needed for processing the query configuration file
     public static final String RDBMS_QUERY_CONFIG_FILE = "rdbms-table-config.xml";
-
     public static final String PLACEHOLDER_COLUMNS = "{{COLUMNS, PRIMARY_KEYS}}";
     public static final String PLACEHOLDER_CONDITION = "{{CONDITION}}";
     public static final String PLACEHOLDER_COLUMNS_VALUES = "{{COLUMNS_AND_VALUES}}";
@@ -32,6 +35,7 @@ public class RDBMSTableConstants {
     public static final String PLACEHOLDER_INDEX = "{{INDEX_COLUMNS}}";
     public static final String PLACEHOLDER_Q = "{{Q}}";
 
+    //Miscellaneous SQL constants
     public static final String WHITESPACE = " ";
     public static final String SEPARATOR = ", ";
     public static final String EQUALS = "=";

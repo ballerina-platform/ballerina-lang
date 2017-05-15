@@ -19,6 +19,10 @@ package org.wso2.siddhi.extension.table.rdbms.util;
 
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Denotes a bean class which is used to keep track of constants which may be specified in Siddhi query conditions.
+ * At compile-time, the constant is evaluated and kept for future (runtime) use.
+ */
 public class Constant {
 
     private Object value;

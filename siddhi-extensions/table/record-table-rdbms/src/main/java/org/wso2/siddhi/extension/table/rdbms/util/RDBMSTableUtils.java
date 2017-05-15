@@ -46,14 +46,24 @@ import javax.xml.bind.Unmarshaller;
 
 import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
 
+/**
+ * Class which holds the utility methods which are used by various units in the RDBMS Event Table implementation.
+ */
 public class RDBMSTableUtils {
 
     private static RDBMSConfigurationMapper mapper;
 
     private RDBMSTableUtils() {
+        //preventing initialization
     }
 
-    public static Map<String, Object> lookupDatabaseInfo(DataSource ds) throws CannotLoadConfigurationException {
+    /**
+     * Utility method used for looking up DB metadata information from a given datasource.
+     *
+     * @param ds the datasource from which the metadata needs to be looked up.
+     * @return a list of DB metadata.
+     */
+    public static Map<String, Object> lookupDatabaseInfo(DataSource ds) {
         Connection conn = null;
         try {
             conn = ds.getConnection();
@@ -63,12 +73,18 @@ public class RDBMSTableUtils {
             result.put(VERSION, Double.parseDouble(dmd.getDatabaseMajorVersion() + "." + dmd.getDatabaseMinorVersion()));
             return result;
         } catch (SQLException e) {
-            throw new CannotLoadConfigurationException("Error in looking up database type: " + e.getMessage(), e);
+            throw new RDBMSTableException("Error in looking up database type: " + e.getMessage(), e);
         } finally {
             cleanupConnection(null, null, conn);
         }
     }
 
+    /**
+     * Checks and returns an instance of the RDBMS query configuration mapper.
+     *
+     * @return an instance of {@link RDBMSConfigurationMapper}.
+     * @throws CannotLoadConfigurationException if the configuration cannot be loaded.
+     */
     private static RDBMSConfigurationMapper loadRDBMSConfigurationMapper() throws CannotLoadConfigurationException {
         if (mapper == null) {
             RDBMSQueryConfiguration config = loadQueryConfiguration();
@@ -77,6 +93,13 @@ public class RDBMSTableUtils {
         return mapper;
     }
 
+    /**
+     * Isolates a particular RDBMS query configuration entry which matches the retrieved DB metadata.
+     *
+     * @param ds the datasource against which the entry should be matched.
+     * @return the matching RDBMS query configuration entry.
+     * @throws CannotLoadConfigurationException if the configuration cannot be loaded.
+     */
     public static RDBMSQueryConfigurationEntry lookupCurrentQueryConfigurationEntry(
             DataSource ds) throws CannotLoadConfigurationException {
         Map<String, Object> dbInfo = lookupDatabaseInfo(ds);
@@ -91,14 +114,33 @@ public class RDBMSTableUtils {
         }
     }
 
+    /**
+     * Utility method which loads the query configuration from file.
+     *
+     * @return the loaded query configuration.
+     * @throws CannotLoadConfigurationException if the configuration cannot be loaded.
+     */
     private static RDBMSQueryConfiguration loadQueryConfiguration() throws CannotLoadConfigurationException {
         return new RDBMSTableConfigLoader().loadConfiguration();
     }
 
+    /**
+     * Utility method which can be used to check if a given string instance is null or empty.
+     *
+     * @param field the string instance to be checked.
+     * @return true if the field is null or empty.
+     */
     public static boolean isEmpty(String field) {
         return (field == null || field.trim().length() == 0);
     }
 
+    /**
+     * Method which can be used to clear up and ephemeral SQL connectivity artifacts.
+     *
+     * @param rs   {@link ResultSet} instance (can be null)
+     * @param stmt {@link PreparedStatement} instance (can be null)
+     * @param conn {@link Connection} instance (can be null)
+     */
     public static void cleanupConnection(ResultSet rs, Statement stmt, Connection conn) {
         if (rs != null) {
             try {
@@ -117,6 +159,11 @@ public class RDBMSTableUtils {
         }
     }
 
+    /**
+     * Method which is used to roll back a DB connection (e.g. in case of any errors)
+     *
+     * @param conn the {@link Connection} instance to be rolled back (can be null).
+     */
     public static void rollbackConnection(Connection conn) {
         if (conn != null) {
             try {
@@ -125,6 +172,20 @@ public class RDBMSTableUtils {
         }
     }
 
+    /**
+     * Util method used throughout the RDBMS Event Table implementation which accepts a compiled condition (from
+     * compile-time) and uses values from the runtime to populate the given {@link PreparedStatement}.
+     *
+     * @param stmt                  the {@link PreparedStatement} instance which has already been build with '?'
+     *                              parameters to be filled.
+     * @param compiledCondition     the compiled condition which was built during compile time and now is being provided
+     *                              by the Siddhi runtime.
+     * @param conditionParameterMap the map which contains the runtime value(s) for the condition.
+     * @param seed                  the integer factor by which the ordinal count will be incremented when populating
+     *                              the {@link PreparedStatement}.
+     * @throws SQLException in the unlikely case where there are errors when setting values to the statement
+     *                      (e.g. type mismatches)
+     */
     public static void resolveCondition(PreparedStatement stmt, RDBMSCompiledCondition compiledCondition,
                                         Map<String, Object> conditionParameterMap, int seed) throws SQLException {
         SortedMap<Integer, Object> parameters = compiledCondition.getParameters();
@@ -142,6 +203,16 @@ public class RDBMSTableUtils {
         }
     }
 
+    /**
+     * Util method which is used to populate a {@link PreparedStatement} instance with a single element.
+     *
+     * @param stmt    the statement to which the element should be set.
+     * @param ordinal the ordinal of the element in the statement (its place in a potential list of places).
+     * @param type    the type of the element to be set, adheres to
+     *                {@link org.wso2.siddhi.query.api.definition.Attribute.Type}.
+     * @param value   the value of the element.
+     * @throws SQLException if there are issues when the element is being set.
+     */
     public static void populateStatementWithSingleElement(PreparedStatement stmt, int ordinal, Attribute.Type type,
                                                           Object value) throws SQLException {
         switch (type) {
@@ -169,6 +240,12 @@ public class RDBMSTableUtils {
         }
     }
 
+    /**
+     * Util method used to convert a list of elements in an annotation to a comma-separated string.
+     *
+     * @param elements the list of annotation elements.
+     * @return a comma-separated string of all elements in the list.
+     */
     public static String flattenAnnotatedElements(List<Element> elements) {
         StringBuilder sb = new StringBuilder();
         elements.forEach(elem -> {
@@ -180,6 +257,12 @@ public class RDBMSTableUtils {
         return sb.toString();
     }
 
+    /**
+     * Read and return all string field lengths given in an RDBMS event table definition.
+     *
+     * @param fieldInfo the field length annotation from the "@Store" definition (can be empty).
+     * @return a map of fields and their specified sizes.
+     */
     public static Map<String, String> processFieldLengths(String fieldInfo) {
         Map<String, String> fieldLengths = new HashMap<>();
         List<String[]> processedLengths = processKeyValuePairs(fieldInfo);
@@ -187,6 +270,13 @@ public class RDBMSTableUtils {
         return fieldLengths;
     }
 
+    /**
+     * Converts a flat string of key/value pairs (e.g. from an annotation) into a list of pairs.
+     * Used String[] since Java does not offer tuples.
+     *
+     * @param annotationString the comma-separated string of key/value pairs.
+     * @return a list processed and validated pairs.
+     */
     public static List<String[]> processKeyValuePairs(String annotationString) {
         List<String[]> keyValuePairs = new ArrayList<>();
         if (!isEmpty(annotationString)) {
@@ -208,12 +298,28 @@ public class RDBMSTableUtils {
         return keyValuePairs;
     }
 
+    /**
+     * Method for replacing the placeholder for conditions with the SQL Where clause and the actual condition.
+     *
+     * @param query     the SQL query in string format, with the "{{CONDITION}}" placeholder present.
+     * @param condition the actual condition (originating from the ConditionVisitor).
+     * @return the formatted string.
+     */
     public static String formatQueryWithCondition(String query, String condition) {
         return query.replace(PLACEHOLDER_CONDITION, SQL_WHERE + WHITESPACE + condition);
     }
 
+    /**
+     * Child class with a method for loading the JAXB configuration mappings
+     */
     private static class RDBMSTableConfigLoader {
 
+        /**
+         * Method for loading the configuration mappings.
+         *
+         * @return an instance of {@link RDBMSQueryConfiguration}.
+         * @throws CannotLoadConfigurationException if the config cannot me loaded.
+         */
         private RDBMSQueryConfiguration loadConfiguration() throws CannotLoadConfigurationException {
             try {
                 JAXBContext ctx = JAXBContext.newInstance(RDBMSQueryConfiguration.class);
@@ -229,7 +335,6 @@ public class RDBMSTableUtils {
                         "Error in processing RDBMS query configuration: " + e.getMessage(), e);
             }
         }
-
     }
 
     /**

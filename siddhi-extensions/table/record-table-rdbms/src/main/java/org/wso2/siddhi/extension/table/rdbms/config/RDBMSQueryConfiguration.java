@@ -22,7 +22,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * This class represents the query configuration required to perform RDBMS calls directly from Siddhi Tables..
+ * This class represents the JAXB bean for the query configuration which provide a link between RDBMS Event Table
+ * functions and DB vendor-specific SQL syntax.
  */
 @XmlRootElement(name = "rdbms-table-configuration")
 public class RDBMSQueryConfiguration {

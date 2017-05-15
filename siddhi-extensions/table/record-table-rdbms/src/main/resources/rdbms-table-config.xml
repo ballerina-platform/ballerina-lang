@@ -41,6 +41,7 @@
         </typeMapping>
     </database>
     <database name="oracle">
+        <!-- TODO INCOMPLETE -->
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1</tableCheckQuery>
         <tableTruncateQuery>TRUNCATE TABLE {{TABLE_NAME}}</tableTruncateQuery>
@@ -57,6 +58,7 @@
         </typeMapping>
     </database>
     <database name="Microsoft SQL Server">
+        <!-- TODO INCOMPLETE -->
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT TOP 1 1 from {{TABLE_NAME}}</tableCheckQuery>
         <tableTruncateQuery>TRUNCATE TABLE {{TABLE_NAME}}</tableTruncateQuery>
@@ -74,6 +76,7 @@
         </typeMapping>
     </database>
     <database name="PostgreSQL">
+        <!-- TODO INCOMPLETE -->
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
         <tableTruncateQuery>TRUNCATE TABLE {{TABLE_NAME}}</tableTruncateQuery>
@@ -90,6 +93,7 @@
         </typeMapping>
     </database>
     <database name="DB2.*">
+        <!-- TODO INCOMPLETE -->
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
         <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} FETCH FIRST 1 ROWS ONLY</tableCheckQuery>
         <tableTruncateQuery>TRUNCATE TABLE {{TABLE_NAME}} IMMEDIATE</tableTruncateQuery>
