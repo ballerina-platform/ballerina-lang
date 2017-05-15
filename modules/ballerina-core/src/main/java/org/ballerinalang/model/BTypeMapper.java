@@ -36,7 +36,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     private NodeLocation location;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isNative;
     protected SymbolName symbolName;
@@ -168,7 +168,12 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
 
     @Override
     public String getName() {
-        return name;
+        return this.identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -247,7 +252,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
 
         public BTypeMapper buildTypeMapper() {
             bTypeCon.location = this.location;
-            bTypeCon.name = this.name;
+            bTypeCon.identifier = this.identifier;
             bTypeCon.pkgPath = this.pkgPath;
             bTypeCon.isNative = this.isNative;
 

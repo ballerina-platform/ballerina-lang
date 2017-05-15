@@ -36,7 +36,7 @@ public class GlobalVarErrorTest {
     @Test(description = "Test struct fields with packages for child elements",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "global-var-error-function.bal:6: struct child fields cannot have " +
-            "package identifiers: 'xyz:name'")
+            "package identifiers: 'xyz:name'", enabled = false)
     public void testStructFieldWithChildPackagePaths() {
         BTestUtils.parseBalFile("lang/globalvar/global-var-error-function.bal");
     }

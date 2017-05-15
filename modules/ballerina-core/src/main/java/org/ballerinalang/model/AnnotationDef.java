@@ -30,6 +30,7 @@ import java.util.Map;
  * @since 0.85
  */
 public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol, StructuredUnit {
+    private Identifier identifier;
     private NodeLocation location;
     private String[] attachmentPoints;
     private SymbolName symbolName;
@@ -172,7 +173,12 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
     
     @Override
     public String getName() {
-        return symbolName.getName();
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -198,7 +204,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
      */
     public static class AnnotationDefBuilder {
         private NodeLocation location;
-        private String name;
+        private Identifier identifier;
         private String pkgPath;
         private String pkgName;
         private List<String> attachmentPoints = new ArrayList<>();
@@ -226,13 +232,8 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
             return annotationDef;
         }
 
-        /**
-         * Set the symbol name of this annotation.
-         *
-         * @param name Symbol name of this annotation
-         */
-        public void setName(String name) {
-            this.name = name;
+        public void setIdentifier(Identifier identifier) {
+            this.identifier = identifier;
         }
 
         /**
@@ -287,8 +288,9 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
          */
         public AnnotationDef build() {
             annotationDef.location = location;
+            annotationDef.identifier = identifier;
             annotationDef.attachmentPoints = attachmentPoints.toArray(new String[attachmentPoints.size()]);
-            annotationDef.symbolName = new SymbolName(name, pkgPath);
+            annotationDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
             annotationDef.pkgName = pkgName;
             annotationDef.pkgPath = pkgPath;
             annotationDef.attributes = attributes.toArray(new AnnotationAttributeDef[attributes.size()]);

@@ -43,12 +43,12 @@ public class ParameterDef extends VariableDef implements Node {
     }
 
     public ParameterDef(NodeLocation location,
-                        String name,
+                        Identifier identifier,
                         SimpleTypeName typeName,
                         SymbolName symbolName,
                         SymbolScope symbolScope) {
 
-        super(location, name, typeName, symbolName, symbolScope);
+        super(location, identifier, typeName, symbolName, symbolScope);
         this.annotations = new ArrayList<AnnotationAttachment>();
     }
     
