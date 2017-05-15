@@ -182,7 +182,7 @@ public class BLangPackages {
         return builder.toString();
     }
 
-    private static String[] getBuiltinPackageNames() {
+    public static String[] getBuiltinPackageNames() {
         Iterator<BuiltinPackageRepository> providerIterator =
                 ServiceLoader.load(BuiltinPackageRepository.class).iterator();
         List<BuiltinPackageRepository> nameProviders = new ArrayList<>();
