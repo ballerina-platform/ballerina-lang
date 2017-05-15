@@ -149,6 +149,7 @@ function getCompoundStatementChildPosition(node) {
                 ASTFactory.isServiceDefinition(child) ||
                 ASTFactory.isConnectorDefinition(child) ||
                 ASTFactory.isAnnotationDefinition(child) ||
+                ASTFactory.isStructDefinition(child) ||
                 ASTFactory.isPackageDefinition(child);
         });
         let heading = viewSate.components.heading;
