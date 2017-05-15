@@ -1074,7 +1074,7 @@ public class BLangExecutor implements NodeExecutor {
             BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
 
             if (arrayVal == null) {
-                throw new BallerinaException("field " + accessExpr.getSymbolName() + " is not initialized");
+                throw new BallerinaException("variable '" + accessExpr.getSymbolName() + "' is null\"");
             }
 
             Expression[] indexExprs = accessExpr.getIndexExprs();
