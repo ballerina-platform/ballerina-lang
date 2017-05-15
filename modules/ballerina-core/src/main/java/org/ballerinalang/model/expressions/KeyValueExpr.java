@@ -19,6 +19,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * Class to hold map initialization data.
@@ -36,8 +37,10 @@ public class KeyValueExpr extends AbstractExpression {
         this.valueExpr = valueExpr;
     }
 
-    public KeyValueExpr(NodeLocation location, Expression keyExpr, Expression valueExpr) {
+    public KeyValueExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression keyExpr,
+                        Expression valueExpr) {
         super(location);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.keyExpr = keyExpr;
         this.valueExpr = valueExpr;
     }

@@ -762,12 +762,12 @@ public class BLangModelBuilder {
         exprStack.push(arrayInitExpr);
     }
 
-    public void addMapStructKeyValue(NodeLocation location) {
+    public void addMapStructKeyValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression valueExpr = exprStack.pop();
         Expression keyExpr = exprStack.pop();
 
         List<KeyValueExpr> keyValueList = mapStructKVListStack.peek();
-        keyValueList.add(new KeyValueExpr(location, keyExpr, valueExpr));
+        keyValueList.add(new KeyValueExpr(location, whiteSpaceDescriptor, keyExpr, valueExpr));
     }
 
     public void startMapStructLiteral() {

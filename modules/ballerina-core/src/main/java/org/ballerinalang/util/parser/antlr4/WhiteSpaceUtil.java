@@ -741,4 +741,18 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getMapStructKeyValueWS(CommonTokenStream tokenStream,
+                                                              BallerinaParser.MapStructKeyValueContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_KEY_VAL_EXP_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_KEY_VAL_EXP_KEY_EXP_TO_COLON,
+                getWhitespaceToRight(tokenStream, ctx.expression().get(0).stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_KEY_VAL_EXP_COLON_TO_VAL_EXP,
+                getWhitespaceToLeft(tokenStream, ctx.expression().get(1).start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_KEY_VAL_EXP_TAILING_WHITEPSACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }

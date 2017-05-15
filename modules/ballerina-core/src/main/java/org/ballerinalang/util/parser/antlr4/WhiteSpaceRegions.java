@@ -269,4 +269,10 @@ public class WhiteSpaceRegions {
     public static final int ARRAY_INIT_EXP_OPENING_SQUARE_BRACE_TO_EXP_LIST_START = 1;
     public static final int ARRAY_INIT_EXP_EXP_LIST_END_TO_CLOSING_SQUARE_BRACE = 2;
     public static final int ARRAY_INIT_EXP_TAILING_WHITESPACE = 3;
+
+    // whitespace regions in an map struct key value expr
+    public static final int MAP_STRUCT_KEY_VAL_EXP_PRECEDING_WHITESPACE = 0;
+    public static final int MAP_STRUCT_KEY_VAL_EXP_KEY_EXP_TO_COLON = 1;
+    public static final int MAP_STRUCT_KEY_VAL_EXP_COLON_TO_VAL_EXP = 2;
+    public static final int MAP_STRUCT_KEY_VAL_EXP_TAILING_WHITEPSACE = 3;
 }
