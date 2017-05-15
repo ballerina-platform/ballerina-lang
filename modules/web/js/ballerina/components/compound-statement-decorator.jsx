@@ -53,6 +53,13 @@ class CompoundStatementDecorator extends React.Component {
         this.setState({innerDropZoneExist: false});
     }
 
+    onJumptoCodeLine() {
+        const {renderingContext: {ballerinaFileEditor}} = this.context;
+
+        const container = ballerinaFileEditor._container;
+        $(container).find('.view-source-btn').trigger('click');
+    }
+
     render() {
         const { bBox, model } = this.props;
         // we need to draw a drop box above the statement
@@ -226,7 +233,8 @@ CompoundStatementDecorator.propTypes = {
 
 CompoundStatementDecorator.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
+    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired
 };
 
 export default CompoundStatementDecorator;
