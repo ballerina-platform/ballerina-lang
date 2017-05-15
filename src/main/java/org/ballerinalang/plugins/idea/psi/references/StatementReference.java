@@ -34,7 +34,7 @@ import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -61,7 +61,7 @@ public class StatementReference extends BallerinaElementReference {
         return def instanceof PackageNameNode || def instanceof VariableDefinitionNode || def instanceof ParameterNode
                 || def instanceof ConstantDefinitionNode || def instanceof TypeNameNode
                 || def instanceof ConnectorDefinitionNode || def instanceof StructDefinitionNode
-                || def instanceof GlobalVariableDefinitionStatementNode || def instanceof ConstantDefinitionNode;
+                || def instanceof GlobalVariableDefinitionNode || def instanceof ConstantDefinitionNode;
     }
 
     @NotNull

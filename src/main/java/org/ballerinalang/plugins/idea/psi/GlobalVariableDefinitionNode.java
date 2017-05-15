@@ -21,9 +21,9 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.jetbrains.annotations.NotNull;
 
-public class GlobalVariableDefinitionStatementNode  extends IdentifierDefSubtree {
+public class GlobalVariableDefinitionNode extends IdentifierDefSubtree {
 
-    public GlobalVariableDefinitionStatementNode(@NotNull ASTNode node) {
+    public GlobalVariableDefinitionNode(@NotNull ASTNode node) {
         super(node, BallerinaParserDefinition.ID);
     }
 }

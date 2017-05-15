@@ -51,6 +51,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class BallerinaCompletionUtils {
@@ -471,16 +472,28 @@ public class BallerinaCompletionUtils {
         List<String> importedPackageNames = importedPackages.stream()
                 .map(PsiElement::getText)
                 .collect(Collectors.toList());
+        Map<String, String> importMap = BallerinaPsiImplUtil.getImportMap(file);
         List<PsiDirectory> packages = BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(file.getProject());
         for (PsiDirectory pack : packages) {
+
+            InsertHandler<LookupElement> insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+
+            String lookup = pack.getName() + "2";
+
             String suggestedPackage = BallerinaUtil.suggestPackageNameForDirectory(pack);
-            if (!importedPackageNames.contains(pack.getName())) {
-                LookupElementBuilder builder = LookupElementBuilder.create(pack)
-                        .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
-                        .withTailText("(" + suggestedPackage + ")", true)
-                        .withInsertHandler(BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+            if (importedPackageNames.contains(pack.getName())) {
+                String packageName = importMap.get(pack.getName());
+                if (packageName != null && packageName.equals(suggestedPackage)) {
+                    continue;
+                }
+                insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_ALIAS_WITH_POPUP;
             }
+
+            LookupElementBuilder builder = LookupElementBuilder.create(pack)
+                    .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
+                    .withTailText("(" + suggestedPackage + ")", true).withInsertHandler(insertHandler);
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+
         }
     }
 

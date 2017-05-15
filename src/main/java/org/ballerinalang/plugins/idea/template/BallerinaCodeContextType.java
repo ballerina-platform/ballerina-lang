@@ -36,7 +36,7 @@ import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
@@ -87,8 +87,8 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
             } else if (element instanceof CompilationUnitNode) {
                 return true;
             } else if (element.getParent() instanceof NameReferenceNode) {
-                GlobalVariableDefinitionStatementNode node = PsiTreeUtil.getParentOfType(element,
-                        GlobalVariableDefinitionStatementNode.class);
+                GlobalVariableDefinitionNode node = PsiTreeUtil.getParentOfType(element,
+                        GlobalVariableDefinitionNode.class);
                 if (node != null) {
                     return true;
                 }
