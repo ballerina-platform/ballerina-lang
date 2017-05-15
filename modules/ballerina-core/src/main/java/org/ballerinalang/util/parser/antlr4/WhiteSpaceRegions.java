@@ -296,4 +296,8 @@ public class WhiteSpaceRegions {
     public static final int STRUCT_FIELD_IDENTIFIER_PRECEDING_WHITESPACE = 0;
     public static final int STRUCT_FIELD_IDENTIFIER_FOLLOWING_WHITESPACE = 1;
 
+    // whitespace regions in a map array var identifier
+    public static final int MAP_ARR_VAR_ID_PRECEDING_WHITESPACE = 0;
+    public static final int MAP_ARR_VAR_ID_EXP_OPENING_SQUARE_BRACE_PRECEDING = 1;
+    public static final int MAP_ARR_VAR_ID_FOLLOWING_WHITESPACE = 2;
 }

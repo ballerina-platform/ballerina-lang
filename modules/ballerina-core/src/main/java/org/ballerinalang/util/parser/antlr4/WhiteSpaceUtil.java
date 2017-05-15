@@ -793,12 +793,19 @@ public class WhiteSpaceUtil {
 
     public static WhiteSpaceDescriptor getSimpleVariableIdentifierWS(CommonTokenStream tokenStream,
                                                                  BallerinaParser.SimpleVariableIdentifierContext ctx) {
-        return null;
+        return getNameRefWS(tokenStream, ctx.nameReference());
     }
 
     public static WhiteSpaceDescriptor getMapArrayVarIdentifierWS(CommonTokenStream tokenStream,
                                                               BallerinaParser.MapArrayVariableIdentifierContext ctx) {
-        return null;
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_ARR_VAR_ID_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_ARR_VAR_ID_EXP_OPENING_SQUARE_BRACE_PRECEDING,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_ARR_VAR_ID_FOLLOWING_WHITESPACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
     }
 
     public static WhiteSpaceDescriptor getBacktickStringWS(CommonTokenStream tokenStream,
