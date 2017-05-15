@@ -17,6 +17,7 @@
 
 package org.ballerinalang.natives.annotation.processor;
 
+import org.ballerinalang.BLangBuiltinPkgNameProvider;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.NativeScope;
@@ -72,6 +73,8 @@ public class ConstructProviderClassBuilder {
     private static final String EMPTY = "";
     private static final String BALLERINA_BUILTIN_REPO_CLASSNAME
             = "org.ballerinalang.nativeimpl.repository.BallerinaBuiltinPackageRepository";
+    private static final String BALLERINA_BUILTIN_NAME_PROVIDER_CLASSNAME
+            = "org.ballerinalang.nativeimpl.repository.BallerinaBuiltinPkgNameProvider";;
 
     
     private Writer sourceFileWriter;
@@ -119,6 +122,7 @@ public class ConstructProviderClassBuilder {
         // Create config file in META-INF/services directory
         createNativeConstructsLoaderServiceMetaFile(filer);
         createBuiltinPackageRepositoryServiceMetaFile(filer);
+        createBuiltinPackageNameServiceMetaFile(filer);
     }
     
     /**
@@ -193,6 +197,26 @@ public class ConstructProviderClassBuilder {
                     BuiltinPackageRepository.class.getCanonicalName());
             configWriter = metaFile.openWriter();
             configWriter.write(BALLERINA_BUILTIN_REPO_CLASSNAME);
+        } catch (IOException e) {
+            throw new BallerinaException("error while generating config file: " + e.getMessage());
+        } finally {
+            if (configWriter != null) {
+                try {
+                    configWriter.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+    }
+
+    private void createBuiltinPackageNameServiceMetaFile(Filer filer) {
+        Writer configWriter = null;
+        try {
+            //Find the location of the resource/META-INF directory.
+            FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "",  META_INF + SERVICES +
+                    BLangBuiltinPkgNameProvider.class.getCanonicalName());
+            configWriter = metaFile.openWriter();
+            configWriter.write(BALLERINA_BUILTIN_NAME_PROVIDER_CLASSNAME);
         } catch (IOException e) {
             throw new BallerinaException("error while generating config file: " + e.getMessage());
         } finally {

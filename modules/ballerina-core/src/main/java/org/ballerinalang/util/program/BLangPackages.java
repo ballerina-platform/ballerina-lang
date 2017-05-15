@@ -18,6 +18,7 @@
 
 package org.ballerinalang.util.program;
 
+import org.ballerinalang.BLangBuiltinPkgNameProvider;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFile;
@@ -28,9 +29,13 @@ import org.ballerinalang.util.repository.PackageRepository;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 /**
@@ -175,6 +180,29 @@ public class BLangPackages {
         // add the last node
         builder.append("->" + targetPack.getSymbolName().toString());
         return builder.toString();
+    }
+
+    private static String[] getBuiltinPackageNames() {
+        Iterator<BLangBuiltinPkgNameProvider> providerIterator =
+                ServiceLoader.load(BLangBuiltinPkgNameProvider.class).iterator();
+        List<BLangBuiltinPkgNameProvider> nameProviders = new ArrayList<>();
+        while (providerIterator.hasNext()) {
+            BLangBuiltinPkgNameProvider constructLoader = providerIterator.next();
+            nameProviders.add(constructLoader);
+        }
+        HashSet<String> pkgSet = new HashSet<>();
+        if (!nameProviders.isEmpty()) {
+            for (BLangBuiltinPkgNameProvider provider : nameProviders) {
+                String[] pkgs = provider.loadPackageNames();
+                if (pkgs != null && pkgs.length > 0) {
+                    for (String pkg : pkgs) {
+                        pkgSet.add(pkg);
+                    }
+                }
+            }
+        }
+        String[] pkgArray = new String[pkgSet.size()];
+        return pkgSet.toArray(pkgArray);
     }
 
 }
