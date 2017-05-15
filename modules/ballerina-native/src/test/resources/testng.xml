@@ -158,4 +158,12 @@ under the License.
             <class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>
         </classes>
     </test> -->
+    <test name="ballerina-error-test-suite">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.core.lang.error.TestErrorReturn"/>
+            <class name="org.ballerinalang.core.lang.error.TryCatchThrowStmtTest"/>
+        </classes>
+    </test>
 </suite>
