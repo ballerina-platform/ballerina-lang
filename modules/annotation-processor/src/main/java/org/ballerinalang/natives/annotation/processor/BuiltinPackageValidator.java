@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.natives.annotation.processor;
 
+
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.GlobalScope;
@@ -28,6 +29,7 @@ import org.ballerinalang.util.exceptions.NativeException;
 import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.FileSystemPackageRepository;
+import org.ballerinalang.util.semantics.SemanticAnalyzer;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +44,7 @@ import java.util.ServiceLoader;
 /**
  * Class to process built-in ballerina sources and validate them.
  */
-public class NativeValidator {
+public class BuiltinPackageValidator {
 
     /**
      * Process built-in ballerina sources and validate them.
@@ -80,8 +82,8 @@ public class NativeValidator {
             }
         }
         // Analyze the semantic properties of the Ballerina program
-        //SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
-       // bLangProgram.accept(semanticAnalyzer);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
+        bLangProgram.accept(semanticAnalyzer);
 
     }
 

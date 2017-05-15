@@ -85,7 +85,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>org.ballerinalang.natives.annotation.processor.NativeValidator</mainClass>
+                            <mainClass>org.ballerinalang.natives.annotation.processor.BuiltinPackageValidator</mainClass>
                             <arguments>
                                 <argument>${generated.ballerina.source.directory}</argument>
                             </arguments>

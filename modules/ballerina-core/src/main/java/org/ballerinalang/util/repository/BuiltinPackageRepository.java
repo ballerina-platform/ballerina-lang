@@ -187,4 +187,12 @@ public class BuiltinPackageRepository extends PackageRepository {
         // TODO
         return null;
     }
+
+    public String[] loadPackageNames() {
+        List<String> builtInPackages = getFileNames(this.getClass().getClassLoader());
+        String[] array = new String[builtInPackages.size()];
+        builtInPackages.toArray(array);
+        return array;
+    }
+
 }

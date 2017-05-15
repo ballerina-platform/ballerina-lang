@@ -17,7 +17,6 @@
 
 package org.ballerinalang.natives.annotation.processor;
 
-import org.ballerinalang.BLangBuiltinPkgNameProvider;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.NativeScope;
@@ -73,8 +72,10 @@ public class ConstructProviderClassBuilder {
     private static final String EMPTY = "";
     private static final String BALLERINA_BUILTIN_REPO_CLASSNAME
             = "org.ballerinalang.nativeimpl.repository.BallerinaBuiltinPackageRepository";
-    private static final String BALLERINA_BUILTIN_NAME_PROVIDER_CLASSNAME
-            = "org.ballerinalang.nativeimpl.repository.BallerinaBuiltinPkgNameProvider";;
+    private static final String BALLERINA_CONNECTOR_REPO_CLASSNAME
+            = "org.ballerinalang.connector.service.BuiltinConnectorPackageRepository";
+    private static final String BALLERINA_NATIVE_PKG_NAME =  "org.ballerinalang.nativeimpl";
+    private static final String BALLERINA_CONNECTOR_PKG_NAME =  "org.wso2.ballerina.connectors";
 
     
     private Writer sourceFileWriter;
@@ -122,7 +123,6 @@ public class ConstructProviderClassBuilder {
         // Create config file in META-INF/services directory
         createNativeConstructsLoaderServiceMetaFile(filer);
         createBuiltinPackageRepositoryServiceMetaFile(filer);
-        createBuiltinPackageNameServiceMetaFile(filer);
     }
     
     /**
@@ -193,10 +193,14 @@ public class ConstructProviderClassBuilder {
         Writer configWriter = null;
         try {
             //Find the location of the resource/META-INF directory.
-            FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "",  META_INF + SERVICES +
+            FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", META_INF + SERVICES +
                     BuiltinPackageRepository.class.getCanonicalName());
             configWriter = metaFile.openWriter();
-            configWriter.write(BALLERINA_BUILTIN_REPO_CLASSNAME);
+            if (packageName.equals(BALLERINA_NATIVE_PKG_NAME)) {
+                configWriter.write(BALLERINA_BUILTIN_REPO_CLASSNAME + "\n");
+            } else if (packageName.equals(BALLERINA_CONNECTOR_PKG_NAME)) {
+                configWriter.write(BALLERINA_CONNECTOR_REPO_CLASSNAME);
+            }
         } catch (IOException e) {
             throw new BallerinaException("error while generating config file: " + e.getMessage());
         } finally {
@@ -209,26 +213,6 @@ public class ConstructProviderClassBuilder {
         }
     }
 
-    private void createBuiltinPackageNameServiceMetaFile(Filer filer) {
-        Writer configWriter = null;
-        try {
-            //Find the location of the resource/META-INF directory.
-            FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "",  META_INF + SERVICES +
-                    BLangBuiltinPkgNameProvider.class.getCanonicalName());
-            configWriter = metaFile.openWriter();
-            configWriter.write(BALLERINA_BUILTIN_NAME_PROVIDER_CLASSNAME);
-        } catch (IOException e) {
-            throw new BallerinaException("error while generating config file: " + e.getMessage());
-        } finally {
-            if (configWriter != null) {
-                try {
-                    configWriter.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
-    }
-    
     /**
      * Add the package map to the builder.
      * 
