@@ -30,25 +30,13 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class RDBMSConditionVisitor extends BaseConditionVisitor {
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
 
-    private static final String WHITESPACE = " ";
-    private static final String SQL_AND = "AND";
-    private static final String SQL_OR = "OR";
-    private static final String SQL_NOT = "NOT";
-    private static final String SQL_IN = "IN";
-    private static final String SQL_IS_NULL = "IS NULL";
-    private static final String SQL_COMPARE_LESS_THAN = "<";
-    private static final String SQL_COMPARE_GREATER_THAN = ">";
-    private static final String SQL_COMPARE_LESS_THAN_EQUAL = "<=";
-    private static final String SQL_COMPARE_GREATER_THAN_EQUAL = ">=";
-    private static final String SQL_COMPARE_EQUAL = "=";
-    private static final String SQL_COMPARE_NOT_EQUAL = "<>"; //Using the ANSI SQL-92 standard over '!=' (non-standard)
-    private static final String SQL_MATH_ADD = "+";
-    private static final String SQL_MATH_DIVIDE = "/";
-    private static final String SQL_MATH_MULTIPLY = "*";
-    private static final String SQL_MATH_SUBTRACT = "-";
-    private static final String SQL_MATH_MOD = "%";
+/**
+ * Class which is used by the Siddhi runtime for instructions on converting the SiddhiQL condition to the condition
+ * format understood by the underlying RDBMS data store.
+ */
+public class RDBMSConditionVisitor extends BaseConditionVisitor {
 
     private StringBuilder condition;
     private String finalCompiledCondition;
@@ -333,6 +321,13 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
         //Not applicable
     }
 
+    /**
+     * Util method for walking through the generated condition string and isolating the parameters which will be filled
+     * in later as part of building the SQL statement. This method will:
+     * (a) eliminate all temporary placeholders and put "?" in their places.
+     * (b) build and maintain a sorted map of ordinals and the coresponding parameters which will fit into the above
+     * places in the PreparedStatement.
+     */
     private void parametrizeCondition() {
         String query = this.condition.toString();
         String[] tokens = query.split("\\[");
@@ -352,12 +347,22 @@ public class RDBMSConditionVisitor extends BaseConditionVisitor {
         this.finalCompiledCondition = query;
     }
 
+    /**
+     * Method for generating a temporary placeholder for stream variables.
+     *
+     * @return a placeholder string of known format.
+     */
     private String generateStreamVarName() {
         String name = "strVar" + this.streamVarCount;
         this.streamVarCount++;
         return name;
     }
 
+    /**
+     * Method for generating a temporary placeholder for constants.
+     *
+     * @return a placeholder string of known format.
+     */
     private String generateConstantName() {
         String name = "const" + this.constantCount;
         this.constantCount++;

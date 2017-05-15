@@ -30,6 +30,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A class representing a RecordIterator which is responsible for processing RDBMS Event Table find() operations in a
+ * streaming fashion.
+ */
 public class RDBMSIterator implements RecordIterator<Object[]> {
 
     private Connection conn;
@@ -41,7 +45,8 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
     private List<Attribute> attributes;
     private String tableName;
 
-    public RDBMSIterator(Connection conn, PreparedStatement stmt, ResultSet rs, List<Attribute> attributes, String tableName) {
+    public RDBMSIterator(Connection conn, PreparedStatement stmt, ResultSet rs, List<Attribute> attributes,
+                         String tableName) {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;
@@ -84,6 +89,15 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
         }
     }
 
+    /**
+     * Method which is used for extracting record values (in the form of an Object array) from an SQL {@link ResultSet},
+     * according to the table's field type order.
+     *
+     * @param rs the {@link ResultSet} from which the values should be retrieved.
+     * @return an array of extracted values, all cast to {@link Object} type for portability.
+     * @throws SQLException if there are errors in extracring the values from the {@link ResultSet} instance according
+     *                      to the table definition
+     */
     private Object[] extractRecord(ResultSet rs) throws SQLException {
         int ordinal = 1;
         List<Object> result = new ArrayList<>();
@@ -131,8 +145,7 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
 
     @Override
     protected void finalize() throws Throwable {
-            /* in the unlikely case, this iterator does not go to the end,
-             * we have to make sure the connection is cleaned up */
+        //In the unlikely case this iterator does not go to the end, we have to make sure the connection is cleaned up.
         RDBMSTableUtils.cleanupConnection(this.rs, this.stmt, this.conn);
         super.finalize();
     }

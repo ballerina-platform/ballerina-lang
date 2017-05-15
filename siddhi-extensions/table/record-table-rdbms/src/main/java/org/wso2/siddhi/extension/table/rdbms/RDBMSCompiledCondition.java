@@ -21,11 +21,14 @@ import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 
 import java.util.SortedMap;
 
+/**
+ * Implementation class of {@link CompiledCondition} corresponding to the RDBMS Event Table.
+ * Maintains the condition string returned by the ConditionVisitor as well as a map of parameters to be used at runtime.
+ */
 public class RDBMSCompiledCondition implements CompiledCondition {
 
     private String compiledQuery;
     private SortedMap<Integer, Object> parameters;
-
 
     public RDBMSCompiledCondition(String compiledQuery, SortedMap<Integer, Object> parameters) {
         this.compiledQuery = compiledQuery;
@@ -34,7 +37,7 @@ public class RDBMSCompiledCondition implements CompiledCondition {
 
     @Override
     public CompiledCondition cloneCompiledCondition(String key) {
-        return null;
+        return new RDBMSCompiledCondition(this.compiledQuery, this.parameters);
     }
 
     public String getCompiledQuery() {

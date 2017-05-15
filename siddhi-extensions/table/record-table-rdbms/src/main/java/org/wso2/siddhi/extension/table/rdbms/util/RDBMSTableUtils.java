@@ -58,73 +58,6 @@ public class RDBMSTableUtils {
     }
 
     /**
-     * Utility method used for looking up DB metadata information from a given datasource.
-     *
-     * @param ds the datasource from which the metadata needs to be looked up.
-     * @return a list of DB metadata.
-     */
-    public static Map<String, Object> lookupDatabaseInfo(DataSource ds) {
-        Connection conn = null;
-        try {
-            conn = ds.getConnection();
-            DatabaseMetaData dmd = conn.getMetaData();
-            Map<String, Object> result = new HashMap<>();
-            result.put(DATABASE_PRODUCT_NAME, dmd.getDatabaseProductName());
-            result.put(VERSION, Double.parseDouble(dmd.getDatabaseMajorVersion() + "." + dmd.getDatabaseMinorVersion()));
-            return result;
-        } catch (SQLException e) {
-            throw new RDBMSTableException("Error in looking up database type: " + e.getMessage(), e);
-        } finally {
-            cleanupConnection(null, null, conn);
-        }
-    }
-
-    /**
-     * Checks and returns an instance of the RDBMS query configuration mapper.
-     *
-     * @return an instance of {@link RDBMSConfigurationMapper}.
-     * @throws CannotLoadConfigurationException if the configuration cannot be loaded.
-     */
-    private static RDBMSConfigurationMapper loadRDBMSConfigurationMapper() throws CannotLoadConfigurationException {
-        if (mapper == null) {
-            RDBMSQueryConfiguration config = loadQueryConfiguration();
-            mapper = new RDBMSConfigurationMapper(config);
-        }
-        return mapper;
-    }
-
-    /**
-     * Isolates a particular RDBMS query configuration entry which matches the retrieved DB metadata.
-     *
-     * @param ds the datasource against which the entry should be matched.
-     * @return the matching RDBMS query configuration entry.
-     * @throws CannotLoadConfigurationException if the configuration cannot be loaded.
-     */
-    public static RDBMSQueryConfigurationEntry lookupCurrentQueryConfigurationEntry(
-            DataSource ds) throws CannotLoadConfigurationException {
-        Map<String, Object> dbInfo = lookupDatabaseInfo(ds);
-        RDBMSConfigurationMapper mapper = loadRDBMSConfigurationMapper();
-        RDBMSQueryConfigurationEntry entry = mapper.lookupEntry((String) dbInfo.get(DATABASE_PRODUCT_NAME),
-                (double) dbInfo.get(VERSION));
-        if (entry != null) {
-            return entry;
-        } else {
-            throw new CannotLoadConfigurationException("Cannot find a database section in the RDBMS "
-                    + "configuration for the database: " + dbInfo);
-        }
-    }
-
-    /**
-     * Utility method which loads the query configuration from file.
-     *
-     * @return the loaded query configuration.
-     * @throws CannotLoadConfigurationException if the configuration cannot be loaded.
-     */
-    private static RDBMSQueryConfiguration loadQueryConfiguration() throws CannotLoadConfigurationException {
-        return new RDBMSTableConfigLoader().loadConfiguration();
-    }
-
-    /**
      * Utility method which can be used to check if a given string instance is null or empty.
      *
      * @param field the string instance to be checked.
@@ -307,6 +240,73 @@ public class RDBMSTableUtils {
      */
     public static String formatQueryWithCondition(String query, String condition) {
         return query.replace(PLACEHOLDER_CONDITION, SQL_WHERE + WHITESPACE + condition);
+    }
+
+    /**
+     * Utility method used for looking up DB metadata information from a given datasource.
+     *
+     * @param ds the datasource from which the metadata needs to be looked up.
+     * @return a list of DB metadata.
+     */
+    public static Map<String, Object> lookupDatabaseInfo(DataSource ds) {
+        Connection conn = null;
+        try {
+            conn = ds.getConnection();
+            DatabaseMetaData dmd = conn.getMetaData();
+            Map<String, Object> result = new HashMap<>();
+            result.put(DATABASE_PRODUCT_NAME, dmd.getDatabaseProductName());
+            result.put(VERSION, Double.parseDouble(dmd.getDatabaseMajorVersion() + "." + dmd.getDatabaseMinorVersion()));
+            return result;
+        } catch (SQLException e) {
+            throw new RDBMSTableException("Error in looking up database type: " + e.getMessage(), e);
+        } finally {
+            cleanupConnection(null, null, conn);
+        }
+    }
+
+    /**
+     * Checks and returns an instance of the RDBMS query configuration mapper.
+     *
+     * @return an instance of {@link RDBMSConfigurationMapper}.
+     * @throws CannotLoadConfigurationException if the configuration cannot be loaded.
+     */
+    private static RDBMSConfigurationMapper loadRDBMSConfigurationMapper() throws CannotLoadConfigurationException {
+        if (mapper == null) {
+            RDBMSQueryConfiguration config = loadQueryConfiguration();
+            mapper = new RDBMSConfigurationMapper(config);
+        }
+        return mapper;
+    }
+
+    /**
+     * Isolates a particular RDBMS query configuration entry which matches the retrieved DB metadata.
+     *
+     * @param ds the datasource against which the entry should be matched.
+     * @return the matching RDBMS query configuration entry.
+     * @throws CannotLoadConfigurationException if the configuration cannot be loaded.
+     */
+    public static RDBMSQueryConfigurationEntry lookupCurrentQueryConfigurationEntry(
+            DataSource ds) throws CannotLoadConfigurationException {
+        Map<String, Object> dbInfo = lookupDatabaseInfo(ds);
+        RDBMSConfigurationMapper mapper = loadRDBMSConfigurationMapper();
+        RDBMSQueryConfigurationEntry entry = mapper.lookupEntry((String) dbInfo.get(DATABASE_PRODUCT_NAME),
+                (double) dbInfo.get(VERSION));
+        if (entry != null) {
+            return entry;
+        } else {
+            throw new CannotLoadConfigurationException("Cannot find a database section in the RDBMS "
+                    + "configuration for the database: " + dbInfo);
+        }
+    }
+
+    /**
+     * Utility method which loads the query configuration from file.
+     *
+     * @return the loaded query configuration.
+     * @throws CannotLoadConfigurationException if the configuration cannot be loaded.
+     */
+    private static RDBMSQueryConfiguration loadQueryConfiguration() throws CannotLoadConfigurationException {
+        return new RDBMSTableConfigLoader().loadConfiguration();
     }
 
     /**

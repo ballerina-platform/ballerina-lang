@@ -36,14 +36,30 @@ public class RDBMSTableConstants {
     public static final String PLACEHOLDER_Q = "{{Q}}";
 
     //Miscellaneous SQL constants
+    public static final String SQL_MATH_ADD = "+";
+    public static final String SQL_MATH_DIVIDE = "/";
+    public static final String SQL_MATH_MULTIPLY = "*";
+    public static final String SQL_MATH_SUBTRACT = "-";
+    public static final String SQL_MATH_MOD = "%";
+    public static final String SQL_COMPARE_LESS_THAN = "<";
+    public static final String SQL_COMPARE_GREATER_THAN = ">";
+    public static final String SQL_COMPARE_LESS_THAN_EQUAL = "<=";
+    public static final String SQL_COMPARE_GREATER_THAN_EQUAL = ">=";
+    public static final String SQL_COMPARE_EQUAL = "=";
+    public static final String SQL_COMPARE_NOT_EQUAL = "<>"; //Using the ANSI SQL-92 standard over '!=' (non-standard)
+    public static final String SQL_AND = "AND";
+    public static final String SQL_OR = "OR";
+    public static final String SQL_NOT = "NOT";
+    public static final String SQL_IN = "IN";
+    public static final String SQL_IS_NULL = "IS NULL";
+    public static final String SQL_PRIMARY_KEY_DEF = "PRIMARY KEY";
+    public static final String SQL_WHERE = "WHERE";
     public static final String WHITESPACE = " ";
     public static final String SEPARATOR = ", ";
     public static final String EQUALS = "=";
     public static final String QUESTION_MARK = "?";
     public static final String OPEN_PARENTHESIS = "(";
     public static final String CLOSE_PARENTHESIS = ")";
-    public static final String SQL_PRIMARY_KEY_DEF = "PRIMARY KEY";
-    public static final String SQL_WHERE = "WHERE";
 
     //Annotation field names
     public static final String ANNOTATION_STORE = "store";
