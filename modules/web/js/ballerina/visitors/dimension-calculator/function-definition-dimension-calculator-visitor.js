@@ -124,10 +124,12 @@ class FunctionDefinitionDimensionCalculatorVisitor {
                                    + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         }
         /**
-         * If the current default worker's statement container height is less than the highest worker's statement container
-         * we set the default statement container height to the highest statement container's height
+         * If the current default worker's statement container height is less than the highest worker's
+         * statement container. we set the default statement container height to the highest statement
+         * container's height.
          */
-        components['statementContainer'].h = _.max([components['statementContainer'].h, highestStatementContainerHeight]);
+        components['statementContainer'].h = _.max([components['statementContainer'].h,
+            highestStatementContainerHeight]);
 
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
             DesignerDefaults.panel.body.padding.left + lifeLineWidth;
@@ -145,23 +147,19 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         viewState.components.openingParameter = {};
         viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
 
-        // Creating component for the Parameters text.
-        viewState.components.parametersText = {};
-        viewState.components.parametersText.w = util.getTextWidth('Parameters:', 0).w;
-
         // Creating component for closing bracket of the parameters view. 
         viewState.components.closingParameter = {};
         viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
 
 
         //// Creating components for return types of the function
+        // Creating component for the Return type text.
+        viewState.components.returnTypesIcon = {};
+        viewState.components.returnTypesIcon.w = util.getTextWidth('returns', 0).w;
+
         // Creating component for opening bracket of the return types view.
         viewState.components.openingReturnType = {};
         viewState.components.openingReturnType.w = util.getTextWidth('(', 0).w;
-
-        // Creating component for the Return type text.
-        viewState.components.returnTypesText = {};
-        viewState.components.returnTypesText.w = util.getTextWidth('Return Types:', 0).w;
 
         // Creating component for closing bracket of the return types view. 
         viewState.components.closingReturnType = {};

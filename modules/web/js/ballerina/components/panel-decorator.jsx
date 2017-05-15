@@ -92,7 +92,7 @@ class PanelDecorator extends React.Component {
         return (<g className="panel">
             <g className={annotationBodyClassName}>
                 <rect x={bBox.x} y={bBox.y} width={bBox.w} height={annotationBodyHeight} rx="0" ry="0"
-                      className="annotationRect" data-original-title="" title=""></rect>
+                      className="annotationRect" data-original-title="" title=""/>
                 {!annotationViewCollapsed && annotationComponents}
                 {annotationViewCollapsed &&
                 <text x={bBox.x + 5} y={bBox.y + titleHeight / 2 + 5}>{annotationString}</text>}
@@ -105,7 +105,7 @@ class PanelDecorator extends React.Component {
             </g>
             <g className="panel-header">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
-                      className="headingRect" data-original-title="" title=""></rect>
+                      className="headingRect" data-original-title="" title=""/>
                 <EditableText x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
                               onBlur={() => {
                                   this.onTitleInputBlur()
@@ -122,7 +122,7 @@ class PanelDecorator extends React.Component {
                 {titleComponents}
                 <g className="panel-header-controls">
                     <rect x={bBox.x + bBox.w - 54} y={bBox.y + annotationBodyHeight} width={iconSize} height={iconSize}
-                          className="panel-header-controls-wrapper"></rect>
+                          className="panel-header-controls-wrapper"/>
                     <image x={bBox.x + bBox.w - 44.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize}
                            height={iconSize} className="control"
                            xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}/>
@@ -192,7 +192,11 @@ class PanelDecorator extends React.Component {
         let components = [];
         if (!_.isUndefined(titleComponentData)) {
             for (let componentData of titleComponentData) {
-                components.push(getComponentForNodeArray([componentData.model])[0]);
+                if (componentData.isNode) {
+                    components.push(getComponentForNodeArray([componentData.model])[0]);
+                }else{
+                    components.push(componentData.model);
+                }
             }
         }
         return components;

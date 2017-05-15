@@ -17,10 +17,7 @@
  */
 
 import log from 'log';
-import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import ASTFactory from './../../ast/ballerina-ast-factory';
-import {panel} from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
 
 class ConnectorDefinitionPositionCalcVisitor {
@@ -36,39 +33,44 @@ class ConnectorDefinitionPositionCalcVisitor {
         // Setting positions of parameters.
         let viewState = node.getViewState();
 
-        viewState.components.openingParameter.x = viewState.bBox.x + viewState.titleWidth;
+        // Positioning the opening bracket component of parameters.
+        viewState.components.openingParameter.x = viewState.bBox.x + viewState.titleWidth
+            + DesignerDefaults.panelHeading.iconSize.width + DesignerDefaults.panelHeading.iconSize.padding;
         viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
 
-        viewState.components.parametersText.x = viewState.components.openingParameter.x + viewState.components.openingParameter.w;
-        viewState.components.parametersText.y = viewState.bBox.y + viewState.components.annotation.h;
-
-        let nextXPositionOfParameter = viewState.components.parametersText.x + viewState.components.parametersText.w;
+        // Positioning the parameters
+        let nextXPositionOfParameter = viewState.components.openingParameter.x
+            + viewState.components.openingParameter.w;
         if (node.getArguments().length > 0) {
             for (let i = 0; i < node.getArguments().length; i++) {
                 let resourceParameter = node.getArguments()[i];
-                nextXPositionOfParameter = this.createPositioningForParameter(resourceParameter, nextXPositionOfParameter, viewState.bBox.y + viewState.components.annotation.h);
+                nextXPositionOfParameter = this.createPositioningForParameter(resourceParameter,
+                    nextXPositionOfParameter, viewState.bBox.y + viewState.components.annotation.h);
             }
         }
 
+        // Positioning the closing bracket component of the parameters.
         viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
         viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
     }
 
     visit(node) {
+        log.debug('visit ConnectorDefinitionPositionCalcVisitor');
     }
 
     endVisit(node) {
+        log.debug('end visit ConnectorDefinitionPositionCalcVisitor');
     }
 
     /**
-     * Sets positioning for a resource parameter.
+     * Sets positioning for a parameter.
      *
-     * @param {ResourceParameter} parameter The resource parameter node.
-     * @param {number} x The x position
-     * @param {number} y The y position
+     * @param {object} parameter - The parameter node.
+     * @param {number} x - The x position
+     * @param {number} y - The y position
      * @returns The x position of the next parameter node.
      *
-     * @memberof ResourceDefinitionPositionCalcVisitor
+     * @memberof ConnectorDefinitionPositionCalcVisitor
      */
     createPositioningForParameter(parameter, x, y) {
         let viewState = parameter.getViewState();

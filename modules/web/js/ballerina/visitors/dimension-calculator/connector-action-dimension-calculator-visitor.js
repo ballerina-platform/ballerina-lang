@@ -40,27 +40,23 @@ class ConnectorActionDimensionCalculatorVisitor {
 
         viewState.titleWidth = util.getTextWidth(node.getActionName()).w;
 
-        //// Creating components for parameters of the resource
-        // Creating component for openning bracket of the parameters view.
+        //// Creating components for parameters of the connector action
+        // Creating component for opening bracket of the parameters view.
         viewState.components.openingParameter = {};
         viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
-
-        // Creating component for the Parameters text.
-        viewState.components.parametersText = {};
-        viewState.components.parametersText.w = util.getTextWidth('Parameters:', 0).w;
 
         // Creating component for closing bracket of the parameters view.
         viewState.components.closingParameter = {};
         viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
 
         //// Creating components for return types of the function
-        // Creating component for openning bracket of the return types view.
+        // Creating component for the Return type text.
+        viewState.components.returnTypesIcon = {};
+        viewState.components.returnTypesIcon.w = util.getTextWidth('returns', 0).w;
+
+        // Creating component for opening bracket of the return types view.
         viewState.components.openingReturnType = {};
         viewState.components.openingReturnType.w = util.getTextWidth('(', 0).w;
-
-        // Creating component for the Return type text.
-        viewState.components.returnTypesText = {};
-        viewState.components.returnTypesText.w = util.getTextWidth('Return Types:', 0).w;
 
         // Creating component for closing bracket of the return types view.
         viewState.components.closingReturnType = {};

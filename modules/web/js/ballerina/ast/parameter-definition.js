@@ -48,15 +48,13 @@ class ParameterDefinition extends VariableDefinition {
     }
 
     getParameterDefinitionAsString() {
-        var argAsString = "";
+        let argAsString = "";
         argAsString += this.getTypeName();
         argAsString += !_.isNil(this.getName()) ? " " + this.getName() : "";
         return argAsString;
     }
     
-    addAnnotation() {
-        //TODO 
-        let annotation = this.getFactory().createAnnotation();
+    addAnnotation(annotation) {
         this.addChild(annotation);
     }
 
@@ -66,9 +64,9 @@ class ParameterDefinition extends VariableDefinition {
 
         // As of now we only support one annotation.
         if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, "annotation")) {
-            var annotationJson = jsonNode.children[0];
-            this.setAnnotationType("@" + annotationJson.annotation_name, {doSilently: true});
-            this.setAnnotationText(annotationJson.annotation_value, {doSilently: true});
+            let annotationJson = jsonNode.children[0];
+            let child = this.getFactory().createFromJson(annotationJson);
+            this.addChild(child);
         }
     }
 }

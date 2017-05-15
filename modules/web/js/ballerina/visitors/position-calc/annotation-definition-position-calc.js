@@ -21,6 +21,7 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 import {panel} from './../../configs/designer-defaults';
+import {util} from './../sizing-utils';
 
 class AnnotationDefinitionPositionCalcVisitor {
     /**
@@ -71,6 +72,32 @@ class AnnotationDefinitionPositionCalcVisitor {
         heading.y = headerY;
         body.x = bodyX;
         body.y = bodyY;
+
+        /// Positioning parameters
+        // Setting positions of function parameters.
+        // Positioning the opening bracket component of the parameters.
+        viewState.components.openingParameter.x = viewState.bBox.x + viewState.titleWidth
+            + DesignerDefaults.panelHeading.iconSize.width + DesignerDefaults.panelHeading.iconSize.padding;
+        viewState.components.openingParameter.y = viewState.bBox.y;
+
+        viewState.attachments = {};
+        // Positioning the resource parameters
+        let nextXPositionOfParameter = viewState.components.openingParameter.x
+            + viewState.components.openingParameter.w;
+        if (node.getAttachmentPoints().length > 0) {
+            for (let i = 0; i < node.getAttachmentPoints().length; i++) {
+                let attachment = {
+                    attachment: node.getAttachmentPoints()[i],
+                    model: node
+                };
+                nextXPositionOfParameter = this.createPositionForTitleNode(attachment, nextXPositionOfParameter,
+                    viewState.bBox.y);
+            }
+        }
+
+        // Positioning the closing bracket component of the parameters.
+        viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
+        viewState.components.closingParameter.y = viewState.bBox.y;
     }
 
     visit(node) {
@@ -79,6 +106,44 @@ class AnnotationDefinitionPositionCalcVisitor {
 
     endVisit(node) {
         log.debug('end visit AnnotationPositionCalc');
+    }
+
+    /**
+     * Sets positioning for a annotation attachment.
+     *
+     * @param {object} attachment - attachment point value.
+     * @param {number} x  - The x position
+     * @param {number} y  - The y position
+     * @returns The x position of the next parameter node.
+     *
+     * @memberof AnnotationDefinitionPositionCalc
+     */
+    createPositionForTitleNode(attachment, x, y) {
+        let viewState = attachment.model.getViewState();
+
+        let childViewState = {
+            viewState: {
+                bBox: {
+                    x: x,
+                    y: y,
+                    w: util.getTextWidth(attachment.attachment, 0).w,
+                    h: DesignerDefaults.panelHeading.heading.height - 7
+                },
+                components: {
+                    deleteIcon: {
+                        x: x + util.getTextWidth(attachment.attachment, 0).w,
+                        y: y,
+                        w: DesignerDefaults.panelHeading.heading.height - 7,
+                        h: DesignerDefaults.panelHeading.heading.height - 7
+                    }
+                },
+                w: util.getTextWidth(attachment.attachment, 0).w,
+                h: DesignerDefaults.panelHeading.heading.height - 7
+            }
+        };
+        viewState.attachments[attachment.attachment] = childViewState;
+
+        return (x + util.getTextWidth(attachment.attachment, 0).w) + childViewState.viewState.components.deleteIcon.w;
     }
 }
 
