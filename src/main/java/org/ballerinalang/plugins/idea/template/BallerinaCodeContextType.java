@@ -37,6 +37,7 @@ import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
+import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -120,7 +121,8 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
                     return true;
                 }
                 ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(element, ServiceBodyNode.class);
-                if (serviceBodyNode != null) {
+                StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
+                if (serviceBodyNode != null && statementNode == null) {
                     return true;
                 }
             } else {
