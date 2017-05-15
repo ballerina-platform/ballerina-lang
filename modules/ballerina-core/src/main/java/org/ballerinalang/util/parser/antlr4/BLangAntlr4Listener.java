@@ -76,6 +76,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
     protected static final String B_KEYWORD_PUBLIC = "public";
     protected static final String B_KEYWORD_NATIVE = "native";
     protected static final String ATTACHMENT_POINTS = "attachmentPoints";
+    protected static final String B_KEYWORD_ACTION = "action";
+
     protected String fileName;
     protected String packageDirPath;
     protected String currentPkgName;
@@ -344,7 +346,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
+        boolean isNative = false;
+        for (int position = 1; position < ctx.getChildCount(); position++) {
+            if (ctx.getChild(position).getText().equals(B_KEYWORD_ACTION)
+                    && ctx.getChild(position - 1).getText().equals(B_KEYWORD_NATIVE)) {
+                isNative = true;
+                break;
+            }
+        }
         String actionName = ctx.callableUnitSignature().Identifier().getText();
         int annotationCount = ctx.annotationAttachment() != null ? ctx.annotationAttachment().size() : 0;
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;

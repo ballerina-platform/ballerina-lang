@@ -22,6 +22,7 @@ import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;
@@ -72,6 +73,8 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     private int tempStackFrameSize;
     private boolean isFlowBuilderVisited;
 
+    private NativeUnitProxy nativeAction;
+
     private BallerinaAction(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
         this.symbolMap = new HashMap<>();
@@ -118,6 +121,14 @@ public class BallerinaAction implements Action, SymbolScope, Node {
                     this.tempStackFrameSize + ", new :" + stackFrameSize);
         }
         this.tempStackFrameSize = stackFrameSize;
+    }
+
+    public NativeUnitProxy getNativeAction() {
+        return nativeAction;
+    }
+
+    public void setNativeAction(NativeUnitProxy nativeAction) {
+        this.nativeAction = nativeAction;
     }
 
     @Override

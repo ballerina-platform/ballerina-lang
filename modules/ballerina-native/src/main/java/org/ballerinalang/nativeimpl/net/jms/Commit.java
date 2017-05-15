@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.jms.utils.JMSConstants;
+import org.ballerinalang.nativeimpl.actions.jms.utils.JMSConstants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
