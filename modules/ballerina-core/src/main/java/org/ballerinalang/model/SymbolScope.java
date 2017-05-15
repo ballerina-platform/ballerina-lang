@@ -54,6 +54,7 @@ public interface SymbolScope {
      */
     enum ScopeName {
         GLOBAL,
+        NATIVE,
         PROGRAM,
         PACKAGE,
         SERVICE,

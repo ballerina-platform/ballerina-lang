@@ -45,7 +45,7 @@ public class ConstDef extends VariableDef implements CompilationUnit {
         super(location, name, typeName, symbolName, symbolScope);
         this.pkgPath = pkgPath;
         this.rhsExpr = rhsExpr;
-        this.annotations = new ArrayList<AnnotationAttachment>();
+        this.annotations = new ArrayList<>();
     }
 
     public Expression getRhsExpr() {

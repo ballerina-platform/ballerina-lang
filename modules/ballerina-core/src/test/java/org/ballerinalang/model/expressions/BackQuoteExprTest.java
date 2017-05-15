@@ -20,8 +20,8 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -40,13 +40,13 @@ public class BackQuoteExprTest {
     }
 
     @Test(description = "Test two int add expression")
-    public void testIntAddExpr() {
+    public void testBackQuoteExpr() {
 
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getProduct");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BJSON.class);
-        String actual = ((BJSON) returns[0]).getMessageAsString();
-        String expected = "{\"Product\":{\"ID\":\"123456\",\"Name\":\"XYZ\",\"Description\":\"Sample product.\"}}";
+        Assert.assertSame(returns[0].getClass(), BXML.class);
+        String actual = ((BXML) returns[0]).getMessageAsString();
+        String expected = "<Product><ID>1234</ID><Name>XYZ</Name><Description>Sample Product</Description></Product>";
         Assert.assertEquals(actual, expected);
     }
 }

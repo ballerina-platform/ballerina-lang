@@ -33,6 +33,8 @@ import org.ballerinalang.model.values.BValue;
  */
 public class VariableRefExpr extends AbstractExpression implements ReferenceExpr {
     private String varName;
+    private String pkgName;
+    private String pkgPath;
     private SymbolName symbolName;
     private VariableDef variableDef;
 
@@ -47,9 +49,27 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
         this.symbolName = symbolName;
     }
 
+    public VariableRefExpr(NodeLocation location, String varName, String pkgName, String pkgPath) {
+        super(location);
+        this.varName = varName;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+        this.symbolName = new SymbolName(varName, pkgPath);
+    }
+
     @Override
     public String getVarName() {
         return varName;
+    }
+
+    @Override
+    public String getPkgName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPkgPath() {
+        return pkgPath;
     }
 
     public SymbolName getSymbolName() {
