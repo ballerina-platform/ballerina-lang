@@ -94,12 +94,10 @@ class TransformStatementDecorator extends React.Component {
           transformOverlayContent.append(targetContent);
           transformOverlay.append(transformOverlayContent);
           transformOverlayContent.append(transformMenuDiv);
-          //TODO : load dynamically
-          $("#tab-content-wrapper" ).append( transformOverlay);
+          $("#tab-content-wrapper").append(transformOverlay);
 
-           this.transformOverlayDiv = document.getElementById('transformOverlay');
-           var span = document.getElementsByClassName("close-transform")[0];
-
+          this.transformOverlayDiv = document.getElementById('transformOverlay');
+          var span = document.getElementsByClassName("close-transform")[0];
 
           var predefinedStructs = [];
           _.forEach(this.props.model.parent.getVariableDefinitionStatements(), variableDefStmt => {
@@ -123,6 +121,36 @@ class TransformStatementDecorator extends React.Component {
 
            $(".type-mapper-combo").select2();
 
+           $("#" + sourceId).on("select2:selecting", function (e) {
+               var currentSelection = e.params.args.data.id;
+               var previousSelection = $("#" + sourceId).val();
+               if (currentSelection == -1) {
+                   self.mapper.removeType(previousSelection);
+               } else if (currentSelection != $("#" + targetId).val()) {
+                   var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
+                   self.mapper.removeType(previousSelection);
+                   self.mapper.addSourceType(sourceSelection);
+                    //TODO : Add Left hand child to transform AST
+               } else {
+                   return false;
+               }
+           });
+
+          $("#" + targetId).on("select2:selecting", function (e) {
+               var currentSelection = e.params.args.data.id;
+               var previousSelection = $("#" + targetId).val();
+               if (currentSelection == -1) {
+                   self.mapper.removeType(previousSelection);
+               } else if (currentSelection != $("#" + sourceId).val()) {
+                    var targetSelection = _.find(predefinedStructs, { name: currentSelection});
+                    self.mapper.removeType(previousSelection);
+                    self.mapper.addTargetType(targetSelection);
+                    //TODO : Add Right hand child to transform AST
+               } else {
+                   return false;
+               }
+          });
+
            span.onclick = function() {
                document.getElementById('transformOverlay').style.display = "none";
                $(transformOverlay).remove();
@@ -138,16 +166,14 @@ class TransformStatementDecorator extends React.Component {
 
            var onConnectionCallback = function(connection) {
                 mapper.addConnection(connection);
-             //   alert("connected");
+             //TODO : Add assignment statement to transform AST
            };
 
            var onDisconnectionCallback = function(connection) {
-              //  alert("disconnected");
+              //TODO : Remove assignment statement to transform AST
             };
 
            this.mapper = new TransformRender(onConnectionCallback, onDisconnectionCallback);
-           this.mapper.addTargetType(predefinedStructs[0]);
-           this.mapper.addSourceType(predefinedStructs[1]);
            this.transformOverlayDiv.style.display = "block";
 	}
 
