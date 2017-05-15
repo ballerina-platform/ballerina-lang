@@ -21,31 +21,37 @@ import ImageUtil from './image-util';
 import PropTypes from 'prop-types';
 import Renderer from './renderer';
 import SuggestionsText from './suggestions-text';
+import ImportDeclarationItem from './import-declaration-item';
 import BallerinaEnvironment from '../env/environment';
 
 export default class importDeclarationExpanded extends React.Component {
     constructor() {
         super();
+        this.state = {
+            showSuggestions: false,
+        }
         this.packageSuggestions = BallerinaEnvironment.getPackages().map(p => {
             return {
                 name: p.getName()
             }
         });
-        this.handleMouseLeave = this.handleMouseLeave.bind(this);
+        this.handleAddImportClick = this.handleAddImportClick.bind(this);
+        this.handleAddImportBlur = this.handleAddImportBlur.bind(this);
     }
 
-    handleMouseLeave(e) {
-        if(e.relatedTarget.className === 'react-autosuggest__input'){
-            return;
-        }
-        this.props.onMouseLeave(e);
+    handleAddImportClick() {
+        this.setState({showSuggestions: true})
+    }
+
+    handleAddImportBlur() {
+        this.setState({showSuggestions: false})
     }
 
     render() {
         const bBox = this.props.bBox;
         const importDeclarationHeight = 30;
         const importInputHeight = 40;
-        const importDeclarationWidth = 300;
+        const importDeclarationWidth = 310;
         const leftPadding = 10;
         const topGutter = 10;
         const topBarHeight = 25;
@@ -60,14 +66,15 @@ export default class importDeclarationExpanded extends React.Component {
         let lastImportElementY = topBarBbox.y + topBarHeight;
 
         this.props.imports.forEach((importDec, count) => {
-            importElements.push(
-                <g className='package-declaration-item' key={importDec.id}>
-                    <rect x={ bBox.x } y={ lastImportElementY } height={importDeclarationHeight} width={importDeclarationWidth} />
-                    <text x={ bBox.x + leftPadding } y={ lastImportElementY + importDeclarationHeight/2 } rx="0" ry="0">
-                        {importDec._packageName}
-                    </text>
-                </g>
-            );
+            const itemBBox = {
+                x: bBox.x,
+                y: lastImportElementY,
+                h: importDeclarationHeight,
+                w: importDeclarationWidth
+            };
+
+            importElements.push(<ImportDeclarationItem key={importDec.id}
+                bBox={itemBBox} importDec={importDec} onDeleteClick={this.props.onDeleteImport} />);
             lastImportElementY += importDeclarationHeight;
         });
 
@@ -85,15 +92,22 @@ export default class importDeclarationExpanded extends React.Component {
         }
 
         return (
-            <g className="package-definitions-collection" onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.handleMouseLeave}>
-                <rect x={ topBarBbox.x } y={ topBarBbox.y } height={importInputHeight} width={importDeclarationWidth} style={ { fill: "#ddd"} } />
+            <g className="package-definitions-collection">
+                <rect x={ topBarBbox.x } y={ topBarBbox.y } height={topBarHeight} width={importDeclarationWidth} style={ { fill: "#ddd"} } />
+                <text x={ topBarBbox.x + leftPadding } y={ topBarBbox.y + topBarHeight/2} className="import-declaration-topbar-label">Imports</text>
                 <image width={ iconSize } height={ iconSize } className="property-pane-action-button-delete"
                     onClick={this.props.onCollapse} xlinkHref={ ImageUtil.getSVGIconString('hide') }
                     x={bBox.x + importDeclarationWidth - iconSize - 6 } y={topBarBbox.y + (topBarHeight-iconSize)/2}/>
                 {importElements}
-                <SuggestionsText x={ bBox.x } y={lastImportElementY} height={importInputHeight}
-                    width={importDeclarationWidth} suggestionsPool={this.packageSuggestions} show={this.props.showSuggestions}
-                    onEnter={this.props.onAddImport}/>
+                <rect x={ bBox.x } y={ lastImportElementY } height={importInputHeight} width={importDeclarationWidth}/>
+                <g onClick={this.handleAddImportClick}>
+                    <rect x={ bBox.x + 7 } y={ lastImportElementY + 7 } height={importInputHeight - 14} width={importDeclarationWidth - 14}
+                        className="add-import-button" />
+                    <text x={ bBox.x + 14 } y={ lastImportElementY + importInputHeight/2 } className="add-import-button-text" >{'+ Add Import'}</text>
+                </g>
+                <SuggestionsText x={ bBox.x + 5 } y={lastImportElementY + 5} height={importInputHeight - 10}
+                    width={importDeclarationWidth - 10} suggestionsPool={this.packageSuggestions} show={this.state.showSuggestions}
+                    onBlur={this.handleAddImportBlur} onEnter={this.props.onAddImport}/>
             </g>
         );
     }
