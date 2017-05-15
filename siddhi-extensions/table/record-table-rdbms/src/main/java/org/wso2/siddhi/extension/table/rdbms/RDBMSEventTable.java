@@ -76,16 +76,16 @@ import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
                         type = {DataType.STRING}),
                 @Parameter(name = "jndi.resource",
                         description = "Optional. The name of the JNDI resource (if any). If found, the connection " +
-                                "parameters are not taken into account, and the connection will be attempted through " +
-                                "JNDI lookup instead.",
+                                "parameters are not taken into account, and the connection will be attempted through "
+                                + "JNDI lookup instead.",
                         type = {DataType.STRING}),
                 @Parameter(name = "table.name",
                         description = "Optional. The name of the table in the store this Event Table should be " +
                                 "persisted as. If not specified, the table name will be the same as the Siddhi table.",
                         type = {DataType.STRING}),
                 @Parameter(name = "field.length",
-                        description = "Optional. The length of any String fields the table definition contains. If not " +
-                                "specified, the vendor-specific DB default will be chosen.",
+                        description = "Optional. The length of any String fields the table definition contains. If not "
+                                + "specified, the vendor-specific DB default will be chosen.",
                         type = {DataType.STRING}),
         }
 )
@@ -154,7 +154,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
             stmt = RDBMSTableUtils.isEmpty(condition) ?
                     conn.prepareStatement(selectQuery.replace(PLACEHOLDER_CONDITION, "")) :
                     conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(selectQuery, condition));
-            RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, findConditionParameterMap, 0);
+            RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
+                    findConditionParameterMap, 0);
             rs = stmt.executeQuery();
             //Passing all java.sql artifacts to the iterator to ensure everything gets cleaned up at once.
             return new RDBMSIterator(conn, stmt, rs, this.attributes, this.tableName);
@@ -176,7 +177,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
             stmt = RDBMSTableUtils.isEmpty(condition) ?
                     conn.prepareStatement(containsQuery.replace(PLACEHOLDER_CONDITION, "")) :
                     conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(containsQuery, condition));
-            RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, containsConditionParameterMap, 0);
+            RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
+                    containsConditionParameterMap, 0);
             rs = stmt.executeQuery();
             return rs.next() && !rs.isBeforeFirst();
         } catch (SQLException e) {
@@ -198,7 +200,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     conn.prepareStatement(deleteQuery.replace(PLACEHOLDER_CONDITION, "")) :
                     conn.prepareStatement(RDBMSTableUtils.formatQueryWithCondition(deleteQuery, condition));
             for (Map<String, Object> deleteConditionParameterMap : deleteConditionParameterMaps) {
-                RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, deleteConditionParameterMap, 0);
+                RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition,
+                        deleteConditionParameterMap, 0);
                 stmt.addBatch();
             }
             stmt.executeBatch();
@@ -374,7 +377,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
                 counter++;
             }
         } catch (SQLException e) {
-            throw new RDBMSTableException("Error performing update/insert operation (update) on table '" + this.tableName
+            throw new RDBMSTableException("Error performing update/insert operation (update) on table '"
+                    + this.tableName
                     + "': " + e.getMessage(), e);
         } finally {
             RDBMSTableUtils.cleanupConnection(null, updateStmt, null);
@@ -509,7 +513,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
         queries.add(createQuery.replace(PLACEHOLDER_COLUMNS, builder.toString()));
         if (indexElementList != null && !indexElementList.isEmpty()) {
-            queries.add(indexQuery.replace(PLACEHOLDER_INDEX, RDBMSTableUtils.flattenAnnotatedElements(indexElementList)));
+            queries.add(indexQuery.replace(PLACEHOLDER_INDEX,
+                    RDBMSTableUtils.flattenAnnotatedElements(indexElementList)));
         }
         try {
             this.executeDDQueries(queries, false);
@@ -609,8 +614,8 @@ public class RDBMSEventTable extends AbstractRecordTable {
             return true;
         } catch (SQLException e) {
             if (log.isDebugEnabled()) {
-                log.debug("Table '" + this.tableName + "' assumed to not exist since its existence check resulted " +
-                        "in exception " + e.getMessage());
+                log.debug("Table '" + this.tableName + "' assumed to not exist since its existence check resulted "
+                        + "in exception " + e.getMessage());
             }
             return false;
         } finally {
