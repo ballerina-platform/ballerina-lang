@@ -350,7 +350,10 @@ class ConnectorAction extends ASTNode {
             const firstWorkerIndex = _.findIndex(this.getChildren(), function (child) {
                 return BallerinaASTFactory.isWorkerDeclaration(child);
             });
-            index = _.isNil(firstWorkerIndex) ? undefined : firstWorkerIndex;
+
+            if (firstWorkerIndex > -1 && _.isNil(index)) {
+                index = firstWorkerIndex;
+            }
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
         }
     }
