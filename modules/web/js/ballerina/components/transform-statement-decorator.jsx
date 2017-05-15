@@ -168,13 +168,14 @@ class TransformStatementDecorator extends React.Component {
            var onConnectionCallback = function(connection) {
                var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
                var leftOperand = BallerinaASTFactory.createLeftOperandExpression();
-               leftOperand.setLeftOperandExpressionString(connection.sourceStruct + "." + connection.sourceProperty[0]);
+               leftOperand.addChild(self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty[0]));
                var rightOperand = BallerinaASTFactory.createRightOperandExpression();
-               rightOperand.setRightOperandExpressionString(connection.targetStruct + "." + connection.targetProperty[0]);
+               rightOperand.addChild(self.getStructAccessNode(connection.targetStruct, connection.targetProperty[0]));
                assignmentStmt.addChild(leftOperand);
                assignmentStmt.addChild(rightOperand);
                self.props.model.addChild(assignmentStmt);
                connection.id = assignmentStmt.id;
+
                self.mapper.addConnection(connection);
            };
 
@@ -372,6 +373,22 @@ class TransformStatementDecorator extends React.Component {
 
     loadSchemaToComboBox(comboBoxId, name) {
         $("#" + comboBoxId).append('<option value="' + name + '">' + name + '</option>');
+    }
+
+    getStructAccessNode(name, property) {
+    	var structExpression = BallerinaASTFactory.createStructFieldAccessExpression();
+    	var structName =  BallerinaASTFactory.createVariableReferenceExpression();
+    	var structPropertyHolder = BallerinaASTFactory.createStructFieldAccessExpression();
+    	var structProperty = BallerinaASTFactory.createVariableReferenceExpression();
+
+    	structName.setVariableName("aaaa");
+    	structProperty.setVariableName("bbbbb");
+
+    	structPropertyHolder.addChild(structProperty);
+    	structExpression.addChild(structName);
+    	structExpression.addChild(structPropertyHolder);
+
+    	return structExpression;
     }
 
 }
