@@ -35,8 +35,8 @@ class EditableText extends React.Component {
             position: 'absolute',
             top: y - height / 2,
             left: x,
-            width,
-            height
+            width: width,
+            height: height
         };
 
         if (!this.props.editing) {
@@ -63,15 +63,25 @@ class EditableText extends React.Component {
 
     componentDidUpdate(prevProps) {
         const editingJustFinished = prevProps.editing && !this.props.editing
-
-        if (this.props.editing || editingJustFinished) {
+        if(this.props.editing || editingJustFinished) {
             this.renderTextBox();
         }
+    }
+
+    componentDidMount() {
+        this.renderTextBox();
+    }
+
+    componentWillUnmount() {
+        ReactDOM.render(<noscript/>, this.context.overlay);
     }
 
     render() {
         let {x, y, onClick} = this.props;
         const textProps = {x, y, onClick};
+        textProps.style = {
+            dominantBaseline: 'central'
+        }
 
         if (this.props.placeHolder) {
             return (
@@ -83,6 +93,7 @@ class EditableText extends React.Component {
                 <text {...textProps} className="panel-label">{this.props.children}</text>
             )
         }
+
     }
 }
 

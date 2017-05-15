@@ -37,6 +37,7 @@ class FunctionDefinitionPositionCalcVisitor {
         let panelChildren = parent.filterChildren(function (child) {
             return ASTFactory.isFunctionDefinition(child) ||
                 ASTFactory.isServiceDefinition(child) || ASTFactory.isConnectorDefinition(child)
+                || ASTFactory.isStructDefinition(child)
                 || ASTFactory.isAnnotationDefinition(child) ||
                 ASTFactory.isPackageDefinition(child);
         });
@@ -134,12 +135,12 @@ class FunctionDefinitionPositionCalcVisitor {
 
     /**
      * Sets positioning for a resource parameter.
-     * 
+     *
      * @param {ResourceParameter} parameter The resource parameter node.
      * @param {number} x The x position
      * @param {number} y The y position
      * @returns The x position of the next parameter node.
-     * 
+     *
      * @memberof FunctionDefinitionPositionCalc
      */
     createPositionForTitleNode(parameter, x, y) {

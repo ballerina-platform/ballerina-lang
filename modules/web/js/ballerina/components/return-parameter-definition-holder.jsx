@@ -18,7 +18,13 @@
 import React from 'react';
 import TagController from './utils/tag-component';
 import {getComponentForNodeArray} from './utils';
+import Alerts from 'alerts';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 
+/**
+ * Component class for ReturnParameterDefinitionHolder.
+ * */
 class ReturnParameterDefinitionHolder extends React.Component {
 
     constructor() {
@@ -26,8 +32,77 @@ class ReturnParameterDefinitionHolder extends React.Component {
         this.addReturnParameter = this.addReturnParameter.bind(this);
     }
 
-    addReturnParameter(node) {
-        this.props.model.addChild(node);
+    /**
+     * Setter to add return parameters.
+     * @param {string} input - input from tag-controller.
+     * @return {boolean} true||false
+     * */
+    addReturnParameter(input) {
+        let model = this.props.model;
+        let splitedExpression = input.split(" ");
+        let parameterDef = model.getFactory().createParameterDefinition();
+        let bType = splitedExpression[0];
+        if (this.validateType(bType)) {
+            parameterDef.setTypeName(bType);
+        } else {
+            let errorString = "Incorrect Variable Type: " + bType;
+            Alerts.error(errorString);
+            return false;
+        }
+
+        if (splitedExpression[1]) {
+            parameterDef.setName(splitedExpression[1]);
+        } else {
+            let errorString = "Invalid Variable Name.";
+            Alerts.error(errorString);
+            return false;
+        }
+        this.props.model.addChild(parameterDef);
+        return true;
+    }
+
+    /**
+     * Get types of ballerina to which can be applied when declaring variables.
+     * */
+    getTypeDropdownValues() {
+        const { renderingContext } = this.context;
+        let dropdownData = [];
+        let bTypes = renderingContext.environment.getTypes();
+        _.forEach(bTypes, function (bType) {
+            dropdownData.push({id: bType, text: bType});
+        });
+
+        let structTypes = [];
+        _.forEach(structTypes, function (sType) {
+            dropdownData.push({id: sType.getAnnotationName(), text: sType.getAnnotationName()});
+        });
+
+        return dropdownData;
+    }
+
+    /**
+     * Validate type.
+     * */
+    validateType(bType) {
+        let isValid = false;
+        let typeList = this.getTypeDropdownValues();
+        let filteredTypeList = _.filter(typeList, function (type) {
+            return type.id === bType;
+        });
+        if (filteredTypeList.length > 0) {
+            isValid = true;
+        }
+        return isValid;
+    }
+
+    /**
+     * Validate input from controller and apply condition to tell whether to change the state.
+     * @param {string} input
+     * @return {boolean} true - change the state, false - don't change the state
+     * */
+    validateInput(input) {
+        let splitedExpression = input.split(" ");
+        return splitedExpression.length > 1;
     }
 
     render() {
@@ -46,9 +121,14 @@ class ReturnParameterDefinitionHolder extends React.Component {
         let children = getComponentForNodeArray(model.getChildren());
         return (
             <TagController key={model.getID()} model={model} setter={this.addReturnParameter}
-                           modelComponents={children} componentData={componentData}/>
+                           validateInput={this.validateInput} modelComponents={children}
+                           componentData={componentData}/>
         );
     }
 }
+
+ReturnParameterDefinitionHolder.contextTypes = {
+    renderingContext: PropTypes.instanceOf(Object).isRequired
+};
 
 export default ReturnParameterDefinitionHolder;

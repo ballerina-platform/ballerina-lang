@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
 /**
  * Class to represent worker reply statement in ballerina.
@@ -27,8 +28,9 @@ class WorkerReplyStatement extends Statement {
         super('WorkerReplyStatement');
         this._source = _.get(args, 'source');
         this._destination = _.get(args, 'destination');
-        this._message = _.get(args, 'message', 'm');
-        this._replyStatement = _.get(args, 'replyStatement', 'messageName <- workerName');
+        this._expressionList = _.get(args, 'expressionList', []);
+        this._replyStatement = _.get(args, 'replyStatement', 'm1 <- workerName');
+        this._workerName = _.get(args, 'workerName', 'workerName');
     }
 
     setSource(source) {
@@ -47,25 +49,48 @@ class WorkerReplyStatement extends Statement {
         return this._destination;
     }
 
-    setMessage(message) {
-        this._message = message;
+    /**
+     * Set destination worker Name
+     * @param {string} workerName
+     */
+    setWorkerName(workerName) {
+        this._workerName = workerName;
     }
 
-    getMessage() {
-        return this._message;
+    /**
+     * Get destination worker name
+     * @returns {string} _workerName - destination worker name
+     */
+    getWorkerName() {
+        return this._workerName;
     }
 
     setReplyStatement(replyStatement) {
-        this._replyStatement = replyStatement;
+        let tokens = (replyStatement.split('<-'));
+        if (tokens.length > 1) {
+            this._workerName = (tokens[1]).trim();
+        } else {
+            this._workerName = '';
+        }
+        this.setAttribute('_replyStatement', replyStatement);
     }
 
     getReplyStatement() {
         return this._replyStatement;
     }
 
+    addToExpressionList(expression) {
+        this._expressionList.push(expression);
+    }
+
+    getExpressionList() {
+        return this._expressionList;
+    }
+
     canBeAChildOf(node) {
         return this.getFactory().isResourceDefinition(node)
             || this.getFactory().isFunctionDefinition(node)
+            || this.getFactory().isWorkerDeclaration(node)
             || this.getFactory().isConnectorAction(node)
             || (this.getFactory().isStatement(node) && !node._isChildOfWorker);
     }
@@ -76,14 +101,27 @@ class WorkerReplyStatement extends Statement {
      */
     initFromJson(jsonNode) {
         var workerName = jsonNode.worker_name;
-        var messageName = jsonNode.reply_message[0].variable_name;
-        var receiveStatement = messageName + ' <- ' + workerName;
-        this.setReplyStatement(receiveStatement);
-        var self = this;
+        const self = this;
+        const expressionList = jsonNode.expression_list;
+        let expressionString = '';
+
+        for (let itr = 0; itr < expressionList.length; itr ++) {
+            const expressionNode = BallerinaASTFactory.createFromJson(expressionList[itr].expression[0]);
+            expressionNode.initFromJson(expressionList[itr].expression[0]);
+            self.addToExpressionList(expressionNode);
+            expressionString += expressionNode.getExpression();
+            if (itr !== expressionList.length - 1) {
+                expressionString += ',';
+            }
+        }
+
+        var replyStatement = expressionString + ' <- ' + workerName;
+        this.setReplyStatement(replyStatement);
         var workerInstance = _.find(this.getParent().getChildren(), function (child) {
             return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
         });
         this.setDestination(workerInstance);
+        this.setWorkerName(workerName);
     }
 }
 

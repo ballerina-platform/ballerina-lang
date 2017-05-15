@@ -19,6 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 /**
  * Constructor for ResourceDefinition
@@ -253,42 +254,21 @@ class ResourceDefinition extends ASTNode {
     }
 
     /**
-     * Override the addChild method for ordering the child elements as
-     * [Statements, Workers, Connectors]
+     * Override the addChild method for ordering the child elements
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
-    // addChild(child, index) {
-    //     if (_.isUndefined(index)) {
-    //         let indexNew;
-    //
-    //         let lastAnnotationIndex = _.findLastIndex(this.getChildren(), (child) => {
-    //             return this.BallerinaASTFactory.isAnnotation(child);
-    //         });
-    //
-    //         indexNew = lastAnnotationIndex === -1 ? 0 : lastAnnotationIndex + 1;
-    //
-    //         if (!this.BallerinaASTFactory.isAnnotation(child)) {
-    //             let lastWorkerDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
-    //                 return this.BallerinaASTFactory.isWorkerDeclaration(child);
-    //             });
-    //
-    //             indexNew = lastWorkerDeclarationIndex === -1 ? indexNew : lastWorkerDeclarationIndex + 1;
-    //
-    //             if (!this.BallerinaASTFactory.isWorkerDeclaration(child)) {
-    //                 let lastConnectorDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
-    //                     return this.BallerinaASTFactory.isConnectorDeclaration(child);
-    //                 });
-    //
-    //                 indexNew = lastConnectorDeclarationIndex === -1 ? indexNew : lastConnectorDeclarationIndex + 1;
-    //             }
-    //         }
-    //
-    //         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
-    //     } else {
-    //         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
-    //     }
-    // }
+    addChild(child, index) {
+        if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child);
+        } else {
+            const firstWorkerIndex = _.findIndex(this.getChildren(), function (child) {
+                return BallerinaASTFactory.isWorkerDeclaration(child);
+            });
+            index = _.isNil(firstWorkerIndex) ? undefined : firstWorkerIndex;
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+        }
+    }
 
     /**
      * @inheritDoc
