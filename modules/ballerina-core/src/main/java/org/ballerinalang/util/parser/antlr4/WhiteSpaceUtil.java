@@ -810,22 +810,54 @@ public class WhiteSpaceUtil {
 
     public static WhiteSpaceDescriptor getBacktickStringWS(CommonTokenStream tokenStream,
                                                            BallerinaParser.BacktickStringContext ctx) {
-        return null;
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.BACK_TICK_LIT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.BACK_TICK_LIT_FOLLOWING_WHITESPACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
     }
 
     public static WhiteSpaceDescriptor getTypeCastingExpWS(CommonTokenStream tokenStream,
                                                            BallerinaParser.TypeCastingExpressionContext ctx) {
-        return null;
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CAST_EXP_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CAST_EXP_TYPE_CAST_END_TO_EXP,
+                getWhitespaceToLeft(tokenStream, ctx.expression().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CAST_EXP_FOLLOWING_WHITESPACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
     }
 
     public static WhiteSpaceDescriptor getUnaryExpWS(CommonTokenStream tokenStream,
                                                      BallerinaParser.UnaryExpressionContext ctx) {
-        return null;
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.UNARY_EXP_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.UNARY_EXP_OPERATOR_TO_EXP,
+                getWhitespaceToLeft(tokenStream, ctx.expression().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.UNARY_EXP_FOLLOWING_WHITESPACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
     }
 
     public static WhiteSpaceDescriptor getFieldDefWS(CommonTokenStream tokenStream,
                                                      BallerinaParser.FieldDefinitionContext ctx) {
-        return null;
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_TYPE_NAME_TO_ID,
+                getWhitespaceToRight(tokenStream, ctx.typeName().stop.getTokenIndex()));
+        if (ctx.simpleLiteral() != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_ID_TO_EQUAL_OPERATOR,
+                    getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_ID_TO_EQUAL_OPERATOR,
+                    getWhitespaceToLeft(tokenStream, ctx.simpleLiteral().start.getTokenIndex()));
+        }
+        ws.addWhitespaceRegion(WhiteSpaceRegions.UNARY_EXP_FOLLOWING_WHITESPACE,
+                    getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
     }
 
     public static WhiteSpaceDescriptor getBinaryExprWS(CommonTokenStream tokenStream, ParserRuleContext ctx) {

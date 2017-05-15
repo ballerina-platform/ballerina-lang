@@ -300,4 +300,26 @@ public class WhiteSpaceRegions {
     public static final int MAP_ARR_VAR_ID_PRECEDING_WHITESPACE = 0;
     public static final int MAP_ARR_VAR_ID_EXP_OPENING_SQUARE_BRACE_PRECEDING = 1;
     public static final int MAP_ARR_VAR_ID_FOLLOWING_WHITESPACE = 2;
+
+    // whitespace regions in a backtick literal
+    public static final int BACK_TICK_LIT_PRECEDING_WHITESPACE = 0;
+    public static final int BACK_TICK_LIT_FOLLOWING_WHITESPACE = 2;
+
+    // white space regions in a typecast expr
+    public static final int TYPE_CAST_EXP_PRECEDING_WHITESPACE = 0;
+    public static final int TYPE_CAST_EXP_TYPE_CAST_END_TO_EXP = 1;
+    public static final int TYPE_CAST_EXP_FOLLOWING_WHITESPACE = 2;
+
+    // white space regions in a unary expr
+    public static final int UNARY_EXP_PRECEDING_WHITESPACE = 0;
+    public static final int UNARY_EXP_OPERATOR_TO_EXP = 1;
+    public static final int UNARY_EXP_FOLLOWING_WHITESPACE = 2;
+
+    // white space regions in a field def
+    public static final int FILED_DEF_PRECEDING_WHITESPACE = 0;
+    public static final int FILED_DEF_TYPE_NAME_TO_ID = 1;
+    public static final int FILED_DEF_ID_TO_EQUAL_OPERATOR = 2;
+    public static final int FILED_DEF_EQUAL_OPERATOR_TO_LITERAL = 3;
+    public static final int FILED_DEF_FOLLOWING_WHITESPACE = 4;
+
 }

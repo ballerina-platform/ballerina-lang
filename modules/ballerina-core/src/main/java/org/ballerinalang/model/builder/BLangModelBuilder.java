@@ -328,6 +328,7 @@ public class BLangModelBuilder {
         } else if (currentScope instanceof AnnotationDef) {
             AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, fieldName, typeName, 
                 (BasicLiteral) defaultValExpr, symbolName, currentScope, currentPackagePath);
+            annotationField.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
             currentScope.define(symbolName, annotationField);
             annotationDefBuilder.addAttributeDef(annotationField);
         }
