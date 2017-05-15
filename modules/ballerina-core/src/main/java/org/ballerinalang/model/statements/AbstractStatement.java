@@ -33,7 +33,7 @@ public abstract class AbstractStatement implements Statement {
     protected NodeLocation location;
     public LinkedNode next;
     protected LinkedNode sibling, parent;
-    protected boolean returns;
+    protected boolean alwaysReturns;
 
     public AbstractStatement(NodeLocation location) {
         this.location = location;
@@ -77,11 +77,11 @@ public abstract class AbstractStatement implements Statement {
         this.parent = linkedNode;
     }
 
-    public void setAlwaysReturns(boolean returns) {
-        this.returns = returns;
+    public void setAlwaysReturns(boolean alwaysReturns) {
+        this.alwaysReturns = alwaysReturns;
     }
 
     public boolean isAlwaysReturns() {
-        return returns;
+        return alwaysReturns;
     }
 }
