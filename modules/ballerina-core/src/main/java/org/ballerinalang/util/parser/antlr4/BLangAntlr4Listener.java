@@ -358,12 +358,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterGlobalVariableDefinitionStatement(BallerinaParser.GlobalVariableDefinitionStatementContext ctx) {
+    public void enterGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
 
     }
 
     @Override
-    public void exitGlobalVariableDefinitionStatement(BallerinaParser.GlobalVariableDefinitionStatementContext ctx) {
+    public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
         }

@@ -48,7 +48,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     private NodeLocation location;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
@@ -191,7 +191,12 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
     @Override
     public String getName() {
-        return name;
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -270,9 +275,9 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
         public BallerinaAction buildAction() {
             bAction.location = this.location;
-            bAction.name = this.name;
+            bAction.identifier = this.identifier;
             bAction.pkgPath = this.pkgPath;
-            bAction.symbolName = new SymbolName(name, pkgPath);
+            bAction.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
             bAction.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             bAction.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
