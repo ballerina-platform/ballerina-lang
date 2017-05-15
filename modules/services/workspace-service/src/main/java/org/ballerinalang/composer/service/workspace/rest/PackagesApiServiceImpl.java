@@ -24,6 +24,8 @@ import org.ballerinalang.composer.service.workspace.model.Connector;
 import org.ballerinalang.composer.service.workspace.model.Function;
 import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.model.Parameter;
+import org.ballerinalang.model.AnnotationDef;
+import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -32,13 +34,20 @@ import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
+import org.ballerinalang.util.program.BLangFiles;
+import org.ballerinalang.util.program.BLangPackages;
+import org.ballerinalang.util.program.BLangPrograms;
+import org.ballerinalang.util.repository.PackageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.core.Response;
 
@@ -110,8 +119,69 @@ public class PackagesApiServiceImpl extends PackagesApiService {
                 });
             }
         });
+
+        addAllAnnotations(packages);
         return packages;
     }
+
+
+    ///
+
+    private Map<String, ModelPackage> addAllAnnotations(Map<String, ModelPackage> packages) {
+        globalScope = BLangPrograms.populateGlobalScope();
+        //BuiltInNativeConstructLoader.loadConstructs(globalScope);
+        //Map<String, ModelPackage> packages = new HashMap<>();
+
+        globalScope.getSymbolMap().values().stream().forEach(symbol -> {
+            if (symbol instanceof NativePackageProxy) {
+                NativePackageProxy packageProxy = ((NativePackageProxy) symbol);
+                Path packagePath = BLangPackages.getPathFromPackagePath(packageProxy.load().getName());
+                PackageRepository.PackageSource pkgSource =
+                        packageProxy.load().getPackageRepository().loadPackage(packagePath);
+
+                BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(packageProxy);
+                packageBuilder.setBallerinaFileList(pkgSource.getSourceFileStreamMap().entrySet()
+                        .stream()
+                        .map(entry -> BLangFiles.loadFile(entry.getKey(), packagePath, entry.getValue(),
+                                packageBuilder))
+                        .collect(Collectors.toList()));
+
+                BLangPackage bLangPackage = packageBuilder.build();
+                AnnotationDef[] annotationDefs = bLangPackage.getAnnotationDefs();
+
+                Stream.of(annotationDefs)
+                        .forEach(annotationDef -> addAnnotations(packages, bLangPackage, annotationDef));
+
+            }
+        });
+
+        return packages;
+    }
+
+
+    private void addAnnotations(Map<String, ModelPackage> packages, BLangPackage bLangPackage,
+                                AnnotationDef annotationDef) {
+        if (bLangPackage instanceof NativePackageProxy) {
+            String packagePath = ((NativePackageProxy) bLangPackage).load().getPackagePath();
+            if (packages.containsKey(packagePath)) {
+                ModelPackage modelPackage = packages.get(packagePath);
+
+
+                modelPackage.addAnnotationsItem(createNewAnnotation(annotationDef.getName(),
+                        Arrays.asList(annotationDef.getAttachmentPoints())));
+
+            } else {
+                ModelPackage modelPackage = new ModelPackage();
+                modelPackage.setName(packagePath);
+                modelPackage.addAnnotationsItem(createNewAnnotation(annotationDef.getName(),
+                        Arrays.asList(annotationDef.getAttachmentPoints())));
+                packages.put(packagePath, modelPackage);
+            }
+        }
+
+    }
+
+    ///
 
     /**
      * Extract connectors from ballerina lang
@@ -320,6 +390,19 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         connector.setAnnotations(annotations);
         connector.setReturnParameters(returnParams);
         return connector;
+    }
+
+    /**
+     * Create new annotation
+     *
+     * @param name name of the annotation
+     * @return {Annotation} annotation
+     */
+    private Annotation createNewAnnotation(String name, List<String> attachmentPoints) {
+        Annotation annotation = new Annotation();
+        annotation.setName(name);
+        annotation.setAttachmentPoints(attachmentPoints);
+        return annotation;
     }
 
     /**
