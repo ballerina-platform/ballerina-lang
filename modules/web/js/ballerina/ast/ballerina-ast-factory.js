@@ -1542,6 +1542,7 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
             break;
         case 'return_parameter_definitions':
             node = BallerinaASTFactory.createReturnParameterDefinitionHolder();
+            break;
         case 'transform_statement':
             node = BallerinaASTFactory.createTransformStatement();
             break;
