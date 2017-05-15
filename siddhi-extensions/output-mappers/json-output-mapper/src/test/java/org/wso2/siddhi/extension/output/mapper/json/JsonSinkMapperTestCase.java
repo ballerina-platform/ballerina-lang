@@ -29,14 +29,13 @@ import org.wso2.siddhi.core.exception.NoSuchAttributeException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class JsonSinkMapperTestCase {
-    static final Logger log = Logger.getLogger(JSONOutputMapperWithSiddhiQueryAPITestCase.class);
+    private static final Logger log = Logger.getLogger(JSONOutputMapperWithSiddhiQueryAPITestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
@@ -51,7 +50,7 @@ public class JsonSinkMapperTestCase {
     */
     @Test
     public void jsonSinkMapperTestCase1() throws InterruptedException {
-        log.info("jsonSinkMapperTestCase1 :");
+        log.info("JsonSinkMapperTestCase 1");
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object msg) {
@@ -59,7 +58,7 @@ public class JsonSinkMapperTestCase {
                 switch (wso2Count.incrementAndGet()) {
                     case 1:
                         jsonString = "{\"event\":{\"symbol\":\"WSO2\",\"price\":55.6,\"volume\":100}}";
-                        Assert.assertEquals(jsonString, msg);
+                        Assert.assertEquals(jsonString , msg);
                         break;
                     case 2:
                         jsonString = "{\"event\":{\"symbol\":\"WSO2\",\"price\":57.678,\"volume\":100}}";
@@ -67,16 +66,16 @@ public class JsonSinkMapperTestCase {
                         break;
                     case 3:
                         jsonString = "{\"event\":{\"symbol\":\"WSO2\",\"price\":50.0,\"volume\":100}}";
-                        Assert.assertEquals(jsonString,msg);
+                        Assert.assertEquals(jsonString , msg);
                         break;
                     case 4:
                         jsonString = "{\"event\":{\"symbol\":\"WSO2#$%\",\"price\":50.0,\"volume\":100}}";
-                        Assert.assertEquals(jsonString,msg);
+                        Assert.assertEquals(jsonString , msg);
                         break;
                     case 5:
                         jsonString = "[{\"event\":{\"symbol\":\"WSO2\",\"price\":55.6,\"volume\":100}}," +
                                 "{\"event\":{\"symbol\":\"IBM\",\"price\":32.6,\"volume\":160}}]";
-                        Assert.assertEquals(jsonString,msg);
+                        Assert.assertEquals(jsonString , msg);
                         break;
                     default:
                         Assert.fail();
@@ -133,7 +132,7 @@ public class JsonSinkMapperTestCase {
 
     @Test
     public void jsonSinkMapperTestCase2() throws InterruptedException {
-        log.info("jsonSinkMapperTestCase2 :");
+        log.info("JsonSinkMapperTestCase 2");
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object msg) {
@@ -149,7 +148,7 @@ public class JsonSinkMapperTestCase {
                         break;
                     case 3:
                         jsonString = "{\"event\":{\"symbol\":\"undefined\",\"price\":55.6,\"volume\":100}}";
-                        Assert.assertEquals(jsonString,msg);
+                        Assert.assertEquals(jsonString, msg);
                         break;
                     default:
                         Assert.fail();
@@ -198,7 +197,7 @@ public class JsonSinkMapperTestCase {
 
     @Test
     public void jsonSinkMapperTestCase3() throws InterruptedException {
-        log.info("jsonSinkMapperTestCase3 :");
+        log.info("JsonSinkMapperTestCase 3");
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object msg) {
@@ -217,7 +216,7 @@ public class JsonSinkMapperTestCase {
                     case 3:
                         jsonString = "{\"portfolio\":" +
                                 "{\"company\":{\"event\":{\"symbol\":\"WSO2\",\"price\":57.6,\"volume\":300}}}}";
-                        Assert.assertEquals(jsonString,msg);
+                        Assert.assertEquals(jsonString, msg);
                         break;
                     default:
                         Assert.fail();
@@ -267,11 +266,10 @@ public class JsonSinkMapperTestCase {
 
     @Test
     public void jsonSinkMapperTestCase4() throws InterruptedException {
-        log.info("jsonSinkMapperTestCase3 :");
+        log.info("JsonSinkMapperTestCase 3");
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object msg) {
-                System.out.println(msg);
                 String jsonString;
                 switch (wso2Count.incrementAndGet()) {
                     case 1:
@@ -296,7 +294,6 @@ public class JsonSinkMapperTestCase {
         InMemoryBroker.Subscriber subscriberIBM = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object msg) {
-                System.out.println(msg);
                 String jsonString;
                 switch (ibmCount.incrementAndGet()) {
                     case 1:
@@ -358,7 +355,7 @@ public class JsonSinkMapperTestCase {
     */
     @Test
     public void jsonSinkMapperTestCase5() throws InterruptedException {
-        log.info("jsonSinkMapperTestCase5 :");
+        log.info("JsonSinkMapperTestCase 5");
         List<Object> onMessageList = new ArrayList<Object>();
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
@@ -452,7 +449,7 @@ public class JsonSinkMapperTestCase {
 
     @Test
     public void jsonSinkMapperTestCase6() throws InterruptedException {
-        log.info("jsonSinkMapperTestCase6 :");
+        log.info("JsonSinkMapperTestCase 6");
         List<Object> onMessageList = new ArrayList<Object>();
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
@@ -523,7 +520,7 @@ public class JsonSinkMapperTestCase {
 
     @Test
     public void jsonSinkMapperTestCase7() throws InterruptedException {
-        log.info("jsonSinkMapperTestCase7 :");
+        log.info("JsonSinkMapperTestCase 7");
         List<Object> onMessageList = new ArrayList<Object>();
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
@@ -602,7 +599,7 @@ public class JsonSinkMapperTestCase {
 
     @Test
     public void jsonSinkMapperTestCase8() throws InterruptedException {
-        log.info("jsonSinkMapperTestCase8 :");
+        log.info("JsonSinkMapperTestCase 8");
         List<Object> onMessageList = new ArrayList<Object>();
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
@@ -657,8 +654,8 @@ public class JsonSinkMapperTestCase {
         siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         try {
             siddhiManager.createExecutionPlanRuntime(streams + query);
-        }catch (Exception e){
-            Assert.assertEquals(NoSuchAttributeException.class,e.getClass());
+        } catch (Exception e) {
+            Assert.assertEquals(NoSuchAttributeException.class, e.getClass());
         }
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -667,7 +664,7 @@ public class JsonSinkMapperTestCase {
 
     @Test
     public void jsonSinkMapperTestCase9() throws InterruptedException {
-        log.info("jsonSinkMapperTestCase9 :");
+        log.info("JsonSinkMapperTestCase 9");
         List<Object> onMessageList = new ArrayList<Object>();
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
@@ -761,7 +758,7 @@ public class JsonSinkMapperTestCase {
 
     @Test
     public void jsonSinkMapperTestCase10() throws InterruptedException {
-        log.info("jsonSinkMapperTestCase10 :");
+        log.info("JsonSinkMapperTestCase 10");
         List<Object> onMessageList = new ArrayList<Object>();
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {

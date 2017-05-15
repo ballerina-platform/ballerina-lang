@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class JSONOutputMapperWithSiddhiQueryAPITestCase {
-    static final Logger log = Logger.getLogger(JSONOutputMapperWithSiddhiQueryAPITestCase.class);
+    private static final Logger log = Logger.getLogger(JSONOutputMapperWithSiddhiQueryAPITestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 

@@ -32,7 +32,6 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.stream.AttributeMapping;
@@ -50,7 +49,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * This mapper converts JSON string input to {@link ComplexEventChunk}.
+ * This mapper converts JSON string input to {@link org.wso2.siddhi.core.event.ComplexEventChunk}.
  * This extension accepts optional json path expressions to
  * select specific attributes from the stream.
  */
@@ -390,6 +389,11 @@ public class JsonInputMapper extends SourceMapper {
         for (JsonObject jsonEvent : eventObjects) {
             if (jsonEvent.has(DEFAULT_JSON_EVENT_IDENTIFIER)) {
                 eventObj = jsonEvent.get(DEFAULT_JSON_EVENT_IDENTIFIER).getAsJsonObject();
+                if (failOnMissingAttribute && eventObj.size() < streamAttributes.size()) {
+                    log.error("Json message " + eventObj.toString() + " contains missing attributes. " +
+                            "Hence dropping the message.");
+                    continue;
+                }
             } else {
                 log.error("Default json message " + eventObj.toString()
                         + " in the array does not have the valid event identifier \"event\". " +
@@ -398,11 +402,7 @@ public class JsonInputMapper extends SourceMapper {
             }
             Event event = new Event(streamAttributes.size());
             Object[] data = event.getData();
-            if (failOnMissingAttribute && eventObj.size() < streamAttributes.size()) {
-                log.error("Json message " + eventObj.toString() + " contains missing attributes. " +
-                        "Hence dropping the message.");
-                continue;
-            }
+
 
             int position = 0;
             for (Attribute attribute : streamAttributes) {

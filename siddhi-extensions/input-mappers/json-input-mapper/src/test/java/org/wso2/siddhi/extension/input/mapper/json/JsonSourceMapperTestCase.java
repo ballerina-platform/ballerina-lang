@@ -31,7 +31,7 @@ import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class JsonSourceMapperTestCase {
-    static final Logger log = Logger.getLogger(JsonSourceMapperTestCase.class);
+    private static final Logger log = Logger.getLogger(JsonSourceMapperTestCase.class);
     private AtomicInteger count = new AtomicInteger();
 
     @Test
@@ -60,16 +60,16 @@ public class JsonSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(55.678f, event.getData(1));
+                            Assert.assertEquals(55.678f, event.getData(1));
                             break;
                         case 3:
-                            junit.framework.Assert.assertEquals(55f, event.getData(1));
+                            Assert.assertEquals(55f, event.getData(1));
                             break;
                         case 4:
-                            junit.framework.Assert.assertEquals("WSO2@#$%^*", event.getData(0));
+                            Assert.assertEquals("WSO2@#$%^*", event.getData(0));
                             break;
                         default:
                             Assert.fail();
@@ -142,13 +142,13 @@ public class JsonSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(null, event.getData(1));
+                            Assert.assertEquals(null, event.getData(1));
                             break;
                         case 3:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         default:
                             Assert.fail();
@@ -220,16 +220,16 @@ public class JsonSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(null, event.getData(1));
+                            Assert.assertEquals(null, event.getData(1));
                             break;
                         case 3:
-                            junit.framework.Assert.assertEquals(56.0f, event.getData(1));
+                            Assert.assertEquals(56.0f, event.getData(1));
                             break;
                         case 4:
-                            junit.framework.Assert.assertEquals(57.6f, event.getData(1));
+                            Assert.assertEquals(57.6f, event.getData(1));
                             break;
                         default:
                             Assert.fail();
@@ -302,16 +302,16 @@ public class JsonSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(1.0f, event.getData(1));
+                            Assert.assertEquals(1.0f, event.getData(1));
                             break;
                         case 3:
-                            junit.framework.Assert.assertEquals(56.0f, event.getData(1));
+                            Assert.assertEquals(56.0f, event.getData(1));
                             break;
                         case 4:
-                            junit.framework.Assert.assertEquals(57.6f, event.getData(1));
+                            Assert.assertEquals(57.6f, event.getData(1));
                             break;
                         default:
                             Assert.fail();
@@ -405,7 +405,7 @@ public class JsonSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         default:
                             Assert.fail();
@@ -473,7 +473,7 @@ public class JsonSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         default:
                             Assert.fail();
@@ -550,7 +550,7 @@ public class JsonSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         default:
                             Assert.fail();
@@ -609,25 +609,25 @@ public class JsonSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(52.6f, event.getData(1));
+                            Assert.assertEquals(52.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(53.6f, event.getData(1));
+                            Assert.assertEquals(53.6f, event.getData(1));
                             break;
                         case 3:
-                            junit.framework.Assert.assertEquals(54.6f, event.getData(1));
+                            Assert.assertEquals(54.6f, event.getData(1));
                             break;
                         case 4:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 5:
-                            junit.framework.Assert.assertEquals(57.6f, event.getData(1));
+                            Assert.assertEquals(57.6f, event.getData(1));
                             break;
                         case 6:
-                            junit.framework.Assert.assertEquals(58.6f, event.getData(1));
+                            Assert.assertEquals(58.6f, event.getData(1));
                             break;
                         case 7:
-                            junit.framework.Assert.assertEquals(60.6f, event.getData(1));
+                            Assert.assertEquals(60.6f, event.getData(1));
                             break;
                         default:
                             Assert.fail();
@@ -676,7 +676,8 @@ public class JsonSourceMapperTestCase {
                 "@Plan:name('TestExecutionPlan')" +
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', enclosing.element=\"portfolio\", " +
-                "@attributes(symbol = \"stock.company.symbol\", price = \"stock.price\", volume = \"stock.volume\"))) " +
+                "@attributes(symbol = \"stock.company.symbol\", price = \"stock.price\", " +
+                "volume = \"stock.volume\"))) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
@@ -696,13 +697,13 @@ public class JsonSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(56.6f, event.getData(1));
+                            Assert.assertEquals(56.6f, event.getData(1));
                             break;
                         case 3:
-                            junit.framework.Assert.assertEquals(57.6f, event.getData(1));
+                            Assert.assertEquals(57.6f, event.getData(1));
                             break;
                         default:
                             Assert.fail();
@@ -740,7 +741,8 @@ public class JsonSourceMapperTestCase {
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', enclosing.element=\"portfolio\", " +
                 "fail.on.missing.attribute=\"true\", " +
-                "@attributes(symbol = \"stock.company.symbol\", price = \"stock.price\", volume = \"stock.volume\"))) " +
+                "@attributes(symbol = \"stock.company.symbol\", price = \"stock.price\", " +
+                "volume = \"stock.volume\"))) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
@@ -760,19 +762,19 @@ public class JsonSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(56.6f, event.getData(1));
+                            Assert.assertEquals(56.6f, event.getData(1));
                             break;
                         case 3:
-                            junit.framework.Assert.assertEquals(null, event.getData(1));
+                            Assert.assertEquals(null, event.getData(1));
                             break;
                         case 4:
-                            junit.framework.Assert.assertEquals(76.6f, event.getData(1));
+                            Assert.assertEquals(76.6f, event.getData(1));
                             break;
                         case 5:
-                            junit.framework.Assert.assertEquals(77.6f, event.getData(1));
+                            Assert.assertEquals(77.6f, event.getData(1));
                             break;
                         default:
                             Assert.fail();
@@ -820,7 +822,8 @@ public class JsonSourceMapperTestCase {
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', enclosing.element=\"portfolio\", " +
                 "fail.on.missing.attribute=\"false\", " +
-                "@attributes(symbol = \"stock.company.symbol\", price = \"stock.price\", volume = \"stock.volume\"))) " +
+                "@attributes(symbol = \"stock.company.symbol\", price = \"stock.price\", " +
+                "volume = \"stock.volume\"))) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
@@ -840,22 +843,22 @@ public class JsonSourceMapperTestCase {
                 for (Event event : events) {
                     switch (count.incrementAndGet()) {
                         case 1:
-                            junit.framework.Assert.assertEquals(55.6f, event.getData(1));
+                            Assert.assertEquals(55.6f, event.getData(1));
                             break;
                         case 2:
-                            junit.framework.Assert.assertEquals(56.6f, event.getData(1));
+                            Assert.assertEquals(56.6f, event.getData(1));
                             break;
                         case 3:
-                            junit.framework.Assert.assertEquals(100L, event.getData(2));
+                            Assert.assertEquals(100L, event.getData(2));
                             break;
                         case 4:
-                            junit.framework.Assert.assertEquals(200L, event.getData(2));
+                            Assert.assertEquals(200L, event.getData(2));
                             break;
                         case 5:
-                            junit.framework.Assert.assertEquals("wso2", event.getData(0));
+                            Assert.assertEquals("wso2", event.getData(0));
                             break;
                         case 6:
-                            junit.framework.Assert.assertEquals(null, event.getData(0));
+                            Assert.assertEquals(null, event.getData(0));
                             break;
                         default:
                             Assert.fail();
