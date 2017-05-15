@@ -700,10 +700,7 @@ LetterOrDigit
 // Whitespace and comments
 //
 
-WS  :  [ \t]+ -> channel(HIDDEN)
-    ;
-
-NEW_LINE  :  [\r\n\u000C]+ -> channel(HIDDEN)
+WS  :  [ \t\r\n\u000C]+ -> skip
     ;
 
 LINE_COMMENT
