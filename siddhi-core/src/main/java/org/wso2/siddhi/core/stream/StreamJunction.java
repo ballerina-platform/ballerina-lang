@@ -28,7 +28,7 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.EventFactory;
+import org.wso2.siddhi.core.event.SiddhiEventFactory;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.stream.input.InputProcessor;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -237,7 +237,7 @@ public class StreamJunction {
             for (Constructor constructor : Disruptor.class.getConstructors()) {
                 if (constructor.getParameterTypes().length == 5) {      // If new disruptor classes available
                     ProducerType producerType = ProducerType.MULTI;
-                    disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
+                    disruptor = new Disruptor<Event>(new SiddhiEventFactory(streamDefinition.getAttributeList().size()),
                                                      bufferSize, executorService, producerType,
                                                      new BlockingWaitStrategy());
                     disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
@@ -245,7 +245,7 @@ public class StreamJunction {
                 }
             }
             if (disruptor == null) {
-                disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
+                disruptor = new Disruptor<Event>(new SiddhiEventFactory(streamDefinition.getAttributeList().size()),
                                                  bufferSize, executorService);
                 disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
             }
