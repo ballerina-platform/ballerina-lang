@@ -37,7 +37,7 @@ var langTools = ace.acequire("ace/ext/language_tools");
 
 class ExpressionEditor{
 
-    constructor( bBox, container , callback , props) {
+    constructor( bBox, container , callback , props , packageScope ) {
         this.props = props;
         let expression = _.isNil(props.getterMethod.call(props.model)) ? "" : props.getterMethod.call(props.model);
         // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
@@ -73,11 +73,11 @@ class ExpressionEditor{
         }else{
             this._editor.setFontSize("12pt");
         }
-        /*
+        
         let completers = completerFactory.getCompleters(props.key, packageScope);
         if(completers){
             langTools.setCompleters(completers);
-        }*/
+        }
 
         this._editor.setOptions({
             enableBasicAutocompletion:true,
@@ -151,11 +151,12 @@ class ExpressionEditor{
                 let textWithSemicolon = [text.slice(0, curser), ";" , text.slice(curser)].join('');
                 if(this.end_check.exec(textWithSemicolon)){
                     props.setterMethod.call(props.model, text);
-                    //close the expression editor
+                    props.model.trigger('update-property-text', text , props.key);
+                    props.model.trigger('focus-out');
+                    this.distroy();
                     if(_.isFunction(callback)){
                         callback(text);
                     }
-                    this.distroy();
                 }else{
                     this._editor.insert(";");
                 }
