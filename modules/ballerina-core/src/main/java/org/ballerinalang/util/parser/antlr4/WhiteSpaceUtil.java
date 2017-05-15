@@ -40,7 +40,7 @@ public class WhiteSpaceUtil {
     public static final String STARTING_PAREN = "(";
     public static final String CLOSING_PAREN = ")";
     public static final String KEYWORD_AS = "as";
-    public static final String OPENNING_CURLEY_BRACE = "{";
+    public static final String OPENING_CURLY_BRACE = "{";
     public static final String SYMBOL_COLON = ":";
     public static final String NATIVE_KEYWORD = "native";
     public static final String KEYWORD_THROWS = "throws";
@@ -158,7 +158,7 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATCHMNT_ATTRIB_LIST_START_TO_FIRST_ATTRIB,
                 getWhitespaceToRight(tokenStream,
-                        getFirstTokenWithText(ctx.children, OPENNING_CURLEY_BRACE).getTokenIndex()));
+                        getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_ATCHMNT_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -257,7 +257,7 @@ public class WhiteSpaceUtil {
             ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_MAP_DEF_NATIVE_KEYWORD_TO_SIGNATURE_START,
                     getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         }
-        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_MAP_DEF_TYPEMAPPER_KEYWORD_TO_IDENTIFIER,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_MAP_DEF_TYPE_MAPPER_KEYWORD_TO_IDENTIFIER,
                 getWhitespaceToRight(tokenStream, ctx.typeMapperSignature().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_MAP_DEF_IDENTIFIER_PARAM_WRAPPER_START,
                 getWhitespaceToRight(tokenStream, ctx.typeMapperSignature().Identifier().getSymbol().getTokenIndex()));
@@ -536,7 +536,7 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_CLAUSE_ELSE_KEYWORD_TO_BODY_START,
                 getWhitespaceToLeft(tokenStream,
-                        getFirstTokenWithText(ctx.children, OPENNING_CURLEY_BRACE).getTokenIndex()));
+                        getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_CLAUSE_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -552,7 +552,7 @@ public class WhiteSpaceUtil {
                         getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.WHILE_STMT_CONDITION_WRAPPER_TO_BODY_START,
                 getWhitespaceToLeft(tokenStream,
-                        getFirstTokenWithText(ctx.children, OPENNING_CURLEY_BRACE).getTokenIndex()));
+                        getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.WHILE_STMT_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -599,7 +599,7 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_TRY_KEYWORD_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CALUSE_END_NEXT_TOKEN,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_END_NEXT_TOKEN,
                 getWhitespaceToLeft(tokenStream, ctx.catchClause().start.getTokenIndex()));
         return ws;
     }
@@ -752,7 +752,7 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.expression().get(0).stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_KEY_VAL_EXP_COLON_TO_VAL_EXP,
                 getWhitespaceToLeft(tokenStream, ctx.expression().get(1).start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_KEY_VAL_EXP_TAILING_WHITEPSACE,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_KEY_VAL_EXP_TAILING_WHITESPACE,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }

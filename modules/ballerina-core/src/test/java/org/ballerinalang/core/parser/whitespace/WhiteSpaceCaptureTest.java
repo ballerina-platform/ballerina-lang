@@ -227,7 +227,7 @@ public class WhiteSpaceCaptureTest {
         BTypeMapper typeMapper = (BTypeMapper) bFile.getCompilationUnits()[8];
         Assert.assertNotNull(typeMapper);
         Assert.assertEquals(typeMapper.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_TYPEMAPPER_KEYWORD_TO_IDENTIFIER), " ");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_TYPE_MAPPER_KEYWORD_TO_IDENTIFIER), " ");
         Assert.assertEquals(typeMapper.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_IDENTIFIER_PARAM_WRAPPER_START), "  ");
         Assert.assertEquals(typeMapper.getWhiteSpaceDescriptor()

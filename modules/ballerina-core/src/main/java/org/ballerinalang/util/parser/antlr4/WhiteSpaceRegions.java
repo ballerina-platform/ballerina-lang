@@ -97,7 +97,7 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in a type mapper definition
     public static final int TYPE_MAP_DEF_NATIVE_KEYWORD_TO_SIGNATURE_START = 0;
-    public static final int TYPE_MAP_DEF_TYPEMAPPER_KEYWORD_TO_IDENTIFIER = 1;
+    public static final int TYPE_MAP_DEF_TYPE_MAPPER_KEYWORD_TO_IDENTIFIER = 1;
     public static final int TYPE_MAP_DEF_IDENTIFIER_PARAM_WRAPPER_START = 2;
     public static final int TYPE_MAP_DEF_PARAM_WRAPPER_END_TO_RETURN_TYPE_WRAPPER_START = 3;
     public static final int TYPE_MAP_DEF_RETURN_TYPE_WRAPPER_TO_BODY_START = 4;
@@ -196,7 +196,7 @@ public class WhiteSpaceRegions {
     // whitespace regions in try clause
     public static final int TRY_CLAUSE_PRECEDING_WHITESPACE = 0;
     public static final int TRY_CLAUSE_TRY_KEYWORD_TO_BODY_START = 1;
-    public static final int TRY_CALUSE_END_NEXT_TOKEN = 2;
+    public static final int TRY_CLAUSE_END_NEXT_TOKEN = 2;
 
     // whitespace regions in catch clause
     public static final int CATCH_CLAUSE_PRECEDING_WHITESPACE = 0;
@@ -274,5 +274,5 @@ public class WhiteSpaceRegions {
     public static final int MAP_STRUCT_KEY_VAL_EXP_PRECEDING_WHITESPACE = 0;
     public static final int MAP_STRUCT_KEY_VAL_EXP_KEY_EXP_TO_COLON = 1;
     public static final int MAP_STRUCT_KEY_VAL_EXP_COLON_TO_VAL_EXP = 2;
-    public static final int MAP_STRUCT_KEY_VAL_EXP_TAILING_WHITEPSACE = 3;
+    public static final int MAP_STRUCT_KEY_VAL_EXP_TAILING_WHITESPACE = 3;
 }
