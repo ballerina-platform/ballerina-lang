@@ -88,8 +88,11 @@ public class ExecutionPlanRuntimeBuilder {
     public void defineStream(StreamDefinition streamDefinition) {
         DefinitionParserHelper.validateDefinition(streamDefinition, streamDefinitionMap, tableDefinitionMap,
                 windowDefinitionMap);
-        streamDefinition = (StreamDefinition) streamDefinitionMap
+        AbstractDefinition currentDefinition = streamDefinitionMap
                 .putIfAbsent(streamDefinition.getId(), streamDefinition);
+        if (currentDefinition != null) {
+            streamDefinition = (StreamDefinition) currentDefinition;
+        }
         DefinitionParserHelper.addStreamJunction(streamDefinition, streamJunctionMap, executionPlanContext);
         DefinitionParserHelper.addEventSource(streamDefinition, eventSourceMap, executionPlanContext);
         DefinitionParserHelper.addEventSink(streamDefinition, eventSinkMap, executionPlanContext);
@@ -98,7 +101,10 @@ public class ExecutionPlanRuntimeBuilder {
     public void defineTable(TableDefinition tableDefinition) {
         DefinitionParserHelper.validateDefinition(tableDefinition, streamDefinitionMap, tableDefinitionMap,
                 windowDefinitionMap);
-        tableDefinition = (TableDefinition) tableDefinitionMap.putIfAbsent(tableDefinition.getId(), tableDefinition);
+        AbstractDefinition currentDefinition = tableDefinitionMap.putIfAbsent(tableDefinition.getId(), tableDefinition);
+        if (currentDefinition != null) {
+            tableDefinition = (TableDefinition) currentDefinition;
+        }
         DefinitionParserHelper.addTable(tableDefinition, tableMap, executionPlanContext);
     }
 
@@ -106,8 +112,11 @@ public class ExecutionPlanRuntimeBuilder {
         DefinitionParserHelper.validateDefinition(windowDefinition, streamDefinitionMap, tableDefinitionMap,
                 windowDefinitionMap);
         DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, executionPlanContext);
-        windowDefinition = (WindowDefinition) windowDefinitionMap
+        AbstractDefinition currentDefinition = windowDefinitionMap
                 .putIfAbsent(windowDefinition.getId(), windowDefinition);
+        if (currentDefinition != null) {
+            windowDefinition = (WindowDefinition) currentDefinition;
+        }
         DefinitionParserHelper.addWindow(windowDefinition, eventWindowMap, executionPlanContext);
         // defineStream(windowDefinition);
         // DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, executionPlanContext);
@@ -115,7 +124,11 @@ public class ExecutionPlanRuntimeBuilder {
 
     public void defineTrigger(TriggerDefinition triggerDefinition) {
         DefinitionParserHelper.validateDefinition(triggerDefinition);
-        triggerDefinition = triggerDefinitionMap.putIfAbsent(triggerDefinition.getId(), triggerDefinition);
+        TriggerDefinition currentDefinition = triggerDefinitionMap.putIfAbsent(triggerDefinition.getId(),
+                                                                               triggerDefinition);
+        if (currentDefinition != null) {
+            triggerDefinition = currentDefinition;
+        }
         DefinitionParserHelper.addEventTrigger(triggerDefinition, eventTriggerMap, streamJunctionMap,
                 executionPlanContext);
     }
