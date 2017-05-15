@@ -51,7 +51,7 @@ class ReturnTypeView extends BallerinaView {
         var returnTypeWrapper = $("<div/>", {
             id: this.getModel().getID(),
             class: "return-types-detail-wrapper",
-            text: this.getModel().getArgumentAsString()
+            text: this.getModel().getParameterDefinitionAsString()
         }).data("model", this.getModel()).appendTo(this.getContainer());
 
         this._returnTypeWrapper = returnTypeWrapper.get(0);

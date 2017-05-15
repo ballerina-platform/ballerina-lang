@@ -221,6 +221,18 @@ ol#breadcrumbList {
     max-width: 250px;
 }
 
+.panel-label {
+    dominant-baseline: middle;
+}
+
+.condition-text {
+    text-anchor: start;
+    dominant-baseline: central;
+    width: 120px;
+    max-width: 250px;
+    fill: "black"
+}
+
 /*//////////////////////////////////////////////////*/
 /** Service container related styles | Start -> **/
 

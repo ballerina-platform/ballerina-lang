@@ -17,11 +17,13 @@
  */
 import React from "react";
 import StatementDecorator from "./statement-decorator";
-import StartArrowConnection from "./start-arrow-connection";
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import MessageManager from './../visitors/message-manager';
+import {util} from './../visitors/sizing-utils';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ArrowDecorator from './arrow-decorator';
 
 class WorkerInvocationStatement extends React.Component {
 
@@ -29,14 +31,63 @@ class WorkerInvocationStatement extends React.Component {
         let model = this.props.model,
             expression = model.viewState.expression;
         const bBox = model.getViewState().bBox;
-        const arrowStartPointX = bBox.getRight();
-        const arrowStartPointY = bBox.getTop() + (bBox.h + DesignerDefaults.statement.gutter.v)/2;
+        let arrowEnd = {
+            x: 0,
+            y: 0
+        };
+        let arrowStart = {
+            x: 0,
+            y: 0
+        };
+        const statementY = bBox.y + model.getViewState().components['drop-zone'].h;
+        const statementHeight = bBox.h - model.getViewState().components['drop-zone'].h;
+        const statementWidth = bBox.w;
+        const statementX = bBox.getLeft();
+
+        arrowStart.y = statementY + statementHeight/2;
+        arrowEnd. y = arrowStart.y;
+
+        let destinationWorkerName = model.getWorkerName();
+        let topLevelParent = model.getTopLevelParent();
+        const workersParent = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ? topLevelParent.getParent() : topLevelParent;
+        let workerDeclaration;
+        if (destinationWorkerName === 'default') {
+            workerDeclaration = workersParent;
+        } else {
+            workerDeclaration = _.find(workersParent.getChildren(), function (child) {
+                if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+                    return child.getWorkerName() === destinationWorkerName;
+                }
+
+                return false;
+            });
+        }
+        const workerName = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
+            topLevelParent.getWorkerName() : 'default';
+        const workerReplyStatement = util.getWorkerReplyStatementTo(workerDeclaration, workerName);
+
+        if (!_.isNil(workerReplyStatement)) {
+            /**
+             * If the worker invocation is located before the worker reply compared to the horizontal axis, then we need to
+             * start message draw from invocation's right edge to reply's left edge
+             * otherwise it should be from left edge to right edge
+             */
+            if (workerReplyStatement.getViewState().bBox.getRight() > bBox.getRight()) {
+                arrowStart.x = bBox.getRight();
+                arrowEnd.x = workerReplyStatement.getViewState().bBox.getLeft()
+            } else {
+                arrowStart.x = bBox.getLeft();
+                arrowEnd.x = workerReplyStatement.getViewState().bBox.getRight()
+            }
+        } else {
+            arrowStart.x = bBox.getRight();
+        }
 
         return (<g>
             <StatementDecorator model={model} viewState={model.viewState} expression={expression} />
             <g>
-                <circle cx={arrowStartPointX}
-                        cy={arrowStartPointY}
+                <circle cx={statementX}
+                        cy={arrowStart.y}
                         r={10}
                         fill="#444"
                         fillOpacity={0}
@@ -46,10 +97,19 @@ class WorkerInvocationStatement extends React.Component {
                         onMouseUp={(e) => this.onMouseUp(e)}
                 />
             </g>
-            {
-                (!_.isNil(model.getDestination())) &&
-                <StartArrowConnection start={model.viewState} end={model.getDestination().viewState} />
-            }
+            <g>
+                <circle cx={statementX + statementWidth}
+                        cy={arrowStart.y}
+                        r={10}
+                        fill="#444"
+                        fillOpacity={0}
+                        onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
+                        onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
+                        onMouseDown={(e) => this.onMouseDown(e)}
+                        onMouseUp={(e) => this.onMouseUp(e)}
+                />
+            </g>
+            {!_.isNil(workerReplyStatement) && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
         </g>);
     }
 
@@ -73,8 +133,31 @@ class WorkerInvocationStatement extends React.Component {
         messageManager.setSource(model);
         messageManager.setIsOnDrag(true);
         messageManager.setMessageStart(messageStartX, messageStartY);
+
+        messageManager.setTargetValidationCallback(function (destination) {
+            return model.messageDrawTargetAllowed(destination);
+        });
+
         messageManager.startDrawMessage(function (source, destination) {
-            source.setAttribute('_destination', destination)
+            const expressionsList = ((source.getInvocationStatement().split('->')[0]).trim()).split(',');
+            let expressionString = '';
+            let workerName = '';
+
+            /**
+             * If the destination is not a worker declaration, it should be a top level element
+             * (ie: resource definition, function definition, connector action definition)
+             * For the top level elements, worker name is "default"
+             */
+            if (BallerinaASTFactory.isWorkerDeclaration(destination)) {
+                workerName = destination.getWorkerName();
+            } else {
+                workerName = 'default';
+            }
+            source.setWorkerName(workerName);
+            expressionString = _.join(expressionsList, ',');
+            expressionString += '->' + workerName;
+            source.setInvocationStatement(expressionString);
+            source.setAttribute('_destination', destination);
         });
     }
 

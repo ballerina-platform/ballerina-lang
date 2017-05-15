@@ -129,13 +129,14 @@ var WorkspaceExplorer = Backbone.View.extend({
             this._containerToAdjust.css('padding-left', _.get(this._options, 'leftOffset'));
             this._verticalSeparator.css('left', _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
             this._activateBtn.parent('li').removeClass('active');
-
+            this.application.reRender(); // to update the diagrams
         } else {
             this._activateBtn.tab('show');
             var width = this._lastWidth || _.get(this._options, 'defaultWidth');
             this._$parent_el.parent().width(width);
             this._containerToAdjust.css('padding-left', width);
             this._verticalSeparator.css('left',  width - _.get(this._options, 'separatorOffset'));
+            this.application.reRender(); // to update the diagrams
         }
     },
 

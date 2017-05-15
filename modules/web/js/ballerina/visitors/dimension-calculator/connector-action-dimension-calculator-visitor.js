@@ -36,6 +36,35 @@ class ConnectorActionDimensionCalculatorVisitor {
 
     endVisit(node) {
         util.populatePanelDecoratorBBox(node, node.getActionName());
+        let viewState = node.getViewState();
+
+        viewState.titleWidth = util.getTextWidth(node.getActionName()).w;
+
+        //// Creating components for parameters of the resource
+        // Creating component for openning bracket of the parameters view.
+        viewState.components.openingParameter = {};
+        viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
+
+        // Creating component for the Parameters text.
+        viewState.components.parametersText = {};
+        viewState.components.parametersText.w = util.getTextWidth('Parameters:', 0).w;
+
+        // Creating component for closing bracket of the parameters view.
+        viewState.components.closingParameter = {};
+        viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
+
+        //// Creating components for return types of the function
+        // Creating component for openning bracket of the return types view.
+        viewState.components.openingReturnType = {};
+        viewState.components.openingReturnType.w = util.getTextWidth('(', 0).w;
+
+        // Creating component for the Return type text.
+        viewState.components.returnTypesText = {};
+        viewState.components.returnTypesText.w = util.getTextWidth('Return Types:', 0).w;
+
+        // Creating component for closing bracket of the return types view.
+        viewState.components.closingReturnType = {};
+        viewState.components.closingReturnType.w = util.getTextWidth(')', 0).w;
     }
 }
 

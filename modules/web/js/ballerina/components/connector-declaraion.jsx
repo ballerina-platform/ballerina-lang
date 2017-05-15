@@ -40,6 +40,14 @@ class ConnectorDeclaration extends React.Component {
     constructor(props) {
         super(props);
         this.components = components;
+
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'ConnectorDeclaration',
+            model: props.model,
+            getterMethod: props.model.getConnectorExpression,
+            setterMethod: props.model.setConnectorExpression,
+        };        
     }
 
     render() {
@@ -55,7 +63,7 @@ class ConnectorDeclaration extends React.Component {
 
         return (<g>
                 <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model}/>
-                <LifeLine title={connectorName} bBox={connectorBBox}/>
+                <LifeLine title={connectorName} bBox={connectorBBox} editorOptions={this.editorOptions} />
                 {children}
             </g>
         );

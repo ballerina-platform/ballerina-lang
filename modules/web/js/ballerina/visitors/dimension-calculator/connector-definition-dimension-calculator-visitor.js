@@ -35,6 +35,23 @@ class ConnectorDefinitionDimensionCalculatorVisitor {
 
     endVisit(node) {
         util.populateOuterPanelDecoratorBBox(node);
+
+        let viewState = node.getViewState();
+
+        viewState.titleWidth = util.getTextWidth(node.getConnectorName()).w;
+
+        //// Creating components for parameters of the resource
+        // Creating component for openning bracket of the parameters view.
+        viewState.components.openingParameter = {};
+        viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
+
+        // Creating component for the Parameters text.
+        viewState.components.parametersText = {};
+        viewState.components.parametersText.w = util.getTextWidth('Parameters:', 0).w;
+
+        // Creating component for closing bracket of the parameters view.
+        viewState.components.closingParameter = {};
+        viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
     }
 }
 

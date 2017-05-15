@@ -18,14 +18,15 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import ImageUtil from './image-util';
-import './action-box.css'
+import './action-box.css';
+import Breakpoint from './breakpoint';
 
 class ActionBox extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {inGracePeriod: false};
-    this.isFirstRender = true;
+    this.isHiddenToHidden = true;
   }
 
   render() {
@@ -34,14 +35,20 @@ class ActionBox extends React.Component {
     const iconSize = 14;
     const y = bBox.y + (bBox.h - iconSize) / 2
     const horizontalGap = (bBox.w - iconSize * numIcons) / (numIcons + 1);
-    const className = this.isFirstRender ? 'hide-action' : ( this.props.show ? "show-action" : "delayed-hide-action");
+    const className = this.isHiddenToHidden ? 'hide-action' : ( this.props.show ? "show-action" : "delayed-hide-action");
 
     return (<g className={className}>
                    <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h } rx="0" ry="0" className="property-pane-action-button-wrapper"></rect>
                    <image width={ iconSize } height={ iconSize } className="property-pane-action-button-delete"
-                      onClick={this.props.onDelete} xlinkHref={ ImageUtil.getSVGIconString("delete") } x={bBox.x + horizontalGap} y={y}/>
-                   <image width={ iconSize } height={ iconSize } className="property-pane-action-button-breakpoint"
-                      onClick={this.props.onBreakPoint} xlinkHref={ ImageUtil.getSVGIconString("debug-point") } x={bBox.x + iconSize + horizontalGap * 2} y={y}/>
+                          onClick={this.props.onDelete} xlinkHref={ ImageUtil.getSVGIconString("delete-dark") }
+                          x={bBox.x + horizontalGap} y={y}/>
+                  <Breakpoint
+                      x={bBox.x + iconSize + horizontalGap * 2}
+                      y={y}
+                      size={iconSize}
+                      isBreakpoint={this.props.isBreakpoint}
+                      onClick={this.props.onBreakpointClick}
+                  />
                    <image width={ iconSize } height={ iconSize } className="property-pane-action-button-jump"
                       xlinkHref={ ImageUtil.getSVGIconString("code-design") }
                       x={bBox.x + iconSize * 2 + horizontalGap * 3}
@@ -51,11 +58,9 @@ class ActionBox extends React.Component {
                 </g>);
   }
 
-  componentDidMount(){
-    this.isFirstRender = false;
+  componentWillReceiveProps(nextProps, nextState){
+    this.isHiddenToHidden = !(this.props.show || nextProps.show);
   }
-
-
 
 }
 
@@ -65,7 +70,9 @@ ActionBox.propTypes = {
     y: PropTypes.number.isRequired,
     w: PropTypes.number.isRequired,
     h: PropTypes.number.isRequired,
-  })
+  }),
+  isBreakpoint: PropTypes.bool,
+  onBreakpointClick: PropTypes.func
 }
 
 

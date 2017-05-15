@@ -31,6 +31,9 @@ import './statement-decorator.css';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
+import ImageUtil from './image-util';
+import Breakpoint from './breakpoint';
+import ActiveArbiter from './active-arbiter';
 
 const text_offset = 50;
 
@@ -46,7 +49,8 @@ class StatementDecorator extends React.Component {
 		    innerDropZoneActivated: false,
 	        innerDropZoneDropNotAllowed: false,
 	        innerDropZoneExist: false,
-	        showActions: false
+            showActions: false,
+            active: false
 		};
 	}
 
@@ -69,6 +73,31 @@ class StatementDecorator extends React.Component {
 			const container = ballerinaFileEditor._container;
 			$(container).find('.view-source-btn').trigger('click');
 			ballerinaFileEditor.getSourceView().jumpToLine({expression: fullExpression});
+	}
+
+	renderBreakpointIndicator() {
+			const breakpointSize = 14;
+			const pointX = this.statementBox.x + this.statementBox.w - breakpointSize/2;
+			const pointY = this.statementBox.y - breakpointSize/2;
+			return (
+					<Breakpoint
+							x={pointX}
+							y={pointY}
+							size={breakpointSize}
+							isBreakpoint={this.props.model.isBreakpoint}
+							onClick = { () => this.onBreakpointClick() }
+					/>
+			);
+	}
+
+	onBreakpointClick() {
+			const { model } = this.props;
+			const { isBreakpoint = false } = model;
+			if(model.isBreakpoint) {
+					model.removeBreakpoint();
+			} else {
+					model.addBreakpoint();
+			}
 	}
 
 	render() {
@@ -128,6 +157,11 @@ class StatementDecorator extends React.Component {
 		actionBbox.h = DesignerDefaults.actionBox.height;
 		actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
 		actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
+		let statementRectClass = "statement-rect";
+		if(model.isDebugHit) {
+				statementRectClass = `${statementRectClass} debug-hit`;
+		}
+
 		return (
 	    	<g 	className="statement"
             onMouseOut={ this.setActionVisibility.bind(this,false) }
@@ -140,7 +174,7 @@ class StatementDecorator extends React.Component {
 			                className={dropZoneClassName} {...fill}
 						 		onMouseOver={(e) => this.onDropZoneActivate(e)}
 								onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
-						<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className="statement-rect"
+						<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
 							  onClick={(e) => this.openExpressionEditor(e)} />
 						<g className="statement-body">
 							<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
@@ -148,8 +182,10 @@ class StatementDecorator extends React.Component {
 						<ActionBox
 							bBox={ actionBbox }
 							show={ this.state.showActions }
+							isBreakpoint={model.isBreakpoint}
 							onDelete={ () => this.onDelete() }
 							onJumptoCodeLine = { () => this.onJumptoCodeLine() }
+							onBreakpointClick = { () => this.onBreakpointClick() }
 						/>
 
 						{isActionInvocation &&
@@ -167,11 +203,17 @@ class StatementDecorator extends React.Component {
 								{connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
 							</g>
 						}
+						{		model.isBreakpoint &&
+								this.renderBreakpointIndicator()
+						}
 				{this.props.children}
 				</g>);
 	}
 
   setActionVisibility (show) {
+      if (show) {
+          this.context.activeArbiter.readyToActivate(this);
+      }
       this.setState({showActions: show})
   }
 
@@ -241,6 +283,11 @@ class StatementDecorator extends React.Component {
 		messageManager.setSource(actionInvocation);
 		messageManager.setIsOnDrag(true);
 		messageManager.setMessageStart(messageStartX, messageStartY);
+
+		messageManager.setTargetValidationCallback(function (destination) {
+			return actionInvocation.messageDrawTargetAllowed(destination);
+		});
+
 		messageManager.startDrawMessage(function (source, destination) {
 			source.setAttribute('_connector', destination)
 		});
@@ -279,6 +326,7 @@ StatementDecorator.contextTypes = {
 	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 	 container: PropTypes.instanceOf(Object).isRequired,
 	 renderingContext: PropTypes.instanceOf(Object).isRequired,
+    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
 };
 
 

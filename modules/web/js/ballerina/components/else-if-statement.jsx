@@ -26,7 +26,7 @@ class ElseIfStatement extends React.Component {
         let model = this.props.model,
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"If"}>
+        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Else If"}>
             {children}
         </BlockStatementDecorator>);
     }

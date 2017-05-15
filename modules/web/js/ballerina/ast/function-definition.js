@@ -20,7 +20,7 @@ import log from 'log';
 import ASTNode from './node';
 import CallableDefinition from './callable-definition';
 import CommonUtils from '../utils/common-utils';
-import SimpleBBox from './simple-bounding-box';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 /**
  * Constructor for FunctionDefinition
@@ -37,7 +37,6 @@ class FunctionDefinition extends CallableDefinition {
         this._functionName = _.get(args, 'functionName');
         this._isPublic = _.get(args, "isPublic") || false;
         this._annotations = _.get(args, 'annotations', []);
-        this.BallerinaASTFactory = this.getFactory();
     }
 
     setFunctionName(name, options) {
@@ -61,15 +60,7 @@ class FunctionDefinition extends CallableDefinition {
     }
 
     getArguments() {
-        var functionArgs = [];
-        var self = this;
-
-        _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isArgument(child) && !self.BallerinaASTFactory.isReturnType(child)) {
-                functionArgs.push(child);
-            }
-        });
-        return functionArgs;
+        return this.getArgumentParameterDefinitionHolder().getChildren();
     }
 
     getIsPublic() {
@@ -77,15 +68,7 @@ class FunctionDefinition extends CallableDefinition {
     }
 
     getVariableDefinitionStatements() {
-        var variableDefinitionStatements = [];
-        var self = this;
-
-        _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDefinitionStatement(child)) {
-                variableDefinitionStatements.push(child);
-            }
-        });
-        return variableDefinitionStatements;
+        return this.filterChildren(this.getFactory().isVariableDefinitionStatement).slice(0);
     }
 
     /**
@@ -93,34 +76,22 @@ class FunctionDefinition extends CallableDefinition {
      */
     addVariableDeclaration(newVariableDeclaration) {
         // Get the index of the last variable declaration.
-        var self = this;
-
-        var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child);
-        });
-
+        var index = this.findLastIndexOfChild(this.getFactory().isVariableDeclaration);
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
         if (index == -1) {
-            index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.BallerinaASTFactory.isConnectorDeclaration(child);
-            });
+            index = this.findLastIndexOfChild(this.getFactory().isConnectorDeclaration);
         }
 
         this.addChild(newVariableDeclaration, index + 1);
     }
 
     /**
-     * Adds new variable declaration.
+     * Removes variable declaration.
      */
     removeVariableDeclaration(variableDeclarationIdentifier) {
-        var self = this;
         // Removing the variable from the children.
-        var variableDeclarationChild = _.find(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child)
-                && child.getIdentifier() === variableDeclarationIdentifier;
-        });
-        this.removeChild(variableDeclarationChild);
+        this.removeChildByIdentifier = _.remove(this.getFactory().isVariableDeclaration, variableDeclarationIdentifier);
     }
 
     /**
@@ -128,17 +99,13 @@ class FunctionDefinition extends CallableDefinition {
      * @return {string} - Arguments as string.
      */
     getArgumentsAsString() {
-        var argsAsString = "";
+        var argsStringArray = [];
         var args = this.getArguments();
-        _.forEach(args, function(argument, index){
-            argsAsString += argument.bType + " ";
-            argsAsString += argument.identifier;
-            if (args.length - 1 != index) {
-                argsAsString += ", ";
-            }
+        _.forEach(args, function(arg){
+            argsStringArray.push(arg.getParameterDefinitionAsString());
         });
 
-        return argsAsString;
+        return _.join(argsStringArray, ', ');
     }
 
     /**
@@ -147,19 +114,14 @@ class FunctionDefinition extends CallableDefinition {
      * @param identifier - The identifier of the argument.
      */
     addArgument(type, identifier) {
-        //creating resource argument
-        var newArgument = this.BallerinaASTFactory.createArgument();
-        newArgument.setBType(type);
-        newArgument.setIdentifier(identifier);
+        var newArgumentParamDef = this.getFactory().createParameterDefinition();
+        newArgumentParamDef.setTypeName(type);
+        newArgumentParamDef.setName(identifier);
 
-        var self = this;
+        var argParamDefHolder = this.getArgumentParameterDefinitionHolder();
+        var index = argParamDefHolder.getChildren().length;
 
-        // Get the index of the last resource argument declaration.
-        var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isArgument(child);
-        });
-
-        this.addChild(newArgument, index + 1);
+        argParamDefHolder.addChild(newArgumentParamDef, index + 1);
     }
 
     /**
@@ -168,22 +130,28 @@ class FunctionDefinition extends CallableDefinition {
      * @return {Array} - The removed argument.
      */
     removeArgument(identifier) {
-        var self = this;
-        _.remove(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isArgument(child) && child.getIdentifier() === identifier;
-        });
+        this.getArgumentParameterDefinitionHolder().removeChildByName(this.getFactory().isParameterDefinition, identifier);
+    }
+
+    getArgumentParameterDefinitionHolder() {
+        var argParamDefHolder = this.findChild(this.getFactory().isArgumentParameterDefinitionHolder);
+        if (_.isUndefined(argParamDefHolder)) {
+            argParamDefHolder = this.getFactory().createArgumentParameterDefinitionHolder();
+            this.addChild(argParamDefHolder);
+        }
+        return argParamDefHolder;
     }
 
     //// Start of return type functions.
 
     /**
      * Gets the return type as a string separated by commas.
-     * @return {string} - Return types.
+     * @return {string} - Return types separated by comma.
      */
     getReturnTypesAsString() {
         var returnTypes = [];
-        _.forEach(this.getReturnTypes(), function (returnTypeChild) {
-            returnTypes.push(returnTypeChild.getArgumentAsString())
+        _.forEach(this.getReturnParameterDefinitionHolder().getChildren(), function (returnType) {
+            returnTypes.push(returnType.getParameterDefinitionAsString());
         });
 
         return _.join(returnTypes, ", ");
@@ -191,11 +159,10 @@ class FunctionDefinition extends CallableDefinition {
 
     /**
      * Gets the defined return types.
-     * @return {Argument[]} - Array of args.
+     * @return {ParameterDefinition[]} - Array of returns.
      */
     getReturnTypes() {
-        var returnTypeModel = this.getReturnTypeModel();
-        return !_.isUndefined(returnTypeModel) ? this.getReturnTypeModel().getChildren().slice(0) : [];
+        return this.getReturnParameterDefinitionHolder().getChildren();
     }
 
     /**
@@ -206,20 +173,16 @@ class FunctionDefinition extends CallableDefinition {
     addReturnType(type, identifier) {
         var self = this;
 
-        // Adding return type mode if it doesn't exists.
-        if (_.isUndefined(this.getReturnTypeModel())) {
-            this.addChild(this.BallerinaASTFactory.createReturnType());
-        }
+        var returnParamDefHolder = this.getReturnParameterDefinitionHolder();
 
         // Check if there is already a return type with the same identifier.
         if (!_.isUndefined(identifier)) {
-            _.forEach(this.getReturnTypeModel().getChildren(), function(child) {
-                if (child.getIdentifier() === identifier) {
-                    var errorString = "An argument with identifier '" + identifier + "' already exists.";
-                    log.error(errorString);
-                    throw errorString;
-                }
-            });
+            var child = returnParamDefHolder.findChildByIdentifier(true, identifier);
+            if (_.isUndefined(child)) {
+                var errorString = "An return argument with identifier '" + identifier + "' already exists.";
+                log.error(errorString);
+                throw errorString;
+            }
         }
 
         // Validating whether return type can be added based on identifiers of other return types.
@@ -239,30 +202,21 @@ class FunctionDefinition extends CallableDefinition {
             }
         }
 
-        var argument = this.BallerinaASTFactory.createArgument({type: type, identifier: identifier});
-
-        var existingReturnType = self.getReturnTypeModel();
-
-        // Adding the new argument input position.
-        if (!_.isNil(existingReturnType)) {
-            existingReturnType.addChild(argument, existingReturnType.getChildren().length + 1);
-        } else {
-            var returnType = this.BallerinaASTFactory.createReturnType();
-            returnType.addChild(argument, 0);
-            this.addChild(returnType);
-        }
+        var paramDef = this.getFactory().createParameterDefinition({typeName: type, name: identifier});
+        returnParamDefHolder.addChild(paramDef, 0);
     }
 
     hasNamedReturnTypes() {
-        if (_.isUndefined(this.getReturnTypeModel())) {
+        if (this.getReturnParameterDefinitionHolder().getChildren().length == 0) {
+            //if there are no return types in the return type model
             return false;
         } else if (this.getReturnTypeModel().getChildren().length == 0) {
             //if there are no return types in the return type model
             return false;
         } else {
             //check if any of the return types have identifiers
-            var indexWithoutIdentifiers = _.findIndex(this.getReturnTypeModel().getChildren(), function (child) {
-                return _.isUndefined(child.getIdentifier());
+            var indexWithoutIdentifiers = _.findIndex(this.getReturnParameterDefinitionHolder().getChildren(), function (child) {
+                return _.isUndefined(child.getName());
             });
 
             if (indexWithoutIdentifiers !== -1) {
@@ -274,58 +228,35 @@ class FunctionDefinition extends CallableDefinition {
     }
 
     hasReturnTypes() {
-        if (_.isUndefined(this.getReturnTypeModel())) {
-            return false;
+        if (this.getReturnParameterDefinitionHolder().getChildren().length > 0) {
+            return true;
         } else {
-            if (this.getReturnTypeModel().getChildren().length > 0) {
-                return true;
-            } else {
-                return false;
-            }
+            return false;
         }
     }
 
     /**
      * Removes return type argument from the return type model.
-     * @param {string} modelID - The id of an {Argument} which resides in the return type model.
+     * @param {string} identifier - The identifier of a {ParameterDefinition} which resides in the return type model.
      */
     removeReturnType(modelID) {
-        var self = this;
-        var argumentToRemove = undefined;
-
-        // Find the argument to remove/delete.
-        _.forEach(self.getReturnTypeModel().getChildren(), function (argument) {
-            if (argument.getID() == modelID) {
-                argumentToRemove = argument;
-                // break
-                return false;
-            }
-        });
+        var removeChild = this.getReturnParameterDefinitionHolder().removeChildById(this.getFactory().isParameterDefinition, modelID);
 
         // Deleting the argument from the AST.
-        if (!_.isUndefined(argumentToRemove)) {
-            self.getReturnTypeModel().removeChild(argumentToRemove);
-        } else {
-            var exceptionString = "Could not find a return type with ID: " + modelID;
+        if (!_.isUndefined(removeChild)) {
+            var exceptionString = 'Could not find a return type with id : ' + modelID;
             log.error(exceptionString);
             throw exceptionString;
         }
     }
 
-    /**
-     * Gets the return type model. A function definition can have only one {ReturnType} model.
-     * @return {ReturnType|undefined} - The return type model.
-     */
-    getReturnTypeModel() {
-        var self = this;
-        var returnTypeModel = undefined;
-        _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isReturnType(child)) {
-                returnTypeModel = child;
-                return false; // break
-            }
-        });
-        return returnTypeModel;
+    getReturnParameterDefinitionHolder() {
+        var returnParamDefHolder = this.findChild(this.getFactory().isReturnParameterDefinitionHolder);
+        if (_.isUndefined(returnParamDefHolder)) {
+            returnParamDefHolder = this.getFactory().createReturnParameterDefinitionHolder();
+            this.addChild(returnParamDefHolder);
+        }
+        return returnParamDefHolder;
     }
 
     //// End of return type functions.
@@ -350,9 +281,13 @@ class FunctionDefinition extends CallableDefinition {
      * @param index
      */
     addChild(child, index) {
-        if (this.BallerinaASTFactory.isWorkerDeclaration(child)) {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+        if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child);
         } else {
+            const firstWorkerIndex = _.findIndex(this.getChildren(), function (child) {
+                return BallerinaASTFactory.isWorkerDeclaration(child);
+            });
+            index = _.isNil(firstWorkerIndex) ? undefined : firstWorkerIndex;
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
         }
     }
@@ -378,10 +313,10 @@ class FunctionDefinition extends CallableDefinition {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        return this.BallerinaASTFactory.isConnectorDeclaration(node)
-            || this.BallerinaASTFactory.isVariableDeclaration(node)
-            || this.BallerinaASTFactory.isWorkerDeclaration(node)
-            || this.BallerinaASTFactory.isStatement(node);
+        return this.getFactory().isConnectorDeclaration(node)
+            || this.getFactory().isVariableDeclaration(node)
+            || this.getFactory().isWorkerDeclaration(node)
+            || this.getFactory().isStatement(node);
     }
 
     /**
@@ -403,10 +338,10 @@ class FunctionDefinition extends CallableDefinition {
             var childNodeTemp = undefined;
             //TODO : generalize this logic
             if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = self.BallerinaASTFactory.createConnectorDeclaration();
+                child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
-                child = self.BallerinaASTFactory.createFromJson(childNode);
+                child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;
             }
             self.addChild(child);

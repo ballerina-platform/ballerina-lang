@@ -39,8 +39,8 @@ class FunctionDefinitionDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        var viewState = node.getViewState();
-        var components = {};
+        let viewState = node.getViewState();
+        let components = {};
 
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
@@ -67,21 +67,20 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         }
 
         components['statementContainer'] = new SimpleBBox();
-        var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
-        var statementWidth = 0;
-        var statementHeight = 0;
+        let statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+
+        const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
+            DesignerDefaults.statementContainer.padding.right;
+
+        let statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
+        let statementHeight = 0;
 
         _.forEach(statementChildren, function(child) {
             statementHeight += child.viewState.bBox.h;
-            if(child.viewState.bBox.w > statementWidth){
-                statementWidth = child.viewState.bBox.w;
+            if((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth){
+                statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }
         });
-
-        //if statement width is 0 set default
-        if(statementWidth == 0){
-            statementWidth = DesignerDefaults.statement.width;
-        }
 
         /* Lets add an extra gap to the bottom of the lifeline.
            This will prevent last statement touching bottom box of the life line.*/
@@ -108,7 +107,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         const workerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
         const highestLifeLineHeight = highestStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;
 
-        var lifeLineWidth = 0;
+        let lifeLineWidth = 0;
         _.forEach(workerChildren.concat(connectorChildren), function(child) {
             lifeLineWidth += child.viewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
             child.getViewState().bBox.h = _.max([components['statementContainer'].h, highestStatementContainerHeight]) +
@@ -142,7 +141,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         viewState.titleWidth = util.getTextWidth(node.getFunctionName()).w;
 
         //// Creating components for parameters of the function
-        // Creating component for openning bracket of the parameters view.
+        // Creating component for opening bracket of the parameters view.
         viewState.components.openingParameter = {};
         viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
 
@@ -156,7 +155,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
 
         //// Creating components for return types of the function
-        // Creating component for openning bracket of the return types view.
+        // Creating component for opening bracket of the return types view.
         viewState.components.openingReturnType = {};
         viewState.components.openingReturnType.w = util.getTextWidth('(', 0).w;
 

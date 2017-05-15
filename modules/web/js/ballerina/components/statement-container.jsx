@@ -69,14 +69,15 @@ class StatementContainer extends React.Component {
   					dragDropManager.once('drop-target-changed', () => {
   							this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
   					});
+                e.stopPropagation();
   			} else if (messageManager.isOnDrag()) {
 				/**
 				 * Hover on a worker declaration while drawing an arrow starting from a worker invocation
 				 */
-				this.setState({statementDropZoneActivated: true, dropZoneDropNotAllowed: false});
 				messageManager.setDestination(dropTarget);
+				this.setState({statementDropZoneActivated: true, dropZoneDropNotAllowed: !messageManager.isAtValidDestination()});
+                e.stopPropagation();
 			}
-        e.stopPropagation();
   	}
 
   	onDropZoneDeactivate (e) {
@@ -88,11 +89,12 @@ class StatementContainer extends React.Component {
   							dragDropManager.clearActivatedDropTarget();
   							this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
   					}
-  			} else if (messageManager.isOnDrag() && ASTFactory.isWorkerDeclaration(dropTarget)) {
+                e.stopPropagation();
+  			} else if (messageManager.isOnDrag()) {
 				this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
 				messageManager.setDestination(undefined);
+                e.stopPropagation();
 			}
-        e.stopPropagation();
   	}
 
   	onDropZoneMouseUp (e) {
