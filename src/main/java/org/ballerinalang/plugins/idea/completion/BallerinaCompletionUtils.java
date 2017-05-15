@@ -46,6 +46,7 @@ import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -442,9 +443,11 @@ public class BallerinaCompletionUtils {
                 .collect(Collectors.toList());
         List<PsiDirectory> packages = BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(file.getProject());
         for (PsiDirectory pack : packages) {
+            String suggestedPackage = BallerinaUtil.suggestPackageNameForDirectory(pack);
             if (!importedPackageNames.contains(pack.getName())) {
                 LookupElementBuilder builder = LookupElementBuilder.create(pack)
                         .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
+                        .withTailText("(" + suggestedPackage + ")", true)
                         .withInsertHandler(BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
                 resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
             }
