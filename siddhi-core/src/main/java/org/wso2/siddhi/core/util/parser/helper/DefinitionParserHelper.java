@@ -351,7 +351,7 @@ public class DefinitionParserHelper {
                     }
 
                     final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-                    if (sinkType != null && mapType != null) {
+                    if (mapType != null) {
                         Sink sink;
                         if (isDistributedTransport) {
                             sink = (isMultiClient) ? new MultiClientDistributedSink() :

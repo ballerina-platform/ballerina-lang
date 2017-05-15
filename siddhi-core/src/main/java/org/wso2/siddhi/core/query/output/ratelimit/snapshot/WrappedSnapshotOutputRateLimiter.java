@@ -45,8 +45,7 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
     private final ScheduledExecutorService scheduledExecutorService;
     private final boolean groupBy;
     private final boolean windowed;
-    SnapshotOutputRateLimiter outputRateLimiter;
-    String queryName;
+    private SnapshotOutputRateLimiter outputRateLimiter;
     private String id;
     private ExecutionPlanContext executionPlanContext;
     private List<Integer> aggregateAttributePositionList = new ArrayList<Integer>();

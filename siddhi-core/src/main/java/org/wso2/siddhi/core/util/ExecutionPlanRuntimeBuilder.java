@@ -153,7 +153,6 @@ public class ExecutionPlanRuntimeBuilder {
         if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
             InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) outputCallback;
             StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
-
             streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
             DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition
                     .getId()));
@@ -170,7 +169,6 @@ public class ExecutionPlanRuntimeBuilder {
         } else if (outputCallback != null && outputCallback instanceof InsertIntoWindowCallback) {
             InsertIntoWindowCallback insertIntoWindowCallback = (InsertIntoWindowCallback) outputCallback;
             StreamDefinition streamDefinition = insertIntoWindowCallback.getOutputStreamDefinition();
-
             windowDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
             DefinitionParserHelper.validateOutputStream(streamDefinition, windowDefinitionMap.get(streamDefinition
                     .getId()));

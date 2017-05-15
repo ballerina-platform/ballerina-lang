@@ -42,7 +42,7 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     protected final Long value;
     protected final ScheduledExecutorService scheduledExecutorService;
     protected String id;
-    protected LinkedList<ComplexEvent> eventList;
+    private LinkedList<ComplexEvent> eventList;
     protected Comparator<ComplexEvent> comparator;
     protected List<Integer> aggregateAttributePositionList;
     protected Scheduler scheduler;
