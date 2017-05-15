@@ -61,7 +61,6 @@ public class JSONOutputMapper extends SinkMapper {
     private static final String JSON_EVENT_END_SYMBOL = "}";
     private static final String UNDEFINED = "undefined";
 
-    private StreamDefinition streamDefinition;
     private String[] attributeNameArray;
     private String enclosingElement = null;
     private boolean isJsonValidationEnabled = false;
@@ -82,7 +81,6 @@ public class JSONOutputMapper extends SinkMapper {
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
                      TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader) {
-        this.streamDefinition = streamDefinition;
         attributeNameArray = streamDefinition.getAttributeNameArray();
         enclosingElement = optionHolder.validateAndGetStaticValue(ENCLOSING_ELEMENT_IDENTIFIER, null);
         isJsonValidationEnabled = Boolean.parseBoolean(optionHolder
@@ -111,7 +109,7 @@ public class JSONOutputMapper extends SinkMapper {
             } else if (isValidJson(sb.toString())) {
                 sinkListener.publish(sb.toString(), dynamicOptions);
             } else {
-                log.error("Invalid json string : " + sb.toString());
+                log.error("Invalid json string : " + sb.toString() + ". Hence dropping the message.");
             }
         }
     }
@@ -138,7 +136,7 @@ public class JSONOutputMapper extends SinkMapper {
             } else if (isValidJson(sb.toString())) {
                 sinkListener.publish(sb.toString(), dynamicOptions);
             } else {
-                log.error("Invalid json string : " + sb.toString());
+                log.error("Invalid json string : " + sb.toString() + ". Hence dropping the message.");
             }
         }
     }

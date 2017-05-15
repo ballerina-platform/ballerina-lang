@@ -47,18 +47,14 @@ import java.util.List;
 
 
 /**
- * This mapper converts JSON string input to {@link ComplexEventChunk}. This extension accepts optional mapping to
- * select
- * specific attributes from the stream.
- * For example, <pre>{@code subscription.map(Mapping.format("json"));}</pre> converts a given JSON string to Java
- * objects and select the stream attributes based on the output stream's attributes.
- * If custom mapping is given like <pre>{@code subscription.map(Mapping.format("json").map("$.country").map("$
- * .price").map("$.volume", "volume"));}</pre>, it will select the user defined attributes only.
+ * This mapper converts JSON string input to {@link ComplexEventChunk}.
+ * This extension accepts optional json path expressions to
+ * select specific attributes from the stream.
  */
 @Extension(
         name = "json",
         namespace = "sourceMapper",
-        description = ""
+        description = "JSON to Event input mapper"
 )
 public class JsonInputMapper extends SourceMapper {
 

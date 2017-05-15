@@ -656,7 +656,7 @@ public class JsonSinkMapperTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         try {
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+            siddhiManager.createExecutionPlanRuntime(streams + query);
         }catch (Exception e){
             Assert.assertEquals(NoSuchAttributeException.class,e.getClass());
         }
