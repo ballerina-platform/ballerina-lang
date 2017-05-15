@@ -257,6 +257,11 @@ class StructDefinition extends React.Component {
         }
     }
     addVariableDefinitionStatement(bType, identifier, defaultValue) {
+        if(!bType) {
+            const errorString = "Struct Type Cannot be empty";
+            Alerts.error(errorString);
+            throw errorString;
+        }
         this.validateIdentifierName(identifier);
         this.props.model.addVariableDefinitionStatement(bType, identifier, defaultValue);
     }
