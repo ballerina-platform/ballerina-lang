@@ -5,24 +5,34 @@ function testForkJoinAll(message m)(message[]) {
 
         message[] results;
         json error;
+        int x = 100;
+        float y = 1000.5;
         system:println("Airfare ");
+        system:println(y);
         fork {
             worker ABC_Airline {
                 json payload;
                 payload = `{"name":"abc"}`;
                 messages:setJsonPayload(m, payload);
+                //x = 100;
+                system:println(x);
+                //y = 234.5;
+                system:println(y);
                 reply m;
             }
 
             worker XYZ_Airline {
                 json payload;
                 payload = `{"name":"xyz"}`;
+                //x = 500;
+                system:println(x);
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
         } join (all) (message[] airlineResponses) {
             system:println(messages:getStringPayload(airlineResponses[0]));
             system:println(messages:getStringPayload(airlineResponses[1]));
+            system:println(y);
             return airlineResponses;
         } timeout (30000) (message[] airlineResponses) {
             system:println("error occurred");
@@ -32,6 +42,7 @@ function testForkJoinAll(message m)(message[]) {
             results[0] = m;
             return results;
         }
+        system:println(y);
 }
 
 function testForkJoinAny(message m)(message[]) {

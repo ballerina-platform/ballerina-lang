@@ -439,15 +439,24 @@ public class BLangExecutor implements NodeExecutor {
         Map<String, WorkerRunner> triggeredWorkers = new HashMap<>();
         for (Worker worker : workers) {
             int sizeOfValueArray = worker.getStackFrameSize();
-            BValue[] localVals = new BValue[sizeOfValueArray];
+            int newSize = sizeOfValueArray + this.controlStack.getCurrentFrame().values.length;
 
+            //BValue[] localVals = new BValue[sizeOfValueArray];
+            BValue[] localVals = new BValue[newSize];
 
 //            BValue argValue = inMsg != null ? inMsg.clone() : null;
 //            // Setting argument value in the stack frame
 //            localVals[0] = argValue;
 
             // Get values for all the worker arguments
-            int valueCounter = populateArgumentValuesForWorker(forkJoinStmt.getInputValues(), localVals);
+            //int valueCounter = populateArgumentValuesForWorker(forkJoinStmt.getInputValues(), localVals);
+            int valueCounter = 0;
+
+            // Copying the values of current stack frame to the new stack frame
+            BValue[] parentParams = this.controlStack.getCurrentFrame().values;
+            for (BValue value : parentParams) {
+                localVals[valueCounter++] = value;
+            }
 
             for (ParameterDef returnParam : worker.getReturnParameters()) {
                 // Check whether these are unnamed set of return types.

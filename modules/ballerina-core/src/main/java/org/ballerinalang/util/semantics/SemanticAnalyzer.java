@@ -568,6 +568,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             worker2.accept(this);
         }
 
+
         BlockStmt blockStmt = worker.getCallableUnitBody();
         blockStmt.accept(this);
 
@@ -1176,9 +1177,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 //                    messageReference.getNodeLocation().getLineNumber());
 //        }
 
-
         // Visit workers
         for (Worker worker: forkJoinStmt.getWorkers()) {
+            workerMemAddrOffset += stackFrameOffset;
             worker.accept(this);
         }
 
