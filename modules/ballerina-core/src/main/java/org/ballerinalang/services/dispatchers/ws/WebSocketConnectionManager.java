@@ -114,6 +114,7 @@ public class WebSocketConnectionManager {
      * @param session @link Session} to remove from the group.
      */
     public void removeConnectionFromGroup(String groupName, Session session) {
+        // TODO: Throw exception if it is not there.
         if (connectionGroups.containsKey(groupName)) {
             connectionGroups.get(groupName).remove(session.getId());
         }

@@ -57,15 +57,18 @@ public class ConnectionGroupTest {
         String sentText = "test message";
         String textExpectedForEven = "evenGroup: " + sentText;
         String textExpectedForOdd = "oddGroup: " + sentText;
+
         Map<String, String> oddGroup = new HashMap<>();
-        oddGroup.put("group", "odd");
         Map<String, String> evenGroup = new HashMap<>();
+        oddGroup.put("group", "odd");
         evenGroup.put("group", "even");
+
         Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session1, wsEndpointPath, oddGroup));
         Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session2, wsEndpointPath, evenGroup));
         Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session3, wsEndpointPath, oddGroup));
         Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session4, wsEndpointPath, evenGroup));
         Services.invoke(MessageUtils.generateWebSocketTextMessage(sentText, session1, wsEndpointPath));
+
         Assert.assertEquals(session1.getTextReceived(), textExpectedForOdd);
         Assert.assertEquals(session2.getTextReceived(), textExpectedForEven);
         Assert.assertEquals(session3.getTextReceived(), textExpectedForOdd);
@@ -76,10 +79,12 @@ public class ConnectionGroupTest {
     public void testRemoveConnectionFromGroup() {
         String sentTextToRemove = "removeOddConnection";
         Services.invoke(MessageUtils.generateWebSocketTextMessage(sentTextToRemove, session1, wsEndpointPath));
+
         String sentText = "hello again";
         String textExpectedForEven = "evenGroup: " + sentText;
         String textExpectedForOdd = "oddGroup: " + sentText;
         Services.invoke(MessageUtils.generateWebSocketTextMessage(sentText, session2, wsEndpointPath));
+
         Assert.assertEquals(session1.getTextReceived(), null);
         Assert.assertEquals(session2.getTextReceived(), textExpectedForEven);
         Assert.assertEquals(session3.getTextReceived(), textExpectedForOdd);
@@ -90,8 +95,10 @@ public class ConnectionGroupTest {
     public void testRemoveConnectionGroup() {
         String sentTextToRemove = "removeEvenGroup";
         Services.invoke(MessageUtils.generateWebSocketTextMessage(sentTextToRemove, session3, wsEndpointPath));
+
         String sentText = "hello only odd";
         Services.invoke(MessageUtils.generateWebSocketTextMessage(sentText, session3, wsEndpointPath));
+
         Assert.assertEquals(session1.getTextReceived(), null);
         Assert.assertEquals(session2.getTextReceived(), null);
         Assert.assertEquals(session3.getTextReceived(), "oddGroup: " + sentText);

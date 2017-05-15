@@ -38,5 +38,4 @@ service oddEvenWebSocketService {
         system:println("client left the server.");
         ws:broadcastText("client left the server.");
     }
-
 }

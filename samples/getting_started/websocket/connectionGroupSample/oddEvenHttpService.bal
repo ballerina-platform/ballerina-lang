@@ -43,5 +43,4 @@ service oddEvenHttpService {
         messages:setStringPayload(res, "done");
         reply res;
     }
-    
 }

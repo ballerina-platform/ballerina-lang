@@ -20,5 +20,4 @@ service dataService {
         message res = {};
         reply res;
     }
-
 }

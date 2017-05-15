@@ -51,8 +51,10 @@ public class WebSocketEndpointTest {
         String expectedText = "new client connected";
         CarbonMessage client1Message = MessageUtils.generateWebSocketOnOpenMessage(session1, uri);
         CarbonMessage client2Message = MessageUtils.generateWebSocketOnOpenMessage(session2, uri);
+
         Services.invoke(client1Message);
         Services.invoke(client2Message);
+
         Assert.assertEquals(session1.getTextReceived(), expectedText);
     }
 

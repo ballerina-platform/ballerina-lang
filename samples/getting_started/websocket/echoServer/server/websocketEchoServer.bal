@@ -22,5 +22,4 @@ service websocketEchoServer {
     resource onClose(message m) {
         system:println("client left the server.");
     }
-
 }

@@ -69,6 +69,7 @@ public class PushTextToGroup extends AbstractNativeFunction {
                     }
             );
         }
+        // TODO: Throw exception if null
         return VOID_RETURN;
     }
 }

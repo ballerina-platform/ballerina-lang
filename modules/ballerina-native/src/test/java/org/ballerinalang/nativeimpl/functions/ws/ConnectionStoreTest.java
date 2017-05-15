@@ -76,7 +76,7 @@ public class ConnectionStoreTest {
         Assert.assertEquals(session3.getTextReceived(), null);
         Assert.assertEquals(session4.getTextReceived(), null);
 
-        //Sending message to client 1 and check
+        //Sending message to client 2 and check
         textSent = "Hi store 2";
         Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/2", "POST", textSent));
         Assert.assertEquals(session1.getTextReceived(), null);
@@ -84,7 +84,7 @@ public class ConnectionStoreTest {
         Assert.assertEquals(session3.getTextReceived(), null);
         Assert.assertEquals(session4.getTextReceived(), null);
 
-        //Sending message to client 1 and check
+        //Sending message to client 3 and check
         textSent = "Hi store 3";
         Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/3", "POST", textSent));
         Assert.assertEquals(session1.getTextReceived(), null);
@@ -92,7 +92,7 @@ public class ConnectionStoreTest {
         Assert.assertEquals(session3.getTextReceived(), textSent);
         Assert.assertEquals(session4.getTextReceived(), null);
 
-        //Sending message to client 1 and check
+        //Sending message to client 4 and check
         textSent = "Hi store 4";
         Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/4", "POST", textSent));
         Assert.assertEquals(session1.getTextReceived(), null);
@@ -105,6 +105,7 @@ public class ConnectionStoreTest {
     public void removeConnection() {
         Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/rm/1", "GET"));
         Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/1", "POST", "test"));
+
         Assert.assertEquals(session1.getTextReceived(), null);
         Assert.assertEquals(session2.getTextReceived(), null);
         Assert.assertEquals(session3.getTextReceived(), null);

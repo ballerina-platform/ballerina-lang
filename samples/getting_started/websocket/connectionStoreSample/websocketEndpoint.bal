@@ -19,5 +19,4 @@ service websocketEndpoint {
         system:println("client left the server.");
         ws:broadcastText("client left the server.");
     }
-
 }

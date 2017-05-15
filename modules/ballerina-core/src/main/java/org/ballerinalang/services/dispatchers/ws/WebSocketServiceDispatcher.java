@@ -27,8 +27,6 @@ import org.ballerinalang.services.dispatchers.http.HTTPServiceDispatcher;
 import org.ballerinalang.services.dispatchers.http.HTTPServicesRegistry;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -37,8 +35,6 @@ import org.wso2.carbon.messaging.CarbonMessage;
  * Service Dispatcher for WebSocket Endpoint.
  */
 public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
-
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketServiceDispatcher.class);
 
     @Override
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
@@ -92,7 +88,7 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         }
         if (websocketUpgradePathAnnotation != null && websocketUpgradePathAnnotation.getValue() != null && 
                 !websocketUpgradePathAnnotation.getValue().trim().isEmpty()) {
-            if (basePathAnnotation == null || basePathAnnotation.getValue() == null || 
+            if (basePathAnnotation == null || basePathAnnotation.getValue() == null ||
                     basePathAnnotation.getValue().trim().isEmpty()) {
                 throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
             }
