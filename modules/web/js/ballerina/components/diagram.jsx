@@ -91,8 +91,11 @@ class Diagram extends React.Component {
         // 3.1 lets filter out annotations so we can overlay html on top of svg.
         let annotationRenderer = new AnnotationRenderingVisitor();
         this.model.accept(annotationRenderer);
-        let annotations = getComponentForNodeArray(annotationRenderer.getAnnotations());
-        console.log(annotations);
+        let annotations = [];
+        if(annotationRenderer.getAnnotations()){
+            annotations = getComponentForNodeArray(annotationRenderer.getAnnotations());
+        }
+        
         // 4. Ok we are all set, now lets render the diagram with React. We will create
         //    s CsnvasDecorator and pass child components for that.
         let viewState = this.model.getViewState();
