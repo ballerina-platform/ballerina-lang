@@ -5,7 +5,8 @@ struct-variable-definition-identifier-text
 struct-variable-definition-value-rect
 struct-variable-definition-value-text*/
 
-.struct-variable-definition-type-rect, .struct-variable-definition-identifier-rect, .struct-variable-definition-value-rect{
+.struct-variable-definition-type-rect, .struct-variable-definition-identifier-rect, .struct-variable-definition-value-rect,
+.new-type-drop-rect, .new-identifier-rect, .new-value-rect, .struct-content-operations-submit-wrapper{
     fill: #FFFFFF;
     stroke-width: 1;
     stroke: #CCC;
