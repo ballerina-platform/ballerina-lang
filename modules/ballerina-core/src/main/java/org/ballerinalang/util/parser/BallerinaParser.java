@@ -36,7 +36,7 @@ public class BallerinaParser extends Parser {
 		RULE_serviceBody = 6, RULE_resourceDefinition = 7, RULE_callableUnitBody = 8, 
 		RULE_functionDefinition = 9, RULE_callableUnitSignature = 10, RULE_connectorDefinition = 11, 
 		RULE_connectorBody = 12, RULE_actionDefinition = 13, RULE_structDefinition = 14, 
-		RULE_structBody = 15, RULE_annotationDefinition = 16, RULE_globalVariableDefinitionStatement = 17, 
+		RULE_structBody = 15, RULE_annotationDefinition = 16, RULE_globalVariableDefinition = 17, 
 		RULE_attachmentPoint = 18, RULE_annotationBody = 19, RULE_typeMapperDefinition = 20, 
 		RULE_typeMapperSignature = 21, RULE_typeMapperBody = 22, RULE_constantDefinition = 23, 
 		RULE_workerDeclaration = 24, RULE_typeName = 25, RULE_referenceTypeName = 26, 
@@ -63,7 +63,7 @@ public class BallerinaParser extends Parser {
 		"definition", "serviceDefinition", "serviceBody", "resourceDefinition", 
 		"callableUnitBody", "functionDefinition", "callableUnitSignature", "connectorDefinition", 
 		"connectorBody", "actionDefinition", "structDefinition", "structBody", 
-		"annotationDefinition", "globalVariableDefinitionStatement", "attachmentPoint", 
+		"annotationDefinition", "globalVariableDefinition", "attachmentPoint", 
 		"annotationBody", "typeMapperDefinition", "typeMapperSignature", "typeMapperBody", 
 		"constantDefinition", "workerDeclaration", "typeName", "referenceTypeName", 
 		"valueTypeName", "builtInReferenceTypeName", "xmlNamespaceName", "xmlLocalName", 
@@ -442,8 +442,8 @@ public class BallerinaParser extends Parser {
 		public AnnotationDefinitionContext annotationDefinition() {
 			return getRuleContext(AnnotationDefinitionContext.class,0);
 		}
-		public GlobalVariableDefinitionStatementContext globalVariableDefinitionStatement() {
-			return getRuleContext(GlobalVariableDefinitionStatementContext.class,0);
+		public GlobalVariableDefinitionContext globalVariableDefinition() {
+			return getRuleContext(GlobalVariableDefinitionContext.class,0);
 		}
 		public DefinitionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -519,7 +519,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 8);
 				{
 				setState(208);
-				globalVariableDefinitionStatement();
+				globalVariableDefinition();
 				}
 				break;
 			}
@@ -1375,7 +1375,7 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class GlobalVariableDefinitionStatementContext extends ParserRuleContext {
+	public static class GlobalVariableDefinitionContext extends ParserRuleContext {
 		public TypeNameContext typeName() {
 			return getRuleContext(TypeNameContext.class,0);
 		}
@@ -1383,23 +1383,23 @@ public class BallerinaParser extends Parser {
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public GlobalVariableDefinitionStatementContext(ParserRuleContext parent, int invokingState) {
+		public GlobalVariableDefinitionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_globalVariableDefinitionStatement; }
+		@Override public int getRuleIndex() { return RULE_globalVariableDefinition; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterGlobalVariableDefinitionStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterGlobalVariableDefinition(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitGlobalVariableDefinitionStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitGlobalVariableDefinition(this);
 		}
 	}
 
-	public final GlobalVariableDefinitionStatementContext globalVariableDefinitionStatement() throws RecognitionException {
-		GlobalVariableDefinitionStatementContext _localctx = new GlobalVariableDefinitionStatementContext(_ctx, getState());
-		enterRule(_localctx, 34, RULE_globalVariableDefinitionStatement);
+	public final GlobalVariableDefinitionContext globalVariableDefinition() throws RecognitionException {
+		GlobalVariableDefinitionContext _localctx = new GlobalVariableDefinitionContext(_ctx, getState());
+		enterRule(_localctx, 34, RULE_globalVariableDefinition);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);

@@ -15,30 +15,34 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
-
-import org.ballerinalang.model.Identifier;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.SymbolScope;
+package org.ballerinalang.model;
 
 /**
- * {@code BLangSymbol} is the base class for all the symbols in Ballerina.
+ * {@code Identifier} represents a identifier used in {@code BLangSymbol}
  *
- * @since 0.8.0
+ * @since 0.87
  */
-public interface BLangSymbol {
+public class Identifier {
+    private static final String VERTICAL_BAR = "|";
 
-    String getName();
+    private String name;
 
-    Identifier getIdentifier();
+    private boolean isLiteral = false;
 
-    String getPackagePath();
+    public Identifier(String name) {
+        if (name != null && name.startsWith(VERTICAL_BAR)) {
+            name = name.substring(1, name.length() - 1);
+            this.isLiteral = true;
+        }
+        this.name = name;
+    }
 
-    boolean isPublic();
+    public String getName() {
+        return name;
+    }
 
-    boolean isNative();
-
-    SymbolName getSymbolName();
-
-    SymbolScope getSymbolScope();
+    public boolean isLiteral() {
+        return isLiteral;
+    }
 }
+

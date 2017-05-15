@@ -46,7 +46,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     private NodeLocation location;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected SymbolName symbolName;
 
@@ -132,7 +132,12 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
 
     @Override
     public String getName() {
-        return name;
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -203,9 +208,9 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
 
         public Service buildService() {
             this.service.location = this.location;
-            this.service.name = this.name;
+            this.service.identifier = this.identifier;
             this.service.pkgPath = this.pkgPath;
-            this.service.symbolName = new SymbolName(name, pkgPath);
+            this.service.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
             this.service.annotations = this.annotationList.toArray(
                     new AnnotationAttachment[this.annotationList.size()]);

@@ -47,6 +47,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private NodeLocation location;
 
     // BLangSymbol related attributes
+    protected Identifier identifier;
     protected boolean isPublic;
     protected boolean isNative;
     private AnnotationAttachment[] annotations;
@@ -148,6 +149,11 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     }
 
     @Override
+    public Identifier getIdentifier() {
+        return identifier;
+    }
+
+    @Override
     public String getPackagePath() {
         return pkgPath;
     }
@@ -219,9 +225,10 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
         public BallerinaConnectorDef buildConnector() {
             this.connectorDef.location = this.location;
-            this.connectorDef.typeName = this.name;
+            this.connectorDef.identifier = this.identifier;
+            this.connectorDef.typeName = this.identifier.getName();
             this.connectorDef.pkgPath = this.pkgPath;
-            this.connectorDef.symbolName = new SymbolName(name, pkgPath);
+            this.connectorDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
             this.connectorDef.annotations = this.annotationList.toArray(
                     new AnnotationAttachment[this.annotationList.size()]);

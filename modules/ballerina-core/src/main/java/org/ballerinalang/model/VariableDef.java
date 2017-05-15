@@ -38,7 +38,7 @@ public class VariableDef implements BLangSymbol, Node {
     protected MemoryLocation memoryLocation;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic = false;
     protected boolean isNative = false;
@@ -46,12 +46,12 @@ public class VariableDef implements BLangSymbol, Node {
     protected SymbolScope symbolScope;
 
     public VariableDef(NodeLocation location,
-                       String name,
+                       Identifier identifier,
                        SimpleTypeName typeName,
                        SymbolName symbolName,
                        SymbolScope symbolScope) {
         this.location = location;
-        this.name = name;
+        this.identifier = identifier;
         this.symbolName = symbolName;
         this.typeName = typeName;
         this.symbolScope = symbolScope;
@@ -87,7 +87,17 @@ public class VariableDef implements BLangSymbol, Node {
 
     @Override
     public String getName() {
-        return name;
+        //There are scenarios where identifier can be null
+        //in a variabledef (parameterDef in returns) hence the null check
+        if (identifier != null) {
+            return identifier.getName();
+        }
+        return null;
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -114,7 +124,6 @@ public class VariableDef implements BLangSymbol, Node {
     public SymbolScope getSymbolScope() {
         return symbolScope;
     }
-
 
     // Methods in Node interface
 

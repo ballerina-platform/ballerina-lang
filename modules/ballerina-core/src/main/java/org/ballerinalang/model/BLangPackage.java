@@ -246,6 +246,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     }
 
     @Override
+    public Identifier getIdentifier() {
+        return null;
+    }
+
+    @Override
     public String getPackagePath() {
         return pkgPath;
     }

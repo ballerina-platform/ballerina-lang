@@ -29,6 +29,7 @@ import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.GlobalVariableDef;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
@@ -232,8 +233,9 @@ public class BLangModelBuilder {
     // Add constant definition
 
     public void addConstantDef(NodeLocation location, SimpleTypeName typeName, String constName) {
-        SymbolName symbolName = new SymbolName(constName);
-        ConstDef constantDef = new ConstDef(location, constName, typeName, currentPackagePath,
+        Identifier identifier = new Identifier(constName);
+        SymbolName symbolName = new SymbolName(identifier.getName());
+        ConstDef constantDef = new ConstDef(location, identifier, typeName, currentPackagePath,
                 symbolName, currentScope, exprStack.pop());
 
         getAnnotationAttachments().forEach(attachment -> constantDef.addAnnotation(attachment));
@@ -247,14 +249,15 @@ public class BLangModelBuilder {
 
     public void addGlobalVarDef(NodeLocation location, SimpleTypeName typeName,
                                 String varName, boolean exprAvailable) {
-        SymbolName symbolName = new SymbolName(varName);
-        GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, varName, typeName, currentPackagePath,
+        Identifier identifier = new Identifier(varName);
+        SymbolName symbolName = new SymbolName(identifier.getName());
+        GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, identifier, typeName, currentPackagePath,
                 symbolName, currentScope);
 
         getAnnotationAttachments().forEach(attachment -> globalVariableDef.addAnnotation(attachment));
 
         // Create Variable definition statement for the global variable
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, identifier.getName());
         variableRefExpr.setVariableDef(globalVariableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
@@ -286,14 +289,15 @@ public class BLangModelBuilder {
      */
     public void addFieldDefinition(NodeLocation location, SimpleTypeName typeName, String fieldName,
                                    boolean defaultValueAvailable) {
-        SymbolName symbolName = new SymbolName(fieldName);
+        Identifier identifier = new Identifier(fieldName);
+        SymbolName symbolName = new SymbolName(identifier.getName());
 
         // Check whether this constant is already defined.
         StructuredUnit structScope = (StructuredUnit) currentScope;
         BLangSymbol fieldSymbol = structScope.resolveMembers(symbolName);
         if (fieldSymbol != null) {
             String errMsg = BLangExceptionHelper
-                    .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, fieldName);
+                    .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
             errorMsgs.add(errMsg);
         }
 
@@ -303,14 +307,14 @@ public class BLangModelBuilder {
         }
         
         if (currentScope instanceof StructDef) {
-            VariableDef fieldDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
-            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, fieldName);
+            VariableDef fieldDef = new VariableDef(location, identifier, typeName, symbolName, currentScope);
+            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, identifier.getName());
             fieldRefExpr.setVariableDef(fieldDef);
             VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
             currentStructBuilder.addField(fieldDefStmt);
         } else if (currentScope instanceof AnnotationDef) {
-            AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, fieldName, typeName, 
-                (BasicLiteral) defaultValExpr, symbolName, currentScope, currentPackagePath);
+            AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, identifier,
+                    typeName, (BasicLiteral) defaultValExpr, symbolName, currentScope, currentPackagePath);
             currentScope.define(symbolName, annotationField);
             annotationDefBuilder.addAttributeDef(annotationField);
         }
@@ -322,7 +326,7 @@ public class BLangModelBuilder {
      * @param name Name of the {@link StructDef}
      */
     public void addStructDef(String name) {
-        currentStructBuilder.setName(name);
+        currentStructBuilder.setIdentifier(new Identifier(name));
         currentStructBuilder.setPackagePath(currentPackagePath);
         getAnnotationAttachments().forEach(attachment -> currentStructBuilder.addAnnotation(attachment));
 
@@ -375,7 +379,7 @@ public class BLangModelBuilder {
      * @param name Name of the {@code AnnotationDef}
      */
     public void addAnnotationtDef(NodeLocation location, String name) {
-        annotationDefBuilder.setName(name);
+        annotationDefBuilder.setIdentifier(new Identifier(name));
         annotationDefBuilder.setPackagePath(currentPackagePath);
         
         getAnnotationAttachments().forEach(attachment -> annotationDefBuilder.addAnnotation(attachment));
@@ -453,17 +457,18 @@ public class BLangModelBuilder {
      */
     public void addParam(NodeLocation location, SimpleTypeName typeName, String paramName,
                          int annotationCount, boolean isReturnParam) {
-        SymbolName symbolName = new SymbolName(paramName, currentPackagePath);
+        Identifier identifier = new Identifier(paramName);
+        SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
 
         // Check whether this parameter is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REDECLARED_SYMBOL, paramName);
+                    SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, identifier, typeName, symbolName, currentScope);
         getAnnotationAttachments(annotationCount).forEach(attachment -> paramDef.addAnnotation(attachment));
 
         if (currentCUBuilder != null) {
@@ -483,7 +488,8 @@ public class BLangModelBuilder {
 
     public void addReturnTypes(NodeLocation location, SimpleTypeName[] returnTypeNames) {
         for (SimpleTypeName typeName : returnTypeNames) {
-            ParameterDef paramDef = new ParameterDef(location, null, typeName, null, currentScope);
+            ParameterDef paramDef = new ParameterDef(location, null, typeName, null,
+                    currentScope);
             currentCUBuilder.addReturnParameter(paramDef);
         }
     }
@@ -688,7 +694,7 @@ public class BLangModelBuilder {
             cIExprBuilder.setExpressionList(argExprList);
         }
 
-        cIExprBuilder.setName(actionName);
+        cIExprBuilder.setName((new Identifier(actionName)).getName());
         cIExprBuilder.setPkgName(nameReference.pkgName);
         cIExprBuilder.setPkgPath(nameReference.pkgPath);
         cIExprBuilder.setConnectorName(nameReference.name);
@@ -809,7 +815,7 @@ public class BLangModelBuilder {
     }
 
     public void addFunction(String name, boolean isNative) {
-        currentCUBuilder.setName(name);
+        currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
 
@@ -829,7 +835,7 @@ public class BLangModelBuilder {
     }
 
     public void addTypeMapper(NodeLocation location, String name, SimpleTypeName returnTypeName, boolean isNative) {
-        currentCUBuilder.setName(name);
+        currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
         addReturnTypes(location, new SimpleTypeName[]{returnTypeName});
@@ -853,7 +859,7 @@ public class BLangModelBuilder {
 
     public void addResource(NodeLocation location, String name, int annotationCount) {
         currentCUBuilder.setNodeLocation(location);
-        currentCUBuilder.setName(name);
+        currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments(annotationCount).forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
@@ -866,12 +872,14 @@ public class BLangModelBuilder {
     }
 
     public void createWorker(NodeLocation sourceLocation, String name, String paramName) {
-        currentCUBuilder.setName(name);
+        Identifier workerIdentifier = new Identifier(name);
+        currentCUBuilder.setIdentifier(workerIdentifier);
         currentCUBuilder.setNodeLocation(sourceLocation);
 
         // define worker parameter
-        SymbolName paramSymbolName = new SymbolName(paramName, currentPackagePath);
-        ParameterDef paramDef = new ParameterDef(sourceLocation, paramName,
+        Identifier paramIdentifier = new Identifier(paramName);
+        SymbolName paramSymbolName = new SymbolName(paramIdentifier.getName(), currentPackagePath);
+        ParameterDef paramDef = new ParameterDef(sourceLocation, paramIdentifier,
             new SimpleTypeName(BTypes.typeMessage.getName()), paramSymbolName, currentScope);
         currentScope.define(paramSymbolName, paramDef);
         currentCUBuilder.addParameter(paramDef);
@@ -903,7 +911,7 @@ public class BLangModelBuilder {
     }
 
     public void addAction(String name, boolean isNative, int annotationCount) {
-        currentCUBuilder.setName(name);
+        currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
 
@@ -932,7 +940,7 @@ public class BLangModelBuilder {
     }
 
     public void createService(String name) {
-        currentCUGroupBuilder.setName(name);
+        currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
@@ -945,7 +953,7 @@ public class BLangModelBuilder {
     }
 
     public void createConnector(String name) {
-        currentCUGroupBuilder.setName(name);
+        currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
@@ -962,11 +970,11 @@ public class BLangModelBuilder {
 
     public void addVariableDefinitionStmt(NodeLocation location, SimpleTypeName typeName,
                                           String varName, boolean exprAvailable) {
+        Identifier identifier = new Identifier(varName);
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, identifier.getName());
+        SymbolName symbolName = new SymbolName(identifier.getName());
 
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
-        SymbolName symbolName = new SymbolName(varName);
-
-        VariableDef variableDef = new VariableDef(location, varName, typeName, symbolName, currentScope);
+        VariableDef variableDef = new VariableDef(location, identifier, typeName, symbolName, currentScope);
         variableRefExpr.setVariableDef(variableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
@@ -1165,6 +1173,7 @@ public class BLangModelBuilder {
     }
 
     public void addCatchClause(NodeLocation location, SimpleTypeName exceptionType, String argName) {
+        Identifier identifier = new Identifier(argName);
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         if (!TypeConstants.EXCEPTION_TNAME.equals(exceptionType.getName())) {
@@ -1177,8 +1186,8 @@ public class BLangModelBuilder {
         BlockStmt catchBlock = catchBlockBuilder.build();
         currentScope = catchBlock.getEnclosingScope();
 
-        SymbolName symbolName = new SymbolName(argName, currentPackagePath);
-        ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), argName, exceptionType, symbolName,
+        SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
+        ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), identifier, exceptionType, symbolName,
                 currentScope);
         currentScope.resolve(symbolName);
         currentScope.define(symbolName, paramDef);
@@ -1219,20 +1228,21 @@ public class BLangModelBuilder {
     }
 
     public void endJoinClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+        Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt forkJoinStmt = blockStmtBuilder.build();
-        SymbolName symbolName = new SymbolName(paramName, currentPackagePath);
+        SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
 
         // Check whether this constant is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REDECLARED_SYMBOL, paramName);
+                    SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, identifier, typeName, symbolName, currentScope);
         forkJoinStmtBuilder.setJoinBlock(forkJoinStmt);
         forkJoinStmtBuilder.setJoinResult(paramDef);
         currentScope = forkJoinStmtBuilder.getJoin().getEnclosingScope();
@@ -1266,22 +1276,23 @@ public class BLangModelBuilder {
     }
 
     public void endTimeoutClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+        Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt timeoutStmt = blockStmtBuilder.build();
         forkJoinStmtBuilder.setTimeoutBlock(timeoutStmt);
         forkJoinStmtBuilder.setTimeoutExpression(exprStack.pop());
-        SymbolName symbolName = new SymbolName(paramName);
+        SymbolName symbolName = new SymbolName(identifier.getName());
 
         // Check whether this constant is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REDECLARED_SYMBOL, paramName);
+                    SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, identifier, typeName, symbolName, currentScope);
         forkJoinStmtBuilder.setTimeoutResult(paramDef);
         currentScope = forkJoinStmtBuilder.getTimeout().getEnclosingScope();
     }
@@ -1560,7 +1571,8 @@ public class BLangModelBuilder {
         private String pkgPath;
 
         public NameReference(String pkgName, String name) {
-            this.name = name;
+            Identifier identifier = new Identifier(name);
+            this.name = identifier.getName();
             this.pkgName = pkgName;
         }
 
