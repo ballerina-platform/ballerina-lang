@@ -93,6 +93,7 @@ import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -167,6 +168,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private static final Pattern compiledPattern = Pattern.compile(patternString);
 
     private int whileStmtCount = 0;
+    private int transactionStmtCount = 0;
     private SymbolScope currentScope;
 
     public SemanticAnalyzer(BLangProgram programScope) {
@@ -999,8 +1001,12 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BLangExceptionHelper.throwSemanticError(stmt,
                         SemanticErrors.BREAK_STMT_NOT_ALLOWED_HERE);
             }
+            if (stmt instanceof AbortStmt && transactionStmtCount < 1) {
+                BLangExceptionHelper.throwSemanticError(stmt,
+                        SemanticErrors.ABORT_STMT_NOT_ALLOWED_HERE);
+            }
             if (stmt instanceof ReturnStmt || stmt instanceof ReplyStmt || stmt instanceof BreakStmt
-                    || stmt instanceof ThrowStmt) {
+                    || stmt instanceof ThrowStmt || stmt instanceof AbortStmt) {
                 checkUnreachableStmt(blockStmt.getStatements(), ++stmtIndex);
             }
             stmt.accept(this);
@@ -1209,8 +1215,15 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        transactionStmtCount++;
         transactionRollbackStmt.getTransactionBlock().accept(this);
         transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().accept(this);
+        transactionStmtCount--;
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+
     }
 
     @Override

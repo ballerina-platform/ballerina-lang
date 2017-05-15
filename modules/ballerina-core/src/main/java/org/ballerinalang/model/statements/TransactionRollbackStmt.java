@@ -119,16 +119,8 @@ public class TransactionRollbackStmt extends AbstractStatement {
         private RollbackBlock rollbackBlock;
         private NodeLocation location;
 
-        public Statement getTransactionBlock() {
-            return transactionBlock;
-        }
-
         public void setTransactionBlock(Statement transactionBlock) {
             this.transactionBlock = transactionBlock;
-        }
-
-        public RollbackBlock getRollbackBlock() {
-            return rollbackBlock;
         }
 
         public void setRollbackBlockStmt(Statement statement) {

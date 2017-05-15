@@ -1151,6 +1151,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterAbortStatement(BallerinaParser.AbortStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.createAbortStmt(getCurrentLocation(ctx));
+    }
+
+    @Override
     public void enterActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
     }
 

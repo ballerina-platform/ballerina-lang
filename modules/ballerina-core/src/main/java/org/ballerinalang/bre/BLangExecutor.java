@@ -54,6 +54,7 @@ import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -122,6 +123,7 @@ public class BLangExecutor implements NodeExecutor {
     private boolean returnedOrReplied;
     private boolean isForkJoinTimedOut;
     private boolean isBreakCalled;
+    private boolean isAbortCalled;
     private ExecutorService executor;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
@@ -134,7 +136,7 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(BlockStmt blockStmt) {
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
-            if (returnedOrReplied || isBreakCalled) {
+            if (returnedOrReplied || isBreakCalled || isAbortCalled) {
                 break;
             }
             stmt.execute(this);
@@ -524,11 +526,12 @@ public class BLangExecutor implements NodeExecutor {
             ballerinaTransactionManager = new BallerinaTransactionManager();
             bContext.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
-        ballerinaTransactionManager.beginTransactionBlock();
         StackFrame current = bContext.getControlStack().getCurrentFrame();
+        //execute transaction block
+        ballerinaTransactionManager.beginTransactionBlock();
         try {
             transactionRollbackStmt.getTransactionBlock().execute(this);
-            ballerinaTransactionManager.commitTransaction(ballerinaTransactionManager.isTransactionError());
+            ballerinaTransactionManager.commitTransactionBlock();
         } catch (Exception e) {
             ballerinaTransactionManager.setTransactionError(true);
             while (bContext.getControlStack().getCurrentFrame() != current) {
@@ -538,13 +541,30 @@ public class BLangExecutor implements NodeExecutor {
                     throw new BallerinaException(e);
                 }
             }
-            transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().execute(this);
+        }
+        isAbortCalled = false;
+        //execute onRollback if necessary
+        try {
+            if (ballerinaTransactionManager.isTransactionError()) {
+                ballerinaTransactionManager.rollbackTransactionBlock();
+                transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().execute(this);
+            }
+        } catch (Exception e) {
+            throw new BallerinaException(e);
         } finally {
-            boolean isOuterTxBlock = ballerinaTransactionManager
-                    .endTransactionBlock(ballerinaTransactionManager.isTransactionError());
-            if (isOuterTxBlock) {
+            ballerinaTransactionManager.endTransactionBlock();
+            if (ballerinaTransactionManager.isOuterTransaction()) {
                 bContext.setBallerinaTransactionManager(null);
             }
+        }
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+        isAbortCalled = true;
+        BallerinaTransactionManager ballerinaTransactionManager = bContext.getBallerinaTransactionManager();
+        if (ballerinaTransactionManager != null) {
+            ballerinaTransactionManager.setTransactionError(true);
         }
     }
 

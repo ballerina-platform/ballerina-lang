@@ -113,7 +113,7 @@ public class SQLConnector extends AbstractNativeConnector {
     }
 
     public XADataSource getXADataSource() {
-        XADataSource xaDataSource = null;
+        XADataSource xaDataSource;
         try {
             xaDataSource = hikariDataSource.unwrap(XADataSource.class);
         } catch (SQLException e) {

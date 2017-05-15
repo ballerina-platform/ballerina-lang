@@ -62,28 +62,30 @@ public class BallerinaTransactionManager {
         ++transactionLevel;
     }
 
-    public void commitTransaction(boolean error) {
-        if (transactionLevel == 1 && !error) { //Commit only if the outer most transaction.
-            commitNonXAConnections();
-            closeAllConnections();
-            commitXATransaction();
+    public void endTransactionBlock() {
+        --transactionLevel;
+    }
+
+    public void commitTransactionBlock() {
+        if (transactionLevel == 1) {
+            if (!this.transactionError) {
+                commitNonXAConnections();
+                closeAllConnections();
+                commitXATransaction();
+            }
         }
     }
 
-    public boolean endTransactionBlock(boolean error) {
-        boolean isOuterTransactionBlock = false;
-        --transactionLevel;
-        if (transactionLevel > 0) {
-            return isOuterTransactionBlock;
-        } else {
-            isOuterTransactionBlock = true;
-            if (error) {
-                rollbackNonXAConnections();
-                closeAllConnections();
-                rollbackXATransaction();
-            }
-            return isOuterTransactionBlock;
+    public void rollbackTransactionBlock() {
+        if (transactionLevel == 1) {
+            rollbackNonXAConnections();
+            closeAllConnections();
+            rollbackXATransaction();
         }
+    }
+
+    public boolean isOuterTransaction() {
+        return transactionLevel == 0;
     }
 
     public void setXATransactionManager(TransactionManager transactionManager) {

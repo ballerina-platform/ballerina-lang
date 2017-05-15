@@ -67,6 +67,7 @@ import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -119,6 +120,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(WhileStmt whileStmt);
 
     void visit(TransactionRollbackStmt transactionRollbackStmt);
+
+    void visit(AbortStmt abortStmt);
 
     /* Expression Nodes */
 

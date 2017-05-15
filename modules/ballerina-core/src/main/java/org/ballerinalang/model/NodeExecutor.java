@@ -42,6 +42,7 @@ import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -98,6 +99,8 @@ public interface NodeExecutor {
     void visit(ForkJoinStmt forkJoinStmt);
 
     void visit(TransactionRollbackStmt transactionRollbackStmt);
+
+    void visit(AbortStmt abortStmt);
 
     BValue[] visit(FunctionInvocationExpr funcIExpr);
 

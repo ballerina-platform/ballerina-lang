@@ -93,7 +93,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     protected void executeUpdate(Context context, SQLConnector connector, String query, BArray parameters) {
         Connection conn = null;
         PreparedStatement stmt = null;
-        ResultSet rs = null;
         boolean isInTransaction = context.isInTransaction();
         try {
             conn = getDatabaseConnection(context, connector, isInTransaction);

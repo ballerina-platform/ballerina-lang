@@ -55,6 +55,7 @@ import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -151,6 +152,8 @@ public interface NodeVisitor {
     void visit(ForkJoinStmt forkJoinStmt);
 
     void visit(TransactionRollbackStmt transactionRollbackStmt);
+
+    void visit(AbortStmt abortStmt);
 
     // Expressions
 

@@ -70,6 +70,7 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -1366,6 +1367,10 @@ public class BLangModelBuilder {
                 = transactionRollbackStmtBuilderStack.pop();
         TransactionRollbackStmt transactionRollbackStmt = transactionRollbackStmtBuilder.build();
         addToBlockStmt(transactionRollbackStmt);
+    }
+
+    public void createAbortStmt(NodeLocation location) {
+        addToBlockStmt(new AbortStmt(location));
     }
 
     // Literal Values

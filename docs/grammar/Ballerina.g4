@@ -201,6 +201,7 @@ statement
     |   actionInvocationStatement
     |   functionInvocationStatement
     |   transactionStatement
+    |   abortStatement
     ;
 
 variableDefinitionStatement
@@ -349,6 +350,10 @@ transactionStatement
 
 rollbackClause
     :   'onRollback' '{' statement* '}'
+    ;
+
+abortStatement
+    :   'abort' ';'
     ;
 
 actionInvocation

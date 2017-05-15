@@ -748,6 +748,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#abortStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterAbortStatement(BallerinaParser.AbortStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#abortStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitAbortStatement(BallerinaParser.AbortStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#actionInvocation}.
 	 * @param ctx the parse tree
 	 */

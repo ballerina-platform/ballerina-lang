@@ -96,6 +96,7 @@ import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -395,6 +396,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                     getNodeLocation(transactionRollbackStmt.getNodeLocation()));
         }
         next = transactionRollbackStmt.next;
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing AbortStmt {}", getNodeLocation(abortStmt.getNodeLocation()));
+        }
+        next = abortStmt.next;
     }
 
     /* Expression nodes */

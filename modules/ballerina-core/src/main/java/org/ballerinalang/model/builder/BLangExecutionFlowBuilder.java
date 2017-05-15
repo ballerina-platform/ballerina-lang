@@ -116,6 +116,7 @@ import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -198,6 +199,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     // Function/Action Statement stack related to break.
     private Stack<BlockStmt> returningBlockStmtStack;
     private Stack<OffSetCounter> offSetCounterStack;
+    private Stack<Statement> abortTransactionStack;
     private Resource currentResource;
 
     public BLangExecutionFlowBuilder() {
@@ -205,6 +207,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         returningBlockStmtStack = new Stack<>();
         offSetCounterStack = new Stack<>();
         offSetCounterStack.push(new OffSetCounter());
+        abortTransactionStack =  new Stack<>();
         nonblockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
     }
 
@@ -655,11 +658,19 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         transactionBlock.setParent(transactionRollbackStmt);
         transactionRollbackStmt.setNext(transactionBlock);
         transactionBlock.setNextSibling(endNode);
+        abortTransactionStack.push(transactionRollbackStmt);
         transactionBlock.accept(this);
+        abortTransactionStack.pop();
         endNode.setNext(findNext(transactionRollbackStmt));
         // Visit Rollback Block.
         rollbackBlock.setParent(transactionRollbackStmt);
         rollbackBlock.accept(this);
+
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+        abortStmt.setNext(findNext(abortTransactionStack.peek()));
     }
 
     @Override
@@ -1533,6 +1544,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         this.returningBlockStmtStack.clear();
         this.currentResource = null;
         this.offSetCounterStack.clear();
+        this.abortTransactionStack.clear();
     }
 
     /**
