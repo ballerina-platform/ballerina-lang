@@ -1062,6 +1062,38 @@ public class BLangModelBuilder {
         addToBlockStmt(breakStmt);
     }
 
+    public void startTransformStmt(NodeLocation location) {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(blockStmtBuilder);
+        currentScope = blockStmtBuilder.getCurrentScope();
+    }
+
+    public void createTransformStmt(NodeLocation location) {
+        // Create a transform statement builder
+        TransformStmt.TransformStmtBuilder transformStmtBuilder = new TransformStmt.TransformStmtBuilder();
+        transformStmtBuilder.setNodeLocation(location);
+
+        // Get the statement block at the top of the block statement stack and set as the transform body.
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        BlockStmt blockStmt = blockStmtBuilder.build();
+        transformStmtBuilder.setTransformBody(blockStmt);
+
+        Map<String, Expression> inputs = new HashMap<>(); // right hand expressions by variable
+        Map<String, Expression> outputs = new HashMap<>(); //left hand expressions by variable
+
+        validateTransformStatementBody(blockStmt, inputs, outputs);
+
+        transformStmtBuilder.setInputExprs((inputs.values()).toArray(new Expression[inputs.values().size()]));
+        transformStmtBuilder.setOutputExprs((outputs.values()).toArray(new Expression[outputs.values().size()]));
+
+        // Close the current scope and open the enclosing scope
+        currentScope = blockStmt.getEnclosingScope();
+
+        // Add the transform statement to the statement block which is at the top of the stack.
+        TransformStmt transformStmt = transformStmtBuilder.build();
+        blockStmtBuilderStack.peek().addStmt(transformStmt);
+    }
+
     public void startIfElseStmt(NodeLocation location) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = new IfElseStmt.IfElseStmtBuilder();
         ifElseStmtBuilder.setNodeLocation(location);
@@ -1543,38 +1575,17 @@ public class BLangModelBuilder {
         }
     }
 
-    public void startTransformStmt(NodeLocation location) {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
-        blockStmtBuilderStack.push(blockStmtBuilder);
-        currentScope = blockStmtBuilder.getCurrentScope();
-    }
-
-    public void createTransformStmt(NodeLocation location) {
-        // Create a transform statement builder
-        TransformStmt.TransformStmtBuilder transformStmtBuilder = new TransformStmt.TransformStmtBuilder();
-        transformStmtBuilder.setNodeLocation(location);
-
-        // Get the statement block at the top of the block statement stack and set as the transform body.
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        BlockStmt blockStmt = blockStmtBuilder.build();
-        transformStmtBuilder.setTransformBody(blockStmt);
-
-        Map<String, Expression> inputs = new HashMap<>(); // right hand expressions by variable
-        Map<String, Expression> outputs = new HashMap<>(); //left hand expressions by variable
-
-        validateTransformStatementBody(blockStmt, inputs, outputs);
-
-        transformStmtBuilder.setInputExprs((inputs.values()).toArray(new Expression[inputs.values().size()]));
-        transformStmtBuilder.setOutputExprs((outputs.values()).toArray(new Expression[outputs.values().size()]));
-
-        // Close the current scope and open the enclosing scope
-        currentScope = blockStmt.getEnclosingScope();
-
-        // Add the transform statement to the statement block which is at the top of the stack.
-        TransformStmt transformStmt = transformStmtBuilder.build();
-        blockStmtBuilderStack.peek().addStmt(transformStmt);
-    }
-
+    /**
+     * Validates the statements in the transform statement body as explained below :
+     *  - Left expression of Assignment Statement becomes output of transform statement
+     *  - Right expressions of Assignment Statement becomes input of transform statement
+     *  - Variables in each of left and right expressions of all statements are extracted as input and output
+     *  - A variable that is used as an input cannot be used as an output in another statement
+     *  - If inputs and outputs are used interchangeably, a semantic error is thrown
+     * @param blockStmt transform statement block statement
+     * @param inputs input variable reference expressions map
+     * @param outputs output variable reference expressions map
+     */
     private void validateTransformStatementBody(BlockStmt blockStmt, Map<String, Expression> inputs,
                                                 Map<String, Expression> outputs) {
         for (Statement statement : blockStmt.getStatements()) {
