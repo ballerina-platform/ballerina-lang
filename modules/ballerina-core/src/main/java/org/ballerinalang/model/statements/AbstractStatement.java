@@ -77,11 +77,11 @@ public abstract class AbstractStatement implements Statement {
         this.parent = linkedNode;
     }
 
-    public void setReturns(boolean returns) {
+    public void setAlwaysReturns(boolean returns) {
         this.returns = returns;
     }
 
-    public boolean resultsInAReturn() {
+    public boolean isAlwaysReturns() {
         return returns;
     }
 }

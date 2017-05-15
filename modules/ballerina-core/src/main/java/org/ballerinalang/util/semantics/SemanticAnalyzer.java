@@ -457,19 +457,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             BlockStmt blockStmt = function.getCallableUnitBody();
             blockStmt.accept(this);
 
-            if (function.getReturnParameters().length > 0) {
-                Statement[] stmts = blockStmt.getStatements();
-                for (int i = 0; i < stmts.length; i++) {
-                    if (stmts[i].resultsInAReturn()) {
-                        checkUnreachableStmt(stmts, i + 1);
-                    }
-                }
-
-                if (!blockStmt.resultsInAReturn()) {
-                    throw new SemanticException(function.getNodeLocation().getFileName() + ":" +
-                                                        function.getNodeLocation().getLineNumber() +
-                                                        ": missing return statement");
-                }
+            if (function.getReturnParameters().length > 0 && !blockStmt.isAlwaysReturns()) {
+                BLangExceptionHelper.throwSemanticError(function, SemanticErrors.MISSING_RETURN_STATEMENT);
             }
         }
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
@@ -588,19 +577,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             BlockStmt blockStmt = action.getCallableUnitBody();
             blockStmt.accept(this);
 
-            if (action.getReturnParameters().length > 0) {
-                Statement[] stmts = blockStmt.getStatements();
-                for (int i = 0; i < stmts.length; i++) {
-                    if (stmts[i].resultsInAReturn()) {
-                        checkUnreachableStmt(stmts, i + 1);
-                    }
-                }
-
-                if (!blockStmt.resultsInAReturn()) {
-                    throw new SemanticException(action.getNodeLocation().getFileName() + ":" +
-                                                        action.getNodeLocation().getLineNumber() +
-                                                        ": missing return statement");
-                }
+            if (action.getReturnParameters().length > 0 && !blockStmt.isAlwaysReturns()) {
+                BLangExceptionHelper.throwSemanticError(action, SemanticErrors.MISSING_RETURN_STATEMENT);
             }
         }
 
@@ -1072,16 +1050,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BLangExceptionHelper.throwSemanticError(stmt,
                         SemanticErrors.BREAK_STMT_NOT_ALLOWED_HERE);
             }
-            if (stmt instanceof ReturnStmt || stmt instanceof ReplyStmt || stmt instanceof BreakStmt
-                    || stmt instanceof ThrowStmt) {
+
+            if (stmt instanceof BreakStmt || stmt instanceof ReplyStmt) {
                 checkUnreachableStmt(blockStmt.getStatements(), stmtIndex + 1);
             }
 
             stmt.accept(this);
 
-            if (stmt.resultsInAReturn()) {
+            if (stmt.isAlwaysReturns()) {
                 checkUnreachableStmt(blockStmt.getStatements(), stmtIndex + 1);
-                blockStmt.setReturns(true);
+                blockStmt.setAlwaysReturns(true);
             }
         }
 
@@ -1107,7 +1085,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Statement thenBody = ifElseStmt.getThenBody();
         thenBody.accept(this);
 
-        stmtReturns &= thenBody.resultsInAReturn();
+        stmtReturns &= thenBody.isAlwaysReturns();
 
         for (IfElseStmt.ElseIfBlock elseIfBlock : ifElseStmt.getElseIfBlocks()) {
             Expression elseIfCondition = elseIfBlock.getElseIfCondition();
@@ -1121,18 +1099,18 @@ public class SemanticAnalyzer implements NodeVisitor {
             Statement elseIfBody = elseIfBlock.getElseIfBody();
             elseIfBody.accept(this);
 
-            stmtReturns &= elseIfBody.resultsInAReturn();
+            stmtReturns &= elseIfBody.isAlwaysReturns();
         }
 
         Statement elseBody = ifElseStmt.getElseBody();
         if (elseBody != null) {
             elseBody.accept(this);
-            stmtReturns &= elseBody.resultsInAReturn();
+            stmtReturns &= elseBody.isAlwaysReturns();
         } else {
             stmtReturns = false;
         }
 
-        ifElseStmt.setReturns(stmtReturns);
+        ifElseStmt.setAlwaysReturns(stmtReturns);
     }
 
     @Override
@@ -1174,14 +1152,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         throwStmt.getExpr().accept(this);
         if (throwStmt.getExpr() instanceof VariableRefExpr) {
             if (throwStmt.getExpr().getType() instanceof BExceptionType) {
-                throwStmt.setReturns(true);
+                throwStmt.setAlwaysReturns(true);
                 return;
             }
         } else {
             FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) throwStmt.getExpr();
             if (!funcIExpr.isMultiReturnExpr() && funcIExpr.getTypes().length > 0
                     && funcIExpr.getTypes()[0] instanceof BExceptionType) {
-                throwStmt.setReturns(true);
+                throwStmt.setAlwaysReturns(true);
                 return;
             }
         }
@@ -1269,7 +1247,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Visit join body
         Statement joinBody = join.getJoinBlock();
         joinBody.accept(this);
-        stmtReturns &= joinBody.resultsInAReturn();
+        stmtReturns &= joinBody.isAlwaysReturns();
         closeScope();
 
         // Visit timeout condition
@@ -1293,10 +1271,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Visit timeout body
         Statement timeoutBody = timeout.getTimeoutBlock();
         timeoutBody.accept(this);
-        stmtReturns &= timeoutBody.resultsInAReturn();
+        stmtReturns &= timeoutBody.isAlwaysReturns();
         closeScope();
 
-        forkJoinStmt.setReturns(stmtReturns);
+        forkJoinStmt.setAlwaysReturns(stmtReturns);
 
         //closing the fork join statement scope
         closeScope();
@@ -1341,7 +1319,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         ParameterDef[] returnParamsOfCU = currentCallableUnit.getReturnParameters();
 
         if (returnArgExprs.length == 0 && returnParamsOfCU.length == 0) {
-            returnStmt.setReturns(true);
             // Return stmt has no expressions and function/action does not return anything. Just return.
             return;
         }
@@ -1357,7 +1334,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                 returnExprs[i] = variableRefExpr;
             }
             returnStmt.setExprs(returnExprs);
-            returnStmt.setReturns(true);
             return;
 
         } else if (returnArgExprs.length == 0) {
@@ -1395,7 +1371,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
 
-            returnStmt.setReturns(true);
             return;
         }
 
@@ -1443,8 +1418,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                     typesOfReturnExprs[i]);
             }
         }
-
-        returnStmt.setReturns(true);
     }
 
 
