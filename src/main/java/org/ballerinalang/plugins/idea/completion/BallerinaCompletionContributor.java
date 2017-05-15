@@ -152,8 +152,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             handlePsiErrorElement(parameters, resultSet);
         } else if (parent instanceof VariableDefinitionNode) {
             identifyAndAddSuggestions(parameters, resultSet);
-        } else if (parent instanceof ConnectorInitExpressionNode) {
-            //            identifyAndAddSuggestions(parameters, resultSet);
         } else {
             // If we are currently at an identifier node or a comment node, no need to suggest.
             if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
@@ -501,7 +499,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         }
                     } else if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.COMMA) {
                         addStructFields(parameters, resultSet, element);
-                        if (element instanceof MapStructKeyValueNode) {
+                        MapStructLiteralNode node = PsiTreeUtil.getParentOfType(element, MapStructLiteralNode.class);
+                        if (node != null) {
                             // Eg: User user = {n<caret>}
                             addStructFields(parameters, resultSet, element);
                         } else {
@@ -571,7 +570,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 suggestAnnotationsFromPackage(parameters, resultSet, null, attachmentType);
             }
         } else if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.COMMA) {
-            if (element instanceof MapStructKeyValueNode) {
+            MapStructLiteralNode node = PsiTreeUtil.getParentOfType(element, MapStructLiteralNode.class);
+            if (node != null) {
                 // Eg: User user = {<caret>}
                 addStructFields(parameters, resultSet, element);
             } else {
