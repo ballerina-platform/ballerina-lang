@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.extension.input.mapper.json;
 
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonToken;
 import com.google.gson.Gson;
@@ -27,12 +28,15 @@ import com.jayway.jsonpath.ReadContext;
 import net.minidev.json.JSONArray;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.stream.AttributeMapping;
-import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -45,17 +49,74 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 /**
  * This mapper converts JSON string input to {@link ComplexEventChunk}.
  * This extension accepts optional json path expressions to
  * select specific attributes from the stream.
  */
+
 @Extension(
         name = "json",
         namespace = "sourceMapper",
-        description = "JSON to Event input mapper"
+        description = "JSON to Event input mapper. Transports which accepts JSON messages can utilize this extension"
+                + "to convert the incoming JSON message to Siddhi event. Users can either send a pre-defined JSON "
+                + "format where event conversion will happen without any configs or can use json path to map from a "
+                + "custom JSON message.",
+        parameters = {
+                @Parameter(name = "enclosing.element",
+                        description =
+                                "Used to specify the enclosing element in case of sending multiple events in same "
+                                        + "JSON message. WSO2 DAS will treat the child element of given enclosing "
+                                        + "element as events"
+                                        + " and execute json path expressions on child elements. If enclosing.element "
+                                        + "is not provided "
+                                        + "multiple event scenario is disregarded and json path will be evaluated "
+                                        + "with respect to "
+                                        + "root element.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "fail.on.missing.attribute",
+                        description = "This can either have value true or false. By default it will be true. This "
+                                + "attribute allows user to handle unknown attributes. By default if an json "
+                                + "execution "
+                                + "fails or returns null DAS will drop that message. However setting this property"
+                                + " to "
+                                + "false will prompt DAS to send and event with null value to Siddhi where user "
+                                + "can handle"
+                                + " it accordingly(ie. Assign a default value)",
+                        type = {DataType.BOOL})
+        },
+        examples = {
+                @Example(
+                        syntax = "@source(type='inMemory', topic='stock', @map(type='json'))\n"
+                                + "define stream FooStream (symbol string, price float, volume long);\n",
+                        description =  "Above configuration will do a default JSON input mapping. Expected "
+                                + "input will look like below."
+                                + "{\n"
+                                + "    \"event\":{\n"
+                                + "        \"symbol\":\"WSO2\",\n"
+                                + "        \"price\":55.6,\n"
+                                + "        \"volume\":100\n"
+                                + "    }\n"
+                                + "}\n"),
+                @Example(
+                        syntax = "@source(type='inMemory', topic='stock', @map(type='json', "
+                                + "enclosing.element=\"$.portfolio\", "
+                                + "@attributes(symbol = \"company.symbol\", price = \"price\", volume = \"volume\")))",
+                        description =  "Above configuration will perform a custom JSON mapping. Expected input will "
+                                + "look like below."
+                                + "{"
+                                + " \"portfolio\":{\n"
+                                + "     \"stock\":{"
+                                + "        \"volume\":100,\n"
+                                + "        \"company\":{\n"
+                                + "           \"symbol\":\"WSO2\"\n"
+                                + "       },\n"
+                                + "        \"price\":55.6\n"
+                                + "    }\n"
+                                + "}")
+        }
 )
+
 public class JsonInputMapper extends SourceMapper {
 
     private static final String DEFAULT_JSON_MAPPING_PREFIX = "$.";
@@ -109,15 +170,15 @@ public class JsonInputMapper extends SourceMapper {
     }
 
     @Override
-    protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
+    protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         synchronized (this) {
             Object convertedEvent;
             convertedEvent = convertToEvent(eventObject);
             if (convertedEvent != null) {
                 if (convertedEvent instanceof Event[]) {
-                    inputHandler.send((Event[]) convertedEvent);
+                    inputEventHandler.sendEvents((Event[]) convertedEvent);
                 } else {
-                    inputHandler.send((Event) convertedEvent);
+                    inputEventHandler.sendEvent((Event) convertedEvent);
                 }
             }
         }
