@@ -48,7 +48,7 @@ import javax.websocket.Session;
                      attributes = { @Attribute(name = "value", value = "Store the connection globally for the " +
                              "use of other services.") })
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "connectionName", value = "name of the connection") })
+                     attributes = { @Attribute(name = "connectionName", value = "Name of the connection") })
 public class StoreConnection extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

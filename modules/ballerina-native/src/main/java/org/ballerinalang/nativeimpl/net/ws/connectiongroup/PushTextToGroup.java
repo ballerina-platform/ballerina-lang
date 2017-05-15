@@ -46,10 +46,10 @@ import javax.websocket.Session;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "This pushes text from server to all the " +
+                     attributes = { @Attribute(name = "value", value = "Push text from server to all the " +
                              "connected clients of the service.") })
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "connectionGroupName", value = "name of the connection group") })
+                     attributes = { @Attribute(name = "connectionGroupName", value = "Name of the connection group") })
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "text", value = "Text which should be sent") })
 public class PushTextToGroup extends AbstractNativeFunction {

@@ -40,9 +40,9 @@ import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "Removes connection from a connection group")})
+                     attributes = { @Attribute(name = "value", value = "Removes connection group.")})
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "connectionGroupName", value = "name of the connection group")})
+                     attributes = { @Attribute(name = "connectionGroupName", value = "Name of the connection group")})
 public class RemoveConnectionGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

@@ -48,7 +48,7 @@ import javax.websocket.Session;
                      attributes = { @Attribute(name = "value", value = "This pushes text from server to all the " +
                              "connected clients of the service.") })
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "connectionGroupName", value = "name of the connection group") })
+                     attributes = { @Attribute(name = "connectionGroupName", value = "Name of the connection group") })
 public class AddConnectionToGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
