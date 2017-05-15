@@ -144,9 +144,9 @@ public class SiddhiAnnotationProcessor extends AbstractProcessor {
                                     new WindowProcessorValidationAnnotationProcessor(extensionClassFullName);
                             break;
                         default:
-                            //Throw error if no matching supper class.
+                            //Throw error if no matching super class.
                             showBuildError(MessageFormat.format("Default switch case executed as there is no " +
-                                            "matching supper class option for @{0}.",
+                                            "matching super class option for @{0}.",
                                     superClass), element);
                             break;
                     }
@@ -165,8 +165,8 @@ public class SiddhiAnnotationProcessor extends AbstractProcessor {
                                         "abstractAnnotationProcessor cannot be null.", superClass), element);
                     }
                 } else {
-                    //Throw error if no matching supper class.
-                    showBuildError(MessageFormat.format("No matching supper class for @{0}.",
+                    //Throw error if no matching super class.
+                    showBuildError(MessageFormat.format("No matching super class for @{0}.",
                             Extension.class.getCanonicalName()), element);
                 }
             } else {
