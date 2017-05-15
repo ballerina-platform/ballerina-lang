@@ -16,51 +16,46 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.connectors.ws;
+package org.ballerinalang.nativeimpl.actions.ws;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.connectors.ws.WebSocketClientConnector;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.wso2.carbon.messaging.ControlCarbonMessage;
+import org.wso2.carbon.messaging.TextCarbonMessage;
 
 /**
- * Close the connection of WebSocket Client connector.
+ * Push Text to the server.
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",
-        actionName = "close",
+        actionName = "pushText",
         connectorName = WebSocketClientConnector.CONNECTOR_NAME,
         args = {
-                @Argument(name = "c", type = TypeEnum.CONNECTOR)
+                @Argument(name = "c", type = TypeEnum.CONNECTOR),
+                @Argument(name = "text", type = TypeEnum.STRING),
         }
 )
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = {@Attribute(name = "value",
-                                              value = "Closing the connection with server.") })
+                                              value = "Push text to the server.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
                                                                         value = "A WebSocket Client Connector") })
-public class Close extends AbstractWebSocketAction {
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "text",
+                                                                        value = "text which should be sent") })
+public class PushText extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getArgument(context, 0);
-        WebSocketClientConnector clientConnector = (WebSocketClientConnector) bconnector.value();
-        ConnectorController  controller =
-                ConnectorRegistry.getInstance().removeConnectorManager(clientConnector.getConnectorID());
-        controller.getAllClientIDs().forEach(
-                clientID -> {
-                    ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
-                            org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_CLOSE);
-                    controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_CODE, 1000);
-                    controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_REASON, "Normal closure");
-                    controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientID);
-                    pushMessage(controlCarbonMessage);
-                }
-        );
+        String text = getArgument(context, 1).stringValue();
+        TextCarbonMessage textCarbonMessage = new TextCarbonMessage(text);
+        textCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, getClientID(context, bconnector));
+        pushMessage(textCarbonMessage);
         return null;
     }
 }

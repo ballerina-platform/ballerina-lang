@@ -16,23 +16,21 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.connectors.ws;
+package org.ballerinalang.nativeimpl.actions.ws;
 
 /**
- * Utility class for WebSocket client connector.
+ * Constants for WebSocket client connector.
  */
-public class Utils {
+public class Constants {
 
-    public static String generateWebSocketClientID(String connectorID, int clientNumber) {
-        return connectorID + "@" + clientNumber;
-    }
+    // Common constants
+    public static final String CONNECTOR_NAME = "ClientConnector";
+    public static final String TO = "TO";
 
-    public static String getConnectorIDFromClientID(String clientID) {
-        String[] idSplit = clientID.split("@");
-        if (idSplit.length != 2) {
-            throw new UnsupportedOperationException("Client ID: " + clientID + " is invalid.");
-        }
-        return idSplit[0];
-    }
+    // WebSocket constants
+    public static final String PROTOCOL_WEBSOCKET = "ws";
+    public static final String WEBSOCKET_CLIENT_ID = "WEBSOCKET_CLIENT_ID";
 
+    public static final String WEBSOCKET_CLOSE_CODE = "WEBSOCKET_CLOSE_CODE";
+    public static final String WEBSOCKET_CLOSE_REASON = "WEBSOCKET_CLOSE_REASON";
 }

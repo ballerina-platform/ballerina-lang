@@ -22,8 +22,8 @@ package org.ballerinalang.nativeimpl.net.ws;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.ws.Utils;
-import org.ballerinalang.nativeimpl.connectors.ws.ConnectorRegistry;
+import org.ballerinalang.nativeimpl.actions.ws.Utils;
+import org.ballerinalang.nativeimpl.actions.ws.ConnectorControllerRegistry;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -67,7 +67,7 @@ public class PushText extends AbstractNativeFunction {
             CarbonMessage carbonMessage = context.getCarbonMessage();
             if (WebSocketClientServicesRegistry.getInstance().serviceExists(context.getServiceInfo().getName())) {
                 String clientID = (String) carbonMessage.getProperty(Constants.WEBSOCKET_CLIENT_ID);
-                session = ConnectorRegistry.getInstance().
+                session = ConnectorControllerRegistry.getInstance().
                         getConnectorController(Utils.getConnectorIDFromClientID(clientID)).
                         getConnectionFromClientID(clientID);
                 if (session == null) {
