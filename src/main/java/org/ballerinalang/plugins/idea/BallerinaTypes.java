@@ -51,21 +51,27 @@ public class BallerinaTypes {
     public static RuleIElementType ANNOTATION_BODY = ruleIElementTypes.get(BallerinaParser.RULE_annotationBody);
 
     public static RuleIElementType FUNCTION_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_functionDefinition);
+    public static RuleIElementType SERVICE_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_serviceDefinition);
+    public static RuleIElementType RESOURCE_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_resourceDefinition);
     public static RuleIElementType CONNECTOR_DEFINITION =
             ruleIElementTypes.get(BallerinaParser.RULE_connectorDefinition);
-    public static RuleIElementType SERVICE_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_serviceDefinition);
+    public static RuleIElementType ACTION_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_actionDefinition);
     public static RuleIElementType STRUCT_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_structDefinition);
 
     public static RuleIElementType IF_ELSE_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_ifElseStatement);
     public static RuleIElementType ITERATE_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_iterateStatement);
     public static RuleIElementType WHILE_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_whileStatement);
-    public static RuleIElementType JOIN_CLAUS = ruleIElementTypes.get(BallerinaParser.RULE_joinClause);
-    public static RuleIElementType TIMEOUT_CLAUSE = ruleIElementTypes.get(BallerinaParser.RULE_timeoutClause);
     public static RuleIElementType TRY_CATCH_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_tryCatchStatement);
     public static RuleIElementType TYPE_MAPPER_BODY = ruleIElementTypes.get(BallerinaParser.RULE_typeMapperBody);
     public static RuleIElementType WORKER_DECLARATION = ruleIElementTypes.get(BallerinaParser.RULE_workerDeclaration);
+    public static RuleIElementType FORK_JOIN_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_forkJoinStatement);
 
     public static RuleIElementType PARAMETER_LIST = ruleIElementTypes.get(BallerinaParser.RULE_parameterList);
+    public static RuleIElementType ANNOTATION_ATTACHMENT =
+            ruleIElementTypes.get(BallerinaParser.RULE_annotationAttachment);
+    public static RuleIElementType ANNOTATION_ATTRIBUTE_LIST =
+            ruleIElementTypes.get(BallerinaParser.RULE_annotationAttributeList);
+
     public static RuleIElementType EXPRESSION_LIST = ruleIElementTypes.get(BallerinaParser.RULE_expressionList);
     public static RuleIElementType RETURN_TYPE_LIST = ruleIElementTypes.get(BallerinaParser.RULE_returnTypeList);
     public static RuleIElementType TYPE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_typeName);

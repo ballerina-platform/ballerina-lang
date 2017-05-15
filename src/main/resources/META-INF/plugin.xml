@@ -111,7 +111,15 @@
         <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$File"/>
         <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Service"/>
         <liveTemplateContext
+                implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Resource"/>
+        <liveTemplateContext
                 implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Connector"/>
+        <liveTemplateContext
+                implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Action"/>
+        <liveTemplateContext
+                implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Function"/>
+        <liveTemplateContext
+                implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$ForkJoin"/>
 
         <!-- sdk -->
         <sdkType implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkType"/>

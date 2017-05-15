@@ -104,7 +104,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(TILDE).spaceIf(false)
                 .between(RETURN, EXPRESSION_LIST).spaceIf(true)
                 .after(ANNOTATION).spaceIf(true)
-                .around(ATTACH).spaceIf(true);
+                .around(ATTACH).spaceIf(true)
+                .between(ANNOTATION_ATTACHMENT, TYPE_NAME).spaceIf(true);
     }
 
     @Nullable

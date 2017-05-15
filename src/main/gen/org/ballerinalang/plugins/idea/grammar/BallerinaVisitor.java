@@ -1,4 +1,4 @@
-// Generated from plugin-intellij/src/main/java/org/ballerinalang/plugins/idea/grammar/Ballerina.g4 by ANTLR 4.6
+// Generated from /home/shan/Documents/WSO2/Highlighters/plugin-intellij/src/main/java/org/ballerinalang/plugins/idea/grammar/Ballerina.g4 by ANTLR 4.6
 package org.ballerinalang.plugins.idea.grammar;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -311,12 +311,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#joinClause}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitJoinClause(BallerinaParser.JoinClauseContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code anyJoinCondition}
 	 * labeled alternative in {@link BallerinaParser#joinConditions}.
 	 * @param ctx the parse tree
@@ -330,12 +324,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#timeoutClause}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#tryCatchStatement}.
 	 * @param ctx the parse tree

@@ -88,18 +88,27 @@ public class BallerinaBlock extends AbstractBlock {
                     }
                 } else if (childElementType == STATEMENT) {
                     if (parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
-                            || parentElementType == WHILE_STATEMENT || parentElementType == JOIN_CLAUS
-                            || parentElementType == TIMEOUT_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
-                            || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION) {
+                            || parentElementType == WHILE_STATEMENT || parentElementType == TRY_CATCH_STATEMENT
+                            || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION
+                            || parentElementType == FORK_JOIN_STATEMENT) {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == COMMENT_STATEMENT) {
-                    if (parentElementType == FUNCTION_DEFINITION || parentElementType == CONNECTOR_DEFINITION
-                            || parentElementType == SERVICE_DEFINITION || parentElementType == STRUCT_DEFINITION
+                    if (parentElementType == FUNCTION_DEFINITION || parentElementType == SERVICE_DEFINITION
+                            || parentElementType == RESOURCE_DEFINITION || parentElementType == CONNECTOR_DEFINITION
+                            || parentElementType == ACTION_DEFINITION || parentElementType == STRUCT_DEFINITION
                             || parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
-                            || parentElementType == WHILE_STATEMENT || parentElementType == JOIN_CLAUS
-                            || parentElementType == TIMEOUT_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
-                            || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION) {
+                            || parentElementType == WHILE_STATEMENT || parentElementType == TRY_CATCH_STATEMENT
+                            || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION
+                            || parentElementType == FORK_JOIN_STATEMENT) {
+                        indent = Indent.getSpaceIndent(4);
+                    }
+                } else if (childElementType == ANNOTATION_ATTRIBUTE_LIST) {
+                    if (parentElementType == ANNOTATION_ATTACHMENT) {
+                        indent = Indent.getSpaceIndent(4);
+                    }
+                } else if (childElementType == WORKER_DECLARATION) {
+                    if (parentElementType == FORK_JOIN_STATEMENT) {
                         indent = Indent.getSpaceIndent(4);
                     }
                 }
