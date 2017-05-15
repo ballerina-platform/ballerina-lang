@@ -1,19 +1,28 @@
+
 class ActiveArbiter {
     readyToDeactivate(statement) {
-        statement.setState({active: false});
-        this.active = null;
+        clearTimeout(this.timeout);
+        if (statement.state.active === 'visible') {
+            statement.setState({active: 'fade'});
+        }
+    }
+
+    readyToDelayedActivate(statement) {
+        this.timeout = setTimeout(() => {
+            this.readyToActivate(statement)
+        }, 500);
     }
 
     readyToActivate(statement) {
-        // console.log(statement);
-        if (this.active !== statement) {
-            if (this.active) {
-                this.active.setState({active: false});
-                // console.log("false :" , this.active);
+        clearTimeout(this.timeout);
+        if (this.active && this.active !== statement) {
+            if (this.active.active !== 'hidden') {
+                this.active.setState({active: 'hidden'});
             }
-            this.active = statement;
-            statement.setState({active: true});
-            // console.log("true  :" , statement);
+        }
+        this.active = statement;
+        if (statement.state.active !== 'visible') {
+            statement.setState({active: 'visible'});
         }
     }
 }

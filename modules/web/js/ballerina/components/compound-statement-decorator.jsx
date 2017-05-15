@@ -30,14 +30,26 @@ import ActiveArbiter from './active-arbiter';
 
 class CompoundStatementDecorator extends React.Component {
 
-    constructor(props) {
-        super(props);
+    constructor(props, context) {
+        super(props, context);
+        const {dragDropManager} = context;
+        dragDropManager.on('drag-start', this.startDropZones.bind(this));
+        dragDropManager.on('drag-stop', this.stopDragZones.bind(this));
+
         this.state = {
             innerDropZoneActivated: false,
             innerDropZoneDropNotAllowed: false,
-            showActions: false,
-            active: false
+            innerDropZoneExist: false,
+            active: 'hidden'
         };
+    }
+
+    startDropZones() {
+        this.setState({innerDropZoneExist: true});
+    }
+
+    stopDragZones() {
+        this.setState({innerDropZoneExist: false});
     }
 
     render() {
@@ -49,6 +61,7 @@ class CompoundStatementDecorator extends React.Component {
         const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
     											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 
+        const fill = this.state.innerDropZoneExist ? {} : {fill: 'none'};
         const actionBbox = new SimpleBBox();
         actionBbox.w = DesignerDefaults.actionBox.width;
         actionBbox.h = DesignerDefaults.actionBox.height;
@@ -56,14 +69,10 @@ class CompoundStatementDecorator extends React.Component {
         actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
 
         return (<g className="compound-statement"
-				   onMouseOut={ this.setActionVisibility.bind(this, false) }
-				   onMouseOver={ (e) => {
-                       if (!this.context.dragDropManager.isOnDrag()) {
-                           this.setActionVisibility(true, e)
-                       }
-                   }}>
+                   onMouseOut={ this.setActionVisibility.bind(this, false) }
+                   onMouseOver={ this.setActionVisibility.bind(this, true)}>
 			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
-                  className={dropZoneClassName}/>
+                  className={dropZoneClassName} {...fill}/>
             {this.props.children}
 			<ActionBox
                 bBox={ actionBbox }
@@ -77,22 +86,57 @@ class CompoundStatementDecorator extends React.Component {
     }
 
     setActionVisibility(show, e) {
-        if (show) {
-            let elm = e.target;
+        if (!this.context.dragDropManager.isOnDrag()) {
             const myRoot = ReactDOM.findDOMNode(this);
-            const regex = new RegExp('(^|\\s)(compound-)?statement(\\s|$)');
-            let isInChildStatement = false;
-            while (elm && elm !== myRoot) {
-                if (regex.test(elm.getAttribute('class'))) {
+            if (show) {
+                const regex = new RegExp('(^|\\s)(compound-)?statement(\\s|$)');
+                let isInChildStatement = false;
+                let isInStatement = false;
+                let isFromChildStatement = false;
+
+                let elm = e.target;
+                while (elm && elm !== myRoot && elm.getAttribute) {
+                    if (regex.test(elm.getAttribute('class'))) {
+                        isInStatement = true;
+                    }
+                    elm = elm.parentNode;
+                }
+                if (elm === myRoot && isInStatement) {
                     isInChildStatement = true;
                 }
-                elm = elm.parentNode;
+
+                elm = e.relatedTarget;
+                isInStatement = false;
+                while (elm && elm !== myRoot && elm.getAttribute) {
+                    if (regex.test(elm.getAttribute('class'))) {
+                        isInStatement = true;
+                    }
+                    elm = elm.parentNode;
+                }
+                if (elm === myRoot && isInStatement) {
+                    isFromChildStatement = true;
+                }
+
+                if (!isInChildStatement) {
+                    if (isFromChildStatement) {
+                        this.context.activeArbiter.readyToDelayedActivate(this);
+                    } else {
+                        this.context.activeArbiter.readyToActivate(this);
+                    }
+                }
+            } else {
+                let elm = e.relatedTarget;
+                let isInMe = false;
+                while (elm && elm.getAttribute) {
+                    if (elm === myRoot) {
+                        isInMe = true;
+                    }
+                    elm = elm.parentNode;
+                }
+                if (!isInMe) {
+                    this.context.activeArbiter.readyToDeactivate(this);
+                }
             }
-            if (!isInChildStatement) {
-                this.context.activeArbiter.readyToActivate(this);
-            }
-        } else {
-            this.context.activeArbiter.readyToDeactivate(this);
         }
     }
 

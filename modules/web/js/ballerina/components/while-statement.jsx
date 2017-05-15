@@ -25,6 +25,7 @@ import * as DesignerDefaults from './../configs/designer-defaults';
 import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import './while-statement.css';
+import CompoundStatementDecorator from "./compound-statement-decorator";
 
 class WhileStatement extends React.Component {
 
@@ -54,17 +55,17 @@ class WhileStatement extends React.Component {
             model: model,
             getterMethod: model.getCondition,
             setterMethod: model.setCondition
-        };        	
-
-		return (<g>
-			<rect x={bBox.x} y={bBox.y} width={bBox.w} height={model.viewState.components['drop-zone'].h}
-            className={dropZoneClassName}
-            onMouseOver={(e) => this.onDropZoneActivate(e)}
-            onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
-			<BlockStatementDecorator dropTarget={model} bBox={blockStatementBBox} title={"While"} expression={expression} editorOptions={this.editorOptions}>
-				{children}
-			</BlockStatementDecorator>
-		</g>);
+        };
+        return (<CompoundStatementDecorator model={model} bBox={bBox}>
+                    <rect x={bBox.x} y={bBox.y} width={bBox.w} height={model.viewState.components['drop-zone'].h}
+                      className={dropZoneClassName}
+                      onMouseOver={(e) => this.onDropZoneActivate(e)}
+                      onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
+                    <BlockStatementDecorator dropTarget={model} bBox={blockStatementBBox} title={"While"}
+                                             expression={expression} editorOptions={this.editorOptions}>
+                        {children}
+                    </BlockStatementDecorator>
+                </CompoundStatementDecorator>);
 	}
 
   onDropZoneActivate (e) {
