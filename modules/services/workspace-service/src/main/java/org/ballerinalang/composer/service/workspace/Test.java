@@ -43,11 +43,9 @@ public class Test {
 
 //        content =
 //                  "function oneToOneTransform() (string, int, string){\n" +
-//                  "    e, i = transform p, u {\n" +
-//                  "       a = b;\n" +
-//                  "    };\n" +
+//                  "    e.name= \"test\"\n"+
 //                  "}";
-//
+
 
 
         BFile bFile = new BFile();

@@ -762,26 +762,19 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 .TRANSFORM_STATEMENT);
         tempJsonArrayRef.push(new JsonArray());
 
-        JsonObject lExprObj = new JsonObject();
-        lExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.LEFT_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
         for (Expression expression : transformStmt.getInputExprs()) {
             expression.accept(this);
         }
-        lExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        transformStmtObj.add(BLangJSONModelConstants.TRANSFORM_INPUT, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
-        tempJsonArrayRef.peek().add(lExprObj);
 
-        JsonObject rExprObj = new JsonObject();
-        rExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.RIGHT_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
         for (Expression expression : transformStmt.getOutputExprs()) {
             expression.accept(this);
         }
-        rExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        transformStmtObj.add(BLangJSONModelConstants.TRANSFORM_OUTPUT, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
-        tempJsonArrayRef.peek().add(rExprObj);
-
 
         if (transformStmt.getBody() != null) {
             transformStmt.getBody().accept(this);
