@@ -715,7 +715,10 @@
 
 <script>
     $(document).ready(function(){
-        $('body').loading('hide');
+        $('body')
+            .loading('hide')
+            .removeAttr('data-toggle')
+            .removeAttr('data-loading-style');
     });
 </script>
 
