@@ -20,25 +20,144 @@ import React from 'react';
 import PanelDecorator from './panel-decorator';
 import {getComponentForNodeArray} from './utils';
 import AnnotationAttributeDecorator from './annotation-attribute-decorator';
-import AnnotationAttributeDefinition from './annotation-attribute-definition';
+import AnnotationDefinitionAttachment from './annotation-definition-attachment';
+import TagController from './utils/tag-component';
+import Alerts from 'alerts';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 
 class AnnotationDefinition extends React.Component {
+
+    constructor() {
+        super();
+        this.onAttachmentDelete = this.onAttachmentDelete.bind(this);
+        this.addAttachmentPoint = this.addAttachmentPoint.bind(this);
+    }
+
     /**
      * Render view for annotation definition
      * */
     render() {
         let model = this.props.model;
+        let viewState = model.viewState;
         let bBox = model.viewState.bBox;
-
         let title = model.getAnnotationName();
         let children = getComponentForNodeArray(model.getChildren());
+        let attachmentPoints = this.props.model.getAttachmentPoints();
+        let attachments = [];
 
-        return (<PanelDecorator icon="annotation-black" title={title} bBox={bBox} model={model}>
+        // Create the annotationDefinitionAttachment components for attachment points.
+        for (let i = 0; i < attachmentPoints.length; i++) {
+            let attachmentValue = attachmentPoints[i];
+            attachments.push(React.createElement(AnnotationDefinitionAttachment, {
+                model: model,
+                key: i,
+                viewState: viewState.attachments[attachmentValue].viewState,
+                attachmentValue: attachmentValue,
+                onDelete: this.onAttachmentDelete
+            }, null));
+        }
+
+        let componentData = {
+            components: {
+                openingBracket: this.props.model.getViewState().components.openingParameter,
+                closingBracket: this.props.model.getViewState().components.closingParameter
+            },
+            prefixView: this.props.model.getViewState().components.parametersPrefixContainer,
+            openingBracketClassName: 'parameter-opening-brack-text',
+            closingBracketClassName: 'parameter-closing-brack-text',
+            prefixTextClassName: 'parameter-prefix-text'
+        };
+
+        let tagController = (<TagController key={model.getID()} model={model} setter={this.addAttachmentPoint}
+                                            validateInput={this.validateInput} modelComponents={attachments}
+                                            componentData={componentData}/>);
+        let titleComponentData = [{
+            isNode: false,
+            model: tagController
+        }];
+
+        return (<PanelDecorator icon="annotation-black"
+                                title={title}
+                                bBox={bBox}
+                                model={model}
+                                titleComponentData={titleComponentData}>
             <AnnotationAttributeDecorator model={model} bBox={bBox}/>
             {children}
         </PanelDecorator>);
     }
+
+    /**
+     * Add Attachment point to annotation definition.
+     * @param {string} attachment - Attachment to be added to the annotation definition
+     * @return {boolean} true - if add successful, false - if add unsuccessful.
+     * */
+    addAttachmentPoint(attachment) {
+        let model = this.props.model;
+        try {
+            if (this.validateType(attachment)) {
+                model.addAnnotationAttachmentPoint(attachment);
+            } else {
+                let errorString = "Incorrect Annotation Attachment Type: " + attachment;
+                Alerts.error(errorString);
+                return false;
+            }
+        } catch (e) {
+            Alerts.error(e);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Validate input from tag controller and apply condition to tell whether to change he state.
+     * @param {string} input - input from tag controller.
+     * @return {boolean} true - change the state, false - don't change the state.
+     * */
+    validateInput(input) {
+        let splittedExpression = input.split(" ");
+        return splittedExpression.length === 1;
+    }
+
+    /**
+     * Get types of ballerina to which can be applied when declaring variables.
+     * @return {[string]} Attachment types
+     * */
+    getTypeDropdownValues() {
+        const {renderingContext} = this.context;
+        return renderingContext.environment.getAnnotationAttachmentTypes();
+    }
+
+    /**
+     * Validate annotation attachment type.
+     * @param {string} bType
+     * @return {boolean} isValid
+     * */
+    validateType(bType) {
+        let isValid = false;
+        let typeList = this.getTypeDropdownValues();
+        let filteredTypeList = _.filter(typeList, function (type) {
+            return type === bType;
+        });
+        if (filteredTypeList.length > 0) {
+            isValid = true;
+        }
+        return isValid;
+    }
+
+    /**
+     * Delete attachment tag event handler.
+     * @param {string} attachment - attachment to be deleted
+     * */
+    onAttachmentDelete(attachment) {
+        let model = this.props.model;
+        delete model.getViewState().attachments[attachment];
+        model.removeAnnotationAttachmentPoints(attachment);
+    }
 }
 
+AnnotationDefinition.contextTypes = {
+    renderingContext: PropTypes.instanceOf(Object).isRequired
+};
 
 export default AnnotationDefinition;

@@ -19,10 +19,11 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
+import {util} from './../sizing-utils';
 
 class AnnotationDefinitionDimensionCalculatorVisitor {
     canVisit(node) {
-        log.debug("can visit AnnotationDefinitionDimennsionCalc");
+        log.debug("can visit AnnotationDefinitionDimensionCalc");
         return true;
     }
 
@@ -85,6 +86,17 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
         viewState.bBox.w = components['body'].w;
 
         viewState.components = components;
+
+        viewState.titleWidth = util.getTextWidth(node.getAnnotationName()).w;
+
+        //// Creating components for parameters of the annotation
+        // Creating component for opening bracket of the parameters view.
+        viewState.components.openingParameter = {};
+        viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
+
+        // Creating component for closing bracket of the parameters view.
+        viewState.components.closingParameter = {};
+        viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
     }
 }
 

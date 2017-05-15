@@ -53,8 +53,10 @@ class FunctionDefinition extends React.Component {
         }
 
         let titleComponentData = [{
+            isNode: true,
             model: this.props.model.getArgumentParameterDefinitionHolder()
         }, {
+            isNode: true,
             model: this.props.model.getReturnParameterDefinitionHolder()
         }];
 

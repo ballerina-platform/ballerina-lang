@@ -44,8 +44,10 @@ class ConnectorAction extends React.Component {
         let children = getComponentForNodeArray(this.props.model.getChildren());
 
         let titleComponentData = [{
+            isNode: true,
             model: this.props.model.getArgumentParameterDefinitionHolder()
         }, {
+            isNode: true,
             model: this.props.model.getReturnParameterDefinitionHolder()
         }];
 
