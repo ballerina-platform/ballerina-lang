@@ -55,23 +55,20 @@ class TransformStatement extends Statement {
      * @return {string} assignment statement string
      */
     getStatementString() {
-        return (!_.isNil(this.getChildren()[0].getLeftOperandExpressionString())
-            ? this.getChildren()[0].getLeftOperandExpressionString() : 'leftExpression') + ' = transform ' +
-            (!_.isNil(this.getChildren()[1].getRightOperandExpressionString())
-                ? this.getChildren()[1].getRightOperandExpressionString() : 'rightExpression');
+        return 'transform';
     }
 
-    /**
-     * Set the assignment statement string
-     * @param {string} statementString
-     */
-    setStatementString(statementString, options) {
-        var equalIndex = _.indexOf(statementString, '=');
-        var leftOperand = statementString.substring(0, equalIndex);
-        var rightOperand = statementString.substring(equalIndex + 11); //'= transform'
-        this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? 'leftExpression' : leftOperand, options);
-        this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? 'rightExpression' : rightOperand, options);
-    }
+    // /**
+    //  * Set the assignment statement string
+    //  * @param {string} statementString
+    //  */
+    // setStatementString(statementString, options) {
+    //     var equalIndex = _.indexOf(statementString, '=');
+    //     var leftOperand = statementString.substring(0, equalIndex);
+    //     var rightOperand = statementString.substring(equalIndex + 11); //'= transform'
+    //     this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? 'leftExpression' : leftOperand, options);
+    //     this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? 'rightExpression' : rightOperand, options);
+    // }
 }
 
 export default TransformStatement;

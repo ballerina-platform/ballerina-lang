@@ -18,8 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
-// import StatementVisitorFactory from './statement-visitor-factory';
-import TypeMapperBlockStatementVisitor from './type-mapper-block-statement-visitor';
+import TransformStatementVisitorFactory from './transform-statement-visitor-factory';
 
 class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
@@ -31,29 +30,29 @@ class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitTransformStatement(transformStatement) {
-        /**
-         * set the configuration start for the type mapper definition language construct
-         * If we need to add additional parameters which are dynamically added to the configuration start
-         * that particular source generation has to be constructed here
-         */
-
+        this.node = transformStatement;
         var constructedSourceSegment = '\n' + this.getIndentation() +
-                   transformStatement.getStatementString() +' {\n';
+                   transformStatement.getStatementString() + ' {\n';
         this.appendSource(constructedSourceSegment);
+        this.indent();
         log.debug('Begin Visit TransformStatement');
     }
 
-    visitTransformStatement(transformStatement) {
+    visitTransformStatement() {
         log.debug('Visit TransformStatement');
     }
 
-    visitBlockStatement(blockStatement) {
-        var blockStatementVisitor = new TypeMapperBlockStatementVisitor(this);
-        blockStatement.accept(blockStatementVisitor);
+    visitStatement(statement){
+        if(!_.isEqual(this.node, statement)) {
+            var statementVisitorFactory = new TransformStatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        }
     }
 
     endVisitTransformStatement() {
-        this.appendSource(this.getIndentation() + '};\n');
+        this.outdent();
+        this.appendSource(this.getIndentation() + '}\n');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit TransformStatement');
     }

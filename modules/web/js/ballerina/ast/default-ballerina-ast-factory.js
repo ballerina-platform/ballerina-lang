@@ -189,14 +189,16 @@ DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
 };
 
 
-DefaultBallerinaASTFactory.createTransformStatement = function (args) {
+DefaultBallerinaASTFactory.createAggregatedTransformStatement = function (args) {
     var transformStatement = BallerinaASTFactory.createTransformStatement(args);
     var leftOperand = BallerinaASTFactory.createLeftOperandExpression(args);
     leftOperand.setLeftOperandExpressionString('a');
     var rightOperand = BallerinaASTFactory.createRightOperandExpression(args);
     rightOperand.setRightOperandExpressionString('b');
-    transformStatement.addChild(leftOperand);
-    transformStatement.addChild(rightOperand);
+    var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+    assignmentStmt.addChild(leftOperand);
+    assignmentStmt.addChild(rightOperand);
+    transformStatement.addChild(assignmentStmt);
     return transformStatement;
 };
 
