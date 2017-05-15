@@ -298,8 +298,10 @@ class StatementDecorator extends React.Component {
 
 	openExpressionEditor(e){
 		let options = this.props.editorOptions;
+		let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
 		if(options){
-			new ExpressionEditor( this.statementBox , this.context.container , (text) => this.onUpdate(text), options );
+			new ExpressionEditor( this.statementBox , this.context.container , 
+				(text) => this.onUpdate(text), options , packageScope );
 		}
 	}
 
@@ -324,7 +326,7 @@ StatementDecorator.contextTypes = {
 	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 	 container: PropTypes.instanceOf(Object).isRequired,
 	 renderingContext: PropTypes.instanceOf(Object).isRequired,
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
+     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
 };
 
 
