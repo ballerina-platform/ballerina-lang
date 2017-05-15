@@ -114,7 +114,8 @@ class IfElseStatement extends Statement {
 
         _.each(jsonNode.else_if_blocks, function (elseIfNode) {
             let elseIfStatement = new ElseIfStatement('testCondition');
-
+            self._elseIfStatements.push(elseIfStatement);
+            self.addChild(elseIfStatement);
             _.each(elseIfNode.children, function (childNode) {
                 var child = undefined;
                 var childNodeTemp = undefined;
@@ -129,8 +130,6 @@ class IfElseStatement extends Statement {
                 elseIfStatement.addChild(child);
                 child.initFromJson(childNodeTemp);
             });
-            self._elseIfStatements.push(elseIfStatement);
-            self.addChild(elseIfStatement);
         });
 
         if (jsonNode.else_statement) {
