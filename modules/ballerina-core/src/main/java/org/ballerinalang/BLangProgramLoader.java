@@ -20,11 +20,13 @@ package org.ballerinalang;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.util.BLangDiagnosticListener;
 import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.ballerinalang.util.repository.BLangProgramArchive;
+import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.FileSystemPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
 import org.ballerinalang.util.semantics.SemanticAnalyzer;
@@ -52,12 +54,16 @@ public class BLangProgramLoader {
 
         // Get the global scope
         GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+        NativeScope nativeScope = BLangPrograms.populateNativeScope();
+
+        BuiltinPackageRepository[] builtinPkgRepositories = BLangPrograms.populateBuiltinPackageRepositories();
 
         // Creates program scope for this Ballerina program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.MAIN_PROGRAM);
+        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.MAIN_PROGRAM);
         bLangProgram.setProgramFilePath(sourcePath);
 
-        BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram);
+        BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath,
+                bLangProgram, builtinPkgRepositories);
         BLangPackage mainPackage = bLangPackages[0];
 
         bLangProgram.setMainPackage(mainPackage);
@@ -78,13 +84,16 @@ public class BLangProgramLoader {
 
         // Get the global scope
         GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+        NativeScope nativeScope = BLangPrograms.populateNativeScope();
+
+        BuiltinPackageRepository[] builtinPkgRepositories = BLangPrograms.populateBuiltinPackageRepositories();
 
         // Creates program scope for this Ballerina program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.SERVICE_PROGRAM);
+        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.SERVICE_PROGRAM);
         bLangProgram.setProgramFilePath(servicePath);
 
-        BLangPackage[] servicePackages = loadPackages(programDirPath, servicePath, bLangProgram);
-
+        BLangPackage[] servicePackages = loadPackages(programDirPath, servicePath,
+                bLangProgram, builtinPkgRepositories);
         for (BLangPackage servicePkg : servicePackages) {
             bLangProgram.addServicePackage(servicePkg);
             bLangProgram.define(new SymbolName(servicePkg.getPackagePath()), servicePkg);
@@ -104,14 +113,15 @@ public class BLangProgramLoader {
 
         // Get the global scope
         GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+        NativeScope nativeScope = BLangPrograms.populateNativeScope();
+
+        BuiltinPackageRepository[] builtinPkgRepositories = BLangPrograms.populateBuiltinPackageRepositories();
 
         // Creates program scope for this Ballerina program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.LIBRARY_PROGRAM);
+        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.LIBRARY_PROGRAM);
         bLangProgram.setProgramFilePath(sourcePath);
 
-        BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram);
-
-        // TODO Find cyclic dependencies
+        BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram, builtinPkgRepositories);
         for (BLangPackage bLangPackage : bLangPackages) {
             bLangProgram.addLibraryPackage(bLangPackage);
             bLangProgram.define(new SymbolName(bLangPackage.getPackagePath()), bLangPackage);
@@ -143,12 +153,14 @@ public class BLangProgramLoader {
 
     private BLangPackage[] loadPackages(Path programDirPath,
                                         Path sourcePath,
-                                        BLangProgram bLangProgram) {
+                                        BLangProgram bLangProgram,
+                                        BuiltinPackageRepository[] builtinPackageRepositories) {
 
         sourcePath = BLangPrograms.validateAndResolveSourcePath(programDirPath, sourcePath,
                 bLangProgram.getProgramCategory());
 
-        PackageRepository packageRepository = new FileSystemPackageRepository(programDirPath);
+        PackageRepository packageRepository = new FileSystemPackageRepository(programDirPath,
+                builtinPackageRepositories);
         if (Files.isDirectory(sourcePath, LinkOption.NOFOLLOW_LINKS)) {
             Path packagePath = programDirPath.relativize(sourcePath);
             BLangPackage bLangPackage = BLangPackages.loadPackage(packagePath, packageRepository, bLangProgram);
@@ -159,13 +171,16 @@ public class BLangProgramLoader {
             BLangPackage bLangPackage = BLangPackages.loadFile(sourcePath, packageRepository, bLangProgram);
             bLangProgram.addEntryPoint(sourcePath.getFileName().toString());
             return new BLangPackage[]{bLangPackage};
+
         } else {
-            return loadArchive(sourcePath, bLangProgram);
+            return loadFromArchive(sourcePath, bLangProgram, builtinPackageRepositories);
         }
     }
 
-    private BLangPackage[] loadArchive(Path archivePath, BLangProgram bLangProgram) {
-        try (BLangProgramArchive programArchive = new BLangProgramArchive(archivePath)) {
+    private BLangPackage[] loadFromArchive(Path archivePath, BLangProgram bLangProgram,
+                                           BuiltinPackageRepository[] builtinPackageRepositories) {
+
+        try (BLangProgramArchive programArchive = new BLangProgramArchive(archivePath, builtinPackageRepositories)) {
 
             // Load the program archive
             programArchive.loadArchive();

@@ -19,6 +19,7 @@ package org.ballerinalang.model.builder;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -37,6 +38,7 @@ import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.ConnectorDcl;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.Node;
@@ -60,23 +62,25 @@ import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.JSONArrayInitExpr;
+import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
+import org.ballerinalang.model.expressions.JSONInitExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
-import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -96,6 +100,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitActionStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
@@ -138,7 +143,6 @@ import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Arrays;
@@ -229,6 +233,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(ConstDef constant) {
+    }
+
+    @Override
+    public void visit(GlobalVariableDef globalVar) {
+
     }
 
     /**
@@ -340,7 +349,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         // Link Last expression with VariableDefStmtEndNode to perform the variable assignment. .
         VariableDefStmtEndNode endNode = new VariableDefStmtEndNode(varDefStmt);
         // Array,Map,Struct Field Access Expressions can have sub expressions to calculate index.
-        if (lExpr instanceof ArrayMapAccessExpr || lExpr instanceof StructFieldAccessExpr) {
+        if (lExpr instanceof ArrayMapAccessExpr || lExpr instanceof FieldAccessExpr) {
             if (rExpr == null) {
                 varDefStmt.setNext(lExpr);
             } else {
@@ -361,7 +370,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             rExpr.accept(this);
         }
         // LHS variableRef expressions are not required to visit.
-        if (lExpr instanceof ArrayMapAccessExpr || lExpr instanceof StructFieldAccessExpr) {
+        if (lExpr instanceof ArrayMapAccessExpr || lExpr instanceof FieldAccessExpr) {
             lExpr.accept(this);
         }
         endNode.setNext(findNext(varDefStmt));
@@ -379,7 +388,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         Expression[] lExprs = assignStmt.getLExprs();
         for (Expression expression : lExprs) {
             // Array,Map,Struct Field Access Expressions can have sub expressions to calculate index.
-            if (expression instanceof ArrayMapAccessExpr || expression instanceof StructFieldAccessExpr) {
+            if (expression instanceof ArrayMapAccessExpr || expression instanceof FieldAccessExpr) {
                 expression.setParent(assignStmt);
                 previous.setNextSibling(expression);
                 previous = expression;
@@ -394,7 +403,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         rExpr.accept(this);
         // LHS variableRef expressions are not required to visit.
         Arrays.stream(lExprs).filter(expression -> expression instanceof ArrayMapAccessExpr
-                || expression instanceof StructFieldAccessExpr).forEach(expression -> expression.accept(this));
+                || expression instanceof FieldAccessExpr).forEach(expression -> expression.accept(this));
         // Finally find AssignmentStat end node's next.
         endNode.setNext(findNext(assignStmt));
     }
@@ -1092,21 +1101,21 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
+    public void visit(FieldAccessExpr structFieldAccessExpr) {
         // TODO: Simplify this logic.
         calculateTempOffSet(structFieldAccessExpr);
         StructFieldAccessExprEndNode endNode = new StructFieldAccessExprEndNode(structFieldAccessExpr);
         endNode.setParent(structFieldAccessExpr);
-        ReferenceExpr firstReferenceExpr = structFieldAccessExpr.getVarRef();
+        Expression firstReferenceExpr = structFieldAccessExpr.getVarRef();
         structFieldAccessExpr.setNext(firstReferenceExpr);
         firstReferenceExpr.setParent(structFieldAccessExpr);
-        StructFieldAccessExpr current = structFieldAccessExpr.getFieldExpr();
+        FieldAccessExpr current = structFieldAccessExpr.getFieldExpr();
         firstReferenceExpr.setNextSibling(current);
         firstReferenceExpr.accept(this);
         LinkedNode lastLinkedNode = current;
         while (current != null) {
             calculateTempOffSet(current);
-            ReferenceExpr varRefExpr = current.getVarRef();
+            Expression varRefExpr = current.getVarRef();
             if (varRefExpr instanceof ArrayMapAccessExpr) {
                 Expression[] indexExprs = ((ArrayMapAccessExpr) varRefExpr).getIndexExprs();
                 lastLinkedNode.setNext(indexExprs[0]);
@@ -1130,6 +1139,8 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                 for (Expression indexExpr: indexExprs) {
                     indexExpr.accept(this);
                 }
+            } else if (varRefExpr instanceof JSONFieldAccessExpr) { 
+                // TODO
             } else {
                 if (current.getFieldExpr() != null) {
                     lastLinkedNode.setNext(current.getFieldExpr());
@@ -1150,6 +1161,12 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             lastLinkedNode.setNext(findNext(structFieldAccessExpr));
         }
 
+    }
+    
+    @Override
+    public void visit(JSONFieldAccessExpr jsonFieldAccessExpr) {
+        // TODO Auto-generated method stub
+        
     }
 
     @Override
@@ -1230,40 +1247,17 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
-        calculateTempOffSet(refTypeInitExpr);
-        RefTypeInitExprEndNode endNode = new RefTypeInitExprEndNode(refTypeInitExpr);
-        Expression rExp = refTypeInitExpr.getRExpr();
-        Expression[] argExprs = refTypeInitExpr.getArgExprs();
-        LinkedNode previous = null;
-        if (rExp != null) {
-            refTypeInitExpr.setNext(rExp);
-            rExp.setParent(refTypeInitExpr);
-            rExp.setNextSibling(endNode);
-            rExp.accept(this);
-            previous = rExp;
-        }
-        endNode.setParent(refTypeInitExpr);
-        if (argExprs != null && argExprs.length > 0) {
-            if (refTypeInitExpr.next == null) {
-                refTypeInitExpr.setNext(argExprs[0]);
-            }
-            for (Expression arg : argExprs) {
-                if (previous != null) {
-                    previous.setNextSibling(arg);
-                }
+        visitInitExpression(refTypeInitExpr, new RefTypeInitExprEndNode(refTypeInitExpr));
+    }
+    
+    @Override
+    public void visit(MapInitExpr mapInitExpr) {
+        visitInitExpression(mapInitExpr, new MapInitExprEndNode(mapInitExpr));
+    }
 
-                previous = arg;
-            }
-            if (previous != null) {
-                previous.setNextSibling(endNode);
-            }
-            Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
-        } else {
-            if (refTypeInitExpr.next == null) {
-                refTypeInitExpr.setNext(endNode);
-            }
-        }
-        endNode.setNext(findNext(endNode));
+    @Override
+    public void visit(JSONInitExpr jsonInitExpr) {
+//        visitInitExpression(jsonInitExpr, null);
     }
 
     @Override
@@ -1302,35 +1296,43 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             }
         }
         Connector connector = (Connector) connectorInitExpr.getType();
-        if (connector instanceof AbstractNativeConnector) {
-            endNode.setNext(findNext(connectorInitExpr));
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
+        BlockStmt blockStmt = connectorDef.getInitFunction().getCallableUnitBody();
+        endNode.setNext(blockStmt);
+        CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(connectorInitExpr);
+        blockStmt.setNextSibling(callableUnitEndNode);
+        GotoNode gotoNode;
+        // Setup MultiLink Statement for this block Statement.
+        if (blockStmt.getGotoNode() != null) {
+            gotoNode = blockStmt.getGotoNode();
         } else {
-            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
-            BlockStmt blockStmt = connectorDef.getInitFunction().getCallableUnitBody();
-            endNode.setNext(blockStmt);
-            CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(connectorInitExpr);
-            blockStmt.setNextSibling(callableUnitEndNode);
-            GotoNode gotoNode;
-            // Setup MultiLink Statement for this block Statement.
-            if (blockStmt.getGotoNode() != null) {
-                gotoNode = blockStmt.getGotoNode();
-            } else {
-                gotoNode = new GotoNode();
-                blockStmt.setGotoNode(gotoNode);
-                blockStmt.setNextSibling(gotoNode);
-            }
-            // Get Branching ID for above multi link.
-            int branchID = gotoNode.addNext(callableUnitEndNode);
-            endNode.setHasGotoBranchID(true);
-            endNode.setGotoBranchID(branchID);
-            if (!connectorDef.getInitFunction().isFlowBuilderVisited()) {
-                returningBlockStmtStack.push(blockStmt);
-                offSetCounterStack.push(new OffSetCounter());
-                connectorDef.getInitFunction().setFlowBuilderVisited(true);
-                blockStmt.accept(this);
-                connectorDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getCount());
-                returningBlockStmtStack.pop();
-            }
+            gotoNode = new GotoNode();
+            blockStmt.setGotoNode(gotoNode);
+            blockStmt.setNextSibling(gotoNode);
+        }
+        // Get Branching ID for above multi link.
+        int branchID = gotoNode.addNext(callableUnitEndNode);
+        endNode.setHasGotoBranchID(true);
+        endNode.setGotoBranchID(branchID);
+        if (!connectorDef.getInitFunction().isFlowBuilderVisited()) {
+            returningBlockStmtStack.push(blockStmt);
+            offSetCounterStack.push(new OffSetCounter());
+            connectorDef.getInitFunction().setFlowBuilderVisited(true);
+            blockStmt.accept(this);
+            connectorDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getCount());
+            returningBlockStmtStack.pop();
+        }
+        if (connectorDef.getInitAction() != null) {
+            ConnectorInitActionStartNode actionStartNode = new ConnectorInitActionStartNode(connectorInitExpr);
+            callableUnitEndNode.setNext(actionStartNode);
+            InvokeNativeActionNode nativeActionNode =
+                    new InvokeNativeActionNode((AbstractNativeAction) connectorDef.getInitAction());
+            actionStartNode.setNext(nativeActionNode);
+            CallableUnitEndNode callableUnitActionEndNode = new CallableUnitEndNode(connectorInitExpr);
+            callableUnitActionEndNode.setNativeInvocation(true);
+            nativeActionNode.setNext(callableUnitActionEndNode);
+            callableUnitActionEndNode.setNext(findNext(connectorInitExpr));
+        } else {
             callableUnitEndNode.setNext(findNext(connectorInitExpr));
         }
     }
@@ -1394,46 +1396,46 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         endNode.setNext(findNext(endNode));
     }
 
-    @Override
-    public void visit(MapInitExpr mapInitExpr) {
-        calculateTempOffSet(mapInitExpr);
-        MapInitExprEndNode endNode = new MapInitExprEndNode(mapInitExpr);
-        Expression rExp = mapInitExpr.getRExpr();
-        Expression[] argExprs = mapInitExpr.getArgExprs();
-        LinkedNode previous = null;
-        if (rExp != null) {
-            mapInitExpr.setNext(rExp);
-            rExp.setParent(mapInitExpr);
-            rExp.setNextSibling(endNode);
-            rExp.accept(this);
-            previous = rExp;
-        }
-        endNode.setParent(mapInitExpr);
-        if (argExprs != null && argExprs.length > 0) {
-            if (mapInitExpr.next == null) {
-                mapInitExpr.setNext(argExprs[0]);
-            }
-            for (Expression arg : argExprs) {
-                if (previous != null) {
-                    previous.setNextSibling(arg);
-                }
+//    @Override
+//    public void visit(MapInitExpr mapInitExpr) {
+//        calculateTempOffSet(mapInitExpr);
+//        MapInitExprEndNode endNode = new MapInitExprEndNode(mapInitExpr);
+//        Expression rExp = mapInitExpr.getRExpr();
+//        Expression[] argExprs = mapInitExpr.getArgExprs();
+//        LinkedNode previous = null;
+//        if (rExp != null) {
+//            mapInitExpr.setNext(rExp);
+//            rExp.setParent(mapInitExpr);
+//            rExp.setNextSibling(endNode);
+//            rExp.accept(this);
+//            previous = rExp;
+//        }
+//        endNode.setParent(mapInitExpr);
+//        if (argExprs != null && argExprs.length > 0) {
+//            if (mapInitExpr.next == null) {
+//                mapInitExpr.setNext(argExprs[0]);
+//            }
+//            for (Expression arg : argExprs) {
+//                if (previous != null) {
+//                    previous.setNextSibling(arg);
+//                }
+//
+//                previous = arg;
+//            }
+//            if (previous != null) {
+//                previous.setNextSibling(endNode);
+//            }
+//            Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
+//        } else {
+//            if (mapInitExpr.next == null) {
+//                mapInitExpr.setNext(endNode);
+//            }
+//        }
+//        endNode.setNext(findNext(endNode));
+//    }
 
-                previous = arg;
-            }
-            if (previous != null) {
-                previous.setNextSibling(endNode);
-            }
-            Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
-        } else {
-            if (mapInitExpr.next == null) {
-                mapInitExpr.setNext(endNode);
-            }
-        }
-        endNode.setNext(findNext(endNode));
-    }
-
     @Override
-    public void visit(MapStructInitKeyValueExpr keyValueExpr) {
+    public void visit(KeyValueExpr keyValueExpr) {
         calculateTempOffSet(keyValueExpr);
         // Handle this as non-blocking manner.
         Expression keyExpr = keyValueExpr.getKeyExpr();
@@ -1469,6 +1471,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(ServiceVarLocation serviceVarLocation) {
+
+    }
+
+    @Override
+    public void visit(GlobalVarLocation globalVarLocation) {
 
     }
 
@@ -1629,5 +1636,50 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             return count + 1;
         }
     }
+    
+    private void visitInitExpression(RefTypeInitExpr refTypeInitExpr, AbstractLinkedNode endNode) {
+        calculateTempOffSet(refTypeInitExpr);
+        
+        Expression rExp = refTypeInitExpr.getRExpr();
+        Expression[] argExprs = refTypeInitExpr.getArgExprs();
+        LinkedNode previous = null;
+        if (rExp != null) {
+            refTypeInitExpr.setNext(rExp);
+            rExp.setParent(refTypeInitExpr);
+            rExp.setNextSibling(endNode);
+            rExp.accept(this);
+            previous = rExp;
+        }
+        endNode.setParent(refTypeInitExpr);
+        if (argExprs != null && argExprs.length > 0) {
+            if (refTypeInitExpr.next == null) {
+                refTypeInitExpr.setNext(argExprs[0]);
+            }
+            for (Expression arg : argExprs) {
+                if (previous != null) {
+                    previous.setNextSibling(arg);
+                }
 
+                previous = arg;
+            }
+            if (previous != null) {
+                previous.setNextSibling(endNode);
+            }
+            Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
+        } else {
+            if (refTypeInitExpr.next == null) {
+                refTypeInitExpr.setNext(endNode);
+            }
+        }
+        endNode.setNext(findNext(endNode));
+    }
+
+    /* (non-Javadoc)
+     * @see org.ballerinalang.model.NodeVisitor#visit(org.ballerinalang.model.expressions.JSONArrayInitExpr)
+     */
+    @Override
+    public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
+        // TODO Auto-generated method stub
+        
+    }
 }

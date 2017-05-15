@@ -73,6 +73,7 @@ import java.util.Stack;
 public class BLangAntlr4Listener implements BallerinaListener {
     protected static final String B_KEYWORD_PUBLIC = "public";
     protected static final String B_KEYWORD_NATIVE = "native";
+    protected static final String B_KEYWORD_ACTION = "action";
     protected String fileName;
     protected String packageDirPath;
     protected String currentPkgName;
@@ -121,7 +122,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.addPackageDcl(ctx.packageName().getText());
+        modelBuilder.addPackageDcl(getCurrentLocation(ctx), ctx.packageName().getText());
     }
 
     @Override
@@ -296,7 +297,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
+        boolean isNative = false;
+        for (int position = 1; position < ctx.getChildCount(); position++) {
+            if (ctx.getChild(position).getText().equals(B_KEYWORD_ACTION)
+                    && ctx.getChild(position - 1).getText().equals(B_KEYWORD_NATIVE)) {
+                isNative = true;
+                break;
+            }
+        }
         String actionName = ctx.callableUnitSignature().Identifier().getText();
         int annotationCount = ctx.annotationAttachment() != null ? ctx.annotationAttachment().size() : 0;
         modelBuilder.addAction(actionName, isNative, annotationCount);
@@ -347,6 +355,24 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         modelBuilder.addAnnotationtDef(getCurrentLocation(ctx), ctx.Identifier().getText());
+    }
+
+    @Override
+    public void enterGlobalVariableDefinitionStatement(BallerinaParser.GlobalVariableDefinitionStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitGlobalVariableDefinitionStatement(BallerinaParser.GlobalVariableDefinitionStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        SimpleTypeName typeName = typeNameStack.pop();
+        String varName = ctx.Identifier().getText();
+        boolean exprAvailable = ctx.expression() != null;
+
+        modelBuilder.addGlobalVarDef(getCurrentLocation(ctx), typeName, varName, exprAvailable);
     }
 
     @Override
@@ -1053,7 +1079,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null || ctx.getChild(0) == null) {
             return;
         }
-        modelBuilder.createStructFieldRefExpr(getCurrentLocation(ctx));
+        modelBuilder.createFieldRefExpr(getCurrentLocation(ctx));
     }
 
     @Override
@@ -1063,8 +1089,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
         if (ctx.exception == null) {
-            String varName = ctx.getText();
-            modelBuilder.createVarRefExpr(getCurrentLocation(ctx), varName);
+            modelBuilder.createVarRefExpr(getCurrentLocation(ctx), nameReferenceStack.pop());
         }
     }
 
@@ -1074,10 +1099,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) {
-        if (ctx.exception == null && ctx.Identifier() != null) {
-            String mapArrayVarName = ctx.Identifier().getText();
+        if (ctx.exception == null) {
             int dimensions = (ctx.getChildCount() - 1) / 3;
-            modelBuilder.createMapArrayVarRefExpr(getCurrentLocation(ctx), mapArrayVarName, dimensions);
+            modelBuilder.createMapArrayVarRefExpr(getCurrentLocation(ctx), nameReferenceStack.pop(), dimensions);
         }
     }
 
@@ -1560,12 +1584,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
     protected NodeLocation getCurrentLocation(ParserRuleContext ctx) {
         String fileName = ctx.getStart().getInputStream().getSourceName();
         int lineNo = ctx.getStart().getLine();
-        return new NodeLocation(packageDirPath, fileName, lineNo);
-    }
-
-    protected NodeLocation getCurrentLocation(TerminalNode node) {
-        String fileName = node.getSymbol().getInputStream().getSourceName();
-        int lineNo = node.getSymbol().getLine();
         return new NodeLocation(packageDirPath, fileName, lineNo);
     }
 

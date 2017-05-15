@@ -31,7 +31,7 @@ under the License.
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
     </test>
-    <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
+    <!-- <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true"/>
         <packages>
             <package name="org.ballerinalang.nativeimpl.functions.*"/>
@@ -39,13 +39,13 @@ under the License.
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
-    </test>
+    </test> -->
 
     <!-- Native Connectors Related Test Cases -->
     <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="false"/>
         <packages>
-            <package name="org.ballerinalang.nativeimpl.connectors"/>
+            <package name="org.ballerinalang.nativeimpl.actions"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
@@ -62,7 +62,7 @@ under the License.
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
     </test>
-    <test name="ballerina-native-type-convertors-unit-tests-non-blocking" preserve-order="true" parallel="false">
+    <!-- <test name="ballerina-native-type-convertors-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true"/>
         <packages>
             <package name="org.ballerinalang.nativeimpl.typemappers"/>
@@ -70,7 +70,7 @@ under the License.
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
-    </test>
+    </test> -->
 
     <!-- Worker Related Test Cases -->
     <test name="ballerina-core-worker-unit-tests" preserve-order="true" parallel="false">
@@ -82,7 +82,7 @@ under the License.
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
     </test>
-    <test name="ballerina-core-worker-unit-tests-non-blocking" preserve-order="true" parallel="false">
+    <!-- <test name="ballerina-core-worker-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true"/>
         <packages>
             <package name="org.ballerinalang.core.lang.worker"/>
@@ -90,7 +90,7 @@ under the License.
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
-    </test>
+    </test> -->
 
 
     <!-- Service Related Test Cases -->
@@ -103,7 +103,7 @@ under the License.
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
     </test>
-    <test name="ballerina-service-unit-tests-non-blocking" preserve-order="true" parallel="false">
+    <!-- <test name="ballerina-service-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true"/>
         <packages>
             <package name="org.ballerinalang.service"/>
@@ -111,7 +111,7 @@ under the License.
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
-    </test>
+    </test> -->
 
     <test name="ballerina-any-type-test-suite">
         <parameter name="enableNonBlocking" value="false" />
@@ -121,11 +121,29 @@ under the License.
         </classes>
     </test>
     <!-- Non Blocking Test Cases -->
-    <test name="ballerina-any-type-test-suite-non-blocking">
+    <!-- <test name="ballerina-any-type-test-suite-non-blocking">
         <parameter name="enableNonBlocking" value="true" />
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
             <class name="org.ballerinalang.any.BAnyTypeNativeSuccessScenariosTest"/>
         </classes>
+    </test> -->
+
+    <test name="ballerina-global-var-test-suite">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
+        </classes>
     </test>
+    <!-- Non Blocking Test Cases -->
+    <!-- <test name="ballerina-global-var-test-suite-non-blocking">
+        <parameter name="enableNonBlocking" value="true" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
+        </classes>
+    </test> -->
 </suite>

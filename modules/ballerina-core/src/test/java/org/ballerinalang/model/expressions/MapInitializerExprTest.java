@@ -19,6 +19,8 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BArray;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -60,5 +62,65 @@ public class MapInitializerExprTest {
     @Test(description = "Test map initializing with different types")
     public void testMultiTypeMapInit() {
         BTestUtils.parseBalFile("lang/expressions/multi-type-map-initializer.bal");
+    }
+    
+    @Test
+    public void testNestedMapInit() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNestedMapInit", new BValue[] {});
+
+        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
+        BMap<BString, BValue> outerMap = (BMap<BString, BValue>) returns[0];
+        Assert.assertEquals(outerMap.get(new BString("name")), new BString("Supun"));
+
+        BValue info = outerMap.get(new BString("info"));
+        Assert.assertTrue(info instanceof BMap<?, ?>);
+        BMap<BString, BValue> infoMap = (BMap<BString, BValue>) info;
+        Assert.assertEquals(infoMap.get(new BString("city")), new BString("Colombo"));
+        Assert.assertEquals(infoMap.get(new BString("country")), new BString("SriLanka"));
+    }
+    
+    @Test
+    public void testMapInitWithJson() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testMapInitWithJson", new BValue[] {});
+
+        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
+        BMap<BString, BValue> outerMap = (BMap<BString, BValue>) returns[0];
+        Assert.assertEquals(outerMap.get(new BString("name")), new BString("Supun"));
+
+        BValue info = outerMap.get(new BString("info"));
+        Assert.assertTrue(info instanceof BJSON);
+        BJSON infoJson = (BJSON) info;
+        Assert.assertEquals(infoJson.stringValue(), "{\"city\":\"Colombo\",\"country\":\"SriLanka\"}");
+    }
+    
+    @Test
+    public void testComplexMapInit() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testComplexMapInit", new BValue[] {});
+
+        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
+        BMap<BString, BValue> outerMap = (BMap<BString, BValue>) returns[0];
+        Assert.assertEquals(outerMap.get(new BString("name")).stringValue(), "Supun");
+
+        BValue adrsArray = outerMap.get(new BString("addressArray"));
+        Assert.assertTrue(adrsArray instanceof BArray);
+        BArray addressArray = (BArray) adrsArray;
+
+        BValue adrs1 = addressArray.get(0);
+        Assert.assertTrue(adrs1 instanceof BMap<?, ?>);
+        BValue address = ((BMap) adrs1).get(new BString("address"));
+        Assert.assertTrue(address instanceof BMap<?, ?>);
+        Assert.assertEquals(((BMap) address).get(new BString("city")).stringValue(), "Colombo");
+
+        BValue adrs2 = addressArray.get(1);
+        Assert.assertTrue(adrs2 instanceof BMap<?, ?>);
+        address = ((BMap) adrs2).get(new BString("address"));
+        Assert.assertTrue(address instanceof BMap<?, ?>);
+        Assert.assertEquals(((BMap) address).get(new BString("city")).stringValue(), "Kandy");
+
+        BValue adrs3 = addressArray.get(2);
+        Assert.assertTrue(adrs3 instanceof BMap<?, ?>);
+        address = ((BMap) adrs3).get(new BString("address"));
+        Assert.assertTrue(address instanceof BMap<?, ?>);
+        Assert.assertEquals(((BMap) address).get(new BString("city")).stringValue(), "Galle");
     }
 }

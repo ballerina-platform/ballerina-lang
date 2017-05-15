@@ -8,7 +8,7 @@ function testworker(message msg)(message) {
     int quantity;
     float a;
     json j;
-    j = `{"name":"chanaka"}`;
+    j = {"name":"chanaka"};
     messages:setJsonPayload(m, j);
     sumD = 123d;
     amount = 222d;

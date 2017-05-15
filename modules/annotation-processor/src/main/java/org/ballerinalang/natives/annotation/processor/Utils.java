@@ -187,7 +187,13 @@ public class Utils {
      * @return Qualified name of a ballerina native action
      */
     public static String getActionQualifiedName(BallerinaAction balAction, String connectorName, String connectorPkg) {
-        StringBuilder actionNameBuilder = new StringBuilder(balAction.connectorName() + "." + balAction.actionName());
+        if (balAction.actionName().equals("init")) {
+            StringBuilder actionNameBuilder =
+                    new StringBuilder(Constants.NON_CALLABLE_NATIVE_ACTION_INIT.replace("$name", connectorName));
+            return actionNameBuilder.toString();
+        }
+        StringBuilder actionNameBuilder = new StringBuilder(Constants.NATIVE_ACTION_PREFIX + "."
+                + balAction.connectorName() + "." + balAction.actionName());
         Argument[] args = balAction.args();
         for (Argument arg : args) {
             if (arg.type() == TypeEnum.CONNECTOR) {

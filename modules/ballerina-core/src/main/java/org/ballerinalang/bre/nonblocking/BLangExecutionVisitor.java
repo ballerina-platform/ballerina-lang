@@ -19,6 +19,7 @@ package org.ballerinalang.bre.nonblocking;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -34,6 +35,7 @@ import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.LinkedNodeVisitor;
@@ -75,6 +77,8 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     public abstract BValue access(ServiceVarLocation serviceVarLocation);
 
+    public abstract BValue access(GlobalVarLocation globalVarLocation);
+
     public abstract BValue access(StackVarLocation stackVarLocation);
 
     public abstract BValue access(StructVarLocation structVarLocation);
@@ -110,6 +114,11 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     @Override
     public void visit(ConstDef constant) {
+    }
+
+    @Override
+    public void visit(GlobalVariableDef globalVar) {
+
     }
 
     @Override
@@ -235,6 +244,10 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     @Override
     public void visit(ServiceVarLocation serviceVarLocation) {
+    }
+
+    @Override
+    public void visit(GlobalVarLocation globalVarLocation) {
     }
 
     @Override

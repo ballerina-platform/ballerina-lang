@@ -106,10 +106,10 @@ LINE_COMMENT=87
 'annotation'=19
 'attach'=20
 ','=21
-'typemapper'=22
-'const'=23
-'parameter'=24
-'='=25
+'='=22
+'typemapper'=23
+'const'=24
+'parameter'=25
 'worker'=26
 'message'=27
 'any'=28
@@ -149,7 +149,7 @@ LINE_COMMENT=87
 '<-'=62
 'transaction'=63
 'onRollback'=64
-'abort;'=65
+'abort'=65
 '+'=66
 '-'=67
 '!'=68

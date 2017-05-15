@@ -25,13 +25,13 @@ import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
@@ -47,6 +47,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitActionStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
@@ -147,13 +148,13 @@ public interface LinkedNodeVisitor extends NodeVisitor {
 
     void visit(MapInitExpr mapInitExpr);
 
-    void visit(MapStructInitKeyValueExpr mapStructInitKeyValueExpr);
+    void visit(KeyValueExpr mapStructInitKeyValueExpr);
 
     void visit(RefTypeInitExpr refTypeInitExpr);
 
     void visit(ResourceInvocationExpr resourceInvocationExpr);
 
-    void visit(StructFieldAccessExpr structFieldAccessExpr);
+    void visit(FieldAccessExpr structFieldAccessExpr);
 
     void visit(StructInitExpr structInitExpr);
 
@@ -193,6 +194,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
 
     /* Node Fragments - Expressions */
 
+    void visit(ConnectorInitActionStartNode connectorInitActionStartNode);
+
     void visit(ActionInvocationExprStartNode actionInvocationExprStartNode);
 
     void visit(ArrayInitExprEndNode arrayInitExprEndNode);
@@ -218,7 +221,7 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(InvokeNativeTypeMapperNode invokeNativeTypeMapperNode);
 
     void visit(MapInitExprEndNode mapInitExprEndNode);
-
+    
     void visit(RefTypeInitExprEndNode refTypeInitExprEndNode);
 
     void visit(StructFieldAccessExprEndNode structFieldAccessExprEndNode);
