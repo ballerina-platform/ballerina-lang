@@ -29,8 +29,8 @@ class WorkerInvocationStatement extends Statement {
         this._source = _.get(args, 'source');
         this._destination = _.get(args, 'destination');
         this._expressionList = _.get(args, 'expressionList', []);
-        this._invokeStatement = _.get(args, 'invokeStatement', 'messageName -> workerName');
-        this._workerName = _.get(args, 'workerName', '');
+        this._invokeStatement = _.get(args, 'invokeStatement', 'm1 -> workerName');
+        this._workerName = _.get(args, 'workerName', 'workerName');
     }
 
     setSource(source) {
@@ -70,7 +70,12 @@ class WorkerInvocationStatement extends Statement {
     }
 
     setInvocationStatement(invocationStatement) {
-        this._workerName = (invocationStatement.split('->')[1]).trim();
+        let tokens = (invocationStatement.split('->'));
+        if (tokens.length > 1) {
+            this._workerName = (tokens[1]).trim();
+        } else {
+            this._workerName = '';
+        }
         this.setAttribute('_invokeStatement', invocationStatement);
     }
 

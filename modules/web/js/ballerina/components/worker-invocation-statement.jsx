@@ -169,7 +169,7 @@ class WorkerInvocationStatement extends React.Component {
             expressionString = _.join(expressionsList, ',');
             expressionString += '->' + workerName;
             source.setInvocationStatement(expressionString);
-            source.setAttribute('_destination', destination);
+            source.setDestination(destination);
         });
     }
 

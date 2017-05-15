@@ -394,10 +394,15 @@ class SizingUtil {
      */
     getTotalHeightUpto(parent, childNode) {
         const self = this;
-        const nodeIndex = _.findIndex(parent.getChildren(), function(child){
+
+        const statementChildren = _.filter(parent.getChildren(), function(child) {
+            return BallerinaASTFactory.isStatement(child);
+        });
+        const nodeIndex = _.findIndex(statementChildren, function(child){
             return child.id === childNode.id;
         });
-        const slicedChildren = _.slice(parent.getChildren(), 0, nodeIndex);
+
+        const slicedChildren = _.slice(statementChildren, 0, nodeIndex);
         let totalHeight = 0;
 
         _.forEach(slicedChildren, function (child) {
