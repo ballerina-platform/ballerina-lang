@@ -43,6 +43,7 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.debugger.DebugManager;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -129,6 +130,12 @@ public class BalProgramExecutor {
                 } else {
                     BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
                     new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+                    if (executor.isErrorThrown && executor.thrownError != null) {
+                        String errorMsg = "uncaught error " + executor.thrownError.getType().getName() + ":" +
+                                executor.thrownError.getValue(0).stringValue();
+                        throw new BallerinaException(errorMsg);
+                    }
+                    balContext.getControlStack().popFrame();
                 }
             }
         } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
@@ -138,6 +145,11 @@ public class BalProgramExecutor {
         } else {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
             new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+            if (executor.isErrorThrown && executor.thrownError != null) {
+                String errorMsg = "uncaught error " + executor.thrownError.getType().getName() + ":" +
+                        executor.thrownError.getValue(0).stringValue();
+                throw new BallerinaException(errorMsg);
+            }
             balContext.getControlStack().popFrame();
         }
     }

@@ -25,8 +25,10 @@ import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,20 +38,27 @@ import java.util.Map;
  */
 public class TryCatchStmt extends AbstractStatement {
     private Statement tryBlock;
-    private CatchBlock catchBlock;
+    private CatchBlock[] catchBlocks;
+    private FinallyBlock finallyBlock;
 
-    private TryCatchStmt(NodeLocation location, Statement tryBlock, CatchBlock catchBlock) {
+    private TryCatchStmt(NodeLocation location, Statement tryBlock, CatchBlock[] catchBlocks, FinallyBlock
+            finallyBlock) {
         super(location);
         this.tryBlock = tryBlock;
-        this.catchBlock = catchBlock;
+        this.catchBlocks = catchBlocks;
+        this.finallyBlock = finallyBlock;
     }
 
     public Statement getTryBlock() {
         return tryBlock;
     }
 
-    public CatchBlock getCatchBlock() {
-        return catchBlock;
+    public CatchBlock[] getCatchBlocks() {
+        return catchBlocks;
+    }
+
+    public FinallyBlock getFinallyBlock() {
+        return finallyBlock;
     }
 
     @Override
@@ -121,13 +130,63 @@ public class TryCatchStmt extends AbstractStatement {
     }
 
     /**
+     * Represents CatchBlock of a Try-Catch statement.
+     */
+    public static class FinallyBlock implements SymbolScope {
+
+        private final SymbolScope enclosingScope;
+        private Map<SymbolName, BLangSymbol> symbolMap;
+        private BlockStmt catchBlock;
+
+        public FinallyBlock(SymbolScope enclosingScope) {
+            this.enclosingScope = enclosingScope;
+            this.symbolMap = new HashMap<>();
+        }
+
+        @Override
+        public ScopeName getScopeName() {
+            return ScopeName.LOCAL;
+        }
+
+        @Override
+        public SymbolScope getEnclosingScope() {
+            return this.enclosingScope;
+        }
+
+        @Override
+        public void define(SymbolName name, BLangSymbol symbol) {
+            symbolMap.put(name, symbol);
+        }
+
+        @Override
+        public BLangSymbol resolve(SymbolName name) {
+            return resolve(symbolMap, name);
+        }
+
+        @Override
+        public Map<SymbolName, BLangSymbol> getSymbolMap() {
+            return Collections.unmodifiableMap(this.symbolMap);
+        }
+
+        public BlockStmt getFinallyBlockStmt() {
+            return catchBlock;
+        }
+
+        void setFinallyBlockStmt(BlockStmt catchBlock) {
+            this.catchBlock = catchBlock;
+        }
+
+    }
+
+    /**
      * Builds a {@code {@link TryCatchStmt}} statement.
      *
      * @since 0.8.0
      */
     public static class TryCatchStmtBuilder {
         private Statement tryBlock;
-        private CatchBlock catchBlock;
+        private List<CatchBlock> catchBlock = new ArrayList<>();
+        private FinallyBlock finallyBlock;
         private NodeLocation location;
 
         public Statement getTryBlock() {
@@ -138,16 +197,28 @@ public class TryCatchStmt extends AbstractStatement {
             this.tryBlock = tryBlock;
         }
 
-        public CatchBlock getCatchBlock() {
-            return catchBlock;
+        public CatchBlock getLastCatchBlock() {
+            return catchBlock.get(catchBlock.size() - 1);
         }
 
-        public void setCatchBlockStmt(Statement statement) {
-            this.catchBlock.setCatchBlockStmt((BlockStmt) statement);
+        public void setLastCatchBlockStmt(Statement statement) {
+            this.catchBlock.get(catchBlock.size() - 1).setCatchBlockStmt((BlockStmt) statement);
         }
 
-        public void setCatchBlock(CatchBlock catchBlock) {
-            this.catchBlock = catchBlock;
+        public void addCatchBlock(CatchBlock catchBlock) {
+            this.catchBlock.add(catchBlock);
+        }
+
+        public FinallyBlock getFinallyBlock() {
+            return finallyBlock;
+        }
+
+        public void setFinallyBlockStmt(Statement statement) {
+            this.finallyBlock.setFinallyBlockStmt((BlockStmt) statement);
+        }
+
+        public void setFinallyBlock(FinallyBlock finallyBlock) {
+            this.finallyBlock = finallyBlock;
         }
 
         public NodeLocation getLocation() {
@@ -162,7 +233,8 @@ public class TryCatchStmt extends AbstractStatement {
             return new TryCatchStmt(
                     location,
                     tryBlock,
-                    catchBlock);
+                    catchBlock.toArray(new CatchBlock[0]),
+                    finallyBlock);
         }
     }
 }

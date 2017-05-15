@@ -514,8 +514,13 @@ public class ConstructProviderClassBuilder {
                     bType = returnType.elementType().getName();
                     arrayDimensions = returnType.arrayDimensions();
                 }
-                sb.append("new " + simpleTypeNameClass + "(\"" + bType + "\", " + isArray + ", "
-                        + arrayDimensions + ")");
+                if (returnType.type().equals(TypeEnum.STRUCT)) {
+                    sb.append("new " + simpleTypeNameClass + "(\"" + returnType.structType() + "\", \""
+                            + returnType.structPackage() + "\", " + isArray + ", " + arrayDimensions + ")");
+                } else {
+                    sb.append("new " + simpleTypeNameClass + "(\"" + bType + "\", " + isArray + ", "
+                            + arrayDimensions + ")");
+                }
                 if (returnCount < returnTypes.length - 1) {
                     sb.append(",");
                 }
@@ -558,8 +563,8 @@ public class ConstructProviderClassBuilder {
                         "\", " + isArray + ", " + arrayDimensions + ")");
                 } else if (bType == TypeEnum.STRUCT) {
                     sb.append(
-                            "new " + simpleTypeNameClass + "(\"" + argType.structType() + "\",\"" + enclosingScopePkg +
-                                    "\", " + isArray + ", " + arrayDimensions + ")");
+                            "new " + simpleTypeNameClass + "(\"" + argType.structType() + "\",\""
+                                    + argType.structPackage() + "\", " + isArray + ", " + arrayDimensions + ")");
                 } else {
                     sb.append("new " + simpleTypeNameClass + "(\"" + bType.getName() +
                             "\", " + isArray + ", " + arrayDimensions + ")");

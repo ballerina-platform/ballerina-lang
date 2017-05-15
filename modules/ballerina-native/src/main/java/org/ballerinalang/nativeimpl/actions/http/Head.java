@@ -21,7 +21,6 @@ package org.ballerinalang.nativeimpl.actions.http;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -96,10 +95,10 @@ public class Head extends AbstractHTTPAction {
             // Execute the operation
             executeNonBlockingAction(context, createCarbonMsg(context), callback);
         } catch (ClientConnectorException | RuntimeException e) {
-            String msg = "Failed to invoke 'head' action in " + Constants.CONNECTOR_NAME
-                    + ". " + e.getMessage();
-            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-            context.getExecutor().handleBException(exception);
+//            String msg = "Failed to invoke 'head' action in " + Constants.CONNECTOR_NAME
+//                    + ". " + e.getMessage();
+//            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+//            context.getExecutor().handleBException(exception);
         } catch (Throwable t) {
             throw new BallerinaException("Failed to invoke 'head' action in " + Constants.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);

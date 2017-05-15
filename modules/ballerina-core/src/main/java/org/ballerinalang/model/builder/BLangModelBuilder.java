@@ -1152,7 +1152,7 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void startCatchClause(NodeLocation location) {
+    public void addTryCatchBlockStmt() {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Creating Try clause.
@@ -1160,10 +1160,14 @@ public class BLangModelBuilder {
         BlockStmt tryBlock = blockStmtBuilder.build();
         tryCatchStmtBuilder.setTryBlock(tryBlock);
         currentScope = tryBlock.getEnclosingScope();
+    }
+
+    public void startCatchClause(NodeLocation location) {
+        TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Staring parsing catch clause.
         TryCatchStmt.CatchBlock catchBlock = new TryCatchStmt.CatchBlock(currentScope);
-        tryCatchStmtBuilder.setCatchBlock(catchBlock);
+        tryCatchStmtBuilder.addCatchBlock(catchBlock);
         currentScope = catchBlock;
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
@@ -1172,27 +1176,44 @@ public class BLangModelBuilder {
         currentScope = catchBlockBuilder.getCurrentScope();
     }
 
-    public void addCatchClause(NodeLocation location, SimpleTypeName exceptionType, String argName) {
+    public void addCatchClause(NodeLocation nodeLocation, SimpleTypeName errorType, String argName) {
         Identifier identifier = new Identifier(argName);
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
-
-        if (!TypeConstants.EXCEPTION_TNAME.equals(exceptionType.getName())) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.ONLY_EXCEPTION_TYPE_HERE);
-            errorMsgs.add(errMsg);
-        }
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
         BlockStmt catchBlock = catchBlockBuilder.build();
         currentScope = catchBlock.getEnclosingScope();
 
         SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
-        ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), identifier, exceptionType, symbolName,
+        ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), identifier, errorType, symbolName,
                 currentScope);
         currentScope.resolve(symbolName);
         currentScope.define(symbolName, paramDef);
-        tryCatchStmtBuilder.getCatchBlock().setParameterDef(paramDef);
-        tryCatchStmtBuilder.setCatchBlockStmt(catchBlock);
+        tryCatchStmtBuilder.getLastCatchBlock().setParameterDef(paramDef);
+        tryCatchStmtBuilder.setLastCatchBlockStmt(catchBlock);
+    }
+
+    public void startFinallyBlock(NodeLocation location) {
+        TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
+
+        // Start Parsing finally clause.
+        TryCatchStmt.FinallyBlock finallyBlock = new TryCatchStmt.FinallyBlock(currentScope);
+        tryCatchStmtBuilder.setFinallyBlock(finallyBlock);
+        currentScope = finallyBlock;
+
+        BlockStmt.BlockStmtBuilder finallyBlockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(finallyBlockStmtBuilder);
+
+        currentScope = finallyBlockStmtBuilder.getCurrentScope();
+    }
+
+    public void addFinallyBlock() {
+        TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
+
+        BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
+        BlockStmt finallyBlock = catchBlockBuilder.build();
+        currentScope = finallyBlock.getEnclosingScope();
+        tryCatchStmtBuilder.setFinallyBlockStmt(finallyBlock);
     }
 
     public void addTryCatchStmt() {
@@ -1208,7 +1229,8 @@ public class BLangModelBuilder {
             addToBlockStmt(throwStmt);
             return;
         }
-        String errMsg = BLangExceptionHelper.constructSemanticError(location, SemanticErrors.ONLY_EXCEPTION_TYPE_HERE);
+        String errMsg = BLangExceptionHelper.constructSemanticError(location, SemanticErrors
+                .ONLY_ERROR_TYPE_ALLOWED_HERE);
         errorMsgs.add(errMsg);
     }
 

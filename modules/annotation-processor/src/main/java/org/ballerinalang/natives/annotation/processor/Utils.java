@@ -78,7 +78,7 @@ public class Utils {
         sb.append(" (");
         for (int i = 1; i <= args.length; i++) {
             ReturnType arg = args[i - 1];
-            sb.append(getArgumentType(arg.type(), arg.elementType(), "", arg.arrayDimensions()));
+            sb.append(getArgumentType(arg.type(), arg.elementType(), arg.structType(), arg.arrayDimensions()));
             if (i != args.length) {
                 sb.append(", ");
             }
@@ -208,7 +208,7 @@ public class Utils {
                 }
             } else {
                 if (arg.type() == TypeEnum.STRUCT) {
-                    actionNameBuilder.append("." + arg.structType());
+                    actionNameBuilder.append("." + connectorPkg + ":" + arg.structType());
                 } else {
                     actionNameBuilder.append("." + arg.type().getName());
                 }
@@ -241,6 +241,8 @@ public class Utils {
             if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
                 String arraySuffix = createArraySuffix(arg.arrayDimensions());
                 funcNameBuilder.append("." + arg.elementType().getName() + arraySuffix);
+            } else if (arg.type() == TypeEnum.STRUCT) {
+                funcNameBuilder.append("." + arg.structPackage() + ":" + arg.structType());
             } else {
                 funcNameBuilder.append("." + arg.type().getName());
             }

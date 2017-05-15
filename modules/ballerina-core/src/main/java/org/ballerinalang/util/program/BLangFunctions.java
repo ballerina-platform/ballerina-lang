@@ -46,6 +46,7 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * This class contains helper methods to invoke Ballerina functions.
@@ -166,6 +167,11 @@ public class BLangFunctions {
             // Invoke main function
             BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
             function.getCallableUnitBody().execute(executor);
+            if (executor.isErrorThrown && executor.thrownError != null) {
+                String errorMsg = "uncaught error " + executor.thrownError.getType().getName() + ":" +
+                        executor.thrownError.getValue(0).stringValue();
+                throw new BallerinaException(errorMsg);
+            }
             return returnValues;
         }
     }

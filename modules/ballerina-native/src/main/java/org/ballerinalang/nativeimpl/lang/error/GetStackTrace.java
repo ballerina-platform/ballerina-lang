@@ -15,11 +15,11 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.exceptions;
+package org.ballerinalang.nativeimpl.lang.error;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BException;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,27 +29,31 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native functions for ballerina.model.exceptions to Get the category of an exception.
- *
- * @since 0.8.0
+ * Native functions for ballerina.model.exceptions to Set the message and the category.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.exceptions",
-        functionName = "getCategory",
-        args = {@Argument(name = "e", type = TypeEnum.EXCEPTION)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+        packageName = "ballerina.lang.error",
+        functionName = "getStackTrace",
+        args = {@Argument(name = "err", type = TypeEnum.STRUCT, structType = "error",
+                structPackage = "ballerina.lang.error")},
+        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "stackTrace",
+                structPackage = "ballerina.lang.error")},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets the category of an exception") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "e",
-        value = "The exception object") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string)",
-        value = "The exception category") })
-public class GetCategory extends AbstractNativeFunction {
+        value = "Gets the exception stack trace.")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "err",
+        value = "The error struct")})
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct) ",
+        value = "The stackTrace struct")})
+public class GetStackTrace extends AbstractNativeFunction {
+
     @Override
     public BValue[] execute(Context context) {
-        BException exception = (BException) getArgument(context, 0);
-        return new BValue[]{exception.value().getCategory()};
+        BStruct value = ((BStruct) getArgument(context, 0)).getStackTrace();
+        if (value == null) {
+            return new BValue[]{};
+        }
+        return new BValue[]{value};
     }
 }

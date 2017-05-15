@@ -372,8 +372,6 @@ public class NativeCastMapper {
 
     public static final BiFunction<BValue, BType, BValue> CONNECTOR_TO_ANY_FUNC = (rVal, targetType) -> rVal;
 
-    public static final BiFunction<BValue, BType, BValue> EXCEPTION_TO_ANY_FUNC = (rVal, targetType) -> rVal;
-    
     public static final BiFunction<BValue, BType, BValue> MAP_TO_ANY_FUNC = (rVal, targetType) -> rVal;
     
     public static final BiFunction<BValue, BType, BValue> STRUCT_TO_ANY_FUNC = (rVal, targetType) -> rVal;
@@ -480,17 +478,6 @@ public class NativeCastMapper {
             rVal.getType(), BTypes.typeConnector);
     };
 
-    public static final BiFunction<BValue, BType, BValue> ANY_TO_EXCEPTION_FUNC = (rVal, targetType) -> {
-        if (rVal == null) {
-            return null;
-        }
-        if (rVal.getType() == BTypes.typeException) {
-            return rVal;
-        }
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
-            rVal.getType(), BTypes.typeException);
-    };
-
     public static final BiFunction<BValue, BType, BValue> ANY_TO_MAP_FUNC = (rVal, targetType) -> {
         if (rVal == null) {
             return null;
@@ -499,7 +486,7 @@ public class NativeCastMapper {
             return rVal;
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
-            rVal.getType(), BTypes.typeException);
+            rVal.getType(), BTypes.typeMap);
     };
     
     public static final BiFunction<BValue, BType, BValue> ANY_TO_STRUCT_FUNC = (rVal, targetType) -> {

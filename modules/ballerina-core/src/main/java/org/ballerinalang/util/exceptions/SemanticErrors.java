@@ -74,7 +74,7 @@ public enum SemanticErrors {
     TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE("template.expression.not.allowed.here", "SEMANTIC_0049"),
     CONNECTOR_INIT_NOT_ALLOWED_HERE("connector.init.not.allowed.here", "SEMANTIC_0050"),
     ONLY_COUNT_1_ALLOWED_THIS_VERSION("only.count.1.allowed.this.version", "SEMANTIC_0051"),
-    ONLY_EXCEPTION_TYPE_HERE("only.exception.type.here", "SEMANTIC_0052"),
+    ONLY_ERROR_TYPE_ALLOWED_HERE("only.error.type.here", "SEMANTIC_0052"),
     BREAK_STMT_NOT_ALLOWED_HERE("break.stmt.not.allowed.here", "SEMANTIC_0053"),
     UNDEFINED_TYPE_MAPPER("undefined.type.mapper", "SEMANTIC_0054"),
     UNDEFINED_NATIVE_ACTION("undefined.native.action", "SEMANTIC_0055"),
@@ -92,8 +92,9 @@ public enum SemanticErrors {
     INCOMPATIBLE_ASSIGNMENT("incompatible.assignment", "SEMANTIC_0067"),
     INDEXING_NOT_SUPPORTED_FOR_MAP_ELEMENT("indexing.not.supported.map.element", "SEMANTIC_0068"),
     DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT("dynamic.keys.not.supported.for.struct", "SEMANTIC_0069"),
-    STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER("struct.field.child.has.pkg.identifier", "PARSER_0070");
-    
+    STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER("struct.field.child.has.pkg.identifier", "PARSER_0070"),
+    DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0071"),
+    ;
     private String errorMsgKey;
     private String errorCode;
 

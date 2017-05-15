@@ -123,7 +123,6 @@ import org.ballerinalang.model.util.BValueUtils;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -137,9 +136,7 @@ import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
-import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.FlowBuilderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -288,8 +285,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing TryCatchStmt {}", getNodeLocation(tryCatchStmt.getNodeLocation()));
         }
-        this.tryCatchStackRefs.push(new TryCatchStackRef(tryCatchStmt.getCatchBlock(),
-                bContext.getControlStack().getCurrentFrame()));
+//        this.tryCatchStackRefs.push(new TryCatchStackRef(tryCatchStmt.getCatchBlock(),
+//                bContext.getControlStack().getCurrentFrame()));
         next = tryCatchStmt.next;
     }
 
@@ -910,9 +907,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ThrowStmt - EndNode");
         }
-        BException exception = (BException) getTempValue(throwStmtEndNode.getStatement().getExpr());
-        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
-        this.handleBException(exception);
+//        BException exception = (BException) getTempValue(throwStmtEndNode.getStatement().getExpr());
+//        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+//        this.handleBException(exception);
     }
 
     @Override
@@ -1115,7 +1112,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             setTempValue(binaryExpr.getTempOffset(), binaryExprRslt);
             next = binaryExpressionEndNode.next;
         } catch (RuntimeException e) {
-            handleBException(new BException(e.getMessage()));
+//            handleBException(new BException(e.getMessage()));
         }
     }
 
@@ -1142,7 +1139,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             setTempValue(binaryExpr.getTempOffset(), binaryExprRslt);
             next = binaryEqualityExpressionEndNode.next;
         } catch (RuntimeException e) {
-            handleBException(new BException(e.getMessage()));
+//            handleBException(new BException(e.getMessage()));
         }
     }
     
@@ -1419,8 +1416,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 next = invokeNativeActionNode.next;
             }
         } catch (RuntimeException e) {
-            BException bException = new BException(e.getMessage());
-            handleBException(bException);
+//            BException bException = new BException(e.getMessage());
+//            handleBException(bException);
         }
     }
 
@@ -1495,30 +1492,30 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      *
      * @param bException Exception to handle
      */
-    public void handleBException(BException bException) {
+    public void handleBException(Object bException) {
         // SaveStack current StackTrace.
-        bException.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
-        if (tryCatchStackRefs.size() == 0) {
-            // There is no tryCatch block to handle this exception. Pass this to handle at root.
-            throw new BallerinaException(bException.value().getMessage().stringValue());
-        }
-        TryCatchStackRef ref = tryCatchStackRefs.pop();
-        // unwind stack till we found the current frame.
-        while (controlStack.getCurrentFrame() != ref.stackFrame) {
-            if (controlStack.getStack().size() > 0) {
-                controlStack.popFrame();
-            } else {
-                // Something has gone wrong. No StackFrame to pop ? this shouldn't be executed.
-                throw new FlowBuilderException("Not handle catch statement in execution builder phase");
-            }
-        }
-        MemoryLocation memoryLocation = ref.getCatchBlock().getParameterDef().getMemoryLocation();
-        if (memoryLocation instanceof StackVarLocation) {
-            int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
-            controlStack.setValue(stackFrameOffset, bException);
-        }
+//        bException.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+//        if (tryCatchStackRefs.size() == 0) {
+//            // There is no tryCatch block to handle this exception. Pass this to handle at root.
+//            throw new BallerinaException(bException.value().getMessage().stringValue());
+//        }
+//        TryCatchStackRef ref = tryCatchStackRefs.pop();
+//        // unwind stack till we found the current frame.
+//        while (controlStack.getCurrentFrame() != ref.stackFrame) {
+//            if (controlStack.getStack().size() > 0) {
+//                controlStack.popFrame();
+//            } else {
+//                // Something has gone wrong. No StackFrame to pop ? this shouldn't be executed.
+//                throw new FlowBuilderException("Not handle catch statement in execution builder phase");
+//            }
+//        }
+//        MemoryLocation memoryLocation = ref.getCatchBlock().getParameterDef().getMemoryLocation();
+//        if (memoryLocation instanceof StackVarLocation) {
+//            int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+//            controlStack.setValue(stackFrameOffset, bException);
+//        }
         // Execute Catch block.
-        next = ref.getCatchBlock().getCatchBlockStmt();
+//        next = ref.getCatchBlock().getCatchBlockStmt();
     }
 
     // Private methods
@@ -1645,7 +1642,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      * Recursively traverse and set the value of the access expression of a field of a struct.
      *
      * @param rValue     Value to be set
-     * @param expr       StructFieldAccessExpr of the current field
+     * @param currentExpr     FieldAccessExpr of the current field
      * @param currentVal Value of the expression evaluated so far.
      */
     private void setFieldValue(BValue rValue, FieldAccessExpr currentExpr, BValue currentVal) {
@@ -1766,7 +1763,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     /**
      * Recursively traverse and get the value of the access expression of a field of a struct.
      *
-     * @param expr       StructFieldAccessExpr of the current field
+     * @param currentExpr       StructFieldAccessExpr of the current field
      * @param currentVal Value of the expression evaluated so far.
      * @return Value of the expression after evaluating the current field.
      */

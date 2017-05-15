@@ -22,7 +22,6 @@ import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.values.BException;
 
 /**
  * {@link BLangNonBlockingExecutor} is a non-blocking and self driven Ballerina Executor.
@@ -49,7 +48,7 @@ public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
             try {
                 next.accept(this);
             } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
+//                handleBException(new BException(e.getMessage()));
             }
         }
     }
@@ -59,7 +58,7 @@ public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
             try {
                 next.accept(this);
             } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
+//                handleBException(new BException(e.getMessage()));
             }
         }
     }

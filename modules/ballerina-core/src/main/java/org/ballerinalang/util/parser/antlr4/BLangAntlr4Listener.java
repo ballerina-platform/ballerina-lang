@@ -973,6 +973,18 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterCatchClauses(BallerinaParser.CatchClausesContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.addTryCatchBlockStmt();
+    }
+
+    @Override
+    public void exitCatchClauses(BallerinaParser.CatchClausesContext ctx) {
+    }
+
+    @Override
     public void enterCatchClause(BallerinaParser.CatchClauseContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -986,9 +998,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
         String key = ctx.Identifier().getText();
-        // FIX ME
-        SimpleTypeName simpleTypeName = new SimpleTypeName("exception");
-        modelBuilder.addCatchClause(getCurrentLocation(ctx), simpleTypeName, key);
+        modelBuilder.addCatchClause(getCurrentLocation(ctx), typeNameStack.pop(), key);
+    }
+
+    @Override
+    public void enterFinallyClause(BallerinaParser.FinallyClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startFinallyBlock(getCurrentLocation(ctx));
+    }
+
+    @Override
+    public void exitFinallyClause(BallerinaParser.FinallyClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.addFinallyBlock();
     }
 
     @Override
