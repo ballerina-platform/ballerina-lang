@@ -27,6 +27,7 @@ import SimpleBBox from './../ast/simple-bounding-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import './compound-statement-decorator.css';
 import ActiveArbiter from './active-arbiter';
+import Breakpoint from './breakpoint';
 
 class CompoundStatementDecorator extends React.Component {
 
@@ -53,7 +54,7 @@ class CompoundStatementDecorator extends React.Component {
     }
 
     render() {
-        const { bBox } = this.props;
+        const { bBox, model } = this.props;
         // we need to draw a drop box above the statement
         let drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
@@ -77,12 +78,41 @@ class CompoundStatementDecorator extends React.Component {
 			<ActionBox
                 bBox={ actionBbox }
                 show={ this.state.active }
-                isBreakpoint={ false }
+                isBreakpoint={ model.isBreakpoint }
                 onDelete={ () => this.onDelete() }
                 onJumptoCodeLine={ () => this.onJumptoCodeLine() }
                 onBreakpointClick={ () => this.onBreakpointClick() }
 			/>
+      {		model.isBreakpoint &&
+          this.renderBreakpointIndicator()
+      }
 		</g>);
+    }
+
+    onBreakpointClick() {
+        const { model } = this.props;
+        const { isBreakpoint = false } = model;
+        if(model.isBreakpoint) {
+            model.removeBreakpoint();
+        } else {
+            model.addBreakpoint();
+        }
+    }
+
+    renderBreakpointIndicator() {
+        const breakpointSize = 14;
+        const { bBox } = this.props;
+        const pointX = bBox.x + bBox.w - breakpointSize/2;
+        const pointY = bBox.y - breakpointSize/2 + statement.gutter.v;
+        return (
+            <Breakpoint
+                x={pointX}
+                y={pointY}
+                size={breakpointSize}
+                isBreakpoint={this.props.model.isBreakpoint}
+                onClick = { () => this.onBreakpointClick() }
+            />
+        );
     }
 
     setActionVisibility(show, e) {
