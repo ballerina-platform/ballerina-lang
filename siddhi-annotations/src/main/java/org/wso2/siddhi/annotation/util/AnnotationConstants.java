@@ -34,7 +34,7 @@ public class AnnotationConstants {
             "org.wso2.siddhi.core.query.processor.stream.StreamProcessor";
     public static final String STREAM_FUNCTION_PROCESSOR_SUPER_CLASS =
             "org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor";
-    public static final String STORE_SUPER_CLASS = "org.wso2.siddhi.core.table.Table";
+    public static final String STORE_SUPER_CLASS = "org.wso2.siddhi.core.table.record.AbstractRecordTable";
     public static final String SOURCE_SUPER_CLASS = "org.wso2.siddhi.core.stream.input.source.Source";
     public static final String SOURCE_MAPPER_SUPER_CLASS = "org.wso2.siddhi.core.stream.input.source.SourceMapper";
     public static final String WINDOW_PROCESSOR_CLASS =
