@@ -155,18 +155,10 @@ class SizingUtil {
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
 
-        let annotationHeight = 0;
-
         /**
          * calculate the height of annotation view
          */
-        let annotations = node.filterChildren(function (child) {
-            return ASTFactory.isAnnotation(child)
-        });
-
-        _.forEach(annotations, function (annotation) {
-            annotationHeight = annotationHeight + 25;
-        });
+        let annotationHeight = this.getAnnotationHeight(node);
 
         components['annotation'] = new SimpleBBox();
 
@@ -273,8 +265,6 @@ class SizingUtil {
         // Set the width initial value to the padding left and right
         let bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
 
-        let annotationHeight = 0;
-
         /**
          * If there are service level connectors, their height depends on the heights of the resources
          */
@@ -336,13 +326,7 @@ class SizingUtil {
         /**
          * calculate the height of annotation view
          */
-        let annotations = node.filterChildren(function (child) {
-            return ASTFactory.isAnnotation(child)
-        });
-
-        _.forEach(annotations, function (annotation) {
-            annotationHeight = annotationHeight + 25;
-        });
+        let annotationHeight = this.getAnnotationHeight(node);
 
         components['heading'] = new SimpleBBox();
         components['body'] = new SimpleBBox();
@@ -569,6 +553,23 @@ class SizingUtil {
         } else {
             return childNodes[0];
         }
+    }
+
+    getAnnotationHeight(node){
+        let height = 0;
+        let annotations = node.filterChildren((child) => {
+            return ASTFactory.isAnnotation(child)
+        });
+
+        _.forEach(annotations, (annotation) => {
+            if(annotation.children.length == 0 ){
+                height = height + 25;
+            }else{
+                height = height + ( annotation.children.length * 25 )
+            }
+        });
+
+        return height;
     }
 }
 

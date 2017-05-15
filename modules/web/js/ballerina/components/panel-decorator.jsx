@@ -90,19 +90,6 @@ class PanelDecorator extends React.Component {
         let annotationComponents = this.getAnnotationComponents(annotations, bBox, titleHeight);
 
         return (<g className="panel">
-            <g className={annotationBodyClassName}>
-                <rect x={bBox.x} y={bBox.y} width={bBox.w} height={annotationBodyHeight} rx="0" ry="0"
-                      className="annotationRect" data-original-title="" title=""/>
-                {!annotationViewCollapsed && annotationComponents}
-                {annotationViewCollapsed &&
-                <text x={bBox.x + 5} y={bBox.y + titleHeight / 2 + 5}>{annotationString}</text>}
-                <g className="panel-header-controls">
-                    <image x={bBox.x + bBox.w - 19.5} y={bBox.y + 5.5} width={iconSize} height={iconSize}
-                           className="control"
-                           xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')}
-                           onClick={() => this.onAnnotaionCollapseClick()}/>
-                </g>
-            </g>
             <g className="panel-header">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
                       className="headingRect" data-original-title="" title=""/>
