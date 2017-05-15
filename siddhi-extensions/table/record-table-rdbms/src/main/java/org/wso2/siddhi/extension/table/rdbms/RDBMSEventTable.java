@@ -21,6 +21,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
@@ -54,8 +55,31 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
+import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_FIELD_LENGTHS;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_JNDI_RESOURCE;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_PASSWORD;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_POOL_PROPERTIES;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_NAME;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_URL;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_USERNAME;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.CLOSE_PARENTHESIS;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.EQUALS;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.OPEN_PARENTHESIS;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS_VALUES;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.PLACEHOLDER_CONDITION;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.PLACEHOLDER_Q;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.PLACEHOLDER_TABLE_NAME;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.QUESTION_MARK;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SEPARATOR;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_PRIMARY_KEY_DEF;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.WHITESPACE;
 
+/**
+ * Class representing the RDBMS Event Table implementation.
+ */
 @Extension(
         name = "rdbms",
         namespace = "store",
@@ -87,6 +111,20 @@ import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
                         description = "Optional. The length of any String fields the table definition contains. If not "
                                 + "specified, the vendor-specific DB default will be chosen.",
                         type = {DataType.STRING}),
+        },
+        examples = {
+                @Example(
+                        syntax = "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                                "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
+                                "@PrimaryKey(\"symbol\")" +
+                                "@Index(\"volume\")" +
+                                "define table StockTable (symbol string, price float, volume long);",
+                        description = "The above example will create an Event Table named 'StockTable' on the DB if " +
+                                "it doesn't already exist (with 3 fields 'symbol', 'price', and 'volume' with types" +
+                                "string, float and long respectively). The connection parameters will be as" +
+                                " specified in the '@Store' annotation. The 'symbol' field will be declared a unique " +
+                                "field, and a DB index will be created for the 'symbol' field."
+                )
         }
 )
 public class RDBMSEventTable extends AbstractRecordTable {
@@ -458,7 +496,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
      * @param indices         the DB indices that should be set for the table.
      */
     private void createTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices) {
-        RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRDBMSTypeMapping();
+        RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRdbmsTypeMapping();
         StringBuilder builder = new StringBuilder();
         List<Element> primaryKeyList = (primaryKeys == null) ? new ArrayList<>() : primaryKeys.getElements();
         List<Element> indexElementList = (indices == null) ? new ArrayList<>() : indices.getElements();

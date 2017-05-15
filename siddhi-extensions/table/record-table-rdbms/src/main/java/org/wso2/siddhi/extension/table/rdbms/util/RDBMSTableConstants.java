@@ -62,7 +62,6 @@ public class RDBMSTableConstants {
     public static final String CLOSE_PARENTHESIS = ")";
 
     //Annotation field names
-    public static final String ANNOTATION_STORE = "store";
     public static final String ANNOTATION_ELEMENT_URL = "jdbc.url";
     public static final String ANNOTATION_ELEMENT_USERNAME = "username";
     public static final String ANNOTATION_ELEMENT_PASSWORD = "password";

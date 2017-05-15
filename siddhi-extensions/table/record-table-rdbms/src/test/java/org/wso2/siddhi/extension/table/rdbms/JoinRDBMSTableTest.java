@@ -74,7 +74,8 @@ public class JoinRDBMSTableTest {
                     "" +
                     "@info(name = 'query2') " +
                     "from CheckStockStream#window.length(1) join StockTable " +
-                    "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                    "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, " +
+                    "StockTable.volume as volume  " +
                     "insert into OutputStream ;";
 
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -147,7 +148,8 @@ public class JoinRDBMSTableTest {
                     "@info(name = 'query2') " +
                     "from CheckStockStream#window.length(1) join StockTable " +
                     " on CheckStockStream.symbol==StockTable.symbol " +
-                    "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                    "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, " +
+                    "StockTable.volume as volume  " +
                     "insert into OutputStream ;";
 
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -500,7 +502,8 @@ public class JoinRDBMSTableTest {
                     "@info(name = 'query2') " +
                     "from CheckStockStream#window.length(1) join StockTable " +
                     " on StockTable.symbol==CheckStockStream.symbol " +
-                    "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                    "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, " +
+                    "StockTable.volume as volume  " +
                     "insert into OutputStream ;";
 
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -642,7 +645,8 @@ public class JoinRDBMSTableTest {
                     "" +
                     "@info(name = 'query2') " +
                     "from CheckStockStream#window.length(1) join StockTable " +
-                    "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                    "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, " +
+                    "StockTable.volume as volume  " +
                     "insert into OutputStream ;";
 
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);

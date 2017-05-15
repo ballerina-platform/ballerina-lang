@@ -44,7 +44,13 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.DATABASE_PRODUCT_NAME;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.PLACEHOLDER_CONDITION;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.RDBMS_QUERY_CONFIG_FILE;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_WHERE;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.VERSION;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.WHITESPACE;
+
 
 /**
  * Class which holds the utility methods which are used by various units in the RDBMS Event Table implementation.
@@ -255,7 +261,8 @@ public class RDBMSTableUtils {
             DatabaseMetaData dmd = conn.getMetaData();
             Map<String, Object> result = new HashMap<>();
             result.put(DATABASE_PRODUCT_NAME, dmd.getDatabaseProductName());
-            result.put(VERSION, Double.parseDouble(dmd.getDatabaseMajorVersion() + "." + dmd.getDatabaseMinorVersion()));
+            result.put(VERSION, Double.parseDouble(dmd.getDatabaseMajorVersion() + "."
+                    + dmd.getDatabaseMinorVersion()));
             return result;
         } catch (SQLException e) {
             throw new RDBMSTableException("Error in looking up database type: " + e.getMessage(), e);
@@ -327,7 +334,8 @@ public class RDBMSTableUtils {
                 ClassLoader classLoader = getClass().getClassLoader();
                 InputStream inputStream = classLoader.getResourceAsStream(RDBMS_QUERY_CONFIG_FILE);
                 if (inputStream == null) {
-                    throw new CannotLoadConfigurationException(RDBMS_QUERY_CONFIG_FILE + " is not found in the classpath");
+                    throw new CannotLoadConfigurationException(RDBMS_QUERY_CONFIG_FILE
+                            + " is not found in the classpath");
                 }
                 return (RDBMSQueryConfiguration) unmarshaller.unmarshal(inputStream);
             } catch (JAXBException e) {

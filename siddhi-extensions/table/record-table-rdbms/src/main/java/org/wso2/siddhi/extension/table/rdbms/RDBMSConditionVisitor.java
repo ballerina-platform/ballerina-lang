@@ -30,7 +30,24 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.*;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_AND;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_COMPARE_EQUAL;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_COMPARE_GREATER_THAN;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_COMPARE_GREATER_THAN_EQUAL;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_COMPARE_LESS_THAN;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_COMPARE_LESS_THAN_EQUAL;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_COMPARE_NOT_EQUAL;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_IN;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_IS_NULL;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_MATH_ADD;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_MATH_DIVIDE;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_MATH_MOD;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_MATH_MULTIPLY;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_MATH_SUBTRACT;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_NOT;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.SQL_OR;
+import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.WHITESPACE;
+
 
 /**
  * Class which is used by the Siddhi runtime for instructions on converting the SiddhiQL condition to the condition

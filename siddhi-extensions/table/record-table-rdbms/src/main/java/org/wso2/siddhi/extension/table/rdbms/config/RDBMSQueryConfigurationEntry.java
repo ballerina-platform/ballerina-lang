@@ -42,7 +42,7 @@ public class RDBMSQueryConfigurationEntry {
     private String recordDeleteQuery;
     private boolean keyExplicitNotNull = false;
     private String stringSize;
-    private RDBMSTypeMapping RDBMSTypeMapping;
+    private RDBMSTypeMapping rdbmsTypeMapping;
 
     @XmlAttribute(name = "name", required = true)
     public String getDatabaseName() {
@@ -169,12 +169,12 @@ public class RDBMSQueryConfigurationEntry {
     }
 
     @XmlElement(name = "typeMapping", required = true)
-    public RDBMSTypeMapping getRDBMSTypeMapping() {
-        return RDBMSTypeMapping;
+    public RDBMSTypeMapping getRdbmsTypeMapping() {
+        return rdbmsTypeMapping;
     }
 
-    public void setRDBMSTypeMapping(RDBMSTypeMapping RDBMSTypeMapping) {
-        this.RDBMSTypeMapping = RDBMSTypeMapping;
+    public void setRdbmsTypeMapping(RDBMSTypeMapping rdbmsTypeMapping) {
+        this.rdbmsTypeMapping = rdbmsTypeMapping;
     }
 
 }

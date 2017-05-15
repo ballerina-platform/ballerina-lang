@@ -54,9 +54,9 @@ public class DefineRDBMSTableTest {
     }
 
     @Test
-    public void RDBMSTableDefinitionTest1() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest1() throws InterruptedException, SQLException {
         //Testing table creation
-        log.info("RDBMSTableDefinitionTest1");
+        log.info("rdbmstabledefinitiontest1");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
@@ -92,9 +92,9 @@ public class DefineRDBMSTableTest {
     }
 
     @Test
-    public void RDBMSTableDefinitionTest2() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest2() throws InterruptedException, SQLException {
         //Testing table creation with a primary key (normal insertion)
-        log.info("RDBMSTableDefinitionTest2");
+        log.info("rdbmstabledefinitiontest2");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
@@ -124,15 +124,15 @@ public class DefineRDBMSTableTest {
             Assert.assertEquals("Definition/Insertion failed", 3, totalRowsInTable);
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
-            log.info("Test case 'RDBMSTableDefinitionTest2' ignored due to " + e.getMessage());
+            log.info("Test case 'rdbmstabledefinitiontest2' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
     @Test(expected = RDBMSTableException.class)
-    public void RDBMSTableDefinitionTest3() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest3() throws InterruptedException, SQLException {
         //Testing table creation with a primary key (purposeful duplicate insertion)
-        log.info("RDBMSTableDefinitionTest3");
+        log.info("rdbmstabledefinitiontest3");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
@@ -160,15 +160,15 @@ public class DefineRDBMSTableTest {
 
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
-            log.info("Test case 'RDBMSTableDefinitionTest3' ignored due to " + e.getMessage());
+            log.info("Test case 'rdbmstabledefinitiontest3' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
     @Test
-    public void RDBMSTableDefinitionTest4() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest4() throws InterruptedException, SQLException {
         //Testing table creation with index
-        log.info("RDBMSTableDefinitionTest4");
+        log.info("rdbmstabledefinitiontest4");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
@@ -196,15 +196,15 @@ public class DefineRDBMSTableTest {
             Assert.assertEquals("Definition/Insertion failed", 2, totalRowsInTable);
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
-            log.info("Test case 'RDBMSTableDefinitionTest4' ignored due to " + e.getMessage());
+            log.info("Test case 'rdbmstabledefinitiontest4' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
     @Test(expected = RDBMSTableException.class)
-    public void RDBMSTableDefinitionTest5() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest5() throws InterruptedException, SQLException {
         //Testing table creation with no username
-        log.info("RDBMSTableDefinitionTest5");
+        log.info("rdbmstabledefinitiontest5");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
@@ -230,15 +230,15 @@ public class DefineRDBMSTableTest {
 
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
-            log.info("Test case 'RDBMSTableDefinitionTest5' ignored due to " + e.getMessage());
+            log.info("Test case 'rdbmstabledefinitiontest5' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
     @Test(expected = RDBMSTableException.class)
-    public void RDBMSTableDefinitionTest6() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest6() throws InterruptedException, SQLException {
         //Testing table creation with no password
-        log.info("RDBMSTableDefinitionTest6");
+        log.info("rdbmstabledefinitiontest6");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
@@ -264,15 +264,15 @@ public class DefineRDBMSTableTest {
 
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
-            log.info("Test case 'RDBMSTableDefinitionTest6' ignored due to " + e.getMessage());
+            log.info("Test case 'rdbmstabledefinitiontest6' ignored due to " + e.getMessage());
             throw e;
         }
     }
 
     @Test(expected = RDBMSTableException.class)
-    public void RDBMSTableDefinitionTest7() throws InterruptedException, SQLException {
+    public void rdbmstabledefinitiontest7() throws InterruptedException, SQLException {
         //Testing table creation with no connection URL
-        log.info("RDBMSTableDefinitionTest7");
+        log.info("rdbmstabledefinitiontest7");
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
             RDBMSTableTestUtils.clearDatabaseTable(TABLE_NAME);
@@ -298,7 +298,7 @@ public class DefineRDBMSTableTest {
 
             executionPlanRuntime.shutdown();
         } catch (SQLException e) {
-            log.info("Test case 'RDBMSTableDefinitionTest7' ignored due to " + e.getMessage());
+            log.info("Test case 'rdbmstabledefinitiontest7' ignored due to " + e.getMessage());
             throw e;
         }
     }
@@ -420,7 +420,7 @@ public class DefineRDBMSTableTest {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
 
-                "@store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
+                "@Store(type=\"rdbms\", jdbc.url=\"jdbc:mysql://localhost:3306/das\", " +
                 "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
@@ -430,20 +430,17 @@ public class DefineRDBMSTableTest {
                 "" +
                 "@info(name = 'query2') " +
                 "from CheckStockStream#window.length(1) join StockTable " +
-                "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume " +
+                "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as " +
+                "volume " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        System.out.println("outside");
         executionPlanRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                System.out.println("inside");
                 if (inEvents != null) {
-                    System.out.println(inEvents.length);
                     for (Event event : inEvents) {
-                        System.out.println(event);
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
