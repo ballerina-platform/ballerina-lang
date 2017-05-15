@@ -34,7 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 public class StatisticsTestCase {
-    static final Logger log = Logger.getLogger(StatisticsTestCase.class);
+    private static final Logger log = Logger.getLogger(StatisticsTestCase.class);
     private int count;
     private boolean eventArrived;
     private long firstValue;

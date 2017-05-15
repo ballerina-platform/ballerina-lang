@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.core.exception;
 
+/**
+ * Exception class to be used when runtime error occurs in Siddi execution.
+ */
 public class ExecutionPlanRuntimeException extends RuntimeException {
     public ExecutionPlanRuntimeException() {
         super();

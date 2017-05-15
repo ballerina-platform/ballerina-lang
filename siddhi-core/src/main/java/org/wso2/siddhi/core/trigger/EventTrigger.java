@@ -23,9 +23,14 @@ import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 
+/**
+ * Interface class to represent event triggers. Event triggers are used to trigger events within Siddhi itself
+ * according to a user given criteria.
+ */
 public interface EventTrigger extends EternalReferencedHolder {
 
-    void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction streamJunction);
+    void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction
+            streamJunction);
 
     TriggerDefinition getTriggerDefinition();
 

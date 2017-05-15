@@ -48,13 +48,21 @@ public class Element {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Element)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Element)) {
+            return false;
+        }
 
         Element element = (Element) o;
 
-        if (key != null ? !key.equals(element.key) : element.key != null) return false;
-        if (value != null ? !value.equals(element.value) : element.value != null) return false;
+        if (key != null ? !key.equals(element.key) : element.key != null) {
+            return false;
+        }
+        if (value != null ? !value.equals(element.value) : element.value != null) {
+            return false;
+        }
 
         return true;
     }

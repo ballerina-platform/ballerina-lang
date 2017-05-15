@@ -80,7 +80,8 @@ public class SingleInputStreamParser {
                                                        Map<String, AbstractDefinition> streamDefinitionMap,
                                                        Map<String, AbstractDefinition> tableDefinitionMap,
                                                        Map<String, AbstractDefinition> windowDefinitionMap,
-                                                       Map<String, Table> tableMap, MetaComplexEvent metaComplexEvent,
+                                                       Map<String, Table> tableMap, MetaComplexEvent
+                                                               metaComplexEvent,
                                                        ProcessStreamReceiver processStreamReceiver, boolean
                                                                supportsBatchProcessing, boolean
                                                                outputExpectsExpiredEvents, String queryName) {
@@ -145,11 +146,7 @@ public class SingleInputStreamParser {
     }
 
 
-    public static Processor generateProcessor(StreamHandler streamHandler, MetaComplexEvent metaEvent,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              ExecutionPlanContext executionPlanContext, Map<String, Table> tableMap,
-                                              boolean supportsBatchProcessing, boolean outputExpectsExpiredEvents,
-                                              String queryName) {
+    public static Processor generateProcessor(StreamHandler streamHandler, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> variableExpressionExecutors, ExecutionPlanContext executionPlanContext, Map<String, Table> tableMap, boolean supportsBatchProcessing, boolean outputExpectsExpiredEvents, String queryName) {
         Expression[] parameters = streamHandler.getParameters();
         MetaStreamEvent metaStreamEvent;
         int stateIndex = SiddhiConstants.UNKNOWN_STATE;
@@ -193,9 +190,7 @@ public class SingleInputStreamParser {
                     WindowProcessorExtensionHolder.getInstance(executionPlanContext));
             configReader = executionPlanContext.getSiddhiContext().getConfigManager().
                     generateConfigReader(((Window) streamHandler).getNamespace(),
-                            ((Window) streamHandler).getName());
-            windowProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(), attributeExpressionExecutors,
-                    configReader, executionPlanContext, outputExpectsExpiredEvents, queryName);
+                            ((Window) streamHandler).getName());windowProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(), attributeExpressionExecutors,configReader, executionPlanContext, outputExpectsExpiredEvents, queryName);
             return windowProcessor;
 
         } else if (streamHandler instanceof StreamFunction) {

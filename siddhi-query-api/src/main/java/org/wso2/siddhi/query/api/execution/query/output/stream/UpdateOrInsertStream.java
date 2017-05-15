@@ -19,6 +19,9 @@ package org.wso2.siddhi.query.api.execution.query.output.stream;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Query output stream try to update table else insert into it
+ */
 public class UpdateOrInsertStream extends OutputStream {
     protected Expression onUpdateExpression;
 
@@ -34,12 +37,12 @@ public class UpdateOrInsertStream extends OutputStream {
         this.onUpdateExpression = onUpdateExpression;
     }
 
-    public void setOnUpdateExpression(Expression onUpdateExpression) {
-        this.onUpdateExpression = onUpdateExpression;
-    }
-
     public Expression getOnUpdateExpression() {
         return onUpdateExpression;
+    }
+
+    public void setOnUpdateExpression(Expression onUpdateExpression) {
+        this.onUpdateExpression = onUpdateExpression;
     }
 
     @Override
@@ -51,14 +54,22 @@ public class UpdateOrInsertStream extends OutputStream {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof UpdateOrInsertStream)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UpdateOrInsertStream)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         UpdateOrInsertStream that = (UpdateOrInsertStream) o;
 
-        if (onUpdateExpression != null ? !onUpdateExpression.equals(that.onUpdateExpression) : that.onUpdateExpression != null)
+        if (onUpdateExpression != null ? !onUpdateExpression.equals(that.onUpdateExpression) : that
+                .onUpdateExpression != null) {
             return false;
+        }
 
         return true;
     }

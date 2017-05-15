@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Implementation of {@link CollectionExpression} which represent Null expressions.
+ */
 public class NullCollectionExpression implements CollectionExpression {
 
     private final Expression expression;

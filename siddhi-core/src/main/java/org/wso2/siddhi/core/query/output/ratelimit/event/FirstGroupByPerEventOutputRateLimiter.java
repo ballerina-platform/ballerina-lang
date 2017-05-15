@@ -28,13 +28,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined number of events and the emit only the
+ * first event. This implementation specifically handle queries with group by.
+ */
 public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
+    List<String> groupByKeys = new ArrayList<String>();
     private String id;
     private ComplexEventChunk<ComplexEvent> allComplexEventChunk;
     private volatile int counter = 0;
-    List<String> groupByKeys = new ArrayList<String>();
 
     public FirstGroupByPerEventOutputRateLimiter(String id, Integer value) {
         this.id = id;
@@ -65,7 +68,8 @@ public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
                     }
                     if (++counter == value) {
                         if (allComplexEventChunk.getFirst() != null) {
-                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>
+                                    (complexEventChunk.isBatch());
                             outputEventChunk.add(allComplexEventChunk.getFirst());
                             outputEventChunks.add(outputEventChunk);
                             allComplexEventChunk.clear();

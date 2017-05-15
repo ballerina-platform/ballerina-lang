@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.core.exception;
 
+/**
+ * Exception class to be used when configurations cannot be loaded.
+ */
 public class CannotLoadConfigurationException extends Exception {
 
     public CannotLoadConfigurationException() {

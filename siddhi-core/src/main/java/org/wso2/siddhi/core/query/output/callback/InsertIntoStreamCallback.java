@@ -23,6 +23,10 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
+/**
+ * Implementation of {@link OutputCallback} to receive processed Siddhi events from
+ * Siddhi queries and put them into {@link StreamJunction}.
+ */
 public class InsertIntoStreamCallback extends OutputCallback {
     private StreamDefinition outputStreamDefinition;
     private StreamJunction.Publisher publisher;

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by suho on 8/1/14.
+ * Annotation for siddhi functions and extensions
  */
 public class Annotation {
     private String name;
@@ -108,13 +108,21 @@ public class Annotation {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Annotation that = (Annotation) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (elements != null ? !elements.equals(that.elements) : that.elements != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (elements != null ? !elements.equals(that.elements) : that.elements != null) {
+            return false;
+        }
         return annotations != null ? annotations.equals(that.annotations) : that.annotations == null;
 
     }

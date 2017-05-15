@@ -26,7 +26,8 @@ import java.util.Objects;
 /**
  * Success
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-03-15T08:56:59.657Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date =
+        "2017-03-15T08:56:59.657Z")
 public class Success {
     @JsonProperty("code")
     private Integer code = null;
@@ -105,8 +106,8 @@ public class Success {
         }
         Success success = (Success) o;
         return Objects.equals(this.code, success.code) &&
-               Objects.equals(this.status, success.status) &&
-               Objects.equals(this.message, success.message);
+                Objects.equals(this.status, success.status) &&
+                Objects.equals(this.message, success.message);
     }
 
     @Override

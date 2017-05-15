@@ -42,6 +42,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Query Runtime represent holder object for a single Siddhi query and holds all runtime objects related to that query.
+ */
 public class QueryRuntime {
 
     private final ExecutionPlanContext executionPlanContext;
@@ -56,8 +59,10 @@ public class QueryRuntime {
     private QuerySelector selector;
     private MetaComplexEvent metaComplexEvent;
 
-    public QueryRuntime(Query query, ExecutionPlanContext executionPlanContext, StreamRuntime streamRuntime, QuerySelector selector,
-                        OutputRateLimiter outputRateLimiter, OutputCallback outputCallback, MetaComplexEvent metaComplexEvent, boolean synchronised) {
+    public QueryRuntime(Query query, ExecutionPlanContext executionPlanContext, StreamRuntime streamRuntime,
+                        QuerySelector selector,
+                        OutputRateLimiter outputRateLimiter, OutputCallback outputCallback, MetaComplexEvent
+                                metaComplexEvent, boolean synchronised) {
         this.query = query;
         this.executionPlanContext = executionPlanContext;
         this.streamRuntime = streamRuntime;
@@ -120,7 +125,9 @@ public class QueryRuntime {
         if (query.getInputStream() instanceof SingleInputStream) {
             return ((SingleInputStream) query.getInputStream()).isInnerStream();
         } else if (query.getInputStream() instanceof JoinInputStream) {
-            return ((SingleInputStream) ((JoinInputStream) query.getInputStream()).getLeftInputStream()).isInnerStream() || ((SingleInputStream) ((JoinInputStream) query.getInputStream()).getRightInputStream()).isInnerStream();
+            return ((SingleInputStream) ((JoinInputStream) query.getInputStream()).getLeftInputStream())
+                    .isInnerStream() || ((SingleInputStream) ((JoinInputStream) query.getInputStream())
+                    .getRightInputStream()).isInnerStream();
         } else if (query.getInputStream() instanceof StateInputStream) {
             for (String streamId : query.getInputStream().getAllStreamIds()) {
                 if (streamId.startsWith("#")) {
@@ -144,7 +151,8 @@ public class QueryRuntime {
         clonedOutputRateLimiter.init(executionPlanContext, lockWrapper, queryId);
 
         QueryRuntime queryRuntime = new QueryRuntime(query, executionPlanContext, clonedStreamRuntime, clonedSelector,
-                clonedOutputRateLimiter, outputCallback, this.metaComplexEvent, synchronised);
+                                                     clonedOutputRateLimiter, outputCallback, this.metaComplexEvent,
+                                                     synchronised);
         QueryParserHelper.initStreamRuntime(clonedStreamRuntime, metaComplexEvent, lockWrapper, queryId);
 
         queryRuntime.queryId = this.queryId + key;
@@ -154,8 +162,12 @@ public class QueryRuntime {
             queryRuntime.outputRateLimiter.setOutputCallback(outputCallback);
             queryRuntime.outputCallback = this.outputCallback;
         } else {
-            OutputCallback clonedQueryOutputCallback = OutputParser.constructOutputCallback(query.getOutputStream(), key,
-                    localStreamJunctionMap, outputStreamDefinition, executionPlanContext, queryId);
+            OutputCallback clonedQueryOutputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
+                                                                                            key,
+                                                                                            localStreamJunctionMap,
+                                                                                            outputStreamDefinition,
+                                                                                            executionPlanContext,
+                                                                                            queryId);
             queryRuntime.outputRateLimiter.setOutputCallback(clonedQueryOutputCallback);
             queryRuntime.outputCallback = clonedQueryOutputCallback;
         }

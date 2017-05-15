@@ -30,17 +30,21 @@ public class DefineTriggerTestCase {
 
     @Test
     public void testCreatingTableDefinition() {
-        ExecutionPlan.executionPlan("test").defineTrigger(TriggerDefinition.id("TriggerStream").atEvery(Expression.Time.day(5).value()));
+        ExecutionPlan.executionPlan("test").defineTrigger(TriggerDefinition.id("TriggerStream").atEvery(Expression
+                .Time.day(5).value()));
     }
 
     @Test(expected = DuplicateAttributeException.class)
     public void testCreatingStreamWithDuplicateAttribute() {
-        TableDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("symbol", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT);
+        TableDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("symbol", Attribute
+                .Type.INT).attribute("volume", Attribute.Type.FLOAT);
     }
 
     @Test
     public void testCreatingSQLTableDefinition() {
-        TableDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("From").element("datasource.id", "cepDataSource"));
+        TableDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute
+                .Type.INT).attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("From").element
+                ("datasource.id", "cepDataSource"));
     }
 
 

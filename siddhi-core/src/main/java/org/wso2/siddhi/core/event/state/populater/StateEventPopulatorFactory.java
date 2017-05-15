@@ -52,7 +52,8 @@ public class StateEventPopulatorFactory {
         List<MetaStateEventAttribute> currentDataList = metaStateEvent.getOutputDataAttributes();
         if (currentDataList != null) {
             int i = 0;
-            for (MetaStateEventAttribute metaStateEventAttribute : currentDataList) {           //Only variable slots will be filled.
+            for (MetaStateEventAttribute metaStateEventAttribute : currentDataList) {           //Only variable slots
+                // will be filled.
                 if (metaStateEventAttribute == null) {
                     i++;
                 } else {

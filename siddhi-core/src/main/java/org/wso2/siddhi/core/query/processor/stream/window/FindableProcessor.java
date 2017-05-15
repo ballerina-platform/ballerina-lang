@@ -30,6 +30,10 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Interface for all processors which holds a collection of events and supports traversing and finding events from
+ * that collection. find() will be used by Pattern and Join Processors to get matching event.
+ */
 public interface FindableProcessor {
 
     /**

@@ -25,6 +25,9 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
+/**
+ * Interface for Operators related to collection of events. These will be used by in-memory table implementation.
+ */
 public interface Operator extends CompiledCondition {
 
     StreamEvent find(StateEvent matchingEvent, Object storeEvents, StreamEventCloner storeEventCloner);

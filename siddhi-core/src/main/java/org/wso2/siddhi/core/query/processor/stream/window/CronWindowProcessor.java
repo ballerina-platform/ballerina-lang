@@ -17,11 +17,22 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.quartz.*;
+import org.apache.log4j.Logger;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.Job;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
+import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -35,22 +46,33 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implementation of {@link WindowProcessor} which represent a Window operating based on a cron expression.
+ */
 @Extension(
         name = "cron",
         namespace = "",
         description = "This window returns events processed periodically as the output in time-repeating patterns, " +
                 "triggered based on time passing.",
         parameters = {
-                @Parameter(name = "cronExpression",
+                @Parameter(name = "cron.expression",
                         description = "The cron expression that represents a time schedule.",
                         type = {DataType.STRING})
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = @Example(
+                syntax = "define window cseEventWindow (symbol string, price float, volume int)" +
+                        "cron('*/5 * * * * ?');\n" +
+                        "@info(name = 'query0')\n" +
+                        "from cseEventStream\n" +
+                        "insert into cseEventWindow;\n" +
+                        "@info(name = 'query1')\n" +
+                        "from cseEventWindow \n" +
+                        "select symbol,price,volume\n" +
+                        "insert into outputStream ;",
+                description = "This will processed events as the output every 5 seconds.")
 )
 public class CronWindowProcessor extends WindowProcessor implements Job {
-
+    private static final Logger log = Logger.getLogger(CronWindowProcessor.class);
     private final String jobGroup = "CronWindowGroup";
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
@@ -70,7 +92,8 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner) {
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();

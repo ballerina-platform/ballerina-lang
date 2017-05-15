@@ -21,8 +21,11 @@ package org.wso2.siddhi.core.util;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 
+/**
+ * Interface to mark any Siddhi execution component which is using scheduler
+ */
 public interface Schedulable {
 
-    void process(ComplexEventChunk complexEventChunk) ;
+    void process(ComplexEventChunk complexEventChunk);
 
 }

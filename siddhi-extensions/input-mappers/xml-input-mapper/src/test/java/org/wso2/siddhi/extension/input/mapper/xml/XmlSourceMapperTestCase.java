@@ -33,7 +33,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class XmlSourceMapperTestCase {
-    static final Logger log = Logger.getLogger(XmlSourceMapperTestCase.class);
+    private static final Logger log = Logger.getLogger(XmlSourceMapperTestCase.class);
     private AtomicInteger count = new AtomicInteger();
 
     @Before
@@ -86,6 +86,7 @@ public class XmlSourceMapperTestCase {
                             break;
                         case 3:
                             org.junit.Assert.assertEquals(" ", event.getData(0));
+                            break;
                         default:
                             org.junit.Assert.fail();
                     }

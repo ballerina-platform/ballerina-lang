@@ -246,6 +246,7 @@ public class SiddhiDebugger {
      * SiddhiDebugger allows to add breakpoints only at the beginning and the end of a query.
      */
     public enum QueryTerminal {
-        IN, OUT
+        IN,
+        OUT
     }
 }

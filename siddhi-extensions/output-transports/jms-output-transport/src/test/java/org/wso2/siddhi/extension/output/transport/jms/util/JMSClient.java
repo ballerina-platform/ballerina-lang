@@ -20,13 +20,13 @@ package org.wso2.siddhi.extension.output.transport.jms.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
+import java.util.Properties;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import java.io.IOException;
-import java.util.Properties;
 
 /**
  * Consumes JMS messages on either topics or queues.

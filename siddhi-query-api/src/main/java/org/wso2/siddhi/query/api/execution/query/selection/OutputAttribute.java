@@ -20,6 +20,9 @@ package org.wso2.siddhi.query.api.execution.query.selection;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
+/**
+ * Query output stream attributes
+ */
 public class OutputAttribute {
 
     private String rename;
@@ -53,13 +56,21 @@ public class OutputAttribute {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof OutputAttribute)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof OutputAttribute)) {
+            return false;
+        }
 
         OutputAttribute that = (OutputAttribute) o;
 
-        if (expression != null ? !expression.equals(that.expression) : that.expression != null) return false;
-        if (rename != null ? !rename.equals(that.rename) : that.rename != null) return false;
+        if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
+            return false;
+        }
+        if (rename != null ? !rename.equals(that.rename) : that.rename != null) {
+            return false;
+        }
 
         return true;
     }

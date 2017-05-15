@@ -82,8 +82,10 @@ public class StatisticsStreamListener implements StreamListener {
                     lastIndex.set(index);
                     long currentWindowEventsReceived = localCounter - lastCounter.getAndSet(localCounter);
                     long elapsedTime = currentTime - lastTime.getAndSet(currentTime);
-                    log.info("Received " + currentWindowEventsReceived + " events in " + elapsedTime + " ms; Throughput - Avg : "
-                            + decimalFormat.format((currentWindowEventsReceived * 1000.0) / elapsedTime) + " ; Latency - Avg: "
+                    log.info("Received " + currentWindowEventsReceived + " events in " + elapsedTime + " ms; " +
+                            "Throughput - Avg : "
+                            + decimalFormat.format((currentWindowEventsReceived * 1000.0) / elapsedTime) + " ; " +
+                            "Latency - Avg: "
                             + decimalFormat.format(localTotalDelay / (double) currentWindowEventsReceived)
                             + ", Min: " + minLatency.get() + ", Max: " + maxLatency.get());
 

@@ -30,9 +30,15 @@ import java.util.List;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
+/**
+ * Class to parse {@link MatchingMetaInfoHolder}
+ */
 public class MatcherParser {
 
-    public static MatchingMetaInfoHolder constructMatchingMetaStateHolder(MetaComplexEvent matchingMetaComplexEvent, int defaultStreamEventIndex, AbstractDefinition candsidateDefinition, int currentState) {
+    public static MatchingMetaInfoHolder constructMatchingMetaStateHolder(MetaComplexEvent matchingMetaComplexEvent,
+                                                                          int defaultStreamEventIndex,
+                                                                          AbstractDefinition candsidateDefinition,
+                                                                          int currentState) {
         int storeEventIndex = 0;
 
         MetaStreamEvent tableStreamEvent = new MetaStreamEvent();
@@ -59,7 +65,8 @@ public class MatcherParser {
             //for join
             for (; storeEventIndex < metaStreamEvents.length; storeEventIndex++) {
                 MetaStreamEvent metaStreamEvent = metaStreamEvents[storeEventIndex];
-                if (storeEventIndex != defaultStreamEventIndex && metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candsidateDefinition)) {
+                if (storeEventIndex != defaultStreamEventIndex && metaStreamEvent.getLastInputDefinition()
+                        .equalsIgnoreAnnotations(candsidateDefinition)) {
                     metaStateEvent = ((MetaStateEvent) matchingMetaComplexEvent);
                     break;
                 }
@@ -75,8 +82,8 @@ public class MatcherParser {
             }
         }
         return new MatchingMetaInfoHolder(metaStateEvent, defaultStreamEventIndex, storeEventIndex,
-                metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(),
-                candsidateDefinition, currentState);
+                                          metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(),
+                                          candsidateDefinition, currentState);
     }
 
     public static UpdateAttributeMapper[] constructUpdateAttributeMapper(AbstractDefinition tableDefinition,
@@ -86,8 +93,8 @@ public class MatcherParser {
         for (int i = 0; i < updatingStreamDefinition.size(); i++) {
             Attribute streamAttribute = updatingStreamDefinition.get(i);
             updateAttributeMappers[i] = new UpdateAttributeMapper(i,
-                    tableDefinition.getAttributePosition(streamAttribute.getName()), streamAttribute.getName(),
-                    matchingStreamEventPosition);
+                                                                  tableDefinition.getAttributePosition(streamAttribute.getName()), streamAttribute.getName(),
+                                                                  matchingStreamEventPosition);
         }
         return updateAttributeMappers;
     }

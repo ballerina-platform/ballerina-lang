@@ -23,11 +23,10 @@ import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 import org.wso2.siddhi.query.api.expression.constant.LongConstant;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
+/**
+ * Rate limiting of query output
+ */
 public abstract class OutputRate {
-
-    public enum Type {
-        ALL, FIRST, LAST, SNAPSHOT
-    }
 
     public static EventOutputRate perEvents(Constant events) {
         if (events instanceof LongConstant) {
@@ -35,7 +34,8 @@ public abstract class OutputRate {
         } else if (events instanceof IntConstant) {
             return new EventOutputRate(((IntConstant) events).getValue());
         }
-        throw new UnsupportedAttributeTypeException("Unsupported output event rate type, output event rate only supports int");
+        throw new UnsupportedAttributeTypeException("Unsupported output event rate type, output event rate only " +
+                "supports int");
     }
 
     public static TimeOutputRate perTimePeriod(TimeConstant timeConstant) {
@@ -52,6 +52,16 @@ public abstract class OutputRate {
 
     public static SnapshotOutputRate perSnapshot(LongConstant longConstant) {
         return new SnapshotOutputRate(longConstant.getValue());
+    }
+
+    /**
+     * Output rate limiting types
+     */
+    public enum Type {
+        ALL,
+        FIRST,
+        LAST,
+        SNAPSHOT
     }
 
 }

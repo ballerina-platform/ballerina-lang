@@ -107,7 +107,8 @@ public class JSONSinkmapperWithSiddhiQueryAPITestCase {
                 InputStream.stream("FooStream")
         );
         query.select(
-                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
+                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable
+                        ("volume"))
         );
         query.insertInto("BarStream");
 
@@ -202,7 +203,8 @@ public class JSONSinkmapperWithSiddhiQueryAPITestCase {
                 InputStream.stream("FooStream")
         );
         query.select(
-                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
+                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable
+                        ("volume"))
         );
         query.insertInto("BarStream");
 
@@ -225,19 +227,19 @@ public class JSONSinkmapperWithSiddhiQueryAPITestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom json
-        Assert.assertEquals("Mapping incorrect!","{\n" +
+        Assert.assertEquals("Mapping incorrect!", "{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"WSO2\",\n" +
                 "      \"Price\":55.6\n" +
                 "   }\n" +
                 "}", onMessageList.get(0).toString());
-        Assert.assertEquals("Mapping incorrect!","{\n" +
+        Assert.assertEquals("Mapping incorrect!", "{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"IBM\",\n" +
                 "      \"Price\":75.6\n" +
                 "   }\n" +
                 "}", onMessageList.get(1).toString());
-        Assert.assertEquals("Mapping incorrect!","{\n" +
+        Assert.assertEquals("Mapping incorrect!", "{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"WSO2\",\n" +
                 "      \"Price\":57.6\n" +

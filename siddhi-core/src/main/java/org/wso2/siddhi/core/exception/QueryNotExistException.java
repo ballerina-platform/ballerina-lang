@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.core.exception;
 
+/**
+ * Exception class to be used when a query cannot be found.
+ */
 public class QueryNotExistException extends RuntimeException {
     public QueryNotExistException() {
         super();

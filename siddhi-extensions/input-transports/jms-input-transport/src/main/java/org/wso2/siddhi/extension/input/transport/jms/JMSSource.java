@@ -45,13 +45,12 @@ import java.util.Map;
  */
 public class JMSSource extends Source {
     private static final Logger log = Logger.getLogger(JMSSource.class);
-
+    private final int DEFAULT_THREAD_POOL_SIZE = 1;
     private SourceEventListener sourceEventListener;
     private OptionHolder optionHolder;
     private JMSServerConnector jmsServerConnector;
     private JMSMessageProcessor jmsMessageProcessor;
     private int threadPoolSize;
-    private final int DEFAULT_THREAD_POOL_SIZE = 1;
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,

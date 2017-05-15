@@ -34,7 +34,6 @@ import org.wso2.siddhi.service.util.SiddhiServiceConstants;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.ws.rs.core.Response;
 
 /**
@@ -82,13 +81,13 @@ public class SiddhiApiServiceImpl extends SiddhiApiService {
                     executionPlanRuntime.start();
 
                     jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.OK,
-                                                                          "Execution Plan is deployed " +
-                                                                          "and runtime is created"));
+                            "Execution Plan is deployed " +
+                                    "and runtime is created"));
                 }
             } else {
                 jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR,
-                                                                      "There is a Execution plan already " +
-                                                                      "exists with same name"));
+                        "There is a Execution plan already " +
+                                "exists with same name"));
             }
 
         } catch (Exception e) {
@@ -111,15 +110,15 @@ public class SiddhiApiServiceImpl extends SiddhiApiService {
                 executionPlanSpecificInputHandlerMap.remove(executionPlan);
 
                 jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.OK,
-                                                                      "Execution plan removed successfully"));
+                        "Execution plan removed successfully"));
             } else {
                 jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR,
-                                                                      "There is no execution plan exist " +
-                                                                      "with provided name : " + executionPlan));
+                        "There is no execution plan exist " +
+                                "with provided name : " + executionPlan));
             }
         } else {
             jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR,
-                                                                  "nvalid Request"));
+                    "nvalid Request"));
 
         }
         return Response.ok()

@@ -58,7 +58,8 @@ public class MapOperator extends CollectionOperator {
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[]
+            updateAttributeMappers) {
         super.update(updatingEventChunk, ((Map<Object, StreamEvent>) storeEvents).values(), updateAttributeMappers);
     }
 

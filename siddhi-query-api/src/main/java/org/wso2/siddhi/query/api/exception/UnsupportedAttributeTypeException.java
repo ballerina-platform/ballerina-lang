@@ -17,7 +17,9 @@
  */
 package org.wso2.siddhi.query.api.exception;
 
-
+/**
+ * Exception thrown when unsupported attribute type assigned to an attribute
+ */
 public class UnsupportedAttributeTypeException extends ExecutionPlanValidationException {
 
     public UnsupportedAttributeTypeException(String message) {

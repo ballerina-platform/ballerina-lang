@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.query.api.execution.query.output.ratelimit;
 
+/**
+ * Rate limiting of query output and producing state snapshot as output
+ */
 public class SnapshotOutputRate extends OutputRate {
 
     private Long value;
@@ -44,13 +47,21 @@ public class SnapshotOutputRate extends OutputRate {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SnapshotOutputRate)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SnapshotOutputRate)) {
+            return false;
+        }
 
         SnapshotOutputRate that = (SnapshotOutputRate) o;
 
-        if (type != that.type) return false;
-        if (value != null ? !value.equals(that.value) : that.value != null) return false;
+        if (type != that.type) {
+            return false;
+        }
+        if (value != null ? !value.equals(that.value) : that.value != null) {
+            return false;
+        }
 
         return true;
     }

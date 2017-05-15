@@ -19,10 +19,15 @@ package org.wso2.siddhi.query.api.expression.condition;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Or condition {@link Expression}
+ */
 public class Or extends Expression {
 
-    Expression leftExpression;
-    Expression rightExpression;
+    private static final long serialVersionUID = 1L;
+
+    private Expression leftExpression;
+    private Expression rightExpression;
 
     public Or(Expression leftExpression, Expression rightExpression) {
         this.leftExpression = leftExpression;

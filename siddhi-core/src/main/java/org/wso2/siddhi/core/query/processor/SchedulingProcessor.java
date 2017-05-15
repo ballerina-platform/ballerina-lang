@@ -21,12 +21,12 @@ package org.wso2.siddhi.core.query.processor;
 import org.wso2.siddhi.core.util.Scheduler;
 
 /**
- * Created on 12/4/14.
+ * Parent interface for Processors which need access to Siddhi {@link Scheduler}
  */
 public interface SchedulingProcessor extends Processor {
 
-    void setScheduler(Scheduler scheduler);
-
     Scheduler getScheduler();
+
+    void setScheduler(Scheduler scheduler);
 
 }

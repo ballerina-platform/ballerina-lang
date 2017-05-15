@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class IsNullTestCase {
-    static final Logger log = Logger.getLogger(IsNullTestCase.class);
+    private static final Logger log = Logger.getLogger(IsNullTestCase.class);
     private int count;
     private boolean eventArrived;
     private int inEventCount;
@@ -46,7 +46,7 @@ public class IsNullTestCase {
 
 
     @Test
-    public void IsNullTest1() throws InterruptedException {
+    public void isNullTest1() throws InterruptedException {
         log.info("isNull test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -81,9 +81,9 @@ public class IsNullTestCase {
 
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        inputHandler.send(new Object[]{null, 60.5f, 200l});
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        inputHandler.send(new Object[]{"IBM", 700f, 100L});
+        inputHandler.send(new Object[]{null, 60.5f, 200L});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
@@ -92,7 +92,7 @@ public class IsNullTestCase {
     }
 
     @Test
-    public void IsNullTest2() throws InterruptedException {
+    public void isNullTest2() throws InterruptedException {
         log.info("isNull test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -103,9 +103,11 @@ public class IsNullTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from every e1=Stream1[price>20], " +
-                "   e2=Stream1[(price>=e2[last].price and not e2[last-1] is null and price>=e2[last-1].price+5)  or ( e2[last-1] is null and price>=e1.price+5 )]+, " +
+                "   e2=Stream1[(price>=e2[last].price and not e2[last-1] is null and price>=e2[last-1].price+5)  or (" +
+                " e2[last-1] is null and price>=e1.price+5 )]+, " +
                 "   e3=Stream1[price<e2[last].price]" +
-                "select e1.price as price1, e2[0].price as price2, e2[last-2] is null as check1, e2[last-1].price as price3, e2[last].price as price4, e3.price as price5, e2 is null as check2 " +
+                "select e1.price as price1, e2[0].price as price2, e2[last-2] is null as check1, e2[last-1].price as " +
+                "price3, e2[last].price as price4, e3.price as price5, e2 is null as check2 " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -119,7 +121,8 @@ public class IsNullTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                org.junit.Assert.assertArrayEquals(new Object[]{43.6f, 58.7f, true, null, 58.7f, 45.6f, false}, event.getData());
+                                org.junit.Assert.assertArrayEquals(new Object[]{43.6f, 58.7f, true, null, 58.7f,
+                                        45.6f, false}, event.getData());
                                 break;
                             default:
                                 org.junit.Assert.assertSame(1, inEventCount);

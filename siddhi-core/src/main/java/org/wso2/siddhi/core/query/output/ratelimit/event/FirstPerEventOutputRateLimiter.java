@@ -26,6 +26,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined number of events and the emit only the
+ * first event.
+ */
 public class FirstPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
     private String id;
@@ -53,7 +57,8 @@ public class FirstPerEventOutputRateLimiter extends OutputRateLimiter {
                 if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
                     if (counter == 0) {
                         complexEventChunk.remove();
-                        ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                        ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>
+                                (complexEventChunk.isBatch());
                         firstPerEventChunk.add(event);
                         outputEventChunks.add(firstPerEventChunk);
                     }

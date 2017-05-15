@@ -35,9 +35,24 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.condition.*;
-import org.wso2.siddhi.query.api.expression.constant.*;
-import org.wso2.siddhi.query.api.expression.math.*;
+import org.wso2.siddhi.query.api.expression.condition.And;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
+import org.wso2.siddhi.query.api.expression.condition.In;
+import org.wso2.siddhi.query.api.expression.condition.IsNull;
+import org.wso2.siddhi.query.api.expression.condition.Not;
+import org.wso2.siddhi.query.api.expression.condition.Or;
+import org.wso2.siddhi.query.api.expression.constant.BoolConstant;
+import org.wso2.siddhi.query.api.expression.constant.Constant;
+import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
+import org.wso2.siddhi.query.api.expression.constant.FloatConstant;
+import org.wso2.siddhi.query.api.expression.constant.IntConstant;
+import org.wso2.siddhi.query.api.expression.constant.LongConstant;
+import org.wso2.siddhi.query.api.expression.constant.StringConstant;
+import org.wso2.siddhi.query.api.expression.math.Add;
+import org.wso2.siddhi.query.api.expression.math.Divide;
+import org.wso2.siddhi.query.api.expression.math.Mod;
+import org.wso2.siddhi.query.api.expression.math.Multiply;
+import org.wso2.siddhi.query.api.expression.math.Subtract;
 
 import java.util.HashMap;
 import java.util.List;
@@ -45,16 +60,22 @@ import java.util.Map;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
+/**
+ * Parse and build Siddhi Condition objects from @{link {@link Expression}s.
+ */
 public class ConditionBuilder {
     private final Map<String, ExpressionExecutor> variableExpressionExecutorMap;
-    private Expression expression;
     private final MatchingMetaInfoHolder matchingMetaInfoHolder;
     private final ExecutionPlanContext executionPlanContext;
     private final List<VariableExpressionExecutor> variableExpressionExecutors;
     private final Map<String, Table> tableMap;
     private final String queryName;
+    private Expression expression;
 
-    ConditionBuilder(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap, String queryName) {
+    ConditionBuilder(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                     ExecutionPlanContext executionPlanContext,
+                     List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap,
+                     String queryName) {
         this.expression = expression;
         this.matchingMetaInfoHolder = matchingMetaInfoHolder;
         this.executionPlanContext = executionPlanContext;
@@ -228,7 +249,7 @@ public class ConditionBuilder {
                 conditionVisitor.endVisitConstant(((LongConstant) expression).getValue(), Attribute.Type.LONG);
             } else {
                 throw new OperationNotSupportedException("No constant exist with type " +
-                        expression.getClass().getName());
+                                                                 expression.getClass().getName());
             }
         } else if (expression instanceof AttributeFunction) {
             conditionVisitor.beginVisitAttributeFunction(
@@ -271,9 +292,12 @@ public class ConditionBuilder {
                         } else {
                             try {
                                 definition.getAttributeType(attributeName);
-                                throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " + definition.getId() + " with " +
-                                        "reference: " + metaStreamEvent.getInputReferenceId() + " contains attribute with same" +
-                                        " name '" + attributeName + "'");
+                                throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " +
+                                                                                   definition.getId() + " with " +
+                                                                                   "reference: " + metaStreamEvent
+                                        .getInputReferenceId() + " contains attribute " +
+                                                                                   "with same" +
+                                                                                   " name '" + attributeName + "'");
                             } catch (AttributeNotExistException e) {
                                 //do nothing as its expected
                             }
@@ -283,24 +307,29 @@ public class ConditionBuilder {
                         if (matchingMetaInfoHolder.getMatchingStreamEventIndex() == streamEventChainIndex) {
                             buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
                         } else {
-                            buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder.getStoreDefinition());
+                            buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder
+                                    .getStoreDefinition());
                         }
                     }
                 } else {
 
-                    MetaStreamEvent metaStreamEvent = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvent(matchingMetaInfoHolder.getCurrentState());
+                    MetaStreamEvent metaStreamEvent = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvent
+                            (matchingMetaInfoHolder.getCurrentState());
                     definition = metaStreamEvent.getLastInputDefinition();
                     try {
                         type = definition.getAttributeType(attributeName);
                     } catch (AttributeNotExistException e) {
                         throw new ExecutionPlanValidationException(e.getMessage() + " Input Stream: " +
-                                definition.getId() + " with " + "reference: " + metaStreamEvent.getInputReferenceId());
+                                                                           definition.getId() + " with " + "reference: "
+                                                                           + metaStreamEvent.getInputReferenceId());
                     }
 
-                    if (matchingMetaInfoHolder.getCurrentState() == matchingMetaInfoHolder.getMatchingStreamEventIndex()) {
+                    if (matchingMetaInfoHolder.getCurrentState() == matchingMetaInfoHolder
+                            .getMatchingStreamEventIndex()) {
                         buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
                     } else {
-                        buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder.getStoreDefinition());
+                        buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder
+                                .getStoreDefinition());
                     }
                 }
 
@@ -327,7 +356,8 @@ public class ConditionBuilder {
                 if (matchingMetaInfoHolder.getMatchingStreamEventIndex() == streamEventChainIndex) {
                     buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
                 } else {
-                    buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder.getStoreDefinition());
+                    buildStoreVariableExecutor(variable, conditionVisitor, type, matchingMetaInfoHolder
+                            .getStoreDefinition());
                 }
             }
         }
@@ -348,8 +378,8 @@ public class ConditionBuilder {
         }
         conditionVisitor.beginVisitStreamVariable(id, variable.getStreamId(), variable.getAttributeName(), type);
         if (!variableExpressionExecutorMap.containsKey(id)) {
-            ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(variable,
-                    matchingMetaInfoHolder.getMetaStateEvent(), streamEventChainIndex, tableMap,
+            ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(
+                    variable, matchingMetaInfoHolder.getMetaStateEvent(), streamEventChainIndex, tableMap,
                     variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             variableExpressionExecutorMap.put(id, variableExpressionExecutor);
         }

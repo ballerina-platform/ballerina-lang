@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.util;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Thread Barrier used to avoid concurrency issues during event processing
+ */
 public class ThreadBarrier {
 
     private ReentrantLock lock = new ReentrantLock();

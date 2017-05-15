@@ -19,6 +19,9 @@ package org.wso2.siddhi.query.api.execution.query.input.state;
 
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
+/**
+ * Every state element used in patterns to trigger repeated operations
+ */
 public class EveryStateElement implements StateElement {
 
     private StateElement stateElement;
@@ -56,13 +59,21 @@ public class EveryStateElement implements StateElement {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EveryStateElement)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EveryStateElement)) {
+            return false;
+        }
 
         EveryStateElement that = (EveryStateElement) o;
 
-        if (stateElement != null ? !stateElement.equals(that.stateElement) : that.stateElement != null) return false;
-        if (within != null ? !within.equals(that.within) : that.within != null) return false;
+        if (stateElement != null ? !stateElement.equals(that.stateElement) : that.stateElement != null) {
+            return false;
+        }
+        if (within != null ? !within.equals(that.within) : that.within != null) {
+            return false;
+        }
 
         return true;
     }

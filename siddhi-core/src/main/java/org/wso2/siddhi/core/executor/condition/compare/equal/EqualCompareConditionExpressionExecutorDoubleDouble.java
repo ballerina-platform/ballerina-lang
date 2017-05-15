@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.executor.condition.compare.equal;
 
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
+/**
+ * Executor class for Double-Double Equal condition. Condition evaluation logic is implemented within executor.
+ */
 public class EqualCompareConditionExpressionExecutorDoubleDouble extends
         EqualCompareConditionExpressionExecutor {
 
@@ -38,6 +41,7 @@ public class EqualCompareConditionExpressionExecutorDoubleDouble extends
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new EqualCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new EqualCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor.cloneExecutor(key),
+                rightExpressionExecutor.cloneExecutor(key));
     }
 }

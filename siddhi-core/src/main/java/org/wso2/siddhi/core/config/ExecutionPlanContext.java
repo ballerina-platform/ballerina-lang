@@ -35,9 +35,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Holder object for context information of {@link org.wso2.siddhi.query.api.ExecutionPlan}.
+ */
 public class ExecutionPlanContext {
 
-    private SiddhiContext siddhiContext;
+    private SiddhiContext siddhiContext = null;
     private String name;
     private boolean playback;
     private boolean enforceOrder;
@@ -143,12 +146,12 @@ public class ExecutionPlanContext {
         this.threadBarrier = threadBarrier;
     }
 
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
-    }
-
     public ExecutorService getExecutorService() {
         return executorService;
+    }
+
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
     }
 
     public TimestampGenerator getTimestampGenerator() {
@@ -167,20 +170,20 @@ public class ExecutionPlanContext {
         this.snapshotService = snapshotService;
     }
 
-    public void setPersistenceService(PersistenceService persistenceService) {
-        this.persistenceService = persistenceService;
-    }
-
     public PersistenceService getPersistenceService() {
         return persistenceService;
     }
 
-    public void setElementIdGenerator(ElementIdGenerator elementIdGenerator) {
-        this.elementIdGenerator = elementIdGenerator;
+    public void setPersistenceService(PersistenceService persistenceService) {
+        this.persistenceService = persistenceService;
     }
 
     public ElementIdGenerator getElementIdGenerator() {
         return elementIdGenerator;
+    }
+
+    public void setElementIdGenerator(ElementIdGenerator elementIdGenerator) {
+        this.elementIdGenerator = elementIdGenerator;
     }
 
     public Script getScript(String name) {
@@ -195,11 +198,6 @@ public class ExecutionPlanContext {
         return scriptFunctionMap;
     }
 
-
-    public void setDisruptorExceptionHandler(ExceptionHandler<Object> disruptorExceptionHandler) {
-        this.disruptorExceptionHandler = disruptorExceptionHandler;
-    }
-
     public ExceptionHandler<Object> getDisruptorExceptionHandler() {
         if (disruptorExceptionHandler != null) {
             return disruptorExceptionHandler;
@@ -208,11 +206,15 @@ public class ExecutionPlanContext {
         }
     }
 
-    public void setBufferSize(int bufferSize) {
-        this.bufferSize = bufferSize;
+    public void setDisruptorExceptionHandler(ExceptionHandler<Object> disruptorExceptionHandler) {
+        this.disruptorExceptionHandler = disruptorExceptionHandler;
     }
 
     public int getBufferSize() {
         return bufferSize;
+    }
+
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
     }
 }

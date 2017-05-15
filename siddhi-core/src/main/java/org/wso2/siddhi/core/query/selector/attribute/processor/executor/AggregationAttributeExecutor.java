@@ -24,10 +24,14 @@ import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggrega
 
 import java.util.Map;
 
+/**
+ * Executor for attribute aggregations.
+ */
 public class AggregationAttributeExecutor extends AbstractAggregationAttributeExecutor {
 
     public AggregationAttributeExecutor(AttributeAggregator attributeAggregator,
-                                        ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, String queryName) {
+                                        ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
+                                                executionPlanContext, String queryName) {
         super(attributeAggregator, attributeExpressionExecutors, executionPlanContext, queryName);
     }
 
@@ -37,7 +41,8 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
     }
 
     public ExpressionExecutor cloneExecutor(String key) {
-        return new AggregationAttributeExecutor(attributeAggregator.cloneAggregator(key), attributeExpressionExecutors, executionPlanContext, queryName);
+        return new AggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
+                                                attributeExpressionExecutors, executionPlanContext, queryName);
     }
 
     @Override
@@ -46,7 +51,7 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
     }
 
     @Override
-    public void restoreState(Map<String,Object> state) {
+    public void restoreState(Map<String, Object> state) {
         attributeAggregator.restoreState(state);
     }
 }

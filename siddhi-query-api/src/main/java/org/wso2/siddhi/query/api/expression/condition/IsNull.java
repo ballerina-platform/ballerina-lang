@@ -19,7 +19,12 @@ package org.wso2.siddhi.query.api.expression.condition;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Condition {@link Expression} checking whether the event is null
+ */
 public class IsNull extends Expression {
+
+    private static final long serialVersionUID = 1L;
 
     private String streamId;
     private Integer streamIndex;
@@ -65,15 +70,27 @@ public class IsNull extends Expression {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof IsNull)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof IsNull)) {
+            return false;
+        }
 
         IsNull that = (IsNull) o;
 
-        if (isInnerStream != that.isInnerStream) return false;
-        if (expression != null ? !expression.equals(that.expression) : that.expression != null) return false;
-        if (streamId != null ? !streamId.equals(that.streamId) : that.streamId != null) return false;
-        if (streamIndex != null ? !streamIndex.equals(that.streamIndex) : that.streamIndex != null) return false;
+        if (isInnerStream != that.isInnerStream) {
+            return false;
+        }
+        if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
+            return false;
+        }
+        if (streamId != null ? !streamId.equals(that.streamId) : that.streamId != null) {
+            return false;
+        }
+        if (streamIndex != null ? !streamIndex.equals(that.streamIndex) : that.streamIndex != null) {
+            return false;
+        }
 
         return true;
     }

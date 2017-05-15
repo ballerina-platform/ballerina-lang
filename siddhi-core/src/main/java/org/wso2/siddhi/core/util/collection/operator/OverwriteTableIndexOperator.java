@@ -45,7 +45,8 @@ public class OverwriteTableIndexOperator extends IndexOperator {
         updatingOrAddingEventChunk.reset();
         while (updatingOrAddingEventChunk.hasNext()) {
             StateEvent overwritingOrAddingEvent = updatingOrAddingEventChunk.next();
-            ((IndexedEventHolder) storeEvents).overwrite(addingStreamEventExtractor.getAddingStreamEvent(overwritingOrAddingEvent));
+            ((IndexedEventHolder) storeEvents).overwrite(addingStreamEventExtractor.getAddingStreamEvent
+                    (overwritingOrAddingEvent));
 
         }
         return null;

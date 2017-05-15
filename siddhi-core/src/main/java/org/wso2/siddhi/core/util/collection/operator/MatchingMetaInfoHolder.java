@@ -23,6 +23,9 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
+/**
+ * Information holder for matching event used by in-memory table implementation.
+ */
 public class MatchingMetaInfoHolder {
     private int matchingStreamEventIndex;
     private int storeEventIndex;
@@ -31,7 +34,9 @@ public class MatchingMetaInfoHolder {
     private MetaStateEvent metaStateEvent;
     private int currentState = UNKNOWN_STATE;
 
-    public MatchingMetaInfoHolder(MetaStateEvent metaStateEvent, int matchingStreamEventIndex, int storeEventIndex, AbstractDefinition matchingStreamDefinition, AbstractDefinition storeDefinition, int currentState) {
+    public MatchingMetaInfoHolder(MetaStateEvent metaStateEvent, int matchingStreamEventIndex, int storeEventIndex,
+                                  AbstractDefinition matchingStreamDefinition, AbstractDefinition storeDefinition,
+                                  int currentState) {
         this.metaStateEvent = metaStateEvent;
         this.matchingStreamEventIndex = matchingStreamEventIndex;
         this.storeEventIndex = storeEventIndex;

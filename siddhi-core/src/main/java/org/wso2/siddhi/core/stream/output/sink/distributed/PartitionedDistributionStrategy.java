@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -37,7 +38,16 @@ import java.util.List;
 @Extension(
         name = "partitioned",
         namespace = "distributionStrategy",
-        description = ""
+        description = "Publishing strategy to allow publish messages to multiple destination by partitioning.",
+        examples = @Example(
+                syntax = "@sink(type='tcp', @map(type='text'),\n" +
+                        "@distribution(strategy='partitioned', partitionKey='symbol',\n" +
+                        "@destination(topic = 'topic1'),\n" +
+                        "@destination(topic = 'topic2')))\n" +
+                        "define stream BarStream (symbol string, price float, volume long);",
+                description = "In this example BarStream sink will act as partitioned manner to 'topic1' and " +
+                        "'topic2' destinations according to partitionKey='symbol'."
+        )
 )
 public class PartitionedDistributionStrategy extends DistributionStrategy {
     /**
@@ -56,7 +66,8 @@ public class PartitionedDistributionStrategy extends DistributionStrategy {
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,
-                     OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders, ConfigReader configReader) {
+                     OptionHolder distributionOptionHolder, List<OptionHolder> destinationOptionHolders,
+                     ConfigReader configReader) {
         totalDestinationCount = destinationOptionHolders.size();
         String partitionKey = distributionOptionHolder.validateAndGetStaticValue(SiddhiConstants
                 .PARTITION_KEY_FIELD_KEY);
@@ -68,7 +79,7 @@ public class PartitionedDistributionStrategy extends DistributionStrategy {
         try {
             int partitionKeyFieldPosition = streamDefinition.getAttributePosition(partitionKey);
             partitionOption = new Option(partitionKeyFieldPosition);
-        } catch (AttributeNotExistException e){
+        } catch (AttributeNotExistException e) {
             throw new ExecutionPlanValidationException("Could not find partition key attribute", e);
         }
 

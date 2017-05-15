@@ -22,8 +22,14 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+/**
+ * Holder object to contain {@link Option}
+ */
 public class OptionHolder {
 
     private Map<String, Option> options = new HashMap<>();
@@ -39,18 +45,19 @@ public class OptionHolder {
         }
         for (Map.Entry<String, String> entry : dynamicOptions.entrySet()) {
             options.put(entry.getKey(), new Option(entry.getKey(), null,
-                    new TemplateBuilder(streamDefinition, entry.getValue())));
+                                                   new TemplateBuilder(streamDefinition, entry.getValue())));
         }
 
         staticOptions.keySet().forEach(key -> staticOptionsKeys.add(key));
-        dynamicOptions.keySet().forEach(key ->  dynamicOptionsKeys.add(key));
+        dynamicOptions.keySet().forEach(key -> dynamicOptionsKeys.add(key));
     }
 
-   public Option validateAndGetOption(String optionKey) {
+    public Option validateAndGetOption(String optionKey) {
         Option option = options.get(optionKey);
         if (option == null) {
-            throw new ExecutionPlanValidationException("Option '" + optionKey + "' does not exist in the configuration" +
-                    " of '" + extension.namespace() + ":" + extension.name() + "'.");
+            throw new ExecutionPlanValidationException("Option '" + optionKey + "' does not exist in the " +
+                                                               "configuration of '" + extension.namespace() + ":" +
+                                                               extension.name() + "'.");
         }
         return option;
     }
@@ -78,7 +85,9 @@ public class OptionHolder {
         if (option != null) {
             if (!option.isStatic()) {
                 throw new ExecutionPlanValidationException("'" + optionKey + "' is not a 'static' " +
-                        "option in the configuration of " + extension.namespace() + ":" + extension.name() + ".");
+                                                                   "option in the configuration of " +
+                                                                   extension.namespace() + ":" + extension.name() +
+                                                                   ".");
             }
             return option.getValue();
         } else {
@@ -91,24 +100,26 @@ public class OptionHolder {
         if (option != null) {
             if (!option.isStatic()) {
                 throw new ExecutionPlanValidationException("'" + optionKey + "' is defined as a 'dynamic' option " +
-                        "but it has to be a 'static' option for the " + extension.namespace() + ":" +
-                        extension.name() + " configuration.");
+                                                                   "but it has to be a 'static' option for the " +
+                                                                   extension.namespace() + ":" +
+                                                                   extension.name() + " configuration.");
             }
             return option.getValue();
         } else {
             throw new ExecutionPlanValidationException("'" + optionKey + "' 'static' option is not " +
-                    "defined in the configuration of " + extension.namespace() + ":" + extension.name() + ".");
+                                                               "defined in the configuration of " +
+                                                               extension.namespace() + ":" + extension.name() + ".");
         }
     }
 
-    OptionHolder merge(OptionHolder optionHolderToMerge){
+    OptionHolder merge(OptionHolder optionHolderToMerge) {
         optionHolderToMerge.getDynamicOptionsKeys().forEach(key -> {
             Option optionToMerge = optionHolderToMerge.validateAndGetOption(key);
             options.put(key, optionToMerge);
             dynamicOptionsKeys.add(key);
         });
 
-        optionHolderToMerge.getStaticOptionsKeys().forEach(key ->{
+        optionHolderToMerge.getStaticOptionsKeys().forEach(key -> {
             Option optionToMerge = optionHolderToMerge.validateAndGetOption(key);
             options.put(key, optionToMerge);
             staticOptionsKeys.add(key);

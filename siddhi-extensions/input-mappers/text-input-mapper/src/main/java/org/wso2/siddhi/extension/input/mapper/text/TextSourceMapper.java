@@ -23,11 +23,11 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
-import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -83,7 +83,8 @@ public class TextSourceMapper extends SourceMapper {
      * @param configReader
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping> attributeMappingList, ConfigReader configReader) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
+            attributeMappingList, ConfigReader configReader) {
         attributeConverter = new AttributeConverter();
         this.streamDefinition = streamDefinition;
         this.streamAttributes = this.streamDefinition.getAttributeList();
@@ -135,13 +136,13 @@ public class TextSourceMapper extends SourceMapper {
      * {@link OutputCallback}.
      *
      * @param eventObject  the TEXT string
-     * @param inputHandler input handler
      */
     @Override
-    protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
+    protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         if (eventObject != null) {
             synchronized (this) {
-                inputHandler.send(convertToEvent(eventObject));
+                Event event = convertToEvent(eventObject);
+                inputEventHandler.sendEvent(event);
             }
         }
     }
@@ -154,7 +155,6 @@ public class TextSourceMapper extends SourceMapper {
      */
     private Event convertToEvent(Object eventObject) {
         // Validate the event
-        // Validate the event
         if (eventObject == null) {
             throw new ExecutionPlanRuntimeException("Null object received from the Source to TextsourceMapper");
         }
@@ -166,12 +166,18 @@ public class TextSourceMapper extends SourceMapper {
         }
 
         Event event = new Event(this.streamDefinition.getAttributeList().size());
+        String eventObj = (String) eventObject;
+        if (eventObj.contains("siddhiEventId:")) {
+            // siddhiEventId should be the first line of the message
+            event.setId(Long.parseLong(eventObj.split("\n")[0].split("siddhiEventId:")[1]));
+            eventObj = eventObj.replaceFirst(eventObj.split("\n")[0] + "\n", "");
+        }
         Object[] data = event.getData();
 
         for (MappingPositionData mappingPositionData : this.mappingPositions) {
             int position = mappingPositionData.getPosition();
             Attribute attribute = streamAttributes.get(position);
-            data[position] = attributeConverter.getPropertyValue(mappingPositionData.match((String) eventObject),
+            data[position] = attributeConverter.getPropertyValue(mappingPositionData.match(eventObj),
                     attribute.getType());
         }
 

@@ -31,7 +31,8 @@ public class NextInnerStateRuntime extends StreamInnerStateRuntime {
     private final InnerStateRuntime currentInnerStateRuntime;
     private final InnerStateRuntime nextInnerStateRuntime;
 
-    public NextInnerStateRuntime(InnerStateRuntime currentInnerStateRuntime, InnerStateRuntime nextInnerStateRuntime, StateInputStream.Type stateType) {
+    public NextInnerStateRuntime(InnerStateRuntime currentInnerStateRuntime, InnerStateRuntime nextInnerStateRuntime,
+                                 StateInputStream.Type stateType) {
         super(stateType);
         this.currentInnerStateRuntime = currentInnerStateRuntime;
         this.nextInnerStateRuntime = nextInnerStateRuntime;
@@ -67,16 +68,19 @@ public class NextInnerStateRuntime extends StreamInnerStateRuntime {
 
     @Override
     public InnerStateRuntime clone(String key) {
-        InnerStateRuntime cloned_currentInnerStateRuntime = currentInnerStateRuntime.clone(key);
-        InnerStateRuntime cloned_nextInnerStateRuntime = nextInnerStateRuntime.clone(key);
+        InnerStateRuntime clonedCurrentInnerStateRuntime = currentInnerStateRuntime.clone(key);
+        InnerStateRuntime clonedNextInnerStateRuntime = nextInnerStateRuntime.clone(key);
 
-        NextInnerStateRuntime nextInnerStateRuntime = new NextInnerStateRuntime(cloned_currentInnerStateRuntime, cloned_nextInnerStateRuntime, stateType);
-        nextInnerStateRuntime.singleStreamRuntimeList.addAll(cloned_currentInnerStateRuntime.getSingleStreamRuntimeList());
-        nextInnerStateRuntime.singleStreamRuntimeList.addAll(cloned_nextInnerStateRuntime.getSingleStreamRuntimeList());
-        nextInnerStateRuntime.firstProcessor = cloned_currentInnerStateRuntime.getFirstProcessor();
-        nextInnerStateRuntime.lastProcessor = cloned_nextInnerStateRuntime.getLastProcessor();
+        NextInnerStateRuntime nextInnerStateRuntime = new NextInnerStateRuntime(clonedCurrentInnerStateRuntime,
+                                                                                clonedNextInnerStateRuntime, stateType);
+        nextInnerStateRuntime.singleStreamRuntimeList.addAll(clonedCurrentInnerStateRuntime
+                .getSingleStreamRuntimeList());
+        nextInnerStateRuntime.singleStreamRuntimeList.addAll(clonedNextInnerStateRuntime.getSingleStreamRuntimeList());
+        nextInnerStateRuntime.firstProcessor = clonedCurrentInnerStateRuntime.getFirstProcessor();
+        nextInnerStateRuntime.lastProcessor = clonedNextInnerStateRuntime.getLastProcessor();
 
-        cloned_currentInnerStateRuntime.getLastProcessor().setNextStatePreProcessor(cloned_nextInnerStateRuntime.getFirstProcessor());
+        clonedCurrentInnerStateRuntime.getLastProcessor().setNextStatePreProcessor(clonedNextInnerStateRuntime
+                .getFirstProcessor());
 
         List<SingleStreamRuntime> runtimeList = nextInnerStateRuntime.getSingleStreamRuntimeList();
         for (int i = 0; i < runtimeList.size(); i++) {

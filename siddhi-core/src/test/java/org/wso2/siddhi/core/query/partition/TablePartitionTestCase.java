@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.partition;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -27,14 +27,14 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class TablePartitionTestCase {
-    static final Logger log = Logger.getLogger(TablePartitionTestCase.class);
+    private static final Logger log = Logger.getLogger(TablePartitionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private int stockStreamEventCount;
     private boolean eventArrived;
@@ -150,7 +150,6 @@ public class TablePartitionTestCase {
                 "select symbol " +
                 "insert into outputStream;  " +
                 "";
-
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);

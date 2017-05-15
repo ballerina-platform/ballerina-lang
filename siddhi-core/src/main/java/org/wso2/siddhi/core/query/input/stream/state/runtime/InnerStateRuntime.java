@@ -31,13 +31,13 @@ public interface InnerStateRuntime {
 
     PreStateProcessor getFirstProcessor();
 
-    PostStateProcessor getLastProcessor();
-
-    List<SingleStreamRuntime> getSingleStreamRuntimeList();
-
     void setFirstProcessor(PreStateProcessor firstProcessor);
 
+    PostStateProcessor getLastProcessor();
+
     void setLastProcessor(PostStateProcessor lastProcessor);
+
+    List<SingleStreamRuntime> getSingleStreamRuntimeList();
 
     void addStreamRuntime(SingleStreamRuntime singleStreamRuntime);
 

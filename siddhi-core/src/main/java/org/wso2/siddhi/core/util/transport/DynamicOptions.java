@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.util.transport;
 
 import org.wso2.siddhi.core.event.Event;
 
+/**
+ * Holder class to represent supported dynamic options in sources and sinks.
+ */
 public class DynamicOptions {
     private Event event;
 
@@ -33,11 +36,11 @@ public class DynamicOptions {
         return event;
     }
 
-    void setVariableOptionIndex(int index){
-        variableOptionIndex = index;
+    int getVariableOptionIndex() {
+        return variableOptionIndex;
     }
 
-    int getVariableOptionIndex(){
-        return variableOptionIndex;
+    void setVariableOptionIndex(int index) {
+        variableOptionIndex = index;
     }
 }

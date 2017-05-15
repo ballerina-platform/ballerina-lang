@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.query.api.exception;
 
+/**
+ * Exception thrown when a similar definition is defined again
+ */
 public class DuplicateDefinitionException extends ExecutionPlanValidationException {
 
     public DuplicateDefinitionException(String message) {

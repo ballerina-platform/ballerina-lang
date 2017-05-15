@@ -19,6 +19,9 @@ package org.wso2.siddhi.query.api.execution.query.input.handler;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Siddhi query filter
+ */
 public class Filter implements StreamHandler {
 
     private Expression filterExpression;
@@ -36,12 +39,18 @@ public class Filter implements StreamHandler {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Filter)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Filter)) {
+            return false;
+        }
 
         Filter filter = (Filter) o;
 
-        if (!filterExpression.equals(filter.filterExpression)) return false;
+        if (!filterExpression.equals(filter.filterExpression)) {
+            return false;
+        }
 
         return true;
     }

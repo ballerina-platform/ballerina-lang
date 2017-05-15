@@ -17,9 +17,12 @@
  */
 package org.wso2.siddhi.query.api.util;
 
+/**
+ * Siddhi constants
+ */
 public class SiddhiConstants {
 
-    public static final String EVENT_TRACE_LOGGER = "EVENT_TRACE_LOGGER";
+//    public static final String EVENT_TRACE_LOGGER = "EVENT_TRACE_LOGGER";
 
     public static final String ANNOTATION_INFO = "info";
     public static final String ANNOTATION_ELEMENT_NAME = "name";

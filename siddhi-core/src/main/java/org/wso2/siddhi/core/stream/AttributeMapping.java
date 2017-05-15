@@ -18,12 +18,15 @@
 
 package org.wso2.siddhi.core.stream;
 
+/**
+ * Holder object to store mapping information for a given Siddhi {@link org.wso2.siddhi.query.api.definition.Attribute}
+ */
 public class AttributeMapping {
     private String mapping;
     private String rename;
 
     public AttributeMapping(String mapping) {
-        this.mapping=mapping;
+        this.mapping = mapping;
     }
 
     public AttributeMapping(String rename, String mapping) {
@@ -57,12 +60,18 @@ public class AttributeMapping {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         AttributeMapping that = (AttributeMapping) o;
 
-        if (mapping != null ? !mapping.equals(that.mapping) : that.mapping != null) return false;
+        if (mapping != null ? !mapping.equals(that.mapping) : that.mapping != null) {
+            return false;
+        }
         return !(rename != null ? !rename.equals(that.rename) : that.rename != null);
 
     }

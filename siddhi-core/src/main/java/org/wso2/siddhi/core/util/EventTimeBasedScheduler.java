@@ -22,24 +22,28 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
 
+/**
+ * Scheduler which operate based on event's timestamp
+ */
 public class EventTimeBasedScheduler extends Scheduler {
 
     public EventTimeBasedScheduler(Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
         super(singleThreadEntryValve, executionPlanContext);
 
         if (executionPlanContext.isPlayback()) {
-            ((EventTimeBasedMillisTimestampGenerator) executionPlanContext.getTimestampGenerator()).addTimeChangeListener(new EventTimeBasedMillisTimestampGenerator.TimeChangeListener() {
-                @Override
-                public void onTimeChange(long currentTimestamp) {
-                    Long lastTime = toNotifyQueue.peek();
-                    if (lastTime != null && lastTime <= currentTimestamp) {
-                        // If executed in a separate thread, while it is processing,
-                        // the new event will come into the window. As the result of it,
-                        // the window will emit the new event as an existing current event.
-                        sendTimerEvents();
-                    }
-                }
-            });
+            ((EventTimeBasedMillisTimestampGenerator) executionPlanContext.getTimestampGenerator())
+                    .addTimeChangeListener(new EventTimeBasedMillisTimestampGenerator.TimeChangeListener() {
+                        @Override
+                        public void onTimeChange(long currentTimestamp) {
+                            Long lastTime = toNotifyQueue.peek();
+                            if (lastTime != null && lastTime <= currentTimestamp) {
+                                // If executed in a separate thread, while it is processing,
+                                // the new event will come into the window. As the result of it,
+                                // the window will emit the new event as an existing current event.
+                                sendTimerEvents();
+                            }
+                        }
+                    });
         }
     }
 

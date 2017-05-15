@@ -27,11 +27,11 @@ public class TCPServer {
 
     private static TCPNettyServer tcpNettyServer = null;
 
-    public static TCPServer getInstance() {
-        return ourInstance;
+    private TCPServer() {
     }
 
-    private TCPServer() {
+    public static TCPServer getInstance() {
+        return ourInstance;
     }
 
     public synchronized void start() {

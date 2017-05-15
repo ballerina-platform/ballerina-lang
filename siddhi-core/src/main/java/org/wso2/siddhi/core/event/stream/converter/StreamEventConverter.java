@@ -53,7 +53,8 @@ public interface StreamEventConverter {
 
     /**
      * Method to construct(change format) timeStamp and data from StreamEvent
-     *  @param timeStamp     timeStamp of the event
+     *
+     * @param timeStamp     timeStamp of the event
      * @param data          output data of the event
      * @param type          output type of the event
      * @param borrowedEvent Event that will be populated

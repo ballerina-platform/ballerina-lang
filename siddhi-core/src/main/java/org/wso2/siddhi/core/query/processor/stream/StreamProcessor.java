@@ -30,7 +30,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
 
-/*
+/**
  * For Siddhi extensions, extend this class to use the functionality of
  * AbstractStreamProcessor. This class processes only StreamEvents. Use
  * StreamFunctionProcessor to process StateEvents.
@@ -71,7 +71,8 @@ public abstract class StreamProcessor extends AbstractStreamProcessor {
      */
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                   ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+                                   ExecutionPlanContext
+                                           executionPlanContext, boolean outputExpectsExpiredEvents) {
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
         return init(inputDefinition, attributeExpressionExecutors, configReader, executionPlanContext);
     }

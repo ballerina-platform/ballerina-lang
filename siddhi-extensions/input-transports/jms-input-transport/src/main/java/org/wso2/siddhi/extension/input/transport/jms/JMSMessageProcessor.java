@@ -33,13 +33,13 @@ import java.util.concurrent.TimeUnit;
  * This processes the JMS messages using a pausable thread pool.
  */
 public class JMSMessageProcessor implements CarbonMessageProcessor {
-    private SourceEventListener sourceEventListener;
-    private PausableThreadPoolExecutor executor;
-    private LinkedBlockingQueue<Runnable> queue;
     // this is the maximum time that excess idle threads will wait for new tasks before terminating.
     // since the threads will exit after each execution, this is set to a minimal value
     private final long KEEP_ALIVE_TIME = 10;
     private final int MAX_THREAD_POOL_SIZE_MULTIPLIER = 2;
+    private SourceEventListener sourceEventListener;
+    private PausableThreadPoolExecutor executor;
+    private LinkedBlockingQueue<Runnable> queue;
 
     public JMSMessageProcessor(SourceEventListener sourceEventListener, int coreThreadPoolSize) {
         this.sourceEventListener = sourceEventListener;

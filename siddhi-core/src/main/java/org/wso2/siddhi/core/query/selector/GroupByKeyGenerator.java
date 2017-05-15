@@ -30,6 +30,9 @@ import org.wso2.siddhi.query.api.expression.Variable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class to generate keys for GroupBy groups
+ */
 public class GroupByKeyGenerator {
 
     private VariableExpressionExecutor[] groupByExecutors = null;
@@ -42,8 +45,9 @@ public class GroupByKeyGenerator {
         if (!groupByList.isEmpty()) {
             groupByExecutors = new VariableExpressionExecutor[groupByList.size()];
             for (int i = 0, expressionsSize = groupByList.size(); i < expressionsSize; i++) {
-                groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(groupByList.get(i),
-                        metaComplexEvent, SiddhiConstants.UNKNOWN_STATE, tableMap, executors, siddhiContext, false, 0, queryName);
+                groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(
+                        groupByList.get(i), metaComplexEvent, SiddhiConstants.UNKNOWN_STATE, tableMap, executors,
+                        siddhiContext, false, 0, queryName);
             }
         }
     }

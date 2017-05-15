@@ -37,7 +37,8 @@ public class NoIndexingTablePerformance {
         String executionPlan = "" +
 //                "@plan:async" +
 //                " " +
-                "define stream StockCheckStream (symbol string, company string, price float, volume int, timestamp long);" +
+                "define stream StockCheckStream (symbol string, company string, price float, volume int, timestamp " +
+                "long);" +
                 "define stream StockInputStream (symbol string, company string, price float, volume int); " +
                 "" +
                 "@PrimaryKey('symbol')" +
@@ -52,7 +53,8 @@ public class NoIndexingTablePerformance {
                 "@info(name = 'query2') " +
                 "from StockCheckStream join StockTable " +
                 "on StockCheckStream.symbol == StockTable.symbol and StockCheckStream.volume == StockTable.volume  " +
-                "select StockCheckStream.timestamp, StockCheckStream.symbol, StockCheckStream.company, StockCheckStream.price, StockCheckStream.volume " +
+                "select StockCheckStream.timestamp, StockCheckStream.symbol, StockCheckStream.company, " +
+                "StockCheckStream.price, StockCheckStream.volume " +
                 "insert into OutputStream ;" +
                 "" +
 //                "@info(name = 'query2') " +
@@ -96,11 +98,13 @@ public class NoIndexingTablePerformance {
 //                        if (eventCount % numberOfEventsChunked == 0) {
 //                            synchronized (this) {
 //                                totalIterations++;
-//                                double throughput = (eventCount * 1000.0) / ((System.currentTimeMillis()) - startTime);
+//                                double throughput = (eventCount * 1000.0) / ((System.currentTimeMillis()) -
+// startTime);
 //                                double latency = (timeSpent * 1.0 / eventCount);
 //                                totalThroughput += throughput;
 //                                totalLatency += latency;
-//                                System.out.println(throughput + "\t" + latency + "\t" + totalThroughput / totalIterations + "\t" + totalLatency / totalIterations);
+//                                System.out.println(throughput + "\t" + latency + "\t" + totalThroughput /
+// totalIterations + "\t" + totalLatency / totalIterations);
 //                                startTime = System.currentTimeMillis();
 //                                eventCount = 0;
 //                                timeSpent = 0;
@@ -156,7 +160,8 @@ public class NoIndexingTablePerformance {
                     int number = random.nextInt(numberOfEventsStored);
 //                    int number = (numberOfEventsStored*99)/100;
                     long startEventTime = System.currentTimeMillis();
-                    inputHandler.send(new Object[]{"" + number, "" + number, random.nextFloat(), number, System.currentTimeMillis()});
+                    inputHandler.send(new Object[]{"" + number, "" + number, random.nextFloat(), number, System
+                            .currentTimeMillis()});
                     if (!output) {
                         eventCount++;
                         timeSpent += (System.currentTimeMillis() - startEventTime);
@@ -170,7 +175,8 @@ public class NoIndexingTablePerformance {
                                 double latency = (timeSpent * 1.0 / eventCount);
                                 totalThroughput += throughput;
                                 totalLatency += latency;
-                                System.out.println(throughput + "\t" + latency + "\t" + totalThroughput / totalIterations + "\t" + totalLatency / totalIterations);
+                                System.out.println(throughput + "\t" + latency + "\t" + totalThroughput /
+                                        totalIterations + "\t" + totalLatency / totalIterations);
                                 startTime = System.currentTimeMillis();
                                 eventCount = 0;
                                 timeSpent = 0;
