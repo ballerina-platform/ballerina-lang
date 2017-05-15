@@ -30,12 +30,14 @@ import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -55,9 +57,10 @@ public class NameReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return (def instanceof FunctionDefinitionNode) || (def instanceof ConnectorDefinitionNode)
-                || (def instanceof StructDefinitionNode) || (def instanceof VariableDefinitionNode)
-                || (def instanceof AnnotationDefinitionNode) || (def instanceof GlobalVariableDefinitionStatementNode);
+        return def instanceof FunctionDefinitionNode || def instanceof ConnectorDefinitionNode
+                || def instanceof StructDefinitionNode || def instanceof VariableDefinitionNode
+                || def instanceof AnnotationDefinitionNode || def instanceof GlobalVariableDefinitionStatementNode
+                || def instanceof ConstantDefinitionNode || def instanceof ParameterNode;
     }
 
     @NotNull
@@ -137,33 +140,35 @@ public class NameReference extends BallerinaElementReference {
             } else {
                 // Even though the package name is null, the name reference node might be an annotation node. So we
                 // need to get all annotations in the current.
-                PsiDirectory parentDirectory = file.getParent();
-                if (parentDirectory == null) {
+                PsiDirectory directory = file.getParent();
+                if (directory == null) {
                     return new ResolveResult[0];
                 }
-                List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInCurrentPackage(parentDirectory);
-                // Add matching annotations to results.
+                List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInCurrentPackage(directory);
                 for (PsiElement annotation : annotations) {
                     if (getElement().getText().equals(annotation.getText())) {
                         results.add(new PsiElementResolveResult(annotation));
                     }
                 }
-                List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(parentDirectory);
-                // Add matching annotations to results.
+                List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(directory);
                 for (PsiElement connector : connectors) {
                     if (getElement().getText().equals(connector.getText())) {
                         results.add(new PsiElementResolveResult(connector));
                     }
                 }
 
-                List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage
-                        (parentDirectory);
-                // Add matching annotations to results.
+                List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(directory);
                 for (PsiElement variable : globalVariables) {
                     if (getElement().getText().equals(variable.getText())) {
                         results.add(new PsiElementResolveResult(variable));
                     }
                 }
+//                List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(directory);
+//                for (PsiElement constant : constants) {
+//                    if (getElement().getText().equals(constant.getText())) {
+//                        results.add(new PsiElementResolveResult(constant));
+//                    }
+//                }
             }
             return results.toArray(new ResolveResult[results.size()]);
         }

@@ -61,7 +61,7 @@ public class StatementReference extends BallerinaElementReference {
         return def instanceof PackageNameNode || def instanceof VariableDefinitionNode || def instanceof ParameterNode
                 || def instanceof ConstantDefinitionNode || def instanceof TypeNameNode
                 || def instanceof ConnectorDefinitionNode || def instanceof StructDefinitionNode
-                || def instanceof GlobalVariableDefinitionStatementNode;
+                || def instanceof GlobalVariableDefinitionStatementNode || def instanceof ConstantDefinitionNode;
     }
 
     @NotNull
@@ -154,7 +154,7 @@ public class StatementReference extends BallerinaElementReference {
                         PsiElement resolvedElement = reference.resolve();
                         if (resolvedElement != null && resolvedElement instanceof PsiDirectory) {
                             List<PsiElement> connectors =
-                                    BallerinaPsiImplUtil.getAllConnectorsInPackage((PsiDirectory)resolvedElement);
+                                    BallerinaPsiImplUtil.getAllConnectorsInPackage((PsiDirectory) resolvedElement);
                             for (PsiElement connector : connectors) {
                                 results.add(new PsiElementResolveResult(connector));
                             }
@@ -195,6 +195,23 @@ public class StatementReference extends BallerinaElementReference {
                 results.add(new PsiElementResolveResult(nameIdentifier));
             }
         }
+
+        // We need to check global variables in the package as well.
+        List<PsiElement> constants =
+                BallerinaPsiImplUtil.getAllConstantsFromPackage(file.getParent());
+        for (PsiElement constant : constants) {
+            if (!(constant instanceof IdentifierPSINode)) {
+                continue;
+            }
+            PsiElement nameIdentifier = ((IdentifierPSINode) constant).getNameIdentifier();
+            if (nameIdentifier == null) {
+                continue;
+            }
+            if (myElement.getText().equals(nameIdentifier.getText())) {
+                results.add(new PsiElementResolveResult(nameIdentifier));
+            }
+        }
+
         // Return results.
         return results.toArray(new ResolveResult[results.size()]);
     }
