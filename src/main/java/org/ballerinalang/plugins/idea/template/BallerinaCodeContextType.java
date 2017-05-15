@@ -28,10 +28,13 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtilCore;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlighter;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.jetbrains.annotations.NonNls;
@@ -40,8 +43,8 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class BallerinaCodeContextType extends TemplateContextType {
 
-    protected BallerinaCodeContextType(@NotNull @NonNls String id, @NotNull String presentableName,
-                                       @Nullable Class<? extends TemplateContextType> baseContextType) {
+    BallerinaCodeContextType(@NotNull @NonNls String id, @NotNull String presentableName,
+                             @Nullable Class<? extends TemplateContextType> baseContextType) {
         super(id, presentableName, baseContextType);
     }
 
@@ -54,7 +57,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
             }
             return element != null && isInContext(element);
         }
-
         return false;
     }
 
@@ -80,6 +82,12 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
                 }
             } else if (element instanceof CompilationUnitNode) {
                 return true;
+            } else if (element.getParent() instanceof NameReferenceNode) {
+                GlobalVariableDefinitionStatementNode node = PsiTreeUtil.getParentOfType(element,
+                        GlobalVariableDefinitionStatementNode.class);
+                if (node != null) {
+                    return true;
+                }
             }
             return false;
         }
@@ -94,11 +102,27 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
             if (element.getParent() instanceof PsiErrorElement) {
-                if (element.getParent().getParent() instanceof ServiceBodyNode) {
+                ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(element, ServiceBodyNode.class);
+                if (serviceBodyNode != null) {
+                    return true;
+                }
+                PsiElement previousNonEmptyElement = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
+                        .getContainingFile(), element.getTextOffset());
+                if (previousNonEmptyElement.getParent() instanceof ResourceDefinitionNode) {
                     return true;
                 }
             } else if (element instanceof ServiceBodyNode) {
                 return true;
+            } else if (element.getParent() instanceof NameReferenceNode) {
+                PsiElement previousNonEmptyElement = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
+                        .getContainingFile(), element.getTextOffset());
+                if (previousNonEmptyElement.getParent() instanceof ResourceDefinitionNode) {
+                    return true;
+                }
+                ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(element, ServiceBodyNode.class);
+                if (serviceBodyNode != null) {
+                    return true;
+                }
             } else {
                 PsiElement parent = element.getParent();
                 while (parent != null && !(parent instanceof PsiFile)) {
@@ -129,16 +153,23 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
                     return false;
                 }
             }
+            if (element.getParent() instanceof PsiErrorElement || element.getParent() instanceof NameReferenceNode) {
+                PsiElement previousNonEmptyElement = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
+                        .getContainingFile(), element.getTextOffset());
+                if (previousNonEmptyElement.getParent() instanceof ActionDefinitionNode) {
+                    return true;
+                }
+            }
             ActionDefinitionNode actionDefinitionNode = PsiTreeUtil.getParentOfType(element,
                     ActionDefinitionNode.class);
             if (actionDefinitionNode != null) {
                 return false;
             }
-
             ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getParentOfType(element, ConnectorBodyNode.class);
             if (connectorBodyNode != null) {
                 return true;
             }
+
             return false;
         }
     }

@@ -367,7 +367,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                 suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true,
                                         true, false);
                             }
-                        } else if (prevElement instanceof PsiWhiteSpace) {
+                        } else if (elementType == BallerinaTypes.RBRACE || prevElement instanceof PsiWhiteSpace) {
                             addFileLevelKeywordsAsLookups(resultSet, true, true);
                             addTypeNamesAsLookups(resultSet);
                         }
@@ -449,7 +449,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 }
             }
         } else {
-//            addKeywordAsLookup(resultSet, ACTION, KEYWORDS_PRIORITY);
+            //            addKeywordAsLookup(resultSet, ACTION, KEYWORDS_PRIORITY);
         }
         return false;
     }
