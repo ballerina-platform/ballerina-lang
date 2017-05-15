@@ -65,7 +65,7 @@ class FunctionDefinition extends React.Component {
                                 dropTarget={this.props.model}
                                 dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
                                 titleComponentData={titleComponentData}>
-            <LifeLine title="FunctionWorker" bBox={function_worker_bBox}/>
+            <LifeLine title="default" bBox={function_worker_bBox}/>
             <StatementContainer dropTarget={this.props.model}
                                 title="StatementContainer" bBox={statementContainerBBox}>
                 {children}
