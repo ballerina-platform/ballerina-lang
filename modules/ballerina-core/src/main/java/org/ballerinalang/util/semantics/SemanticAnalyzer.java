@@ -2261,8 +2261,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (int i = 0; i < lExprs.length; i++) {
             Expression lExpr = lExprs[i];
             BType returnType = returnTypes[i];
+            String varName = getVarNameFromExpression(lExpr);
+            if ("_".equals(varName)) {
+                continue;
+            }
             if ((lExpr.getType() != BTypes.typeAny) && (!lExpr.getType().equals(returnType))) {
-                String varName = getVarNameFromExpression(lExpr);
                 BLangExceptionHelper.throwSemanticError(assignStmt,
                         SemanticErrors.CANNOT_ASSIGN_IN_MULTIPLE_ASSIGNMENT, returnType, varName, lExpr.getType());
             }
@@ -2273,8 +2276,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         // This set data structure is used to check for repeated variable names in the assignment statement
         Set<String> varNameSet = new HashSet<>();
 
+        int ignoredCount = 0;
         for (Expression lExpr : lExprs) {
             String varName = getVarNameFromExpression(lExpr);
+            if (varName.equals("_")) {
+                ignoredCount++;
+                continue;
+            }
             if (!varNameSet.add(varName)) {
                 BLangExceptionHelper.throwSemanticError(assignStmt,
                         SemanticErrors.VAR_IS_REPEATED_ON_LEFT_SIDE_ASSIGNMENT, varName);
@@ -2292,6 +2300,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Check whether someone is trying to change the values of a constant
             checkForConstAssignment(assignStmt, lExpr);
+        }
+        if (ignoredCount == lExprs.length) {
+            throw new SemanticException(BLangExceptionHelper.constructSemanticError(
+                    assignStmt.getNodeLocation(), SemanticErrors.IGNORED_ASSIGNMENT));
         }
     }
 

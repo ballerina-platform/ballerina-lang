@@ -190,6 +190,9 @@ public class BLangExecutor implements NodeExecutor {
             Expression lExpr = lExprs[i];
             BValue rValue = rValues[i];
             if (lExpr instanceof VariableRefExpr) {
+                if ("_".equals(((VariableRefExpr) lExpr).getVarName())) {
+                    continue;
+                }
                 assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
             } else if (lExpr instanceof ArrayMapAccessExpr) {
                 assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);

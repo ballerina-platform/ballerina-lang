@@ -233,6 +233,7 @@ public class BLangModelBuilder {
     // Add constant definition
 
     public void addConstantDef(NodeLocation location, SimpleTypeName typeName, String constName) {
+        validateIdentifier(constName, location);
         Identifier identifier = new Identifier(constName);
         SymbolName symbolName = new SymbolName(identifier.getName());
         ConstDef constantDef = new ConstDef(location, identifier, typeName, currentPackagePath,
@@ -249,6 +250,7 @@ public class BLangModelBuilder {
 
     public void addGlobalVarDef(NodeLocation location, SimpleTypeName typeName,
                                 String varName, boolean exprAvailable) {
+        validateIdentifier(varName, location);
         Identifier identifier = new Identifier(varName);
         SymbolName symbolName = new SymbolName(identifier.getName());
         GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, identifier, typeName, currentPackagePath,
@@ -289,6 +291,7 @@ public class BLangModelBuilder {
      */
     public void addFieldDefinition(NodeLocation location, SimpleTypeName typeName, String fieldName,
                                    boolean defaultValueAvailable) {
+        validateIdentifier(fieldName, location);
         Identifier identifier = new Identifier(fieldName);
         SymbolName symbolName = new SymbolName(identifier.getName());
 
@@ -379,6 +382,7 @@ public class BLangModelBuilder {
      * @param name Name of the {@code AnnotationDef}
      */
     public void addAnnotationtDef(NodeLocation location, String name) {
+        validateIdentifier(name, location);
         annotationDefBuilder.setIdentifier(new Identifier(name));
         annotationDefBuilder.setPackagePath(currentPackagePath);
         
@@ -457,6 +461,7 @@ public class BLangModelBuilder {
      */
     public void addParam(NodeLocation location, SimpleTypeName typeName, String paramName,
                          int annotationCount, boolean isReturnParam) {
+        validateIdentifier(paramName, location);
         Identifier identifier = new Identifier(paramName);
         SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
 
@@ -872,6 +877,7 @@ public class BLangModelBuilder {
     }
 
     public void createWorker(NodeLocation sourceLocation, String name, String paramName) {
+        validateIdentifier(name, sourceLocation);
         Identifier workerIdentifier = new Identifier(name);
         currentCUBuilder.setIdentifier(workerIdentifier);
         currentCUBuilder.setNodeLocation(sourceLocation);
@@ -970,6 +976,7 @@ public class BLangModelBuilder {
 
     public void addVariableDefinitionStmt(NodeLocation location, SimpleTypeName typeName,
                                           String varName, boolean exprAvailable) {
+        validateIdentifier(varName, location);
         Identifier identifier = new Identifier(varName);
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, identifier.getName());
         SymbolName symbolName = new SymbolName(identifier.getName());
@@ -1177,6 +1184,7 @@ public class BLangModelBuilder {
     }
 
     public void addCatchClause(NodeLocation nodeLocation, SimpleTypeName errorType, String argName) {
+        validateIdentifier(argName, nodeLocation);
         Identifier identifier = new Identifier(argName);
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
@@ -1250,6 +1258,7 @@ public class BLangModelBuilder {
     }
 
     public void endJoinClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+        validateIdentifier(paramName, location);
         Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
@@ -1298,6 +1307,7 @@ public class BLangModelBuilder {
     }
 
     public void endTimeoutClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+        validateIdentifier(paramName, location);
         Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
@@ -1583,6 +1593,13 @@ public class BLangModelBuilder {
         }
     }
 
+    private void validateIdentifier(String identifier, NodeLocation location) {
+        if (identifier.equals("_")) {
+            String errMsg = BLangExceptionHelper.constructSemanticError(location, SemanticErrors
+                    .RESERVED_IDENTIFIER, identifier);
+            errorMsgs.add(errMsg);
+        }
+    }
 
     /**
      * This class represents CallableUnitName used in function and action invocation expressions.

@@ -94,6 +94,8 @@ public enum SemanticErrors {
     DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT("dynamic.keys.not.supported.for.struct", "SEMANTIC_0069"),
     STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER("struct.field.child.has.pkg.identifier", "PARSER_0070"),
     DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0071"),
+    RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0072"),
+    IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0073"),
     ;
     private String errorMsgKey;
     private String errorCode;
