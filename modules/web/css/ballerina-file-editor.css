@@ -547,6 +547,8 @@
     background-color: #3d3d3d;
     padding: 10px;
     float: left;
+    stroke-width: 1px;
+    stroke: #3d3d3d;
 }
 
 .attribute-content-operations-wrapper {
