@@ -121,6 +121,8 @@ class TransformStatementDecorator extends React.Component {
               '</select>' +
               '</div></div>');
 
+          var transformNameText = $('<p class="transform-header-text ">Transform</p>');
+          var transformHeader = $('<div id ="transformHeader" class ="transform-header"></div>');
           var transformMenuDiv = $('<div id ="transformContextMenu" class ="transformContextMenu"></div>');
 
           var transformOverlayContent =  $('<div id = "transformOverlay-content" class="transformOverlay-content">'+
@@ -129,7 +131,8 @@ class TransformStatementDecorator extends React.Component {
 
           var transformOverlay = $( '<div id="transformOverlay" class="transformOverlay">'+
                                      '  </div>' );
-
+          transformOverlayContent.append(transformHeader);
+          transformHeader.append(transformNameText);
           transformOverlayContent.append(sourceContent);
           transformOverlayContent.append(targetContent);
           transformOverlay.append(transformOverlayContent);
@@ -158,7 +161,6 @@ class TransformStatementDecorator extends React.Component {
                    }
             });
           });
-
            $(".type-mapper-combo").select2();
 
            $("#" + sourceId).on("select2:selecting", function (e) {
@@ -167,10 +169,10 @@ class TransformStatementDecorator extends React.Component {
                if (currentSelection == -1) {
                    self.mapper.removeType(previousSelection);
                } else if (currentSelection != $("#" + targetId).val()) {
-                   var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
                    self.mapper.removeType(previousSelection);
-                   self.mapper.addSourceType(sourceSelection);
-                    //TODO : Add Left hand child to transform AST
+                   self.setSource(currentSelection, predefinedStructs);
+                   var inputDef = BallerinaASTFactory.createVariableReferenceExpression({variableName: currentSelection});
+                   self.props.model.setInput([inputDef]);
                } else {
                    return false;
                }
@@ -182,10 +184,10 @@ class TransformStatementDecorator extends React.Component {
                if (currentSelection == -1) {
                    self.mapper.removeType(previousSelection);
                } else if (currentSelection != $("#" + sourceId).val()) {
-                    var targetSelection = _.find(predefinedStructs, { name: currentSelection});
                     self.mapper.removeType(previousSelection);
-                    self.mapper.addTargetType(targetSelection);
-                    //TODO : Add Right hand child to transform AST
+                    self.setTarget(currentSelection, predefinedStructs);
+                    var outDef = BallerinaASTFactory.createVariableReferenceExpression({variableName: currentSelection});
+                    self.props.model.setOutput([outDef]);
                } else {
                    return false;
                }
@@ -225,6 +227,33 @@ class TransformStatementDecorator extends React.Component {
 
            this.mapper = new TransformRender(onConnectionCallback, onDisconnectionCallback);
            this.transformOverlayDiv.style.display = "block";
+
+           if(self.props.model.getInput() != null && self.props.model.getInput().length > 0) {
+                  var sourceType = self.props.model.getInput()[0].getExpression();
+                  $("#" + sourceId).val(sourceType).trigger('change');
+                  self.setSource(sourceType, predefinedStructs);
+           }
+
+           if(self.props.model.getOutput() != null && self.props.model.getOutput().length > 0) {
+                  var targetType = self.props.model.getOutput()[0].getExpression();
+                  $("#" + targetId).val(targetType).trigger('change');
+                  self.setTarget(targetType, predefinedStructs);
+           }
+
+            _.forEach(this.props.model.getChildren(), assignments => {
+                //TODO : Load from Assignment AST
+                //var con = {};
+                //con.sourceStruct = "ppl";
+                //con.sourceProperty = ["age"];
+                //con.sourceType = "int";
+                //con.targetStruct = "st";
+                //con.targetProperty = ["sAge"];
+                //con.targetType = "int";
+                //con.isComplexMapping = false;
+                //self.mapper.addConnection(con);
+            });
+
+
 	}
 
 	render() {
@@ -452,6 +481,16 @@ class TransformStatementDecorator extends React.Component {
     	structExpression.addChild(structPropertyHolder);
 
     	return structExpression;
+    }
+
+    setSource(currentSelection, predefinedStructs) {
+        var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
+        self.mapper.addSourceType(sourceSelection);
+    }
+
+    setTarget(currentSelection, predefinedStructs) {
+        var targetSelection = _.find(predefinedStructs, { name: currentSelection});
+        self.mapper.addTargetType(targetSelection);
     }
 
 }

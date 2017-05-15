@@ -408,7 +408,7 @@ addConnection(connection) {
 addSourceType(struct, reference) {
     var id = struct.name + this.viewIdSeperator + this.viewId;
     struct.id = id;
-    this.makeType(struct, 200, 220, reference, "source");
+    this.makeType(struct, 170, 220, reference, "source");
     var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
     this.addComplexProperty(jsTreeId, struct);
     this.processJSTree(jsTreeId, id, this.addSource)
@@ -498,7 +498,7 @@ addTargetType(struct, reference) {
     struct.id = id;
     var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
     var posY = placeHolderWidth - 400;
-    this.makeType(struct, 200, 1500, reference, "target");
+    this.makeType(struct, 170, 1500, reference, "target");
     var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
     this.addComplexProperty(jsTreeId, struct);
     this.processJSTree(jsTreeId, id, this.addTarget);
