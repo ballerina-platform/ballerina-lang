@@ -37,7 +37,6 @@ import java.util.concurrent.ScheduledExecutorService;
 public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
                                                                     AggregationWindowedPerSnapshotOutputRateLimiter {
     protected LinkedList<GroupedComplexEvent> eventList;
-    protected String queryName;
     private Map<String, Map<Integer, Object>> groupByAggregateAttributeValueMap;
 
     protected AggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService

@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,18 +34,21 @@ public class SystemTimeBasedScheduler extends Scheduler {
     private EventCaller eventCaller;
     private volatile boolean running = false;
     private ScheduledExecutorService scheduledExecutorService;
+    private final Semaphore mutex;
 
     public SystemTimeBasedScheduler(ScheduledExecutorService scheduledExecutorService, Schedulable
             singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
         super(singleThreadEntryValve, executionPlanContext);
         this.scheduledExecutorService = scheduledExecutorService;
         this.eventCaller = new EventCaller();
+        mutex = new Semaphore(1);
     }
 
     @Override
     public void schedule(long time) {
         if (!running && toNotifyQueue.size() == 1) {
-            synchronized (toNotifyQueue) {
+            try {
+                mutex.acquire();
                 if (!running) {
                     running = true;
                     long timeDiff = time - executionPlanContext.getTimestampGenerator().currentTime();
@@ -54,6 +58,12 @@ public class SystemTimeBasedScheduler extends Scheduler {
                         scheduledExecutorService.schedule(eventCaller, 0, TimeUnit.MILLISECONDS);
                     }
                 }
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("Error when scheduling System Time Based Scheduler", e);
+            } finally {
+                mutex.release();
             }
         }
 
@@ -91,12 +101,18 @@ public class SystemTimeBasedScheduler extends Scheduler {
                         scheduledExecutorService.schedule(eventCaller, toNotifyTime - currentTime, TimeUnit
                                 .MILLISECONDS);
                     } else {
-                        synchronized (toNotifyQueue) {
+                        try {
+                            mutex.acquire();
                             running = false;
                             if (toNotifyQueue.peek() != null) {
                                 running = true;
                                 scheduledExecutorService.schedule(eventCaller, 0, TimeUnit.MILLISECONDS);
                             }
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            log.error("Error when scheduling System Time Based Scheduler", e);
+                        } finally {
+                            mutex.release();
                         }
                     }
                 }

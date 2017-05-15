@@ -40,7 +40,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class ExecutionPlanContext {
 
-    private SiddhiContext siddhiContext;
+    private SiddhiContext siddhiContext = null;
     private String name;
     private boolean playback;
     private boolean enforceOrder;
