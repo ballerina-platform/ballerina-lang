@@ -33,6 +33,7 @@ import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
 import select2 from 'select2';
 import TransformRender from '../../type-mapper/transform-render';
+import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 
 const text_offset = 50;
 
@@ -165,12 +166,21 @@ class TransformStatementDecorator extends React.Component {
            }
 
            var onConnectionCallback = function(connection) {
-                mapper.addConnection(connection);
-             //TODO : Add assignment statement to transform AST
+               var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+               var leftOperand = BallerinaASTFactory.createLeftOperandExpression();
+               leftOperand.setLeftOperandExpressionString(connection.sourceStruct + "." + connection.sourceProperty[0]);
+               var rightOperand = BallerinaASTFactory.createRightOperandExpression();
+               rightOperand.setRightOperandExpressionString(connection.targetStruct + "." + connection.targetProperty[0]);
+               assignmentStmt.addChild(leftOperand);
+               assignmentStmt.addChild(rightOperand);
+               self.props.model.addChild(assignmentStmt);
+               connection.id = assignmentStmt.id;
+               self.mapper.addConnection(connection);
            };
 
            var onDisconnectionCallback = function(connection) {
-              //TODO : Remove assignment statement to transform AST
+                var con =  _.find(self.props.model.children, { id:connection.id});
+                self.props.model.removeChild(con);
             };
 
            this.mapper = new TransformRender(onConnectionCallback, onDisconnectionCallback);
