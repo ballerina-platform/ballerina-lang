@@ -44,7 +44,7 @@ under the License.
     <!-- Native Connectors Related Test Cases -->
     <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.nativeimpl.connectors"/>
+            <package name="org.ballerinalang.nativeimpl.actions"/>
         </packages>
     </test>
 

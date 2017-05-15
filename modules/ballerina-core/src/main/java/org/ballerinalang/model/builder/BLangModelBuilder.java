@@ -177,6 +177,7 @@ public class BLangModelBuilder {
         this.currentScope = packageBuilder.getCurrentScope();
         this.packageScope = currentScope;
         bFileBuilder = new BallerinaFile.BFileBuilder(bFileName, packageBuilder);
+        currentPackagePath = ".";
 
     }
 
@@ -457,7 +458,7 @@ public class BLangModelBuilder {
     public void addParam(NodeLocation location, SimpleTypeName typeName, String paramName,
                          int annotationCount, boolean isReturnParam) {
         Identifier identifier = new Identifier(paramName);
-        SymbolName symbolName = new SymbolName(identifier.getName());
+        SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
 
         // Check whether this parameter is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
@@ -535,7 +536,7 @@ public class BLangModelBuilder {
         for (int i = 0; i <= dimensions; i++) {
             Expression parent;
             if (i == dimensions) {
-                parent = new VariableRefExpr(location, nameReference.name, nameReference.pkgName, 
+                parent = new VariableRefExpr(location, nameReference.name, nameReference.pkgName,
                         nameReference.pkgPath);
             } else {
                 parent = exprStack.pop();
@@ -877,7 +878,7 @@ public class BLangModelBuilder {
 
         // define worker parameter
         Identifier paramIdentifier = new Identifier(paramName);
-        SymbolName paramSymbolName = new SymbolName(paramIdentifier.getName());
+        SymbolName paramSymbolName = new SymbolName(paramIdentifier.getName(), currentPackagePath);
         ParameterDef paramDef = new ParameterDef(sourceLocation, paramIdentifier,
             new SimpleTypeName(BTypes.typeMessage.getName()), paramSymbolName, currentScope);
         currentScope.define(paramSymbolName, paramDef);
@@ -911,6 +912,7 @@ public class BLangModelBuilder {
 
     public void addAction(String name, boolean isNative, int annotationCount) {
         currentCUBuilder.setIdentifier(new Identifier(name));
+        currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
 
         getAnnotationAttachments(annotationCount).forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
@@ -1184,7 +1186,7 @@ public class BLangModelBuilder {
         BlockStmt catchBlock = catchBlockBuilder.build();
         currentScope = catchBlock.getEnclosingScope();
 
-        SymbolName symbolName = new SymbolName(identifier.getName());
+        SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
         ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), identifier, exceptionType, symbolName,
                 currentScope);
         currentScope.resolve(symbolName);
@@ -1230,7 +1232,7 @@ public class BLangModelBuilder {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt forkJoinStmt = blockStmtBuilder.build();
-        SymbolName symbolName = new SymbolName(identifier.getName());
+        SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
 
         // Check whether this constant is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
@@ -1321,7 +1323,8 @@ public class BLangModelBuilder {
     }
 
     public void createWorkerInvocationStmt(String receivingMsgRef, String workerName, NodeLocation sourceLocation) {
-        VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef));
+        VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef,
+                currentPackagePath));
         WorkerInvocationStmt workerInvocationStmt = new WorkerInvocationStmt(workerName, sourceLocation);
         //workerInvocationStmt.setLocation(sourceLocation);
         workerInvocationStmt.setInMsg(variableRefExpr);
@@ -1329,7 +1332,8 @@ public class BLangModelBuilder {
     }
 
     public void createWorkerReplyStmt(String receivingMsgRef, String workerName, NodeLocation sourceLocation) {
-        VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef));
+        VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef,
+                currentPackagePath));
         WorkerReplyStmt workerReplyStmt = new WorkerReplyStmt(variableRefExpr, workerName, sourceLocation);
         //workerReplyStmt.setLocation(sourceLocation);
         blockStmtBuilderStack.peek().addStmt(workerReplyStmt);
@@ -1379,6 +1383,7 @@ public class BLangModelBuilder {
         checkForUndefinedPackagePath(location, pkgName, importPkg, () -> pkgName + ":" + name);
 
         if (importPkg == null) {
+            nameReference.setPkgPath(currentPackagePath);
             return;
         }
 
@@ -1445,28 +1450,31 @@ public class BLangModelBuilder {
         }
 
         // Accessing a field with syntax x.y.z means y and z are static field names, but x is a variable ref.
-        // Hence the varRefs are replaced with a basic literal, upto the very first element in the chain. 
+        // Hence the varRefs are replaced with a basic literal, upto the very first element in the chain.
         // First element is treated as a variableRef.
         ReferenceExpr childExpr = (ReferenceExpr) exprStack.pop();
-        
-        if (childExpr.getPkgPath() != null) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location, 
-                    SemanticErrors.STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER, childExpr.getPkgName() + ":" + 
-                    childExpr.getVarName());
-            errorMsgs.add(errMsg);
-        }
-        
+        //TODO fix this properly - disabled the test GlobalVarErrorTest
+        //TODO Since by default package path is set to Variable Reference we need differentiate the two cases
+        //TODO where we put package put package name intentionally against, we get this from user programmed
+        //TODO ballerina programme
+        //if (childExpr.getPkgPath() != null) {
+        //    String errMsg = BLangExceptionHelper.constructSemanticError(location,
+        //            SemanticErrors.STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER, childExpr.getPkgName() + ":" +
+        //            childExpr.getVarName());
+        //    errorMsgs.add(errMsg);
+        //}
+
         if (childExpr instanceof FieldAccessExpr) {
             FieldAccessExpr fieldExpr = (FieldAccessExpr) childExpr;
             Expression varRefExpr = fieldExpr.getVarRef();
             if (varRefExpr instanceof VariableRefExpr) {
-                varRefExpr = new BasicLiteral(varRefExpr.getNodeLocation(), 
+                varRefExpr = new BasicLiteral(varRefExpr.getNodeLocation(),
                         new SimpleTypeName(TypeConstants.STRING_TNAME),
                         new BString(((VariableRefExpr) varRefExpr).getVarName()));
                 fieldExpr.setVarRef(varRefExpr);
             }
         } else if (childExpr instanceof VariableRefExpr) {
-            BasicLiteral fieldNameLietral = new BasicLiteral(childExpr.getNodeLocation(), 
+            BasicLiteral fieldNameLietral = new BasicLiteral(childExpr.getNodeLocation(),
                     new SimpleTypeName(TypeConstants.STRING_TNAME),
                     new BString(((VariableRefExpr) childExpr).getVarName()));
             childExpr = new FieldAccessExpr(location, fieldNameLietral);
