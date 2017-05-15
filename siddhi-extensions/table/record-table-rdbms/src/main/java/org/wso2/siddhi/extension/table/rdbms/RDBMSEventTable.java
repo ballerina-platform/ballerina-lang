@@ -226,7 +226,7 @@ public class RDBMSEventTable extends AbstractRecordTable {
     protected void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
                                CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
                                List<Object[]> addingRecords) {
-        this.UpdateOrInsertRecords(updateConditionParameterMaps, compiledCondition, updateValues, addingRecords);
+        this.updateOrInsertRecords(updateConditionParameterMaps, compiledCondition, updateValues, addingRecords);
     }
 
     @Override
@@ -236,10 +236,21 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters());
     }
 
+    /**
+     * Method for looking up a datasource instance through JNDI.
+     *
+     * @param resourceName the name of the resource to be looked up.
+     * @throws NamingException if the lookup fails.
+     */
     private void lookupDatasource(String resourceName) throws NamingException {
         this.dataSource = InitialContext.doLookup(resourceName);
     }
 
+    /**
+     * Method for composing the SQL query for INSERT operations with proper placeholders.
+     *
+     * @return the composed SQL query in string form.
+     */
     private String composeInsertQuery() {
         String insertQuery = this.resolveTableName(this.queryConfigurationEntry.getRecordInsertQuery());
         StringBuilder params = new StringBuilder();
@@ -254,6 +265,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return insertQuery.replace(PLACEHOLDER_Q, params.toString());
     }
 
+    /**
+     * Method for composing the SQL query for UPDATE operations with proper placeholders.
+     *
+     * @return the composed SQL query in string form.
+     */
     private String composeUpdateQuery(CompiledCondition compiledCondition) {
         String sql = this.resolveTableName(this.queryConfigurationEntry.getRecordUpdateQuery());
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
@@ -270,6 +286,16 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return sql;
     }
 
+    /**
+     * Method for processing update operations in a batched manner. This assumes that all update operations will be
+     * accepted by the database.
+     *
+     * @param sql                          the SQL update operation as string.
+     * @param updateConditionParameterMaps the runtime parameters that should be populated to the condition.
+     * @param compiledCondition            the condition that was built during compile time.
+     * @param updateValues                 the runtime parameters that should be populated to the update statement.
+     * @throws SQLException if the update operation fails.
+     */
     private void batchProcessUpdates(String sql, List<Map<String, Object>> updateConditionParameterMaps,
                                      CompiledCondition compiledCondition,
                                      List<Map<String, Object>> updateValues) throws SQLException {
@@ -298,7 +324,17 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
     }
 
-    private void UpdateOrInsertRecords(List<Map<String, Object>> updateConditionParameterMaps,
+    /**
+     * Method for performing insert/update operations for a given dataset.
+     *
+     * @param updateConditionParameterMaps update parameters that should be populated for each condition.
+     * @param compiledCondition            the condition that was built during compile time.
+     * @param updateValues                 the values for which the update operation should be done
+     *                                     (i.e. the new values).
+     * @param addingRecords                the records that should be inserted to the DB should the update operation
+     *                                     fail.
+     */
+    private void updateOrInsertRecords(List<Map<String, Object>> updateConditionParameterMaps,
                                        CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
                                        List<Object[]> addingRecords) {
         int counter = 0;
@@ -346,6 +382,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
     }
 
+    /**
+     * Method for creating and initializing the datasource instance given the "@Store" annotation.
+     *
+     * @param storeAnnotation the source annotation which contains the needed parameters.
+     */
     private void initializeDatasource(Annotation storeAnnotation) {
         Properties connectionProperties = new Properties();
         String poolPropertyString = storeAnnotation.getElement(ANNOTATION_ELEMENT_POOL_PROPERTIES);
@@ -366,10 +407,21 @@ public class RDBMSEventTable extends AbstractRecordTable {
         this.dataSource = new HikariDataSource(config);
     }
 
+    /**
+     * Returns a connection instance assuming that autocommit should be true.
+     *
+     * @return a new {@link Connection} instance from the datasource.
+     */
     private Connection getConnection() {
         return this.getConnection(true);
     }
 
+    /**
+     * Returns a connection instance.
+     *
+     * @param autoCommit whether or not transactions to the connections should be committed automatically.
+     * @return a new {@link Connection} instance from the datasource.
+     */
     private Connection getConnection(boolean autoCommit) {
         Connection conn;
         try {
@@ -381,6 +433,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return conn;
     }
 
+    /**
+     * Method for replacing the placeholder for the table name with the Event Table's name.
+     *
+     * @param statement the SQL statement in string form.
+     * @return the formatted SQL statement.
+     */
     private String resolveTableName(String statement) {
         if (statement == null) {
             return null;
@@ -388,6 +446,13 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return statement.replace(PLACEHOLDER_TABLE_NAME, this.tableName);
     }
 
+    /**
+     * Method for creating a table on the data store in question, if it does not exist already.
+     *
+     * @param storeAnnotation the "@Store" annotation that contains the connection properties.
+     * @param primaryKeys     the unique keys that should be set for the table.
+     * @param indices         the DB indices that should be set for the table.
+     */
     private void createTable(Annotation storeAnnotation, Annotation primaryKeys, Annotation indices) {
         RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRDBMSTypeMapping();
         StringBuilder builder = new StringBuilder();
@@ -453,6 +518,13 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
     }
 
+    /**
+     * Method for performing data definition queries for the current datasource.
+     *
+     * @param queries    the list of queries to be executed.
+     * @param autocommit whether or not the transactions should automatically be committed.
+     * @throws SQLException if the query execution fails.
+     */
     private void executeDDQueries(List<String> queries, boolean autocommit) throws SQLException {
         Connection conn = this.getConnection(autocommit);
         boolean committed = autocommit;
@@ -480,6 +552,14 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
     }
 
+    /**
+     * Given a set of records and a query, this method performs that query per each record.
+     *
+     * @param query      the query to be executed.
+     * @param records    the records to use.
+     * @param autocommit whether or not the transactions should automatically be committed.
+     * @throws SQLException if the query execution fails.
+     */
     private void batchExecuteQueriesWithRecords(String query, List<Object[]> records, boolean autocommit)
             throws SQLException {
         PreparedStatement stmt = null;
@@ -513,6 +593,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
     }
 
+    /**
+     * Method for checking whether or not the given table (which reflects the current event table instance) exists.
+     *
+     * @return true/false based on the table existence.
+     */
     private boolean tableExists() {
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
@@ -533,6 +618,12 @@ public class RDBMSEventTable extends AbstractRecordTable {
         }
     }
 
+    /**
+     * Method for populating values to a pre-created SQL prepared statement.
+     *
+     * @param record the record whose values should be populated.
+     * @param stmt   the statement to which the values should be set.
+     */
     private void populateStatement(Object[] record, PreparedStatement stmt) {
         Attribute attribute = null;
         try {
