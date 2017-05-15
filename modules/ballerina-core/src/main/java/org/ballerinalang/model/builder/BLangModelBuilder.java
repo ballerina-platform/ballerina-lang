@@ -1587,7 +1587,7 @@ public class BLangModelBuilder {
                             if (outputs.get(varName) == null) {
                                 List<Statement> stmtList = new ArrayList<>();
                                 stmtList.add(statement);
-                                outputs.put(varName, lExpr);
+                                outputs.put(varName, ((FieldAccessExpr) lExpr).getVarRef());
                             }
                         } else {
                             String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
@@ -1604,7 +1604,7 @@ public class BLangModelBuilder {
                         if (inputs.get(varName) == null) {
                             List<Statement> stmtList = new ArrayList<>();
                             stmtList.add(statement);
-                            inputs.put(varName, rExpr);
+                            inputs.put(varName, ((FieldAccessExpr) rExpr).getVarRef());
                         }
                     } else {
                         String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
