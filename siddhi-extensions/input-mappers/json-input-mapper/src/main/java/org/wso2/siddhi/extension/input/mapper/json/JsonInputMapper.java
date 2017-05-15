@@ -17,11 +17,11 @@
  */
 package org.wso2.siddhi.extension.input.mapper.json;
 
-
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
@@ -223,11 +223,7 @@ public class JsonInputMapper extends SourceMapper {
                 for (Object eventObj : jsonArray) {
                     try {
                         Event event = processCustomEvent(JsonPath.parse(eventObj));
-                        if (failOnMissingAttribute && checkForUnknownAttributes(event)) {
-                            log.error("Event " + event.toString() + " contains missing attributes");
-                        } else {
-                            eventList.add(event);
-                        }
+                        eventList.add(event);
                     } catch (ExecutionPlanRuntimeException e) {
                         log.error(e.getMessage());
                     }
@@ -238,10 +234,10 @@ public class JsonInputMapper extends SourceMapper {
             } else {
                 try {
                     Event event = processCustomEvent(JsonPath.parse(jsonObj));
-                    if (failOnMissingAttribute && checkForUnknownAttributes(event)) {
+                    /*if (failOnMissingAttribute && checkForUnknownAttributes(event)) {
                         log.error("Event " + event.toString() + " contains missing attributes");
                         return null;
-                    }
+                    }*/
                     return event;
                 } catch (ExecutionPlanRuntimeException e) {
                     log.error(e.getMessage());
@@ -259,10 +255,10 @@ public class JsonInputMapper extends SourceMapper {
                         log.error("Event" + eventObject + " contains incompatible attribute types and values.");
                         return null;
                     }
-                    if (failOnMissingAttribute && checkForUnknownAttributes(event)) {
+                    /*if (failOnMissingAttribute && checkForUnknownAttributes(event)) {
                         log.error("Event " + event.toString() + " contains missing attributes");
                         return null;
-                    }
+                    }*/
                     return event;
                 } catch (IOException e) {
                     log.error("Invalid JSON string :" + eventObject.toString() + ". Cannot be converted to an event.");
@@ -279,6 +275,9 @@ public class JsonInputMapper extends SourceMapper {
         Event event = new Event(attributesSize);
         Object[] data = event.getData();
         com.fasterxml.jackson.core.JsonParser parser;
+        //String[] tmpAttributeNameArray = streamDefinition.getAttributeNameArray();
+        //List<String> tmpNameList = Arrays.asList(attributesNameArray);
+        int numberOfProvidedAttributes = 0;
         try {
             parser = factory.createParser(eventObject.toString());
         } catch (IOException e) {
@@ -299,6 +298,7 @@ public class JsonInputMapper extends SourceMapper {
                 }
             } else if (JsonToken.FIELD_NAME.equals(jsonToken)) {
                 String key = parser.getCurrentName();
+                numberOfProvidedAttributes++;
                 position = findDefaultMappingPosition(key);
                 if (position == -1) {
                     throw new ExecutionPlanRuntimeException("Stream \"" + streamDefinition.getId() +
@@ -317,7 +317,7 @@ public class JsonInputMapper extends SourceMapper {
                                 data[position] = parser.getValueAsBoolean();
                                 break;
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json event " + eventObject.toString() +
+                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
                                         parser.getText() + " is not compatible with type BOOL");
                             }
@@ -326,7 +326,7 @@ public class JsonInputMapper extends SourceMapper {
                                 data[position] = parser.getValueAsInt();
                                 break;
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json event " + eventObject.toString() +
+                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
                                         parser.getText() + " is not compatible with type INT");
                             }
@@ -335,7 +335,7 @@ public class JsonInputMapper extends SourceMapper {
                                 data[position] = parser.getValueAsDouble();
                                 break;
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json event " + eventObject.toString() +
+                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
                                         parser.getText() + " is not compatible with type DOUBLE");
                             }
@@ -344,7 +344,7 @@ public class JsonInputMapper extends SourceMapper {
                                 data[position] = parser.getValueAsString();
                                 break;
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json event " + eventObject.toString() +
+                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
                                         parser.getText() + " is not compatible with type STRING");
                             }
@@ -354,7 +354,7 @@ public class JsonInputMapper extends SourceMapper {
                                 data[position] = convertAttribute(parser.getValueAsString(), Attribute.Type.FLOAT);
                                 break;
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json event " + eventObject.toString() +
+                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
                                         parser.getText() + " is not compatible with type FLOAT");
                             }
@@ -363,7 +363,7 @@ public class JsonInputMapper extends SourceMapper {
                                 data[position] = parser.getValueAsLong();
                                 break;
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json event " + eventObject.toString() +
+                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
                                         parser.getText() + " is not compatible with type LONG");
                             }
@@ -372,6 +372,11 @@ public class JsonInputMapper extends SourceMapper {
                     }
                 }
             }
+        }
+
+        if (failOnMissingAttribute && (numberOfProvidedAttributes != attributesSize)) {
+            throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
+                    " contains missing attributes. Hence dropping the message.");
         }
         return event;
     }
@@ -386,7 +391,7 @@ public class JsonInputMapper extends SourceMapper {
             if (jsonEvent.has(DEFAULT_JSON_EVENT_IDENTIFIER)) {
                 eventObj = jsonEvent.get(DEFAULT_JSON_EVENT_IDENTIFIER).getAsJsonObject();
             } else {
-                log.error("Default json event " + eventObj.toString()
+                log.error("Default json message " + eventObj.toString()
                         + " in the array does not have the valid event identifier \"event\". " +
                         "Hence dropping the message.");
                 continue;
@@ -394,7 +399,7 @@ public class JsonInputMapper extends SourceMapper {
             Event event = new Event(streamAttributes.size());
             Object[] data = event.getData();
             if (failOnMissingAttribute && eventObj.size() < streamAttributes.size()) {
-                log.error("Event " + eventObj.toString() + " contains missing attributes. " +
+                log.error("Json message " + eventObj.toString() + " contains missing attributes. " +
                         "Hence dropping the message.");
                 continue;
             }
@@ -417,26 +422,28 @@ public class JsonInputMapper extends SourceMapper {
     }
 
     private Event processCustomEvent(ReadContext readContext) {
+        Configuration conf = Configuration.defaultConfiguration();
         Event event = new Event(attributesSize);
         Object[] data = event.getData();
         Object childObject = readContext.read(DEFAULT_ENCLOSING_ELEMENT);
-        readContext = JsonPath.parse(childObject.toString());
+        readContext = JsonPath.using(conf).parse(childObject);
         for (MappingPositionData mappingPositionData : this.mappingPositions) {
             int position = mappingPositionData.getPosition();
             Object mappedValue;
             try {
                 mappedValue = readContext.read(mappingPositionData.getMapping());
+                if (mappedValue == null) {
+                    data[position] = null;
+                } else {
+                    data[position] = attributeConverter.getPropertyValue(mappedValue.toString(),
+                            streamAttributes.get(position).getType());
+                }
             } catch (PathNotFoundException e) {
-                throw new ExecutionPlanRuntimeException("Invalid Json path \"" +
-                        mappingPositionData.getMapping() +
-                        "\" for the json string " +
-                        childObject.toString());
-            }
-            if (mappedValue == null) {
+                if (failOnMissingAttribute) {
+                    throw new ExecutionPlanRuntimeException("Json message " + childObject.toString() +
+                            " contains missing attributes. Hence dropping the message.");
+                }
                 data[position] = null;
-            } else {
-                data[position] = attributeConverter.getPropertyValue(mappedValue.toString(),
-                        streamAttributes.get(position).getType());
             }
         }
         return event;
@@ -479,16 +486,6 @@ public class JsonInputMapper extends SourceMapper {
         } catch (com.google.gson.JsonSyntaxException ex) {
             return false;
         }
-    }
-
-    private boolean checkForUnknownAttributes(Event event) {
-        Object[] data = event.getData();
-        for (Object obj : data) {
-            if (obj == null) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
