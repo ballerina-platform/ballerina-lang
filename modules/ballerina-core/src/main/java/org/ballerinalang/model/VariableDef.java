@@ -87,7 +87,12 @@ public class VariableDef implements BLangSymbol, Node {
 
     @Override
     public String getName() {
-        return identifier.getName();
+        //There are scenarios where identifier can be null
+        //in a variabledef (parameterDef in returns) hence the null check
+        if (identifier != null) {
+            return identifier.getName();
+        }
+        return null;
     }
 
     @Override
