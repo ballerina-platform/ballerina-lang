@@ -281,4 +281,8 @@ public class WhiteSpaceRegions {
     public static final int BINARY_EXP_LEFT_EXP_TO_OPERATOR = 1;
     public static final int BINARY_EXP_OPERATOR_TO_RIGHT_EXP = 2;
     public static final int BINARY_EXP_TAILING_WHITESPACE = 3;
+
+    // whitespace regions in a map struct literal
+    public static final int MAP_STRUCT_LITERAL_PRECEDING_WHITESPACE = 0;
+    public static final int MAP_STRUCT_LITERAL_TRAILING_WHITESPACE = 1;
 }

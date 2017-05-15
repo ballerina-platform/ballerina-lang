@@ -759,7 +759,12 @@ public class WhiteSpaceUtil {
 
     public static WhiteSpaceDescriptor getMapStructLiteralWS(CommonTokenStream tokenStream,
                                                              BallerinaParser.MapStructLiteralContext ctx) {
-        return null;
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_LITERAL_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_LITERAL_TRAILING_WHITESPACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
     }
 
     public static WhiteSpaceDescriptor getConnectorInitExpWS(CommonTokenStream tokenStream,
