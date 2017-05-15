@@ -21,6 +21,9 @@ package org.ballerinalang.nativeimpl.connectors.ws;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ws.ConnectorController;
+import org.ballerinalang.nativeimpl.actions.ws.ConnectorControllerRegistry;
+import org.ballerinalang.nativeimpl.actions.ws.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
@@ -69,7 +72,7 @@ public class WebSocketClientConnector extends AbstractNativeConnector {
     public WebSocketClientConnector(SymbolScope enclosingScope) {
         super(enclosingScope);
         connectorID = UUID.randomUUID().toString();
-        ConnectorRegistry.getInstance().addConnectorController(connectorID);
+        ConnectorControllerRegistry.getInstance().addConnectorController(connectorID);
     }
 
     @Override
@@ -92,7 +95,8 @@ public class WebSocketClientConnector extends AbstractNativeConnector {
      * @return the client unique id of this connector.
      */
     public String getClientID(Session session) {
-        ConnectorController connectorController = ConnectorRegistry.getInstance().getConnectorController(connectorID);
+        ConnectorController connectorController = ConnectorControllerRegistry
+                .getInstance().getConnectorController(connectorID);
         if (connectorController.clientExists(session)) {
             return connectorController.getClientID(session);
         } else {

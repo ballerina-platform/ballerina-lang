@@ -16,9 +16,9 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.connectors.ws;
+package org.ballerinalang.nativeimpl.actions.ws;
 
-import org.ballerinalang.nativeimpl.connectors.ws.Utils;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
@@ -34,16 +34,20 @@ import javax.websocket.Session;
  */
 public class ConnectorController {
 
-    private final String connectorID;
     private int connectionSubCount = 0;
+    private final String connectorID;
+    private final BConnector bConnector;
+    private final String parentService;
     private final Queue<String> connectionIDPool = new LinkedList<>();
     // Map<clientID, session>
     private final Map<String, Session> clientIDToSessionMap = new HashMap<>();
     // Map<sessionID, clientID>
     private final Map<String, String> sessionIDToClientIDMap = new HashMap<>();
 
-    public ConnectorController(String connectorID) {
+    public ConnectorController(BConnector bConnector, String connectorID, String parentService) {
+        this.bConnector = bConnector;
         this.connectorID = connectorID;
+        this.parentService = parentService;
     }
 
     /**
@@ -133,5 +137,13 @@ public class ConnectorController {
      */
     public Session getConnectionFromClientID(String clientID) {
         return clientIDToSessionMap.get(clientID);
+    }
+
+    public String getParentService() {
+        return parentService;
+    }
+
+    public BConnector getBConnector() {
+        return bConnector;
     }
 }

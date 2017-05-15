@@ -16,10 +16,11 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.connectors.ws;
+package org.ballerinalang.nativeimpl.actions.ws;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.nativeimpl.connectors.ws.WebSocketClientConnector;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -34,10 +35,11 @@ import javax.websocket.Session;
 public abstract class AbstractWebSocketAction extends AbstractNativeAction {
 
     protected String getClientID(Context context, BConnector bconnector) {
-        WebSocketClientConnector connector = (WebSocketClientConnector) bconnector.value();
+        ConnectorController connectorController =
+                ConnectorControllerRegistry.getInstance().getConnectorController(bconnector);
         Session session = (Session) context.getCarbonMessage().getProperty(
                 org.ballerinalang.services.dispatchers.ws.Constants.WEBSOCKET_SESSION);
-        return connector.getClientID(session);
+        return connectorController.getClientID(session);
     }
 
     protected void pushMessage(CarbonMessage carbonMessage) {

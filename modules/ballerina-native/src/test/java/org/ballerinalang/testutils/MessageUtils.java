@@ -126,7 +126,7 @@ public class MessageUtils {
     private static CarbonMessage setWebSocketCommonProperties(CarbonMessage carbonMessage, Session session,
                                                               String path) {
         carbonMessage.setProperty(Constants.PROTOCOL,
-                                  org.ballerinalang.nativeimpl.connectors.ws.Constants.PROTOCOL_WEBSOCKET);
+                                  org.ballerinalang.nativeimpl.actions.ws.Constants.PROTOCOL_WEBSOCKET);
         carbonMessage.setProperty(Constants.TO, path);
         carbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.IS_WEBSOCKET_SERVER, true);
         carbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.WEBSOCKET_SESSION, session);
