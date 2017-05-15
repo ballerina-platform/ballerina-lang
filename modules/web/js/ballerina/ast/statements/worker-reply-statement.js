@@ -29,8 +29,8 @@ class WorkerReplyStatement extends Statement {
         this._source = _.get(args, 'source');
         this._destination = _.get(args, 'destination');
         this._expressionList = _.get(args, 'expressionList', []);
-        this._replyStatement = _.get(args, 'replyStatement', 'm1,m2 <- newWorker1');
-        this._workerName = _.get(args, 'workerName', 'newWorker1');
+        this._replyStatement = _.get(args, 'replyStatement', 'm1 <- workerName');
+        this._workerName = _.get(args, 'workerName', 'workerName');
     }
 
     setSource(source) {
@@ -49,16 +49,30 @@ class WorkerReplyStatement extends Statement {
         return this._destination;
     }
 
+    /**
+     * Set destination worker Name
+     * @param {string} workerName
+     */
     setWorkerName(workerName) {
         this._workerName = workerName;
     }
 
+    /**
+     * Get destination worker name
+     * @returns {string} _workerName - destination worker name
+     */
     getWorkerName() {
         return this._workerName;
     }
 
     setReplyStatement(replyStatement) {
-        this._replyStatement = replyStatement;
+        let tokens = (replyStatement.split('<-'));
+        if (tokens.length > 1) {
+            this._workerName = (tokens[1]).trim();
+        } else {
+            this._workerName = '';
+        }
+        this.setAttribute('_replyStatement', replyStatement);
     }
 
     getReplyStatement() {

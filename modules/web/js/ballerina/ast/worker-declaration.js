@@ -50,9 +50,7 @@ class WorkerDeclaration extends ASTNode {
      * @param {string} declarationStatement
      */
     setWorkerDeclarationStatement(declarationStatement, options) {
-        this.setAttribute('_workerDeclarationStatement', declarationStatement, options);
-        var tokens = this._workerDeclarationStatement.split("(");
-        this.setWorkerName(tokens[0].trim());
+        this.setWorkerName(declarationStatement);
     }
 
     /**
@@ -60,11 +58,7 @@ class WorkerDeclaration extends ASTNode {
      * @return {string} _workerDeclarationStatement
      */
     getWorkerDeclarationStatement() {
-        if (this._workerDeclarationStatement === '') {
-            return this.getWorkerName() + "(message m)";
-        } else {
-            return this._workerDeclarationStatement;
-        }
+        return this.getWorkerName();
     }
 
     getWorkerName() {
@@ -130,7 +124,7 @@ class WorkerDeclaration extends ASTNode {
             self.addArgument(argument.parameter_type, argument.parameter_name);
         });
 
-        this.setWorkerDeclarationStatement(this.getWorkerName() + "(" + this.getArgumentsAsString() + ")");
+        this.setWorkerDeclarationStatement(this.getWorkerName());
 
         // TODO: check whether return types are allowed
         _.each(jsonNode.children, function (childNode) {

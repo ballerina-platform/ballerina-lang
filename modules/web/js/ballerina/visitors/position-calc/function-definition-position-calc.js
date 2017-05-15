@@ -20,7 +20,7 @@ import log from 'log';
 import _ from 'lodash';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class FunctionDefinitionPositionCalcVisitor {
 
@@ -37,6 +37,7 @@ class FunctionDefinitionPositionCalcVisitor {
         let panelChildren = parent.filterChildren(function (child) {
             return ASTFactory.isFunctionDefinition(child) ||
                 ASTFactory.isServiceDefinition(child) || ASTFactory.isConnectorDefinition(child)
+                || ASTFactory.isStructDefinition(child)
                 || ASTFactory.isAnnotationDefinition(child) ||
                 ASTFactory.isPackageDefinition(child);
         });
@@ -103,7 +104,7 @@ class FunctionDefinitionPositionCalcVisitor {
         viewState.components.returnTypesIcon.x = viewState.components.closingParameter.x
             + viewState.components.closingParameter.w + 10;
         viewState.components.returnTypesIcon.y = viewState.bBox.y + viewState.components.annotation.h + 18;
-
+        
         // Positioning the opening bracket component of the return types.
         viewState.components.openingReturnType.x = viewState.components.returnTypesIcon.x
             + viewState.components.returnTypesIcon.w;
@@ -137,12 +138,12 @@ class FunctionDefinitionPositionCalcVisitor {
 
     /**
      * Sets positioning for a parameter.
-     *
+     * 
      * @param {object} parameter - The resource parameter node.
      * @param {number} x - The x position
      * @param {number} y - The y position
      * @returns The x position of the next parameter node.
-     *
+     * 
      * @memberof FunctionDefinitionPositionCalc
      */
     createPositionForTitleNode(parameter, x, y) {

@@ -174,16 +174,13 @@ export const packageDefinition = {
 };
 
 export const structDefinition = {
-    padding: {
-        top: 50,
-        right: 50,
-        bottom: 50,
-        left: 50
+    body: {
+        height: 100,
     }
 };
 
 export const contentOperations = {
-    height: 45,
+    height: 40,
     width: 600,
 };
 
@@ -230,5 +227,3 @@ export const panelHeading = {
         padding: 3
     }
 };
-
-

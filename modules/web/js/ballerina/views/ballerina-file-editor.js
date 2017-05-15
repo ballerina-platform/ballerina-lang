@@ -151,6 +151,10 @@ class BallerinaFileEditor extends BallerinaView {
                 this.getUndoManager().onUndoableOperation(event);
                 this.trigger('content-modified');
             }, this);
+
+            this._model.on('import-new-package', function(packageString) {
+                self.addNewImportPackage(packageString);
+            });
         } else {
             log.error('Ballerina AST Root is undefined or is of different type.' + model);
             throw 'Ballerina AST Root is undefined or is of different type.' + model;
@@ -875,6 +879,20 @@ class BallerinaFileEditor extends BallerinaView {
         breakpoints.forEach( lineNumber => {
             DebugManager.addBreakPoint(lineNumber, fileName);
         });
+    }
+
+    /**
+     * Add New imported package to the tool palette
+     * @param {string} packageString
+     */
+    addNewImportPackage(packageString) {
+        const toolPaletteItemProvider = this.toolPalette.getItemProvider();
+        let returnStatus = toolPaletteItemProvider
+            .addImport(toolPaletteItemProvider.getPackageToImport(packageString)[0]);
+
+        if (returnStatus !== -1) {
+            this.toolPalette.render();
+        }
     }
 
 }
