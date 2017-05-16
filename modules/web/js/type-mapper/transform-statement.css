@@ -199,7 +199,7 @@ svg.plumbConnect path {
 
 .transform-header-text {
     color:white;
-    padding:10px;
+    padding:5px;
     font-size: 14px;
 }
 
@@ -220,4 +220,11 @@ svg.plumbConnect path {
 
 .transform-action-icon {
     cursor: pointer;
+}
+
+.transform-header-icon {
+    padding: 6px 5px 5px;
+    background-color:#343434;
+    font-size: 16px;
+    width: 27px;
 }

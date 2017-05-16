@@ -122,7 +122,7 @@ class TransformStatementDecorator extends React.Component {
               '</select>' +
               '</div></div>');
 
-          var transformNameText = $('<p class="transform-header-text ">Transform</p>');
+          var transformNameText = $('<p class="transform-header-text "><i class="transform-header-icon fw fw-type-converter fw-inverse"></i>Transform</p>');
           var transformHeader = $('<div id ="transformHeader" class ="transform-header"></div>');
           var transformMenuDiv = $('<div id ="transformContextMenu" class ="transformContextMenu"></div>');
 
