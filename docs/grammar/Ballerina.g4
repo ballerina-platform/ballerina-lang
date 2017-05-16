@@ -373,7 +373,7 @@ transactionStatement
     ;
 
 rollbackClause
-    :   'onrollback' '{' statement* '}'
+    :   'aborted' '{' statement* '}'
     ;
 
 abortStatement

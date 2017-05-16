@@ -549,7 +549,7 @@ function testLocalTransacton () (int, int) {
     sql:ClientConnector.update(testDB, "Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
                                parameters);
-    } onrollback {
+    } aborted {
         returnVal = - 1;
     }
     //check whether update action is performed
@@ -577,7 +577,7 @@ function testTransactonRollback () (int, int) {
         sql:ClientConnector.update(testDB, "Insert into Customers2
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')",
                                    parameters);
-    } onrollback {
+    } aborted {
         returnVal = - 1;
     }
     //check whether update action is performed
@@ -610,7 +610,7 @@ function testTransactonAbort () (int, int) {
         if (i == 0) {
             abort;
         }
-    } onrollback {
+    } aborted {
         returnVal = - 1;
     }
     //check whether update action is performed

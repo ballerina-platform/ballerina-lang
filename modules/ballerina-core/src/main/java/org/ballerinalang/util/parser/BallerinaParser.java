@@ -97,7 +97,7 @@ public class BallerinaParser extends Parser {
 		"'@'", "':'", "'transform'", "'create'", "'if'", "'else'", "'iterate'", 
 		"'while'", "'continue'", "'break'", "'fork'", "'join'", "'some'", "'all'", 
 		"'timeout'", "'try'", "'catch'", "'throw'", "'return'", "'reply'", "'->'", 
-		"'<-'", "'transaction'", "'onrollback'", "'abort'", "'+'", "'-'", "'!'", 
+		"'<-'", "'transaction'", "'aborted'", "'abort'", "'+'", "'-'", "'!'", 
 		"'^'", "'/'", "'*'", "'%'", "'<='", "'>='", "'=='", "'!='", "'&&'", "'||'", 
 		null, null, null, null, null, "'null'"
 	};
