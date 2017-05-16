@@ -19,6 +19,7 @@
 /**
  * A module representing the factory for Ballerina AST
  */
+import _ from 'lodash';
 import ballerinaAstRoot from './ballerina-ast-root';
 import serviceDefinition from './service-definition';
 import functionDefinition from './function-definition';
@@ -1560,6 +1561,10 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     }
 
     node.setLineNumber(jsonNode.line_number, {doSilently: true});
+
+    if (!_.isNil(jsonNode.whitespace_descriptor)) {
+        node.setWhiteSpaceDescriptor(jsonNode.whitespace_descriptor, {doSilently: true});
+    }
     return node;
 };
 
