@@ -35,6 +35,7 @@
         <!--<module>eval-script</module>-->
         <!--todo : enable event-table after fix the annotation issues-->
         <!--<module>event-table</module>-->
+        <module>table</module>
         <!--<module>output-transports/test-output-transport</module>-->
         <!--<module>output-transports/http-output-transport</module>-->
         <!--todo : enable output-transports/kafka-output-transport after fix the annotation issues-->
