@@ -925,14 +925,23 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject workerInvokeStmtObj = new JsonObject();
         workerInvokeStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                                         BLangJSONModelConstants.WORKER_INVOCATION_STATEMENT);
-        workerInvokeStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME,
-                                        workerInvocationStmt.getCallableUnitName());
+        // TODO: change this
+        String targetWorkerName = workerInvocationStmt.getWorkerDataChannel().getChannelName().split("->")[1];
+        workerInvokeStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME, targetWorkerName);
         this.addWhitespaceDescriptor(workerInvokeStmtObj, workerInvocationStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
-        if (workerInvocationStmt.getInMsg() != null) {
-            workerInvocationStmt.getInMsg().accept(this);
+        Expression[] expressions = workerInvocationStmt.getExpressionList();
+        for (Expression expression : expressions) {
+            JsonObject workerInvokeExpressionObj = new JsonObject();
+            workerInvokeExpressionObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                    BLangJSONModelConstants.WORKER_INVOKE_EXPRESSION);
+            tempJsonArrayRef.push(new JsonArray());
+            expression.accept(this);
+            workerInvokeExpressionObj.add(BLangJSONModelConstants.EXPRESSION, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().add(workerInvokeExpressionObj);
         }
-        workerInvokeStmtObj.add(BLangJSONModelConstants.INVOKE_MESSAGE, tempJsonArrayRef.peek());
+        workerInvokeStmtObj.add(BLangJSONModelConstants.EXPRESSION_LIST, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(workerInvokeStmtObj);
     }
@@ -945,10 +954,20 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         workerReplyStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME, workerReplyStmt.getWorkerName());
         this.addWhitespaceDescriptor(workerReplyStmtObj, workerReplyStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
-        if (workerReplyStmt.getReceiveExpr() != null) {
-            workerReplyStmt.getReceiveExpr().accept(this);
+
+        Expression[] expressions = workerReplyStmt.getExpressionList();
+        for (Expression expression : expressions) {
+            JsonObject workerReplyExpressionObj = new JsonObject();
+            workerReplyExpressionObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                    BLangJSONModelConstants.WORKER_REPLY_EXPRESSION);
+            tempJsonArrayRef.push(new JsonArray());
+            expression.accept(this);
+            workerReplyExpressionObj.add(BLangJSONModelConstants.EXPRESSION, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().add(workerReplyExpressionObj);
         }
-        workerReplyStmtObj.add(BLangJSONModelConstants.REPLY_MESSAGE, tempJsonArrayRef.peek());
+
+        workerReplyStmtObj.add(BLangJSONModelConstants.EXPRESSION_LIST, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(workerReplyStmtObj);
     }
