@@ -31,14 +31,43 @@
     stroke: $worker-life-line-color;
 }
 
+.import-badge {
+    fill: #ffffff;
+}
+
 .package-definition-header {
     fill: $package-configs-bgcolor;
+    cursor: pointer;
 }
 
 .package-definition-label {
     dominant-baseline: central;
     fill: $package-definition-color;
 }
+
+.annotation-container {
+    background: #EFEFEF;
+    overflow: auto;
+    padding: 7px;
+}
+
+.annotation-table td {
+    height: 20px;
+    line-height: 20px;
+}
+
+.annotation-key .package-name {
+    font-weight: 500;
+    color: #f39c12;
+}
+
+.react-autosuggest__suggestion .react-autosuggest__suggestion--highlighted,
+.react-autosuggest__suggestion:hover {
+    background: #333;
+    color: #eee;
+    cursor: pointer;
+}
+
 .annotationRect {
     fill: $annotation-wrapper-bgcolor;
     shape-rendering: crispEdges;
