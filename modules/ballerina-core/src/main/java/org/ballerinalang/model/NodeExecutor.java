@@ -58,6 +58,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -101,6 +102,8 @@ public interface NodeExecutor {
     void visit(ReplyStmt replyStmt);
 
     void visit(ForkJoinStmt forkJoinStmt);
+
+    void visit(TransformStmt transformStmt);
 
     void visit(TransactionRollbackStmt transactionRollbackStmt);
 

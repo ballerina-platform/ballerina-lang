@@ -115,6 +115,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -395,6 +396,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing WhileStmt {}", getNodeLocation(whileStmt.getNodeLocation()));
         }
         next = whileStmt.next;
+    }
+
+    @Override
+    public void visit(TransformStmt transformStmt) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing TransformStmt {}", getNodeLocation(transformStmt.getNodeLocation()));
+        }
+        next = transformStmt.next;
     }
 
     @Override

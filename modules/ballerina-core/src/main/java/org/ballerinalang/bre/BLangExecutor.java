@@ -69,6 +69,7 @@ import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -519,6 +520,11 @@ public class BLangExecutor implements NodeExecutor {
             forkJoinStmt.getJoin().getJoinBlock().execute(this);
         }
 
+    }
+
+    @Override
+    public void visit(TransformStmt transformStmt) {
+        transformStmt.getBody().execute(this);
     }
 
     @Override
@@ -1492,10 +1498,10 @@ public class BLangExecutor implements NodeExecutor {
 
         return arrayVal;
     }
-
+    
     /**
      * Invoke the init function of the struct. This will populate the default values for struct fields.
-     *
+     * 
      * @param structDef Struct definition
      * @param structMemBlock Memory block to be assigned for the new struct instance
      */
