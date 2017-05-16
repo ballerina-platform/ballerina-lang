@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS DataTable(
-  row_id       INTEGER NOT NULL IDENTITY,
+  row_id       INTEGER,
   int_type     INTEGER,
   long_type    BIGINT,
   float_type   FLOAT,
@@ -9,8 +9,10 @@ CREATE TABLE IF NOT EXISTS DataTable(
   PRIMARY KEY (row_id)
 );
 /
-insert into DataTable (int_type, long_type, float_type, double_type, boolean_type, string_type) values
-  (1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello');
+insert into DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type) values
+  (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello');
+/
+insert into DataTable (row_id) values (2);
 /
 CREATE TABLE IF NOT EXISTS ComplexTypes(
   row_id         INTEGER NOT NULL IDENTITY,
