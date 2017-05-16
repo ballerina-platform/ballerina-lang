@@ -92,16 +92,13 @@ class PanelDecorator extends React.Component {
         return (<g className="panel">
             <g className="panel-header">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
-                      className="headingRect" data-original-title="" title=""/>
-                <EditableText x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
-                              onBlur={() => {
-                                  this.onTitleInputBlur()
-                              }} onClick={() => {
-                    this.onTitleClick()
-                }} editing={this.state.titleEditing}
-                              onChange={e => {
-                                  this.onTitleInputChange(e)
-                              }}>
+                      className="headingRect" data-original-title="" title=""></rect>
+                <EditableText
+                    x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                    onBlur={() => { this.onTitleInputBlur() }}
+                    onClick={() => { this.onTitleClick() }}
+                    editing={this.state.titleEditing}
+                    onChange={e => {this.onTitleInputChange(e)}}>
                     {this.props.title}
                 </EditableText>
                 <image x={bBox.x + 5} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize}

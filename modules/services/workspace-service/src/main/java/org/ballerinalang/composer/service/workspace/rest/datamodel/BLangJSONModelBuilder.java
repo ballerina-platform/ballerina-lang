@@ -52,6 +52,7 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
@@ -189,6 +190,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
 
         this.jsonObj.add(BLangJSONModelConstants.ROOT, tempJsonArrayRef.peek());
+        this.addWhitespaceDescriptor(this.jsonObj, bFile.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.pop();
 
     }
@@ -200,6 +202,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         importObj.addProperty(BLangJSONModelConstants.IMPORT_PACKAGE_NAME, importPackage.getName());
         importObj.addProperty(BLangJSONModelConstants.IMPORT_PACKAGE_PATH, importPackage.getPath());
         this.addPosition(importObj, importPackage.getNodeLocation());
+        this.addWhitespaceDescriptor(importObj, importPackage.getWhiteSpaceDescriptor());
         tempJsonArrayRef.peek().add(importObj);
     }
 
@@ -209,6 +212,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         serviceObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.SERVICE_DEFINITION);
         serviceObj.addProperty(BLangJSONModelConstants.SERVICE_NAME, service.getSymbolName().getName());
         this.addPosition(serviceObj, service.getNodeLocation());
+        this.addWhitespaceDescriptor(serviceObj, service.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
     
         if (service.getAnnotations() != null) {
@@ -238,6 +242,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(BallerinaConnectorDef connector) {
         JsonObject jsonConnectObj = new JsonObject();
         this.addPosition(jsonConnectObj, connector.getNodeLocation());
+        this.addWhitespaceDescriptor(jsonConnectObj, connector.getWhiteSpaceDescriptor());
         jsonConnectObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .CONNECTOR_DEFINITION);
         jsonConnectObj.addProperty(BLangJSONModelConstants.CONNECTOR_NAME, connector.getSymbolName().getName());
@@ -283,6 +288,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         resourceObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RESOURCE_DEFINITION);
         resourceObj.addProperty(BLangJSONModelConstants.RESOURCE_NAME, resource.getName());
         this.addPosition(resourceObj, resource.getNodeLocation());
+        this.addWhitespaceDescriptor(resourceObj, resource.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (resource.getResourceAnnotations() != null) {
             for (AnnotationAttachment annotation : resource.getResourceAnnotations()) {
@@ -331,6 +337,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         jsonFunc.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, function.getName());
         jsonFunc.addProperty(BLangJSONModelConstants.IS_PUBLIC_FUNCTION, function.isPublic());
         this.addPosition(jsonFunc, function.getNodeLocation());
+        this.addWhitespaceDescriptor(jsonFunc, function.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());
 
         if (function.getAnnotations() != null) {
@@ -383,7 +390,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
         }
 
-        function.getCallableUnitBody().accept(this);
+        if (!function.isNative()) {
+            function.getCallableUnitBody().accept(this);
+        }
         jsonFunc.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonFunc);
@@ -395,6 +404,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         jsonTypeMapper.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .TYPE_MAPPER_DEFINITION);
         jsonTypeMapper.addProperty(BLangJSONModelConstants.TYPE_MAPPER_NAME, typeMapper.getName());
+        this.addWhitespaceDescriptor(jsonTypeMapper, typeMapper.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());
 
         if (typeMapper.getAnnotations() != null) {
@@ -421,6 +431,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 paramObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
                 paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getTypeName().getSymbolName
                         ().getName());
+                this.addWhitespaceDescriptor(paramObj, parameterDef.getWhiteSpaceDescriptor());
                 this.tempJsonArrayRef.push(new JsonArray());
                 if (parameterDef.getAnnotations() != null) {
                     for (AnnotationAttachment annotation : parameterDef.getAnnotations()) {
@@ -506,6 +517,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         jsonWorker.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.WORKER_DEFINITION);
         jsonWorker.addProperty(BLangJSONModelConstants.WORKER_NAME, worker.getName());
         this.addPosition(jsonWorker, worker.getNodeLocation());
+        this.addWhitespaceDescriptor(jsonWorker, worker.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         tempJsonArrayRef.push(new JsonArray());
         tempJsonArrayRef.push(new JsonArray());
@@ -543,6 +555,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_PACKAGE_NAME, annotation.getPkgName());
         jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_PACKAGE_PATH, annotation.getPkgPath());
         this.addPosition(jsonAnnotation, annotation.getNodeLocation());
+        this.addWhitespaceDescriptor(jsonAnnotation, annotation.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         annotation.getAttributeNameValuePairs().forEach(this::visitAnnotationEntry);
         jsonAnnotation.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -560,6 +573,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         jsonAnnotationEntry.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                 BLangJSONModelConstants.ANNOTATION_ENTRY);
         jsonAnnotationEntry.addProperty(BLangJSONModelConstants.ANNOTATION_ENTRY_KEY, key);
+        this.addWhitespaceDescriptor(jsonAnnotationEntry, value.getWhiteSpaceDescriptor());
         if (value.getLiteralValue() != null) {
             if (value.getLiteralValue() instanceof BString) {
                 jsonAnnotationEntry.addProperty(BLangJSONModelConstants.ANNOTATION_ENTRY_VALUE,
@@ -609,6 +623,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getTypeName().getSymbolName()
                 .getName());
         this.addPosition(paramObj, parameterDef.getNodeLocation());
+        this.addWhitespaceDescriptor(paramObj, parameterDef.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());
         if (parameterDef.getAnnotations() != null) {
             for (AnnotationAttachment annotation : parameterDef.getAnnotations()) {
@@ -624,6 +639,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(VariableDef variableDef) {
         JsonObject variableDefObj = new JsonObject();
         this.addPosition(variableDefObj, variableDef.getNodeLocation());
+        this.addWhitespaceDescriptor(variableDefObj, variableDef.getWhiteSpaceDescriptor());
         variableDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .VARIABLE_DEFINITION);
         variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getName());
@@ -645,6 +661,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(AssignStmt assignStmt) {
         JsonObject assignmentStmtObj = new JsonObject();
         this.addPosition(assignmentStmtObj, assignStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(assignmentStmtObj, assignStmt.getWhiteSpaceDescriptor());
         assignmentStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants
                 .ASSIGNMENT_STATEMENT);
         tempJsonArrayRef.push(new JsonArray());
@@ -676,6 +693,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(CommentStmt commentStmt) {
         JsonObject commentStmtObj = new JsonObject();
         this.addPosition(commentStmtObj, commentStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(commentStmtObj, commentStmt.getWhiteSpaceDescriptor());
         commentStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.COMMENT_STATEMENT);
         commentStmtObj.addProperty(BLangJSONModelConstants.COMMENT_STRING, commentStmt.getComment());
         tempJsonArrayRef.peek().add(commentStmtObj);
@@ -686,6 +704,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject ifElseStmtObj = new JsonObject();
         ifElseStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.IF_ELSE_STATEMENT);
         this.addPosition(ifElseStmtObj, ifElseStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(ifElseStmtObj, ifElseStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (ifElseStmt.getThenBody() != null) {
             tempJsonArrayRef.push(new JsonArray());
@@ -726,6 +745,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 JsonObject elseIfObj = new JsonObject();
                 elseIfObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                         BLangJSONModelConstants.ELSE_IF_STATEMENT);
+                this.addWhitespaceDescriptor(elseIfObj, elseIfBlock.getWhiteSpaceDescriptor());
                 tempJsonArrayRef.push(new JsonArray());
                 elseIfBlock.getElseIfBody().accept(this);
                 elseIfObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -733,6 +753,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 tempJsonArrayRef.peek().add(elseIfObj);
             }
             ifElseStmtObj.add(BLangJSONModelConstants.ELSE_IF_BLOCKS, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
         }
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(ifElseStmtObj);
@@ -743,6 +764,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject whileStmtObj = new JsonObject();
         whileStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.WHILE_STATEMENT);
         this.addPosition(whileStmtObj, whileStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(whileStmtObj, whileStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         whileStmt.getCondition().accept(this);
         if (whileStmt.getBody() != null) {
@@ -758,6 +780,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject breakObject = new JsonObject();
         breakObject.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.BREAK_STATEMENT);
         this.addPosition(breakObject, breakStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(breakObject, breakStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.peek().add(breakObject);
     }
 
@@ -767,6 +790,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tryCatchStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants
                 .TRY_CATCH_STATEMENT);
         this.addPosition(tryCatchStmtObj, tryCatchStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(tryCatchStmtObj, tryCatchStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
 
         if (tryCatchStmt.getTryBlock() != null) {
@@ -813,6 +837,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject throwStmtObj = new JsonObject();
         throwStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.THROW_STATEMENT);
         this.addPosition(throwStmtObj, throwStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(throwStmtObj, throwStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (throwStmt.getExpr() != null) {
             throwStmt.getExpr().accept(this);
@@ -828,6 +853,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         functionInvcStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants
                 .FUNCTION_INVOCATION_STATEMENT);
         this.addPosition(functionInvcStmtObj, functionInvocationStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(functionInvcStmtObj, functionInvocationStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         functionInvocationStmt.getFunctionInvocationExpr().accept(this);
         functionInvcStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -840,6 +866,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject actionInvocationStmtObj = new JsonObject();
         actionInvocationStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants
                 .ACTION_INVOCATION_STATEMENT);
+        this.addWhitespaceDescriptor(actionInvocationStmtObj, actionInvocationStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         actionInvocationStmt.getActionInvocationExpr().accept(this);
         actionInvocationStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -854,6 +881,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 .WORKER_INVOCATION_STATEMENT);
         workerInvokeStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME, workerInvocationStmt.getCallableUnitName
                 ());
+        this.addWhitespaceDescriptor(workerInvokeStmtObj, workerInvocationStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (workerInvocationStmt.getInMsg() != null) {
             workerInvocationStmt.getInMsg().accept(this);
@@ -869,6 +897,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         workerReplyStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants
                 .WORKER_REPLY_STATEMENT);
         workerReplyStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME, workerReplyStmt.getWorkerName());
+        this.addWhitespaceDescriptor(workerReplyStmtObj, workerReplyStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (workerReplyStmt.getReceiveExpr() != null) {
             workerReplyStmt.getReceiveExpr().accept(this);
@@ -888,6 +917,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject replyStmtObj = new JsonObject();
         replyStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.REPLY_STATEMENT);
         this.addPosition(replyStmtObj, replyStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(replyStmtObj, replyStmt.getWhiteSpaceDescriptor());
         if (isExprAsString) {
             replyStmt.accept(exprVisitor);
             String stmtExpression = exprVisitor.getBuffer().toString();
@@ -905,6 +935,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject returnStmtObj = new JsonObject();
         returnStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.RETURN_STATEMENT);
         this.addPosition(returnStmtObj, returnStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(returnStmtObj, returnStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (returnStmt.getExprs() != null) {
             for (Expression expression : returnStmt.getExprs()) {
@@ -925,6 +956,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         funcInvcObj.addProperty(BLangJSONModelConstants.PACKAGE_PATH, funcIExpr.getPackagePath());
         funcInvcObj.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, funcIExpr.getName());
         this.addPosition(funcInvcObj, funcIExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(funcInvcObj, funcIExpr.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (funcIExpr.getArgExprs() != null) {
             for (Expression expression : funcIExpr.getArgExprs()) {
@@ -945,6 +977,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_PKG_NAME, actionIExpr.getPackageName());
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_CONNECTOR_NAME, actionIExpr.getConnectorName());
         this.addPosition(actionInvcObj, actionIExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(actionInvcObj, actionIExpr.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (actionIExpr.getArgExprs() != null) {
             for (Expression expression : actionIExpr.getArgExprs()) {
@@ -965,6 +998,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_VALUE, basicLiteral.getBValue().stringValue
                 ());
         this.addPosition(basicLiteralObj, basicLiteral.getNodeLocation());
+        this.addWhitespaceDescriptor(basicLiteralObj, basicLiteral.getWhiteSpaceDescriptor());
         tempJsonArrayRef.peek().add(basicLiteralObj);
     }
 
@@ -977,6 +1011,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         divideExpr.getRExpr().accept(this);
         divideExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         this.addPosition(divideExprObj, divideExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(divideExprObj, divideExpr.getWhiteSpaceDescriptor());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(divideExprObj);
     }
@@ -985,6 +1020,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(UnaryExpression unaryExpression) {
         JsonObject unaryExpr = new JsonObject();
         this.addPosition(unaryExpr, unaryExpression.getNodeLocation());
+        this.addWhitespaceDescriptor(unaryExpr, unaryExpression.getWhiteSpaceDescriptor());
         unaryExpr.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.UNARY_EXPRESSION);
         unaryExpr.addProperty(BLangJSONModelConstants.EXPRESSION_OPERATOR, unaryExpression.getOperator().toString());
         tempJsonArrayRef.push(new JsonArray());
@@ -998,6 +1034,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(AddExpression addExpr) {
         JsonObject addExprObj = new JsonObject();
         this.addPosition(addExprObj, addExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(addExprObj, addExpr.getWhiteSpaceDescriptor());
         addExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.ADD_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
         addExpr.getLExpr().accept(this);
@@ -1011,6 +1048,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(SubtractExpression subExpr) {
         JsonObject minusExprObj = new JsonObject();
         this.addPosition(minusExprObj, subExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(minusExprObj, subExpr.getWhiteSpaceDescriptor());
         minusExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.SUBTRACT_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
         subExpr.getLExpr().accept(this);
@@ -1025,6 +1063,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject multiExprObj = new JsonObject();
         multiExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.MULTIPLY_EXPRESSION);
         this.addPosition(multiExprObj, multExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(multiExprObj, multExpr.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         multExpr.getLExpr().accept(this);
         multExpr.getRExpr().accept(this);
@@ -1038,6 +1077,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject andExprObj = new JsonObject();
         andExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.AND_EXPRESSION);
         this.addPosition(andExprObj, andExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(andExprObj, andExpr.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         andExpr.getLExpr().accept(this);
         andExpr.getRExpr().accept(this);
@@ -1051,6 +1091,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject orExprObj = new JsonObject();
         orExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.OR_EXPRESSION);
         this.addPosition(orExprObj, orExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(orExprObj, orExpr.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         orExpr.getLExpr().accept(this);
         orExpr.getRExpr().accept(this);
@@ -1064,6 +1105,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject equalExprObj = new JsonObject();
         equalExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.EQUAL_EXPRESSION);
         this.addPosition(equalExprObj, equalExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(equalExprObj, equalExpr.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         equalExpr.getLExpr().accept(this);
         equalExpr.getRExpr().accept(this);
@@ -1076,6 +1118,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(NotEqualExpression notEqualExpression) {
         JsonObject notequalExprObj = new JsonObject();
         this.addPosition(notequalExprObj, notEqualExpression.getNodeLocation());
+        this.addWhitespaceDescriptor(notequalExprObj, notEqualExpression.getWhiteSpaceDescriptor());
         notequalExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .NOT_EQUAL_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
@@ -1090,6 +1133,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(GreaterEqualExpression greaterEqualExpression) {
         JsonObject greaterEqualExprObj = new JsonObject();
         this.addPosition(greaterEqualExprObj, greaterEqualExpression.getNodeLocation());
+        this.addWhitespaceDescriptor(greaterEqualExprObj, greaterEqualExpression.getWhiteSpaceDescriptor());
         greaterEqualExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .GREATER_EQUAL_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
@@ -1104,6 +1148,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(GreaterThanExpression greaterThanExpression) {
         JsonObject greaterExprObj = new JsonObject();
         this.addPosition(greaterExprObj, greaterThanExpression.getNodeLocation());
+        this.addWhitespaceDescriptor(greaterExprObj, greaterThanExpression.getWhiteSpaceDescriptor());
         greaterExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .GREATER_THAN_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
@@ -1117,6 +1162,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(LessEqualExpression lessEqualExpression) {
         JsonObject lessEqualExprObj = new JsonObject();
+        this.addWhitespaceDescriptor(lessEqualExprObj, lessEqualExpression.getWhiteSpaceDescriptor());
         this.addPosition(lessEqualExprObj, lessEqualExpression.getNodeLocation());
         lessEqualExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .LESS_EQUAL_EXPRESSION);
@@ -1132,6 +1178,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(LessThanExpression lessThanExpression) {
         JsonObject lessExprObj = new JsonObject();
         this.addPosition(lessExprObj, lessThanExpression.getNodeLocation());
+        this.addWhitespaceDescriptor(lessExprObj, lessThanExpression.getWhiteSpaceDescriptor());
         lessExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.LESS_THAN_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
         lessThanExpression.getLExpr().accept(this);
@@ -1145,6 +1192,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(VariableRefExpr variableRefExpr) {
         JsonObject variableRefObj = new JsonObject();
         this.addPosition(variableRefObj, variableRefExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(variableRefObj, variableRefExpr.getWhiteSpaceDescriptor());
         variableRefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                                    BLangJSONModelConstants.VARIABLE_REFERENCE_EXPRESSION);
         variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME,
@@ -1168,6 +1216,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(TypeCastExpression typeCastExpression) {
         JsonObject typeCastEprObj = new JsonObject();
         this.addPosition(typeCastEprObj, typeCastExpression.getNodeLocation());
+        this.addWhitespaceDescriptor(typeCastEprObj, typeCastExpression.getWhiteSpaceDescriptor());
         typeCastEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .TYPE_CAST_EXPRESSION);
         typeCastEprObj.addProperty(BLangJSONModelConstants.TARGET_TYPE, typeCastExpression.getTypeName().toString());
@@ -1185,6 +1234,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(ArrayInitExpr arrayInitExpr) {
         JsonObject arrayInitExprObj = new JsonObject();
         this.addPosition(arrayInitExprObj, arrayInitExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(arrayInitExprObj, arrayInitExpr.getWhiteSpaceDescriptor());
         arrayInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.ARRAY_INIT_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
@@ -1203,6 +1253,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject refTypeInitExprObj = new JsonObject();
         refTypeInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .REFERENCE_TYPE_INIT_EXPR);
+        this.addWhitespaceDescriptor(refTypeInitExprObj, refTypeInitExpr.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (refTypeInitExpr.getArgExprs() != null) {
             for (Expression expression : refTypeInitExpr.getArgExprs()) {
@@ -1218,6 +1269,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(BacktickExpr backtickExpr) {
         JsonObject backtickExprObj = new JsonObject();
         this.addPosition(backtickExprObj, backtickExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(backtickExprObj, backtickExpr.getWhiteSpaceDescriptor());
         backtickExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .BACK_TICK_EXPRESSION);
         backtickExprObj.addProperty(BLangJSONModelConstants.BACK_TICK_ENCLOSED_STRING, backtickExpr.getTemplateStr());
@@ -1228,6 +1280,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(InstanceCreationExpr instanceCreationExpr) {
         JsonObject instanceCreationExprObj = new JsonObject();
         this.addPosition(instanceCreationExprObj, instanceCreationExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(instanceCreationExprObj, instanceCreationExpr.getWhiteSpaceDescriptor());
         instanceCreationExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .INSTANCE_CREATION_EXPRESSION);
         instanceCreationExprObj.addProperty(BLangJSONModelConstants.INSTANCE_CREATION_EXPRESSION_INSTANCE_TYPE,
@@ -1257,6 +1310,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(KeyValueExpr keyValueExpr) {
         JsonObject keyValueEprObj = new JsonObject();
         this.addPosition(keyValueEprObj, keyValueExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(keyValueEprObj, keyValueExpr.getWhiteSpaceDescriptor());
         keyValueEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .KEY_VALUE_EXPRESSION);
         //adding key expression
@@ -1276,6 +1330,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(ConnectorInitExpr connectorInitExpr) {
         JsonObject connectorInitExprObj = new JsonObject();
         this.addPosition(connectorInitExprObj, connectorInitExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(connectorInitExprObj, connectorInitExpr.getWhiteSpaceDescriptor());
         connectorInitExprObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .CONNECTOR_INIT_EXPR);
         connectorInitExprObj.addProperty(BLangJSONModelConstants.CONNECTOR_NAME, connectorInitExpr.getTypeName()
@@ -1315,6 +1370,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(ConstDef constant) {
         JsonObject constantDefinitionDefine = new JsonObject();
         this.addPosition(constantDefinitionDefine, constant.getNodeLocation());
+        this.addWhitespaceDescriptor(constantDefinitionDefine, constant.getWhiteSpaceDescriptor());
         constantDefinitionDefine.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .CONSTANT_DEFINITION);
         constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_BTYPE,
@@ -1330,6 +1386,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
         JsonObject arrayMapAccessExprObj = new JsonObject();
         this.addPosition(arrayMapAccessExprObj, arrayMapAccessExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(arrayMapAccessExprObj, arrayMapAccessExpr.getWhiteSpaceDescriptor());
         arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .ARRAY_MAP_ACCESS_EXPRESSION);
         arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.ARRAY_MAP_ACCESS_EXPRESSION_NAME,
@@ -1366,6 +1423,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject fieldAccessObj = new JsonObject();
         fieldAccessObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .STRUCT_FIELD_ACCESS_EXPRESSION);
+        this.addWhitespaceDescriptor(fieldAccessObj, fieldAccessExpr.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (fieldAccessExpr.getVarRef() != null) {
             fieldAccessExpr.getVarRef().accept(this);
@@ -1382,6 +1440,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(StructDef ballerinaStruct) {
         JsonObject structObj = new JsonObject();
         this.addPosition(structObj, ballerinaStruct.getNodeLocation());
+        this.addWhitespaceDescriptor(structObj, ballerinaStruct.getWhiteSpaceDescriptor());
         structObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.STRUCT_DEFINITION);
         structObj.addProperty(BLangJSONModelConstants.STRUCT_NAME, ballerinaStruct.getSymbolName().getName());
         tempJsonArrayRef.push(new JsonArray());
@@ -1405,6 +1464,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(AnnotationAttributeDef annotationAttributeDef) {
         JsonObject annotationAttributeDefObj = new JsonObject();
         this.addPosition(annotationAttributeDefObj, annotationAttributeDef.getNodeLocation());
+        this.addWhitespaceDescriptor(annotationAttributeDefObj, annotationAttributeDef.getWhiteSpaceDescriptor());
         annotationAttributeDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                                               BLangJSONModelConstants.ANNOTATION_ATTRIBUTE_DEFINITION);
         annotationAttributeDefObj
@@ -1427,6 +1487,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(AnnotationDef annotationDef) {
         JsonObject annotationDefObj = new JsonObject();
         this.addPosition(annotationDefObj, annotationDef.getNodeLocation());
+        this.addWhitespaceDescriptor(annotationDefObj, annotationDef.getWhiteSpaceDescriptor());
         annotationDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                                             BLangJSONModelConstants.ANNOTATION_DEFINITION);
         annotationDefObj.addProperty(BLangJSONModelConstants.ANNOTATION_NAME,
@@ -1460,6 +1521,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(VariableDefStmt varDefStmt) {
         JsonObject variableDefObj = new JsonObject();
         this.addPosition(variableDefObj, varDefStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(variableDefObj, varDefStmt.getWhiteSpaceDescriptor());
         variableDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .VARIABLE_DEFINITION_STATEMENT);
         tempJsonArrayRef.push(new JsonArray());
@@ -1481,6 +1543,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(ModExpression modExpression) {
         JsonObject modExprObj = new JsonObject();
         modExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.MOD_EXPRESSION);
+        this.addWhitespaceDescriptor(modExprObj, modExpression.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         modExpression.getLExpr().accept(this);
         modExpression.getRExpr().accept(this);
@@ -1508,6 +1571,31 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             jsonObj.addProperty(BLangJSONModelConstants.LINE_NUMBER, String.valueOf(nodeLocation.getLineNumber()));
         }
     }
+
+    private void addWhitespaceDescriptor(JsonObject jsonObj, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        if (whiteSpaceDescriptor != null) {
+            JsonObject wsDescriptor = whiteSpaceDescriptorToJson(whiteSpaceDescriptor);
+            jsonObj.add(BLangJSONModelConstants.WHITESPACE_DESCRIPTOR, wsDescriptor);
+        }
+    }
+
+    private JsonObject whiteSpaceDescriptorToJson(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        JsonObject wsDescriptor = new JsonObject();
+        JsonObject regions = new JsonObject();
+        whiteSpaceDescriptor.getWhiteSpaceRegions().forEach(((regionID, whitespace) -> {
+            regions.addProperty(regionID.toString(), whitespace);
+        }));
+        wsDescriptor.add(BLangJSONModelConstants.WHITESPACE_REGIONS, regions);
+        if (whiteSpaceDescriptor.getChildDescriptors().size() > 0) {
+            JsonObject children = new JsonObject();
+            whiteSpaceDescriptor.getChildDescriptors().forEach((childID, child) -> {
+                children.add(childID, whiteSpaceDescriptorToJson(child));
+            });
+            wsDescriptor.add(BLangJSONModelConstants.CHILD_DESCRIPTORS, children);
+        }
+        return wsDescriptor;
+    }
+
 
     @Override
     public void visit(JSONFieldAccessExpr jsonFieldAccessExpr) {
