@@ -1,5 +1,5 @@
 .panel {
-    .panel-header {
+    & .panel-header {
         & > rect {
             fill: $panel-header-bgcolor;
             stroke: $panel-header-border-color;
@@ -9,9 +9,15 @@
         & > text {
             fill: $panel-header-color;
         }
+        
+        & > .panel-heading-decorator {
+            width: 3px;
+            fill: #3498db;
+            stroke-width: 0;
+        }
     }
 
-    .panel-body {
+    & .panel-body {
         & .panel-body-rect {
             fill: $panel-body-bgcolor;
             fill-opacity: 0.4;
