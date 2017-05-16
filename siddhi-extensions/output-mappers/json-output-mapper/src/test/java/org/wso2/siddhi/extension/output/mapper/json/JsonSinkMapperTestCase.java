@@ -27,7 +27,6 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.NoSuchAttributeException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 
 import java.util.ArrayList;
@@ -103,7 +102,6 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -176,7 +174,6 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -245,7 +242,6 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -327,7 +323,6 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -407,7 +402,6 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -496,7 +490,6 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -567,7 +560,6 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -651,7 +643,6 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         try {
             siddhiManager.createExecutionPlanRuntime(streams + query);
         } catch (Exception e) {
@@ -716,7 +707,6 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
@@ -811,7 +801,6 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemorySink.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
