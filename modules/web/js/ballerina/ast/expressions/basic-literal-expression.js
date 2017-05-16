@@ -41,12 +41,16 @@ class BasicLiteralExpression extends Expression {
     }
 
     generateExpression() {
-        if (this._basicLiteralType == "string") {
+        if (this._basicLiteralType === 'string') {
             // Adding double quotes if it is a string.
-            this._expression = "\"" + this.escapeEscapeChars(this._basicLiteralValue) + "\"";
+            return '\"' + this.escapeEscapeChars(this._basicLiteralValue) + '\"';
         } else {
-            this._expression = this._basicLiteralValue;
+            return this._basicLiteralValue;
         }
+    }
+
+    getBasicLiteralValue(){
+        return this._basicLiteralValue;
     }
 
     escapeEscapeChars(stringVal) {
