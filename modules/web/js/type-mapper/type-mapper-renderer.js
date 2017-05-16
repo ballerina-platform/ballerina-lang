@@ -20,7 +20,7 @@ import _ from 'lodash';
 import $ from 'jquery';
 import jsPlumbLib from 'jsplumb';
 import alerts from 'alerts';
-import './type-mapper.css';
+import './transform-statement.css';
 /**
  * Renderer constructor for TypeMapper
  * @param {function} onConnectionCallback call back function when connection made

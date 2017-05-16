@@ -76,8 +76,18 @@ class TransformStatement extends Statement {
      * Override the removeChild function
      * @param {ASTNode} child - child node
      */
-    removeChild(child) {
-        this.getParent().removeChild(child);
+    removeChild(child, ignoreModifiedTreeEvent, willVisit) {
+        if (!_.isUndefined(willVisit) && willVisit != true) {
+            var parentModelChildren = this.children;
+            for (var itr = 0; itr < parentModelChildren.length; itr++) {
+                if (parentModelChildren[itr].id === child.id) {
+                    parentModelChildren.splice(itr, 1);
+                    break;
+                }
+            }
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).removeChild.call(this, child, ignoreModifiedTreeEvent);
+        }
     }
 
     /**

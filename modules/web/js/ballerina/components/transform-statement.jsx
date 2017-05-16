@@ -16,7 +16,7 @@
  * under the License.
  */
 import React from "react";
-import StatementDecorator from "./transform-statement-decorator";
+import TransformStatementDecorator from "./transform-statement-decorator";
 import PropTypes from "prop-types"
 
 /**
@@ -26,13 +26,6 @@ class TransformStatement extends React.Component {
 
 	constructor(props){
 		super(props);
-		this.editorOptions = {
-            propertyType: 'text',
-            key: 'Transform',
-            model: props.model,
-            getterMethod: props.model.getStatementString,
-            setterMethod: props.model.setStatementString
-        };
 	}
 
     /**
@@ -46,8 +39,7 @@ class TransformStatement extends React.Component {
          const hPos =   model.viewState.bBox.h;
          const wPos =   model.viewState.bBox.w;
 
-        return ( <StatementDecorator viewState={model.viewState} expression={expression}
-                                     editorOptions={this.editorOptions} model={model} />);
+        return ( <TransformStatementDecorator viewState={model.viewState} expression={expression} model={model} />);
     }
 }
 
