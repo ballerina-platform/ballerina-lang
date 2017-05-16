@@ -19,6 +19,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Interface for the workspace.
@@ -26,6 +28,8 @@ import java.io.IOException;
 public interface Workspace {
     
     JsonArray listRoots() throws IOException;
+
+    JsonArray getRoots(List<Path> rootPaths) throws IOException;
     
     JsonArray listDirectoriesInPath(String path) throws IOException;
     
