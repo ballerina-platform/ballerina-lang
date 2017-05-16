@@ -695,32 +695,30 @@
 
 <!--Start: Settings Modal-->
 <div class="modal fade" id="modalSettings" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog file-dialog" role="document">
         <div class="modal-content clearfix">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fw fw-cancel  about-dialog-close"></i></button>
-                <h3 class="modal-title" id="aboutSettingsLabel">Settings</h3>
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+                    <span aria-hidden='true'>&times;</span>
+                </button>
+                <h4 class="modal-title file-dialog-title" id="aboutSettingsLabel">Settings</h4>
+                <hr class='style1'>
             </div>
-            <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
-
-                <h4>Choose a theme</h4>
-                <hr />
-                <div class="row no-gutter">
-                    <div class="col-md-8 theme-chooser">
-                        <a onclick="setActiveStyleSheet('default'); return false;" class="theme-pick"><span class="square default"></span></a>
-                        <a onclick="setActiveStyleSheet('light'); return false;" class="theme-pick"><span class="square light"></span></a>
-                        <a onclick="setActiveStyleSheet('dark'); return false;" class="theme-pick"><span class="square dark"></span></a>
-                    </div>
-                </div>
-
-                <h4>Source View</h4>
-                <hr />
-                <div class="row no-gutter">
-                    <div class="col-md-5">
-                        <form>
-                            <div class="form-group">
-                                <label for="sourceViewTheme">Theme</label>
-                                <select class="form-control" id="sourceViewTheme">
+            <div class='modal-body'>
+                <div class='container-fluid'>
+                    <form class='form-horizontal'>
+                        <div class="form-group hidden">
+                            <label class='col-sm-3 file-dialog-label'>Ballerina Color Theme :</label>
+                            <div class="col-sm-8 theme-chooser">
+                                <a onclick="setActiveStyleSheet('default'); return false;" class="theme-pick"><span class="square default"></span></a>
+                                <a onclick="setActiveStyleSheet('light'); return false;" class="theme-pick"><span class="square light"></span></a>
+                                <a onclick="setActiveStyleSheet('dark'); return false;" class="theme-pick"><span class="square dark"></span></a>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class='col-sm-3 file-dialog-label'>Source Editor Color :</label>
+                            <div class='col-sm-8'>
+                                <select class="file-dialog-form-control form-control" id="sourceViewTheme">
                                     <optgroup label="Bright">
                                         <option value="ace/theme/chrome">Chrome</option>
                                         <option value="ace/theme/clouds">Clouds</option>
@@ -763,9 +761,11 @@
                                     </optgroup>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label for="sourceViewFontSize">Font Size</label>
-                                <select class="form-control" id="sourceViewFontSize">
+                        </div>
+                        <div class='form-group'>
+                            <label class='col-sm-3 file-dialog-label'>Source Editor Font Size :</label>
+                            <div class='col-sm-8'>
+                                <select class="file-dialog-form-control form-control" id="sourceViewFontSize">
                                     <option value="10px">10px</option>
                                     <option value="11px">11px</option>
                                     <option value="12px" selected="selected">12px</option>
@@ -783,12 +783,14 @@
                                     <option value="24px">24px</option>
                                 </select>
                             </div>
-                        </form>
-                    </div>
+                        </div>
+                        <div class='form-group'>
+                            <div class='folder-dialog-form-btn'>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveSettingsButton">Apply</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveSettingsButton">OK</button>
             </div>
         </div>
     </div>
