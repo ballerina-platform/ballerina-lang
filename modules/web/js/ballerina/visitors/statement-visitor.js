@@ -486,10 +486,6 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitCatchStatement(node);
         } else if (node instanceof AST.AssignmentStatement) {
             return this.beginVisitAssignmentStatement(node);
-        } else if (node instanceof AST.TransformStatement) {
-            return this.beginVisitTransformStatement(node);
-        }  else if (node instanceof AST.TransformStatement) {
-            return this.beginVisitAssignment(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
             return this.beginVisitActionInvocationStatement(node);
         } else if (node instanceof AST.Expression) {

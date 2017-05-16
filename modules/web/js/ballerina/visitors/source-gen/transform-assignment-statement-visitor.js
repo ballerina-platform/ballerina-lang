@@ -15,10 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-// import _ from 'lodash';
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
-// import TransformerStatementVisitorFactory from './transformer-statement-visitor-factory';
 
 class TransformAssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {

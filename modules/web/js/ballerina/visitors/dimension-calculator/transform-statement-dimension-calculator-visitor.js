@@ -35,8 +35,7 @@ class TransformStatementDimensionCalculatorVisitor {
 
     endVisit(node) {
         log.debug('End visit TransformStatementDimensionCalculatorVisitor');
-      //  util.populateSimpleStatementBBox( node.getStatementString() , node.getViewState());
-          util.populateSimpleStatementBBox( "xxx=yyy" , node.getViewState());
+        util.populateSimpleStatementBBox(node.getStatementString() , node.getViewState());
     }
 }
 
