@@ -90,9 +90,10 @@ class PanelDecorator extends React.Component {
         let annotationComponents = this.getAnnotationComponents(annotations, bBox, titleHeight);
 
         return (<g className="panel">
-            <g className="panel-header">
+            <g className="panel-header sdksadaslkdslakdaslkdl">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
                       className="headingRect" data-original-title="" title=""></rect>
+                <rect x={bBox.x} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
                 <EditableText
                     x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
                     onBlur={() => { this.onTitleInputBlur() }}
