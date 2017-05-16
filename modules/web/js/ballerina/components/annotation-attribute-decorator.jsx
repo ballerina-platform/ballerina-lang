@@ -24,7 +24,7 @@ import Alerts from 'alerts';
 import Renderer from './renderer';
 import PropTypes from 'prop-types';
 
-const DEFAULT_INPUT_VALUE = "Enter Variable";
+const DEFAULT_INPUT_VALUE = "+ Add Variable";
 
 /**
  * Annotation Attribute Decorator
@@ -44,7 +44,7 @@ class AnnotationAttributeDecorator extends React.Component {
         let textBoxBBox = {
             x: bBox.x + 50,
             y: bBox.y + 50,
-            w: 300,
+            w: 330,
             h: 30
         };
 
@@ -113,15 +113,15 @@ class AnnotationAttributeDecorator extends React.Component {
         return (
             <g className="attribute-content-operations-wrapper">
                 <g onClick={() => this.onClickVariableTextBox()}>
-                    <rect x={bBox.x + 50} y={bBox.y + 50} width={300} height={30}
-                          className="attribute-content-operations-wrapper"/>
-                    <text x={bBox.x + 60} y={bBox.y + 70} width={300} height={30}>
+                    <rect x={bBox.x + 50} y={bBox.y + 50} width={330} height={30}
+                          className="annotation-input"/>
+                    <text x={bBox.x + 60} y={bBox.y + 70} width={330} height={30} className="annotation-input-placeholder">
                         {this.state.inputValue}
                     </text>
                 </g>
                 <g onClick={() => this.addAnnotationAttribute()}>
-                    <rect x={bBox.x + 350 + 10} y={bBox.y + 50} width={30} height={30} className=""/>
-                    <image x={bBox.x + 350 + 15} y={bBox.y + 55} width={20} height={20}
+                    <rect x={bBox.x + 350 + 10 + 40} y={bBox.y + 50} width={30} height={30} className=""/>
+                    <image x={bBox.x + 350 + 15 + 40} y={bBox.y + 55} width={20} height={20}
                            xlinkHref={ImageUtil.getSVGIconString('add')}>
                         <title>Add</title>
                     </image>

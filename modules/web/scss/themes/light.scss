@@ -63,5 +63,7 @@ $modal-btn-primary-color: #fff;
 $modal-btn-primary-hover-bgcolor: darken($modal-btn-primary-bgcolor, 10%);
 $modal-btn-primary-hover-color: #fff;
     
+$annotation-wrapper-bgcolor: #eee;
+$annotation-wrapper-text-color: #666769;
 
 @import '../main.scss';

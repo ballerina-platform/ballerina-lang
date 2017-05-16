@@ -48,7 +48,7 @@
 .annotation-container {
     background: #EFEFEF;
     overflow: auto;
-    padding: 8px;
+    padding: 7px;
 }
 
 .annotation-table td {
@@ -66,4 +66,16 @@
     background: #333;
     color: #eee;
     cursor: pointer;
+}
+
+.annotationRect {
+    fill: $annotation-wrapper-bgcolor;
+    shape-rendering: crispEdges;
+    stroke: #ccc;
+    stroke-width: 0.5;
+}
+
+.annotation-text {
+    font-size: 0.90em;
+    fill: $annotation-wrapper-text-color;
 }

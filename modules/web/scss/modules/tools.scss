@@ -26,7 +26,7 @@
 
             & .icon {
                 color: $tool-title-color;
-                font-size: 24px;
+                font-size: 16px;
                 margin-top: 3px;
                 vertical-align: text-bottom;
             }
@@ -36,18 +36,18 @@
             width: 100%;
             border-bottom: 1px solid $tool-separator-color;
             clear: both;
-            padding-top: 12px;
-            margin-bottom: 12px;
+            padding-top:12px;
+            margin-bottom:12px;
         }
         
         &.tool-group-body-list {
             & .tool-container {
-                height: 28px;
+                height:28px;
                 text-align: left;
                 border: none;
 
                 & .icon {
-                    font-size: 20px;
+                    font-size: 16px;
                 }
 
                 & .tool-title {
@@ -55,6 +55,7 @@
                     margin-top: -1px;
                     vertical-align: text-top;
                     margin-left: 2px;
+                    font-size: 0.94em;
                 }
             }
 
@@ -84,7 +85,7 @@
         
         & .tool-title {
             color: $tool-title-color;
-            font-size: 0.84em;
+            font-size: 0.94em;
             display: none;
         }
         

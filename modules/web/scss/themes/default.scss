@@ -35,7 +35,7 @@ $source-editor-gutter-bgcolor: #313131;
 $tool-palette-container-bgcolor: #fff;
 $tool-group-header-bgcolor: #eee;
 $tool-group-header-text-color: #333;
-$tool-title-color: $tool-group-header-text-color;
+$tool-title-color:#666769;
 $tool-separator-color: $tool-group-header-bgcolor;
 
 $panel-header-bgcolor: #dcdcdc;
@@ -52,7 +52,7 @@ $package-definition-color: #000;
 $btn-primary-bgcolor: #5b5b5b;
 $btn-secondary-bgcolor: #858585;
 $welcome-details-content-wrapper-bgcolor: transparentize(#e4e4e4, 0.5);
-$welcome-tile-view-wrapper-bgcolor: #ffffff;
+$welcome-tile-view-wrapper-bgcolor: #fff;
 
 $modal-btn-default-bgcolor: #2c2c2c;
 $modal-btn-default-color: #fff;
@@ -62,5 +62,8 @@ $modal-btn-primary-bgcolor: #F57E30;
 $modal-btn-primary-color: #fff;
 $modal-btn-primary-hover-bgcolor: darken($modal-btn-primary-bgcolor, 10%);
 $modal-btn-primary-hover-color: #fff;
+
+$annotation-wrapper-bgcolor: #eee;
+$annotation-wrapper-text-color: #666769;
 
 @import '../main.scss';
