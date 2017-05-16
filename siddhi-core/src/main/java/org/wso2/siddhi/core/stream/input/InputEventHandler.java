@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 /**
  * This class wraps {@link InputHandler} class in order to guarantee exactly once processing
@@ -40,26 +39,19 @@ public class InputEventHandler implements Snapshotable {
      * {@link Event#id} of the last event which is processed by this mapper
      */
     private Long lastEventId = null;
-    private final Semaphore mutex;
 
     public InputEventHandler(InputHandler inputHandler, ExecutionPlanContext executionPlanContext) {
         this.inputHandler = inputHandler;
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
         executionPlanContext.getSnapshotService().addSnapshotable(inputHandler.hashCode() + "inputeventhandler", this);
-        mutex = new Semaphore(1);
     }
 
     public void sendEvent(Event event) throws InterruptedException {
         long eventId = event.getId();
         // event id -1 is reserved for the events that are arriving for the first Siddhi node
-        try {
-            mutex.acquire();
-            if (lastEventId == null || eventId == -1 || lastEventId < eventId) {
-                lastEventId = eventId;
-                inputHandler.send(event);
-            }
-        } finally {
-            mutex.release();
+        if (lastEventId == null || eventId == -1 || lastEventId < eventId) {
+            lastEventId = eventId;
+            inputHandler.send(event);
         }
     }
 
@@ -73,7 +65,7 @@ public class InputEventHandler implements Snapshotable {
                 eventsToBeSent.add(event);
             }
         }
-        inputHandler.send(eventsToBeSent.toArray(new Event[eventsToBeSent.size()]));
+        inputHandler.send(eventsToBeSent.toArray(new Event[0]));
     }
 
     public InputHandler getInputHandler() {
@@ -83,15 +75,7 @@ public class InputEventHandler implements Snapshotable {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        try {
-            mutex.acquire();
-            state.put("LastEventId", lastEventId);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.error("Error when getting the current state", e);
-        } finally {
-            mutex.release();
-        }
+        state.put("LastEventId", lastEventId);
         return state;
     }
 
