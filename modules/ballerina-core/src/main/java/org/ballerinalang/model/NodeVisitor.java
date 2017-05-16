@@ -70,6 +70,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -154,6 +155,8 @@ public interface NodeVisitor {
     void visit(WorkerReplyStmt workerReplyStmt);
 
     void visit(ForkJoinStmt forkJoinStmt);
+
+    void visit(TransformStmt transformStmt);
 
     // Expressions
 

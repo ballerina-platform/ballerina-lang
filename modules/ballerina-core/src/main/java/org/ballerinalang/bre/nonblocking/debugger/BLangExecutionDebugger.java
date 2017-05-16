@@ -47,6 +47,7 @@ import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.CommentStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.Statement;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
@@ -478,6 +479,11 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                 i++;
             }
         }
+    }
+
+    @Override
+    public void visit(TransformStmt transformStmt){
+
     }
 
     public void clearDebugPoints() {
