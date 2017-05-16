@@ -92,6 +92,9 @@
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
+                        <Include-Resource>
+                            META-INF=target/classes/META-INF
+                        </Include-Resource>
                     </instructions>
                 </configuration>
             </plugin>
