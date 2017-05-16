@@ -92,8 +92,9 @@ public enum SemanticErrors {
     INCOMPATIBLE_ASSIGNMENT("incompatible.assignment", "SEMANTIC_0067"),
     INDEXING_NOT_SUPPORTED_FOR_MAP_ELEMENT("indexing.not.supported.map.element", "SEMANTIC_0068"),
     DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT("dynamic.keys.not.supported.for.struct", "SEMANTIC_0069"),
-    STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER("struct.field.child.has.pkg.identifier", "PARSER_0070");
-    
+    STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER("struct.field.child.has.pkg.identifier", "PARSER_0070"),
+    CANNOT_ASSIGN_VALUE_ARRAY_LENGTH("cannot.assign.value.array.length", "SEMANTIC_0071");
+
     private String errorMsgKey;
     private String errorCode;
 

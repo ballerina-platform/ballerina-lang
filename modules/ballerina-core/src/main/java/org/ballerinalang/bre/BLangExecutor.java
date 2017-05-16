@@ -32,6 +32,7 @@ import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -1126,6 +1127,14 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(FieldAccessExpr fieldAccessExpr) {
         Expression varRef = fieldAccessExpr.getVarRef();
         BValue value = varRef.execute(this);
+
+        if (value instanceof BArray) {
+            FieldAccessExpr childFieldExpr = fieldAccessExpr.getFieldExpr();
+            if (childFieldExpr != null && childFieldExpr.getVarRef() instanceof ArrayLengthExpression) {
+                return new BInteger(((BArray) value).size());
+            }
+        }
+        
         return getFieldExprValue(fieldAccessExpr, value);
     }
 
@@ -1311,6 +1320,9 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         BValue value = currentStructVal.getValue(fieldLocation);
+        if (value instanceof BArray && nestedFieldExpr.getVarRef() instanceof ArrayLengthExpression) {
+            return new BInteger(((BArray) value).size());
+        }
 
         // Recursively travel through the struct and get the value
         return getFieldExprValue(fieldExpr, value);

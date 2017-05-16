@@ -62,6 +62,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -2745,15 +2746,39 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     private void visitArrayAccessExpr(FieldAccessExpr parentExpr, ReferenceExpr varRefExpr, FieldAccessExpr fieldExpr,
             BType exprType, SymbolScope enclosingScope) {
+
+        if (fieldExpr.getVarRef() instanceof BasicLiteral) {
+            String value = ((BasicLiteral) fieldExpr.getVarRef()).getBValue().stringValue();
+            if (value.equals("length")) {
+
+                if (parentExpr.isLHSExpr()) {
+                    //cannot assign a value to array length
+                    BLangExceptionHelper.throwSemanticError(fieldExpr, SemanticErrors.CANNOT_ASSIGN_VALUE_ARRAY_LENGTH);
+                }
+
+                if (fieldExpr.getFieldExpr() != null) {
+                    BLangExceptionHelper.throwSemanticError(fieldExpr,
+                            SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, BTypes.typeInt);
+                }
+
+                ArrayLengthExpression arrayLengthExpr = new ArrayLengthExpression(
+                        parentExpr.getNodeLocation(), varRefExpr);
+                arrayLengthExpr.setType(BTypes.typeInt);
+                FieldAccessExpr childFAExpr = new FieldAccessExpr(parentExpr.getNodeLocation(), arrayLengthExpr, null);
+                parentExpr.setFieldExpr(childFAExpr);
+                return;
+            }
+        }
+
         int dimensions = ((BArrayType) exprType).getDimensions();
-        List<Expression> indexExprs = new ArrayList<Expression>();
+        List<Expression> indexExprs = new ArrayList<>();
 
         for (int i = 0; i < dimensions; i++) {
             if (fieldExpr == null) {
                 break;
             }
             indexExprs.add(fieldExpr.getVarRef());
-            fieldExpr = (FieldAccessExpr) fieldExpr.getFieldExpr();
+            fieldExpr = fieldExpr.getFieldExpr();
         }
         Collections.reverse(indexExprs);
 
