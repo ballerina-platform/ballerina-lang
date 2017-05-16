@@ -44,6 +44,7 @@ import java.util.Map;
  */
 public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
     protected Identifier identifier;
@@ -127,6 +128,15 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
         return location;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
 
     // Methods in BLangSymbol interface
 
@@ -208,6 +218,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
 
         public Service buildService() {
             this.service.location = this.location;
+            this.service.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             this.service.identifier = this.identifier;
             this.service.pkgPath = this.pkgPath;
             this.service.symbolName = new SymbolName(identifier.getName(), pkgPath);

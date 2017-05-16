@@ -21,6 +21,7 @@ import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.Operator;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -64,8 +65,9 @@ public class UnaryExpression extends AbstractExpression {
         this.evalFuncNewNew = evalFuncNewNew;
     }
     
-    public UnaryExpression(NodeLocation location, Operator op, Expression rExpr) {
-        super(location);
+    public UnaryExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Operator op,
+                           Expression rExpr) {
+        super(location, whiteSpaceDescriptor);
         this.op = op;
         this.rExpr = rExpr;
     }

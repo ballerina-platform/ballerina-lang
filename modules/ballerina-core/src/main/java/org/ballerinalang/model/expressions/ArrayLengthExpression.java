@@ -19,6 +19,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * {@code ArrayLengthExpression} represents an expression which returns the length of an array.
@@ -27,8 +28,8 @@ import org.ballerinalang.model.NodeVisitor;
  */
 public class ArrayLengthExpression extends UnaryExpression {
 
-    public ArrayLengthExpression(NodeLocation location, Expression rExpr) {
-        super(location, null, rExpr);
+    public ArrayLengthExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr) {
+        super(location, whiteSpaceDescriptor, null, rExpr);
     }
 
     @Override

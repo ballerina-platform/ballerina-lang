@@ -248,12 +248,6 @@ function testGetStringFromPrimitive() (string) {
     return (string)j.name.fname;
 }
 
-function testJsonArrayWithVariable() (json) {
-    // map m = {"name":"supun"};
-    // json j = ["a", "b", "c", m];
-    // return j;
-}
-
 function testUpdateNestedElement() (json) {
     json j = {details: {fname:"Supun", lname:"Thilina"}};
     j.details.lname = "Setunga";

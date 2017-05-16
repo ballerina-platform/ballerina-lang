@@ -18,6 +18,7 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * {@code NaryExpr} represents an operation with multiple operands.
@@ -31,8 +32,8 @@ public class NaryExpression extends UnaryExpression {
 
     protected Expression[] argExprs;
 
-    public NaryExpression(NodeLocation location, Expression[] argExprs) {
-        super(location, null, null);
+    public NaryExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] argExprs) {
+        super(location, whiteSpaceDescriptor, null, null);
         this.argExprs = argExprs;
     }
 

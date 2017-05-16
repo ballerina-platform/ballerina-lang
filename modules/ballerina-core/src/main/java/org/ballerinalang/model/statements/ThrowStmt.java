@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.expressions.Expression;
 
 /**
@@ -30,8 +31,9 @@ import org.ballerinalang.model.expressions.Expression;
 public class ThrowStmt extends AbstractStatement {
     private Expression expr;
 
-    public ThrowStmt(NodeLocation location, Expression expr) {
+    public ThrowStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression expr) {
         super(location);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.expr = expr;
     }
 
@@ -49,4 +51,8 @@ public class ThrowStmt extends AbstractStatement {
         executor.visit(this);
     }
 
+    @Override
+    public boolean isAlwaysReturns() {
+        return true;
+    }
 }

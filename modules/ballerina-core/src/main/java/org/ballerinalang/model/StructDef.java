@@ -38,6 +38,7 @@ import java.util.Map;
 public class StructDef extends BType implements CompilationUnit, SymbolScope, StructuredUnit {
     private Identifier identifier;
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
     private AnnotationAttachment[] annotations;
     private VariableDefStmt[] fields;
     private int structMemorySize;
@@ -53,6 +54,15 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 
     /**
@@ -200,6 +210,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
      */
     public static class StructBuilder {
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private Identifier identifier;
         private String pkgPath;
         private List<VariableDefStmt> fields = new ArrayList<VariableDefStmt>();
@@ -209,6 +220,10 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
         public StructBuilder(NodeLocation location, SymbolScope enclosingScope) {
             structDef = new StructDef(enclosingScope);
             this.location = location;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         }
 
         public SymbolScope getCurrentScope() {
@@ -243,6 +258,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
          */
         public StructDef build() {
             this.structDef.location = location;
+            this.structDef.whiteSpaceDescriptor = whiteSpaceDescriptor;
             this.structDef.identifier = identifier;
             this.structDef.typeName = identifier.getName();
             this.structDef.pkgPath = pkgPath;

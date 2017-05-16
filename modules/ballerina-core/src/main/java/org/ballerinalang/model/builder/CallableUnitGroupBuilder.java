@@ -27,6 +27,7 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.statements.VariableDefStmt;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.List;
  */
 public class CallableUnitGroupBuilder {
     protected NodeLocation location;
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected SymbolScope currentScope;
 
     // BLangSymbol related attributes
@@ -106,5 +108,9 @@ public class CallableUnitGroupBuilder {
 
     public void setNative(boolean isNative) {
         this.isNative = isNative;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
 }
