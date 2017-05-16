@@ -366,7 +366,13 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), -1);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
+    }
 
+    public void testInsertTimeData() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDateTimeInParameters");
+        BArray retValue = (BArray) returns[0];
+        Assert.assertEquals(retValue.get(0).stringValue(), "1");
+        Assert.assertEquals(retValue.get(1).stringValue(), "1");
     }
 
     @Test(dependsOnGroups = "ConnectorTest")

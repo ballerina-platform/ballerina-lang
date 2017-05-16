@@ -17,15 +17,19 @@
  */
 package org.ballerinalang.nativeimpl.repository;
 
-import org.ballerinalang.util.repository.BuiltinPackageRepository;
+import org.ballerinalang.natives.SystemPackageRepository;
+import org.ballerinalang.util.repository.BuiltinExtendedPackageRepository;
+
 
 /**
  * Represents a package built in native ballerina package repository.
  *
  * @since 0.87
  */
-public class BallerinaBuiltinPackageRepository extends BuiltinPackageRepository {
+public class BallerinaBuiltinPackageRepository extends BuiltinExtendedPackageRepository
+        implements SystemPackageRepository {
     //TODO to be generated from ANNOTATION Processor
+    //TODO remove interface BallerinaInternalPkgRepo with proper way
     public BallerinaBuiltinPackageRepository() {
         super(BallerinaBuiltinPackageRepository.class);
     }

@@ -163,13 +163,13 @@ public class SQLDataIterator implements DataIterator {
         if (object instanceof Blob) {
             value = getBString((Blob) object).stringValue();
         } else if (object instanceof Timestamp) {
-            value = String.valueOf(((Timestamp) object).getTime());
+            value = SQLDatasourceUtils.getString((Timestamp) object);
         } else if (object instanceof Clob) {
             value = getBString((Clob) object).stringValue();
         } else if (object instanceof Date) {
-            value = String.valueOf(((Date) object).getTime());
+            value = SQLDatasourceUtils.getString((Date) object);
         } else if (object instanceof Time) {
-            value = String.valueOf(((Time) object).getTime());
+            value = SQLDatasourceUtils.getString((Time) object);
         } else if (object instanceof InputStream) {
             value = getBString((InputStream) object).stringValue();
         } else {

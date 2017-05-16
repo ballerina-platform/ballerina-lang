@@ -1,12 +1,12 @@
 function testNullInForkJoin () (message, message) {
     message m = null;
-    fork (m) {
-        worker foo (message m) {
+    fork {
+        worker foo {
             message resp1 = null;
             reply resp1;
         }
 
-        worker bar (message m) {
+        worker bar {
             message resp2 = {};
             reply resp2;
         }

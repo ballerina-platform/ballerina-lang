@@ -85,7 +85,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>org.ballerinalang.natives.annotation.processor.NativeValidator</mainClass>
+                            <mainClass>org.ballerinalang.natives.annotation.processor.BuiltinPackageValidator</mainClass>
                             <arguments>
                                 <argument>${generated.ballerina.source.directory}</argument>
                             </arguments>
@@ -108,6 +108,7 @@
                         <className>${native.constructs.provider.class}</className>
                         <srcDir>${ballerina.source.directory}</srcDir>
                         <targetDir>${generated.ballerina.source.directory}</targetDir>
+                        <pkgRepositoryClass>${package.repository.provider.class}</pkgRepositoryClass>
                     </options>
                 </configuration>
                 <executions>
@@ -236,6 +237,8 @@
     <properties>
         <!-- Path to the ballerina source directory -->
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
+        <package.repository.provider.class>org.ballerinalang.nativeimpl.repository.BallerinaBuiltinPackageRepository
+        </package.repository.provider.class>
         
         <!-- Path to the generated natives ballerina files temp directory -->
         <!--<generated.ballerina.source.directory>${project.build.directory}/natives</generated.ballerina.source.directory>-->
