@@ -59,7 +59,7 @@ export default class importDeclaration extends React.Component {
 
         return (
             <g className="package-definition-head" onClick={ e => {this.props.onClick(e);} }>
-                <rect x={ bBox.x } y={ bBox.y } width={badgeWidth} height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
+                <rect x={ bBox.x } y={ bBox.y } width={ badgeWidth } height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
                 <rect x={ bBox.x } y={ bBox.y } height={ headerHeight } className="import-definition-decorator" />
                 <text x={ labelBbox.x } y={ labelBbox.y } rx="0" ry="0">
                     Imports
