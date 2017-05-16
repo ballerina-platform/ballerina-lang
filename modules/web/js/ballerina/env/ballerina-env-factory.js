@@ -23,6 +23,7 @@ import Package from './package';
 import Connector from './connector';
 import ConnectorAction from './connector-action';
 import Function from './function';
+import Annotation from './annotation';
 import TypeMapper from './type-mapper';
 
         /**
@@ -67,6 +68,15 @@ import TypeMapper from './type-mapper';
         };
 
         /**
+         * creates Annotation
+         * @param jsonNode
+         */
+        BallerinaEnvFactory.createAnnotation = function (args) {
+            var annotationDef = new Annotation(args);
+            return annotationDef;
+        }
+
+        /**
          * creates TypeMapper
          * @param jsonNode
          */
@@ -86,6 +96,15 @@ import TypeMapper from './type-mapper';
         BallerinaEnvFactory.isConnectorAction = function (connectorAction) {
             return (connectorAction instanceof ConnectorAction);
         };
+
+        /**
+         * instanceof check for Annotation
+         * @param {function object} annotationDef - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaEnvFactory.isAnnotation = function (annotationDef){
+            return (annotationDef instanceof Annotation);
+        }
 
         /**
          * instanceof check for TypeMapper
