@@ -193,12 +193,15 @@ public class ConstructProviderClassBuilder {
         Writer configWriter = null;
         try {
             //Find the location of the resource/META-INF directory.
-            FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", META_INF + SERVICES +
-                    BuiltinPackageRepository.class.getCanonicalName());
-            configWriter = metaFile.openWriter();
             if (packageName.equals(BALLERINA_NATIVE_PKG_NAME)) {
+                FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", META_INF + SERVICES +
+                        BuiltinPackageRepository.class.getCanonicalName());
+                configWriter = metaFile.openWriter();
                 configWriter.write(BALLERINA_BUILTIN_REPO_CLASSNAME + "\n");
             } else if (packageName.equals(BALLERINA_CONNECTOR_PKG_NAME)) {
+                FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", META_INF + SERVICES +
+                        BuiltinPackageRepository.class.getCanonicalName());
+                configWriter = metaFile.openWriter();
                 configWriter.write(BALLERINA_CONNECTOR_REPO_CLASSNAME);
             }
         } catch (IOException e) {
