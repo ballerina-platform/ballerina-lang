@@ -54,4 +54,14 @@ $btn-secondary-bgcolor: #858585;
 $welcome-details-content-wrapper-bgcolor: transparentize(#e4e4e4, 0.5);
 $welcome-tile-view-wrapper-bgcolor: #ffffff;
 
+$modal-btn-default-bgcolor: #2c2c2c;
+$modal-btn-default-color: #fff;
+$modal-btn-default-hover-bgcolor: lighten($modal-btn-default-bgcolor, 10%);
+$modal-btn-default-hover-color: #fff;
+$modal-btn-primary-bgcolor: #F57E30;
+$modal-btn-primary-color: #fff;
+$modal-btn-primary-hover-bgcolor: darken($modal-btn-primary-bgcolor, 10%);
+$modal-btn-primary-hover-color: #fff;
+    
+
 @import '../main.scss';
