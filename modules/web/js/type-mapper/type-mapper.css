@@ -202,3 +202,22 @@ svg.plumbConnect path {
     padding:10px;
     font-size: 14px;
 }
+
+.transform-action {
+    cursor: pointer;
+    text-anchor: middle;
+    dominant-baseline: central;
+    width: 120px;
+    max-width: 250px;
+}
+
+.transform-statement-rect {
+    cursor: pointer;
+    fill: #ffffff;
+    stroke: #000000;
+    stroke-width: 1;
+}
+
+.transform-action-icon {
+    cursor: pointer;
+}

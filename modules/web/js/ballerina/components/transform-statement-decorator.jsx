@@ -21,7 +21,7 @@ import _ from 'lodash';
 import {statement} from './../configs/designer-defaults';
 import {lifeLine} from './../configs/designer-defaults';
 import ASTNode from '../ast/node';
-import TransformActionBox from './transform-action-box';
+import ActionBox from './action-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import SimpleBBox from './../ast/simple-bounding-box';
 import * as DesignerDefaults from './../configs/designer-defaults';
@@ -35,6 +35,7 @@ import select2 from 'select2';
 import TransformRender from '../../type-mapper/transform-render';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import ActiveArbiter from './active-arbiter';
+import ImageUtil from './image-util';
 
 const text_offset = 50;
 
@@ -270,6 +271,8 @@ class TransformStatementDecorator extends React.Component {
     		// we need to draw a drop box above and a statement box
     		const text_x = bBox.x + (bBox.w / 2);
     		const text_y = this.statementBox.y + (this.statementBox.h / 2);
+            const expand_button_x = bBox.x + (bBox.w / 2) + 40;
+            const expand_button_y = this.statementBox.y + (this.statementBox.h / 2) - 10;
     		const drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
     		const innerDropZoneActivated = this.state.innerDropZoneActivated;
     		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
@@ -309,11 +312,12 @@ class TransformStatementDecorator extends React.Component {
     		}
     		const actionBbox = new SimpleBBox();
             const fill = this.state.innerDropZoneExist ? {} : {fill:'none'};
+            const iconSize = 14;
     		actionBbox.w = DesignerDefaults.actionBox.width;
     		actionBbox.h = DesignerDefaults.actionBox.height;
     		actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
     		actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
-    		let statementRectClass = "statement-rect";
+    		let statementRectClass = "transform-statement-rect";
     		if(model.isDebugHit) {
     				statementRectClass = `${statementRectClass} debug-hit`;
     		}
@@ -331,17 +335,19 @@ class TransformStatementDecorator extends React.Component {
     						 		onMouseOver={(e) => this.onDropZoneActivate(e)}
     								onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
     						<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
-    							  onClick={(e) => this.openExpressionEditor(e)} />
+    							  onClick={(e) => this.onExpand()} />
     						<g className="statement-body">
-    							<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
+    							<text x={text_x} y={text_y} className="transform-action" onClick={(e) =>this.onExpand()}>{expression}</text>
+    							 <image className="transform-action-icon" x={expand_button_x} y={expand_button_y} width={ iconSize } height={ iconSize } onClick={(e) =>this.onExpand()} xlinkHref={ ImageUtil.getSVGIconString("expand")}/>
     						</g>
-    						<TransformActionBox
-    							bBox={ actionBbox }
-    							show={ this.state.showActions }
-    							onExpand={this.onExpand.bind(this)}
-    							onDelete={ () => this.onDelete() }
-    							onJumptoCodeLine = { () => this.onJumptoCodeLine() }
-    						/>
+                            <ActionBox
+                                bBox={ actionBbox }
+                                show={ this.state.showActions }
+                                isBreakpoint={model.isBreakpoint}
+                                onDelete={ () => this.onDelete() }
+                                onJumptoCodeLine = { () => this.onJumptoCodeLine() }
+                                onBreakpointClick = { () => this.onBreakpointClick() }
+                            />
 
     						{isActionInvocation &&
     							<g>
