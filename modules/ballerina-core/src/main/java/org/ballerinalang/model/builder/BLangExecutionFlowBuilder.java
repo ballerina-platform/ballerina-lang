@@ -118,8 +118,10 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -132,6 +134,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -201,6 +204,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     // Function/Action Statement stack related to break.
     private Stack<BlockStmt> returningBlockStmtStack;
     private Stack<OffSetCounter> offSetCounterStack;
+    private Stack<Statement> abortTransactionStack;
     private Resource currentResource;
 
     public BLangExecutionFlowBuilder() {
@@ -208,6 +212,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         returningBlockStmtStack = new Stack<>();
         offSetCounterStack = new Stack<>();
         offSetCounterStack.push(new OffSetCounter());
+        abortTransactionStack =  new Stack<>();
         nonblockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
     }
 
@@ -652,6 +657,29 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         joinBlock.setParent(forkJoinStmt);
         timeoutBlock.accept(this);
         joinBlock.accept(this);
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        TransactionRollbackStmtEndNode endNode = new TransactionRollbackStmtEndNode(transactionRollbackStmt);
+        Statement transactionBlock = transactionRollbackStmt.getTransactionBlock();
+        Statement rollbackBlock = transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt();
+        // Visit Transaction block.
+        transactionBlock.setParent(transactionRollbackStmt);
+        transactionRollbackStmt.setNext(transactionBlock);
+        transactionBlock.setNextSibling(endNode);
+        abortTransactionStack.push(transactionRollbackStmt);
+        transactionBlock.accept(this);
+        abortTransactionStack.pop();
+        endNode.setNext(findNext(transactionRollbackStmt));
+        // Visit Rollback Block.
+        rollbackBlock.setParent(transactionRollbackStmt);
+        rollbackBlock.accept(this);
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+        abortStmt.setNext(findNext(abortTransactionStack.peek()));
     }
 
     @Override
@@ -1528,6 +1556,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         this.returningBlockStmtStack.clear();
         this.currentResource = null;
         this.offSetCounterStack.clear();
+        this.abortTransactionStack.clear();
     }
 
     /**
