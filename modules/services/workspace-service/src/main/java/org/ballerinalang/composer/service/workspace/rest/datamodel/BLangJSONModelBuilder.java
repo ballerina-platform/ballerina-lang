@@ -453,6 +453,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(BallerinaAction action) {
         JsonObject jsonAction = new JsonObject();
         this.addPosition(jsonAction, action.getNodeLocation());
+        this.addWhitespaceDescriptor(jsonAction, action.getWhiteSpaceDescriptor());
         jsonAction.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.ACTION_DEFINITION);
         jsonAction.addProperty(BLangJSONModelConstants.ACTION_NAME, action.getName());
         tempJsonArrayRef.push(new JsonArray());
