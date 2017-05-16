@@ -178,15 +178,15 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#globalVariableDefinitionStatement}.
+	 * Enter a parse tree produced by {@link BallerinaParser#globalVariableDefinition}.
 	 * @param ctx the parse tree
 	 */
-	void enterGlobalVariableDefinitionStatement(BallerinaParser.GlobalVariableDefinitionStatementContext ctx);
+	void enterGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#globalVariableDefinitionStatement}.
+	 * Exit a parse tree produced by {@link BallerinaParser#globalVariableDefinition}.
 	 * @param ctx the parse tree
 	 */
-	void exitGlobalVariableDefinitionStatement(BallerinaParser.GlobalVariableDefinitionStatementContext ctx);
+	void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#attachmentPoint}.
 	 * @param ctx the parse tree
@@ -377,6 +377,46 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStatement(BallerinaParser.StatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transformStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransformStatement(BallerinaParser.TransformStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transformStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransformStatement(BallerinaParser.TransformStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transformStatementBody}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransformStatementBody(BallerinaParser.TransformStatementBodyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transformStatementBody}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransformStatementBody(BallerinaParser.TransformStatementBodyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#expressionAssignmentStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpressionAssignmentStatement(BallerinaParser.ExpressionAssignmentStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#expressionAssignmentStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpressionAssignmentStatement(BallerinaParser.ExpressionAssignmentStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#expressionVariableDefinitionStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpressionVariableDefinitionStatement(BallerinaParser.ExpressionVariableDefinitionStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#expressionVariableDefinitionStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpressionVariableDefinitionStatement(BallerinaParser.ExpressionVariableDefinitionStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#variableDefinitionStatement}.
 	 * @param ctx the parse tree
