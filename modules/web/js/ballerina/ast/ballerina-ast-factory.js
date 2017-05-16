@@ -1523,5 +1523,3 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
 };
 
 export default BallerinaASTFactory;
-
-
