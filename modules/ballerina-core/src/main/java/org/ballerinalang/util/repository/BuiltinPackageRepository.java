@@ -196,6 +196,11 @@ public class BuiltinPackageRepository extends PackageRepository {
         return null;
     }
 
+    /**
+     * Get list of All package package names exposed by builtin/external package repositories.
+     *
+     * @return List of package names.
+     */
     public String[] loadPackageNames() {
         List<String> builtInPackages = getFileNames(this.getClass().getClassLoader());
         String[] array = new String[builtInPackages.size()];

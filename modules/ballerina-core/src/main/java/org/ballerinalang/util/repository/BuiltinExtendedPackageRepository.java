@@ -50,6 +50,12 @@ public class BuiltinExtendedPackageRepository extends BuiltinPackageRepository {
         super(providerClass);
     }
 
+    /**
+     * Get list of package names from classpath.
+     *
+     * @param repoUrl    Repository source directory given as a string.
+     * @return List of package names.
+     */
     private List<String> getPackageNamesFromClasspath(String repoUrl) {
         List<String> builtInPackages = new ArrayList<String>();
         Path source = Paths.get(repoUrl);
@@ -62,13 +68,21 @@ public class BuiltinExtendedPackageRepository extends BuiltinPackageRepository {
     }
 
     public String[] loadPackageNames() {
-        List<String> builtInPackages = getFileNames(this.getClass(), RELATIVE_PATH);
+        List<String> builtInPackages = getBalSourcePackageNames(this.getClass(), RELATIVE_PATH);
         String[] array = new String[builtInPackages.size()];
         builtInPackages.toArray(array);
         return array;
     }
 
-    private List<String> getFileNames(Class classLoader, String relativePath) {
+    /**
+     * Get list of package names from  classpath/jar. Traverse through all ballerina files relative to
+     * class loader path/jar path and identify the packages.
+     *
+     * @param classLoader    Classloader reference provider class.
+     * @param relativePath    Relative path from base directory.                       .
+     * @return List of package names.
+     */
+    private List<String> getBalSourcePackageNames(Class classLoader, String relativePath) {
         String repoUrl = classLoader.getProtectionDomain().getCodeSource().getLocation().getPath();
         String pkgRelPath = relativePath;
         if (repoUrl.endsWith(JAR_FILE_EXT)) {
@@ -78,12 +92,19 @@ public class BuiltinExtendedPackageRepository extends BuiltinPackageRepository {
         }
     }
 
-    private List<String> getPackageNamesFromJar(String repoUrl, String pkgRelPath) {
+    /**
+     * Get list of package names from jar.
+     *
+     * @param sourceJar   Source path for jar.
+     * @param pkgRelPath    Relative path from base directory.                       .
+     * @return List of package names.
+     */
+    private List<String> getPackageNamesFromJar(String sourceJar, String pkgRelPath) {
         List<String> fileNames = new ArrayList<String>();
         ZipInputStream jarInputStream = null;
         ZipEntry fileNameEntry;
         try {
-            jarInputStream = new ZipInputStream(new FileInputStream(repoUrl));
+            jarInputStream = new ZipInputStream(new FileInputStream(sourceJar));
             while ((fileNameEntry = jarInputStream.getNextEntry()) != null) {
                 String filePath = fileNameEntry.getName();
                 if (filePath.matches(pkgRelPath + ".*" + BAL_FILE_EXT)) {
@@ -106,6 +127,10 @@ public class BuiltinExtendedPackageRepository extends BuiltinPackageRepository {
     }
 
     //TODO remove duplication with ballerina-native code
+    /**
+     * File Visitor class that will visits all built-in ballerina files and
+     * populate the built-in packages list.
+     */
     class PackageFinder extends SimpleFileVisitor<Path> {
 
         private Path basePath;
