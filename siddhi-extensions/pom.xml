@@ -46,14 +46,14 @@
         <!--<module>output-transports/jms-output-transport</module>-->
         <!--todo : enable output-mappers/text-output-mapper after fix the annotation issues-->
         <!--<module>output-mappers/text-output-mapper</module>-->
-        <!--<module>output-mappers/json-output-mapper</module>-->
+        <module>output-mappers/json-output-mapper</module>
         <!--<module>output-mappers/keyvalue-output-mapper</module>-->
         <!--todo : enable output-mappers/xml-output-mapper after fix the annotation issues-->
         <module>output-mappers/xml-output-mapper</module>
         <!--<module>output-mappers/wso2event-output-mapper</module>-->
         <!--todo : enable input-mappers/text-input-mapper after fix the annotation issues-->
         <!--<module>input-mappers/text-input-mapper</module>-->
-        <!--<module>input-mappers/json-input-mapper</module>-->
+        <module>input-mappers/json-input-mapper</module>
         <!--<module>input-mappers/map-input-mapper</module>-->
         <!--todo : enable input-mappers/xml-input-mapper after fix the annotation issues-->
         <module>input-mappers/xml-input-mapper</module>
