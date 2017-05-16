@@ -383,7 +383,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
         }
 
-        function.getCallableUnitBody().accept(this);
+        if (!function.isNative()) {
+            function.getCallableUnitBody().accept(this);
+        }
         jsonFunc.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonFunc);
