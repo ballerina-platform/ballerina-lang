@@ -148,13 +148,13 @@ class TransformStatementDecorator extends React.Component {
           var transformIndex = this.props.model.parent.getIndexOfChild(this.props.model);
           _.forEach(this.props.model.parent.getVariableDefinitionStatements(), variableDefStmt => {
                var currentIndex = this.props.model.parent.getIndexOfChild(variableDefStmt);
+               var structInfo = variableDefStmt.getLeftExpression().split(" ");
                //Checks struct defined before the transform statement
                if(currentIndex < transformIndex) {
                    _.forEach(this._package.getStructDefinitions(), predefinedStruct => {
-                          if (variableDefStmt.children.length > 0 &&
-                          variableDefStmt.children[0].children[0].getTypeName() ==  predefinedStruct.getStructName()) {
+                          if (structInfo[0] ==  predefinedStruct.getStructName()) {
                                 var struct = {};
-                                struct.name = variableDefStmt.children[0].children[0].getName();
+                                struct.name = structInfo[1];
                                 struct.properties = [];
                                 _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
                                      var property = {};
