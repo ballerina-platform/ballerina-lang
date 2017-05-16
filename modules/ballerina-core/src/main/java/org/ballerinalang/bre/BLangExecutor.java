@@ -22,7 +22,6 @@ import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFunction;
-import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.ParameterDef;
@@ -94,7 +93,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -157,7 +155,7 @@ public class BLangExecutor implements NodeExecutor {
         } else {
             rValue = rExpr.execute(this);
         }
-        
+
         if (lExpr instanceof VariableRefExpr) {
             assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
         } else if (lExpr instanceof ArrayMapAccessExpr) {
@@ -710,10 +708,10 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(BinaryExpression binaryExpr) {
         Expression rExpr = binaryExpr.getRExpr();
         BValueType rValue = (BValueType) rExpr.execute(this);
-        
+
         Expression lExpr = binaryExpr.getLExpr();
         BValueType lValue = (BValueType) lExpr.execute(this);
-        
+
         return binaryExpr.getEvalFunc().apply(lValue, rValue);
     }
 
@@ -721,18 +719,18 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(BinaryEqualityExpression binaryEqualityExpr) {
         Expression rExpr = binaryEqualityExpr.getRExpr();
         Expression lExpr = binaryEqualityExpr.getLExpr();
- 
+
         BValue rValue = rExpr.execute(this);
         BValue lValue = lExpr.execute(this);
-        
+
         // if this is a null check, then need to pass the BValue
         if (rExpr.getType() == BTypes.typeNull || lExpr.getType() == BTypes.typeNull) {
             return binaryEqualityExpr.getRefTypeEvalFunc().apply(lValue, rValue);
         }
-        
+
         return binaryEqualityExpr.getEvalFunc().apply((BValueType) lValue, (BValueType) rValue);
     }
-    
+
     @Override
     public BValue visit(ArrayMapAccessExpr arrayMapAccessExpr) {
         VariableRefExpr arrayVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
@@ -777,7 +775,7 @@ public class BLangExecutor implements NodeExecutor {
 
         // Creating a new arrays
         BArray bArray = arrayInitExpr.getType().getEmptyValue();
-        
+
         for (int i = 0; i < argExprs.length; i++) {
             Expression expr = argExprs[i];
             BValue value = expr.execute(this);
@@ -802,7 +800,7 @@ public class BLangExecutor implements NodeExecutor {
         }
         return bMap;
     }
-    
+
     @Override
     public BValue visit(JSONInitExpr jsonInitExpr) {
         Expression[] argExprs = jsonInitExpr.getArgExprs();
@@ -823,7 +821,7 @@ public class BLangExecutor implements NodeExecutor {
         }
         return new BJSON(stringJoiner.toString());
     }
-    
+
     @Override
     public BValue visit(JSONArrayInitExpr jsonArrayInitExpr) {
         Expression[] argExprs = jsonArrayInitExpr.getArgExprs();
@@ -853,50 +851,22 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(ConnectorInitExpr connectorInitExpr) {
         BConnector bConnector;
         BValue[] connectorMemBlock;
-        Connector connector = (Connector) connectorInitExpr.getType();
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connectorInitExpr.getType();
 
-        if (connector instanceof AbstractNativeConnector) {
-
-            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
-            Expression[] argExpressions = connectorInitExpr.getArgExprs();
-            connectorMemBlock = new BValue[argExpressions.length];
-            for (int j = 0; j < argExpressions.length; j++) {
-                connectorMemBlock[j] = argExpressions[j].execute(this);
-            }
-
-            nativeConnector.init(connectorMemBlock);
-            bConnector = new BConnector(nativeConnector, connectorMemBlock);
-
-//            //TODO Fix Issue#320
-//            NativeUnit nativeUnit = ((NativeUnitProxy) connector).load();
-//            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) connector).load();
-//            Expression[] argExpressions = connectorDcl.getArgExprs();
-//            connectorMemBlock = new BValue[argExpressions.length];
-//
-//            for (int j = 0; j < argExpressions.length; j++) {
-//                connectorMemBlock[j] = argExpressions[j].execute(this);
-//            }
-//
-//            nativeConnector.init(connectorMemBlock);
-//            connector = nativeConnector;
-
-        } else {
-            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
-
-            int offset = 0;
-            connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
-            for (Expression expr : connectorInitExpr.getArgExprs()) {
-                connectorMemBlock[offset] = expr.execute(this);
-                offset++;
-            }
-
-            bConnector = new BConnector(connector, connectorMemBlock);
-
-            // Invoke the <init> function
-            invokeConnectorInitFunction(connectorDef, bConnector);
-
+        int offset = 0;
+        connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
+        for (Expression expr : connectorInitExpr.getArgExprs()) {
+            connectorMemBlock[offset] = expr.execute(this);
+            offset++;
         }
 
+        bConnector = new BConnector(connectorDef, connectorMemBlock);
+
+        // Invoke the <init> function
+        invokeConnectorInitFunction(connectorDef, bConnector);
+
+        // Invoke the <init> action
+        invokeConnectorInitAction(connectorDef, bConnector);
         return bConnector;
     }
 
@@ -987,7 +957,7 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(NullLiteral nullLiteral) {
         return nullLiteral.getBValue();
     }
-    
+
     @Override
     public BValue visit(StackVarLocation stackVarLocation) {
         int offset = stackVarLocation.getStackFrameOffset();
@@ -1142,7 +1112,7 @@ public class BLangExecutor implements NodeExecutor {
 
         // Invoke the <init> function
         invokeStructInitFunction(structDef, structMemBlock);
-        
+
         // iterate through initialized values and re-populate the memory block
         Expression[] argExprs = structInitExpr.getArgExprs();
         for (int i = 0; i < argExprs.length; i++) {
@@ -1164,16 +1134,16 @@ public class BLangExecutor implements NodeExecutor {
         BValue value = varRef.execute(this);
         return getFieldExprValue(fieldAccessExpr, value);
     }
-    
+
     @Override
     public BValue visit(JSONFieldAccessExpr jsonFieldExpr) {
         FieldAccessExpr varRefExpr = (FieldAccessExpr) jsonFieldExpr.getVarRef();
         Expression jsonVarRef = varRefExpr.getVarRef();
         BValue json = jsonVarRef.execute(this);
-        
+
         return getJSONElementValue((BJSON) json, varRefExpr.getFieldExpr());
     }
-    
+
     @Override
     public BValue visit(WorkerVarLocation workerVarLocation) {
         int offset = workerVarLocation.getworkerMemAddrOffset();
@@ -1188,12 +1158,12 @@ public class BLangExecutor implements NodeExecutor {
      */
     private void assignValueToFieldAccessExpr(BValue rValue, FieldAccessExpr lExpr) {
         Expression lExprVarRef = lExpr.getVarRef();
-        
+
         if (lExprVarRef instanceof ArrayMapAccessExpr) {
             assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExprVarRef);
             return;
         }
-        
+
         BValue value = lExprVarRef.execute(this);
         setFieldValue(rValue, lExpr, value);
     }
@@ -1202,22 +1172,22 @@ public class BLangExecutor implements NodeExecutor {
      * Recursively traverse and set the value of the access expression of a field of a struct.
      *
      * @param rValue Value to be set
-     * @param expr StructFieldAccessExpr of the current field
+     * @param currentExpr StructFieldAccessExpr of the current field
      * @param currentVal Value of the expression evaluated so far.
      */
     private void setFieldValue(BValue rValue, FieldAccessExpr currentExpr, BValue currentVal) {
         // currentVal is a unitValue or a array/map. hence get the element value of it.
         BValue unitVal = getUnitValue(currentVal, currentExpr);
-        
+
         if (unitVal == null) {
             throw new BallerinaException("field '" + currentExpr.getSymbolName() + "' is null");
         }
-        
+
         if (currentExpr.getRefVarType() == BTypes.typeJSON) {
             setJSONElementValue((BJSON) unitVal, currentExpr.getFieldExpr(), rValue);
             return;
         }
-        
+
         BStruct currentStructVal = (BStruct) unitVal;
         FieldAccessExpr fieldExpr = (FieldAccessExpr) currentExpr.getFieldExpr();
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
@@ -1283,10 +1253,10 @@ public class BLangExecutor implements NodeExecutor {
             lExprValue.setValue(memoryLocation, rValue);
             return;
         }
-        
+
         ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
         Expression[] indexExprs = varRef.getIndexExprs();
-        
+
         // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
         if (arrayMapValue == null) {
@@ -1294,7 +1264,7 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // Set the value to arrays/map's index location
-        
+
         if (varRef.getRExpr().getType() == BTypes.typeMap) {
             BValue indexValue = indexExprs[0].execute(this);
             ((BMap) arrayMapValue).put(indexValue, rValue);
@@ -1321,18 +1291,18 @@ public class BLangExecutor implements NodeExecutor {
         if (fieldExpr == null) {
             return currentVal;
         }
-        
+
         if (currentExpr.getRefVarType() == BTypes.typeJSON) {
             return getJSONElementValue((BJSON) currentVal, fieldExpr);
-        } 
-        
+        }
+
         // currentVal could be a value type or a array/map. Hence get the single element value of it.
         BValue unitVal = getUnitValue(currentVal, currentExpr);
-        
+
         if (unitVal == null) {
             throw new BallerinaException("field '" + currentExpr.getVarName() + "' is null");
         }
-        
+
         // if fieldExpr exist means this is a struct.
         BStruct currentStructVal = (BStruct) unitVal;
 
@@ -1370,7 +1340,12 @@ public class BLangExecutor implements NodeExecutor {
      */
     private BValue getUnitValue(BValue currentVal, FieldAccessExpr currentExpr) {
         ReferenceExpr currentVarRefExpr = (ReferenceExpr) currentExpr.getVarRef();
-        
+        //if (currentVal == null) {
+        //    throw new BallerinaException("field '" + generateErrorSymbolName(currentVarRefExpr.getSymbolName())
+        //            + "' is null");
+        //}
+
+
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
             return currentVal;
         }
@@ -1429,6 +1404,27 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.popFrame();
     }
 
+    private void invokeConnectorInitAction(BallerinaConnectorDef connectorDef, BConnector bConnector) {
+        Action action = connectorDef.getInitAction();
+        if (action == null) {
+            return;
+        }
+
+        BValue[] localVals = new BValue[1];
+        localVals[0] = bConnector;
+
+        BValue[] returnVals = new BValue[0];
+
+        CallableUnitInfo functionInfo = new CallableUnitInfo(action.getName(), action.getPackagePath(),
+                action.getNodeLocation());
+
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        controlStack.pushFrame(stackFrame);
+        AbstractNativeAction nativeAction = (AbstractNativeAction) action;
+        nativeAction.execute(bContext);
+        controlStack.popFrame();
+    }
+
     private BArray retrieveArray(BArray arrayVal, Expression[] exprs) {
         for (int i = exprs.length - 1; i >= 1; i--) {
             BInteger indexVal = (BInteger) exprs[i].execute(this);
@@ -1466,10 +1462,10 @@ public class BLangExecutor implements NodeExecutor {
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
     }
-    
+
     /**
      * Get the value of element from a given json object.
-     * 
+     *
      * @param json JSON to get the value
      * @param fieldExpr Field expression represent the element of the json to be extracted
      * @return value of the element represented by the field expression
@@ -1478,13 +1474,13 @@ public class BLangExecutor implements NodeExecutor {
         if (fieldExpr == null) {
             return json;
         }
-        
+
         BJSON jsonElement;
         BValue elementIndex = fieldExpr.getVarRef().execute(this);
         if (json == null) {
             throw new BallerinaException("cannot get '" + elementIndex.stringValue() + "' from null");
         }
-        
+
         if (elementIndex.getType() == BTypes.typeInt) {
             jsonElement = JSONUtils.getArrayElement(json, ((BInteger) elementIndex).intValue());
         } else {
@@ -1492,10 +1488,10 @@ public class BLangExecutor implements NodeExecutor {
         }
         return getJSONElementValue(jsonElement, fieldExpr.getFieldExpr());
     }
-    
+
     /**
      * Recursively traverse and set the value of the access expression of a field of a json.
-     * 
+     *
      * @param json JSON to set the value
      * @param fieldExpr Expression represents the field
      * @param rValue Value to be set
@@ -1505,10 +1501,10 @@ public class BLangExecutor implements NodeExecutor {
         if (json == null) {
             throw new BallerinaException("cannot set '" + elementIndex.stringValue() + "' of null");
         }
-        
+
         FieldAccessExpr childField = fieldExpr.getFieldExpr();
         BJSON jsonElement;
-        
+
         if (childField == null) {
             if (elementIndex.getType() == BTypes.typeInt) {
                 JSONUtils.setArrayElement(json, ((BInteger) elementIndex).intValue(), (BJSON) rValue);
@@ -1517,7 +1513,7 @@ public class BLangExecutor implements NodeExecutor {
             }
             return;
         }
-        
+
         if (elementIndex.getType() == BTypes.typeInt) {
             jsonElement = JSONUtils.getArrayElement(json, ((BInteger) elementIndex).intValue());
         } else {

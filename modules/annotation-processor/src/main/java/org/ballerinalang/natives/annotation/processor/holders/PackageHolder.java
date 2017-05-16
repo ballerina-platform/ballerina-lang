@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * DTO to hold Ballerina package. Contains the native functions, native connectors and Native type 
+ * DTO to hold Ballerina package. Contains the native functions, native actions and Native type
  * convertors belongs to a package.
  */
 public class PackageHolder {

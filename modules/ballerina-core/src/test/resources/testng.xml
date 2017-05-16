@@ -167,4 +167,22 @@ under the License.
             <class name="org.ballerinalang.model.constant.ConstantAccessTest" />
         </classes>
     </test> -->
+
+    <test name="ballerina-identifier-literal-test-suite">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.TestConfigurationUtil" />
+            <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralPackageTest" />
+            <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralTest" />
+        </classes>
+    </test>
+    <!-- Non Blocking Test Cases -->
+    <!-- <test name="ballerina-identifier-literal-test-suite-non-blocking">
+        <parameter name="enableNonBlocking" value="true" />
+        <classes>
+            <class name="org.ballerinalang.TestConfigurationUtil" />
+            <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralPackageTest" />
+            <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralTest" />
+        </classes>
+    </test> -->
 </suite>

@@ -24,7 +24,7 @@ import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.jms.utils.JMSConstants;
+import org.ballerinalang.nativeimpl.actions.jms.utils.JMSConstants;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.nativeimpl.util.TestCallback;
 import org.ballerinalang.util.program.BLangFunctions;
