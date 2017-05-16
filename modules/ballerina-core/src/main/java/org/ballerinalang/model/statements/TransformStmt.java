@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.expressions.Expression;
 
 /**
@@ -32,9 +33,10 @@ public class TransformStmt extends AbstractStatement {
     private Expression[] inputExprs;
     private Expression[] outputExprs;
 
-    private TransformStmt(NodeLocation location, Expression[] inputExprs, Expression[] outputExprs,
-                          BlockStmt transformBody) {
+    private TransformStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] inputExprs,
+                          Expression[] outputExprs, BlockStmt transformBody) {
         super(location);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.transformBody = transformBody;
         this.inputExprs = inputExprs;
         this.outputExprs = outputExprs;
@@ -69,6 +71,7 @@ public class TransformStmt extends AbstractStatement {
      */
     public static class TransformStmtBuilder {
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private BlockStmt transformBody;
         private Expression[] inputExprs;
         private Expression[] outputExprs;
@@ -89,8 +92,12 @@ public class TransformStmt extends AbstractStatement {
             this.inputExprs = inputExprs;
         }
 
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
         public TransformStmt build() {
-            return new TransformStmt(location, inputExprs, outputExprs, transformBody);
+            return new TransformStmt(location, whiteSpaceDescriptor, inputExprs, outputExprs, transformBody);
         }
     }
 }

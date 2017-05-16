@@ -1144,6 +1144,7 @@ public class BLangModelBuilder {
         // Create a transform statement builder
         TransformStmt.TransformStmtBuilder transformStmtBuilder = new TransformStmt.TransformStmtBuilder();
         transformStmtBuilder.setNodeLocation(location);
+        transformStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
 
         // Get the statement block at the top of the block statement stack and set as the transform body.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
