@@ -103,6 +103,10 @@ function getCompoundStatementChildPosition(node) {
         headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
 
         if (currentResourceIndex === 0) {
+
+            const serviceVariablesHeightGap = node.getParent().getViewState().components.variablesPane.h +
+                DesignerDefaults.panel.body.padding.top;
+
             /**
              * If there are service level connectors, then we need to drop the first resource further down,
              * in order to maintain a gap between the connector heading and the resource heading
@@ -116,6 +120,9 @@ function getCompoundStatementChildPosition(node) {
             } else {
                 headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
             }
+
+            headerY += serviceVariablesHeightGap;
+
         } else if (currentResourceIndex > 0) {
             let previousResourceBBox = resources[currentResourceIndex - 1].getViewState().bBox;
             headerY = previousResourceBBox.y + previousResourceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
