@@ -61,12 +61,22 @@ class ConnectorDeclaration extends React.Component {
         connectorBBox.w = DesignerDefaults.lifeLine.width;
         connectorBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
 
+        let classes = {
+            lineClass: "connector-life-line",
+            polygonClass: "connector-life-line-polygon"
+        };
+
         return (<g>
                 <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model}/>
-                <LifeLine title={connectorName} bBox={connectorBBox} editorOptions={this.editorOptions} />
+                <LifeLine title={connectorName} bBox={connectorBBox} editorOptions={this.editorOptions}
+                          onDelete={this.onDelete.bind(this)} classes={classes} />
                 {children}
             </g>
         );
+    }
+
+    onDelete() {
+        this.props.model.remove();
     }
 }
 

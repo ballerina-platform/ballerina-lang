@@ -56,7 +56,7 @@ class TypeMapperDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitTypeMapperDefinition(typeMapperDefinition) {
         this.outdent();
-        this.appendSource(this.getIndentation() + "}\n");
+        this.appendSource(this.getIndentation() + '}\n');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit TypeMapperDefinition');
     }

@@ -80,7 +80,9 @@ class CompoundStatementDecorator extends React.Component {
                    onMouseOut={ this.setActionVisibility.bind(this, false) }
                    onMouseOver={ this.setActionVisibility.bind(this, true)}>
 			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
-                  className={dropZoneClassName} {...fill}/>
+                  className={dropZoneClassName} {...fill}
+                  onMouseOver={(e) => this.onDropZoneActivate(e)}
+  								onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
             {this.props.children}
 			<ActionBox
                 bBox={ actionBbox }
@@ -126,33 +128,8 @@ class CompoundStatementDecorator extends React.Component {
         if (!this.context.dragDropManager.isOnDrag()) {
             const myRoot = ReactDOM.findDOMNode(this);
             if (show) {
-                const regex = new RegExp('(^|\\s)(compound-)?statement(\\s|$)');
-                let isInChildStatement = false;
-                let isInStatement = false;
-                let isFromChildStatement = false;
-
-                let elm = e.target;
-                while (elm && elm !== myRoot && elm.getAttribute) {
-                    if (regex.test(elm.getAttribute('class'))) {
-                        isInStatement = true;
-                    }
-                    elm = elm.parentNode;
-                }
-                if (elm === myRoot && isInStatement) {
-                    isInChildStatement = true;
-                }
-
-                elm = e.relatedTarget;
-                isInStatement = false;
-                while (elm && elm !== myRoot && elm.getAttribute) {
-                    if (regex.test(elm.getAttribute('class'))) {
-                        isInStatement = true;
-                    }
-                    elm = elm.parentNode;
-                }
-                if (elm === myRoot && isInStatement) {
-                    isFromChildStatement = true;
-                }
+                let isInChildStatement = CompoundStatementDecorator.isInStatementWithinMe(e.target, myRoot);
+                let isFromChildStatement = CompoundStatementDecorator.isInStatementWithinMe(e.relatedTarget, myRoot);
 
                 if (!isInChildStatement) {
                     if (isFromChildStatement) {
@@ -175,6 +152,20 @@ class CompoundStatementDecorator extends React.Component {
                 }
             }
         }
+    }
+
+    static isInStatementWithinMe(elmToCheck, myRoot) {
+        const regex = new RegExp('(^|\\s)(compound-)?statement(\\s|$)');
+        let isInStatement = false;
+        let elm = elmToCheck;
+        while (elm && elm !== myRoot && elm.getAttribute) {
+            if (regex.test(elm.getAttribute('class'))) {
+                isInStatement = true;
+            }
+            elm = elm.parentNode;
+        }
+        const isChild = elm === myRoot;
+        return isInStatement && isChild;
     }
 
     onDelete() {

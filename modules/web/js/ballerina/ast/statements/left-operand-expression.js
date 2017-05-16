@@ -68,6 +68,14 @@ class LeftOperandExpression extends Statement {
         this.setAttribute('_operand_type', operandType.trim(), options);
     }
 
+    generateExpression() {
+        var exps = [];
+        _.forEach(this.getChildren(), child => {
+            exps.push(child.generateExpression());
+        });
+        return _.join(exps, ',');
+    }
+
     /**
      * setting parameters from json
      * @param jsonNode

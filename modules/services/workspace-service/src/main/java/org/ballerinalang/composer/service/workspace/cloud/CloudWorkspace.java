@@ -21,6 +21,8 @@ import com.google.gson.JsonObject;
 import org.ballerinalang.composer.service.workspace.Workspace;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Workspace implementation for cloud file system.
@@ -30,7 +32,12 @@ public class CloudWorkspace implements Workspace {
     public JsonArray listRoots() throws IOException {
         return null;
     }
-    
+
+    @Override
+    public JsonArray getRoots(List<Path> rootPaths) throws IOException {
+        return null;
+    }
+
     @Override
     public JsonArray listDirectoriesInPath(String path) {
         return null;

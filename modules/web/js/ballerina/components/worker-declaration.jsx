@@ -21,7 +21,6 @@ import LifeLine from './lifeline.jsx';
 import {getComponentForNodeArray} from './utils';
 import StatementContainer from './statement-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
-import ActionBox from "./action-box";
 
 class WorkerDeclaration extends React.Component {
 
@@ -37,18 +36,29 @@ class WorkerDeclaration extends React.Component {
         };          
     }
 
+    onDelete() {
+        this.props.model.remove();
+    }
+
     render() {
         const statementContainerBBox = this.props.model.viewState.components.statementContainer;
         let workerBBox = {};
-        var children = getComponentForNodeArray(this.props.model.getChildren());
+        let children = getComponentForNodeArray(this.props.model.getChildren());
         workerBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width)/2;
         workerBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
         workerBBox.w = DesignerDefaults.lifeLine.width;
         workerBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
+
+        let classes = {
+            lineClass: "worker-life-line",
+            polygonClass: "worker-life-line-polygon"
+        };
+
         return (<g>
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}/>
-                <LifeLine title={this.props.model.getWorkerName()} bBox={workerBBox}  editorOptions={this.editorOptions} />
-                <ActionBox show={false} bBox={workerBBox}/>
+                <LifeLine title={this.props.model.getWorkerName()} bBox={workerBBox}
+                          editorOptions={this.editorOptions} model={this.props.model}
+                          onDelete={this.onDelete.bind(this)} classes={classes}/>
                 {children}
             </g>
         );

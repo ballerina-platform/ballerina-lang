@@ -74,8 +74,18 @@ class BlockStatement extends ASTNode {
         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child,index);
     }
 
-    removeChild(child) {
-        Object.getPrototypeOf(this.constructor.prototype).removeChild.call(this, child, ignoreModifiedTreeEvent);
+    removeChild(child, ignoreModifiedTreeEvent, willVisit) {
+        if (!_.isUndefined(willVisit) && willVisit != true) {
+            var parentModelChildren = this.children;
+            for (var itr = 0; itr < parentModelChildren.length; itr++) {
+                if (parentModelChildren[itr].id === child.id) {
+                    parentModelChildren.splice(itr, 1);
+                    break;
+                }
+            }
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).removeChild.call(this, child, ignoreModifiedTreeEvent);
+        }
     }
 }
 

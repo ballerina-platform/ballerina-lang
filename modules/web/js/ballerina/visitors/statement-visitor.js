@@ -220,6 +220,19 @@ class StatementVisitor extends ASTVisitor {
     endVisitAssignmentStatement(statement) {
     }
 
+    canVisitTransformStatement(statement) {
+        return false;
+    }
+
+    beginVisitTransformStatement(statement) {
+    }
+
+    visitTransformStatement(statement) {
+    }
+
+    endVisitTransformStatement(statement) {
+    }
+
     canVisitWhileStatement(statement) {
         return false;
     }
@@ -418,6 +431,8 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitAssignmentStatement(node);
         }  else if (node instanceof AST.Assignment) {
             return this.canVisitAssignment(node);
+        } else if (node instanceof AST.TransformStatement) {
+            return this.canVisitTransformStatement(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
             return this.canVisitActionInvocationStatement(node);
         } else if (node instanceof AST.Expression) {
@@ -471,8 +486,6 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitCatchStatement(node);
         } else if (node instanceof AST.AssignmentStatement) {
             return this.beginVisitAssignmentStatement(node);
-        }  else if (node instanceof AST.Assignment) {
-            return this.beginVisitAssignment(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
             return this.beginVisitActionInvocationStatement(node);
         } else if (node instanceof AST.Expression) {
@@ -499,6 +512,8 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitThrowStatement(node);
         }  else if (node instanceof AST.CommentStatement) {
             return this.beginVisitCommentStatement(node);
+        }  else if (node instanceof AST.TransformStatement) {
+            return this.beginVisitTransformStatement(node);
         }
     }
 
@@ -526,7 +541,9 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitCatchStatement(node);
         } else if (node instanceof AST.AssignmentStatement) {
             return this.endVisitAssignmentStatement(node);
-        }  else if (node instanceof AST.Assignment) {
+        }  else if (node instanceof AST.TransformStatement) {
+            return this.endVisitTransformStatement(node);
+        } else if (node instanceof AST.Assignment) {
             return this.endVisitAssignment(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
             return this.endVisitActionInvocationStatement(node);

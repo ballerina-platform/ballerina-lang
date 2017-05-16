@@ -19,6 +19,7 @@
 import React from 'react';
 import './global-definitions.css'
 import ImageUtil from './image-util';
+import {util as SizingUtils} from '../visitors/sizing-utils';
 
 export default class GlobalDefinitions extends React.Component {
 
@@ -28,25 +29,45 @@ export default class GlobalDefinitions extends React.Component {
         const leftPadding = 10;
         const iconSize = 20;
         const iconLeftPadding = 12;
+        const globalsNoFontSize = 13;
+        const noOfGlobalsLeftPadding = 12;
+        const noOfGlobalsBGHeight = 18;
         const globalsLabelWidth = 47.94;
 
-        const badgeWidth = leftPadding + globalsLabelWidth + iconLeftPadding + iconSize + leftPadding;
+        const noOfGlobals = this.props.globals.length;
+
+        const noOfGlobalsTextWidth = SizingUtils.getOnlyTextWidth(noOfGlobals, {fontSize: globalsNoFontSize});
+        const noOfGlobalsBGWidth = Math.max(noOfGlobalsTextWidth + 6, noOfGlobalsBGHeight);
+
+        const badgeWidth = leftPadding + globalsLabelWidth + noOfGlobalsLeftPadding + noOfGlobalsTextWidth +
+            iconLeftPadding + iconSize + leftPadding;
 
         const labelBbox = {
             x: bBox.x + leftPadding,
             y: bBox.y + headerHeight / 2,
         };
 
+        const numberBbox = {
+            x: labelBbox.x + globalsLabelWidth + noOfGlobalsLeftPadding,
+            y: labelBbox.y,
+        };
+
         const iconBbox = {
-            x: labelBbox.x + globalsLabelWidth + iconLeftPadding,
-            y: labelBbox.y - iconSize/2,
+            x: numberBbox.x + noOfGlobalsTextWidth + iconLeftPadding,
+            y: numberBbox.y - iconSize/2,
         };
 
         return (
             <g className="package-definition-head" onClick={ e => {this.props.onClick(e);} }>
-                <rect x={ bBox.x } y={ bBox.y } width={badgeWidth} height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
+                <rect x={ bBox.x } y={ bBox.y } width={ badgeWidth } height={ headerHeight } rx="0" ry="0" className="package-definition-header"/>
+                <rect x={ bBox.x } y={ bBox.y } height={ headerHeight } className="global-definition-decorator" />
                 <text x={ labelBbox.x } y={ labelBbox.y } rx="0" ry="0">
                     Globals
+                </text>
+                <rect x={ numberBbox.x - (noOfGlobalsBGWidth-noOfGlobalsTextWidth)/2 } y={ numberBbox.y - noOfGlobalsBGHeight/2 } width={noOfGlobalsBGWidth} height={noOfGlobalsBGHeight}
+                      rx={noOfGlobalsBGHeight/2} ry={noOfGlobalsBGHeight/2} className="global-badge" />
+                <text x={ numberBbox.x } y={ numberBbox.y } rx="0" ry="0" style={{fontSize: globalsNoFontSize}}  className="global-badge-text">
+                    {noOfGlobals}
                 </text>
                 <image width={ iconSize } height={ iconSize } className="property-pane-action-button-delete"
                        xlinkHref={ ImageUtil.getSVGIconString('view') } x={ iconBbox.x } y={ iconBbox.y } />

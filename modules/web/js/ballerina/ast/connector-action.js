@@ -68,6 +68,19 @@ class ConnectorAction extends ASTNode {
     }
 
     /**
+     * Set the Action name
+     * This is an alias to setActionName
+     * Many other node types' setters for name takes pattern `set<Node Type>Name`
+     * Node type of connector actions is ConnectorAction
+     * This method helps keep that formality so we can take advantage of it
+     * @param {string} name - Action Name
+     * @param {object} options - attribute options
+     */
+    setConnectorActionName(name, options) {
+        this.setActionName(name, options);
+    }
+
+    /**
      * Get the variable Declarations
      * @return {VariableDeclaration[]} variableDeclarations
      */
@@ -408,4 +421,3 @@ class ConnectorAction extends ASTNode {
 }
 
 export default ConnectorAction;
-

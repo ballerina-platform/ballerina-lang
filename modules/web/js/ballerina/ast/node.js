@@ -48,7 +48,7 @@ class ASTNode extends EventChannel {
         });
 
         this._generateUniqueIdentifiers = undefined;
-        this._whitespaceTokens = [];
+        this.whiteSpaceDescriptor = {};
 
         /**
          * View State Object to keep track of the model's view properties
@@ -473,52 +473,12 @@ class ASTNode extends EventChannel {
      */
     generateUniqueIdentifiers() {}
 
-    /**
-     * Returned array will contain all the whitespace tokens associated with this particular node. Each token's position in
-     * the array is mapped to the index of possible whitespace region for the language construct - which is represented
-     * by this particular node - as defined in ballerina grammar.
-     *
-     * For example, take a look at possible whitespace regions in a package declaration
-     *        package<-0->org.ballerina.sample<-1->;<-2->//until next token start
-     *
-     *        It has three possible regions as below
-     *        0 - whitespace between 'package' keyword and package name start
-     *        1 - whitespace between package name end and semicolon
-     *        2 - whitespace between semicolon and next token start
-     *
-     * All nodes will carry whitespace tokens from it's end position to next token's start position. The very first node
-     * of AST will contain the whitespace from the beginning of the file to start position of node.
-     *
-     * @return {Array} The array of whitespace tokens associated with this node
-     */
-    getWhitespaceTokens() {
-        return this._whitespaceTokens;
+    getWhiteSpaceDescriptor() {
+        return this.whiteSpaceDescriptor;
     }
 
-    /**
-     * Sets whitespace tokens related to this particular node
-     *
-     * @param tokens {Array}
-     *                      This array should contain all the whitespace tokens associated with this particular node. Each token's position in
-     *                      the array is mapped to the index of possible whitespace region for the language construct - which is represented
-     *                      by this particular node - as defined in ballerina grammar.
-     *
-     *                      For example, take a look at possible whitespace regions in a package declaration
-     *                             package<-0->org.ballerina.sample<-1->;<-2->//until next token start
-     *
-     *                             It has three possible regions as below
-     *                             0 - whitespace between 'package' keyword and package name start
-     *                             1 - whitespace between package name end and semicolon
-     *                             2 - whitespace between semicolon and next token start
-     *
-     *                      As explained above, in addition to whitespace tokens inside it's own structure, all nodes will carry whitespace
-     *                      tokens from it's end position to next token's start position.   The very first node
-     *                      of AST will contain the whitespace from the beginning of the file to start position of node.
-     *
-     * @param options
-     */
-    setWhitespaceTokens(tokens, options) {
-        this.setAttribute('_whitespaceTokens', tokens, options);
+    setWhiteSpaceDescriptor(whiteSpaceDescriptor, options) {
+        this.setAttribute('whiteSpaceDescriptor', whiteSpaceDescriptor, options);
     }
 
     /** Gets the children of a specific type.

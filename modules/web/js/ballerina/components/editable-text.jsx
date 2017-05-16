@@ -30,10 +30,8 @@ class EditableText extends React.Component {
     }
 
     renderTextBox() {
-        const {
-            x, y, width, height = 25, onChange, onBlur, onKeyDown, children,
-            className = 'text-input', placeHolder, canUpdate
-        } = this.props;
+        const {x, y, width, height = 25, onChange, onBlur, onKeyDown, children="",
+            className = 'text-input', placeHolder, canUpdate} = this.props;
         const inputStyle = {
             position: 'absolute',
             top: y - height / 2,
@@ -49,20 +47,20 @@ class EditableText extends React.Component {
         let inputElement;
         if (placeHolder || !canUpdate) {
             inputElement = (
-                <input
-                    className={className}
-                    ref={input => {
+            <input
+                className={className}
+                ref={input => {
                         if (input !== null) {
-                            input.focus();
-                        }
-                    }}
-                    style={inputStyle}
-                    onChange={onChange}
-                    onKeyDown={onKeyDown}
-                    onBlur={onBlur}
-                    placeholder={placeHolder}
-                />
-            );
+                        input.focus();
+                    }
+                }}
+                style={inputStyle}
+                onChange={onChange}
+                onKeyDown={onKeyDown}
+                onBlur={onBlur}
+                placeholder={placeHolder}
+            />
+        );
         } else {
             inputElement = (
                 <input
@@ -85,7 +83,7 @@ class EditableText extends React.Component {
 
     componentDidUpdate(prevProps) {
         const editingJustFinished = prevProps.editing && !this.props.editing
-        if (this.props.editing || editingJustFinished) {
+        if(this.props.editing || editingJustFinished) {
             this.renderTextBox();
         }
     }
@@ -116,6 +114,7 @@ class EditableText extends React.Component {
                 <text {...textProps} className="panel-label">{this.props.children}</text>
             )
         }
+
     }
 }
 

@@ -135,6 +135,25 @@ public class BLangJSONModelTest {
         urlConn.disconnect();
     }
 
+    @Test
+    public void testBLangJSONModelTransformer() throws IOException, URISyntaxException {
+        File file = new File(getClass().getClassLoader().getResource("samples/transformStmt/transform-stmt.bal")
+                                       .getFile());
+        HttpURLConnection urlConn = request("/ballerina/model?location=" + file.getPath(), HttpMethod.GET);
+        InputStream inputStream = urlConn.getInputStream();
+        String response = StreamUtil.asString(inputStream);
+
+        File fileExpected = new File(
+                getClass().getClassLoader().getResource("samples/transformStmt/transform-stmt-expected.json")
+                          .getFile());
+        String expectedJsonStr = new Scanner(fileExpected).useDelimiter("\\Z").next();
+
+
+        Assert.assertEquals(response, expectedJsonStr);
+        IOUtils.closeQuietly(inputStream);
+        urlConn.disconnect();
+    }
+
     /*
     @Test
     public void testBLangJSONModelServiceUsingPost2() throws IOException, URISyntaxException {

@@ -44,7 +44,11 @@ import org.wso2.msf4j.MicroservicesRunner;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Workspace Service Entry point.
@@ -90,6 +94,7 @@ public class WorkspaceServiceRunner {
         String apiPath = null;
         String launcherPath = null;
         String debuggerPath = null;
+        String[] rootDirectoriesArray = null;
         // reading configurations from workspace-service-config.yaml. Users are expected to drop the
         // workspace-service-config.yaml file inside the $ballerina-tools-distribution/resources/composer/services
         // directory. Default configurations will be set if user hasn't provided workspace-service-config.yaml
@@ -102,6 +107,7 @@ public class WorkspaceServiceRunner {
                 apiPath = workspaceServiceConfig.getApiPath();
                 launcherPath = workspaceServiceConfig.getLauncherPath();
                 debuggerPath = workspaceServiceConfig.getDebuggerPath();
+                rootDirectoriesArray = workspaceServiceConfig.getRootDirectories().split(",");
             } catch (IOException e) {
                 logger.error("Error while reading workspace-service-config.yaml");
             }
@@ -148,12 +154,23 @@ public class WorkspaceServiceRunner {
         boolean isCloudMode = Boolean.getBoolean(Constants.SYS_WORKSPACE_ENABLE_CLOUD);
 
         Injector injector = Guice.createInjector(new WorkspaceServiceModule(isCloudMode));
+        WorkspaceService workspaceService = injector.getInstance(WorkspaceService.class);
+
+        // set list of root directories provided in workspace-service-config.yaml configuration file
+        if (rootDirectoriesArray != null && rootDirectoriesArray.length > 0) {
+            List<Path> rootDirs = new ArrayList<Path>();
+            Stream.of(rootDirectoriesArray).forEach((rootDirectory) -> {
+                rootDirs.add(Paths.get(rootDirectory));
+            });
+            workspaceService.setRootPaths(rootDirs);
+        }
+
         new MicroservicesRunner(apiPort)
                 .addExceptionMapper(new SemanticExceptionMapper())
                 .addExceptionMapper(new ParseCancellationExceptionMapper())
                 .addExceptionMapper(new FileNotFoundExceptionMapper())
                 .addExceptionMapper(new DefaultExceptionMapper())
-                .deploy(injector.getInstance(WorkspaceService.class))
+                .deploy(workspaceService)
                 .deploy(new BLangFileRestService())
                 .deploy(new PackagesApi())
                 .deploy(ServicesApiServiceFactory.getServicesApi())

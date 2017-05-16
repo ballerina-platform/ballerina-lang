@@ -160,31 +160,29 @@ public class PackagesApiServiceImpl extends PackagesApiService {
             List<Parameter> parameters = new ArrayList<>();
             addParameters(parameters, connector.getParameterDefs());
 
-/*          List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, connector.getReturnParamTypeNames());*/
+            List<Annotation> annotations = new ArrayList<>();
+            addAnnotations(annotations, connector.getAnnotations());
 
-            //List<Annotation> annotations = new ArrayList<>();
             List<Action> actions = new ArrayList<>();
             addActions(actions, connector.getActions());
 
             modelPackage.addConnectorsItem(createNewConnector(connector.getName(),
-                    null, actions, parameters, null));
+                    annotations, actions, parameters, null));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
 
             List<Parameter> parameters = new ArrayList<>();
             addParameters(parameters, connector.getParameterDefs());
-/*
-            List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, connector.getReturnParamTypeNames());*/
 
-            //List<Annotation> annotations = new ArrayList<>();
+            List<Annotation> annotations = new ArrayList<>();
+            addAnnotations(annotations, connector.getAnnotations());
+
             List<Action> actions = new ArrayList<>();
             addActions(actions, connector.getActions());
 
             modelPackage.addConnectorsItem(createNewConnector(connector.getName(),
-                    null, actions, parameters, null));
+                    annotations, actions, parameters, null));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -204,11 +202,11 @@ public class PackagesApiServiceImpl extends PackagesApiService {
             List<Parameter> returnParameters = new ArrayList<>();
             addParameters(returnParameters, function.getReturnParameters());
 
-/*            List<Annotation> annotations = new ArrayList<>();
-            addAnnotations(annotations, function.getAnnotations());*/
+            List<Annotation> annotations = new ArrayList<>();
+            addAnnotations(annotations, function.getAnnotations());
 
             modelPackage.addFunctionsItem(createNewFunction(function.getName(),
-                    null, parameters, returnParameters));
+                    annotations, parameters, returnParameters));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
@@ -218,12 +216,11 @@ public class PackagesApiServiceImpl extends PackagesApiService {
             List<Parameter> returnParameters = new ArrayList<>();
             addParameters(returnParameters, function.getReturnParameters());
 
-            /*
             List<Annotation> annotations = new ArrayList<>();
-            addAnnotations(annotations, function.getAnnotations());*/
+            addAnnotations(annotations, function.getAnnotations());
 
             modelPackage.addFunctionsItem(createNewFunction(function.getName(),
-                    null, parameters, returnParameters));
+                    annotations, parameters, returnParameters));
             packages.put(packagePath, modelPackage);
         }
     }

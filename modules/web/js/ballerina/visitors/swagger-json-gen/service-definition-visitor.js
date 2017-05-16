@@ -63,6 +63,16 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
             }
         });
 
+        //if base path is not defined set base path as service name. 
+        let basePath = _.find(existingAnnotations, (annotation) => {
+            if (_.isEqual(annotation.getPackageName(), 'http') && _.isEqual(annotation.getIdentifier(), 'BasePath')){
+                return true;
+            }
+        });
+        if(_.isUndefined(basePath)){
+            _.set(this.getSwaggerJson(), 'basePath', "/" + serviceDefinition.getServiceName());
+        }
+
         // Setting required 'info' annotation
         if (_.isUndefined(this.getSwaggerJson().info)) {
             this.getSwaggerJson().info = {version: '1.0.0', title: 'Sample Service'};

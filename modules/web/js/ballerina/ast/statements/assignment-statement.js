@@ -62,6 +62,10 @@ class AssignmentStatement extends Statement {
                 ? this.getChildren()[1].getRightOperandExpressionString() : "rightExpression");
     }
 
+    generateStatementString(){
+        return this.getChildren()[0].generateExpression() + '=' + this.getChildren()[1].generateExpression();
+    }
+
     /**
      * Set the assignment statement string
      * @param {string} statementString
