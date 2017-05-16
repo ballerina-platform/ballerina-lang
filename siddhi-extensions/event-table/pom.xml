@@ -105,13 +105,13 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.siddhi.extension.table.hazelcast.internal.*,
-                            org.wso2.siddhi.extension.table.*;version="${siddhi.version}"
+                            org.wso2.siddhi.extension.table.*;version="${project.version}"
                         </Export-Package>
                         <Import-Package>
                             org.apache.hadoop.util.bloom;version="${hadoop.common.version}",
                             org.osgi.service.component;version="${equinox.osgi.services.imp.pkg.version.range}",
                             com.hazelcast.*;version="${hazelcast.imp.pkg.version.range}",
-                            org.wso2.siddhi.*;version="${siddhi.version}",
+                            org.wso2.siddhi.*;version="${project.version}",
                             org.apache.hadoop.util.hash;version="${hadoop.common.version}",
                             org.apache.log4j;version="${log4j.imp.pkg.version.range}",
                             org.apache.tomcat.jdbc.pool;version="${jdbc-pool.imp.pkg.version.range}",
