@@ -14,7 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
 package org.ballerinalang.nativeimpl.net.ws;
@@ -27,41 +26,48 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.io.IOException;
+import java.util.List;
 import javax.websocket.Session;
 
 /**
- * Send text to the same client who sent the message to the given WebSocket Upgrade Path.
+ * Broadcasts text to all the clients connected to a given endpoint.
  */
-
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "pushText",
+        functionName = "broadcastText",
         args = {
                 @Argument(name = "text", type = TypeEnum.STRING)
         },
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "This pushes text from server to the the same " +
-                             "client who sent the message.") })
+                     attributes = { @Attribute(name = "value", value = "This pushes text from server to all the " +
+                             "connected clients of the service.") })
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "text", value = "Text which should be sent") })
-public class PushText extends AbstractNativeFunction {
+public class BroadcastText extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        try {
-            CarbonMessage carbonMessage = context.getCarbonMessage();
-            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
-            String text = getArgument(context, 0).stringValue();
-            session.getBasicRemote().sendText(text);
-        } catch (Throwable e) {
-            throw new BallerinaException("Cannot send the message. Error occurred.");
+        String text = getArgument(context, 0).stringValue();
+        String serviceName = context.getServiceInfo().getName();
+        List<Session> sessions = WebSocketConnectionManager.getInstance().getBroadcastConnectionList(serviceName);
+        if (sessions == null) {
+            throw new BallerinaException("Cannot find a broadcast list for the service: " + serviceName);
         }
+        sessions.forEach(
+                session -> {
+                    try {
+                        session.getBasicRemote().sendText(text);
+                    } catch (IOException e) {
+                        throw new BallerinaException("IO exception occurred during broadcasting text", e, context);
+                    }
+                }
+        );
         return VOID_RETURN;
     }
 }

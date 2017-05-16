@@ -14,10 +14,9 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
-package org.ballerinalang.nativeimpl.net.ws;
+package org.ballerinalang.nativeimpl.net.ws.connectiongroup;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -27,41 +26,50 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.io.IOException;
+import java.util.List;
 import javax.websocket.Session;
 
 /**
- * Send text to the same client who sent the message to the given WebSocket Upgrade Path.
+ * This pushes text to a group which is previously define.
  */
-
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "pushText",
+        functionName = "pushTextToGroup",
         args = {
+                @Argument(name = "connectionGroupName", type = TypeEnum.STRING),
                 @Argument(name = "text", type = TypeEnum.STRING)
         },
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "This pushes text from server to the the same " +
-                             "client who sent the message.") })
+                     attributes = { @Attribute(name = "value", value = "Push text from server to all the " +
+                             "connected clients of the service.") })
+@BallerinaAnnotation(annotationName = "Param",
+                     attributes = { @Attribute(name = "connectionGroupName", value = "Name of the connection group") })
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "text", value = "Text which should be sent") })
-public class PushText extends AbstractNativeFunction {
-
+public class PushTextToGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        try {
-            CarbonMessage carbonMessage = context.getCarbonMessage();
-            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
-            String text = getArgument(context, 0).stringValue();
-            session.getBasicRemote().sendText(text);
-        } catch (Throwable e) {
-            throw new BallerinaException("Cannot send the message. Error occurred.");
+        String connectionGroupName = getArgument(context, 0).stringValue();
+        String text = getArgument(context, 1).stringValue();
+        List<Session> sessions = WebSocketConnectionManager.getInstance().getConnectionGroup(connectionGroupName);
+        if (sessions != null) {
+            sessions.forEach(
+                    session -> {
+                        try {
+                            session.getBasicRemote().sendText(text);
+                        } catch (IOException e) {
+                            throw new BallerinaException("IO exception occurred during broadcasting text", e, context);
+                        }
+                    }
+            );
         }
+        // TODO: Throw exception if null
         return VOID_RETURN;
     }
 }

@@ -138,6 +138,17 @@ under the License.
             <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
         </classes>
     </test>
+
+    <!-- WebSocket Test Cases -->
+    <test name="websocket-test-cases" parallel="false">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.functions.ws.WebSocketEndpointTest"/>
+            <class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionGroupTest"/>
+            <class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionStoreTest"/>
+        </classes>
+    </test>
+
     <!-- Non Blocking Test Cases -->
     <!-- <test name="ballerina-global-var-test-suite-non-blocking">
         <parameter name="enableNonBlocking" value="true" />

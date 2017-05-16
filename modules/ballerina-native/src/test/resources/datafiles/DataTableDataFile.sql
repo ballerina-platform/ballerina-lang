@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS DataTable(
-  row_id       INTEGER NOT NULL IDENTITY,
+  row_id       INTEGER,
   int_type     INTEGER,
   long_type    BIGINT,
   float_type   FLOAT,
@@ -9,8 +9,10 @@ CREATE TABLE IF NOT EXISTS DataTable(
   PRIMARY KEY (row_id)
 );
 /
-insert into DataTable (int_type, long_type, float_type, double_type, boolean_type, string_type) values
-  (1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello');
+insert into DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type) values
+  (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello');
+/
+insert into DataTable (row_id) values (2);
 /
 CREATE TABLE IF NOT EXISTS ComplexTypes(
   row_id         INTEGER NOT NULL IDENTITY,
@@ -19,13 +21,14 @@ CREATE TABLE IF NOT EXISTS ComplexTypes(
   time_type      TIME,
   date_type      DATE,
   timestamp_type timestamp,
+  datetime_type  DATETIME,
   binary_type  BINARY(27),
   PRIMARY KEY (row_id)
 );
 /
-insert into ComplexTypes (blob_type, clob_type, time_type, date_type, timestamp_type, binary_type) values
+insert into ComplexTypes (blob_type, clob_type, time_type, date_type, timestamp_type, datetime_type, binary_type) values
   (X'77736F322062616C6C6572696E6120626C6F6220746573742E', CONVERT('very long text', CLOB), '11:35:45', '2017-02-03',
-   '2017-02-03 11:53:00', X'77736F322062616C6C6572696E612062696E61727920746573742E');
+   '2017-02-03 11:53:00', '2017-02-03 11:53:00', X'77736F322062616C6C6572696E612062696E61727920746573742E');
 /
 CREATE TABLE IF NOT EXISTS ArrayTypes(
   row_id        INTEGER NOT NULL IDENTITY,
