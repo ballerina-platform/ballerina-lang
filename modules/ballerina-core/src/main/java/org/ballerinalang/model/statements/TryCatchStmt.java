@@ -23,6 +23,7 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.Collections;
@@ -38,8 +39,10 @@ public class TryCatchStmt extends AbstractStatement {
     private Statement tryBlock;
     private CatchBlock catchBlock;
 
-    private TryCatchStmt(NodeLocation location, Statement tryBlock, CatchBlock catchBlock) {
+    private TryCatchStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                         Statement tryBlock, CatchBlock catchBlock) {
         super(location);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.tryBlock = tryBlock;
         this.catchBlock = catchBlock;
     }
@@ -129,6 +132,7 @@ public class TryCatchStmt extends AbstractStatement {
         private Statement tryBlock;
         private CatchBlock catchBlock;
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
         public Statement getTryBlock() {
             return tryBlock;
@@ -158,9 +162,18 @@ public class TryCatchStmt extends AbstractStatement {
             this.location = location;
         }
 
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
         public TryCatchStmt build() {
             return new TryCatchStmt(
                     location,
+                    whiteSpaceDescriptor,
                     tryBlock,
                     catchBlock);
         }

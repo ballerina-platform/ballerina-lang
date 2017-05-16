@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class BreakStmt extends AbstractStatement {
 
     private BlockStmt[] blockStmts;
 
-    private BreakStmt(NodeLocation nodeLocations, BlockStmt[] statements) {
+    private BreakStmt(NodeLocation nodeLocations, WhiteSpaceDescriptor whiteSpaceDescriptor, BlockStmt[] statements) {
         super(nodeLocations);
         this.blockStmts = statements;
     }
@@ -61,6 +62,7 @@ public class BreakStmt extends AbstractStatement {
     public static class BreakStmtBuilder {
 
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private List<BlockStmt> statementList = new ArrayList<>();
 
         public BreakStmtBuilder() {
@@ -74,12 +76,21 @@ public class BreakStmt extends AbstractStatement {
             this.location = location;
         }
 
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
         public void addStmt(BlockStmt statement) {
             statementList.add(statement);
         }
 
         public BreakStmt build() {
-            return new BreakStmt(location, statementList.toArray(new BlockStmt[statementList.size()]));
+            return new BreakStmt(location, whiteSpaceDescriptor,
+                    statementList.toArray(new BlockStmt[statementList.size()]));
         }
     }
 }

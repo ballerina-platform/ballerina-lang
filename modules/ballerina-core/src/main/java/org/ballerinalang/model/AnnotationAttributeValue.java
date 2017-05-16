@@ -32,26 +32,31 @@ public class AnnotationAttributeValue  implements Node {
     AnnotationAttachment annotationValue;
     AnnotationAttributeValue[] valueArray;
     NodeLocation location;
+    WhiteSpaceDescriptor whiteSpaceDescriptor;
     SimpleTypeName type;
     
-    public AnnotationAttributeValue(BValue bValue, SimpleTypeName valueType, NodeLocation location) {
+    public AnnotationAttributeValue(BValue bValue, SimpleTypeName valueType, NodeLocation location,
+                                    WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.bValue = bValue;
         this.type = valueType;
         this.location = location;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
     
     public AnnotationAttributeValue(AnnotationAttachment annotationValue, SimpleTypeName valueType,
-            NodeLocation location) {
+            NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.annotationValue = annotationValue;
         this.type = valueType;
         this.location = location;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
     
     public AnnotationAttributeValue(AnnotationAttributeValue[] valueArray, SimpleTypeName valueType, 
-            NodeLocation location) {
+            NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.valueArray = valueArray;
         this.type = valueType;
         this.location = location;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
     
     public AnnotationAttachment getAnnotationValue() {
@@ -73,7 +78,16 @@ public class AnnotationAttributeValue  implements Node {
     public NodeLocation getNodeLocation() {
         return location;
     }
-    
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
     public SimpleTypeName getType() {
         return type;
     }
