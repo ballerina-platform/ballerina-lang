@@ -19,6 +19,7 @@
 /**
  * A module representing the factory for Ballerina AST
  */
+import _ from 'lodash';
 import ballerinaAstRoot from './ballerina-ast-root';
 import serviceDefinition from './service-definition';
 import functionDefinition from './function-definition';
@@ -76,7 +77,7 @@ import referenceTypeInitExpression from './expressions/reference-type-init-expre
 import arrayInitExpression from './expressions/array-init-expression';
 import workerReplyStatement from './statements/worker-reply-statement';
 import structType from './struct-type';
-import structFieldAccessExpression from './expressions/struct-field-access-expression';
+import fieldAccessExpression from './expressions/field-access-expression';
 import blockStatement from './statements/block-statement';
 import typeCastExpression from './expressions/type-cast-expression';
 import variableDefinition from './variable-definition';
@@ -91,6 +92,7 @@ import returnParameterDefinitionHolder from './return-parameter-definition-holde
 import annotation from './annotations/annotation';
 import annotationEntry from './annotations/annotation-entry';
 import annotationEntryArray from './annotations/annotation-entry-array';
+import transformStatement from './statements/transform-statement';
 
 /**
  * @class BallerinaASTFactory
@@ -332,6 +334,15 @@ BallerinaASTFactory.createAssignmentStatement = function (args) {
 };
 
 /**
+ * creates AssignmentStatement
+ * @param {Object} args
+ * @returns {AssignmentStatement}
+ */
+BallerinaASTFactory.createTransformStatement = function (args) {
+    return new transformStatement(args);
+};
+
+/**
  * Creates Variable Definition Statement
  * @param {Object} [args]
  * @returns {VariableDefinitionStatement}
@@ -391,11 +402,11 @@ BallerinaASTFactory.createReturnStatement = function (args) {
 };
 
 /**
- * creates StructFieldAccessExpression
+ * creates FieldAccessExpression
  * @param args
  */
-BallerinaASTFactory.createStructFieldAccessExpression = function (args) {
-    return new structFieldAccessExpression(args);
+BallerinaASTFactory.createFieldAccessExpression = function (args) {
+    return new fieldAccessExpression(args);
 };
 
 /**
@@ -621,12 +632,21 @@ BallerinaASTFactory.createThrowStatement = function (args) {
 };
 
 /**
- * crates CommentStatement
+ * creates CommentStatement
  * @param {Object} args - Arguments for creating a new comment statement.
  * @returns {CommentStatement}
  */
 BallerinaASTFactory.createCommentStatement = function (args) {
     return new commentStatement(args);
+};
+
+/**
+ * creates TransformStatement
+ * @param {Object} args - Arguments for creating a new transform statement.
+ * @returns {TransformStatement}
+ */
+BallerinaASTFactory.createTransformStatement = function (args) {
+    return new transformStatement(args);
 };
 
 /**
@@ -860,8 +880,8 @@ BallerinaASTFactory.isExpression = function (child) {
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isStructFieldAccessExpression = function (child) {
-    return child instanceof structFieldAccessExpression;
+BallerinaASTFactory.isFieldAccessExpression = function (child) {
+    return child instanceof fieldAccessExpression;
 };
 
 /**
@@ -1009,6 +1029,15 @@ BallerinaASTFactory.isActionInvocationStatement = function (child) {
 };
 
 /**
+ * instanceof check for TransformStatement
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isTransformStatement = function (child) {
+    return child instanceof transformStatement;
+};
+
+/**
  * instanceof check for ActionInvocationExpression
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
@@ -1070,6 +1099,16 @@ BallerinaASTFactory.isAssignment = function (child) {
 BallerinaASTFactory.isAssignmentStatement = function (child) {
     return child instanceof assignmentStatement;
 };
+
+/**
+ * instanceof check for Assignment Statement
+ * @param child
+ * @returns {boolean}
+ */
+BallerinaASTFactory.isTransformStatement = function (child) {
+    return child instanceof transformStatement;
+};
+
 
 /**
  * instanceof check for BasicLiteralExpression
@@ -1463,8 +1502,8 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         case 'type_mapper_definition':
             node = BallerinaASTFactory.createTypeMapperDefinition();
             break;
-        case 'struct_field_access_expression':
-            node = BallerinaASTFactory.createStructFieldAccessExpression();
+        case 'field_access_expression':
+            node = BallerinaASTFactory.createFieldAccessExpression();
             break;
         case 'block_statement':
             node = BallerinaASTFactory.createBlockStatement();
@@ -1514,11 +1553,18 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         case 'return_parameter_definitions':
             node = BallerinaASTFactory.createReturnParameterDefinitionHolder();
             break;
+        case 'transform_statement':
+            node = BallerinaASTFactory.createTransformStatement();
+            break;
         default:
             throw new Error('Unknown node definition for ' + jsonNode.type);
     }
 
     node.setLineNumber(jsonNode.line_number, {doSilently: true});
+
+    if (!_.isNil(jsonNode.whitespace_descriptor)) {
+        node.setWhiteSpaceDescriptor(jsonNode.whitespace_descriptor, {doSilently: true});
+    }
     return node;
 };
 

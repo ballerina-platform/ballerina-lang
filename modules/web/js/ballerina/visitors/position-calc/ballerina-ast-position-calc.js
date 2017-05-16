@@ -27,21 +27,25 @@ class BallerinaASTRootPositionCalcVisitor {
     beginVisit(node) {
         // here we need to re adjust panel width to match the screen.
         let children = node.getChildren();
-        let minWidth = node.getViewState().container.width - ( panel.wrapper.gutter.h * 2 );
-        children.forEach(function(element) {
+        let defaultContainerWidth = node.getViewState().container.width - ( panel.wrapper.gutter.h * 2 );
+        let highestWidthOfChildren = node.getViewState().bBox.w - ( panel.wrapper.gutter.h * 2 );
+        let minWidth = highestWidthOfChildren > defaultContainerWidth ?
+            highestWidthOfChildren : defaultContainerWidth;
+
+        children.forEach(function (element) {
             let viewState = element.getViewState();
-            if(viewState.bBox.w < minWidth){
+            if (viewState.bBox.w < minWidth) {
                 viewState.bBox.w = minWidth;
             }
         }, this);
 
-        //lets adjest the canvous width and height
-        if(node.getViewState().container.width > node.viewState.bBox.w){
+        //lets adjust the canvas width and height
+        if (node.getViewState().container.width > node.viewState.bBox.w) {
             node.viewState.bBox.w = node.getViewState().container.width;
         }
-        if(node.getViewState().container.height > node.viewState.bBox.h){
+        if (node.getViewState().container.height > node.viewState.bBox.h) {
             node.viewState.bBox.h = node.getViewState().container.height;
-        }        
+        }
     }
 
     visit(node) {

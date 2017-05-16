@@ -17,9 +17,7 @@ let config = {
             btnWrap1: "btn-wrap"
         },
         samples: ["resources/samples/echoService.bal", "resources/samples/helloWorld.bal",
-            "resources/samples/passthroughService.bal", "resources/samples/routingServices.bal",
-            "resources/samples/ATMLocatorService.bal", "resources/samples/ecommerceService.bal",
-            "resources/samples/tweetMediumFeed.bal", "resources/samples/SimpleWorker.bal"]
+            "resources/samples/passthroughService.bal", "resources/samples/routingServices.bal"]
     },
     // you can overide service urls by uncommenting the following.
     // if the following are not set they will be taken automatically from the composer file server.

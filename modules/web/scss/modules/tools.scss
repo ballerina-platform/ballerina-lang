@@ -13,6 +13,7 @@
         & .tools-view-modes-controls {
             margin-bottom: 20px;
         }
+        
         & .tool-container {
             width: 39px;
             height: 39px;
@@ -26,9 +27,16 @@
 
             & .icon {
                 color: $tool-title-color;
-                font-size: 16px;
+                font-size: 24px;
                 margin-top: 3px;
                 vertical-align: text-bottom;
+            }
+            
+            &:hover {
+                & .icon,
+                & .tool-title {
+                    color: #f39c12;
+                }
             }
         }
 
@@ -36,13 +44,13 @@
             width: 100%;
             border-bottom: 1px solid $tool-separator-color;
             clear: both;
-            padding-top:12px;
-            margin-bottom:12px;
+            padding-top: 12px;
+            margin-bottom: 12px;
         }
         
         &.tool-group-body-list {
             & .tool-container {
-                height:28px;
+                height: 28px;
                 text-align: left;
                 border: none;
 
@@ -51,12 +59,15 @@
                 }
 
                 & .tool-title {
-                    color: $tool-title-color;
                     margin-top: -1px;
                     vertical-align: text-top;
                     margin-left: 2px;
                     font-size: 0.94em;
                 }
+            }
+            
+            & .tooltip {
+                display: none !important;
             }
 
             & .tool-container-vertical {
@@ -93,9 +104,14 @@
             & .icon {
                 font-size: 24px;
             }
+            
             & .tool-title {
                 color: $tool-title-color;
                 display: inline-block;
+            }
+            
+            & .tooltip {
+                display: none !important;
             }
         }
     }
