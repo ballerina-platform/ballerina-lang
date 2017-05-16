@@ -94,6 +94,10 @@ public class IfElseStmt extends AbstractStatement {
             this.elseIfBody = elseIfBody;
         }
 
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
         public Expression getElseIfCondition() {
             return elseIfCondition;
         }
