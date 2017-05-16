@@ -38,8 +38,6 @@ class ConnectorActionDimensionCalculatorVisitor {
         util.populatePanelDecoratorBBox(node, node.getActionName());
         let viewState = node.getViewState();
 
-        viewState.titleWidth = util.getTextWidth(node.getActionName()).w;
-
         //// Creating components for parameters of the connector action
         // Creating component for opening bracket of the parameters view.
         viewState.components.openingParameter = {};

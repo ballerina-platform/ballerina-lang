@@ -60,6 +60,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
         components['annotation'] = new SimpleBBox();
 
+
         if (node.viewState.annotationViewCollapsed) {
             components['annotation'].h = 25;
         } else {
@@ -139,14 +140,15 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
         viewState.components = components;
 
-        viewState.titleWidth = util.getTextWidth(node.getFunctionName()).w;
-
+        const textWidth = util.getTextWidth(node.getFunctionName());
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
         //// Creating components for parameters of the function
         // Creating component for opening bracket of the parameters view.
         viewState.components.openingParameter = {};
         viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
 
-        // Creating component for closing bracket of the parameters view. 
+        // Creating component for closing bracket of the parameters view.
         viewState.components.closingParameter = {};
         viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
 
@@ -160,7 +162,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         viewState.components.openingReturnType = {};
         viewState.components.openingReturnType.w = util.getTextWidth('(', 0).w;
 
-        // Creating component for closing bracket of the return types view. 
+        // Creating component for closing bracket of the return types view.
         viewState.components.closingReturnType = {};
         viewState.components.closingReturnType.w = util.getTextWidth(')', 0).w;
 

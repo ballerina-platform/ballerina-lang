@@ -41,7 +41,12 @@ class ServiceDefinitionDimensionCalculatorVisitor {
 
     endVisit(node) {
         util.populateOuterPanelDecoratorBBox(node);
-        
+
+        const viewState = node.viewState;
+
+        const textWidth = util.getTextWidth(node.getServiceName());
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
     }
 }
 
