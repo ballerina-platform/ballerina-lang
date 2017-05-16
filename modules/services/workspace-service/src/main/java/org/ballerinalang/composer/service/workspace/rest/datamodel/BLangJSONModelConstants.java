@@ -319,4 +319,10 @@ public class BLangJSONModelConstants {
     public static final String TRANSFORM_OUTPUT = "transform_output";
 
     public static final String VARIABLE_IS_ARRAY_EXPRESSION = "variable_is_array_expression";
+
+    public static final String EXPRESSION_LIST = "expression_list";
+
+    public static final String WORKER_REPLY_EXPRESSION = "worker_reply_expression";
+
+    public static final String WORKER_INVOKE_EXPRESSION = "worker_invoke_expression";
 }
