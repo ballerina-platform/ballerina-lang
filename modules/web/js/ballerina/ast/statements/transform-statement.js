@@ -19,7 +19,7 @@ import _ from 'lodash';
 import Statement from './statement';
 
 /**
- * Class to represent an Assignment statement.
+ * Class to represent an Transform statement.
  * @constructor
  */
 class TransformStatement extends Statement {
@@ -47,8 +47,10 @@ class TransformStatement extends Statement {
     }
 
     /**
-     * initialize AssignmentStatement from json object
+     * initialize Transform Statement from json object
      * @param {Object} jsonNode to initialize from
+     * @param {Object} jsonNode.transform_input input variable refs for transform statement
+     * @param {Object} jsonNode.transform_output output variable refs for transform statement
      */
     initFromJson(jsonNode) {
         _.each(jsonNode.transform_input, childNode => {
@@ -89,24 +91,12 @@ class TransformStatement extends Statement {
     }
 
     /**
-     * Get the assignment statement string
-     * @return {string} assignment statement string
+     * Get the transform statement string
+     * @return {string} transform statement string
      */
     getStatementString() {
         return 'transform';
     }
-
-    // /**
-    //  * Set the assignment statement string
-    //  * @param {string} statementString
-    //  */
-    // setStatementString(statementString, options) {
-    //     var equalIndex = _.indexOf(statementString, '=');
-    //     var leftOperand = statementString.substring(0, equalIndex);
-    //     var rightOperand = statementString.substring(equalIndex + 11); //'= transform'
-    //     this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? 'leftExpression' : leftOperand, options);
-    //     this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? 'rightExpression' : rightOperand, options);
-    // }
 }
 
 export default TransformStatement;

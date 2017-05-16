@@ -1182,6 +1182,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME,
                                    variableRefExpr.getSymbolName().getName());
         variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableRefExpr.getSymbolName().getName());
+        variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_FROM_ARRAY, variableRefExpr.isFromArray());
         if (variableRefExpr.getVariableDef() != null) {
             tempJsonArrayRef.push(new JsonArray());
             variableRefExpr.getVariableDef().accept(this);
@@ -1397,8 +1398,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(FieldAccessExpr fieldAccessExpr) {
         JsonObject fieldAccessObj = new JsonObject();
-        fieldAccessObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
-                .STRUCT_FIELD_ACCESS_EXPRESSION);
+        fieldAccessObj
+                .addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.FIELD_ACCESS_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
         if (fieldAccessExpr.getVarRef() != null) {
             fieldAccessExpr.getVarRef().accept(this);

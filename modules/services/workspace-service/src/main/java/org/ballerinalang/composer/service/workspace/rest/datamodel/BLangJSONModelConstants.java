@@ -264,7 +264,7 @@ public class BLangJSONModelConstants {
     
     public static final String STRUCT_DEFINITION = "struct_definition";
     
-    public static final String STRUCT_FIELD_ACCESS_EXPRESSION = "struct_field_access_expression";
+    public static final String FIELD_ACCESS_EXPRESSION = "field_access_expression";
     
     public static final String STRUCT_NAME = "struct_name";
 
@@ -311,4 +311,6 @@ public class BLangJSONModelConstants {
     public static final String TRANSFORM_INPUT = "transform_input";
 
     public static final String TRANSFORM_OUTPUT = "transform_output";
+
+    public static final String VARIABLE_FROM_ARRAY = "variable_from_array";
 }
