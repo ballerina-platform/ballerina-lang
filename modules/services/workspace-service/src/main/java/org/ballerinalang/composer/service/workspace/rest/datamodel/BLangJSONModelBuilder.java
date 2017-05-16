@@ -736,6 +736,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 tempJsonArrayRef.peek().add(elseIfObj);
             }
             ifElseStmtObj.add(BLangJSONModelConstants.ELSE_IF_BLOCKS, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
         }
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(ifElseStmtObj);
