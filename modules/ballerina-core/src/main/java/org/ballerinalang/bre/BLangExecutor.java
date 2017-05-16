@@ -57,6 +57,7 @@ import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -68,6 +69,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -126,6 +128,7 @@ public class BLangExecutor implements NodeExecutor {
     private boolean returnedOrReplied;
     private boolean isForkJoinTimedOut;
     private boolean isBreakCalled;
+    private boolean isAbortCalled;
     private ExecutorService executor;
     public BStruct thrownError;
     public boolean isErrorThrown;
@@ -143,7 +146,7 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(BlockStmt blockStmt) {
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
-            if (!inFinalBlock && (returnedOrReplied || isErrorThrown) || isBreakCalled) {
+            if (!inFinalBlock && (returnedOrReplied || isErrorThrown) || isBreakCalled || isAbortCalled) {
                 break;
             }
             stmt.execute(this);
@@ -237,7 +240,7 @@ public class BLangExecutor implements NodeExecutor {
         while (condition.booleanValue()) {
             // Interpret the statements in the while body.
             whileStmt.getBody().execute(this);
-            if (!inFinalBlock && (returnedOrReplied  || isErrorThrown) || isBreakCalled) {
+            if (!inFinalBlock && (returnedOrReplied || isErrorThrown) || isBreakCalled || isAbortCalled) {
                 break;
             }
             // Now evaluate the condition again to decide whether to continue the loop or not.
@@ -565,6 +568,55 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public void visit(TransformStmt transformStmt) {
         transformStmt.getBody().execute(this);
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        BallerinaTransactionManager ballerinaTransactionManager = bContext.getBallerinaTransactionManager();
+        if (ballerinaTransactionManager == null) {
+            ballerinaTransactionManager = new BallerinaTransactionManager();
+            bContext.setBallerinaTransactionManager(ballerinaTransactionManager);
+        }
+        StackFrame current = bContext.getControlStack().getCurrentFrame();
+        //execute transaction block
+        ballerinaTransactionManager.beginTransactionBlock();
+        try {
+            transactionRollbackStmt.getTransactionBlock().execute(this);
+            ballerinaTransactionManager.commitTransactionBlock();
+        } catch (Exception e) {
+            ballerinaTransactionManager.setTransactionError(true);
+            while (bContext.getControlStack().getCurrentFrame() != current) {
+                if (controlStack.getStack().size() > 0) {
+                    controlStack.popFrame();
+                } else {
+                    throw new BallerinaException(e);
+                }
+            }
+        }
+        isAbortCalled = false;
+        //execute onRollback if necessary
+        try {
+            if (ballerinaTransactionManager.isTransactionError()) {
+                ballerinaTransactionManager.rollbackTransactionBlock();
+                transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().execute(this);
+            }
+        } catch (Exception e) {
+            throw new BallerinaException(e);
+        } finally {
+            ballerinaTransactionManager.endTransactionBlock();
+            if (ballerinaTransactionManager.isOuterTransaction()) {
+                bContext.setBallerinaTransactionManager(null);
+            }
+        }
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+        isAbortCalled = true;
+        BallerinaTransactionManager ballerinaTransactionManager = bContext.getBallerinaTransactionManager();
+        if (ballerinaTransactionManager != null) {
+            ballerinaTransactionManager.setTransactionError(true);
+        }
     }
 
     private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, long timeout) {

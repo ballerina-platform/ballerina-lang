@@ -1,4 +1,4 @@
-#File Server Connector
+# File Server Connector
 
 The File Server connector is used to process files in the specified source directory. Note that files cannot remain in the source directory after processing or they will be processed again. Therefore, after processing a file it will be deleted.
 
@@ -15,7 +15,7 @@ service orderProcessService {
 
 ### Step 2: Specify service parameters
 
-Add a service level annotation named `Source` and add the key-value pairs to specify the parameters. The following section describes each key that can be used with a file service. An example is provided after the tables.
+Add a service level annotation named `file:FileSource` and add the key-value pairs to specify the parameters. The following section describes each key that can be used with a file service. An example is provided after the tables.
 
 <table>
   <tr>
@@ -93,12 +93,11 @@ name, size, lastModifiedTimestamp</td>
 #### Example: 
 
 ```
-@Source (
-  protocol = "file",
-  fileURI = "file:///home/user/orders",
-  pollingInterval = "20000",
-  fileSortAttribute = "size",
-  fileSortAscending = "false"
+@file:FileSource (
+  fileURI : "file:///home/user/orders",
+  pollingInterval : "20000",
+  fileSortAttribute : "size",
+  fileSortAscending : "false"
   )
 service orderProcessService {
 }
@@ -108,12 +107,11 @@ service orderProcessService {
 
 Add a resource under the file service as below:
 ```
-@Source (
-    protocol = "file",
-    fileURI = "file:///home/user/orders",
-    pollingInterval = "20000",
-    fileSortAttribute = "size",
-    fileSortAscending = "false"
+@file:FileSource (
+    fileURI : "file:///home/user/orders",
+    pollingInterval : "20000",
+    fileSortAttribute : "size",
+    fileSortAscending : "false"
     )
 service orderProcessService { 
     resource processOrder (message m) {
@@ -133,12 +131,11 @@ import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.net.file;
 
-@Source (
-  protocol = "file",
-  fileURI = "file:///home/user/orders",
-  pollingInterval = "20000",
-  fileSortAttribute = "size",
-  fileSortAscending = "false"
+@file:FileSource (
+  fileURI : "file:///home/user/orders",
+  pollingInterval : "20000",
+  fileSortAttribute : "size",
+  fileSortAscending : "false"
   )
 service orderProcessService {
     resource processOrder (message m) {
@@ -183,12 +180,11 @@ import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.net.file;
 
-@Source (
-  protocol = "file",
-  fileURI = "file:///home/user/orders",
-  pollingInterval = "20000",
-  fileSortAttribute = "size",
-  fileSortAscending = "false"
+@file:FileSource (
+  fileURI : "file:///home/user/orders",
+  pollingInterval : "20000",
+  fileSortAttribute : "size",
+  fileSortAscending : "false"
   )
 service orderProcessService {
     resource processOrder (message m) {

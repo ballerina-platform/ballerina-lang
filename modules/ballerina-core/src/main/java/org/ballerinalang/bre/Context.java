@@ -39,6 +39,7 @@ public class Context {
     private CallableUnitInfo serviceInfo;
     private BLangExecutionVisitor executor;
     private Object serverConnectorProtocol;
+    private BallerinaTransactionManager ballerinaTransactionManager;
 
     public Context() {
         this.controlStack = new ControlStack();
@@ -99,5 +100,17 @@ public class Context {
 
     public void setServerConnectorProtocol(Object serverConnectorProtocol) {
         this.serverConnectorProtocol = serverConnectorProtocol;
+    }
+
+    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
+        this.ballerinaTransactionManager = ballerinaTransactionManager;
+    }
+
+    public BallerinaTransactionManager getBallerinaTransactionManager() {
+        return this.ballerinaTransactionManager;
+    }
+
+    public boolean isInTransaction() {
+        return this.ballerinaTransactionManager != null;
     }
 }

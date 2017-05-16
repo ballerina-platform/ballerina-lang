@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -50,6 +51,9 @@ public final class BArray<V extends BValue> implements BRefType {
     private int size = 0;
     
     private BType type;
+    
+    // zeroValue is the value to be returned if the value in this array is null.
+    private BValue zeroValue;
 
     public BArray(Class<V> valueClass) {
         this.valueClass = valueClass;
@@ -88,7 +92,16 @@ public final class BArray<V extends BValue> implements BRefType {
         int bucketIndex = indexVal / DEFAULT_ARRAY_SIZE;
         int slot = indexVal % DEFAULT_ARRAY_SIZE;
 
-        return (V) arrayBucket[bucketIndex][slot];
+        BValue value = arrayBucket[bucketIndex][slot];
+        
+        // When an array is initialized, all values are set to null as the default value, irrespective of the type
+        // of the array. But, since the default value for value-types(int/string/float/boolean) cannot be null, here
+        // we return the zero-value of the type associated with this array.
+        if (value == null) {
+            return (V) zeroValue;
+        } 
+        
+        return (V) value;
     }
 
     public int size() {
@@ -107,6 +120,7 @@ public final class BArray<V extends BValue> implements BRefType {
     
     public void setType(BType type) {
         this.type = type;
+        this.zeroValue = ((BArrayType) type).getElementType().getZeroValue();
     }
 
     @Override

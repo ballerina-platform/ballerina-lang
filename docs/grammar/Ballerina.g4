@@ -205,6 +205,8 @@ statement
     |   actionInvocationStatement
     |   functionInvocationStatement
     |   transformStatement
+    |   transactionStatement
+    |   abortStatement
     ;
 
 transformStatement
@@ -372,6 +374,18 @@ functionInvocationStatement
 actionInvocationStatement
     :   actionInvocation ';'
     |   variableReferenceList '=' actionInvocation ';'
+    ;
+
+transactionStatement
+    :   'transaction' '{' statement* '}' rollbackClause
+    ;
+
+rollbackClause
+    :   'aborted' '{' statement* '}'
+    ;
+
+abortStatement
+    :   'abort' ';'
     ;
 
 actionInvocation
