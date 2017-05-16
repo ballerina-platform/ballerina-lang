@@ -21,17 +21,45 @@ import ConnectorActionDefinition from './connector-action-definition.jsx'
 import StatementView from './statement-decorator.jsx'
 import PanelDecorator from './panel-decorator';
 import {getComponentForNodeArray} from './utils';
+import GlobalExpanded from './globals-expanded';
+import * as DesignerDefaults from './../configs/designer-defaults';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 class ConnectorDefinition extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
+        this.handleAddVariable = this.handleAddVariable.bind(this);
+        this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
+    }
 
     render() {
         let model = this.props.model;
         let bBox = model.viewState.bBox;
+        const viewState = model.getViewState();
+        const components = viewState.components;
+        this.variableDefRegex = /const\s+(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
+        const variables = model.filterChildren(function (child) {
+            return BallerinaASTFactory.isVariableDefinitionStatement(child);
+        });
 
         //get the connector name
         let title = model.getConnectorName();
 
-        let children = getComponentForNodeArray(this.props.model.getChildren());
+        const childrenWithNoVariables = model.filterChildren(function (child) {
+            return !BallerinaASTFactory.isVariableDefinitionStatement(child);
+        });
+
+        /**
+         * Here we skip rendering the variables
+         */
+        var children = getComponentForNodeArray(childrenWithNoVariables);
+
+        const expandedVariablesBBox = {
+            x: bBox.x + DesignerDefaults.panel.body.padding.left,
+            y: components.body.y + DesignerDefaults.panel.body.padding.top
+        };
 
         let titleComponentData = [{
             isNode: true,
@@ -43,6 +71,10 @@ class ConnectorDefinition extends React.Component {
                                 dropTarget={this.props.model}
                                 dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
                                 titleComponentData={titleComponentData}>
+            <GlobalExpanded
+                bBox={expandedVariablesBBox} globals={variables} onCollapse={this.handleGlobalsBadgeClick}
+                title="Variables" onAddNewValue={this.handleAddVariable} onDeleteClick={this.handleDeleteVariable}
+                getValue={ g => (g.getStatementString())}/>
             {children}
         </PanelDecorator>);
     }
@@ -53,6 +85,20 @@ class ConnectorDefinition extends React.Component {
         // Panel's drop zone is for resource defs and connector declarations only.
         return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
             || nodeFactory.isConnectorAction(nodeBeingDragged);
+    }
+
+
+    handleAddVariable(value) {
+        const variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
+        const match = variableDefRegex.exec(value);
+
+        if(match && match[1] && match[2] && match[3]){
+            this.props.model.addVariableDefinitionStatement(match[1], match[2], match[3])
+        }
+    }
+
+    handleDeleteVariable(deletedGlobal) {
+        this.props.model.removeVariableDefinitionStatement(deletedGlobal.getID());
     }
 }
 

@@ -148,7 +148,7 @@ class SizingUtil {
         viewState.components = components;
     }
 
-    populatePanelDecoratorBBox(node, name) {
+        populatePanelDecoratorBBox(node, name) {
         let viewState = node.getViewState();
         let components = {};
 
@@ -265,6 +265,8 @@ class SizingUtil {
         // Set the width initial value to the padding left and right
         let bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
 
+        const variableDefinitionsHeight = this.getConnectorLevelVariablesHeight(node);
+
         /**
          * If there are service level connectors, their height depends on the heights of the resources
          */
@@ -274,6 +276,11 @@ class SizingUtil {
                 maxResourceWidth = resource.getViewState().bBox.w;
             }
         });
+
+        /**
+         * Add the total variable definitions height to the total height
+         */
+        totalResourceHeight += variableDefinitionsHeight + DesignerDefaults.panel.body.padding.top;
 
         /**
          * Set the max resource width to the resources
@@ -331,6 +338,7 @@ class SizingUtil {
         components['heading'] = new SimpleBBox();
         components['body'] = new SimpleBBox();
         components['annotation'] = new SimpleBBox();
+        components['variablesPane'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
         if (node.viewState.collapsed) {
             components['body'].h = 0;
@@ -342,6 +350,8 @@ class SizingUtil {
         } else {
             components['annotation'].h = annotationHeight;
         }
+            components['variablesPane'].h = variableDefinitionsHeight;
+
         components['body'].w = bodyWidth;
         components['heading'].w = bodyWidth;
         components['annotation'].w = bodyWidth;
@@ -568,6 +578,19 @@ class SizingUtil {
                 height = height + ( annotation.children.length * 25 )
             }
         });
+
+        return height;
+    }
+
+    getConnectorLevelVariablesHeight(node) {
+        let height = 65;
+        const variables = node.filterChildren(function (child) {
+            return ASTFactory.isVariableDefinitionStatement(child);
+        });
+
+        if (!_.isEmpty(variables)) {
+            height = height + ( variables.length * 30 );
+        }
 
         return height;
     }
