@@ -21,6 +21,7 @@ import Statement from './statement';
 import ElseStatement from './else-statement';
 import ElseIfStatement from './else-if-statement';
 import IfStatement from './if-statement';
+import BallerinaASTFactory from './../ballerina-ast-factory';
 
 /**
  * Class for if conditions in ballerina.
@@ -35,7 +36,6 @@ class IfElseStatement extends Statement {
         this.addChild(ifStatement);
         this._ifStatement = ifStatement;
 
-        this._elseStatement = undefined;
         this._elseStatement = new ElseStatement();
         this.addChild(this._elseStatement);
 
@@ -79,6 +79,28 @@ class IfElseStatement extends Statement {
         this._elseIfStatements.push(newElseIfStatement);
         this.addChild(newElseIfStatement);
         return newElseIfStatement;
+    }
+
+    /**
+     * Override the addChild method for ordering the child elements
+     * @param {ASTNode} child
+     * @param {number|undefined} index
+     */
+    addChild(child, index) {
+
+        const lastElseIfIndex = _.findLastIndex(this.getChildren(), function (node) {
+            return BallerinaASTFactory.isElseIfStatement(node);
+        });
+
+        const elseStatementIndex = _.findIndex(this.getChildren(), function (node) {
+            return BallerinaASTFactory.isElseStatement(node);
+        });
+
+        if (BallerinaASTFactory.isElseIfStatement(child) && elseStatementIndex > -1) {
+            index = elseStatementIndex;
+        }
+
+        Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
     }
 
     /**
