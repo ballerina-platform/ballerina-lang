@@ -81,6 +81,7 @@ import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -93,6 +94,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -737,6 +739,16 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(TransformStmt transformStmt) {
+
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
 
     }
 
