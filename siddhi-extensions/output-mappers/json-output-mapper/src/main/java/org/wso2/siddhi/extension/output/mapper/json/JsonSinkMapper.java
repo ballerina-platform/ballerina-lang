@@ -197,7 +197,7 @@ public class JsonSinkMapper extends SinkMapper {
 
     private String constructJsonForDefaultMapping(Object eventObj) {
         StringBuilder sb = new StringBuilder();
-        int numberOfOuterObjects = 0;
+        int numberOfOuterObjects;
         if (enclosingElement != null) {
             String[] nodeNames = enclosingElement.split("\\.");
             if (DEFAULT_ENCLOSING_ELEMENT.equals(nodeNames[0])) {
@@ -211,11 +211,11 @@ public class JsonSinkMapper extends SinkMapper {
                             .append(JSON_KEYVALUE_SEPERATOR);
                 }
             }
-            if (eventObj.getClass() == Event.class) {
+            if (eventObj instanceof Event) {
                 Event event = (Event) eventObj;
                 JsonObject jsonEvent = constructSingleEventForDefaultMapping(doPartialProcessing(event));
                 sb.append(jsonEvent);
-            } else if (eventObj.getClass() == Event[].class) {
+            } else if (eventObj instanceof Event[]) {
                 JsonArray eventArray = new JsonArray();
                 for (Event event : (Event[]) eventObj) {
                     eventArray.add(constructSingleEventForDefaultMapping(doPartialProcessing(event)));
@@ -231,11 +231,11 @@ public class JsonSinkMapper extends SinkMapper {
             }
             return sb.toString();
         } else {
-            if (eventObj.getClass() == Event.class) {
+            if (eventObj instanceof Event) {
                 Event event = (Event) eventObj;
                 JsonObject jsonEvent = constructSingleEventForDefaultMapping(doPartialProcessing(event));
                 return jsonEvent.toString();
-            } else if (eventObj.getClass() == Event[].class) {
+            } else if (eventObj instanceof Event[]) {
                 JsonArray eventArray = new JsonArray();
                 for (Event event : (Event[]) eventObj) {
                     eventArray.add(constructSingleEventForDefaultMapping(doPartialProcessing(event)));
@@ -265,10 +265,10 @@ public class JsonSinkMapper extends SinkMapper {
                             .append(JSON_KEYVALUE_SEPERATOR);
                 }
             }
-            if (eventObj.getClass() == Event.class) {
+            if (eventObj instanceof Event) {
                 Event event = doPartialProcessing((Event) eventObj);
                 sb.append(payloadTemplateBuilder.build(event));
-            } else if (eventObj.getClass() == Event[].class) {
+            } else if (eventObj instanceof Event[]) {
                 String jsonEvent;
                 sb.append(JSON_ARRAY_START_SYMBOL);
                 for (Event e : (Event[]) eventObj) {
@@ -304,7 +304,6 @@ public class JsonSinkMapper extends SinkMapper {
                 sb.append(JSON_ARRAY_END_SYMBOL);
                 return sb.toString();
             } else {
-                // TODO : log error
                 log.error("Invalid object type. " + eventObj.toString() +
                         " cannot be converted to an event or event array. Hence dropping message.");
                 return null;
