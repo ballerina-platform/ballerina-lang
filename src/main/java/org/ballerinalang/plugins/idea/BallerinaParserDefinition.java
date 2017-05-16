@@ -87,6 +87,7 @@ import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -119,10 +120,11 @@ public class BallerinaParserDefinition implements ParserDefinition {
             IntegerLiteral, FloatingPointLiteral);
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            ACTION, ALL, ANNOTATION, ANY, AS, ATTACH, BREAK, CATCH, CONNECTOR, CONST, CONTINUE, CREATE, ELSE, FORK,
-            FUNCTION, IF, IMPORT, ITERATE, JOIN, NATIVE, NULL, PACKAGE, PARAMETER, REPLY, RESOURCE, RETURN, SERVICE,
-            SOME, STRUCT, THROW, THROWS, TIMEOUT, TRANSFORM, TRY, TYPEMAPPER, WHILE, WORKER, BOOLEAN, INT, FLOAT,
-            STRING, MESSAGE, MAP, EXCEPTION, XML, XML_DOCUMENT, JSON, DATATABLE, BooleanLiteral);
+            ABORT, ABORTED, ACTION, ALL, ANNOTATION, ANY, AS, ATTACH, BREAK, CATCH, CONNECTOR, CONST, CONTINUE,
+            CREATE, ELSE, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, NATIVE, NULL, PACKAGE, PARAMETER, REPLY,
+            RESOURCE, RETURN, SERVICE, SOME, STRUCT, THROW, THROWS, TIMEOUT, TRANSACTION, TRANSFORM, TRY, TYPEMAPPER,
+            WHILE, WORKER, BOOLEAN, INT, FLOAT, STRING, MESSAGE, MAP, EXCEPTION, XML, XML_DOCUMENT, JSON, DATATABLE,
+            BooleanLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             SEMI, COMMA, SENDARROW, RECEIVEARROW, TILDE, COLON);
@@ -283,6 +285,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new MapStructKeyValueNode(node);
             case BallerinaParser.RULE_forkJoinStatement:
                 return new ForkJoinStatementNode(node);
+            case BallerinaParser.RULE_workerInteractionStatement:
+                return new WorkerInterationStatementNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

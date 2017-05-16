@@ -118,6 +118,9 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder TIMEOUT;
     private static final LookupElementBuilder WORKER;
     private static final LookupElementBuilder TRANSFORM;
+    private static final LookupElementBuilder TRANSACTION;
+    private static final LookupElementBuilder ABORT;
+    private static final LookupElementBuilder ABORTED;
 
 
     static {
@@ -161,6 +164,9 @@ public class BallerinaCompletionUtils {
         TIMEOUT = createKeywordLookupElement("timeout", ParenthesisInsertHandler.INSTANCE);
         WORKER = createKeywordLookupElement("worker", AddSpaceInsertHandler.INSTANCE);
         TRANSFORM = createKeywordLookupElement("transform", AddSpaceInsertHandler.INSTANCE);
+        TRANSACTION = createKeywordLookupElement("transaction", AddSpaceInsertHandler.INSTANCE);
+        ABORT = createKeywordLookupElement("abort", AddSpaceInsertHandler.INSTANCE);
+        ABORTED = createKeywordLookupElement("aborted", AddSpaceInsertHandler.INSTANCE);
     }
 
     private BallerinaCompletionUtils() {
@@ -320,6 +326,9 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, TIMEOUT, KEYWORDS_PRIORITY);
         addKeywordAsLookup(resultSet, WORKER, KEYWORDS_PRIORITY);
         addKeywordAsLookup(resultSet, TRANSFORM, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, TRANSACTION, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, ABORT, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, ABORTED, KEYWORDS_PRIORITY);
     }
 
     /**

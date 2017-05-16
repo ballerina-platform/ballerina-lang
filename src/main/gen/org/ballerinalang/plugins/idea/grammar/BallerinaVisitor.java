@@ -436,6 +436,24 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#transactionStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTransactionStatement(BallerinaParser.TransactionStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#rollbackClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRollbackClause(BallerinaParser.RollbackClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#abortStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAbortStatement(BallerinaParser.AbortStatementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#actionInvocation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
