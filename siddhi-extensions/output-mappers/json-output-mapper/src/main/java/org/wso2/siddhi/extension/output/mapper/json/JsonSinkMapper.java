@@ -145,26 +145,20 @@ public class JsonSinkMapper extends SinkMapper {
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
-        StringBuilder sb = null;
+        StringBuilder sb = new StringBuilder();
         if (payloadTemplateBuilder == null) {
             String jsonString = constructJsonForDefaultMapping(events);
-            if (jsonString != null) {
-                sb = new StringBuilder();
-                sb.append(jsonString);
-            }
+            sb.append(jsonString);
         } else {
-            sb = new StringBuilder();
             sb.append(constructJsonForCustomMapping(events, payloadTemplateBuilder));
         }
 
-        if (sb != null) {
-            if (!isJsonValidationEnabled) {
-                sinkListener.publish(sb.toString(), dynamicOptions);
-            } else if (isValidJson(sb.toString())) {
-                sinkListener.publish(sb.toString(), dynamicOptions);
-            } else {
-                log.error("Invalid json string : " + sb.toString() + ". Hence dropping the message.");
-            }
+        if (!isJsonValidationEnabled) {
+            sinkListener.publish(sb.toString(), dynamicOptions);
+        } else if (isValidJson(sb.toString())) {
+            sinkListener.publish(sb.toString(), dynamicOptions);
+        } else {
+            log.error("Invalid json string : " + sb.toString() + ". Hence dropping the message.");
         }
     }
 
