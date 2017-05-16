@@ -112,7 +112,7 @@ public class BTestRunner {
                 tFunction.invoke();
             } catch (BallerinaException e) {
                 isTestPassed = false;
-                errorMessage = e.getBException().value().getMessage().stringValue();
+                errorMessage = e.getMessage();
                 outStream.println("test '" + tFunction.getName() + "' failed: " + errorMessage);
             } catch (Exception e) {
                 isTestPassed = false;
