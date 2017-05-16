@@ -32,23 +32,15 @@ import javax.sql.DataSource;
 
 public class RDBMSTableTestUtils {
 
+    public static final String TABLE_NAME = "StockTable";
     private static final Logger log = Logger.getLogger(RDBMSTableTestUtils.class);
-    private static DataSource dataSource;
-
     private static final String CONNECTION_URL_MYSQL = "jdbc:mysql://localhost:3306/dasdb";
     private static final String CONNECTION_URL_H2 = "jdbc:h2:./target/dasdb";
     private static final String CONNECTION_URL_ORACLE = "jdbc:oracle:thin:@192.168.122.2:1521/dasdb";
-
-    public static final String TABLE_NAME = "StockTable";
-
     private static final String USERNAME = "root";
     private static final String PASSWORD = "root";
-
     public static String url = CONNECTION_URL_H2;
-
-    public enum TestType {
-        MySQL, H2, ORACLE, MSSQL, DB2, POSTGRES
-    }
+    private static DataSource dataSource;
 
     private RDBMSTableTestUtils() {
 
@@ -118,5 +110,9 @@ public class RDBMSTableTestUtils {
         } finally {
             RDBMSTableUtils.cleanupConnection(null, stmt, con);
         }
+    }
+
+    public enum TestType {
+        MySQL, H2, ORACLE, MSSQL, DB2, POSTGRES
     }
 }

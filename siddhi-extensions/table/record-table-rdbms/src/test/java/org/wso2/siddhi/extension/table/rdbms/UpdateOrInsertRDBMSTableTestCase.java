@@ -19,9 +19,10 @@
 package org.wso2.siddhi.extension.table.rdbms;
 
 import org.apache.log4j.Logger;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -37,8 +38,8 @@ import java.sql.SQLException;
 import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.TABLE_NAME;
 import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.url;
 
-public class UpdateOrInsertRDBMSTableTest {
-    private static final Logger log = Logger.getLogger(UpdateOrInsertRDBMSTableTest.class);
+public class UpdateOrInsertRDBMSTableTestCase {
+    private static final Logger log = Logger.getLogger(UpdateOrInsertRDBMSTableTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;
@@ -48,11 +49,15 @@ public class UpdateOrInsertRDBMSTableTest {
         inEventCount = 0;
         removeEventCount = 0;
         eventArrived = false;
+    }
+
+    @BeforeClass
+    public static void startTest() {
         log.info("== RDBMS Table UPDATE/INSERT tests started ==");
     }
 
-    @After
-    public void shutdown() {
+    @AfterClass
+    public static void shutdown() {
         log.info("== RDBMS Table UPDATE/INSERT tests completed ==");
     }
 

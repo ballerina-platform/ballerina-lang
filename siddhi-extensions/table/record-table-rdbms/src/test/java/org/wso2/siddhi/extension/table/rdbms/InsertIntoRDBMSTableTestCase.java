@@ -18,9 +18,9 @@
 package org.wso2.siddhi.extension.table.rdbms;
 
 import org.apache.log4j.Logger;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -31,16 +31,16 @@ import java.sql.SQLException;
 import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.TABLE_NAME;
 import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.url;
 
-public class InsertIntoRDBMSTableTest {
-    private static final Logger log = Logger.getLogger(InsertIntoRDBMSTableTest.class);
+public class InsertIntoRDBMSTableTestCase {
+    private static final Logger log = Logger.getLogger(InsertIntoRDBMSTableTestCase.class);
 
-    @Before
-    public void init() {
+    @BeforeClass
+    public static void startTest() {
         log.info("== RDBMS Table INSERT tests started ==");
     }
 
-    @After
-    public void shutdown() {
+    @AfterClass
+    public static void shutdown() {
         log.info("== RDBMS Table INSERT tests completed ==");
     }
 
