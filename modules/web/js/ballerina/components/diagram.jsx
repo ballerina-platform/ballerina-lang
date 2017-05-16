@@ -57,9 +57,14 @@ class Diagram extends React.Component {
             width: this.container.width(),
             height: this.container.height()
         };
-        this.model.on('tree-modified', () => {
+
+        // following code was commented since we add a debounce to diagram update
+        // we need to fix our tree modified and remove the debounce.
+        /*this.model.on('tree-modified', () => {
             this.forceUpdate();
-        });
+        });*/
+
+        this.model.on('tree-modified', _.debounce(_.bind(() => { this.forceUpdate(); }, this), 150));
     }
 
     getModel() {

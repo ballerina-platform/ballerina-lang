@@ -331,6 +331,21 @@ class ResourceDefinition extends ASTNode {
                 pathAnnotation = annotationAST;
             }
         });
+        //if path annotation is not define we will create one with default behaviour.
+        if(_.isUndefined(pathAnnotation)){
+            // Creating path annotation.
+            pathAnnotation = BallerinaASTFactory.createAnnotation({
+                fullPackageName: 'ballerina.net.http',
+                packageName: 'http',
+                identifier: 'Path'
+            });
+            let annotationEntryForPathValue = BallerinaASTFactory.createAnnotationEntry({
+                leftValue: 'value',
+                rightValue: '\"/' + this.getResourceName() + '\"'
+            });
+            pathAnnotation.addChild(annotationEntryForPathValue);
+            this.addChild(pathAnnotation, 1);
+        }
 
         return pathAnnotation;
     }
@@ -346,6 +361,17 @@ class ResourceDefinition extends ASTNode {
                 httpMethodAnnotation = annotationAST;
             }
         });
+
+        // Creating GET http method annotation.
+        if(_.isUndefined(httpMethodAnnotation)){
+            httpMethodAnnotation = BallerinaASTFactory.createAnnotation({
+                fullPackageName: 'ballerina.net.http',
+                packageName: 'http',
+                identifier: 'GET',
+                uniqueIdentifier: 'httpMethod'
+            });
+            this.addChild(httpMethodAnnotation, 0);
+        }      
 
         return httpMethodAnnotation;
     }
