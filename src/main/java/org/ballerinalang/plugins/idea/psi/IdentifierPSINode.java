@@ -116,8 +116,6 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                         return new PackageNameReference(this);
                     }
                     return new VariableReference(this);
-                case RULE_variableDefinitionStatement:
-                    return new VariableReference(this);
                 default:
                     return null;
             }
