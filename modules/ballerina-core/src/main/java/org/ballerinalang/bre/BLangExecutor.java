@@ -627,11 +627,6 @@ public class BLangExecutor implements NodeExecutor {
             for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
                 executeWorker(worker, funcIExpr.getArgExprs());
             }
-            for (Statement statement : bFunction.getCallableUnitBody().getStatements()) {
-                if (statement instanceof ForkJoinStmt) {
-                    ((ForkJoinStmt) statement).setInputValues(funcIExpr.getArgExprs());
-                }
-            }
             bFunction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
@@ -683,11 +678,6 @@ public class BLangExecutor implements NodeExecutor {
             for (Worker worker : bAction.getWorkers()) {
                 executeWorker(worker, actionIExpr.getArgExprs());
             }
-            for (Statement statement : bAction.getCallableUnitBody().getStatements()) {
-                if (statement instanceof ForkJoinStmt) {
-                    ((ForkJoinStmt) statement).setInputValues(actionIExpr.getArgExprs());
-                }
-            }
             bAction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeAction nativeAction = (AbstractNativeAction) action;
@@ -731,11 +721,6 @@ public class BLangExecutor implements NodeExecutor {
         // Start the workers within the resource
         for (Worker worker : resource.getWorkers()) {
             executeWorker(worker, resourceIExpr.getArgExprs());
-        }
-        for (Statement statement : resource.getResourceBody().getStatements()) {
-            if (statement instanceof ForkJoinStmt) {
-                ((ForkJoinStmt) statement).setInputValues(resourceIExpr.getArgExprs());
-            }
         }
         resource.getResourceBody().execute(this);
 

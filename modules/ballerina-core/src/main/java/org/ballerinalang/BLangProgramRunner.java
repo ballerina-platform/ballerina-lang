@@ -35,8 +35,6 @@ import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
-import org.ballerinalang.model.statements.ForkJoinStmt;
-import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -144,11 +142,6 @@ public class BLangProgramRunner {
                 // Start the workers defined within the function
                 for (Worker worker : mainFunction.getWorkers()) {
                     executor.executeWorker(worker, exprs);
-                }
-                for (Statement statement : mainFunction.getCallableUnitBody().getStatements()) {
-                    if (statement instanceof ForkJoinStmt) {
-                        ((ForkJoinStmt) statement).setInputValues(exprs);
-                    }
                 }
                 mainFunction.getCallableUnitBody().execute(executor);
             }

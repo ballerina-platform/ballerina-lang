@@ -36,8 +36,6 @@ import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.nodes.StartNode;
-import org.ballerinalang.model.statements.ForkJoinStmt;
-import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
@@ -184,11 +182,6 @@ public class BLangFunctions {
             // Start the workers if there is any
             for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
                 executor.executeWorker(worker, exprs);
-            }
-            for (Statement statement : function.getCallableUnitBody().getStatements()) {
-                if (statement instanceof ForkJoinStmt) {
-                    ((ForkJoinStmt) statement).setInputValues(exprs);
-                }
             }
             function.getCallableUnitBody().execute(executor);
             return returnValues;
