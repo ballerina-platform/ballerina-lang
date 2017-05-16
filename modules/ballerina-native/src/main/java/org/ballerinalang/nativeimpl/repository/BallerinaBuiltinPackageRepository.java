@@ -29,6 +29,7 @@ import org.ballerinalang.util.repository.BuiltinExtendedPackageRepository;
 public class BallerinaBuiltinPackageRepository extends BuiltinExtendedPackageRepository
         implements BallerinaInternalPkgRepo {
     //TODO to be generated from ANNOTATION Processor
+    //TODO remove interface BallerinaInternalPkgRepo with proper way
     public BallerinaBuiltinPackageRepository() {
         super(BallerinaBuiltinPackageRepository.class);
     }

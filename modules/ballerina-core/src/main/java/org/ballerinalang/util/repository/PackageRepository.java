@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  */
 public abstract class PackageRepository {
     protected BuiltinPackageRepository[] builtinPackageRepositories;
-    private PackageRepository internalPkgRepo;
+    protected PackageRepository internalPkgRepo;
 
     public abstract PackageSource loadPackage(Path packageDirPath);
 

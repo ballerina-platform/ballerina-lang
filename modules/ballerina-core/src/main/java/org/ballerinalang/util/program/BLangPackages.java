@@ -23,7 +23,6 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.natives.BallerinaInternalPkgRepo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
@@ -59,16 +58,7 @@ public class BLangPackages {
                                             LinkedHashSet<SymbolName> currentDepPath) {
 
         // Load package details (input streams of source files) from the given package repository
-        PackageRepository.PackageSource pkgSource = null;
-        //TODO fix this properly by marking internal ballerina package repos from outside repos
-        if (!(packageRepo instanceof BallerinaInternalPkgRepo) && packageRepo.getInternalPkgRepo() != null) {
-            pkgSource = packageRepo.getInternalPkgRepo().loadPackage(packagePath);
-            if (pkgSource.getSourceFileStreamMap().isEmpty()) {
-                pkgSource = packageRepo.loadPackage(packagePath);
-            }
-        } else {
-            pkgSource = packageRepo.loadPackage(packagePath);
-        }
+        PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
 
         if (pkgSource.getSourceFileStreamMap().isEmpty()) {
             throw new RuntimeException("no bal files in the package: " + packagePath.toString());

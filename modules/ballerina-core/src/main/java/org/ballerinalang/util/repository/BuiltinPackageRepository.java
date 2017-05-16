@@ -62,7 +62,14 @@ public class BuiltinPackageRepository extends PackageRepository {
         if (FALSE.equals(System.getProperty("skipNatives"))) {
             skipNatives = false;
         }
-        
+
+        if (internalPkgRepo != null) {
+            PackageSource pkgSource = internalPkgRepo.loadPackage(packageDirPath);
+            if (pkgSource != null) {
+                return pkgSource;
+            }
+        }
+
         // Replace system dependent file-separator with forward-slash
         this.packageDirPath = packageDirPath.toString().replace("\\", "/") + "/";
         
