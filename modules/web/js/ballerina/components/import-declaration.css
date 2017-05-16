@@ -2,14 +2,6 @@
     dominant-baseline: central;
 }
 
-.import-badge {
-    fill: #f39c12;
-}
-
-.package-definitions-collection rect {
-    fill: #eee;
-}
-
 .add-import-button {
     stroke: #999;
     stroke-width: 2;

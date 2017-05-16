@@ -31,9 +31,31 @@
     stroke: $worker-life-line-color;
 }
 
-.import-badge {
-    fill: #ffffff;
+.import-definition-decorator {
+    width: 3px;
+    fill: #f39c12;
 }
+
+.import-badge {
+    fill: #f39c12;
+}
+
+.import-badge-text {
+    fill: #fff;
+}
+
+.package-declaration-item {
+    & .background,
+    & .delete-background {
+        fill: #eee;
+    }
+}
+
+.add-import-button-background,
+.add-import-button {
+    fill: #eee;
+}
+
 
 .package-definition-header {
     fill: $package-configs-bgcolor;
@@ -46,7 +68,7 @@
 }
 
 .annotation-container {
-    background: #EFEFEF;
+    background: #f4f4f4;
     overflow: auto;
     padding: 7px;
 }
@@ -58,10 +80,20 @@
 
 .annotation-key .package-name {
     font-weight: 500;
-    color: #f39c12;
+    color: #ea940c;
 }
 
-.react-autosuggest__suggestion .react-autosuggest__suggestion--highlighted,
+.react-autosuggest__suggestions-list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.react-autosuggest__suggestion {
+    padding: 4px;
+}
+
+.react-autosuggest__suggestion.react-autosuggest__suggestion--highlighted,
 .react-autosuggest__suggestion:hover {
     background: #333;
     color: #eee;
