@@ -90,7 +90,8 @@ under the License.
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
-    </test> -->
+    </test-->
+
 
 
     <!-- Service Related Test Cases -->

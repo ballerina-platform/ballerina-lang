@@ -15,23 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.repository;
 
-import org.ballerinalang.natives.SystemPackageRepository;
-import org.ballerinalang.util.repository.BuiltinExtendedPackageRepository;
-
+package org.ballerinalang.natives;
 
 /**
- * Represents a package built in native ballerina package repository.
+ * Marker interface to identify ballerina native package repository.
  *
  * @since 0.87
  */
-public class BallerinaBuiltinPackageRepository extends BuiltinExtendedPackageRepository
-        implements SystemPackageRepository {
-    //TODO to be generated from ANNOTATION Processor
+public interface SystemPackageRepository {
     //TODO remove interface BallerinaInternalPkgRepo with proper way
-    public BallerinaBuiltinPackageRepository() {
-        super(BallerinaBuiltinPackageRepository.class);
-    }
-
 }

@@ -58,6 +58,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
 
     private static final String CLASS_NAME = "className";
     private static final String PACKAGE_NAME = "packageName";
+    private static final String PACKAGE_PROVIDER_CLASS = "pkgRepositoryClass";
     private static final String SOURCE_DIR = "srcDir";
     private static final String TARGET_DIR = "targetDir";
     private static final String IGNORE = "ignore";
@@ -128,8 +129,9 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             throw new BallerinaException("package name for the generated construct-provider must be specified.");
         }
 
+        String pkgRepositoryClass = options.get(PACKAGE_PROVIDER_CLASS);
         ConstructProviderClassBuilder constructProviderClassBuilder =
-                new ConstructProviderClassBuilder(filer, packageName, classClassName, srcDir);
+                new ConstructProviderClassBuilder(filer, packageName, classClassName, srcDir, pkgRepositoryClass);
         constructProviderClassBuilder.addNativePackages(nativePackages);
         constructProviderClassBuilder.build();
     }

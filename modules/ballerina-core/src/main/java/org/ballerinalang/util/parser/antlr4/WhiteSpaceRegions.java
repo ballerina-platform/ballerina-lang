@@ -140,13 +140,10 @@ public class WhiteSpaceRegions {
     public static final int PARAM_DEF_END_TO_NEXT_TOKEN = 2;
 
     // whitespace regions in a worker declaration node
-    public static final int WORKER_DEC_WORKER_KEYWORD_TO_IDENTIFIER = 0;
-    public static final int WORKER_DEC_IDENTIFIER_TO_PARAM_LIST_START = 1;
-    public static final int WORKER_DEC_PARAM_LIST_START_TO_PARAM_TYPE = 2;
-    public static final int WORKER_DEC_PARAM_TYPE_TO_PARAM_IDENTIFIER = 3;
-    public static final int WORKER_DEC_PARAM_END_TO_PARAM_LIST_END = 4;
-    public static final int WORKER_DEC_PARAM_LIST_END_TO_BODY_START = 5;
-    public static final int WORKER_DEC_END_TO_NEXT_TOKEN = 6;
+    public static final int WORKER_DEC_PRECEDING_WHITESPACE = 0;
+    public static final int WORKER_DEC_WORKER_KEYWORD_TO_IDENTIFIER = 1;
+    public static final int WORKER_DEC_IDENTIFIER_TO_BODY_START = 2;
+    public static final int WORKER_DEC_END_TO_NEXT_TOKEN = 3;
 
     // whitespace regions of a type name
     public static final int TYPE_NAME_PRECEDING_WHITESPACE = 0;
@@ -225,14 +222,14 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in worker invocation statement
     public static final int WORKER_INVOKE_STMT_PRECEDING_WHITESPACE = 0;
-    public static final int WORKER_INVOKE_STMT_MSG_ID_TO_ARROW_OPERATOR = 1;
+    public static final int WORKER_INVOKE_STMT_EXP_TO_ARROW_OPERATOR = 1;
     public static final int WORKER_INVOKE_STMT_ARROW_OPERATOR_TO_WORKER_ID = 2;
     public static final int WORKER_INVOKE_STMT_WORKER_ID_TO_END = 3;
     public static final int WORKER_INVOKE_STMT_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions in worker reply statement
     public static final int WORKER_REPLY_STMT_PRECEDING_WHITESPACE = 0;
-    public static final int WORKER_REPLY_STMT_MSG_ID_TO_ARROW_OPERATOR = 1;
+    public static final int WORKER_REPLY_STMT_EXP_TO_ARROW_OPERATOR = 1;
     public static final int WORKER_REPLY_STMT_ARROW_OPERATOR_TO_WORKER_ID = 2;
     public static final int WORKER_REPLY_STMT_WORKER_ID_TO_END = 3;
     public static final int WORKER_REPLY_STMT_END_TO_NEXT_TOKEN = 4;
