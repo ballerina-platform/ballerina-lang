@@ -312,6 +312,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("join");
         expectedLookups.add("timeout");
         expectedLookups.add("worker");
+        expectedLookups.add("transform");
         doTest("string S=\"\"; function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -329,6 +330,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("join");
         expectedLookups.add("timeout");
         expectedLookups.add("worker");
+        expectedLookups.add("transform");
         doTest("function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -416,6 +418,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("join");
         expectedLookups.add("timeout");
         expectedLookups.add("worker");
+        expectedLookups.add("transform");
         doTest("function test () { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -432,12 +435,13 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("join");
         expectedLookups.add("timeout");
         expectedLookups.add("worker");
+        expectedLookups.add("transform");
         doTest("function test (int arg) { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithConst() {
         List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg", "GREETING", "any", "fork", "join",
-                "timeout", "worker");
+                "timeout", "worker", "transform");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
@@ -461,6 +465,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("join");
         expectedLookups.add("timeout");
         expectedLookups.add("worker");
+        expectedLookups.add("transform");
         doTest("import org.pack; function test () { <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -470,7 +475,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     }
 
     public void testFunctionBodyWithFunctionLevelKeywords() {
-        doTest("function test () { r<caret> }", "return", "string", "fork", "worker");
+        doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transform");
     }
 
     public void testInvokingFunctionInDifferentFile1() {
@@ -811,6 +816,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("join");
         expectedLookups.add("timeout");
         expectedLookups.add("worker");
+        expectedLookups.add("transform");
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -829,6 +835,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("join");
         expectedLookups.add("timeout");
         expectedLookups.add("worker");
+        expectedLookups.add("transform");
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> \nstring s4 = \"\";}",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }

@@ -205,6 +205,25 @@ statement
     |   commentStatement
     |   actionInvocationStatement
     |   functionInvocationStatement
+    |   transformStatement
+    ;
+
+transformStatement
+    :   'transform' '{' transformStatementBody* '}'
+    ;
+
+transformStatementBody
+    :   expressionAssignmentStatement
+    |   expressionVariableDefinitionStatement
+    |   transformStatement
+    ;
+
+expressionAssignmentStatement
+    :   variableReferenceList '=' expression ';'
+    ;
+
+expressionVariableDefinitionStatement
+    :   typeName Identifier '=' expression ';'
     ;
 
 variableDefinitionStatement
@@ -421,6 +440,7 @@ STRUCT          : 'struct';
 THROW           : 'throw';
 THROWS          : 'throws';
 TIMEOUT         : 'timeout';
+TRANSFORM       : 'transform';
 TRY             : 'try';
 TYPEMAPPER      : 'typemapper';
 WHILE           : 'while';

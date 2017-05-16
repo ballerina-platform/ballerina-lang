@@ -110,6 +110,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder SOME;
     private static final LookupElementBuilder TIMEOUT;
     private static final LookupElementBuilder WORKER;
+    private static final LookupElementBuilder TRANSFORM;
 
 
     static {
@@ -152,6 +153,7 @@ public class BallerinaCompletionUtils {
         SOME = createKeywordLookupElement("some", AddSpaceInsertHandler.INSTANCE);
         TIMEOUT = createKeywordLookupElement("timeout", ParenthesisInsertHandler.INSTANCE);
         WORKER = createKeywordLookupElement("worker", AddSpaceInsertHandler.INSTANCE);
+        TRANSFORM = createKeywordLookupElement("transform", AddSpaceInsertHandler.INSTANCE);
     }
 
     private BallerinaCompletionUtils() {
@@ -310,6 +312,7 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, JOIN, KEYWORDS_PRIORITY);
         addKeywordAsLookup(resultSet, TIMEOUT, KEYWORDS_PRIORITY);
         addKeywordAsLookup(resultSet, WORKER, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, TRANSFORM, KEYWORDS_PRIORITY);
     }
 
     /**
