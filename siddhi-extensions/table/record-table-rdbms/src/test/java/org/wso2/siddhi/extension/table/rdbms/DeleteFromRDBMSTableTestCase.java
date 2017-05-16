@@ -19,9 +19,9 @@ package org.wso2.siddhi.extension.table.rdbms;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -33,16 +33,16 @@ import java.sql.SQLException;
 import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.TABLE_NAME;
 import static org.wso2.siddhi.extension.table.rdbms.RDBMSTableTestUtils.url;
 
-public class DeleteFromRDBMSTableTest {
-    private static final Log log = LogFactory.getLog(DeleteFromRDBMSTableTest.class);
+public class DeleteFromRDBMSTableTestCase {
+    private static final Log log = LogFactory.getLog(DeleteFromRDBMSTableTestCase.class);
 
-    @Before
-    public void init() {
+    @BeforeClass
+    public static void startTest() {
         log.info("== RDBMS Table DELETE tests started ==");
     }
 
-    @After
-    public void shutdown() {
+    @AfterClass
+    public static void shutdown() {
         log.info("== RDBMS Table DELETE tests completed ==");
     }
 
