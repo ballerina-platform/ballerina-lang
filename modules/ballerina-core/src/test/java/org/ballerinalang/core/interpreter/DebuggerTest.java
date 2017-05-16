@@ -215,7 +215,7 @@ public class DebuggerTest {
                     mainFunction.getNodeLocation());
 
             funcIExpr = new FunctionInvocationExpr(
-                    mainFunction.getNodeLocation(), mainFunction.getName(), null, null, new Expression[0]);
+                    mainFunction.getNodeLocation(), null, mainFunction.getName(), null, null, new Expression[0]);
             funcIExpr.setOffset(argValues.length);
             funcIExpr.setCallableUnit(mainFunction);
             // Flow Building.

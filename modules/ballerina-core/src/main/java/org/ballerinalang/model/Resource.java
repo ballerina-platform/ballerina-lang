@@ -47,6 +47,7 @@ import java.util.Map;
  */
 public class Resource implements Node, SymbolScope, CallableUnit {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
     protected Identifier identifier;
@@ -217,6 +218,15 @@ public class Resource implements Node, SymbolScope, CallableUnit {
         return location;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
 
     // Methods in BLangSymbol interface
 
@@ -298,6 +308,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
 
         public Resource buildResource() {
             resource.location = this.location;
+            resource.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             resource.identifier = this.identifier;
             resource.pkgPath = this.pkgPath;
             resource.symbolName = new SymbolName(identifier.getName(), pkgPath);

@@ -33,6 +33,7 @@ import org.ballerinalang.model.types.SimpleTypeName;
  */
 public class VariableDef implements BLangSymbol, Node {
     protected NodeLocation location;
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected SimpleTypeName typeName;
     protected BType type;
     protected MemoryLocation memoryLocation;
@@ -46,18 +47,21 @@ public class VariableDef implements BLangSymbol, Node {
     protected SymbolScope symbolScope;
 
     public VariableDef(NodeLocation location,
+                       WhiteSpaceDescriptor whiteSpaceDescriptor,
                        Identifier identifier,
                        SimpleTypeName typeName,
                        SymbolName symbolName,
                        SymbolScope symbolScope) {
         this.location = location;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.identifier = identifier;
         this.symbolName = symbolName;
         this.typeName = typeName;
         this.symbolScope = symbolScope;
     }
 
-    public VariableDef(NodeLocation location, BType type, SymbolName symbolName) {
+    public VariableDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, BType type,
+                       SymbolName symbolName) {
         this.location = location;
         this.type = type;
         this.symbolName = symbolName;
@@ -135,5 +139,14 @@ public class VariableDef implements BLangSymbol, Node {
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 }
