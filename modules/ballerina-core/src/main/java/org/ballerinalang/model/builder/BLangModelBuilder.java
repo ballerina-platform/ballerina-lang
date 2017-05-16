@@ -196,6 +196,7 @@ public class BLangModelBuilder {
     }
 
     public BallerinaFile build() {
+        addImplicitImportPackages();
         importPkgMap.values()
                 .stream()
                 .filter(importPkg -> !importPkg.isUsed())
@@ -231,6 +232,15 @@ public class BLangModelBuilder {
         currentPackagePath = pkgPath;
         bFileBuilder.setPackagePath(currentPackagePath);
         bFileBuilder.setPackageLocation(location);
+    }
+
+    public void addImplicitImportPackages() {
+        if (!"ballerina.lang.errors".equals(currentPackagePath)) {
+            ImportPackage error = new ImportPackage(null, null, "ballerina.lang.errors", "@error");
+            error.setImplicitImport(true);
+            bFileBuilder.addImportPackage(error);
+            importPkgMap.put(error.getName(), error);
+        }
     }
 
     public void addImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor,

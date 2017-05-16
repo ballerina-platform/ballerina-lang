@@ -133,6 +133,7 @@ public class BLangExecutor implements NodeExecutor {
     public BStruct thrownError;
     public boolean isErrorThrown;
     private boolean inFinalBlock;
+    private boolean inRollbackBlock;
 
     private StructDef error, stackTraceItemDef, stackTraceDef;
     private SymbolScope parentScope;
@@ -151,7 +152,11 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(BlockStmt blockStmt) {
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
-            if (!inFinalBlock && (returnedOrReplied || isErrorThrown) || isBreakCalled || isAbortCalled) {
+            if (isBreakCalled || isAbortCalled) {
+                break;
+            }
+            if (inFinalBlock || inRollbackBlock) {
+            } else if (isErrorThrown || returnedOrReplied) {
                 break;
             }
             stmt.execute(this);
@@ -245,7 +250,11 @@ public class BLangExecutor implements NodeExecutor {
         while (condition.booleanValue()) {
             // Interpret the statements in the while body.
             whileStmt.getBody().execute(this);
-            if (!inFinalBlock && (returnedOrReplied || isErrorThrown) || isBreakCalled || isAbortCalled) {
+            if (isBreakCalled || isAbortCalled) {
+                break;
+            }
+            if (inFinalBlock || inRollbackBlock) {
+            } else if (isErrorThrown || returnedOrReplied) {
                 break;
             }
             // Now evaluate the condition again to decide whether to continue the loop or not.
@@ -265,15 +274,7 @@ public class BLangExecutor implements NodeExecutor {
         try {
             tryCatchStmt.getTryBlock().execute(this);
         } catch (RuntimeException be) {
-            if (error == null) {
-                error = (StructDef) parentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
-                if (error == null) {
-                    throw new BLangRuntimeException("Unresolved type ballerina.lang.errors:Error");
-                }
-            }
-            BString msg = new BString(be.getMessage());
-            thrownError = new BStruct(error, new BValue[]{msg});
-            isErrorThrown = true;
+            createBErrorFromException(be);
         }
         // Engage Catch statement.
         if (isErrorThrown) {
@@ -307,6 +308,9 @@ public class BLangExecutor implements NodeExecutor {
         thrownError = (BStruct) throwStmt.getExpr().execute(this);
         thrownError.setStackTrace(generateStackTrace());
         isErrorThrown = true;
+        if (bContext.isInTransaction()) {
+            bContext.getBallerinaTransactionManager().setTransactionError(true);
+        }
     }
 
     private BStruct generateStackTrace() {
@@ -595,7 +599,7 @@ public class BLangExecutor implements NodeExecutor {
             transactionRollbackStmt.getTransactionBlock().execute(this);
             ballerinaTransactionManager.commitTransactionBlock();
         } catch (Exception e) {
-            ballerinaTransactionManager.setTransactionError(true);
+            createBErrorFromException(e);
             while (bContext.getControlStack().getCurrentFrame() != current) {
                 if (controlStack.getStack().size() > 0) {
                     controlStack.popFrame();
@@ -609,11 +613,13 @@ public class BLangExecutor implements NodeExecutor {
         try {
             if (ballerinaTransactionManager.isTransactionError()) {
                 ballerinaTransactionManager.rollbackTransactionBlock();
+                inRollbackBlock = true;
                 transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().execute(this);
             }
         } catch (Exception e) {
             throw new BallerinaException(e);
         } finally {
+            inRollbackBlock = false;
             ballerinaTransactionManager.endTransactionBlock();
             if (ballerinaTransactionManager.isOuterTransaction()) {
                 bContext.setBallerinaTransactionManager(null);
@@ -1647,5 +1653,21 @@ public class BLangExecutor implements NodeExecutor {
         isErrorThrown = false;
         // Invoke Catch Block.
         catchBlock.getCatchBlockStmt().execute(this);
+    }
+
+    private void createBErrorFromException(Throwable t) {
+        if (error == null) {
+            error = (StructDef) parentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
+            if (error == null) {
+                throw new BLangRuntimeException("Unresolved type Error");
+            }
+        }
+        BString msg = new BString(t.getMessage());
+        thrownError = new BStruct(error, new BValue[]{msg});
+        thrownError.setStackTrace(generateStackTrace());
+        isErrorThrown = true;
+        if (bContext.isInTransaction()) {
+            bContext.getBallerinaTransactionManager().setTransactionError(true);
+        }
     }
 }

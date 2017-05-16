@@ -360,6 +360,15 @@ public class SQLActionsTest {
 
     }
 
+    @Test(groups = "ConnectorTest")
+    public void testTransactonThrow() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTransactonErrorThrow");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), -1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
+
+    }
+
     @Test(dependsOnGroups = "ConnectorTest")
     public void testCloseConnectionPool() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCloseConnectionPool");
