@@ -152,7 +152,8 @@ public class StartService extends AbstractNativeFunction {
             String listenerInterface = Constants.DEFAULT_INTERFACE;
             String basePath = service.getSymbolName().getName();
             for (AnnotationAttachment annotation : service.getAnnotations()) {
-                if (annotation.getName().equals(Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
+                if (annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH) &&
+                        annotation.getPkgName().equals(Constants.PROTOCOL_HTTP)) {
                     basePath = annotation.getValue();
                     break;
                 }

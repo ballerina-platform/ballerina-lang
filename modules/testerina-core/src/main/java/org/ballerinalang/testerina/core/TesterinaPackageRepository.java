@@ -14,15 +14,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.repository.BuiltinExtendedPackageRepository;
 
 /**
- * This is a dummy class needed for annotation processor plugin.
+ * This is the provider interface to expose testerina packages.
  */
-@BallerinaFunction(
-    functionName = "ignore"
-)
-public class Builder {
+public class TesterinaPackageRepository extends BuiltinExtendedPackageRepository {
 
+    public TesterinaPackageRepository() {
+        super(TesterinaPackageRepository.class);
+    }
 }
