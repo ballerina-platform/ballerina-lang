@@ -154,24 +154,26 @@ public class DataTableTest {
     public void testGetObjectAsStringByName() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getObjectAsStringByName");
 
-        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns.length, 6);
         Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
         Assert.assertEquals((returns[1]).stringValue(), "very long text");
-        //        Assert.assertEquals(returns[2].stringValue(), "21945000");
-        //        Assert.assertEquals(returns[3].stringValue(), "1486060200000");
-        //        Assert.assertEquals(returns[4].stringValue(), "1486102980000");
+        Assert.assertTrue(returns[2].stringValue().contains("11:35:45"));
+        Assert.assertTrue(returns[3].stringValue().contains("2017-02-03"));
+        Assert.assertTrue(returns[4].stringValue().contains("2017-02-03T11:53:00"));
+        Assert.assertTrue(returns[5].stringValue().contains("2017-02-03T11:53:00"));
     }
 
     @Test(description = "Check getObjectAsStringByIndex methods for complex types.")
     public void testGetObjectAsStringByIndex() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getObjectAsStringByIndex");
 
-        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns.length, 6);
         Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
         Assert.assertEquals((returns[1]).stringValue(), "very long text");
-        //        Assert.assertEquals(returns[2].stringValue(), "21945000");
-        //        Assert.assertEquals(returns[3].stringValue(), "1486060200000");
-        //        Assert.assertEquals(returns[4].stringValue(), "1486102980000");
+        Assert.assertTrue(returns[2].stringValue().contains("11:35:45"));
+        Assert.assertTrue(returns[3].stringValue().contains("2017-02-03"));
+        Assert.assertTrue(returns[4].stringValue().contains("2017-02-03T11:53:00"));
+        Assert.assertTrue(returns[5].stringValue().contains("2017-02-03T11:53:00"));
     }
 
     @SuppressWarnings("unchecked")
@@ -263,14 +265,14 @@ public class DataTableTest {
         cal.set(Calendar.MINUTE, 15);
         cal.set(Calendar.SECOND, 23);
         long time = cal.getTimeInMillis();
-        args[0] = new BString(String.valueOf(time));
+        args[0] = new BInteger(time);
 
         cal.clear();
         cal.set(Calendar.YEAR, 2017);
         cal.set(Calendar.MONTH, 5);
         cal.set(Calendar.DAY_OF_MONTH, 23);
         long date = cal.getTimeInMillis();
-        args[1] = new BString(String.valueOf(date));
+        args[1] = new BInteger(date);
 
         cal.clear();
         cal.set(Calendar.HOUR, 16);
@@ -280,7 +282,7 @@ public class DataTableTest {
         cal.set(Calendar.MONTH, 1);
         cal.set(Calendar.DAY_OF_MONTH, 25);
         long timestamp = cal.getTimeInMillis();
-        args[2] = new BString(String.valueOf(timestamp));
+        args[2] = new BInteger(timestamp);
 
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDateTime", args);
 
@@ -288,6 +290,30 @@ public class DataTableTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), time);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), date);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), timestamp);
+    }
+
+    @Test(description = "Check toJson methods with null values.")
+    public void testJsonWithNull() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonWithNull");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"INT_TYPE\":0,\"LONG_TYPE\":0,\"FLOAT_TYPE\":0.0,\"DOUBLE_TYPE\":0.0,\"BOOLEAN_TYPE\":false,"
+                        + "\"STRING_TYPE\":null}]");
+    }
+
+    @Test(description = "Check toXml method with null values.")
+    public void testXmlWithNull() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testXmlWithNull");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<types><type><INT_TYPE>0</INT_TYPE><LONG_TYPE>0</LONG_TYPE><FLOAT_TYPE>0.0</FLOAT_TYPE>"
+                        + "<DOUBLE_TYPE>0.0</DOUBLE_TYPE><BOOLEAN_TYPE>false</BOOLEAN_TYPE>"
+                        + "<STRING_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                        + "</type></types>");
     }
 
     @AfterSuite

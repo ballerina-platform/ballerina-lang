@@ -31,6 +31,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
+import javax.sql.XADataSource;
 
 /**
  * Native SQL Connector.
@@ -43,6 +45,8 @@ public class SQLDatasource implements BValue {
 
     private HikariDataSource hikariDataSource;
     private String databaseName;
+    private String connectorId;
+    private boolean xaConn;
 
     public String getDatabaseName() {
         return databaseName;
@@ -52,6 +56,8 @@ public class SQLDatasource implements BValue {
 
     public boolean init(BMap options) {
         buildDataSource(options);
+        connectorId = UUID.randomUUID().toString();
+        xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
             databaseName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
@@ -68,6 +74,24 @@ public class SQLDatasource implements BValue {
             throw new BallerinaException(
                     "error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(), e);
         }
+    }
+
+    public String getConnectorId() {
+        return this.connectorId;
+    }
+
+    public boolean isXAConnection() {
+        return this.xaConn;
+    }
+
+    public XADataSource getXADataSource() {
+        XADataSource xaDataSource;
+        try {
+            xaDataSource = hikariDataSource.unwrap(XADataSource.class);
+        } catch (SQLException e) {
+            throw new BallerinaException("error in get distributed data source");
+        }
+        return xaDataSource;
     }
 
     public void closeConnectionPool() {
@@ -225,5 +249,17 @@ public class SQLDatasource implements BValue {
     @Override
     public BType getType() {
         return null;
+    }
+
+    private boolean isXADataSource() {
+        try {
+            if (hikariDataSource.isWrapperFor(XADataSource.class)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in check distributed data source: " + e.getCause().getMessage());
+        }
     }
 }

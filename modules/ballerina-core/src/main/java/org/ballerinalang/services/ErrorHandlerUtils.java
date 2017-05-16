@@ -110,7 +110,8 @@ public class ErrorHandlerUtils {
         } else {
             for (int i = stack.size() - 1; i >= stackStartIndex; i--) {
                 CallableUnitInfo frameInfo = stack.get(i).getNodeInfo();
-                String pkgName = (frameInfo.getPackage() != null) ? frameInfo.getPackage() + ":" : "";
+                String pkgName = (frameInfo.getPackage() != null && !frameInfo.getPackage().equals(".")) ?
+                        frameInfo.getPackage() + ":" : "";
                 sb.append("\t at ").append(pkgName).append(frameInfo.getName())
                         .append(getNodeLocation(frameInfo)).append("\n");
             }

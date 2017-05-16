@@ -100,6 +100,7 @@ import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -112,6 +113,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -172,6 +174,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private static final Pattern compiledPattern = Pattern.compile(patternString);
 
     private int whileStmtCount = 0;
+    private int transactionStmtCount = 0;
     private SymbolScope currentScope;
     private SymbolScope nativeScope;
 
@@ -1058,7 +1061,12 @@ public class SemanticAnalyzer implements NodeVisitor {
                         SemanticErrors.BREAK_STMT_NOT_ALLOWED_HERE);
             }
 
-            if (stmt instanceof BreakStmt || stmt instanceof ReplyStmt) {
+            if (stmt instanceof AbortStmt && transactionStmtCount < 1) {
+                BLangExceptionHelper.throwSemanticError(stmt,
+                        SemanticErrors.ABORT_STMT_NOT_ALLOWED_HERE);
+            }
+
+            if (stmt instanceof BreakStmt || stmt instanceof ReplyStmt || stmt instanceof AbortStmt) {
                 checkUnreachableStmt(blockStmt.getStatements(), stmtIndex + 1);
             }
 
@@ -1289,6 +1297,19 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        transactionStmtCount++;
+        transactionRollbackStmt.getTransactionBlock().accept(this);
+        transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().accept(this);
+        transactionStmtCount--;
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+
+    }
+
+    @Override
     public void visit(ReplyStmt replyStmt) {
         if (currentCallableUnit instanceof Function) {
             BLangExceptionHelper.throwSemanticError(currentCallableUnit,
@@ -1317,6 +1338,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(ReturnStmt returnStmt) {
         if (currentCallableUnit instanceof Resource) {
             BLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.RETURN_CANNOT_USED_IN_RESOURCE);
+        }
+
+        if (transactionStmtCount > 0) {
+            BLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.RETURN_CANNOT_USED_IN_TRANSACTION);
         }
 
         // Expressions that this return statement contains.
