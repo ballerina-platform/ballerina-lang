@@ -1,7 +1,7 @@
 package mock;
 
 import ballerina.lang.system;
-import ballerina.lang.messages as message;
+import ballerina.lang.messages;
 import ballerina.net.http;
 
 connector TestConnector(string param1, string param2, int param3) {
@@ -9,11 +9,11 @@ connector TestConnector(string param1, string param2, int param3) {
 
     action action1(TestConnector testConnector) (string){
         message req = {};
-        message:setStringPayload(req, param1);
+        messages:setStringPayload(req, param1);
         system:println("param1 " + param1);
         message response = http:ClientConnector.get(terminalCon, "/", req);
-        system:println("response " + message:getStringPayload(response));
-        return message:getStringPayload(response);
+        system:println("response " + messages:getStringPayload(response));
+        return messages:getStringPayload(response);
     }
 }
 
