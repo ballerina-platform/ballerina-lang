@@ -337,6 +337,29 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.get(1).stringValue(), "1");
     }
 
+    @Test(groups = "ConnectorTest")
+    public void testLocalTransacton() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testLocalTransacton");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testTransactonRollback() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTransactonRollback");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testTransactonAbort() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTransactonAbort");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+
+    }
+
     @Test(dependsOnGroups = "ConnectorTest")
     public void testCloseConnectionPool() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCloseConnectionPool");

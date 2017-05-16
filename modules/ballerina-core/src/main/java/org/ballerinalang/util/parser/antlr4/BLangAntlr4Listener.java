@@ -1449,6 +1449,47 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startTransactionhStmt(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
+    public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addTransactionStmt();
+        }
+    }
+
+    @Override
+    public void enterRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startRollbackClause(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
+    public void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addRollbackClause();
+        }
+    }
+
+    @Override
+    public void enterAbortStatement(BallerinaParser.AbortStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.createAbortStmt(getCurrentLocation(ctx));
+    }
+
+    @Override
     public void enterActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
     }
 

@@ -99,8 +99,10 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -113,6 +115,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -404,6 +407,23 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing TransformStmt {}", getNodeLocation(transformStmt.getNodeLocation()));
         }
         next = transformStmt.next;
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing TransactionRollbackStmt {}",
+                    getNodeLocation(transactionRollbackStmt.getNodeLocation()));
+        }
+        next = transactionRollbackStmt.next;
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing AbortStmt {}", getNodeLocation(abortStmt.getNodeLocation()));
+        }
+        next = abortStmt.next;
     }
 
     /* Expression nodes */
@@ -1413,6 +1433,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
         StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmtEndNode transactionRollbackStmtEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing TransactionRollbackStmt - EndNode");
+        }
+        next = transactionRollbackStmtEndNode.next;
     }
 
     @Override

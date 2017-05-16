@@ -43,9 +43,13 @@ under the License.
 
     <!-- Native Connectors Related Test Cases -->
     <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="false"/>
         <packages>
             <package name="org.ballerinalang.nativeimpl.actions"/>
         </packages>
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
     </test>
 
     <!-- Native TypeConvertors Related Test Cases -->
