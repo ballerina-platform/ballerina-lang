@@ -148,7 +148,7 @@ public class AnnotationTest {
         Assert.assertEquals(attributeValue, "paramName3");
         
     }
-    
+
     // Negative tests
     
     @Test(description = "Test child annotation from a wrong package",
@@ -158,7 +158,7 @@ public class AnnotationTest {
     public void testInvalidChildAnnotation() {
         BTestUtils.parseBalFile("lang/annotations/invalid-child-annotation.bal");
     }
-    
+
     @Test(description = "Test array value for a non-array type attribute",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "invalid-array-valued-attribute.bal:3: incompatible types: expected" +

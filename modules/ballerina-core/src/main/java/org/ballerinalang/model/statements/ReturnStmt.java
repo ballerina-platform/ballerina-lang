@@ -53,4 +53,8 @@ public class ReturnStmt extends AbstractStatement {
         executor.visit(this);
     }
 
+    @Override
+    public boolean isAlwaysReturns() {
+        return true;
+    }
 }

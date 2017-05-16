@@ -44,7 +44,7 @@ under the License.
     <!-- Native Connectors Related Test Cases -->
     <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.nativeimpl.connectors"/>
+            <package name="org.ballerinalang.nativeimpl.actions"/>
         </packages>
     </test>
 
@@ -140,6 +140,22 @@ under the License.
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
             <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
             <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
+        </classes>
+    </test> -->
+
+    <test name="ballerina-identifier-literal-test-suite">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>
+        </classes>
+    </test>
+    <!-- Non Blocking Test Cases -->
+    <!-- <test name="ballerina-identifier-literal-test-suite-non-blocking">
+        <parameter name="enableNonBlocking" value="true" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>
         </classes>
     </test> -->
 </suite>
