@@ -1165,21 +1165,19 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
-        //open the fork join statement scope
+        // Open the fork join statement scope
         openScope(forkJoinStmt);
-//        // Visit incoming message
-//        VariableRefExpr messageReference = forkJoinStmt.getMessageReference();
-//        messageReference.accept(this);
-//
-//        if (!messageReference.getType().equals(BTypes.typeMessage)) {
-//            throw new SemanticException("Incompatible types: expected a message in " +
-//                    messageReference.getNodeLocation().getFileName() + ":" +
-//                    messageReference.getNodeLocation().getLineNumber());
-//        }
 
         // Visit workers
         for (Worker worker: forkJoinStmt.getWorkers()) {
-            workerMemAddrOffset += stackFrameOffset;
+            /* Here we are setting the current stack frame size of the parent component (function, resource, action)
+            as the accessible stack frame size for fork-join internal workers. */
+            worker.setAccessibleStackFrameSize(stackFrameOffset + 1);
+
+            /* Actual worker memory segment starts after the current in-scope variables within the control stack.
+            Hence, we are adding the stackFrameOffset + 1 to begin with */
+            workerMemAddrOffset += stackFrameOffset + 1;
+
             worker.accept(this);
         }
 

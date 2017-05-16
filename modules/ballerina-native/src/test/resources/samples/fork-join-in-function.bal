@@ -9,22 +9,27 @@ function testForkJoinAll(message m)(message[]) {
         float y = 1000.5;
         system:println("Airfare ");
         system:println(y);
+        map mm = {"name":"chanaka", "age":"32"};
+        system:println(mm["name"]);
+
         fork {
             worker ABC_Airline {
                 json payload;
                 payload = `{"name":"abc"}`;
-                messages:setJsonPayload(m, payload);
+                message m1 = messages:clone(m);
+                messages:setJsonPayload(m1, payload);
+                mm["name"] = "wso2";
                 //x = 100;
-                system:println(x);
-                //y = 234.5;
+                //system:println(mm["name"]);
+                x = 234;
                 system:println(y);
-                reply m;
+                reply m1;
             }
 
             worker XYZ_Airline {
                 json payload;
                 payload = `{"name":"xyz"}`;
-                //x = 500;
+                x = 500;
                 system:println(x);
                 messages:setJsonPayload(m, payload);
                 reply m;
@@ -32,17 +37,23 @@ function testForkJoinAll(message m)(message[]) {
         } join (all) (message[] airlineResponses) {
             system:println(messages:getStringPayload(airlineResponses[0]));
             system:println(messages:getStringPayload(airlineResponses[1]));
-            system:println(y);
-            return airlineResponses;
+            results = airlineResponses;
+            system:println(mm["name"]);
+            x = 999;
+            //return airlineResponses;
         } timeout (30000) (message[] airlineResponses) {
             system:println("error occurred");
             error = `{"error":{"code":"500", "reason":"timed out"}}`;
             message res = {};
             messages:setJsonPayload(res, error);
             results[0] = m;
-            return results;
+            //return results;
         }
-        system:println(y);
+        system:println("Outside fork join statement");
+        system:println(results[0]);
+        system:println(results[1]);
+        system:println(x);
+        return results;
 }
 
 function testForkJoinAny(message m)(message[]) {

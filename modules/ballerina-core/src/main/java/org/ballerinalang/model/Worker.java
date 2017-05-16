@@ -66,6 +66,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     private BlockStmt workerBody;
     private int stackFrameSize;
     private int tempStackFrameSize;
+    private int accessibleStackFrameSize;
 
     // Scope related variables
     private SymbolScope enclosingScope;
@@ -326,6 +327,14 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
     public void setParameterDefs(ParameterDef[] parameterDefs) {
         this.parameterDefs = parameterDefs;
+    }
+
+    public int getAccessibleStackFrameSize() {
+        return accessibleStackFrameSize;
+    }
+
+    public void setAccessibleStackFrameSize(int accessibleStackFrameSize) {
+        this.accessibleStackFrameSize = accessibleStackFrameSize;
     }
 
     /**

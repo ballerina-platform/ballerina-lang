@@ -429,8 +429,6 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
-//        VariableRefExpr expr = forkJoinStmt.getMessageReference();
-//        BMessage inMsg = (BMessage) expr.execute(this);
         List<WorkerRunner> workerRunnerList = new ArrayList<>();
         List<BMessage> resultMsgs = new ArrayList<>();
         long timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
@@ -439,25 +437,14 @@ public class BLangExecutor implements NodeExecutor {
         Map<String, WorkerRunner> triggeredWorkers = new HashMap<>();
         for (Worker worker : workers) {
             int sizeOfValueArray = worker.getStackFrameSize();
-            int newSize = sizeOfValueArray + this.controlStack.getCurrentFrame().values.length;
+            BValue[] localVals = new BValue[sizeOfValueArray];
 
-            //BValue[] localVals = new BValue[sizeOfValueArray];
-            BValue[] localVals = new BValue[newSize];
+            // Copying the values of current stack frame to the local values array at the beginning
+            BValue[] currentStackValues = this.controlStack.getCurrentFrame().values;
+            System.arraycopy(currentStackValues, 0, localVals, 0, worker.getAccessibleStackFrameSize());
 
-//            BValue argValue = inMsg != null ? inMsg.clone() : null;
-//            // Setting argument value in the stack frame
-//            localVals[0] = argValue;
-
-            // Get values for all the worker arguments
-            //int valueCounter = populateArgumentValuesForWorker(forkJoinStmt.getInputValues(), localVals);
-            int valueCounter = 0;
-
-            // Copying the values of current stack frame to the new stack frame
-            BValue[] parentParams = this.controlStack.getCurrentFrame().values;
-            for (BValue value : parentParams) {
-                localVals[valueCounter++] = value;
-            }
-
+            // TODO: This is not needed anymore. Remove when cleaning up the code.
+            int valueCounter = worker.getAccessibleStackFrameSize();
             for (ParameterDef returnParam : worker.getReturnParameters()) {
                 // Check whether these are unnamed set of return types.
                 // If so break the loop. You can't have a mix of unnamed and named returns parameters.
@@ -468,13 +455,8 @@ public class BLangExecutor implements NodeExecutor {
                 localVals[valueCounter] = returnParam.getType().getEmptyValue();
                 valueCounter++;
             }
-            // Create default values for all declared local variables
-//            for (ParameterDef variableDcl : worker.getParameterDefs()) {
-//                localVals[valueCounter] = variableDcl.getType().getZeroValue();
-//                valueCounter++;
-//            }
 
-            // Create an arrays in the stack frame to hold return values;
+            // Create an array in the stack frame to hold return values;
             BValue[] returnVals = new BValue[1];
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
@@ -1522,7 +1504,16 @@ public class BLangExecutor implements NodeExecutor {
         //int valueCounter = 0;
 
         // Get values for all the function arguments
-        int valueCounter = populateArgumentValues(parentParameters, localVals);
+        //int valueCounter = populateArgumentValues(parentParameters, localVals);
+
+        int valueCounter = 0;
+        for (Expression arg : parentParameters) {
+            // Evaluate the argument expression
+            BValue argValue = arg.execute(this);
+            // Setting argument value in the stack frame
+            localVals[valueCounter] = argValue;
+            valueCounter++;
+        }
 
         for (ParameterDef returnParam : worker.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
