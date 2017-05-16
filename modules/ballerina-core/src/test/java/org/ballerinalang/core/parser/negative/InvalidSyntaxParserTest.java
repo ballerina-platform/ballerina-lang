@@ -20,7 +20,7 @@ package org.ballerinalang.core.parser.negative;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.ParserException;
+//import org.ballerinalang.util.exceptions.ParserException;
 import org.testng.annotations.Test;
 
 /**
@@ -46,16 +46,16 @@ public class InvalidSyntaxParserTest {
     }
 
 
-    /**
-     * Test invalid identifier. i.e: {@link org.antlr.v4.runtime.NoViableAltException}
-     */
-
-    @Test(expectedExceptions = {ParserException.class},
-            expectedExceptionsMessageRegExp = "IdentifierMissingService.bal:12:9: mismatched input ';'. " +
-                    "Expecting one of \\{'\\[', Identifier\\}")
-    public void testParseIdentifierMissingSerivce() {
-         BTestUtils.parseBalFile("samples/parser/invalidSyntax/IdentifierMissingService.bal");
-    }
+//    /**
+//     * Test invalid identifier. i.e: {@link org.antlr.v4.runtime.NoViableAltException}
+//     */
+//
+//    @Test(expectedExceptions = {ParserException.class},
+//            expectedExceptionsMessageRegExp = "IdentifierMissingService.bal:12:9: mismatched input ';'. " +
+//                    "Expecting one of \\{'\\[', Identifier\\}")
+//    public void testParseIdentifierMissingSerivce() {
+//         BTestUtils.parseBalFile("samples/parser/invalidSyntax/IdentifierMissingService.bal");
+//    }
 
     @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "IdentifierMissingMainFunc.bal:5:1: invalid identifier 'b'")
@@ -63,12 +63,12 @@ public class InvalidSyntaxParserTest {
          BTestUtils.parseBalFile("samples/parser/invalidSyntax/IdentifierMissingMainFunc.bal");
     }
 
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "ReservedWordVariable.bal:5:8: " +
-                    "mismatched input 'resource'. Expecting one of \\{'\\[', Identifier\\}")
-    public void testReservedWordVariable() {
-        BTestUtils.parseBalFile("samples/parser/invalidSyntax/ReservedWordVariable.bal");
-    }
+//    @Test(expectedExceptions = {BallerinaException.class},
+//            expectedExceptionsMessageRegExp = "ReservedWordVariable.bal:5:8: " +
+//                    "mismatched input 'resource'. Expecting one of \\{'\\[', Identifier\\}")
+//    public void testReservedWordVariable() {
+//        BTestUtils.parseBalFile("samples/parser/invalidSyntax/ReservedWordVariable.bal");
+//    }
 
     
     /**

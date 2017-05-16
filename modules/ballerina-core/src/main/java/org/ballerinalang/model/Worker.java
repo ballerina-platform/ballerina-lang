@@ -67,6 +67,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     private BlockStmt workerBody;
     private int stackFrameSize;
     private int tempStackFrameSize;
+    private int accessibleStackFrameSize;
 
     // Scope related variables
     private SymbolScope enclosingScope;
@@ -230,6 +231,14 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
         return this.returnParams;
     }
 
+    /**
+     * Get all the Workers associated with a Worker.
+     *
+     * @return list of Workers
+     */
+    public Worker[] getWorkers() {
+        return workers;
+    }
 
     /**
      * Returns size of the stack frame which should be allocated for each invocations.
@@ -331,6 +340,18 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
         isFlowBuilderVisited = flowBuilderVisited;
     }
 
+    public void setParameterDefs(ParameterDef[] parameterDefs) {
+        this.parameterDefs = parameterDefs;
+    }
+
+    public int getAccessibleStackFrameSize() {
+        return accessibleStackFrameSize;
+    }
+
+    public void setAccessibleStackFrameSize(int accessibleStackFrameSize) {
+        this.accessibleStackFrameSize = accessibleStackFrameSize;
+    }
+
     /**
      * {@code WorkerBuilder} is responsible for building a {@code Worker} node.
      *
@@ -353,6 +374,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
             bWorker.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bWorker.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            bWorker.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
             bWorker.workerBody = this.body;
             return bWorker;
         }

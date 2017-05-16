@@ -109,7 +109,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -297,83 +296,106 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
-        // Create the Stack frame
-        Worker worker = workerInvocationStmt.getCallableUnit();
-
-        int sizeOfValueArray = worker.getStackFrameSize();
-        BValue[] localVals = new BValue[sizeOfValueArray];
 
         // Evaluate the argument expression
-        BValue argValue = workerInvocationStmt.getInMsg().execute(this);
+        Expression[] expressions = workerInvocationStmt.getExpressionList();
+        // Extract the outgoing expressions
+        BValue[] arguments = new BValue[expressions.length];
+        populateArgumentValuesForWorker(expressions, arguments);
 
-        if (argValue instanceof BMessage) {
-            argValue = ((BMessage) argValue).clone();
-        }
+        workerInvocationStmt.getWorkerDataChannel().putData(arguments);
 
-        // Setting argument value in the stack frame
-        localVals[0] = argValue;
-
-        // Get values for all the worker arguments
-        int valueCounter = 1;
-
-        for (ParameterDef returnParam : worker.getReturnParameters()) {
-            // Check whether these are unnamed set of return types.
-            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (returnParam.getName() == null) {
-                break;
-            }
-
-            localVals[valueCounter] = returnParam.getType().getZeroValue();
-            valueCounter++;
-        }
-
-
-        // Create an arrays in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[1];
-
-        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
-        // return values and worker invocation location;
-        CallableUnitInfo functionInfo = new CallableUnitInfo(worker.getName(), worker.getPackagePath(),
-                workerInvocationStmt.getNodeLocation());
-
-        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
-        Context workerContext = new Context();
-        workerContext.getControlStack().pushFrame(stackFrame);
-        WorkerCallback workerCallback = new WorkerCallback(workerContext);
-        workerContext.setBalCallback(workerCallback);
-        BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
-
-        executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
-        WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
-        Future<BMessage> future = executor.submit(workerRunner);
-        worker.setResultFuture(future);
-
-
-        //controlStack.popFrame();
+//        // Create the Stack frame
+//        Worker worker = workerInvocationStmt.getCallableUnit();
+//
+//        int sizeOfValueArray = worker.getStackFrameSize();
+//        BValue[] localVals = new BValue[sizeOfValueArray];
+//
+//        // Get values for all the worker arguments
+//        int valueCounter = 0;
+//        // Evaluate the argument expression
+//        Expression[] expressions = workerInvocationStmt.getExpressionList();
+//        for (Expression expression : expressions) {
+//            localVals[valueCounter++] = expression.execute(this);
+//        }
+//
+//        for (ParameterDef returnParam : worker.getReturnParameters()) {
+//            // Check whether these are unnamed set of return types.
+//            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+//            if (returnParam.getName() == null) {
+//                break;
+//            }
+//
+//            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+//            valueCounter++;
+//        }
+//
+//
+//        // Create an arrays in the stack frame to hold return values;
+//        BValue[] returnVals = new BValue[1];
+//
+//        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+//        // return values and worker invocation location;
+//        CallableUnitInfo functionInfo = new CallableUnitInfo(worker.getName(), worker.getPackagePath(),
+//                workerInvocationStmt.getNodeLocation());
+//
+//        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+//        Context workerContext = new Context();
+//        workerContext.getControlStack().pushFrame(stackFrame);
+//        WorkerCallback workerCallback = new WorkerCallback(workerContext);
+//        workerContext.setBalCallback(workerCallback);
+//        BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+//
+//        executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
+//        WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
+//        Future<BMessage> future = executor.submit(workerRunner);
+//        worker.setResultFuture(future);
+//
+//
+//        //controlStack.popFrame();
     }
 
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
-        Worker worker = workerReplyStmt.getWorker();
-        Future<BMessage> future = worker.getResultFuture();
-        try {
-            // TODO: Make this value configurable - need grammar level rethink
-            BMessage result = future.get(60, TimeUnit.SECONDS);
-            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
-            assignValueToVarRefExpr(result, variableRefExpr);
-            executor.shutdown();
-            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
+        Expression[] localVars = workerReplyStmt.getExpressionList();
+        BValue[] passedInValues = (BValue[]) workerReplyStmt.getWorkerDataChannel().takeData();
+
+        for (int i = 0; i < localVars.length; i++) {
+            Expression lExpr = localVars[i];
+            BValue rValue = passedInValues[i];
+            if (lExpr instanceof VariableRefExpr) {
+                assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
+            } else if (lExpr instanceof ArrayMapAccessExpr) {
+                assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
+            } else if (lExpr instanceof FieldAccessExpr) {
+                assignValueToFieldAccessExpr(rValue, (FieldAccessExpr) lExpr);
             }
-        } catch (Exception e) {
-            // If there is an exception in the worker, set an empty value to the return variable
-            BMessage result = BTypes.typeMessage.getEmptyValue();
-            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
-            assignValueToVarRefExpr(result, variableRefExpr);
-        } finally {
-            // Finally, try again to shutdown if not done already
-            executor.shutdownNow();
         }
+
+//        Worker worker = workerReplyStmt.getWorker();
+//        Future<BMessage> future = worker.getResultFuture();
+//        try {
+//            // TODO: Make this value configurable - need grammar level rethink
+//            BMessage result = future.get(60, TimeUnit.SECONDS);
+//            Expression[] expressions = workerReplyStmt.getExpressionList();
+//            for (Expression expression: expressions) {
+//                assignValueToVarRefExpr(result, (VariableRefExpr)expression);
+//            }
+//            executor.shutdown();
+//            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+//                executor.shutdownNow();
+//            }
+//        } catch (Exception e) {
+//            // If there is an exception in the worker, set an empty value to the return variable
+//            BMessage result = BTypes.typeMessage.getDefaultValue();
+//            Expression[] expressions = workerReplyStmt.getExpressionList();
+//            for (Expression expression: expressions) {
+//                assignValueToVarRefExpr(result, (VariableRefExpr)expression);
+//            }
+//        } finally {
+//            // Finally, try again to shutdown if not done already
+//            executor.shutdownNow();
+//        }
     }
 
     @Override
@@ -413,8 +435,6 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
-        VariableRefExpr expr = forkJoinStmt.getMessageReference();
-        BMessage inMsg = (BMessage) expr.execute(this);
         List<WorkerRunner> workerRunnerList = new ArrayList<>();
         List<BMessage> resultMsgs = new ArrayList<>();
         long timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
@@ -425,20 +445,24 @@ public class BLangExecutor implements NodeExecutor {
             int sizeOfValueArray = worker.getStackFrameSize();
             BValue[] localVals = new BValue[sizeOfValueArray];
 
-            BValue argValue = inMsg != null ? inMsg.clone() : null;
-            // Setting argument value in the stack frame
-            localVals[0] = argValue;
+            // Copying the values of current stack frame to the local values array at the beginning
+            BValue[] currentStackValues = this.controlStack.getCurrentFrame().values;
+            System.arraycopy(currentStackValues, 0, localVals, 0, worker.getAccessibleStackFrameSize());
 
-            // Get values for all the worker arguments
-            int valueCounter = 1;
+            // TODO: This is not needed anymore. Remove when cleaning up the code.
+            int valueCounter = worker.getAccessibleStackFrameSize();
+            for (ParameterDef returnParam : worker.getReturnParameters()) {
+                // Check whether these are unnamed set of return types.
+                // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+                if (returnParam.getName() == null) {
+                    break;
+                }
 
-            // Create default values for all declared local variables
-            for (ParameterDef variableDcl : worker.getParameterDefs()) {
-                localVals[valueCounter] = variableDcl.getType().getZeroValue();
+                localVals[valueCounter] = returnParam.getType().getEmptyValue();
                 valueCounter++;
             }
 
-            // Create an arrays in the stack frame to hold return values;
+            // Create an array in the stack frame to hold return values;
             BValue[] returnVals = new BValue[1];
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
@@ -651,6 +675,10 @@ public class BLangExecutor implements NodeExecutor {
         // Check whether we are invoking a native function or not.
         if (function instanceof BallerinaFunction) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
+            // Start the workers defined within the function
+            for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
+                executeWorker(worker, funcIExpr.getArgExprs());
+            }
             bFunction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
@@ -698,6 +726,10 @@ public class BLangExecutor implements NodeExecutor {
         // Check whether we are invoking a native action or not.
         if (action instanceof BallerinaAction) {
             BallerinaAction bAction = (BallerinaAction) action;
+            // Start the workers within the action
+            for (Worker worker : bAction.getWorkers()) {
+                executeWorker(worker, actionIExpr.getArgExprs());
+            }
             bAction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeAction nativeAction = (AbstractNativeAction) action;
@@ -738,7 +770,12 @@ public class BLangExecutor implements NodeExecutor {
         StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
 
+        // Start the workers within the resource
+        for (Worker worker : resource.getWorkers()) {
+            executeWorker(worker, resourceIExpr.getArgExprs());
+        }
         resource.getResourceBody().execute(this);
+
 
         return ret;
     }
@@ -1069,6 +1106,35 @@ public class BLangExecutor implements NodeExecutor {
             // TODO Implement copy-on-write mechanism to improve performance
             if (BTypes.isValueType(argType)) {
                 argValue = BValueUtils.clone(argType, argValue);
+            }
+
+            // Setting argument value in the stack frame
+            localVals[i] = argValue;
+
+            i++;
+        }
+        return i;
+    }
+
+    private int populateArgumentValuesForWorker(Expression[] expressions, BValue[] localVals) {
+        int i = 0;
+        for (Expression arg : expressions) {
+            // Evaluate the argument expression
+            BValue argValue = arg.execute(this);
+            BType argType = arg.getType();
+
+            // Here we need to handle value types differently from reference types
+            // Value types need to be cloned before passing ot the function : pass by value.
+            // TODO Implement copy-on-write mechanism to improve performance
+            if (BTypes.isValueType(argType)) {
+                argValue = BValueUtils.clone(argType, argValue);
+            }
+
+            // If the type is message, then clone and set the value
+            if (argType.equals(BTypes.typeMessage)) {
+                if (argValue != null) {
+                    argValue = ((BMessage) argValue).clone();
+                }
             }
 
             // Setting argument value in the stack frame
@@ -1498,7 +1564,80 @@ public class BLangExecutor implements NodeExecutor {
 
         return arrayVal;
     }
-    
+
+//    public void shutdownWorker(Worker worker) {
+//        Future<BMessage> future = worker.getResultFuture();
+//        try {
+//            // TODO: Make this value configurable - need grammar level rethink
+//            BMessage result = future.get(60, TimeUnit.SECONDS);
+//            executor.shutdown();
+//            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+//                executor.shutdownNow();
+//            }
+//        } catch (Exception e) {
+//            // If there is an exception in the worker, set an empty value to the return variable
+//            BMessage result = BTypes.typeMessage.getDefaultValue();
+//        } finally {
+//            // Finally, try again to shutdown if not done already
+//            executor.shutdownNow();
+//        }
+//    }
+
+    public void executeWorker(Worker worker, Expression[] parentParameters) {
+        int sizeOfValueArray = worker.getStackFrameSize();
+        BValue[] localVals = new BValue[sizeOfValueArray];
+
+        int valueCounter = 0;
+
+        if (parentParameters != null) {
+            for (Expression arg : parentParameters) {
+                // Evaluate the argument expression
+                BValue argValue = arg.execute(this);
+                // Setting argument value in the stack frame
+                localVals[valueCounter] = argValue;
+                valueCounter++;
+            }
+        }
+
+        for (ParameterDef returnParam : worker.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (returnParam.getName() == null) {
+                break;
+            }
+
+            localVals[valueCounter] = returnParam.getType().getEmptyValue();
+            valueCounter++;
+        }
+
+
+        // Create an arrays in the stack frame to hold return values;
+        BValue[] returnVals = new BValue[1];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and worker invocation location;
+        CallableUnitInfo functionInfo = new CallableUnitInfo(worker.getName(), worker.getPackagePath(),
+                worker.getNodeLocation());
+
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        Context workerContext = new Context();
+        workerContext.getControlStack().pushFrame(stackFrame);
+        WorkerCallback workerCallback = new WorkerCallback(workerContext);
+        workerContext.setBalCallback(workerCallback);
+        BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+
+        ExecutorService executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
+        WorkerExecutor workerRunner = new WorkerExecutor(workerExecutor, workerContext, worker);
+        executor.submit(workerRunner);
+//        Future<BMessage> future = executor.submit(workerRunner);
+//        worker.setResultFuture(future);
+
+        // Start workers within the worker
+        for (Worker worker1 : worker.getWorkers()) {
+            executeWorker(worker1, null);
+        }
+    }
+
     /**
      * Invoke the init function of the struct. This will populate the default values for struct fields.
      * 

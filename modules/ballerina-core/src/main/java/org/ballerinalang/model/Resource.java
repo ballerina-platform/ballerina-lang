@@ -315,6 +315,10 @@ public class Resource implements Node, SymbolScope, CallableUnit {
 
             resource.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             resource.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            // Set the parameters to the workers if there are any
+            for (Worker worker : this.workerList) {
+                worker.setParameterDefs(resource.getParameterDefs());
+            }
             resource.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
             resource.resourceBody = this.body;
             return resource;
