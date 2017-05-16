@@ -36,6 +36,19 @@
     fill: #f39c12;
 }
 
+.global-definition-decorator {
+    width: 3px;
+    fill: #9b59b6;
+}
+
+.global-badge {
+    fill: #9b59b6;
+}
+
+.global-badge-text {
+    fill: #fff;
+}
+
 .import-badge {
     fill: #f39c12;
 }
@@ -44,7 +57,8 @@
     fill: #fff;
 }
 
-.package-declaration-item {
+.package-declaration-item,
+.global-definition-item {
     & .background,
     & .delete-background {
         fill: #eee;
@@ -52,7 +66,9 @@
 }
 
 .add-import-button-background,
-.add-import-button {
+.add-import-button,
+.add-global-button-background,
+.add-global-button {
     fill: #eee;
 }
 
