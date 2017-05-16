@@ -21,4 +21,18 @@
             color: $modal-btn-primary-hover-color;
         }
     }
+    
+    & .brand {
+        & .logo {
+            width: 150px;
+            vertical-align: top;
+        }
+        
+        & .appname {
+            color: #f17b31;
+            font-size: 39px;
+            display: inline-block;
+            margin-top: -11px;
+        }
+    }
 }
