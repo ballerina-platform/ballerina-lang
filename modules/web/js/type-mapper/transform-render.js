@@ -408,7 +408,7 @@ addConnection(connection) {
 addSourceType(struct, reference) {
     var id = struct.name + this.viewIdSeperator + this.viewId;
     struct.id = id;
-    this.makeType(struct, 170, 220, reference, "source");
+    this.makeType(struct, 50, 10, reference, "source");
     var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
     this.addComplexProperty(jsTreeId, struct);
     this.processJSTree(jsTreeId, id, this.addSource)
@@ -496,9 +496,7 @@ addComplexProperty(parentId, struct) {
 addTargetType(struct, reference) {
     var id = struct.name + this.viewIdSeperator + this.viewId;
     struct.id = id;
-    var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
-    var posY = placeHolderWidth - 400;
-    this.makeType(struct, 170, 1500, reference, "target");
+    this.makeType(struct, 50, 10, reference, "target");
     var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
     this.addComplexProperty(jsTreeId, struct);
     this.processJSTree(jsTreeId, id, this.addTarget);
@@ -516,10 +514,14 @@ makeType(struct, posX, posY, reference, type) {
     var newStruct = $('<div>').attr('id', struct.id).attr('type', type).addClass('struct');
     var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct fw-inverse');
     var structName = $('<div>');
+    var subPlaceHolder;
 
-//        structName.append(structIcon);
-//        structName.append($('<span>').text(struct.name));
-//        newStruct.append(structName);
+    if(type == "source" ) {
+        subPlaceHolder = "leftType";
+    } else {
+        subPlaceHolder = "rightType";
+    }
+
     newStruct.css({
         'top': posX,
         'left': posY
@@ -527,7 +529,7 @@ makeType(struct, posX, posY, reference, type) {
     var jsTreeContainer = $('<div>').attr('id', this.jsTreePrefix + this.viewIdSeperator + struct.id)
         .addClass('tree-container');
     newStruct.append(jsTreeContainer);
-    $("#" + this.placeHolderName).append(newStruct);
+    $("#" + this.placeHolderName).find("." + subPlaceHolder).append(newStruct);
 }
 
 /**
@@ -866,50 +868,16 @@ return connections;
  * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
  */
 reposition(self) {
-//    var funcs = $("#" + self.placeHolderName + "> .func");
-//    var structs = $("#" + self.placeHolderName + "> .struct");
-//    var xPointer = 600;
-//    var yPointer = 20;
-//    var bottomGap = 50;
-//    var functionGap = 20;
-//    var svgLines = $("#" + self.placeHolderName + "> svg");
-//    var typeMapperHeight = 0;
-//
-//    //Traverse through all the connection svg lines
-//    _.forEach(svgLines, svgLine => {
-//        //Get bottom and right values relative to the type mapper parent div
-//        var bottom = svgLine.getBoundingClientRect().bottom - $("#" + self.placeHolderName).offset().top + 10;
-//    var right = svgLine.getBoundingClientRect().right - $("#" + self.placeHolderName).offset().left + 10;
-//
-//    //Calculate the yPointer value  based on the bottom value of the direct connections
-//    if (bottom > yPointer && svgLine.getBoundingClientRect().width > 600) {
-//        yPointer = bottom;
-//    }
-//});
-//
-////Traverse through all the function divs
-//_.forEach(funcs, func => {
-//    //Position functions and increase yPointer with gaps
-//    $("#"+ func.id).css("left", xPointer+ "px");
-//$("#"+ func.id).css("top", yPointer + "px");
-//yPointer +=  $("#"+ func.id).height() + functionGap;
-//
-//});
-//
-//_.forEach(structs, struct => {
-//    if (typeMapperHeight < $("#"+ struct.id).height() + bottomGap) {
-//    typeMapperHeight = $("#"+ struct.id).height() + bottomGap;
-//}
-//});
-//
-//if (typeMapperHeight < yPointer +  bottomGap) {
-//    typeMapperHeight = yPointer +  bottomGap;
-//}
-//
-//$("#" + self.placeHolderName).height(typeMapperHeight);
-//
-//self.jsPlumbInstance.repaintEverything();
-//$(self.viewId).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
+    var offset = 60;
+    var typeMapperHeight = 0;
+    self.jsPlumbInstance.repaintEverything();
+    var structs = $(".struct");
+    _.forEach(structs, struct => {
+        if (typeMapperHeight < $("#"+ struct.id).height() + offset) {
+        typeMapperHeight = $("#"+ struct.id).height() + offset;
+    }
+    $(".leftType, .rightType").height(typeMapperHeight);
+});
 }
 
 /**

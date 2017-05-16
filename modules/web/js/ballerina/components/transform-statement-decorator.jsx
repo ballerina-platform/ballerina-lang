@@ -126,12 +126,13 @@ class TransformStatementDecorator extends React.Component {
           var transformHeader = $('<div id ="transformHeader" class ="transform-header"></div>');
           var transformMenuDiv = $('<div id ="transformContextMenu" class ="transformContextMenu"></div>');
 
-          var transformOverlayContent =  $('<div id = "transformOverlay-content" class="transformOverlay-content">'+
+          var transformOverlayContent =  $('<div id = "transformOverlay-content" class="transformOverlay-content clearfix">'+
                                                    ' <span class="close-transform">&times;</span>'+
                                               '    </div>');
 
           var transformOverlay = $( '<div id="transformOverlay" class="transformOverlay">'+
                                      '  </div>' );
+
           transformOverlayContent.append(transformHeader);
           transformHeader.append(transformNameText);
           transformOverlayContent.append(sourceContent);
@@ -144,23 +145,29 @@ class TransformStatementDecorator extends React.Component {
           var span = document.getElementsByClassName("close-transform")[0];
 
           var predefinedStructs = [];
+          var transformIndex = this.props.model.parent.getIndexOfChild(this.props.model);
           _.forEach(this.props.model.parent.getVariableDefinitionStatements(), variableDefStmt => {
-           _.forEach(this._package.getStructDefinitions(), predefinedStruct => {
-                  if (variableDefStmt.children[0].children[0].getTypeName() ==  predefinedStruct.getStructName()) {
-                        var struct = {};
-                        struct.name = variableDefStmt.children[0].children[0].getName();
-                        struct.properties = [];
-                        _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
-                             var property = {};
-                             property.name  = stmt.children[0].children[0].getName();
-                             property.type  = stmt.children[0].children[0].getTypeName();
-                             struct.properties.push(property);
-                        });
-                        predefinedStructs.push(struct);
-                        self.loadSchemaToComboBox(sourceId, struct.name);
-                        self.loadSchemaToComboBox(targetId, struct.name);
-                   }
-            });
+               var currentIndex = this.props.model.parent.getIndexOfChild(variableDefStmt);
+               //Checks struct defined before the transform statement
+               if(currentIndex < transformIndex) {
+                   _.forEach(this._package.getStructDefinitions(), predefinedStruct => {
+                          if (variableDefStmt.children.length > 0 &&
+                          variableDefStmt.children[0].children[0].getTypeName() ==  predefinedStruct.getStructName()) {
+                                var struct = {};
+                                struct.name = variableDefStmt.children[0].children[0].getName();
+                                struct.properties = [];
+                                _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
+                                     var property = {};
+                                     property.name  = stmt.children[0].children[0].getName();
+                                     property.type  = stmt.children[0].children[0].getTypeName();
+                                     struct.properties.push(property);
+                                });
+                                predefinedStructs.push(struct);
+                                self.loadSchemaToComboBox(sourceId, struct.name);
+                                self.loadSchemaToComboBox(targetId, struct.name);
+                           }
+                    });
+               }
           });
            $(".type-mapper-combo").select2();
 
@@ -194,18 +201,22 @@ class TransformStatementDecorator extends React.Component {
                }
           });
 
-           span.onclick = function() {
+          $(window).on('resize', function(){
+               self.mapper.reposition(self.mapper);
+          });
+
+          span.onclick = function() {
                document.getElementById('transformOverlay').style.display = "none";
                $(transformOverlay).remove();
-           }
+          }
 
-           window.onclick = function(event) {
+          window.onclick = function(event) {
                 var transformOverlayDiv = document.getElementById('transformOverlay')
                if (event.target == transformOverlayDiv) {
                    transformOverlayDiv.style.display = "none";
                    $(transformOverlay).remove();
                }
-           }
+          }
 
            var onConnectionCallback = function(connection) {
                var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
