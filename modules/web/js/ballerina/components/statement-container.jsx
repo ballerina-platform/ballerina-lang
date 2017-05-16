@@ -26,9 +26,25 @@ import './statement-container.css';
 
 class StatementContainer extends React.Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {statementDropZoneActivated: false, dropZoneDropNotAllowed: false}
+    constructor(props, context) {
+        super(props, context);
+        const {dragDropManager} = context;
+        dragDropManager.on('drag-start', this.startDropZones.bind(this));
+        dragDropManager.on('drag-stop', this.stopDragZones.bind(this));
+        this.state = {
+            dropZoneExist: false,
+            statementDropZoneActivated: false,
+            dropZoneDropNotAllowed: false
+        }
+    }
+
+
+    startDropZones() {
+        this.setState({dropZoneExist: true});
+    }
+
+    stopDragZones() {
+        this.setState({dropZoneExist: false});
     }
 
     render() {
@@ -38,12 +54,16 @@ class StatementContainer extends React.Component {
         const dropZoneClassName = ((!dropZoneActivated) ? "drop-zone" : "drop-zone active")
               + ((dropZoneDropNotAllowed) ? " block" : "");
         const containerClassName = ((dropZoneActivated) ? "statement-container drop-zone active" : "statement-container");
+
+        const fill = this.state.dropZoneExist ? {} : {fill: 'none'};
+
         return (<g className={containerClassName}>
             <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h }
-                className={dropZoneClassName}
-                onMouseOver={(e) => this.onDropZoneActivate(e)}
-                onMouseOut={(e) => this.onDropZoneDeactivate(e)}
-				onMouseUp={(e) => this.onDropZoneMouseUp(e)}/>
+                                  {...fill}
+				  className={dropZoneClassName}
+				  onMouseOver={(e) => this.onDropZoneActivate(e)}
+				  onMouseOut={(e) => this.onDropZoneDeactivate(e)}
+				  onMouseUp={(e) => this.onDropZoneMouseUp(e)}/>
             {this.props.children}
         </g>);
     }

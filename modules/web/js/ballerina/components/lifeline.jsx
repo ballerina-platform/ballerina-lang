@@ -21,6 +21,11 @@ import PropTypes from 'prop-types';
 import SimpleBBox from '../ast/simple-bounding-box';
 import {lifeLine} from '../configs/designer-defaults.js';
 import ExpressionEditor from 'expression_editor_utils';
+import * as DesignerDefaults from './../configs/designer-defaults';
+import DragDropManager from '../tool-palette/drag-drop-manager';
+import ReactDOM from "react-dom";
+import ActionBox from "./action-box";
+import ActiveArbiter from './active-arbiter';
 
 class LifeLine extends React.Component {
     
@@ -28,6 +33,7 @@ class LifeLine extends React.Component {
         super(props);
         let bBox = this.props.bBox;
         this.topBox = new SimpleBBox( bBox.x, bBox.y, bBox.w , lifeLine.head.height );
+        this.state = {active: 'hidden'};
     }
 
     render() {
@@ -36,16 +42,34 @@ class LifeLine extends React.Component {
         const y2 = bBox.h + bBox.y;
         const titleBoxH = lifeLine.head.height;
 
-        return (<g className="default-worker-life-line">
-                    <line x1={ centerX } y1={ bBox.y + titleBoxH / 2} x2={ centerX } y2={ y2 - titleBoxH / 2 }></line>
-                    <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleBoxH } rx="0" ry="0" className="connector-life-line-top-polygon" onClick={(e) => this.openExpressionEditor(e)} ></rect>
-                    <rect x={ bBox.x } y={ y2 - titleBoxH } width={ bBox.w } height={ titleBoxH } rx="0" ry="0" className="connector-life-line-bottom-polygon"></rect>
-                    <text x={ centerX } y={ bBox.y + titleBoxH / 2 } textAnchor="middle" alignmentBaseline="central" dominantBaseline="central" className="life-line-title genericT" onClick={(e) => this.openExpressionEditor(e)} >{ this.props.title }</text>
-                    <text x={ centerX } y={ y2 - titleBoxH / 2 } textAnchor="middle" alignmentBaseline="central" dominantBaseline="central" className="life-line-title genericT">{ this.props.title }</text>
+        const actionBbox = new SimpleBBox();
+        actionBbox.w = (3 * DesignerDefaults.actionBox.width - 14) / 4;
+        actionBbox.h = DesignerDefaults.actionBox.height;
+        actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
+        actionBbox.y = bBox.y + titleBoxH + DesignerDefaults.actionBox.padding.top;
+
+        return (<g className="default-worker-life-line"
+                   onMouseOut={ this.setActionVisibility.bind(this, false) }
+                   onMouseOver={ this.setActionVisibility.bind(this, true)}>
+                        <line x1={ centerX } y1={ bBox.y + titleBoxH / 2} x2={ centerX } y2={ y2 - titleBoxH / 2 }
+                              className="unhoverable"/>
+                        <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleBoxH } rx="0" ry="0"
+                              className="connector-life-line-top-polygon" onClick={(e) => this.openExpressionEditor(e)}/>
+                        <rect x={ bBox.x } y={ y2 - titleBoxH } width={ bBox.w } height={ titleBoxH } rx="0" ry="0"
+                              className="connector-life-line-bottom-polygon unhoverable"/>
+                        <text x={ centerX } y={ bBox.y + titleBoxH / 2 } textAnchor="middle" alignmentBaseline="central"
+                              dominantBaseline="central" className="life-line-title genericT"
+                              onClick={(e) => this.openExpressionEditor(e)}>{ this.props.title }</text>
+                        <text x={ centerX } y={ y2 - titleBoxH / 2 } textAnchor="middle" alignmentBaseline="central"
+                              dominantBaseline="central" className="life-line-title genericT unhoverable">{ this.props.title }</text>
+                        {this.props.onDelete &&
+                            <ActionBox show={this.state.active} bBox={actionBbox} onDelete={this.onDelete.bind(this)}/>
+                        }
                 </g>);
     }
 
 	openExpressionEditor(e){
+
 		let options = this.props.editorOptions;
 		let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
 		if(options){
@@ -54,12 +78,41 @@ class LifeLine extends React.Component {
 	}
 
 	onUpdate(text){
-	}     
+    }
+
+    setActionVisibility(show, e) {
+        if (!this.context.dragDropManager.isOnDrag()) {
+            let elm = e.target;
+            const myRoot = ReactDOM.findDOMNode(this);
+            const regex = new RegExp('(^|\\s)unhoverable(\\s|$)');
+            let isUnhighliable = false;
+            while (elm && elm !== myRoot && elm.getAttribute) {
+                if (regex.test(elm.getAttribute('class'))) {
+                    isUnhighliable = true;
+                }
+                elm = elm.parentNode;
+            }
+
+            if (!isUnhighliable && show) {
+                this.context.activeArbiter.readyToActivate(this);
+            } else {
+                this.context.activeArbiter.readyToDeactivate(this);
+            }
+            if (isUnhighliable) {
+            }
+        }
+    }
+
+    onDelete() {
+        this.props.onDelete();
+    }
 }
 
 LifeLine.contextTypes = {
-	 container: PropTypes.instanceOf(Object).isRequired,
-	 renderingContext: PropTypes.instanceOf(Object).isRequired,     
+	container: PropTypes.instanceOf(Object).isRequired,
+	renderingContext: PropTypes.instanceOf(Object).isRequired,
+    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
 };
 
 export default LifeLine;
