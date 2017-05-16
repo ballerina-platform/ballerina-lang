@@ -21,7 +21,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDirectory;
@@ -36,11 +35,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.psi.util.PsiModificationTracker;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.util.containers.ContainerUtil;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.antlr.jetbrains.adaptor.psi.Trees;
@@ -69,8 +64,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BallerinaPsiImplUtil {
 
@@ -80,7 +78,7 @@ public class BallerinaPsiImplUtil {
             "/compilationUnit/importDeclaration/packagePath/packageName/Identifier";
     private static final String ANNOTATION_DEFINITION = "//annotationDefinition/Identifier";
     private static final String CONSTANT_DEFINITION = "//constantDefinition/Identifier";
-    private static final String GLOBAL_VARIABLE_DEFINITION = "//globalVariableDefinitionStatement/Identifier";
+    private static final String GLOBAL_VARIABLE_DEFINITION = "//globalVariableDefinition/Identifier";
     private static final String FUNCTION_DEFINITION = "//functionDefinition/Identifier";
     private static final String CONNECTOR_DEFINITION = "//connectorDefinition/Identifier";
     private static final String ACTION_DEFINITION = "//actionDefinition/Identifier";
@@ -792,7 +790,7 @@ public class BallerinaPsiImplUtil {
         if (resolved == null) {
             // Get the parent directory which is the package.
             PsiDirectory parentDirectory = element.getContainingFile().getParent();
-            if(parentDirectory==null){
+            if (parentDirectory == null) {
                 return null;
             }
             // Iterate through all xpaths.
@@ -917,36 +915,93 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
-    public static void addImport(PsiFile file, String importPath) {
+    /**
+     * Adds an import declaration node to the file.
+     *
+     * @param file       file which is to be used to insert the import declaration node
+     * @param importPath import path to be used in the import declaration node
+     * @param alias      alias if needed. If this is {@code null}, it will be ignored
+     * @return import declaration node which is added
+     */
+    @NotNull
+    public static ImportDeclarationNode addImport(@NotNull PsiFile file, @NotNull String importPath,
+                                                  @Nullable String alias) {
+        PsiElement addedNode;
         Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
                 ImportDeclarationNode.class);
         Project project = file.getProject();
-        ImportDeclarationNode importDeclaration = BallerinaElementFactory.createImportDeclaration(project, importPath);
+        ImportDeclarationNode importDeclaration = BallerinaElementFactory.createImportDeclaration(project,
+                importPath, alias);
+
         if (importDeclarationNodes.isEmpty()) {
             Collection<PackageDeclarationNode> packageDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
                     PackageDeclarationNode.class);
             if (packageDeclarationNodes.isEmpty()) {
                 PsiElement[] children = file.getChildren();
-                if (children.length > 0) {
-                    PsiElement nonEmptyElement = PsiTreeUtil.skipSiblingsForward(children[0], PsiWhiteSpace.class,
-                            PsiComment.class);
-                    if (nonEmptyElement == null) {
-                        nonEmptyElement = children[0];
-                    }
-                    file.addBefore(importDeclaration, nonEmptyElement);
-                    file.addBefore(BallerinaElementFactory.createDoubleNewLine(project), nonEmptyElement);
+                // Children cannot be empty since the IDEA adds placeholder string
+                PsiElement nonEmptyElement = PsiTreeUtil.skipSiblingsForward(children[0], PsiWhiteSpace.class,
+                        PsiComment.class);
+                if (nonEmptyElement == null) {
+                    nonEmptyElement = children[0];
                 }
+                addedNode = file.addBefore(importDeclaration, nonEmptyElement);
+                file.addBefore(BallerinaElementFactory.createDoubleNewLine(project), nonEmptyElement);
             } else {
                 PackageDeclarationNode packageDeclarationNode = packageDeclarationNodes.iterator().next();
                 PsiElement parent = packageDeclarationNode.getParent();
-                parent.addAfter(importDeclaration, packageDeclarationNode);
+                addedNode = parent.addAfter(importDeclaration, packageDeclarationNode);
                 parent.addAfter(BallerinaElementFactory.createDoubleNewLine(project), packageDeclarationNode);
             }
         } else {
             LinkedList<ImportDeclarationNode> importDeclarations = new LinkedList<>(importDeclarationNodes);
             ImportDeclarationNode lastImport = importDeclarations.getLast();
-            lastImport.getParent().addAfter(importDeclaration, lastImport);
+            addedNode = lastImport.getParent().addAfter(importDeclaration, lastImport);
             lastImport.getParent().addAfter(BallerinaElementFactory.createNewLine(project), lastImport);
         }
+        return ((ImportDeclarationNode) addedNode);
+    }
+
+    /**
+     * Returns all imports as a map. Key is the last Package Name node or Alias node. Value is the import path.
+     *
+     * @param file file to get imports
+     * @return map of imports
+     */
+    public static Map<String, String> getAllImportsInAFile(@NotNull PsiFile file) {
+        Map<String, String> results = new HashMap<>();
+        Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
+                ImportDeclarationNode.class);
+        for (ImportDeclarationNode importDeclarationNode : importDeclarationNodes) {
+            // There can be two possible values for the imported package name. If there is no alias node in the
+            // import declaration, the imported package name is the last package name in the import path node.
+            // Otherwise the package name is the alias node.
+            PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(importDeclarationNode, PackagePathNode.class);
+            AliasNode aliasNode = PsiTreeUtil.findChildOfType(importDeclarationNode, AliasNode.class);
+            if (aliasNode != null) {
+                if (packagePathNode != null) {
+                    // Key is the alias name node text. Value is the package path node text.
+                    // Eg:  import ballerina.utils as builtin;
+                    // Map: builtin -> ballerina.utils
+                    results.put(aliasNode.getText(), packagePathNode.getText());
+                }
+            } else {
+                if (packagePathNode != null) {
+                    // We need to get all package name nodes from the package path node.
+                    List<PackageNameNode> packageNameNodes =
+                            new ArrayList<>(PsiTreeUtil.findChildrenOfType(importDeclarationNode,
+                                    PackageNameNode.class));
+                    // If there is no package path node, return empty map.
+                    if (packageNameNodes.isEmpty()) {
+                        return results;
+                    }
+                    // The package node is the last package name in the package path.
+                    // Eg:  import ballerina.utils;
+                    // Map: utils -> ballerina.utils
+                    PackageNameNode lastNode = packageNameNodes.get(packageNameNodes.size() - 1);
+                    results.put(lastNode.getText(), packagePathNode.getText());
+                }
+            }
+        }
+        return results;
     }
 }

@@ -119,11 +119,11 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#globalVariableDefinitionStatement}.
+	 * Visit a parse tree produced by {@link BallerinaParser#globalVariableDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitGlobalVariableDefinitionStatement(BallerinaParser.GlobalVariableDefinitionStatementContext ctx);
+	T visitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#attachmentPoint}.
 	 * @param ctx the parse tree

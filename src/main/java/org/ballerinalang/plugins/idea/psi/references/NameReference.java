@@ -31,7 +31,7 @@ import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
@@ -59,7 +59,7 @@ public class NameReference extends BallerinaElementReference {
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof FunctionDefinitionNode || def instanceof ConnectorDefinitionNode
                 || def instanceof StructDefinitionNode || def instanceof VariableDefinitionNode
-                || def instanceof AnnotationDefinitionNode || def instanceof GlobalVariableDefinitionStatementNode
+                || def instanceof AnnotationDefinitionNode || def instanceof GlobalVariableDefinitionNode
                 || def instanceof ConstantDefinitionNode || def instanceof ParameterNode;
     }
 

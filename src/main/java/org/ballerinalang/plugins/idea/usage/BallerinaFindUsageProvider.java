@@ -91,7 +91,7 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                     return "Action";
                 }
                 break;
-            case RULE_globalVariableDefinitionStatement:
+            case RULE_globalVariableDefinition:
                 return "Global Variable";
         }
         return "";
