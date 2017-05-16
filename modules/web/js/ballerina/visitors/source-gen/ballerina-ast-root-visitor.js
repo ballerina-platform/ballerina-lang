@@ -36,6 +36,10 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
+    beginVisitBallerinaASTRoot(astRoot) {
+        this.appendSource(astRoot.whiteSpaceDescriptor.regions[0]);
+    }
+
     visitServiceDefinition(serviceDefinition) {
         var serviceDefinitionVisitor = new ServiceDefinitionVisitor(this);
         serviceDefinition.accept(serviceDefinitionVisitor);

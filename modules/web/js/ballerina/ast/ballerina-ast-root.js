@@ -85,6 +85,14 @@ class BallerinaASTRoot extends ASTNode {
                 }
             }
         });
+        this.setWhiteSpaceDescriptor({
+            regions: {
+                0: '',
+                1: ' ',
+                2: '',
+                3: '\n'
+            }
+        });
     }
 
     /**
