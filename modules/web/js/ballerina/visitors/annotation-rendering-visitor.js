@@ -23,6 +23,7 @@ class AnnotationRenderingVisitor {
 
     constructor(){
         this.annotations = [];
+        this.hiddenService = false;
     }
 
     canVisit(node) {
@@ -40,7 +41,7 @@ class AnnotationRenderingVisitor {
             let annotations = node.filterChildren(function (child) {
                 return ASTFactory.isAnnotation(child)
             });
-            if(annotations.length > 0){
+            if(annotations.length > 0 && !this.hiddenService){
                 let bBox = Object.assign({}, node.viewState.bBox);
                 bBox.h = node.viewState.components.annotation.h
                 this.annotations.push(
@@ -48,11 +49,17 @@ class AnnotationRenderingVisitor {
                 );
             }
         }
+        // hide annotations of resources if service is hidded
+        if(node.constructor.name == 'ServiceDefinition'){
+            this.hiddenService = node.viewState.collapsed;
+        }
         return undefined;
     }
 
     endVisit(node) {
-        // do nothing
+        if(node.constructor.name == 'ServiceDefinition'){
+            this.hiddenService = false;
+        }        
         return undefined;
     }
 
