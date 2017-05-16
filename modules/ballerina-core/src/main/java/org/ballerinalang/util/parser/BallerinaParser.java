@@ -1,13 +1,24 @@
 // Generated from Ballerina.g4 by ANTLR 4.5.3
 package org.ballerinalang.util.parser;
-import org.antlr.v4.runtime.atn.*;
+import org.antlr.v4.runtime.FailedPredicateException;
+import org.antlr.v4.runtime.NoViableAltException;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.RuleContext;
+import org.antlr.v4.runtime.RuntimeMetaData;
+import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.Vocabulary;
+import org.antlr.v4.runtime.VocabularyImpl;
+import org.antlr.v4.runtime.atn.ATN;
+import org.antlr.v4.runtime.atn.ATNDeserializer;
+import org.antlr.v4.runtime.atn.ParserATNSimulator;
+import org.antlr.v4.runtime.atn.PredictionContextCache;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.*;
-import org.antlr.v4.runtime.tree.*;
+import org.antlr.v4.runtime.tree.ParseTreeListener;
+import org.antlr.v4.runtime.tree.TerminalNode;
+
 import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class BallerinaParser extends Parser {
@@ -29,7 +40,7 @@ public class BallerinaParser extends Parser {
 		T__66=67, T__67=68, T__68=69, T__69=70, T__70=71, T__71=72, T__72=73, 
 		T__73=74, T__74=75, T__75=76, IntegerLiteral=77, FloatingPointLiteral=78, 
 		BooleanLiteral=79, QuotedStringLiteral=80, BacktickStringLiteral=81, NullLiteral=82, 
-		Identifier=83, WS=84, LINE_COMMENT=85;
+		Identifier=83, WS=84, NEW_LINE=85, LINE_COMMENT=86;
 	public static final int
 		RULE_compilationUnit = 0, RULE_packageDeclaration = 1, RULE_packageName = 2, 
 		RULE_importDeclaration = 3, RULE_definition = 4, RULE_serviceDefinition = 5, 
@@ -103,7 +114,7 @@ public class BallerinaParser extends Parser {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
 		null, null, null, null, null, "IntegerLiteral", "FloatingPointLiteral", 
 		"BooleanLiteral", "QuotedStringLiteral", "BacktickStringLiteral", "NullLiteral", 
-		"Identifier", "WS", "LINE_COMMENT"
+		"Identifier", "WS", "NEW_LINE", "LINE_COMMENT"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -6255,7 +6266,7 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3W\u0405\4\2\t\2\4"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3X\u0405\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -6572,7 +6583,7 @@ public class BallerinaParser extends Parser {
 		"\u0084C\2\u034c\u034a\3\2\2\2\u034c\u034b\3\2\2\2\u034d\u0081\3\2\2\2"+
 		"\u034e\u034f\7U\2\2\u034f\u0350\7@\2\2\u0350\u0351\7U\2\2\u0351\u0352"+
 		"\7\4\2\2\u0352\u0083\3\2\2\2\u0353\u0354\7U\2\2\u0354\u0355\7A\2\2\u0355"+
-		"\u0356\7U\2\2\u0356\u0357\7\4\2\2\u0357\u0085\3\2\2\2\u0358\u0359\7W\2"+
+		"\u0356\7U\2\2\u0356\u0357\7\4\2\2\u0357\u0085\3\2\2\2\u0358\u0359\7X\2"+
 		"\2\u0359\u0087\3\2\2\2\u035a\u035b\bE\1\2\u035b\u0366\5\u0096L\2\u035c"+
 		"\u0361\5\u0096L\2\u035d\u035e\7\37\2\2\u035e\u035f\5\u0094K\2\u035f\u0360"+
 		"\7 \2\2\u0360\u0362\3\2\2\2\u0361\u035d\3\2\2\2\u0362\u0363\3\2\2\2\u0363"+

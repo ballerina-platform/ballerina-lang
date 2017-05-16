@@ -263,7 +263,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Complete the package init function
-        ReturnStmt returnStmt = new ReturnStmt(pkgLocation, new Expression[0]);
+        ReturnStmt returnStmt = new ReturnStmt(pkgLocation, null, new Expression[0]);
         pkgInitFuncStmtBuilder.addStmt(returnStmt);
         functionBuilder.setBody(pkgInitFuncStmtBuilder.build());
         BallerinaFunction initFunction = functionBuilder.buildFunction();
@@ -309,7 +309,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
         constDef.setMemoryLocation(memLocation);
 
-        VariableRefExpr varRefExpr = new VariableRefExpr(constDef.getNodeLocation(), constDef.getName());
+        VariableRefExpr varRefExpr = new VariableRefExpr(constDef.getNodeLocation(), constDef.getWhiteSpaceDescriptor(),
+                                                    constDef.getName());
         varRefExpr.setVariableDef(constDef);
         VariableDefStmt varDefStmt = new VariableDefStmt(constDef.getNodeLocation(),
                 constDef, varRefExpr, constDef.getRhsExpr());
@@ -459,6 +460,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             BlockStmt blockStmt = function.getCallableUnitBody();
             blockStmt.accept(this);
+
+            if (function.getReturnParameters().length > 0 && !blockStmt.isAlwaysReturns()) {
+                BLangExceptionHelper.throwSemanticError(function, SemanticErrors.MISSING_RETURN_STATEMENT);
+            }
         }
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -575,6 +580,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             BlockStmt blockStmt = action.getCallableUnitBody();
             blockStmt.accept(this);
+
+            if (action.getReturnParameters().length > 0 && !blockStmt.isAlwaysReturns()) {
+                BLangExceptionHelper.throwSemanticError(action, SemanticErrors.MISSING_RETURN_STATEMENT);
+            }
         }
 
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
@@ -770,7 +779,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BasicLiteral defaultValue = attributeDef.getAttributeValue();
                 if (defaultValue != null) {
                     annotation.addAttributeNameValuePair(attributeName,
-                        new AnnotationAttributeValue(defaultValue.getBValue(), defaultValue.getTypeName(), null));
+                        new AnnotationAttributeValue(defaultValue.getBValue(), defaultValue.getTypeName(), null, null));
                 }
                 continue;
             }
@@ -1045,11 +1054,17 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BLangExceptionHelper.throwSemanticError(stmt,
                         SemanticErrors.BREAK_STMT_NOT_ALLOWED_HERE);
             }
-            if (stmt instanceof ReturnStmt || stmt instanceof ReplyStmt || stmt instanceof BreakStmt
-                    || stmt instanceof ThrowStmt) {
-                checkUnreachableStmt(blockStmt.getStatements(), ++stmtIndex);
+
+            if (stmt instanceof BreakStmt || stmt instanceof ReplyStmt) {
+                checkUnreachableStmt(blockStmt.getStatements(), stmtIndex + 1);
             }
+
             stmt.accept(this);
+
+            if (stmt.isAlwaysReturns()) {
+                checkUnreachableStmt(blockStmt.getStatements(), stmtIndex + 1);
+                blockStmt.setAlwaysReturns(true);
+            }
         }
 
         closeScope();
@@ -1062,6 +1077,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(IfElseStmt ifElseStmt) {
+        boolean stmtReturns = true;
         Expression expr = ifElseStmt.getCondition();
         visitSingleValueExpr(expr);
 
@@ -1072,6 +1088,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Statement thenBody = ifElseStmt.getThenBody();
         thenBody.accept(this);
+
+        stmtReturns &= thenBody.isAlwaysReturns();
 
         for (IfElseStmt.ElseIfBlock elseIfBlock : ifElseStmt.getElseIfBlocks()) {
             Expression elseIfCondition = elseIfBlock.getElseIfCondition();
@@ -1084,12 +1102,19 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             Statement elseIfBody = elseIfBlock.getElseIfBody();
             elseIfBody.accept(this);
+
+            stmtReturns &= elseIfBody.isAlwaysReturns();
         }
 
         Statement elseBody = ifElseStmt.getElseBody();
         if (elseBody != null) {
             elseBody.accept(this);
+            stmtReturns &= elseBody.isAlwaysReturns();
+        } else {
+            stmtReturns = false;
         }
+
+        ifElseStmt.setAlwaysReturns(stmtReturns);
     }
 
     @Override
@@ -1178,6 +1203,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             if (error.equals(expressionType) || TypeLattice.getImplicitCastLattice().getEdgeFromTypes
                     (expressionType, error, null) != null) {
+                throwStmt.setAlwaysReturns(true);
                 return;
             }
         }
@@ -1229,6 +1255,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
+        boolean stmtReturns = true;
         //open the fork join statement scope
         openScope(forkJoinStmt);
         // Visit incoming message
@@ -1263,6 +1290,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Visit join body
         Statement joinBody = join.getJoinBlock();
         joinBody.accept(this);
+        stmtReturns &= joinBody.isAlwaysReturns();
         closeScope();
 
         // Visit timeout condition
@@ -1286,7 +1314,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Visit timeout body
         Statement timeoutBody = timeout.getTimeoutBlock();
         timeoutBody.accept(this);
+        stmtReturns &= timeoutBody.isAlwaysReturns();
         closeScope();
+
+        forkJoinStmt.setAlwaysReturns(stmtReturns);
 
         //closing the fork join statement scope
         closeScope();
@@ -1341,7 +1372,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression[] returnExprs = new Expression[returnParamsOfCU.length];
             for (int i = 0; i < returnParamsOfCU.length; i++) {
                 VariableRefExpr variableRefExpr = new VariableRefExpr(returnStmt.getNodeLocation(),
-                        returnParamsOfCU[i].getSymbolName());
+                        returnStmt.getWhiteSpaceDescriptor(), returnParamsOfCU[i].getSymbolName());
                 visit(variableRefExpr);
                 returnExprs[i] = variableRefExpr;
             }
@@ -1402,7 +1433,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                             SemanticErrors.ACTION_INVOCATION_NOT_ALLOWED_IN_RETURN);
                 }
 
-                // Except for the first argument in return statement, fheck for FunctionInvocationExprs which return
+                // Except for the first argument in return statement, check for FunctionInvocationExprs which return
                 // multiple values.
                 if (returnArgExprs[i] instanceof FunctionInvocationExpr) {
                     FunctionInvocationExpr funcIExpr = ((FunctionInvocationExpr) returnArgExprs[i]);
@@ -1921,6 +1952,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         int i = 0;
         if (literals.length > i) {
             BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(),
+                    backtickExpr.getWhiteSpaceDescriptor(),
                     new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(literals[i]));
             visit(basicLiteral);
             argExprList.add(basicLiteral);
@@ -1938,11 +1970,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (m.group(3) != null) {
                 BasicLiteral indexExpr;
                 if (m.group(5) != null) {
-                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(),
+                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(), backtickExpr.getWhiteSpaceDescriptor(),
                             new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(m.group(5)));
                     indexExpr.setType(BTypes.typeString);
                 } else {
-                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(),
+                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(), backtickExpr.getWhiteSpaceDescriptor(),
                             new SimpleTypeName(TypeConstants.INT_TNAME), new BInteger(Integer.parseInt(m.group(4))));
                     indexExpr.setType(BTypes.typeInt);
                 }
@@ -1952,7 +1984,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder =
                         new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
 
-                VariableRefExpr arrayMapVarRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(), mapOrArrName);
+                VariableRefExpr arrayMapVarRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(),
+                        backtickExpr.getWhiteSpaceDescriptor(), mapOrArrName);
                 visit(arrayMapVarRefExpr);
 
                 builder.setArrayMapVarRefExpr(arrayMapVarRefExpr);
@@ -1964,12 +1997,13 @@ public class SemanticAnalyzer implements NodeVisitor {
                 argExprList.add(arrayMapAccessExpr);
             } else {
                 VariableRefExpr variableRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(),
-                        new SymbolName(m.group(1), currentPkg));
+                        backtickExpr.getWhiteSpaceDescriptor(), new SymbolName(m.group(1), currentPkg));
                 visit(variableRefExpr);
                 argExprList.add(variableRefExpr);
             }
             if (literals.length > i) {
                 BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(),
+                        backtickExpr.getWhiteSpaceDescriptor(),
                         new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(literals[i]));
                 visit(basicLiteral);
                 argExprList.add(basicLiteral);
@@ -2196,7 +2230,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                     !(lType.equals(BTypes.typeString)))) {
                 newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rType, lType, null);
                 if (newEdge != null) { // Implicit cast from right to left
-                    newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr, lType);
+                    newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr.getWhiteSpaceDescriptor(),
+                                                rExpr, lType);
                     newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
                     newExpr.accept(this);
                     binaryExpr.setRExpr(newExpr);
@@ -2204,7 +2239,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 } else {
                     newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(lType, rType, null);
                     if (newEdge != null) { // Implicit cast from left to right
-                        newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr, rType);
+                        newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr.getWhiteSpaceDescriptor(),
+                                lExpr, rType);
                         newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
                         newExpr.accept(this);
                         binaryExpr.setLExpr(newExpr);
@@ -2709,7 +2745,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Field of a struct is always a variable reference.
         if (fieldVar instanceof BasicLiteral) {
             String varName = ((BasicLiteral) fieldVar).getBValue().stringValue();
-            VariableRefExpr varRef = new VariableRefExpr(fieldVar.getNodeLocation(), varName);
+            VariableRefExpr varRef = new VariableRefExpr(fieldVar.getNodeLocation(), fieldVar.getWhiteSpaceDescriptor(),
+                    varName);
             fieldExpr.setVarRef(varRef);
             fieldExpr.setIsStaticField(true);
         }
@@ -2740,7 +2777,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else {
             Expression varRefExpr = fieldExpr.getVarRef();
             varRefExpr.accept(this);
-            currentFieldExpr = new JSONFieldAccessExpr(fieldExpr.getNodeLocation(), varRefExpr, nextFieldExpr);
+            currentFieldExpr = new JSONFieldAccessExpr(fieldExpr.getNodeLocation(), fieldExpr.getWhiteSpaceDescriptor(),
+                    varRefExpr, nextFieldExpr);
         }
         parentExpr.setFieldExpr(currentFieldExpr);
         visitJSONAccessExpr(currentFieldExpr, nextFieldExpr);
@@ -2916,7 +2954,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
         if (newEdge != null) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, lhsType);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr.getWhiteSpaceDescriptor(),
+                    rhsExpr, lhsType);
             newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
         }
         return newExpr;
@@ -3300,7 +3339,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                                 true, 1), currentScope, expr.getNodeLocation());
             } else if (fieldType == BTypes.typeJSON) {
                 refTypeInitExpr = new JSONArrayInitExpr(refTypeInitExpr.getNodeLocation(),
-                        refTypeInitExpr.getArgExprs());
+                        refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             }
         } else if (!(refTypeInitExpr instanceof BacktickExpr)) {
             // if the inherited type is any, then default this initializer to a map init expression
@@ -3308,11 +3347,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 fieldType = BTypes.typeMap;
             }
             if (fieldType == BTypes.typeMap) {
-                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(),
+                        refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             } else if (fieldType == BTypes.typeJSON) {
-                refTypeInitExpr = new JSONInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                refTypeInitExpr = new JSONInitExpr(refTypeInitExpr.getNodeLocation(),
+                        refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             } else if (fieldType instanceof StructDef) {
-                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(),
+                        refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             }
         }
         refTypeInitExpr.setInheritedType(fieldType);
@@ -3338,7 +3380,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             // In maps and json, key is always a string literal.
             if (keyExpr instanceof VariableRefExpr) {
                 BString key = new BString(((VariableRefExpr) keyExpr).getVarName());
-                keyExpr = new BasicLiteral(keyExpr.getNodeLocation(), new SimpleTypeName(TypeConstants.STRING_TNAME),
+                keyExpr = new BasicLiteral(keyExpr.getNodeLocation(), keyExpr.getWhiteSpaceDescriptor(),
+                        new SimpleTypeName(TypeConstants.STRING_TNAME),
                         key);
                 keyValueExpr.setKeyExpr(keyExpr);
             }
@@ -3373,9 +3416,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void addDependentPkgInitCalls(List<BallerinaFunction> initFunctionList,
         BlockStmt.BlockStmtBuilder blockStmtBuilder, NodeLocation initFuncLocation) {
         for (BallerinaFunction initFunc : initFunctionList) {
-            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(initFuncLocation,
-                    initFunc.getName(), null,
-                initFunc.getPackagePath(), new Expression[] {});
+            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(initFuncLocation, null,
+                    initFunc.getName(), null, initFunc.getPackagePath(), new Expression[] {});
             funcIExpr.setCallableUnit(initFunc);
             FunctionInvocationStmt funcIStmt = new FunctionInvocationStmt(initFuncLocation, funcIExpr);
             blockStmtBuilder.addStmt(funcIStmt);

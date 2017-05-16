@@ -93,9 +93,10 @@ public enum SemanticErrors {
     INDEXING_NOT_SUPPORTED_FOR_MAP_ELEMENT("indexing.not.supported.map.element", "SEMANTIC_0068"),
     DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT("dynamic.keys.not.supported.for.struct", "SEMANTIC_0069"),
     STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER("struct.field.child.has.pkg.identifier", "PARSER_0070"),
-    DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0071"),
-    RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0072"),
-    IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0073"),
+    MISSING_RETURN_STATEMENT("missing.return.statement", "SEMANTIC_0071"),
+    DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0072"),
+    RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0073"),
+    IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0074"),
     ;
     private String errorMsgKey;
     private String errorCode;

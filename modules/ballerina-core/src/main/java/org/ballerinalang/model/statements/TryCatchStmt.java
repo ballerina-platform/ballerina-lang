@@ -23,6 +23,7 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.ArrayList;
@@ -41,9 +42,10 @@ public class TryCatchStmt extends AbstractStatement {
     private CatchBlock[] catchBlocks;
     private FinallyBlock finallyBlock;
 
-    private TryCatchStmt(NodeLocation location, Statement tryBlock, CatchBlock[] catchBlocks, FinallyBlock
-            finallyBlock) {
+    private TryCatchStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                         Statement tryBlock, CatchBlock[] catchBlocks, FinallyBlock     finallyBlock) {
         super(location);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.tryBlock = tryBlock;
         this.catchBlocks = catchBlocks;
         this.finallyBlock = finallyBlock;
@@ -81,6 +83,7 @@ public class TryCatchStmt extends AbstractStatement {
         private ParameterDef parameterDef;
         private Map<SymbolName, BLangSymbol> symbolMap;
         private BlockStmt catchBlock;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
         public CatchBlock(SymbolScope enclosingScope) {
             this.enclosingScope = enclosingScope;
@@ -126,6 +129,14 @@ public class TryCatchStmt extends AbstractStatement {
 
         void setCatchBlockStmt(BlockStmt catchBlock) {
             this.catchBlock = catchBlock;
+        }
+
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         }
     }
 
@@ -188,6 +199,7 @@ public class TryCatchStmt extends AbstractStatement {
         private List<CatchBlock> catchBlock = new ArrayList<>();
         private FinallyBlock finallyBlock;
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
         public Statement getTryBlock() {
             return tryBlock;
@@ -229,9 +241,18 @@ public class TryCatchStmt extends AbstractStatement {
             this.location = location;
         }
 
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
         public TryCatchStmt build() {
             return new TryCatchStmt(
                     location,
+                    whiteSpaceDescriptor,
                     tryBlock,
                     catchBlock.toArray(new CatchBlock[0]),
                     finallyBlock);

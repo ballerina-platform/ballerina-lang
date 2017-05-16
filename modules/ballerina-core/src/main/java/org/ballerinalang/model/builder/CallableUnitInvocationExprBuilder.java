@@ -18,6 +18,7 @@
 package org.ballerinalang.model.builder;
 
 import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
@@ -32,6 +33,7 @@ import java.util.List;
  */
 class CallableUnitInvocationExprBuilder {
     protected NodeLocation location;
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected String name;
     protected String pkgName;
     protected String pkgPath;
@@ -62,9 +64,14 @@ class CallableUnitInvocationExprBuilder {
         this.expressionList = expressionList;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
     FunctionInvocationExpr buildFuncInvocExpr() {
         return new FunctionInvocationExpr(
                 location,
+                whiteSpaceDescriptor,
                 name,
                 pkgName,
                 pkgPath,
@@ -74,6 +81,7 @@ class CallableUnitInvocationExprBuilder {
     ActionInvocationExpr buildActionInvocExpr() {
         return new ActionInvocationExpr(
                 location,
+                whiteSpaceDescriptor,
                 name,
                 pkgName,
                 pkgPath,

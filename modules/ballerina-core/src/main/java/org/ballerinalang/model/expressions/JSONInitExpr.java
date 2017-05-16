@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BValue;
 
 
@@ -30,8 +31,8 @@ import org.ballerinalang.model.values.BValue;
  */
 public class JSONInitExpr extends RefTypeInitExpr {
 
-    public JSONInitExpr(NodeLocation location, Expression[] argExprs) {
-        super(location, argExprs);
+    public JSONInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] argExprs) {
+        super(location, whiteSpaceDescriptor, argExprs);
     }
 
     @Override
