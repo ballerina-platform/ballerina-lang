@@ -20,4 +20,8 @@ function mapReturnTest(string firstName, string lastName) (map) {
     return testMap;
 }
 
-
+function testArrayAccessAsIndexOfMapt() (string) {
+    map namesMap = {fname:"Supun",lname:"Setunga"};
+    string[] keys = ["fname","lname"];
+    return (string)namesMap[keys[0]];
+}

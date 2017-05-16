@@ -25,7 +25,7 @@ connector TestConnector(string param1, string param2, int param3) {
           json j;
           message m;
           m <- default;
-          j = `{"name":"chanaka"}`;
+          j = {"name":"chanaka"};
           messages:setJsonPayload(m, j);
           sumD = 123d;
           amount = 222d;
@@ -45,7 +45,7 @@ connector TestConnector(string param1, string param2, int param3) {
 
     worker sampleWorker {
         json j;
-        j = `{"name":"chanaka"}`;
+        j = {"name":"chanaka"};
         messages:setJsonPayload(msg, j);
         system:println(msg);
         msg -> default;

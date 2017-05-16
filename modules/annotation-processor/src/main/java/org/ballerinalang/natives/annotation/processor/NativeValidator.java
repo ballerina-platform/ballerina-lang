@@ -16,19 +16,17 @@
  */
 package org.ballerinalang.natives.annotation.processor;
 
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.natives.NativeConstructLoader;
-import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.NativeException;
-import org.ballerinalang.util.program.BLangPackages;
+import org.ballerinalang.util.repository.BuiltinPackageRepository;
+import org.ballerinalang.util.repository.PackageRepository;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,45 +54,73 @@ public class NativeValidator {
         
         // Load all natives to globalscope
         GlobalScope globalScope = GlobalScope.getInstance();
-        loadConstructs(globalScope);
-        
+        NativeScope nativeScope = NativeScope.getInstance();
+
+        loadConstructs(globalScope, nativeScope);
+
+        //BuiltinPackageRepository[] pkgRepos = loadPackageRepositories();
+
         // create program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.MAIN_PROGRAM);
+        // BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.MAIN_PROGRAM);
         
         // turn off skipping native function parsing
         System.setProperty("skipNatives", "false");
         
         // process each package separately
         for (String builtInPkg : builtInPackages) {
-            BLangSymbol pkgSymbol = globalScope.resolve(new SymbolName(builtInPkg));
-            BLangPackage nativePackage = (BLangPackage) ((NativePackageProxy) pkgSymbol).load();
-            Path packagePath = Paths.get(builtInPkg.replace(".", File.separator));
+            BLangSymbol pkgSymbol = nativeScope.resolve(new SymbolName(builtInPkg));
+            //  BLangPackage nativePackage = (BLangPackage) ((NativePackageProxy) pkgSymbol).load();
+            //  Path packagePath = Paths.get(builtInPkg.replace(".", File.separator));
             
-            BLangPackage mainPackage = BLangPackages.loadPackage(packagePath, nativePackage.getPackageRepository(),
-                    bLangProgram);
-            bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
-            bLangProgram.setMainPackage(mainPackage);
+            //  BLangPackage mainPackage = BLangPackages.loadPackage(packagePath, nativePackage.getPackageRepository(),
+            //                    bLangProgram);
+            //  bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
+            //  bLangProgram.setMainPackage(mainPackage);
 
-//            // Analyze the semantic properties of the Ballerina program
-//            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
-//            bLangProgram.accept(semanticAnalyzer);
+            //  Analyze the semantic properties of the Ballerina program
+            //  SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
+            //  bLangProgram.accept(semanticAnalyzer);
         }
     }
 
-    private static void loadConstructs(GlobalScope globalScope) {
+    public PackageRepository.PackageSource resolveBuiltinPkg(BuiltinPackageRepository[] pkgRepos, Path pkgDirPath) {
+        for (BuiltinPackageRepository pkgRepository : pkgRepos) {
+            PackageRepository.PackageSource packageSource = pkgRepository.loadPackage(pkgDirPath);
+            if (packageSource != null) {
+                return packageSource;
+            }
+        }
+        return null;
+    }
+
+    private static void loadConstructs(GlobalScope globalScope, NativeScope nativeScope) {
         BTypes.loadBuiltInTypes(globalScope);
         Iterator<NativeConstructLoader> nativeConstructLoaders =
             ServiceLoader.load(NativeConstructLoader.class).iterator();
         while (nativeConstructLoaders.hasNext()) {
             NativeConstructLoader constructLoader = nativeConstructLoaders.next();
             try {
-                constructLoader.load(globalScope);
+                constructLoader.load(nativeScope);
             } catch (NativeException e) {
                 throw e;
             } catch (Throwable t) {
                 throw new NativeException("internal error occured", t);
             }
         }
+    }
+
+    /**
+     * Load the native constructs to the provided symbol scope.
+     */
+    public static BuiltinPackageRepository[] loadPackageRepositories() {
+        Iterator<BuiltinPackageRepository> ballerinaBuiltinPackageRepositories =
+                ServiceLoader.load(BuiltinPackageRepository.class).iterator();
+        List<BuiltinPackageRepository> pkgRepositories = new ArrayList<>();
+        while (ballerinaBuiltinPackageRepositories.hasNext()) {
+            BuiltinPackageRepository constructLoader = ballerinaBuiltinPackageRepositories.next();
+            pkgRepositories.add(constructLoader);
+        }
+        return pkgRepositories.toArray(new BuiltinPackageRepository[0]);
     }
     
     private static List<String> getBuiltInBalPackages(String targetDir) {

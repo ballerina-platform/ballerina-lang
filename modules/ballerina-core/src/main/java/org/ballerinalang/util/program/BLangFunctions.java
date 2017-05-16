@@ -97,6 +97,7 @@ public class BLangFunctions {
     
     public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args, Context bContext) {
         Function function = getFunction(bLangProgram.getLibraryPackages()[0].getFunctions(), functionName, args);
+        bLangProgram.setMainPackage(bLangProgram.getLibraryPackages()[0]);
         if (function == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }

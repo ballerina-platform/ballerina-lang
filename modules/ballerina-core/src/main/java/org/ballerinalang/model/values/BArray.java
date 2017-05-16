@@ -48,6 +48,8 @@ public final class BArray<V extends BValue> implements BRefType {
 
     private int lastBucketIndex = -1;
     private int size = 0;
+    
+    private BType type;
 
     public BArray(Class<V> valueClass) {
         this.valueClass = valueClass;
@@ -100,7 +102,11 @@ public final class BArray<V extends BValue> implements BRefType {
 
     @Override
     public BType getType() {
-        return null; //todo
+        return type;
+    }
+    
+    public void setType(BType type) {
+        this.type = type;
     }
 
     @Override

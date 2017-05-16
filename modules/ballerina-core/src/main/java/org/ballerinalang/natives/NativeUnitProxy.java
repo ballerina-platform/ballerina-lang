@@ -17,6 +17,7 @@
 package org.ballerinalang.natives;
 
 import org.ballerinalang.model.CompilationUnit;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -41,6 +42,11 @@ public class NativeUnitProxy implements BLangSymbol, CompilationUnit {
 
     @Override
     public String getName() {
+        return null;
+    }
+
+    @Override
+    public Identifier getIdentifier() {
         return null;
     }
 

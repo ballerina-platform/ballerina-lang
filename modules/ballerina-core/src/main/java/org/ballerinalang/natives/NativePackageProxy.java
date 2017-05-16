@@ -17,7 +17,7 @@
 package org.ballerinalang.natives;
 
 import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.NativeScope;
 
 import java.util.function.Supplier;
 
@@ -32,8 +32,8 @@ public class NativePackageProxy extends BLangPackage {
     private Supplier<BLangPackage> nativePackageSupplier;
     private BLangPackage nativePackage;
     
-    public NativePackageProxy(Supplier<BLangPackage> nativePackageSupplier, GlobalScope globalScope) {
-        super(globalScope);
+    public NativePackageProxy(Supplier<BLangPackage> nativePackageSupplier, NativeScope nativeScope) {
+        super(nativeScope);
         this.nativePackageSupplier = nativePackageSupplier;
     }
     

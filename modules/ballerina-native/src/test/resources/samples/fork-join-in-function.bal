@@ -15,7 +15,7 @@ function testForkJoinAll(message m)(message[]) {
         fork {
             worker ABC_Airline {
                 json payload;
-                payload = `{"name":"abc"}`;
+                payload = {"name":"abc"};
                 message m1 = messages:clone(m);
                 messages:setJsonPayload(m1, payload);
                 mm["name"] = "wso2";
@@ -28,7 +28,7 @@ function testForkJoinAll(message m)(message[]) {
 
             worker XYZ_Airline {
                 json payload;
-                payload = `{"name":"xyz"}`;
+                payload = {"name":"xyz"};
                 x = 500;
                 system:println(x);
                 messages:setJsonPayload(m, payload);
@@ -43,7 +43,7 @@ function testForkJoinAll(message m)(message[]) {
             //return airlineResponses;
         } timeout (30000) (message[] airlineResponses) {
             system:println("error occurred");
-            error = `{"error":{"code":"500", "reason":"timed out"}}`;
+            error = {"error":{"code":"500", "reason":"timed out"}};
             message res = {};
             messages:setJsonPayload(res, error);
             results[0] = m;
@@ -64,14 +64,14 @@ function testForkJoinAny(message m)(message[]) {
         fork {
             worker ABC_Airline {
                 json payload;
-                payload = `{"name":"abc"}`;
+                payload = {"name":"abc"};
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
 
             worker XYZ_Airline {
                 json payload;
-                payload = `{"name":"xyz"}`;
+                payload = {"name":"xyz"};
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
@@ -80,7 +80,7 @@ function testForkJoinAny(message m)(message[]) {
             return airlineResponses;
         } timeout (30000) (message[] airlineResponses) {
             system:println("error occurred");
-            error = `{"error":{"code":"500", "reason":"timed out"}}`;
+            error = {"error":{"code":"500", "reason":"timed out"}};
             message res = {};
             messages:setJsonPayload(res, error);
             results[0] = m;
@@ -96,21 +96,21 @@ function testForkJoinAllOfSpecific(message m)(message[]) {
         fork {
             worker ABC_Airline {
                 json payload;
-                payload = `{"name":"abc"}`;
+                payload = {"name":"abc"};
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
 
             worker XYZ_Airline {
                 json payload;
-                payload = `{"name":"xyz"}`;
+                payload = {"name":"xyz"};
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
 
             worker PQR_Airline {
                 json payload;
-                payload = `{"name":"pqr"}`;
+                payload = {"name":"pqr"};
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
@@ -120,7 +120,7 @@ function testForkJoinAllOfSpecific(message m)(message[]) {
             return airlineResponses;
         } timeout (30000) (message[] airlineResponses) {
             system:println("error occurred");
-            error = `{"error":{"code":"500", "reason":"timed out"}}`;
+            error = {"error":{"code":"500", "reason":"timed out"}};
             message res = {};
             messages:setJsonPayload(res, error);
             results[0] = m;
@@ -136,21 +136,21 @@ function testForkJoinAnyOfSpecific(message m)(message[]) {
         fork {
             worker ABC_Airline {
                 json payload;
-                payload = `{"name":"abc"}`;
+                payload = {"name":"abc"};
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
 
             worker XYZ_Airline {
                 json payload;
-                payload = `{"name":"xyz"}`;
+                payload = {"name":"xyz"};
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
 
             worker PQR_Airline {
                 json payload;
-                payload = `{"name":"pqr"}`;
+                payload = {"name":"pqr"};
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
@@ -159,7 +159,7 @@ function testForkJoinAnyOfSpecific(message m)(message[]) {
             return airlineResponses;
         } timeout (30000) (message[] airlineResponses) {
             system:println("error occurred");
-            error = `{"error":{"code":"500", "reason":"timed out"}}`;
+            error = {"error":{"code":"500", "reason":"timed out"}};
             message res = {};
             messages:setJsonPayload(res, error);
             results[0] = m;

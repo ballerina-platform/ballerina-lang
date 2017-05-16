@@ -57,7 +57,9 @@ public class BArrayType extends BType implements BIndexedType {
     
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BArray<V>(elementType.getValueClass());
+        BArray emptyVal = new BArray<V>(elementType.getValueClass());
+        emptyVal.setType(this);
+        return (V) emptyVal;
     }
 
     public boolean equals(Object obj) {

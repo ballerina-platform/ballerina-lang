@@ -27,7 +27,7 @@ function testworker(message msg)(message) {
   message m2;
   quantity, a, m <- default;
   quantity, a, m -> sampleWorker2;
-  j = `{"name":"chanaka"}`;
+  j = {"name":"chanaka"};
   messages:setJsonPayload(m, j);
   sumD = 123d;
   amount = 222d;
@@ -46,7 +46,7 @@ function testworker(message msg)(message) {
   json j;
   message m;
   quantity, a, m <- sampleWorker;
-  j = `{"name":"IBM"}`;
+  j = {"name":"IBM"};
   messages:setJsonPayload(m, j);
   system:println("XXXXXXXXXXXXXXX");
   system:println(a);
@@ -61,7 +61,7 @@ function testworker(message msg)(message) {
   json j;
   message m = {};
   index <- default;
-  j = `{"name":"WSO2"}`;
+  j = {"name":"WSO2"};
   messages:setJsonPayload(m, j);
   system:println("YYYYYYYYYYYYYY");
   system:println(index);
@@ -94,7 +94,7 @@ function testSimpleWorker(message msg)(message) {
     q["a"] = 12;
     system:println("passed in value is " + (int)q["a"]);
     json j;
-    j = `{"name":"chanaka"}`;
+    j = {"name":"chanaka"};
     messages:setJsonPayload(m, j);
     b, m ->default;
 }

@@ -91,7 +91,7 @@ public class ArrayAccessExprTest {
     
     @Test(description = "Test accessing an out of bound arrays-index",
             expectedExceptions = { BallerinaException.class },
-            expectedExceptionsMessageRegExp = "array index out of range: Index: 5, Size: 2")
+            expectedExceptionsMessageRegExp = "array index out of range: index: 5, size: 2")
     public void testArrayIndexOutOfBoundError() {
         BLangFunctions.invoke(bLangProgram, "arrayIndexOutOfBoundTest");
     }

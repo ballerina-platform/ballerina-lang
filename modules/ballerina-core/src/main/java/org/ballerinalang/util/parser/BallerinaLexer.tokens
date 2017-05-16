@@ -103,10 +103,10 @@ LINE_COMMENT=84
 'annotation'=19
 'attach'=20
 ','=21
-'typemapper'=22
-'const'=23
-'parameter'=24
-'='=25
+'='=22
+'typemapper'=23
+'const'=24
+'parameter'=25
 'worker'=26
 'any'=27
 '['=28

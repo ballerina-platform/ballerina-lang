@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
@@ -99,6 +100,11 @@ public abstract class BType implements BLangSymbol {
     @Override
     public String getName() {
         return typeName;
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return null;
     }
 
     @Override
