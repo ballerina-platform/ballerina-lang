@@ -23,6 +23,7 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
@@ -33,23 +34,46 @@ import org.ballerinalang.model.values.BValue;
  */
 public class VariableRefExpr extends AbstractExpression implements ReferenceExpr {
     private String varName;
+    private String pkgName;
+    private String pkgPath;
     private SymbolName symbolName;
     private VariableDef variableDef;
+    private boolean isArrayIndexExpr;
 
-    public VariableRefExpr(NodeLocation location, String varName) {
-        super(location);
+    public VariableRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String varName) {
+        super(location, whiteSpaceDescriptor);
         this.varName = varName;
         this.symbolName = new SymbolName(varName);
+        this.isArrayIndexExpr = false;
     }
 
-    public VariableRefExpr(NodeLocation location, SymbolName symbolName) {
-        super(location);
+    public VariableRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SymbolName symbolName) {
+        super(location, whiteSpaceDescriptor);
         this.symbolName = symbolName;
+    }
+
+    public VariableRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String varName,
+                           String pkgName, String pkgPath) {
+        super(location, whiteSpaceDescriptor);
+        this.varName = varName;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+        this.symbolName = new SymbolName(varName, pkgPath);
     }
 
     @Override
     public String getVarName() {
         return varName;
+    }
+
+    @Override
+    public String getPkgName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPkgPath() {
+        return pkgPath;
     }
 
     public SymbolName getSymbolName() {
@@ -85,4 +109,11 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
         return executor.visit(this);
     }
 
+    public boolean isArrayIndexExpr() {
+        return isArrayIndexExpr;
+    }
+
+    public void setIsArrayIndexExpr(boolean isArrayIndexExpr) {
+        this.isArrayIndexExpr = isArrayIndexExpr;
+    }
 }

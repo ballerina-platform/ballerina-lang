@@ -93,4 +93,8 @@ public class TryCatchThrowStmtTest {
         BTestUtils.parseBalFile("lang/statements/tryCatchThrowStmts/invalid-function-throw.bal");
     }
 
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".* unreachable statement")
+    public void testUnreachableStmt() {
+        BTestUtils.parseBalFile("lang/statements/tryCatchThrowStmts/trycatch-negative-1.bal");
+    }
 }

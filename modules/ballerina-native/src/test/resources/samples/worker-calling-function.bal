@@ -24,7 +24,7 @@ function testWorker()(message) {
 
 function changeMessage(message m)(message) {
       json j;
-      j = `{"name":"chanaka"}`;
+      j = {"name":"chanaka"};
       messages:setJsonPayload(m, j);
       return m;
 }

@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 
@@ -31,8 +32,9 @@ import org.ballerinalang.model.values.BValue;
 public class ConnectorInitExpr extends RefTypeInitExpr {
     private SimpleTypeName typeName;
 
-    public ConnectorInitExpr(NodeLocation location, SimpleTypeName typeName, Expression[] argExprs) {
-        super(location, argExprs);
+    public ConnectorInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
+                             Expression[] argExprs) {
+        super(location, whiteSpaceDescriptor, argExprs);
         this.typeName = typeName;
     }
 

@@ -21,7 +21,7 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.http.Constants;
+import org.ballerinalang.nativeimpl.actions.http.Constants;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;

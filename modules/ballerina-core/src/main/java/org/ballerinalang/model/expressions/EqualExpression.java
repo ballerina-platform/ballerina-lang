@@ -19,6 +19,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
@@ -49,8 +50,9 @@ public class EqualExpression extends BinaryEqualityExpression {
     public static final BiFunction<BValue, BValue, BValueType> EQUAL_NULL_FUNC =
             (lVal, rVal) -> new BBoolean(lVal == rVal);
 
-    public EqualExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
-        super(location, lExpr, EQUAL, rExpr);
+    public EqualExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
+                           Expression rExpr) {
+        super(location, whiteSpaceDescriptor, lExpr, EQUAL, rExpr);
     }
     
     @Override

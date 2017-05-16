@@ -22,6 +22,7 @@ import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;
@@ -46,9 +47,10 @@ import java.util.Map;
  */
 public class BallerinaFunction implements Function, SymbolScope, CompilationUnit {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
@@ -66,6 +68,8 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
+
+    private NativeUnitProxy nativeFunction;
 
     // Linker related variables
     private int tempStackFrameSize;
@@ -116,6 +120,13 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         return null;
     }
 
+    public void setNativeFunction(NativeUnitProxy nativeFunction) {
+        this.nativeFunction = nativeFunction;
+    }
+
+    public NativeUnitProxy getNativeFunction() {
+        return nativeFunction;
+    }
 
     // Methods in CallableUnit interface
 
@@ -195,12 +206,26 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         return location;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
 
     // Methods in BLangSymbol interface
 
     @Override
     public String getName() {
-        return name;
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -279,9 +304,10 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
         public BallerinaFunction buildFunction() {
             bFunc.location = this.location;
-            bFunc.name = this.name;
+            bFunc.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
+            bFunc.identifier = this.identifier;
             bFunc.pkgPath = this.pkgPath;
-            bFunc.symbolName = new SymbolName(name, pkgPath);
+            bFunc.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
             bFunc.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             bFunc.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);

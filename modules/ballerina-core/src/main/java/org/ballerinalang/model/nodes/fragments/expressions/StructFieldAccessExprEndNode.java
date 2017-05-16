@@ -18,7 +18,7 @@
 package org.ballerinalang.model.nodes.fragments.expressions;
 
 import org.ballerinalang.model.LinkedNodeVisitor;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.nodes.AbstractLinkedNode;
 
 /**
@@ -26,14 +26,14 @@ import org.ballerinalang.model.nodes.AbstractLinkedNode;
  */
 public class StructFieldAccessExprEndNode extends AbstractLinkedNode {
 
-    private StructFieldAccessExpr expression;
+    private FieldAccessExpr expression;
 
-    public StructFieldAccessExprEndNode(StructFieldAccessExpr expression) {
+    public StructFieldAccessExprEndNode(FieldAccessExpr expression) {
         this.expression = expression;
         this.parent = expression;
     }
 
-    public StructFieldAccessExpr getExpression() {
+    public FieldAccessExpr getExpression() {
         return expression;
     }
 

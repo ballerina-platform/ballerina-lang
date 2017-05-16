@@ -93,6 +93,7 @@ public class BLangFunctions {
     
     public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args, Context bContext) {
         Function function = getFunction(bLangProgram.getLibraryPackages()[0].getFunctions(), functionName, args);
+        bLangProgram.setMainPackage(bLangProgram.getLibraryPackages()[0]);
         if (function == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
@@ -127,7 +128,7 @@ public class BLangFunctions {
             // TODO: Fix this properly.
             Expression[] exprs = new Expression[args.length];
             for (int i = 0; i < args.length; i++) {
-                VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(),
+                VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(), null,
                         new SymbolName("arg" + i));
 
                 variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
@@ -138,7 +139,7 @@ public class BLangFunctions {
 
             // 3) Create a function invocation expression
             FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
-                    function.getNodeLocation(), functionName, null, null, exprs);
+                    function.getNodeLocation(), null, functionName, null, null, exprs);
             funcIExpr.setOffset(args.length);
             funcIExpr.setCallableUnit(function);
             // Linking.

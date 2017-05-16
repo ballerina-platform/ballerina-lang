@@ -23,6 +23,7 @@ import org.ballerinalang.model.Node;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -38,6 +39,11 @@ public class MemoryLocation implements Node, ExecutableExpr, ExecutableMemLocati
 
     @Override
     public NodeLocation getNodeLocation() {
+        return null;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
         return null;
     }
 

@@ -19,6 +19,7 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -31,17 +32,21 @@ import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.JSONArrayInitExpr;
+import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
+import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -52,6 +57,8 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -96,6 +103,12 @@ public interface NodeExecutor {
 
     void visit(ForkJoinStmt forkJoinStmt);
 
+    void visit(TransformStmt transformStmt);
+
+    void visit(TransactionRollbackStmt transactionRollbackStmt);
+
+    void visit(AbortStmt abortStmt);
+
     BValue[] visit(FunctionInvocationExpr funcIExpr);
 
     BValue[] visit(ActionInvocationExpr actionIExpr);
@@ -112,7 +125,9 @@ public interface NodeExecutor {
 
     BValue visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
-    BValue visit(StructFieldAccessExpr structAttributeAccessExpr);
+    BValue visit(FieldAccessExpr structAttributeAccessExpr);
+    
+    BValue visit(JSONFieldAccessExpr jsonPathExpr);
 
     BValue visit(ArrayInitExpr arrayInitExpr);
 
@@ -125,6 +140,10 @@ public interface NodeExecutor {
     BValue visit(StructInitExpr structInitExpr);
 
     BValue visit(MapInitExpr mapInitExpr);
+    
+    BValue visit(JSONInitExpr jsonInitExpr);
+    
+    BValue visit(JSONArrayInitExpr jsonArrayInitExpr);
 
     BValue visit(VariableRefExpr variableRefExpr);
 
@@ -139,6 +158,8 @@ public interface NodeExecutor {
     BValue visit(ConstantLocation constantLocation);
 
     BValue visit(ServiceVarLocation serviceVarLocation);
+
+    BValue visit(GlobalVarLocation globalVarLocation);
 
     BValue visit(ConnectorVarLocation connectorVarLocation);
 

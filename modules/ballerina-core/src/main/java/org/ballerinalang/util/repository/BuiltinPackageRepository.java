@@ -20,7 +20,6 @@ package org.ballerinalang.util.repository;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -46,7 +45,7 @@ public class BuiltinPackageRepository extends PackageRepository {
     private static final String BAL_FILE_EXT = ".bal";
     private static final String NATIVE_BAL_FILE = "natives.bal";
     private static final String FALSE = "false";
-    private boolean skipNatives = true;
+    private boolean skipNatives = false;
 
     private String packageDirPath;
 
@@ -63,7 +62,9 @@ public class BuiltinPackageRepository extends PackageRepository {
             skipNatives = false;
         }
         
-        this.packageDirPath = packageDirPath.toString().replace("\\", "/");
+        // Replace system dependent file-separator with forward-slash
+        this.packageDirPath = packageDirPath.toString().replace("\\", "/") + "/";
+        
         Map<String, InputStream> sourceFileStreamMap = new HashMap<String, InputStream>();
         ClassLoader classLoader = nativePackageProvider.getClassLoader();
 
@@ -72,8 +73,8 @@ public class BuiltinPackageRepository extends PackageRepository {
 
         // Read all resources as input streams and create the package source 
         for (String fileName : fileNames) {
-            InputStream balSourceStream = classLoader.getResourceAsStream(BASE_DIR + this.packageDirPath
-                    + "/" + fileName);
+            InputStream balSourceStream = classLoader.getResourceAsStream(
+                    BASE_DIR + this.packageDirPath + fileName);
             sourceFileStreamMap.put(fileName, balSourceStream);
         }
         return new PackageSource(packageDirPath, sourceFileStreamMap, this);
@@ -106,7 +107,7 @@ public class BuiltinPackageRepository extends PackageRepository {
         BufferedReader reader = null;
         try {
             InputStream fileNamesStream =
-                    nativePackageProvider.getClassLoader().getResourceAsStream(pkgRelPath + File.separator);
+                    nativePackageProvider.getClassLoader().getResourceAsStream(pkgRelPath);
             if (fileNamesStream != null) {
                 reader = new BufferedReader(new InputStreamReader(fileNamesStream));
                 String fileName;
@@ -146,7 +147,8 @@ public class BuiltinPackageRepository extends PackageRepository {
             jarInputStream = new ZipInputStream(repoUrl.openStream());
             while ((fileNameEntry = jarInputStream.getNextEntry()) != null) {
                 String filePath = fileNameEntry.getName();
-                if (filePath.startsWith(pkgRelPath) && filePath.endsWith(BAL_FILE_EXT)) {
+                // read .bal files in the package directory, but not in sub-packages
+                if (filePath.matches(pkgRelPath + "((?!/).)*\\" + BAL_FILE_EXT)) {
                     if (skipNatives && filePath.endsWith(NATIVE_BAL_FILE)) {
                         continue;
                     }

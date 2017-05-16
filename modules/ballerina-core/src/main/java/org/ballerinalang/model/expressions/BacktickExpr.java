@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -30,8 +31,8 @@ import org.ballerinalang.model.values.BValue;
 public class BacktickExpr extends RefTypeInitExpr {
     private String templateStr;
 
-    public BacktickExpr(NodeLocation location, String templateStr) {
-        super(location, new Expression[0]);
+    public BacktickExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String templateStr) {
+        super(location, whiteSpaceDescriptor, new Expression[0]);
         this.templateStr = templateStr;
     }
 

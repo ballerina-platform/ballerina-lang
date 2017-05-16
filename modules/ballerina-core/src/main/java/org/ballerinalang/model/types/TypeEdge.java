@@ -18,19 +18,20 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.TypeMapper;
+import org.ballerinalang.model.values.BValue;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * One edge in the Type Lattice graph.
  */
 public class TypeEdge {
     private TypeVertex source, target;
-    private Function typeMapperFunction;
+    private BiFunction<BValue, BType, BValue> typeMapperFunction;
     private TypeMapper typeMapper;
     private String packageName;
 
-    public TypeEdge(TypeVertex source, TypeVertex target, Function typeMapperFunction) {
+    public TypeEdge(TypeVertex source, TypeVertex target, BiFunction<BValue, BType, BValue> typeMapperFunction) {
         this.source = source;
         this.target = target;
         this.typeMapperFunction = typeMapperFunction;
@@ -60,7 +61,7 @@ public class TypeEdge {
         this.target = target;
     }
 
-    public Function getTypeMapperFunction() {
+    public BiFunction<BValue, BType, BValue> getTypeMapperFunction() {
         return typeMapperFunction;
     }
 
