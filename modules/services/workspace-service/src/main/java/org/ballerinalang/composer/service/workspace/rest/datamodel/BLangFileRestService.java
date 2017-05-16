@@ -140,7 +140,8 @@ public class BLangFileRestService {
         BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
         BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
                 StringUtils.EMPTY);
-        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder, filePath);
+        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(true, ballerinaToken, bLangModelBuilder,
+                filePath);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = bLangModelBuilder.build();
