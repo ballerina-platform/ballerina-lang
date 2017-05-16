@@ -27,7 +27,7 @@ class VariableReferenceExpression extends Expression {
     constructor(args) {
         super('VariableReferenceExpression');
         this._variableName = _.get(args, 'variableName');
-        this._isFromArray = _.get(args, 'isFromArray', false);
+        this._isArrayExpression = _.get(args, 'isArrayExpression', false);
         this.setExpression(this.generateExpression(), {doSilently: true});
     }
 
@@ -47,12 +47,12 @@ class VariableReferenceExpression extends Expression {
         return this._variableName;
     }
 
-    setIsFromArray(isFromArray, options) {
-        this.setAttribute('_isFromArray', isFromArray, options);
+    setIsArrayExpression(isArrayExpression, options) {
+        this.setAttribute('_isArrayExpression', isArrayExpression, options);
     }
 
-    getIsFromArray() {
-        return this._isFromArray;
+    getIsArrayExpression() {
+        return this._isArrayExpression;
     }
 
     /**
@@ -62,7 +62,7 @@ class VariableReferenceExpression extends Expression {
      */
     initFromJson(jsonNode) {
         var self = this;
-        this.setIsFromArray(jsonNode.variable_from_array, {doSilently: true});
+        this.setIsArrayExpression(jsonNode.variable_is_array_expression, {doSilently: true});
         this.setVariableName(jsonNode.variable_reference_name, {doSilently: true});
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);

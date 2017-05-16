@@ -35,7 +35,9 @@ class ActionBox extends React.Component {
     const iconSize = 14;
     const y = bBox.y + (bBox.h - iconSize) / 2
     const horizontalGap = (bBox.w - iconSize * numIcons) / (numIcons + 1);
-    const className = this.isHiddenToHidden ? 'hide-action' : ( this.props.show ? "show-action" : "delayed-hide-action");
+      // const className = this.isHiddenToHidden ? 'hide-action' : ( this.props.show ? "show-action" : "delayed-hide-action");
+      const className = this.props.show === 'hidden' ? 'hide-action' :
+          ( this.props.show === 'visible' ? "show-action" : "delayed-hide-action");
 
     return (<g className={className}>
                    <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h } rx="0" ry="0" className="property-pane-action-button-wrapper"></rect>
@@ -71,9 +73,10 @@ ActionBox.propTypes = {
     w: PropTypes.number.isRequired,
     h: PropTypes.number.isRequired,
   }),
-  isBreakpoint: PropTypes.bool,
-  onBreakpointClick: PropTypes.func
-}
+    show: PropTypes.string,
+    isBreakpoint: PropTypes.bool,
+    onBreakpointClick: PropTypes.func
+};
 
 
 export default ActionBox;

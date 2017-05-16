@@ -92,7 +92,7 @@ export default class importDeclarationExpanded extends React.Component {
         }
 
         return (
-            <g className="package-definitions-collection">
+            <g className="import-declarations-collection">
                 <rect x={ topBarBbox.x } y={ topBarBbox.y } height={topBarHeight} width={importDeclarationWidth} style={ { fill: "#ddd"} } />
                 <text x={ topBarBbox.x + leftPadding } y={ topBarBbox.y + topBarHeight/2} className="import-declaration-topbar-label">Imports</text>
                 <image width={ iconSize } height={ iconSize } className="property-pane-action-button-delete"

@@ -47,8 +47,9 @@ class LifeLine extends React.Component {
 
 	openExpressionEditor(e){
 		let options = this.props.editorOptions;
+		let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
 		if(options){
-			new ExpressionEditor( this.topBox , this.context.container , (text) => this.onUpdate(text), options );
+			new ExpressionEditor( this.topBox , this.context.container , (text) => this.onUpdate(text), options , packageScope);
 		}
 	}
 
@@ -58,6 +59,7 @@ class LifeLine extends React.Component {
 
 LifeLine.contextTypes = {
 	 container: PropTypes.instanceOf(Object).isRequired,
+	 renderingContext: PropTypes.instanceOf(Object).isRequired,     
 };
 
 export default LifeLine;

@@ -929,6 +929,15 @@ BallerinaASTFactory.isElseStatement = function (child) {
 };
 
 /**
+ * instanceof check for ElseIf Statement
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isElseIfStatement = function (child) {
+    return child instanceof elseIfStatement;
+};
+
+/**
  * instanceof check for TryCatchStatement
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
@@ -1555,5 +1564,3 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
 };
 
 export default BallerinaASTFactory;
-
-

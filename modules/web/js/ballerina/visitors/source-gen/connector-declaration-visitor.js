@@ -40,7 +40,8 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
          * that particular source generation has to be constructed here
          */
         var connectorPkg = ((!_.isNil(connectorDeclaration.getConnectorPkgName()))
-                             && (!_.isEqual(connectorDeclaration.getConnectorPkgName(), 'Current Package'))) ?
+        && connectorDeclaration.getConnectorPkgName() !== ''
+            && (!_.isEqual(connectorDeclaration.getConnectorPkgName(), 'Current Package'))) ?
             (connectorDeclaration.getConnectorPkgName() + ":") : "";
         var constructedSource = connectorPkg +
             connectorDeclaration.getConnectorName() + ' ' + connectorDeclaration.getConnectorVariable() +

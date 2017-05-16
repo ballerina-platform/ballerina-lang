@@ -9,7 +9,7 @@ body.loading > .loading-animation > .blob {
     position: absolute;
     left: calc(50% - 1rem);
     top: calc(50% + 3.5rem);
-    box-shadow: 0 0 1rem rgba(255, 255, 255, 0.25);
+    /*box-shadow: 0 0 1rem rgba(255, 255, 255, 0.25);*/
 }
 
 body.loading > .loading-animation > .blob-2 { animation: animate-to-2 1.5s infinite; }

@@ -27,21 +27,41 @@ import SimpleBBox from './../ast/simple-bounding-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import './compound-statement-decorator.css';
 import ActiveArbiter from './active-arbiter';
+import Breakpoint from './breakpoint';
 
 class CompoundStatementDecorator extends React.Component {
 
-    constructor(props) {
-        super(props);
+    constructor(props, context) {
+        super(props, context);
+        const {dragDropManager} = context;
+        dragDropManager.on('drag-start', this.startDropZones.bind(this));
+        dragDropManager.on('drag-stop', this.stopDragZones.bind(this));
+
         this.state = {
             innerDropZoneActivated: false,
             innerDropZoneDropNotAllowed: false,
-            showActions: false,
-            active: false
+            innerDropZoneExist: false,
+            active: 'hidden'
         };
     }
 
+    startDropZones() {
+        this.setState({innerDropZoneExist: true});
+    }
+
+    stopDragZones() {
+        this.setState({innerDropZoneExist: false});
+    }
+
+    onJumptoCodeLine() {
+        const {renderingContext: {ballerinaFileEditor}} = this.context;
+
+        const container = ballerinaFileEditor._container;
+        $(container).find('.view-source-btn').trigger('click');
+    }
+
     render() {
-        const { bBox } = this.props;
+        const { bBox, model } = this.props;
         // we need to draw a drop box above the statement
         let drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
@@ -49,6 +69,7 @@ class CompoundStatementDecorator extends React.Component {
         const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
     											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 
+        const fill = this.state.innerDropZoneExist ? {} : {fill: 'none'};
         const actionBbox = new SimpleBBox();
         actionBbox.w = DesignerDefaults.actionBox.width;
         actionBbox.h = DesignerDefaults.actionBox.height;
@@ -56,43 +77,103 @@ class CompoundStatementDecorator extends React.Component {
         actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
 
         return (<g className="compound-statement"
-				   onMouseOut={ this.setActionVisibility.bind(this, false) }
-				   onMouseOver={ (e) => {
-                       if (!this.context.dragDropManager.isOnDrag()) {
-                           this.setActionVisibility(true, e)
-                       }
-                   }}>
+                   onMouseOut={ this.setActionVisibility.bind(this, false) }
+                   onMouseOver={ this.setActionVisibility.bind(this, true)}>
 			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
-                  className={dropZoneClassName}/>
+                  className={dropZoneClassName} {...fill}/>
             {this.props.children}
 			<ActionBox
                 bBox={ actionBbox }
                 show={ this.state.active }
-                isBreakpoint={ false }
+                isBreakpoint={ model.isBreakpoint }
                 onDelete={ () => this.onDelete() }
                 onJumptoCodeLine={ () => this.onJumptoCodeLine() }
                 onBreakpointClick={ () => this.onBreakpointClick() }
 			/>
+      {		model.isBreakpoint &&
+          this.renderBreakpointIndicator()
+      }
 		</g>);
     }
 
+    onBreakpointClick() {
+        const { model } = this.props;
+        const { isBreakpoint = false } = model;
+        if(model.isBreakpoint) {
+            model.removeBreakpoint();
+        } else {
+            model.addBreakpoint();
+        }
+    }
+
+    renderBreakpointIndicator() {
+        const breakpointSize = 14;
+        const { bBox } = this.props;
+        const pointX = bBox.x + bBox.w - breakpointSize/2;
+        const pointY = bBox.y - breakpointSize/2 + statement.gutter.v;
+        return (
+            <Breakpoint
+                x={pointX}
+                y={pointY}
+                size={breakpointSize}
+                isBreakpoint={this.props.model.isBreakpoint}
+                onClick = { () => this.onBreakpointClick() }
+            />
+        );
+    }
+
     setActionVisibility(show, e) {
-        if (show) {
-            let elm = e.target;
+        if (!this.context.dragDropManager.isOnDrag()) {
             const myRoot = ReactDOM.findDOMNode(this);
-            const regex = new RegExp('(^|\\s)(compound-)?statement(\\s|$)');
-            let isInChildStatement = false;
-            while (elm && elm !== myRoot) {
-                if (regex.test(elm.getAttribute('class'))) {
+            if (show) {
+                const regex = new RegExp('(^|\\s)(compound-)?statement(\\s|$)');
+                let isInChildStatement = false;
+                let isInStatement = false;
+                let isFromChildStatement = false;
+
+                let elm = e.target;
+                while (elm && elm !== myRoot && elm.getAttribute) {
+                    if (regex.test(elm.getAttribute('class'))) {
+                        isInStatement = true;
+                    }
+                    elm = elm.parentNode;
+                }
+                if (elm === myRoot && isInStatement) {
                     isInChildStatement = true;
                 }
-                elm = elm.parentNode;
+
+                elm = e.relatedTarget;
+                isInStatement = false;
+                while (elm && elm !== myRoot && elm.getAttribute) {
+                    if (regex.test(elm.getAttribute('class'))) {
+                        isInStatement = true;
+                    }
+                    elm = elm.parentNode;
+                }
+                if (elm === myRoot && isInStatement) {
+                    isFromChildStatement = true;
+                }
+
+                if (!isInChildStatement) {
+                    if (isFromChildStatement) {
+                        this.context.activeArbiter.readyToDelayedActivate(this);
+                    } else {
+                        this.context.activeArbiter.readyToActivate(this);
+                    }
+                }
+            } else {
+                let elm = e.relatedTarget;
+                let isInMe = false;
+                while (elm && elm.getAttribute) {
+                    if (elm === myRoot) {
+                        isInMe = true;
+                    }
+                    elm = elm.parentNode;
+                }
+                if (!isInMe) {
+                    this.context.activeArbiter.readyToDeactivate(this);
+                }
             }
-            if (!isInChildStatement) {
-                this.context.activeArbiter.readyToActivate(this);
-            }
-        } else {
-            this.context.activeArbiter.readyToDeactivate(this);
         }
     }
 
@@ -152,7 +233,8 @@ CompoundStatementDecorator.propTypes = {
 
 CompoundStatementDecorator.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
+    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired
 };
 
 export default CompoundStatementDecorator;

@@ -34,11 +34,11 @@ class FieldAccessExpression extends Expression {
      * such as {@link FunctionInvocationExpression}. Hence if 2nd child exists, we call getExpression() on that child.
      * @return {string}
      */
-    generateExpression(isFromArray) {
+    generateExpression(isArrayExpression) {
         if (_.isEqual(_.size(this.getChildren()), 2)) {
             var firstVar = this.getChildren()[0];
             var secondVar = this.getChildren()[1];
-            if (firstVar.getIsFromArray()) {
+            if (firstVar.getIsArrayExpression()) {
                 return firstVar.generateExpression() + '[' + secondVar.generateExpression(true) + ']';
             } else {
                 return firstVar.generateExpression() + '.' + secondVar.generateExpression(false);
@@ -46,13 +46,13 @@ class FieldAccessExpression extends Expression {
         } else if (_.isEqual(_.size(this.getChildren()), 1)) {
             var exp = this.getChildren()[0];
             if (this.getFactory().isBasicLiteralExpression(exp)) {
-                if(isFromArray){
+                if (isArrayExpression){
                     return exp.generateExpression();
                 } else {
                     return exp.getBasicLiteralValue();
                 }
             } else if (this.getFactory().isFieldAccessExpression(exp)) {
-                return exp.generateExpression(isFromArray);
+                return exp.generateExpression(isArrayExpression);
             } else {
                 return exp.generateExpression();
             }

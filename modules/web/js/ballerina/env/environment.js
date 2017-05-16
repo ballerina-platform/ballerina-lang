@@ -34,13 +34,15 @@ class BallerinaEnvironment extends EventChannel {
         this.initialized = false;
         this._packages = _.get(args, 'packages', []);
         this._types = _.get(args, 'types', []);
+        this._annotationAttachmentTypes = _.get(args, 'annotationAttachmentTypes', []);
     }
 
-    initialize(opts){
-        if(!this.initialized){
-             this.initializeNativeTypes(opts.app);
-             this.initializePackages(opts.app);
-             this.initialized = true;
+    initialize(opts) {
+        if (!this.initialized) {
+            this.initializeNativeTypes(opts.app);
+            this.initializePackages(opts.app);
+            this.initializeAnnotationAttachmentPoints(opts.app);
+            this.initialized = true;
         }
     }
 
@@ -62,7 +64,7 @@ class BallerinaEnvironment extends EventChannel {
      */
     addPackage(packageInstance) {
         if (!(packageInstance instanceof Package)) {
-            var err = packageInstance + " is not an instance of Package.";
+            let err = packageInstance + " is not an instance of Package.";
             log.error(err);
             throw err;
         }
@@ -89,15 +91,23 @@ class BallerinaEnvironment extends EventChannel {
     }
 
     /**
+     * Get annotation attachment types.
+     * @return {[string]} annotationAttachmentTypes
+     * */
+    getAnnotationAttachmentTypes() {
+        return this._annotationAttachmentTypes;
+    }
+
+    /**
      * Initialize packages from BALLERINA_HOME and/or Ballerina Repo
      */
     initializePackages(app) {
 
-        var self = this;
-        var packagesJson = EnvironmentContent.getPackages(app);
+        let self = this;
+        let packagesJson = EnvironmentContent.getPackages(app);
 
         _.each(packagesJson, function (packageNode) {
-            var pckg = BallerinaEnvFactory.createPackage();
+            let pckg = BallerinaEnvFactory.createPackage();
             pckg.initFromJson(packageNode);
             self._packages.push(pckg);
         });
@@ -107,26 +117,38 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize native types from Ballerina Program
      */
     initializeNativeTypes(app) {
-        var self = this;
-        var nativeTypesJson = EnvironmentContent.getNativeTypes(app);
+        let self = this;
+        let nativeTypesJson = EnvironmentContent.getNativeTypes(app);
         _.each(nativeTypesJson, function (nativeType) {
             if (!_.isNil(nativeType)) {
                 self._types.push(nativeType);
             }
         });
-        self._types = _.sortBy(self._types, [function (type) { return type }]);
+        self._types = _.sortBy(self._types, [function (type) {
+            return type
+        }]);
+    }
+
+    /**
+     * Initialize annotation attachment points for Ballerina Program
+     * */
+    initializeAnnotationAttachmentPoints(app) {
+        let self = this;
+        self._annotationAttachmentTypes = _.sortBy(['service', 'resource', 'connector', 'action', 'function',
+            'typemapper', 'struct', 'const', 'parameter', 'annotation'], [function (type) {
+            return type;
+        }]);
     }
 
     searchPackage(query, exclude) {
-        var search_text = query;
-        var exclude_packages = exclude;
-        var result = _.filter(this._packages, function (pckg) {
-            var existing = _.filter(exclude_packages, function (ex) {
-                return pckg.getName() == ex;
+        let search_text = query;
+        let exclude_packages = exclude;
+        return _.filter(this._packages, function (pckg) {
+            let existing = _.filter(exclude_packages, function (ex) {
+                return pckg.getName() === ex;
             });
-            return (existing.length == 0) && new RegExp(query.toUpperCase()).test(pckg.getName().toUpperCase());
+            return (existing.length === 0) && new RegExp(query.toUpperCase()).test(pckg.getName().toUpperCase());
         });
-        return result;
     }
 }
 

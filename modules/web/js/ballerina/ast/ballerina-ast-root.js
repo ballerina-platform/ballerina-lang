@@ -195,6 +195,7 @@ class BallerinaASTRoot extends ASTNode {
         /**
          * @event ASTNode#tree-modified
          */
+        this.trigger('import-new-package', importDeclaration.getPackageName());
         this.trigger('tree-modified', modifiedEvent);
     }
 

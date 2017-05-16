@@ -137,7 +137,7 @@ class SwaggerView extends EventChannel {
         this._swaggerAceEditor.getSession().on('change', (e) => {
             try {
                 if (this._manualUpdate === false) {
-                    log.info(e);
+                    //log.info(e);
                     let serviceDefinition = this._currentEditingServiceDefinition;
                     if (_.isEqual(e.start.row, e.end.row)) {
                         this._updateResourceMappings(serviceDefinition, e);
@@ -206,8 +206,22 @@ class SwaggerView extends EventChannel {
             line: editorEvent.start.row,
             column: editorEvent.start.column
         });
+        
+        if (!_.isUndefined(astPath) && _.isArray(astPath) && _.size(astPath) > 0 && _.isEqual(astPath[3],
+                'operationId')){
+            let oldOperationID;
+            if (_.isEqual(editorEvent.action, 'insert')) {
+                let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
+                oldOperationID = currentValue.substring(0, editorEvent.start.column) +
+                    currentValue.substring(editorEvent.end.column, currentValue.length);
+            } else if (_.isEqual(editorEvent.action, 'remove')) {
+                let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
+                oldOperationID = currentValue.slice(0, editorEvent.start.column) + editorEvent.lines[0] +
+                    currentValue.slice(editorEvent.start.column);
+            }
+        }
 
-        if (!_.isUndefined(astPath) && _.isArray(astPath) && _.size(astPath) > 0 && _.isEqual(astPath[0],
+        /*if (!_.isUndefined(astPath) && _.isArray(astPath) && _.size(astPath) > 0 && _.isEqual(astPath[0],
                 'paths')) {
             // When resource path is modified.
             if (_.isEqual(_.size(astPath), 1)) {
@@ -299,7 +313,7 @@ class SwaggerView extends EventChannel {
                     mapping.ast.setIdentifier('', {doSilently: true});
                 }
             }
-        }
+        }*/
     }
 
     /**

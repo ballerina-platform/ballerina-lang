@@ -169,7 +169,7 @@ class StructDefinition extends React.Component {
                     fill="#3d3d3d"
                  />
                  <g
-                    onClick={ (e)=> this.handleTypeClick("", typeCellbox) }
+                    onClick={ (e)=> this.handleTypeClick(this.state.newType, typeCellbox) }
                  >
                      <rect
                         {...typeCellbox}
@@ -184,7 +184,7 @@ class StructDefinition extends React.Component {
                       </text>
                   </g>
                   <g
-                      onClick={(e)=> this.handleIdentifierClick("", identifierCellBox) }
+                      onClick={(e)=> this.handleIdentifierClick(this.state.newIdentifier, identifierCellBox) }
                   >
                       <rect
                           {...identifierCellBox}
@@ -199,7 +199,7 @@ class StructDefinition extends React.Component {
                        </text>
                    </g>
                    <g
-                        onClick={(e)=> this.handleValueClick("", defaultValueBox) }
+                        onClick={(e)=> this.handleValueClick(this.state.newValue, defaultValueBox) }
                    >
                        <rect
                             {...defaultValueBox}

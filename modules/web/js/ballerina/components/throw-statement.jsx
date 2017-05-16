@@ -23,13 +23,25 @@ import PropTypes from 'prop-types';
  * Throw statement decorator.
  * */
 class ThrowStatement extends React.Component {
+
+    constructor(props){
+        super(props);
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'ThrowStatement',
+            model: props.model,
+            getterMethod: props.model.getStatementString,
+            setterMethod: props.model.setStatementString
+        };
+    }
+
     /**
      * Render function for the throw statement.
      * */
     render() {
         let model = this.props.model,
             expression = model.getStatementString();
-        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression}/>);
+        return (<StatementDecorator model={model} viewState={model.viewState} editorOptions={this.editorOptions}  expression={expression}/>);
     }
 }
 
