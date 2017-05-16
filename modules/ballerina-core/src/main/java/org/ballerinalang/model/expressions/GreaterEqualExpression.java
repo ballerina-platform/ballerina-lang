@@ -19,6 +19,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValueType;
 
@@ -39,8 +40,9 @@ public class GreaterEqualExpression extends BinaryCompareExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> GREATER_EQUAL_FLOAT_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.floatValue() >= rVal.floatValue());
 
-    public GreaterEqualExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
-        super(location, lExpr, GREATER_EQUAL, rExpr);
+    public GreaterEqualExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
+                                  Expression rExpr) {
+        super(location, whiteSpaceDescriptor, lExpr, GREATER_EQUAL, rExpr);
     }
 
     @Override

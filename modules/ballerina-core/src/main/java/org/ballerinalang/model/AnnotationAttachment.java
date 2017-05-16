@@ -39,11 +39,13 @@ public class AnnotationAttachment implements Node {
     private String pkgPath;
     private Map<String, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
     AttachmentPoint attachedPoint;
     
-    public AnnotationAttachment(NodeLocation location, String name, String pkgName, String pkgPath,
-            Map<String, AnnotationAttributeValue> fieldValPairs) {
+    public AnnotationAttachment(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
+                                String pkgName, String pkgPath, Map<String, AnnotationAttributeValue> fieldValPairs) {
         this.location = location;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;
@@ -105,7 +107,21 @@ public class AnnotationAttachment implements Node {
     public NodeLocation getNodeLocation() {
         return location;
     }
-    
+
+    /**
+     * Set the whitespace descriptor for this node.
+     *
+     * @param whiteSpaceDescriptor descriptor
+     */
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
     /**
      * Set the construct where this annotation is attached.
      * 
@@ -151,6 +167,7 @@ public class AnnotationAttachment implements Node {
      */
     public static class AnnotationBuilder {
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private String name;
         private String pkgName;
         private String pkgPath;
@@ -163,6 +180,10 @@ public class AnnotationAttachment implements Node {
          */
         public void setNodeLocation(NodeLocation location) {
             this.location = location;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         }
 
         /**
@@ -203,7 +224,8 @@ public class AnnotationAttachment implements Node {
         }
 
         public AnnotationAttachment build() {
-            return new AnnotationAttachment(location, name, pkgName, pkgPath, attributeNameValPairs);
+            return new AnnotationAttachment(location, whiteSpaceDescriptor, name, pkgName,
+                    pkgPath, attributeNameValPairs);
         }
     }
 

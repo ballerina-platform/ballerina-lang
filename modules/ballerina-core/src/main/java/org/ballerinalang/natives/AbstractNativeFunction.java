@@ -21,6 +21,7 @@ package org.ballerinalang.natives;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Function;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -28,6 +29,7 @@ import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
@@ -53,7 +55,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     public static final BValue[] VOID_RETURN = new BValue[0];
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic = true;
     protected SymbolName symbolName;
@@ -241,8 +243,18 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return null;
+    }
+
+    @Override
     public String getName() {
-        return name;
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
 
@@ -250,7 +262,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        this.identifier = new Identifier(name);
     }
 
     @Override

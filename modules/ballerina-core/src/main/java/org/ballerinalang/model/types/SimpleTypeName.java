@@ -18,6 +18,7 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * {@code SimpleTypeName} represents a simple type name(int, boolean, json, Person..) in Ballerina.
@@ -25,6 +26,7 @@ import org.ballerinalang.model.SymbolName;
  * @since 0.8.0
  */
 public class SimpleTypeName {
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected String name;
     protected String pkgName;
     protected String pkgPath;
@@ -111,5 +113,13 @@ public class SimpleTypeName {
     public void setArrayType(int dimensions) {
         this.isArrayType = true;
         this.dimensions =  dimensions;
+    }
+
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
 }
