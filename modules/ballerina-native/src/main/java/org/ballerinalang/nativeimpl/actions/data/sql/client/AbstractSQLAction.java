@@ -552,44 +552,44 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     private Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isInTransaction)
             throws SQLException {
         Connection conn;
-        if (isInTransaction) {
-            BallerinaTransactionManager ballerinaTxManager = context.getBallerinaTransactionManager();
-            Object[] connInfo = createDatabaseConnection(datasource, ballerinaTxManager);
-            conn = (Connection) connInfo[0];
-            boolean newConnection = (Boolean) connInfo[1];
-            boolean isXAConnection = datasource.isXAConnection();
-            if (newConnection) {
-                if (isXAConnection) {
-                    /* Atomikos transaction manager initialize only distributed transaction is present.*/
-                    if (!ballerinaTxManager.hasXATransactionManager()) {
-                        TransactionManager transactionManager = DistributedTxManagerProvider.getInstance()
-                                .getTransactionManager();
-                        ballerinaTxManager.setXATransactionManager(transactionManager);
+        if (!isInTransaction) {
+            conn = datasource.getSQLConnection();
+            return conn;
+        }
+        BallerinaTransactionManager ballerinaTxManager = context.getBallerinaTransactionManager();
+        Object[] connInfo = createDatabaseConnection(datasource, ballerinaTxManager);
+        conn = (Connection) connInfo[0];
+        boolean newConnection = (Boolean) connInfo[1];
+        boolean isXAConnection = datasource.isXAConnection();
+        if (newConnection) {
+            if (isXAConnection) {
+                /* Atomikos transaction manager initialize only distributed transaction is present.*/
+                if (!ballerinaTxManager.hasXATransactionManager()) {
+                    TransactionManager transactionManager = DistributedTxManagerProvider.getInstance()
+                            .getTransactionManager();
+                    ballerinaTxManager.setXATransactionManager(transactionManager);
+                }
+                if (!ballerinaTxManager.isInXATransaction()) {
+                    ballerinaTxManager.beginXATransaction();
+                }
+                Transaction tx = ballerinaTxManager.getXATransaction();
+                try {
+                    if (tx != null) {
+                        XAConnection xaConn = datasource.getXADataSource().getXAConnection();
+                        XAResource xaResource = xaConn.getXAResource();
+                        tx.enlistResource(xaResource);
+                        conn = xaConn.getConnection();
                     }
-                    if (!ballerinaTxManager.isInXATransaction()) {
-                        ballerinaTxManager.beginXATransaction();
-                    }
-                    Transaction tx = ballerinaTxManager.getXATransaction();
-                    try {
-                        if (tx != null) {
-                            XAConnection xaConn = datasource.getXADataSource().getXAConnection();
-                            XAResource xaResource = xaConn.getXAResource();
-                            tx.enlistResource(xaResource);
-                            conn = xaConn.getConnection();
-                        }
-                    } catch (SystemException | RollbackException e) {
-                        throw new BallerinaException(
-                                "error in enlisting distributed transaction resources: " + e.getCause().getMessage(),
-                                e);
-                    }
-                } else {
-                    if (conn != null) {
-                        conn.setAutoCommit(false);
-                    }
+                } catch (SystemException | RollbackException e) {
+                    throw new BallerinaException(
+                            "error in enlisting distributed transaction resources: " + e.getCause().getMessage(),
+                            e);
+                }
+            } else {
+                if (conn != null) {
+                    conn.setAutoCommit(false);
                 }
             }
-        } else {
-            conn = datasource.getSQLConnection();
         }
         return conn;
     }

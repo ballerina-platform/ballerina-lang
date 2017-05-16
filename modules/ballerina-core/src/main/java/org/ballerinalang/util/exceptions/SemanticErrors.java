@@ -96,7 +96,8 @@ public enum SemanticErrors {
     MISSING_RETURN_STATEMENT("missing.return.statement", "SEMANTIC_0071"),
     TRANSFORM_STATEMENT_NO_BODY("transform.statement.no.body", "SEMANTIC_0072"),
     TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output", "SEMANTIC_0073"),
-    ABORT_STMT_NOT_ALLOWED_HERE("abort.stmt.not.allowed.here", "SEMANTIC_0074");
+    ABORT_STMT_NOT_ALLOWED_HERE("abort.stmt.not.allowed.here", "SEMANTIC_0074"),
+    RETURN_CANNOT_USED_IN_TRANSACTION("return.cannot.used.in.transaction",  "SEMANTIC_0075");
     
     private String errorMsgKey;
     private String errorCode;

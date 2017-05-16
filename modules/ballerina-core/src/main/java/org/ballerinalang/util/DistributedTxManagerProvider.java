@@ -26,7 +26,7 @@ import javax.transaction.TransactionManager;
 /**
  * {@code DistributedTxManagerProvider} creates UserTransactionManager for distributed transactions.
  *
- * @since 0.8.7
+ * @since 0.87
  */
 public class DistributedTxManagerProvider {
     private static DistributedTxManagerProvider distributedTxManagerProvider = null;

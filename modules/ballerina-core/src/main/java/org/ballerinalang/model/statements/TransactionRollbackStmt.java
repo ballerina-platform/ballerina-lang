@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * {@code TransactionStmt} represents a Transaction/rollback statement.
  *
- * @since 0.8.7
+ * @since 0.87
  */
 public class TransactionRollbackStmt extends AbstractStatement {
     private Statement transactionBlock;
@@ -112,7 +112,7 @@ public class TransactionRollbackStmt extends AbstractStatement {
     /**
      * Builds a {@code {@link TransactionRollbackStmt}} statement.
      *
-     * @since 0.8.7
+     * @since 0.87
      */
     public static class TransactionRollbackStmtBuilder {
         private Statement transactionBlock;

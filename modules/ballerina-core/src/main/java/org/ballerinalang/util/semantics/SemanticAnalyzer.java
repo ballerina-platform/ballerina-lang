@@ -1339,6 +1339,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.RETURN_CANNOT_USED_IN_RESOURCE);
         }
 
+        if (transactionStmtCount > 0) {
+            BLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.RETURN_CANNOT_USED_IN_TRANSACTION);
+        }
+
         // Expressions that this return statement contains.
         Expression[] returnArgExprs = returnStmt.getExprs();
 

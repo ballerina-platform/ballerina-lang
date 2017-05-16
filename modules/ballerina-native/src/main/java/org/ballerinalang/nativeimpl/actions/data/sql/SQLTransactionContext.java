@@ -26,7 +26,7 @@ import java.sql.SQLException;
 /**
  * {@code SQLTransactionContext} transaction context for SQL transactions.
  *
- * @since 0.8.7
+ * @since 0.87
  */
 public class SQLTransactionContext implements BallerinaTransactionContext {
     private Connection conn;

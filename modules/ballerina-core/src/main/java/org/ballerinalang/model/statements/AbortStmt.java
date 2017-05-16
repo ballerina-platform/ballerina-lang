@@ -24,7 +24,7 @@ import org.ballerinalang.model.NodeVisitor;
 /**
  * {@code AbortStmt} represents an abort action within a transaction block.
  *
- * @since 0.8.7
+ * @since 0.87
  */
 public class AbortStmt extends AbstractStatement {
 
