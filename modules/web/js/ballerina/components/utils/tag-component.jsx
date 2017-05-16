@@ -18,7 +18,6 @@
 import React from 'react';
 import EditableText from './../editable-text';
 
-
 const DEFAULT_INPUT_VALUE = "Enter Value";
 
 /**
@@ -45,7 +44,7 @@ class TagController extends React.Component {
     onInputBlur(e) {
         let setter = this.props.setter;
         if (DEFAULT_INPUT_VALUE !== this.state.editValue) {
-            if(!setter(this.state.editValue)){
+            if (!setter(this.state.editValue)) {
                 e.preventDefault();
             }
         }
@@ -69,43 +68,83 @@ class TagController extends React.Component {
     render() {
         let modelComponents = this.props.modelComponents;
         let componentData = this.props.componentData;
-        return (
-            <g key={componentData.title}>
-                <text x={componentData.components.openingBracket.x} y={componentData.components.openingBracket.y + 3}
-                      className={componentData.openingBracketClassName}>(
-                </text>
-                <text x={componentData.components.titleText.x} y={componentData.components.titleText.y + 3}
-                      className={componentData.prefixTextClassName}>{componentData.title}</text>
-                {modelComponents}
+        if (componentData.components.typesIcon) {
+            return (
+                <g key={componentData.title}>
+                    <text x={componentData.components.typesIcon.x} y={componentData.components.typesIcon.y}>returns</text>
+                    <text x={componentData.components.openingBracket.x}
+                          y={componentData.components.openingBracket.y + 3}
+                          className={componentData.openingBracketClassName}>(
+                    </text>
+                    {modelComponents}
 
-                <g>
-                    <rect x={componentData.components.closingBracket.x - 100}
-                          y={componentData.components.closingBracket.y + 2} width={90} height={20}
-                          className="attribute-content-operations-wrapper"/>
-                    <EditableText x={componentData.components.closingBracket.x - 100}
-                                  y={componentData.components.closingBracket.y + 25/2}
-                                  width = {90}
-                                  height = {20}
-                                  className="tag-component-editable-text-box"
-                                  placeHolder={this.state.editValue}
-                                  onBlur={e => {
-                                      this.onInputBlur(e)
-                                  }}
-                                  onClick={() => {
-                                      this.onInputClick()
-                                  }}
-                                  editing={this.state.editing}
-                                  onChange={e => {
-                                      this.onInputChange(e)
-                                  }}>
-                    </EditableText>
+                    <g>
+                        <rect x={componentData.components.closingBracket.x - 100}
+                              y={componentData.components.closingBracket.y + 2} width={90} height={20}
+                              className="attribute-content-operations-wrapper"/>
+                        <EditableText x={componentData.components.closingBracket.x - 100}
+                                      y={componentData.components.closingBracket.y + 25 / 2}
+                                      width={90}
+                                      height={20}
+                                      className="tag-component-editable-text-box"
+                                      placeHolder={this.state.editValue}
+                                      onBlur={e => {
+                                          this.onInputBlur(e)
+                                      }}
+                                      onClick={() => {
+                                          this.onInputClick()
+                                      }}
+                                      editing={this.state.editing}
+                                      onChange={e => {
+                                          this.onInputChange(e)
+                                      }}>
+                        </EditableText>
+                    </g>
+                    <text x={componentData.components.closingBracket.x}
+                          y={componentData.components.closingBracket.y + 3}
+                          className={componentData.closingBracketClassName}>)
+                    </text>
                 </g>
-                <text x={componentData.components.closingBracket.x}
-                      y={componentData.components.closingBracket.y + 3}
-                      className={componentData.closingBracketClassName}>)
-                </text>
-            </g>
-        );
+            );
+        } else {
+            return (
+                <g key={componentData.title}>
+                    <text x={componentData.components.openingBracket.x}
+                          y={componentData.components.openingBracket.y + 3}
+                          className={componentData.openingBracketClassName}>(
+                    </text>
+                    {modelComponents}
+
+                    <g>
+                        <rect x={componentData.components.closingBracket.x - 100}
+                              y={componentData.components.closingBracket.y + 2} width={90} height={20}
+                              className="attribute-content-operations-wrapper"/>
+                        <EditableText x={componentData.components.closingBracket.x - 100}
+                                      y={componentData.components.closingBracket.y + 25 / 2}
+                                      width={90}
+                                      height={20}
+                                      className="tag-component-editable-text-box"
+                                      placeHolder={this.state.editValue}
+                                      onBlur={e => {
+                                          this.onInputBlur(e)
+                                      }}
+                                      onClick={() => {
+                                          this.onInputClick()
+                                      }}
+                                      editing={this.state.editing}
+                                      onChange={e => {
+                                          this.onInputChange(e)
+                                      }}>
+                        </EditableText>
+                    </g>
+                    <text x={componentData.components.closingBracket.x}
+                          y={componentData.components.closingBracket.y + 3}
+                          className={componentData.closingBracketClassName}>)
+                    </text>
+                </g>
+            );
+        }
+
     }
 }
 

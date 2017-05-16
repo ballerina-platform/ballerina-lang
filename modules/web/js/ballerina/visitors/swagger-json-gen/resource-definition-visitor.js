@@ -66,7 +66,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         });
 
         // Creating default annotations
-        _.set(httpMethodJson, 'operationId', pathValue.replace(/\//g, '') + '_' + httpMethodValue);
+        _.set(httpMethodJson, 'operationId', resourceDefinition.getResourceName());
         _.set(httpMethodJson, 'responses.default.description', 'Default Response');
 
         // Creating the annotation

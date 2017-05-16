@@ -30,7 +30,7 @@ export const panel = {
             bottom: 0,
             left: 0
         },
-        height:25
+        height: 25
     },
     body: {
         padding: {
@@ -98,7 +98,7 @@ export const actionBox = {
     padding: {
         top: 2
     }
-}
+};
 
 export const statement = {
     width: 120,
@@ -118,7 +118,7 @@ export const statement = {
 
 export const blockStatement = {
     width: statement.width,
-    heading : {
+    heading: {
         width: 50,
         height: statement.height
     },
@@ -171,19 +171,16 @@ export const packageDefinition = {
     importDeclaration: {
         itemHeight: 30
     }
-}
+};
 
 export const structDefinition = {
-    padding: {
-        top: 50,
-        right: 50,
-        bottom: 50,
-        left: 50
+    body: {
+        height: 100,
     }
 };
 
 export const contentOperations = {
-    height: 45,
+    height: 40,
     width: 600,
 };
 
@@ -223,7 +220,10 @@ export const panelHeading = {
             left: 50
         },
         height: 200
+    },
+    iconSize: {
+        width: 14,
+        heading: 14,
+        padding: 3
     }
 };
-
-

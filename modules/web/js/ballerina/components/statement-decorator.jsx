@@ -49,8 +49,7 @@ class StatementDecorator extends React.Component {
 		    innerDropZoneActivated: false,
 	        innerDropZoneDropNotAllowed: false,
 	        innerDropZoneExist: false,
-            showActions: false,
-            active: false
+            active: 'hidden'
 		};
 	}
 
@@ -163,13 +162,9 @@ class StatementDecorator extends React.Component {
 		}
 
 		return (
-	    	<g 	className="statement"
-            onMouseOut={ this.setActionVisibility.bind(this,false) }
-            onMouseOver={ (e) => {
-							if(!this.context.dragDropManager.isOnDrag()) {
-									this.setActionVisibility(true)
-							}
-						}}>
+            <g className="statement"
+               onMouseOut={ this.setActionVisibility.bind(this, false) }
+               onMouseOver={ this.setActionVisibility.bind(this, true)}>
 						<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
 			                className={dropZoneClassName} {...fill}
 						 		onMouseOver={(e) => this.onDropZoneActivate(e)}
@@ -180,12 +175,12 @@ class StatementDecorator extends React.Component {
 							<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
 						</g>
 						<ActionBox
-							bBox={ actionBbox }
-							show={ this.state.showActions }
-							isBreakpoint={model.isBreakpoint}
-							onDelete={ () => this.onDelete() }
-							onJumptoCodeLine = { () => this.onJumptoCodeLine() }
-							onBreakpointClick = { () => this.onBreakpointClick() }
+                            bBox={ actionBbox }
+                            show={ this.state.active }
+                            isBreakpoint={model.isBreakpoint}
+                            onDelete={ () => this.onDelete() }
+                            onJumptoCodeLine={ () => this.onJumptoCodeLine() }
+                            onBreakpointClick={ () => this.onBreakpointClick() }
 						/>
 
 						{isActionInvocation &&
@@ -211,10 +206,13 @@ class StatementDecorator extends React.Component {
 	}
 
   setActionVisibility (show) {
-      if (show) {
-          this.context.activeArbiter.readyToActivate(this);
+      if (!this.context.dragDropManager.isOnDrag()) {
+          if (show) {
+              this.context.activeArbiter.readyToActivate(this);
+          } else {
+              this.context.activeArbiter.readyToDeactivate(this);
+          }
       }
-      this.setState({showActions: show})
   }
 
 	onDropZoneActivate (e) {
@@ -300,8 +298,10 @@ class StatementDecorator extends React.Component {
 
 	openExpressionEditor(e){
 		let options = this.props.editorOptions;
+		let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
 		if(options){
-			new ExpressionEditor( this.statementBox , this.context.container , (text) => this.onUpdate(text), options );
+			new ExpressionEditor( this.statementBox , this.context.container , 
+				(text) => this.onUpdate(text), options , packageScope );
 		}
 	}
 
@@ -326,7 +326,7 @@ StatementDecorator.contextTypes = {
 	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 	 container: PropTypes.instanceOf(Object).isRequired,
 	 renderingContext: PropTypes.instanceOf(Object).isRequired,
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
+     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
 };
 
 

@@ -19,6 +19,7 @@ import _ from 'lodash';
 import ASTNode from './node';
 import log from 'log';
 import CommonUtils from '../utils/common-utils';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 /**
  * Constructor for ConnectorAction
@@ -338,46 +339,21 @@ class ConnectorAction extends ASTNode {
 
     /**
      * Override the addChild method for ordering the child elements as
-     * [Workers, Connectors, Statements]
+     * [Statements, Workers, Connectors]
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
     addChild(child, index) {
-        if (_.isUndefined(index)) {
-            let indexNew;
-
-            let lastAnnotationIndex = _.findLastIndex(this.getChildren(), (child) => {
-                return this.getFactory().isAnnotation(child);
+        if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child);
+        } else {
+            const firstWorkerIndex = _.findIndex(this.getChildren(), function (child) {
+                return BallerinaASTFactory.isWorkerDeclaration(child);
             });
 
-            indexNew = lastAnnotationIndex === -1 ? 0 : lastAnnotationIndex + 1;
-
-            if (!this.getFactory().isAnnotation(child)) {
-                let lastWorkerDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
-                    return this.getFactory().isWorkerDeclaration(child);
-                });
-
-                indexNew = lastWorkerDeclarationIndex === -1 ? indexNew : lastWorkerDeclarationIndex + 1;
-
-                if (!this.getFactory().isWorkerDeclaration(child)) {
-                    let lastConnectorDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
-                        return this.getFactory().isConnectorDeclaration(child);
-                    });
-
-                    indexNew = lastConnectorDeclarationIndex === -1 ? indexNew : lastConnectorDeclarationIndex + 1;
-
-                    if (!this.getFactory().isConnectorDeclaration(child)) {
-                        let lastStatementIndex = _.findLastIndex(this.getChildren(), (child) => {
-                            return this.getFactory().isStatement(child) || this.getFactory().isExpression(child);
-                        });
-
-                        indexNew = lastStatementIndex === -1 ? indexNew : lastStatementIndex + 1;
-                    }
-                }
+            if (firstWorkerIndex > -1 && _.isNil(index)) {
+                index = firstWorkerIndex;
             }
-
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
-        } else {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
         }
     }

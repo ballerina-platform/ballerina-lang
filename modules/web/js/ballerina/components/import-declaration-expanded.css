@@ -1,7 +1,8 @@
-.package-definitions-collection rect {
-    fill: #ff9
-}
 
 .package-definitions-collection text {
-    dominant-baseline: central
+    dominant-baseline: central;
+}
+
+.import-declaration-topbar-label {
+    fill: #666;
 }

@@ -111,7 +111,7 @@ class ReturnParameterDefinitionHolder extends React.Component {
             title: 'Return Types: ',
             components: {
                 openingBracket: this.props.model.parent.getViewState().components.openingReturnType,
-                titleText: this.props.model.parent.getViewState().components.returnTypesText,
+                typesIcon: this.props.model.parent.getViewState().components.returnTypesIcon,
                 closingBracket: this.props.model.parent.getViewState().components.closingReturnType
             },
             openingBracketClassName: 'return-types-opening-brack-text',

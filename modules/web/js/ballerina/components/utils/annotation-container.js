@@ -16,28 +16,17 @@
  * under the License.
  */
 
-import log from 'log';
-import * as PositioningUtils from './utils';
+class AnnotationContainer {
 
-class StructDefinitionPositionCalcVisitor {
-
-    canVisit(node) {
-        log.debug('can visit StructDefinitionPositionCalc');
-        return true;
+    constructor(bBox, annotations){
+        this.bBox = bBox;
+        this.annotations = annotations;
     }
 
-    beginVisit(node) {
-        PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
-        log.debug('begin visit StructDefinitionPositionCalc');
+    getID(){
+        return this.annotations[0].getID() + "-container";
     }
 
-    visit(node) {
-        log.debug('visit StructDefinitionPositionCalc');
-    }
-
-    endVisit(node) {
-        log.debug('end visit StructDefinitionPositionCalc');
-    }
 }
 
-export default StructDefinitionPositionCalcVisitor;
+export default AnnotationContainer;

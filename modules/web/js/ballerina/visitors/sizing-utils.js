@@ -135,7 +135,7 @@ class SizingUtil {
         // we will calculate the width of the expression and adjest the block statement
         if(expression != undefined){
             // see how much space we have to draw the condition
-            let available = statementContainerWidth - blockStatement.heading.width - 10;            
+            let available = statementContainerWidth - blockStatement.heading.width - 10;
             components['expression'] = this.getTextWidth(expression,0,available);
         }
 
@@ -155,18 +155,10 @@ class SizingUtil {
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
 
-        let annotationHeight = 0;
-
         /**
          * calculate the height of annotation view
          */
-        let annotations = node.filterChildren(function (child) {
-            return ASTFactory.isAnnotation(child)
-        });
-
-        _.forEach(annotations, function (annotation) {
-            annotationHeight = annotationHeight + 25;
-        });
+        let annotationHeight = this.getAnnotationHeight(node);
 
         components['annotation'] = new SimpleBBox();
 
@@ -273,8 +265,6 @@ class SizingUtil {
         // Set the width initial value to the padding left and right
         let bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
 
-        let annotationHeight = 0;
-
         /**
          * If there are service level connectors, their height depends on the heights of the resources
          */
@@ -325,6 +315,8 @@ class SizingUtil {
         } else if (totalResourceHeight > 0) {
             bodyHeight = totalResourceHeight + DesignerDefaults.panel.body.padding.top +
                 DesignerDefaults.panel.body.padding.bottom + DesignerDefaults.panel.wrapper.gutter.v * (resources.length - 1);
+        } else if(ASTFactory.isStructDefinition(node)){
+            bodyHeight = DesignerDefaults.structDefinition.body.height;
         } else {
             // There are no connectors as well as resources, since we set the default height
             bodyHeight = DesignerDefaults.innerPanel.body.height;
@@ -334,13 +326,7 @@ class SizingUtil {
         /**
          * calculate the height of annotation view
          */
-        let annotations = node.filterChildren(function (child) {
-            return ASTFactory.isAnnotation(child)
-        });
-
-        _.forEach(annotations, function (annotation) {
-            annotationHeight = annotationHeight + 25;
-        });
+        let annotationHeight = this.getAnnotationHeight(node);
 
         components['heading'] = new SimpleBBox();
         components['body'] = new SimpleBBox();
@@ -392,10 +378,15 @@ class SizingUtil {
      */
     getTotalHeightUpto(parent, childNode) {
         const self = this;
-        const nodeIndex = _.findIndex(parent.getChildren(), function(child){
+
+        const statementChildren = _.filter(parent.getChildren(), function(child) {
+            return BallerinaASTFactory.isStatement(child);
+        });
+        const nodeIndex = _.findIndex(statementChildren, function(child){
             return child.id === childNode.id;
         });
-        const slicedChildren = _.slice(parent.getChildren(), 0, nodeIndex);
+
+        const slicedChildren = _.slice(statementChildren, 0, nodeIndex);
         let totalHeight = 0;
 
         _.forEach(slicedChildren, function (child) {
@@ -562,6 +553,23 @@ class SizingUtil {
         } else {
             return childNodes[0];
         }
+    }
+
+    getAnnotationHeight(node){
+        let height = 0;
+        let annotations = node.filterChildren((child) => {
+            return ASTFactory.isAnnotation(child)
+        });
+
+        _.forEach(annotations, (annotation) => {
+            if(annotation.children.length == 0 ){
+                height = height + 25;
+            }else{
+                height = height + ( annotation.children.length * 25 )
+            }
+        });
+
+        return height;
     }
 }
 

@@ -29,11 +29,23 @@ import PropTypes from 'prop-types';
 import StructOperationsRenderer from './struct-operations-renderer';
 import Renderer from './renderer';
 import ASTNode from './../ast/node';
+import * as DesignerDefaults from './../configs/designer-defaults';
+
+const submitButtonWidth = 40;
+const columnPadding = 5;
+const panelPadding = 10;
+import EditableText from './editable-text';
+import ImageUtil from './image-util';
 
 class StructDefinition extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            newType: "",
+            newIdentifier: "",
+            newValue: ""
+        }
     }
 
     deleteStatement(node) {
@@ -41,6 +53,7 @@ class StructDefinition extends React.Component {
     }
 
     renderTextBox(textValue, bBox, callback) {
+        const self = this;
         this.context.renderer.renderTextBox({
           bBox: bBox,
           display: true,
@@ -51,52 +64,174 @@ class StructDefinition extends React.Component {
         });
     }
 
-    handleIdentifierClick(textValue, bBox, model) {
+    handleIdentifierClick(textValue, elementBBox, model) {
+        const bBox = {x: elementBBox.x, y: elementBBox.y , h: elementBBox.height, w: elementBBox.width };
+        const self = this;
         this.renderTextBox(
             textValue,
             bBox,
             (value) => {
                 this.validateIdentifierName(value);
-                model.setIdentifier(value);
+                if(model) {
+                    model.setIdentifier(value);
+                } else {
+                    self.setState({
+                        newIdentifier: value
+                    });
+                }
+
             }
         );
     }
 
-    handleValueClick(textValue, bBox, model) {
+    handleValueClick(textValue, elementBBox, model) {
+        const bBox = {x: elementBBox.x, y: elementBBox.y , h: elementBBox.height, w: elementBBox.width};
+        const self = this;
         this.renderTextBox(
             textValue,
             bBox,
             (value) => {
-                model.setValue(value);
+                if(model) {
+                    model.setValue(value);
+                } else {
+                    self.setState({
+                        newValue: value
+                    });
+                }
+
             }
         );
     }
 
-    handleTypeClick(currentSelection, bBox, model) {
+    handleTypeClick(currentSelection, elementBBox, model) {
         const { renderingContext } = this.context;
+        const self = this;
+        const bBox = {x: elementBBox.x, y: elementBBox.y , h: elementBBox.height, w: elementBBox.width};
         this.context.renderer.renderDropdown({
           bBox: bBox,
           display: true,
           initialValue: currentSelection || "",
           options: renderingContext.environment.getTypes(),
           onChange(value){
-              model.setBType(value);
+              if(model) {
+                  model.setBType(value);
+              } else {
+                  self.setState({
+                      newType: value
+                  });
+              }
           }
         });
     }
 
-    renderStructOperations() {
-        const { model } = this.props;
-        const { components: {contentOperations} } = model.getViewState();
-        const { renderingContext } = this.context;
-
-        this.context.structOperationsRenderer.renderOverlay({
-            bBox: contentOperations,
-            types: renderingContext.environment.getTypes(),
-            onSubmit: (bType, identifier, defaultValue) => {
-              return this.addVariableDefinitionStatement(bType, identifier, defaultValue);
-            }
+    createNew() {
+        this.addVariableDefinitionStatement(this.state.newType, this.state.newIdentifier, this.state.newValue);
+        this.setState({
+            newType: "",
+            newIdentifier: "",
+            newValue: ""
         });
+    }
+
+    renderContentOperations({x, y, w, h}, columnSize) {
+        const placeHolderPadding = 10;
+        const submitButtonPadding = 2;
+        const typeCellbox = {
+          x: x + panelPadding,
+          y: y + panelPadding,
+          width: columnSize - panelPadding - columnPadding /2,
+          height: h - panelPadding * 2
+        };
+
+        const identifierCellBox = {
+            x: x + columnSize + columnPadding/2,
+            y: y + panelPadding,
+            width: columnSize - columnPadding,
+            height: h - panelPadding * 2
+        };
+
+        const defaultValueBox = {
+            x: x + columnSize * 2 + columnPadding/2,
+            y: y + panelPadding,
+            width: columnSize - columnPadding/2,
+            height: h - panelPadding * 2
+        };
+
+
+        return (
+          <g>
+                <rect
+                    x={x}
+                    y={y}
+                    width={w}
+                    height={h}
+                    className="struct-content-operations-wrapper"
+                    fill="#3d3d3d"
+                 />
+                 <g
+                    onClick={ (e)=> this.handleTypeClick(this.state.newType, typeCellbox) }
+                 >
+                     <rect
+                        {...typeCellbox}
+                         className="new-type-drop-rect"
+                      />
+                      <text
+                          x={typeCellbox.x + placeHolderPadding}
+                          y={y + DesignerDefaults.contentOperations.height/2}
+                          className="struct-variable-definition-type-text"
+                          >
+                          {this.state.newType || "Select Type"}
+                      </text>
+                  </g>
+                  <g
+                      onClick={(e)=> this.handleIdentifierClick(this.state.newIdentifier, identifierCellBox) }
+                  >
+                      <rect
+                          {...identifierCellBox}
+                          className="new-identifier-rect"
+                       />
+                       <text
+                           x={identifierCellBox.x + placeHolderPadding}
+                           y={y + DesignerDefaults.contentOperations.height/2}
+                           className="struct-variable-definition-identifier-text"
+                           >
+                           {this.state.newIdentifier || "Identifier"}
+                       </text>
+                   </g>
+                   <g
+                        onClick={(e)=> this.handleValueClick(this.state.newValue, defaultValueBox) }
+                   >
+                       <rect
+                            {...defaultValueBox}
+                           className="new-value-rect"
+                        />
+                        <text
+                            x={defaultValueBox.x + placeHolderPadding}
+                            y={y + DesignerDefaults.contentOperations.height/2}
+                            className="struct-variable-definition-value-text"
+                            >
+                            {this.state.newValue || "Default Value"}
+                        </text>
+                    </g>
+                    <rect
+                        x={x + DesignerDefaults.structDefinitionStatement.width - 30}
+                        y={y + 10}
+                        width={20}
+                        height={20}
+                        className="struct-content-operations-submit-wrapper"
+                     />
+                    <image
+                        x={x + DesignerDefaults.structDefinitionStatement.width - 30 + submitButtonPadding}
+                        style={{cursor:"pointer"}}
+                        y={y + 10 + submitButtonPadding}
+                        width={20 - submitButtonPadding * 2}
+                        height={20 - submitButtonPadding * 2}
+                        onClick={ ()=> this.createNew() }
+                        xlinkHref={ImageUtil.getSVGIconString('check')}>
+                      >
+                    </image>
+            </g>
+        );
     }
     validateIdentifierName (identifier) {
         const {model} = this.props;
@@ -122,50 +257,76 @@ class StructDefinition extends React.Component {
         }
     }
     addVariableDefinitionStatement(bType, identifier, defaultValue) {
+        if(!bType) {
+            const errorString = "Struct Type Cannot be empty";
+            Alerts.error(errorString);
+            throw errorString;
+        }
         this.validateIdentifierName(identifier);
         this.props.model.addVariableDefinitionStatement(bType, identifier, defaultValue);
-    }
-
-
-    componentDidUpdate() {
-        this.renderStructOperations();
-    }
-
-    componentDidMount() {
-        this.renderStructOperations();
     }
 
     render() {
 
         const { model } = this.props;
-				const { bBox, components: {statements, contentOperations} } = model.getViewState();
-        const children = model.getChildren();
+				const { bBox, components: {body} } = model.getViewState();
+        const children = model.getChildren() || [];
         const title = model.getStructName();
+
+        const coDimensions = {
+            x: body.x + DesignerDefaults.panel.body.padding.left,
+            y: body.y + DesignerDefaults.panel.body.padding.top,
+            w: DesignerDefaults.contentOperations.width,
+            h: DesignerDefaults.contentOperations.height
+        };
+
+        const columnSize = (coDimensions.w - submitButtonWidth) / 3;
+
 				return (
 					<PanelDecorator icon="tool-icons/struct" title={title} bBox={bBox} model={model}>
+              { this.renderContentOperations(coDimensions, columnSize) }
               <g>
                 {
                     children.map( (child, i) => {
                         const type = child.getBType();
                         const identifier = child.getIdentifier();
                         const value = child.getValue();
-                        const statementDimensions = statements[i];
+                        const y = coDimensions.y + DesignerDefaults.contentOperations.height + DesignerDefaults.structDefinitionStatement.height * i;
+
+                        const typeCellbox = {
+                            x: coDimensions.x,
+                            y: y,
+                            width: columnSize,
+                            height: DesignerDefaults.structDefinitionStatement.height
+                        };
+
+                        const identifierCellBox = {
+                            x: coDimensions.x + columnSize,
+                            y: y,
+                            width: columnSize,
+                            height: DesignerDefaults.structDefinitionStatement.height
+                        };
+
+                        const defaultValueBox = {
+                            x: coDimensions.x + columnSize * 2,
+                            y: y,
+                            width: columnSize + submitButtonWidth,
+                            height: DesignerDefaults.structDefinitionStatement.height
+                        };
+
                         return (<g key={i} className="struct-definition-statement">
 
                           <g
                               className="struct-variable-definition-type"
-                              onClick={ ()=> this.handleTypeClick(type, statementDimensions.typeWrapper, child) }
+                              onClick={ (e)=> this.handleTypeClick(type, typeCellbox, child) }
                               >
                               <rect
-                                  x={statementDimensions.typeWrapper.x }
-                                  y={statementDimensions.typeWrapper.y}
-                                  width={statementDimensions.typeWrapper.w}
-                                  height={statementDimensions.typeWrapper.h}
+                                  {...typeCellbox}
                                   className="struct-variable-definition-type-rect"
                                />
                               <text
-                                  x={statementDimensions.typeText.x }
-                                  y={statementDimensions.typeText.y}
+                                  x={panelPadding + coDimensions.x}
+                                  y={y + DesignerDefaults.structDefinitionStatement.height/2}
                                   className="struct-variable-definition-type-text"
                                   >
                                   {type}
@@ -174,18 +335,16 @@ class StructDefinition extends React.Component {
 
                           <g
                               className="struct-variable-definition-identifier"
-                              onClick={() => this.handleIdentifierClick(identifier, statementDimensions.identifierWrapper, child) }
+                              onClick={(e)=> this.handleIdentifierClick(identifier, identifierCellBox, child) }
                               >
                               <rect
-                                  x={statementDimensions.identifierWrapper.x }
-                                  y={statementDimensions.identifierWrapper.y}
-                                  width={statementDimensions.identifierWrapper.w}
-                                  height={statementDimensions.identifierWrapper.h}
+                                  {...identifierCellBox}
                                   className="struct-variable-definition-identifier-rect"
+
                               />
                               <text
-                                  x={statementDimensions.identifierText.x}
-                                  y={statementDimensions.identifierText.y}
+                                  x={coDimensions.x + panelPadding + columnSize}
+                                  y={y + DesignerDefaults.structDefinitionStatement.height/2}
                                   className="struct-variable-definition-identifier-text"
                               >
                                   {identifier}
@@ -194,18 +353,16 @@ class StructDefinition extends React.Component {
 
                           <g
                               className="struct-variable-definition-value"
-                              onClick={() => this.handleValueClick(value, statementDimensions.valueWrapper, child) }
+                              onClick={(e)=> this.handleValueClick(value, defaultValueBox, child) }
                               >
                               <rect
-                                  x={statementDimensions.valueWrapper.x }
-                                  y={statementDimensions.valueWrapper.y}
-                                  width={statementDimensions.valueWrapper.w}
-                                  height={statementDimensions.valueWrapper.h}
+                                  {...defaultValueBox}
                                   className="struct-variable-definition-value-rect"
+
                               />
                               <text
-                                  x={statementDimensions.valueText.x}
-                                  y={statementDimensions.valueText.y}
+                                  x={coDimensions.x + panelPadding + columnSize * 2}
+                                  y={y + DesignerDefaults.structDefinitionStatement.height/2}
                                   className="struct-variable-definition-value-text"
                               >
                                   {value}
@@ -213,8 +370,8 @@ class StructDefinition extends React.Component {
 
                           </g>
                           <text
-                              x={statementDimensions.deleteButton.x}
-                              y={statementDimensions.deleteButton.y}
+                              x={coDimensions.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset}
+                              y={y + DesignerDefaults.structDefinitionStatement.height/2}
                               onClick={ ()=> this.deleteStatement(child) }
                               className="struct-statement-delete">
                               ×
