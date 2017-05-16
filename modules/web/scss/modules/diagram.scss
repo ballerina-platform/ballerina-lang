@@ -27,12 +27,47 @@
     }
 }
 
-.default-worker-life-line line {
-    stroke: $worker-life-line-color;
+
+
+.default-worker-life-line {
+    stroke: $default-worker-lifeline-color;
+    stroke-width: 2;
+    cursor: pointer;
+}
+.default-worker-life-line-polygon{
+    fill: $default-worker-lifeline-color;
+    stroke-width: 0;
+}
+
+.worker-life-line {
+    cursor: pointer;
+    stroke: $worker-lifeline-color;
+    stroke-width: 2;
+}
+
+.worker-life-line-polygon{
+    fill: $worker-lifeline-color;
+    stroke-width: 0;
+}
+
+.connector-life-line {
+    cursor: pointer;
+    stroke: $connector-lifeline-color;
+    stroke-width: 2;
+}
+.connector-life-line-polygon {
+    fill: $connector-lifeline-color;
+    stroke-width: 0;
+}
+
+.life-line-text{
+    fill: #f1f1f1;
+    stroke: #f1f1f1;
+    stroke-width: 0.5;
 }
 
 .import-badge {
-    fill: #ffffff;
+    fill: #fff;
 }
 
 .package-definition-header {
@@ -46,7 +81,7 @@
 }
 
 .annotation-container {
-    background: #EFEFEF;
+    background: #efefef;
     overflow: auto;
     padding: 7px;
 }
@@ -78,4 +113,15 @@
 .annotation-text {
     font-size: 0.90em;
     fill: $annotation-wrapper-text-color;
+}
+
+.action-dash-line{
+    stroke: $primary-line-bgcolor;
+    fill: $primary-line-bgcolor;
+    stroke-dasharray: 5,5;
+}
+.action-arrow,
+.action-arrow-head{
+    stroke: $primary-line-bgcolor;
+    fill: $primary-line-bgcolor;
 }
