@@ -32,10 +32,10 @@ class CloseConfirmDialog extends ModalDialog {
             return;
         }
 
-        var saveBtn = $("<button type='button' class='btn btn-primary btn-file-dialog'>Save</button>");
-        var dontSaveBtn = $("<button type='button' class='btn btn-default btn-file-dialog" +
+        var saveBtn = $("<button type='button' class='btn btn-primary'>Save</button>");
+        var dontSaveBtn = $("<button type='button' class='btn btn-default" +
                             " close-file-confirm-dialog-btn'>Don't Save</button>");
-        var cancelBtn = $("<button type='button' class='btn btn-default btn-file-dialog'" +
+        var cancelBtn = $("<button type='button' class='btn btn-default'" +
                           " data-dismiss='modal'>Cancel</button>");
         this._saveBtn = saveBtn;
         this._dontSaveBtn = dontSaveBtn;

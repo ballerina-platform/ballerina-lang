@@ -39,6 +39,7 @@ import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
@@ -132,7 +133,7 @@ public class SwaggerConverterUtils {
         Swagger swagger = swagger20Parser.parse(swaggerDefinition);
         //Iterate through service annotations and add them to service
         Service.ServiceBuilder serviceBuilder = new Service.ServiceBuilder(new BLangPackage(GlobalScope.getInstance()));
-        serviceBuilder.setName(swagger.getBasePath());
+        serviceBuilder.setIdentifier(new Identifier(swagger.getBasePath()));
         Service service = serviceBuilder.buildService();
         CodegenConfig codegenConfig = new BallerinaCodeGenerator();
         codegenConfig.setOutputDir(createTempDir().getAbsolutePath());
@@ -195,7 +196,7 @@ public class SwaggerConverterUtils {
             String operationId = entry.operationId;
             Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(new BLangPackage(GlobalScope
                     .getInstance()));
-            resourceBuilder.setName(operationId);
+            resourceBuilder.setIdentifier(new Identifier(operationId));
             if (entry.hasConsumes) {
                 resourceBuilder.addAnnotation(createSingleValuedAnnotationAttachment("Consumes", "http",  entry.consumes
                         .get(0).get("mediaType")));
@@ -228,7 +229,8 @@ public class SwaggerConverterUtils {
                     if ((variableName == null) || variableName.isEmpty()) {
                         variableName = codegenParameter.baseName;
                     }
-                    ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), variableName, new
+                    ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), null,
+                            new Identifier(variableName), new
                             SimpleTypeName(codegenParameter.dataType), new SymbolName("m"), resourceBuilder
                             .buildResource());
                     AnnotationAttachment annotation = createSingleValuedAnnotationAttachment("QueryParam", "http",
@@ -245,7 +247,8 @@ public class SwaggerConverterUtils {
                     if ((variableName == null) || variableName.isEmpty()) {
                         variableName = codegenParameter.baseName;
                     }
-                    ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), variableName, new
+                    ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), null,
+                            new Identifier(variableName), new
                             SimpleTypeName(codegenParameter.dataType), new SymbolName("m"), resourceBuilder
                             .buildResource());
                     AnnotationAttachment annotation = createSingleValuedAnnotationAttachment("PathParam", "http",
@@ -258,13 +261,14 @@ public class SwaggerConverterUtils {
             //This resource initiation was required because resource do have both
             //annotation map and array. But there is no way to update array other than
             //constructor method.
-            resourceBuilder.setName(entry.nickname);
-            resourceBuilder.setName((String) entry.vendorExtensions.
-                    get(SwaggerBallerinaConstants.RESOURCE_UUID_NAME));
+            resourceBuilder.setIdentifier(new Identifier(entry.nickname));
+            resourceBuilder.setIdentifier(new Identifier((String) entry.vendorExtensions.
+                    get(SwaggerBallerinaConstants.RESOURCE_UUID_NAME)));
             //Following code block will generate message input parameter definition for newly created
             // resource as --> resource TestPost(message m) {
             //This logic can be improved to pass user defined types.
-            ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), "m", new SimpleTypeName
+            ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), null, new Identifier("m"),
+                    new SimpleTypeName
                     ("message"), new SymbolName("m"), resourceBuilder.buildResource());
             //Then add created parameter.
             resourceBuilder.addParameter(parameterDef);
@@ -296,7 +300,7 @@ public class SwaggerConverterUtils {
                     //merge annotations
                     Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(originalResource
                             .getEnclosingScope());
-                    resourceBuilder.setName(originalResource.getName());
+                    resourceBuilder.setIdentifier(new Identifier(originalResource.getName()));
                     resourceBuilder.setPkgPath(originalResource.getPackagePath());
                     resourceBuilder.setBody(originalResource.getResourceBody());
                     resourceBuilder.setNodeLocation(originalResource.getNodeLocation());
@@ -325,7 +329,7 @@ public class SwaggerConverterUtils {
         ballerinaService.setResources(mergeResources(resourceList, ballerinaService.getResources()));
         //Following have to do because we cannot assign service name directly when builder pattern used.
         Service.ServiceBuilder serviceBuilder = new Service.ServiceBuilder(ballerinaService.getEnclosingScope());
-        serviceBuilder.setName(ballerinaService.getName());
+        serviceBuilder.setIdentifier(new Identifier(ballerinaService.getName()));
         for (AnnotationAttachment annotation : ballerinaService.getAnnotations()) {
             serviceBuilder.addAnnotation(annotation);
         }
@@ -546,7 +550,7 @@ public class SwaggerConverterUtils {
                                                                                  String annotationPkg, String value) {
         ConcurrentHashMap<String, AnnotationAttributeValue> attributes = new ConcurrentHashMap<>();
         attributes.put("value", new AnnotationAttributeValue(new BString(value), new SimpleTypeName("BString"),
-                new NodeLocation("<unknown>", 0)));
-        return new AnnotationAttachment(null, annotationName, annotationPkg, null, attributes);
+                new NodeLocation("<unknown>", 0), null));
+        return new AnnotationAttachment(null, null, annotationName, annotationPkg, null, attributes);
     }
 }

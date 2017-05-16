@@ -58,7 +58,8 @@ class WhileStatementDimensionCalculatorVisitor {
          * We add an extra padding to the statement container height to keep the space bet ween the statement's
          * bottom margin and the last child statement
          */
-        statementContainerHeight += DesignerDefaults.statement.gutter.v;
+        statementContainerHeight += (statementContainerHeight > 0 ? DesignerDefaults.statement.gutter.v :
+        DesignerDefaults.blockStatement.body.height - DesignerDefaults.blockStatement.heading.height);
         statementContainerWidth = getStatementContainerWidth(statementContainerWidth);
 
         let dropZoneHeight = DesignerDefaults.statement.gutter.v;

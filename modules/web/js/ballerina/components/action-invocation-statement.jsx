@@ -18,6 +18,7 @@
 import React from "react";
 import StatementDecorator from "./statement-decorator";
 import PropTypes from "prop-types";
+import _ from 'lodash';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import ASTFactory from './../ast/ballerina-ast-factory';
 import ArrowDecorator from './arrow-decorator';
@@ -68,8 +69,10 @@ class ActionInvocationStatement extends React.Component {
 
         arrowStart.x = this.statementBox.x + this.statementBox.w;
         arrowStart.y = this.statementBox.y + this.statementBox.h/3;
-        arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w/2;
-        arrowEnd.y = arrowStart.y;
+        if (!_.isNil(connector)) {
+            arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w/2;
+            arrowEnd.y = arrowStart.y;
+        }
         backArrowStart.x = arrowEnd.x;
         backArrowStart.y = this.statementBox.y + (2 * this.statementBox.h/3);
         backArrowEnd.x = arrowStart.x;
@@ -87,8 +90,8 @@ class ActionInvocationStatement extends React.Component {
                         onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
                         onMouseDown={(e) => this.onMouseDown(e)}
                         onMouseUp={(e) => this.onMouseUp(e)}/>
-                <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>
-                <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>
+                {!_.isNil(connector) && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
+                {!_.isNil(connector) && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
             </g>
         </StatementDecorator>);
     }

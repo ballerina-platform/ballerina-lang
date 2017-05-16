@@ -47,10 +47,13 @@
     fill-opacity: 0;
 }
 
-
+.parameter-opening-brack-text{
+    margin-top:10px ;
+}
 .svg-container.drop-zone.active .panel-body .panel-body-rect.drop-zone,
 .panel-body.drop-zone.active .panel-body .panel-body-rect.drop-zone
  {
     fill: white;
     fill-opacity: 1;
 }
+.test-color{background-color: red;}

@@ -1,0 +1,24 @@
+.modal-content {
+    & .btn-default {
+        background: $modal-btn-default-bgcolor;
+        color: $modal-btn-default-color;
+        text-transform: capitalize;
+        
+        &:hover {
+            background: $modal-btn-default-hover-bgcolor;
+            color: $modal-btn-default-hover-color;
+        }
+    }
+    
+    & .btn-primary {
+        background-color: $modal-btn-primary-bgcolor;
+        border-color: $modal-btn-primary-bgcolor;
+        color: $modal-btn-primary-color;
+        
+        &:hover {
+            background-color: $modal-btn-primary-hover-bgcolor;
+            border-color: $modal-btn-primary-hover-bgcolor;
+            color: $modal-btn-primary-hover-color;
+        }
+    }
+}

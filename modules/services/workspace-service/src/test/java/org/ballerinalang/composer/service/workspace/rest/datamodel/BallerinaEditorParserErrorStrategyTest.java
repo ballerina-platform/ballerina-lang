@@ -28,7 +28,6 @@ import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
@@ -67,8 +66,6 @@ public class BallerinaEditorParserErrorStrategyTest {
             ballerinaParser.addParseListener(ballerinaBaseListener);
             ballerinaParser.compilationUnit();
             BallerinaFile bFile = bLangModelBuilder.build();
-
-            BuiltInNativeConstructLoader.loadConstructs(globalScope);
 
             JsonObject response = new JsonObject();
             BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
