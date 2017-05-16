@@ -83,7 +83,6 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
         components['heading'].w = bodyWidth;
 
         viewState.bBox.h = components['heading'].h + components['body'].h;
-        viewState.bBox.w = components['body'].w;
 
         viewState.components = components;
 
@@ -97,6 +96,29 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
         // Creating component for closing bracket of the parameters view.
         viewState.components.closingParameter = {};
         viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
+
+        let componentWidth = components['heading'].w > components['body'].w
+            ? components['heading'].w : components['body'].w;
+
+        viewState.bBox.w = componentWidth +
+            this.annotationAttachmentPointWidth(node) +
+            viewState.titleWidth + 14 + (DesignerDefaults.panel.wrapper.gutter.h * 2) + 100;
+    }
+
+    /**
+     * Calculate Attachment point text width for annotation attachments.
+     * @param {AnnotationDefinition} node - Annotation Definition Node.
+     * @return {number} width - return sum of the widths of attachment texts.
+     * */
+    annotationAttachmentPointWidth(node) {
+        let width = 0;
+        if (node.getAttachmentPoints().length > 0) {
+            for (let i = 0; i < node.getAttachmentPoints().length; i++) {
+                width += util.getTextWidth(node.getAttachmentPoints()[i], 0).w;
+            }
+        }
+
+        return width;
     }
 }
 

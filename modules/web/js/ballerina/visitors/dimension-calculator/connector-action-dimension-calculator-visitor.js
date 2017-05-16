@@ -61,6 +61,45 @@ class ConnectorActionDimensionCalculatorVisitor {
         // Creating component for closing bracket of the return types view.
         viewState.components.closingReturnType = {};
         viewState.components.closingReturnType.w = util.getTextWidth(')', 0).w;
+
+        // Calculate connector action definition full width
+        viewState.bBox.w = this.parameterTypeWidth(node) + this.returnTypeWidth(node)
+            + viewState.components.closingReturnType.w + viewState.components.openingReturnType.w
+            + viewState.components.closingParameter.w + viewState.components.openingParameter.w
+            + viewState.titleWidth + 14 + viewState.components.returnTypesIcon.w
+            + (DesignerDefaults.panel.wrapper.gutter.h * 2) + 200
+            + viewState.components['body'].w;
+    }
+
+    /**
+     * Calculate Parameters' text width for Connector Action.
+     * @param {ConnectorAction} node - Connector Action Node.
+     * @return {number} width - return sum of widths of parameter texts.
+     * */
+    parameterTypeWidth(node) {
+        let width = 0;
+        if (node.getArguments().length > 0) {
+            for (let i = 0; i < node.getArguments().length; i++) {
+                width += util.getTextWidth(node.getArguments()[i].getParameterDefinitionAsString(), 0).w;
+            }
+        }
+
+        return width;
+    }
+
+    /**
+     * Calculate Return Parameters' text width for Connector Action.
+     * @param {ConnectorAction} node - Connector Action Node.
+     * @return {number} width - return sum of widths of parameter texts.
+     * */
+    returnTypeWidth(node) {
+        let width = 0;
+        if (node.getReturnTypes().length > 0) {
+            for (let i = 0; i < node.getReturnTypes().length; i++) {
+                width += util.getTextWidth(node.getReturnTypes()[i].getParameterDefinitionAsString(), 0).w;
+            }
+        }
+        return width;
     }
 }
 
