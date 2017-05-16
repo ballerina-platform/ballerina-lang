@@ -23,4 +23,4 @@ done
 echo $SIDDHI_CLASSPATH
 echo $EXEDIR
 
-java -cp siddhi-service-4.0.0.jar":$SIDDHI_CLASSPATH:." org.wso2.siddhi.service.Application
+java -cp siddhi-service-4.0.0-SNAPSHOT.jar":$SIDDHI_CLASSPATH:." org.wso2.siddhi.service.Application
