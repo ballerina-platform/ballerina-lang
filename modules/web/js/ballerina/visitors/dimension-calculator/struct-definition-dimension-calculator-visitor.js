@@ -49,6 +49,11 @@ class StructDefinitionDimensionCalculatorVisitor {
     endVisit(node) {
         util.populateOuterPanelDecoratorBBox(node);
         const viewState = node.getViewState();
+
+        const textWidth = util.getTextWidth(node.getStructName());
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
+
         const {components} = viewState;
         if(!node.viewState.collapsed){
             viewState.bBox.h += DesignerDefaults.panel.body.padding.top;

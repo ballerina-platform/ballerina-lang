@@ -38,7 +38,9 @@ class ConnectorDefinitionDimensionCalculatorVisitor {
 
         let viewState = node.getViewState();
 
-        viewState.titleWidth = util.getTextWidth(node.getConnectorName()).w;
+        const textWidth = util.getTextWidth(node.getConnectorName());
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
 
         //// Creating components for parameters of the connector definition
         // Creating component for opening bracket of the parameters view.

@@ -46,24 +46,24 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         components['heading'].h = DesignerDefaults.panel.heading.height;
 
         let annotationHeight = 0;
- 
+
         /**
          * calculate the height of annotation view
          */
         let annotations = node.filterChildren(function (child) {
             return ASTFactory.isAnnotation(child)
         });
- 
+
         _.forEach(annotations, function (annotation) {
             annotationHeight = annotationHeight+ 25;
         });
- 
+
         components['annotation'] = new SimpleBBox();
- 
+
         if(node.viewState.annotationViewCollapsed){
-            components['annotation'].h = 25; 
+            components['annotation'].h = 25;
         }else{
-            components['annotation'].h = annotationHeight; 
+            components['annotation'].h = annotationHeight;
         }
 
         components['statementContainer'] = new SimpleBBox();
@@ -140,14 +140,15 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
         viewState.components = components;
 
-        viewState.titleWidth = util.getTextWidth(node.getFunctionName()).w;
-
+        const textWidth = util.getTextWidth(node.getFunctionName());
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
         //// Creating components for parameters of the function
         // Creating component for opening bracket of the parameters view.
         viewState.components.openingParameter = {};
         viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
 
-        // Creating component for closing bracket of the parameters view. 
+        // Creating component for closing bracket of the parameters view.
         viewState.components.closingParameter = {};
         viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
 
@@ -161,7 +162,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         viewState.components.openingReturnType = {};
         viewState.components.openingReturnType.w = util.getTextWidth('(', 0).w;
 
-        // Creating component for closing bracket of the return types view. 
+        // Creating component for closing bracket of the return types view.
         viewState.components.closingReturnType = {};
         viewState.components.closingReturnType.w = util.getTextWidth(')', 0).w;
 

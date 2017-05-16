@@ -95,10 +95,12 @@ class PanelDecorator extends React.Component {
                       className="headingRect" data-original-title="" title=""></rect>
                 <EditableText
                     x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                    width={this.props.model.viewState.titleWidth}
                     onBlur={() => { this.onTitleInputBlur() }}
                     onClick={() => { this.onTitleClick() }}
                     editing={this.state.titleEditing}
-                    onChange={e => {this.onTitleInputChange(e)}}>
+                    onChange={e => {this.onTitleInputChange(e)}}
+                    placeHolder={this.props.model.viewState.trimmedTitle}>
                     {this.props.title}
                 </EditableText>
                 <image x={bBox.x + 5} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize}

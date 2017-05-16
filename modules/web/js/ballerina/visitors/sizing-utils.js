@@ -239,7 +239,9 @@ class SizingUtil {
         viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
         viewState.bBox.w = components['body'].w;
 
-        viewState.titleWidth = util.getTextWidth(name).w;
+        const textWidth = util.getTextWidth(name);
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
 
         components['parametersPrefixContainer'] = {};
         components['parametersPrefixContainer'].w = util.getTextWidth('Parameters: ').w;

@@ -87,7 +87,9 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
 
         viewState.components = components;
 
-        viewState.titleWidth = util.getTextWidth(node.getAnnotationName()).w;
+        const textWidth = util.getTextWidth(node.getAnnotationName());
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
 
         //// Creating components for parameters of the annotation
         // Creating component for opening bracket of the parameters view.
