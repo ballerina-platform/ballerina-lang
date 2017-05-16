@@ -229,7 +229,7 @@ public class SwaggerConverterUtils {
                     if ((variableName == null) || variableName.isEmpty()) {
                         variableName = codegenParameter.baseName;
                     }
-                    ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0),
+                    ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), null,
                             new Identifier(variableName), new
                             SimpleTypeName(codegenParameter.dataType), new SymbolName("m"), resourceBuilder
                             .buildResource());
@@ -247,7 +247,7 @@ public class SwaggerConverterUtils {
                     if ((variableName == null) || variableName.isEmpty()) {
                         variableName = codegenParameter.baseName;
                     }
-                    ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0),
+                    ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), null,
                             new Identifier(variableName), new
                             SimpleTypeName(codegenParameter.dataType), new SymbolName("m"), resourceBuilder
                             .buildResource());
@@ -267,7 +267,7 @@ public class SwaggerConverterUtils {
             //Following code block will generate message input parameter definition for newly created
             // resource as --> resource TestPost(message m) {
             //This logic can be improved to pass user defined types.
-            ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), new Identifier("m"),
+            ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), null, new Identifier("m"),
                     new SimpleTypeName
                     ("message"), new SymbolName("m"), resourceBuilder.buildResource());
             //Then add created parameter.
@@ -550,7 +550,7 @@ public class SwaggerConverterUtils {
                                                                                  String annotationPkg, String value) {
         ConcurrentHashMap<String, AnnotationAttributeValue> attributes = new ConcurrentHashMap<>();
         attributes.put("value", new AnnotationAttributeValue(new BString(value), new SimpleTypeName("BString"),
-                new NodeLocation("<unknown>", 0)));
-        return new AnnotationAttachment(null, annotationName, annotationPkg, null, attributes);
+                new NodeLocation("<unknown>", 0), null));
+        return new AnnotationAttachment(null, null, annotationName, annotationPkg, null, attributes);
     }
 }
