@@ -20,6 +20,7 @@ package org.wso2.siddhi.extension.output.transport.jms;
 
 import org.wso2.carbon.transport.jms.sender.JMSClientConnector;
 import org.wso2.carbon.transport.jms.utils.JMSConstants;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
@@ -39,7 +40,8 @@ import java.util.concurrent.ExecutorService;
 @Extension(
         name = "jms",
         namespace = "sink",
-        description = "JMS Output Transport"
+        description = "JMS Output Transport",
+        examples = @Example(description = "TBD", syntax = "TBD")
 )
 /**
  * JMS output transport class.

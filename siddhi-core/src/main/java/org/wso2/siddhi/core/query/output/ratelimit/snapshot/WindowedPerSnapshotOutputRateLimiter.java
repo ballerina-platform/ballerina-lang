@@ -26,20 +26,32 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.parser.SchedulerParser;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Implementation of {@link PerSnapshotOutputRateLimiter} for queries with Windows.
+ */
 public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
-    private String id;
     private final Long value;
     private final ScheduledExecutorService scheduledExecutorService;
+    private String id;
     private LinkedList<ComplexEvent> eventList;
     private Comparator comparator;
     private Scheduler scheduler;
     private long scheduledTime;
     private String queryName;
 
-    public WindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext, String queryName) {
+    public WindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService
+            scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter,
+                                                ExecutionPlanContext executionPlanContext, String queryName) {
         super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
         this.queryName = queryName;
         this.id = id;
@@ -110,8 +122,10 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
     }
 
     @Override
-    public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        return new WindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+    public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
+            wrappedSnapshotOutputRateLimiter) {
+        return new WindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
+                wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
     }
 
     @Override

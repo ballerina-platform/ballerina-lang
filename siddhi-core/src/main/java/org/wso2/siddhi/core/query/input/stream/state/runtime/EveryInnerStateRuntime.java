@@ -50,13 +50,16 @@ public class EveryInnerStateRuntime extends StreamInnerStateRuntime {
 
     @Override
     public InnerStateRuntime clone(String key) {
-        InnerStateRuntime cloned_streamInnerStateRuntime = innerStateRuntime.clone(key);
-        EveryInnerStateRuntime everyInnerStateRuntime = new EveryInnerStateRuntime(cloned_streamInnerStateRuntime, stateType);
+        InnerStateRuntime clonedStreamInnerStateRuntime = innerStateRuntime.clone(key);
+        EveryInnerStateRuntime everyInnerStateRuntime = new EveryInnerStateRuntime(clonedStreamInnerStateRuntime,
+                stateType);
 
-        everyInnerStateRuntime.firstProcessor = cloned_streamInnerStateRuntime.getFirstProcessor();
-        everyInnerStateRuntime.lastProcessor = cloned_streamInnerStateRuntime.getLastProcessor();
-        everyInnerStateRuntime.singleStreamRuntimeList.addAll(cloned_streamInnerStateRuntime.getSingleStreamRuntimeList());
-        everyInnerStateRuntime.getLastProcessor().setNextEveryStatePerProcessor(everyInnerStateRuntime.getFirstProcessor());
+        everyInnerStateRuntime.firstProcessor = clonedStreamInnerStateRuntime.getFirstProcessor();
+        everyInnerStateRuntime.lastProcessor = clonedStreamInnerStateRuntime.getLastProcessor();
+        everyInnerStateRuntime.singleStreamRuntimeList.addAll(clonedStreamInnerStateRuntime
+                .getSingleStreamRuntimeList());
+        everyInnerStateRuntime.getLastProcessor().setNextEveryStatePerProcessor(everyInnerStateRuntime
+                .getFirstProcessor());
         return everyInnerStateRuntime;
     }
 }

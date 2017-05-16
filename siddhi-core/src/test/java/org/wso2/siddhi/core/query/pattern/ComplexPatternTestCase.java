@@ -190,7 +190,8 @@ public class ComplexPatternTestCase {
                 "define stream Stream1 (symbol string, price float, volume int); ";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from every e1 = Stream1 [ price >= 50 and volume > 100 ] -> e2 = Stream1 [price <= 40 ] <2:> -> e3 = Stream1 [volume <= 70 ] " +
+                "from every e1 = Stream1 [ price >= 50 and volume > 100 ] -> e2 = Stream1 [price <= 40 ] <2:> -> e3 =" +
+                " Stream1 [volume <= 70 ] " +
                 "select e1.symbol as symbol1, e2[last].symbol as symbol2, e3.symbol as symbol3 " +
                 "insert into StockQuote;";
 

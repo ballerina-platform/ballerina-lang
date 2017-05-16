@@ -20,6 +20,9 @@ package org.wso2.siddhi.query.api.execution.partition;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Partition type supporting values
+ */
 public class ValuePartitionType implements PartitionType {
     private Expression expression;
     private String streamId;
@@ -47,13 +50,21 @@ public class ValuePartitionType implements PartitionType {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ValuePartitionType that = (ValuePartitionType) o;
 
-        if (!expression.equals(that.expression)) return false;
-        if (!streamId.equals(that.streamId)) return false;
+        if (!expression.equals(that.expression)) {
+            return false;
+        }
+        if (!streamId.equals(that.streamId)) {
+            return false;
+        }
 
         return true;
     }

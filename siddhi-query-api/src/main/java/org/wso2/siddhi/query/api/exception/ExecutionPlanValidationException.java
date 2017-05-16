@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.query.api.exception;
 
+/**
+ * Exception thrown when execution plan is not valid
+ */
 public class ExecutionPlanValidationException extends RuntimeException {
 
     public ExecutionPlanValidationException(String message) {

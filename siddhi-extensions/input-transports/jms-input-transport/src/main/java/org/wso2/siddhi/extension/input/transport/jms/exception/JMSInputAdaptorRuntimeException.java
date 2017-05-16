@@ -21,7 +21,7 @@ package org.wso2.siddhi.extension.input.transport.jms.exception;
 /**
  * JMS input adaptor specific exception.
  */
-public class JMSInputAdaptorRuntimeException extends RuntimeException{
+public class JMSInputAdaptorRuntimeException extends RuntimeException {
 
     public JMSInputAdaptorRuntimeException() {
     }

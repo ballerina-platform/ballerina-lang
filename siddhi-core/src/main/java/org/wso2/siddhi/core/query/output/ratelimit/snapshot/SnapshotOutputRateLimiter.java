@@ -31,23 +31,29 @@ import org.wso2.siddhi.core.util.lock.LockWrapper;
 
 import java.util.Map;
 
+/**
+ * Parent implementation to run the {@link org.wso2.siddhi.core.util.Scheduler} to handle periodic snapshot rate
+ * limiting.
+ */
 public abstract class SnapshotOutputRateLimiter implements Schedulable {
-    static final Logger log = Logger.getLogger(SnapshotOutputRateLimiter.class);
-    private WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter;
+    private static final Logger log = Logger.getLogger(SnapshotOutputRateLimiter.class);
     protected ExecutionPlanContext executionPlanContext;
     protected StreamEventCloner streamEventCloner;
     protected StateEventCloner stateEventCloner;
-    private boolean receiveStreamEvent;
     protected LockWrapper lockWrapper;
+    private WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter;
+    private boolean receiveStreamEvent;
 
-    protected SnapshotOutputRateLimiter(WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext) {
+    protected SnapshotOutputRateLimiter(WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter,
+                                        ExecutionPlanContext executionPlanContext) {
         this.wrappedSnapshotOutputRateLimiter = wrappedSnapshotOutputRateLimiter;
         this.executionPlanContext = executionPlanContext;
     }
 
     public abstract void process(ComplexEventChunk complexEventChunk);
 
-    public abstract SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter);
+    public abstract SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
+            wrappedSnapshotOutputRateLimiter);
 
     public void setStreamEventCloner(StreamEventCloner streamEventCloner) {
         this.streamEventCloner = streamEventCloner;

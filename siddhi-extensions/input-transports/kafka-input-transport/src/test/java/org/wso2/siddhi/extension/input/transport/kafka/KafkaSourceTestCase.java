@@ -66,7 +66,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -86,7 +86,7 @@ public class KafkaSourceTestCase {
             cleanLogDir();
             setupKafkaBroker();
             Thread.sleep(3000);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RemoteException("Exception caught when starting server", e);
         }
     }
@@ -227,7 +227,7 @@ public class KafkaSourceTestCase {
     }
 
     @Test
-    public void testRecoveryOnFailureWithKafka() throws InterruptedException {
+    public void testRecoveryOnFailureOfSingleNodeWithKafka() throws InterruptedException {
         try {
             log.info("Test to verify recovering process of a Siddhi node on a failure when Kafka is the event source");
             String topics[] = new String[]{"kafka_topic4"};
@@ -318,6 +318,130 @@ public class KafkaSourceTestCase {
         }
     }
 
+    @Test
+    public void testRecoveryOnFailureOfMultipleNodeWithKafka() throws InterruptedException {
+        try {
+            log.info("Test to verify recovering process of multiple Siddhi nodes on a failure when Kafka is the event" +
+                    " source");
+            String topics[] = new String[]{"kafka_topic5", "kafka_topic6"};
+            createTopic(topics, 1);
+            // 1st node
+            PersistenceStore persistenceStore = new InMemoryPersistenceStore();
+            SiddhiManager siddhiManager1 = new SiddhiManager();
+            siddhiManager1.setPersistenceStore(persistenceStore);
+            siddhiManager1.setExtension("inputmapper:text", TextSourceMapper.class);
+
+            // 2nd node
+            PersistenceStore persistenceStore1 = new InMemoryPersistenceStore();
+            SiddhiManager siddhiManager2 = new SiddhiManager();
+            siddhiManager2.setPersistenceStore(persistenceStore1);
+            siddhiManager2.setExtension("inputmapper:text", TextSourceMapper.class);
+
+            String query1 = "@Plan:name('TestExecutionPlan') " +
+                    "@sink(type='kafka', topic='kafka_topic6', bootstrap.servers='localhost:9092', partition" +
+                    ".no='0', " +
+                    "@map(type='text'))" +
+                    "define stream BarStream (count long); " +
+                    "@source(type='kafka', topic='kafka_topic5', group.id='test', " +
+                    "threading.option='topic.wise', bootstrap.servers='localhost:9092', partition.no.list='0', " +
+                    "@map(type='text'))" +
+                    "Define stream FooStream (symbol string, price float, volume long);" +
+                    "@info(name = 'query1') " +
+                    "from FooStream select count(symbol) as count insert into BarStream;";
+
+            String query2 = "@Plan:name('TestExecutionPlan') " +
+                    "define stream BarStream (count long); " +
+                    "@source(type='kafka', topic='kafka_topic6', " +
+                    "threading.option='topic.wise', bootstrap.servers='localhost:9092', partition.no.list='0', " +
+                    "@map(type='text'))" +
+                    "Define stream FooStream (number long);" +
+                    "@info(name = 'query1') " +
+                    "from FooStream select count(number) as count insert into BarStream;";
+
+            ExecutionPlanRuntime executionPlanRuntime1 = siddhiManager1.createExecutionPlanRuntime(query1);
+            ExecutionPlanRuntime executionPlanRuntime2 = siddhiManager2.createExecutionPlanRuntime(query2);
+
+            executionPlanRuntime2.addCallback("BarStream", new StreamCallback() {
+                @Override
+                public void receive(Event[] events) {
+                    for (Event event : events) {
+                        eventArrived = true;
+                        System.out.println(event);
+                        count = Math.toIntExact((long) event.getData(0));
+                    }
+
+                }
+            });
+
+            // start the execution plan
+            executionPlanRuntime1.start();
+            executionPlanRuntime2.start();
+            // let it initialize
+            Thread.sleep(2000);
+
+            // start publishing events to Kafka
+            Future eventSender = executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    kafkaPublisher(new String[]{"kafka_topic5"}, 1, 50, 1000);
+                }
+            });
+
+            // wait for some time
+            Thread.sleep(28000);
+            // initiate a checkpointing task
+            Future perisistor1 = executionPlanRuntime1.persist();
+            Future perisistor2 = executionPlanRuntime2.persist();
+            // waits till the checkpointing task is done
+            while (!perisistor1.isDone() && !perisistor2.isDone()) {
+                Thread.sleep(100);
+            }
+            // let few more events to be published
+            Thread.sleep(5000);
+            // initiate a execution plan shutdown - to demonstrate a node failure
+            executionPlanRuntime1.shutdown();
+            executionPlanRuntime2.shutdown();
+            // let few events to be published while the execution plan is down
+            Thread.sleep(5000);
+            // recreate the execution plan
+            executionPlanRuntime1 = siddhiManager1.createExecutionPlanRuntime(query1);
+            executionPlanRuntime2 = siddhiManager2.createExecutionPlanRuntime(query2);
+            executionPlanRuntime2.addCallback("BarStream", new StreamCallback() {
+                @Override
+                public void receive(Event[] events) {
+                    for (Event event : events) {
+                        eventArrived = true;
+                        System.out.println(event);
+                        count = Math.toIntExact((long) event.getData(0));
+                    }
+
+                }
+            });
+            // start the execution plan
+            executionPlanRuntime1.start();
+            executionPlanRuntime2.start();
+            // immediately trigger a restore from last revision
+            executionPlanRuntime1.restoreLastRevision();
+            executionPlanRuntime2.restoreLastRevision();
+            Thread.sleep(5000);
+
+            // waits till all the events are published
+            while (!eventSender.isDone()) {
+                Thread.sleep(2000);
+            }
+
+            Thread.sleep(20000);
+            assertTrue(eventArrived);
+            // assert the count
+            assertEquals(50, count);
+
+            executionPlanRuntime1.shutdown();
+            executionPlanRuntime2.shutdown();
+        } catch (ZkTimeoutException ex) {
+            log.warn("No zookeeper may not be available.", ex);
+        }
+    }
+
 //    @Test
     public void testKafkaMultipleTopicPartitionTopicWiseSubscription() throws InterruptedException {
         try{
@@ -349,22 +473,22 @@ public class KafkaSourceTestCase {
         }
     }
 
-//    @Test
+    //    @Test
     public void testKafkaMultipleTopicPartitionSingleThreadSubscription() throws InterruptedException {
-        try{
+        try {
             log.info("Creating test for multiple topics and partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
-                    "define stream BarStream (symbol string, price float, volume long); " +
-                    "@info(name = 'query1') " +
-                        "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', " +
+                            "define stream BarStream (symbol string, price float, volume long); " +
+                            "@info(name = 'query1') " +
+                            "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', " +
                             "threading.option='single.thread', bootstrap.servers='localhost:9092', " +
                             "partition.no.list='0,1', " +
                             "@map(type='text'))" +
-                                "Define stream FooStream (symbol string, price float, volume long);" +
-                    "from FooStream select symbol, price, volume insert into BarStream;");
+                            "Define stream FooStream (symbol string, price float, volume long);" +
+                            "from FooStream select symbol, price, volume insert into BarStream;");
             executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
@@ -381,21 +505,22 @@ public class KafkaSourceTestCase {
         }
     }
 
-//    @Test
+    //    @Test
     public void testKafkaSingleTopicSubscriptionWithPartition() throws InterruptedException {
-        try{
+        try {
             log.info("Creating test for single topic with multiple partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
-                    "define stream BarStream (symbol string, price float, volume long); " +
-                    "@info(name = 'query1') " +
-                    "@source(type='kafka', topic='kafka_topic', group.id='test', threading.option='single.thread', " +
-                        "bootstrap.servers='localhost:9092', partition.no.list='0,1', " +
-                        "@map(type='text'))" +
+                            "define stream BarStream (symbol string, price float, volume long); " +
+                            "@info(name = 'query1') " +
+                            "@source(type='kafka', topic='kafka_topic', group.id='test', threading.option='single" +
+                            ".thread', " +
+                            "bootstrap.servers='localhost:9092', partition.no.list='0,1', " +
+                            "@map(type='text'))" +
                             "Define stream FooStream (symbol string, price float, volume long);" +
-                    "from FooStream select symbol, price, volume insert into BarStream;");
+                            "from FooStream select symbol, price, volume insert into BarStream;");
             executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
@@ -412,21 +537,21 @@ public class KafkaSourceTestCase {
         }
     }
 
-//    @Test
+    //    @Test
     public void testCreatingKafkaSubscriptionWithoutPartition() throws InterruptedException {
-        try{
+        try {
             log.info("Creating test for multiple topic with no partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
                     "@Plan:name('TestExecutionPlan') " +
-                    "define stream BarStream (symbol string, price float, volume long); " +
-                    "@info(name = 'query1') " +
-                        "@source(type='kafka', topic='simple_topic,simple_topic2', group.id='test', " +
+                            "define stream BarStream (symbol string, price float, volume long); " +
+                            "@info(name = 'query1') " +
+                            "@source(type='kafka', topic='simple_topic,simple_topic2', group.id='test', " +
                             "threading.option='single.thread', bootstrap.servers='localhost:9092', " +
                             "@map(type='text'))" +
-                                "Define stream FooStream (symbol string, price float, volume long);" +
-                    "from FooStream select symbol, price, volume insert into BarStream;");
+                            "Define stream FooStream (symbol string, price float, volume long);" +
+                            "from FooStream select symbol, price, volume insert into BarStream;");
             executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
@@ -441,7 +566,7 @@ public class KafkaSourceTestCase {
         }
     }
 
-//    @Test
+    //    @Test
     public void testCreatingFullKafkaEventFlow() throws InterruptedException {
         Runnable kafkaReceiver = new KafkaFlow();
         Thread t1 = new Thread(kafkaReceiver);
@@ -551,7 +676,7 @@ public class KafkaSourceTestCase {
     private class KafkaFlow implements Runnable {
         @Override
         public void run() {
-            try{
+            try {
                 StreamDefinition inputDefinition = StreamDefinition.id("FooStream")
                         .attribute("symbol", Attribute.Type.STRING)
                         .attribute("price", Attribute.Type.FLOAT)
@@ -583,7 +708,8 @@ public class KafkaSourceTestCase {
                         InputStream.stream("FooStream")
                 );
                 query.select(
-                        Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
+                        Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new
+                                Variable("volume"))
                 );
                 query.insertInto("BarStream");
 

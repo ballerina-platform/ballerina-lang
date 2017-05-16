@@ -18,8 +18,13 @@
 
 package org.wso2.siddhi.query.api.definition;
 
-public class FunctionDefinition {
+import java.io.Serializable;
 
+/**
+ * Siddhi inline function definition
+ */
+public class FunctionDefinition implements Serializable {
+    private static final long serialVersionUID = 42L;
     private String language;
     private String body;
     private String id;

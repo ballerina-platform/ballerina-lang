@@ -24,6 +24,9 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.ThreadBarrier;
 
+/**
+ * Entry Valve Siddhi processor chain.
+ */
 public class EntryValveProcessor implements Processor, Schedulable {
 
     private Processor next;

@@ -71,7 +71,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
             Sink sink = (Sink) SiddhiClassLoader.loadExtensionImplementation(
                     sinkExtension, SinkExecutorExtensionHolder.getInstance(executionPlanContext));
             destinationOption.merge(sinkOptionHolder);
-            sink.initOnlyTransport(streamDefinition, destinationOption,sinkConfigReader, executionPlanContext);
+            sink.initOnlyTransport(streamDefinition, destinationOption, sinkConfigReader, executionPlanContext);
             transports.add(sink);
         });
     }
@@ -87,7 +87,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
         StringBuilder errorMessages = null;
         int errorCount = 0;
 
-        for (int i=0; i < transports.size(); i++){
+        for (int i = 0; i < transports.size(); i++) {
             try {
                 if (!transports.get(i).isConnected()) {
                     transports.get(i).connect();
@@ -96,7 +96,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
                 }
             } catch (ConnectionUnavailableException e) {
                 errorCount++;
-                if (errorMessages == null){
+                if (errorMessages == null) {
                     errorMessages = new StringBuilder();
                 }
                 errorMessages.append("[Destination").append(i).append("]:").append(e.getMessage());
@@ -104,7 +104,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
             }
         }
 
-        if (errorCount > 0){
+        if (errorCount > 0) {
             throw new ConnectionUnavailableException(errorCount + "/" + transports.size() + " connections failed " +
                     "while trying to connect with following error messages:" + errorMessages.toString());
         }
@@ -136,7 +136,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
     public Map<String, Object> currentState() {
         // No state specific to this class. But, fetching and returning state from underlying transports as it's state
         Map<String, Object> state = new HashMap<>();
-        for (int i = 0; i < transports.size(); i++){
+        for (int i = 0; i < transports.size(); i++) {
             state.put(Integer.toString(i), transports.get(i).currentState());
         }
         return state;
@@ -152,7 +152,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
     @Override
     public void restoreState(Map<String, Object> state) {
         if (transports != null) {
-            for (int i = 0; i < transports.size(); i++){
+            for (int i = 0; i < transports.size(); i++) {
                 Map<String, Object> transportState = (Map<String, Object>) state.get(Integer.toString(i));
                 transports.get(i).restoreState(transportState);
             }

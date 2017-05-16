@@ -21,6 +21,9 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Executor class for Long Modulus function. Function execution logic is implemented in execute here.
+ */
 public class ModExpressionExecutorLong implements ExpressionExecutor {
     private ExpressionExecutor leftExpressionExecutor;
     private ExpressionExecutor rightExpressionExecutor;
@@ -40,7 +43,7 @@ public class ModExpressionExecutorLong implements ExpressionExecutor {
             return null;
         }
         long right = ((Number) rightObject).longValue();
-        if (right == 0l) {
+        if (right == 0L) {
             return null;
         }
         return ((Number) leftObject).longValue() % right;
@@ -52,7 +55,8 @@ public class ModExpressionExecutorLong implements ExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new ModExpressionExecutorLong(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new ModExpressionExecutorLong(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor
+                .cloneExecutor(key));
     }
 
 }

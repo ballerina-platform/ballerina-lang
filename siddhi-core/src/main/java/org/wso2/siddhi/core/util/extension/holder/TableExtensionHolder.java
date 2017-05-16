@@ -23,15 +23,19 @@ import org.wso2.siddhi.core.table.Table;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link Table} Extensions.
+ */
 public class TableExtensionHolder extends AbstractExtensionHolder {
-    private static Class clazz =Table.class;
+    private static Class clazz = Table.class;
 
     protected TableExtensionHolder(ExecutionPlanContext executionPlanContext) {
         super(clazz, executionPlanContext);
     }
 
     public static TableExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext
+                ().getExtensionHolderMap();
         AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
             abstractExtensionHolder = new TableExtensionHolder(executionPlanContext);

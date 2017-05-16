@@ -25,6 +25,9 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
  * 'define window([attributes]) function([parameters]) output [event type];'
  */
 public class WindowDefinition extends StreamDefinition {
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * Internal window which has to be used within the EventWindow
      */
@@ -67,6 +70,15 @@ public class WindowDefinition extends StreamDefinition {
     }
 
     /**
+     * Return the output event type of the window.
+     *
+     * @return the output event type
+     */
+    public OutputStream.OutputEventType getOutputEventType() {
+        return outputEventType;
+    }
+
+    /**
      * Set output event type of the window. If not explicitly assigned, OutputEventType.ALL_EVENTS
      * will be used by default.
      *
@@ -74,15 +86,6 @@ public class WindowDefinition extends StreamDefinition {
      */
     public void setOutputEventType(OutputStream.OutputEventType outputEventType) {
         this.outputEventType = outputEventType;
-    }
-
-    /**
-     * Return the output event type of the window.
-     *
-     * @return the output event type
-     */
-    public OutputStream.OutputEventType getOutputEventType() {
-        return outputEventType;
     }
 
     /**

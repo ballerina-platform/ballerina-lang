@@ -18,9 +18,8 @@
  */
 package org.wso2.siddhi.extension.input.transport.jms;
 
-import junit.framework.Assert;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.junit.BeforeClass;
+import org.junit.Assert;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -29,14 +28,12 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.extension.input.transport.jms.client.JMSClient;
 
-import javax.jms.ConnectionFactory;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JMSSourceTestCase {
-    private List<String> receivedEventNameList;
     private final String PROVIDER_URL = "vm://localhost?broker.persistent=false";
+    private List<String> receivedEventNameList;
 
     @Test
     public void TestJMSTopicSource() throws InterruptedException {
@@ -56,13 +53,14 @@ public class JMSSourceTestCase {
                 + "connection.factory.jndi.name='TopicConnectionFactory',"
                 + "transport.jms.SubscriptionDurable='true', "
                 + "transport.jms.DurableSubscriberClientID='wso2dasclient1'"
-                +")" +
+                + ")" +
                 "define stream inputStream (name string, age int, country string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override

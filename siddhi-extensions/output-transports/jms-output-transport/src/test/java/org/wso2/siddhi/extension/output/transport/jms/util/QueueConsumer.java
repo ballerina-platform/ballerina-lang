@@ -20,6 +20,9 @@ package org.wso2.siddhi.extension.output.transport.jms.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -29,9 +32,6 @@ import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 public class QueueConsumer implements Runnable {
 

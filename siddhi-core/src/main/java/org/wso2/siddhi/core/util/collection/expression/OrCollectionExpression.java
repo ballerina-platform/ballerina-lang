@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Implementation of {@link CollectionExpression} which represent Or expressions.
+ */
 public class OrCollectionExpression implements CollectionExpression {
 
     private final Expression expression;
@@ -27,7 +30,8 @@ public class OrCollectionExpression implements CollectionExpression {
     private CollectionExpression leftCollectionExpression;
     private CollectionExpression rightCollectionExpression;
 
-    public OrCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression leftCollectionExpression, CollectionExpression rightCollectionExpression) {
+    public OrCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression
+            leftCollectionExpression, CollectionExpression rightCollectionExpression) {
         this.expression = expression;
         this.collectionScope = collectionScope;
         this.leftCollectionExpression = leftCollectionExpression;

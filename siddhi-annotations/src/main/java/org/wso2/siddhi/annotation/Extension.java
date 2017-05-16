@@ -51,13 +51,15 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @IndexAnnotated
 public @interface Extension {
-    String name();
+    String name() default "";
 
-    String namespace();
+    String namespace() default "";
 
-    String description();
+    String description() default "";
 
     Parameter[] parameters() default {};
+
+    SystemParameter[] systemParameter() default {};
 
     ReturnAttribute[] returnAttributes() default {};
 

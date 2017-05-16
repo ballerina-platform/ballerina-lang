@@ -42,7 +42,8 @@ public class PooledDataSource {
     private PooledDataSource() {
     }
 
-    public static DataSource getPoolDataSource(String driver, String url, String username, String password, List<Element> connectionPropertyElements) {
+    public static DataSource getPoolDataSource(String driver, String url, String username, String password,
+                                               List<Element> connectionPropertyElements) {
         DataSource dataSource = new DataSource();
         PoolProperties poolProperties = new PoolProperties();
         poolProperties.setDriverClassName(driver);

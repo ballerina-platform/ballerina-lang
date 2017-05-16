@@ -17,9 +17,9 @@
  */
 package org.wso2.siddhi.tcp.transport.utils;
 
-import org.wso2.siddhi.tcp.transport.callback.StreamListener;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.tcp.transport.callback.StreamListener;
 
 /**
  * Class to hold attribute type order array and size of attributes.
@@ -34,7 +34,8 @@ public class StreamInfo {
     public StreamInfo(StreamListener streamListener) {
         this.streamListener = streamListener;
         this.streamDefinition = streamListener.getStreamDefinition();
-        this.attributeTypes = EventDefinitionConverterUtil.generateAttributeTypeArray(streamDefinition.getAttributeList());
+        this.attributeTypes = EventDefinitionConverterUtil.generateAttributeTypeArray(streamDefinition
+                .getAttributeList());
         this.attributeSize = getSize(attributeTypes);
     }
 

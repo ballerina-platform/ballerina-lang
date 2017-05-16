@@ -18,13 +18,11 @@
 
 package org.wso2.siddhi.extension.input.transport.tcp;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -39,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TCPSourceTestCase {
     static final Logger log = Logger.getLogger(TCPSourceTestCase.class);
     private volatile int count;
@@ -51,20 +48,22 @@ public class TCPSourceTestCase {
         eventArrived = false;
     }
 
+
     @Test
     public void testTcpSource1() throws InterruptedException {
         log.info("tcpSource TestCase 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                                    "@plan:name('foo')" +
-                                    "@source(type='tcp', @map(type='passThrough'))" +
-                                    "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
+                "@plan:name('foo')" +
+                "@source(type='tcp', @map(type='passThrough'))" +
+                "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
         String query = ("@info(name = 'query1') " +
-                        "from inputStream " +
-                        "select *  " +
-                        "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -118,14 +117,15 @@ public class TCPSourceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                                    "@plan:name('foo')" +
-                                    "@source(type='tcp', context='bar', @map(type='passThrough'))" +
-                                    "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
+                "@plan:name('foo')" +
+                "@source(type='tcp', context='bar', @map(type='passThrough'))" +
+                "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
         String query = ("@info(name = 'query1') " +
-                        "from inputStream " +
-                        "select *  " +
-                        "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -169,6 +169,7 @@ public class TCPSourceTestCase {
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -177,14 +178,15 @@ public class TCPSourceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                                    "@plan:name('foo')" +
-                                    "@source(type='tcp', @map(type='passThrough'))" +
-                                    "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
+                "@plan:name('foo')" +
+                "@source(type='tcp', @map(type='passThrough'))" +
+                "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
         String query = ("@info(name = 'query1') " +
-                        "from inputStream " +
-                        "select *  " +
-                        "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -221,15 +223,15 @@ public class TCPSourceTestCase {
             SiddhiManager siddhiManager = new SiddhiManager();
 
             String inStreamDefinition = "" +
-                                        "@plan:name('foo')" +
-                                        "@source(type='tcp', context='bar', @map(type='passThrough')) " +
-                                        "define stream inputStream (a string, b int, c float, d long, e double, f bool); " +
-                                        "@source(type='tcp', context='bar', @map(type='passThrough')) " +
-                                        "define stream inputStream2 (a string, b int, c float, d long, e double, f bool); ";
+                    "@plan:name('foo')" +
+                    "@source(type='tcp', context='bar', @map(type='passThrough')) " +
+                    "define stream inputStream (a string, b int, c float, d long, e double, f bool); " +
+                    "@source(type='tcp', context='bar', @map(type='passThrough')) " +
+                    "define stream inputStream2 (a string, b int, c float, d long, e double, f bool); ";
             String query = ("@info(name = 'query1') " +
-                            "from inputStream " +
-                            "select *  " +
-                            "insert into outputStream;");
+                    "from inputStream " +
+                    "select *  " +
+                    "insert into outputStream;");
             executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
             executionPlanRuntime.start();
         } catch (ExecutionPlanCreationException e) {
@@ -247,14 +249,15 @@ public class TCPSourceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                                    "@plan:name('foo')" +
-                                    "@source(type='tcp')" +
-                                    "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
+                "@plan:name('foo')" +
+                "@source(type='tcp')" +
+                "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
         String query = ("@info(name = 'query1') " +
-                        "from inputStream " +
-                        "select *  " +
-                        "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -332,22 +335,23 @@ public class TCPSourceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                                    "@plan:name('foo')" +
-                                    "@source(type='tcp', context='bar', @map(type='passThrough'))" +
-                                    "define stream inputStream (a string, b int, c float, d long, e double, f bool);" +
-                                    "@source(type='tcp', context='bar1', @map(type='passThrough'))" +
-                                    "define stream inputStream1 (a string, b int, c float, d long, e double, f bool);" +
-                                    "";
+                "@plan:name('foo')" +
+                "@source(type='tcp', context='bar', @map(type='passThrough'))" +
+                "define stream inputStream (a string, b int, c float, d long, e double, f bool);" +
+                "@source(type='tcp', context='bar1', @map(type='passThrough'))" +
+                "define stream inputStream1 (a string, b int, c float, d long, e double, f bool);" +
+                "";
         String query = ("@info(name = 'query1') " +
-                        "from inputStream " +
-                        "select *  " +
-                        "insert into outputStream;" +
-                        "" +
-                        "from inputStream1 " +
-                        "select *  " +
-                        "insert into outputStream;" +
-                        "");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;" +
+                "" +
+                "from inputStream1 " +
+                "select *  " +
+                "insert into outputStream;" +
+                "");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
@@ -389,11 +393,10 @@ public class TCPSourceTestCase {
         TCPNettyClient.connect("localhost", 9892);
         ArrayList<Event> arrayList = new ArrayList<Event>(3);
 
-        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
-        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test1", 361, 31.0f, 3801l, 231.0, false}));
-        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test2", 362, 32.0f, 3802l, 232.0, true}));
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380L, 23.0, true}));
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test1", 361, 31.0f, 3801L, 231.0, false}));
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test2", 362, 32.0f, 3802L, 232.0, true}));
         TCPNettyClient.send("bar", arrayList.toArray(new Event[3]));
-
         TCPNettyClient.send("bar1", arrayList.toArray(new Event[3]));
 
         TCPNettyClient.disconnect();
@@ -415,14 +418,14 @@ public class TCPSourceTestCase {
             SiddhiManager siddhiManager = new SiddhiManager();
 
             String inStreamDefinition = "" +
-                                        "@plan:name('foo')" +
-                                        "@source(type='tcp')" +
-                                        "@source(type='tcp')" +
-                                        "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
+                    "@plan:name('foo')" +
+                    "@source(type='tcp')" +
+                    "@source(type='tcp')" +
+                    "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
             String query = ("@info(name = 'query1') " +
-                            "from inputStream " +
-                            "select *  " +
-                            "insert into outputStream;");
+                    "from inputStream " +
+                    "select *  " +
+                    "insert into outputStream;");
             executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
             executionPlanRuntime.start();
@@ -441,13 +444,14 @@ public class TCPSourceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                                    "@source(type='tcp', context='inputStream', @map(type='passThrough'))" +
-                                    "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
+                "@source(type='tcp', context='inputStream', @map(type='passThrough'))" +
+                "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
         String query = ("@info(name = 'query1') " +
-                        "from inputStream " +
-                        "select *  " +
-                        "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
         Collection<List<Source>> sources = executionPlanRuntime.getSources();
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -542,6 +546,7 @@ public class TCPSourceTestCase {
         tcpNettyClient2.shutdown();
         Thread.sleep(300);
         executionPlanRuntime.shutdown();
+
     }
 
 

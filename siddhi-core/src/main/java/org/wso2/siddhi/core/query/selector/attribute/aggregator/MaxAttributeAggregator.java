@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -27,8 +28,16 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate max value based on an event attribute.
+ */
 @Extension(
         name = "max",
         namespace = "",
@@ -40,7 +49,14 @@ import java.util.*;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the maximum value in the same data type as the input.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
+        examples = @Example(
+                syntax = "from fooStream#window.timeBatch(10 sec)\n" +
+                        "select max(temp) as maxTemp\n" +
+                        "insert into barStream;",
+                description = "max(temp) returns the maximum temp value recorded for all the events based on their " +
+                        "arrival and expiry."
+        )
 )
 public class MaxAttributeAggregator extends AttributeAggregator {
 
@@ -53,7 +69,8 @@ public class MaxAttributeAggregator extends AttributeAggregator {
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Max aggregator has to have exactly 1 parameter, currently " +
                     attributeExpressionExecutors.length + " parameters provided");

@@ -29,6 +29,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined number of events and the emit only the
+ * last event. This implementation specifically handle queries with group by.
+ */
 public class LastGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
     private String id;
@@ -61,7 +65,8 @@ public class LastGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
                     if (++counter == value) {
                         counter = 0;
                         if (allGroupByKeyEvents.size() != 0) {
-                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>
+                                    (complexEventChunk.isBatch());
 
                             for (ComplexEvent complexEvent : allGroupByKeyEvents.values()) {
                                 outputEventChunk.add(complexEvent);

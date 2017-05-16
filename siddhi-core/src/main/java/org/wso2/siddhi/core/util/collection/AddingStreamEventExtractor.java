@@ -21,6 +21,9 @@ package org.wso2.siddhi.core.util.collection;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
+/**
+ * Extract a {@link StreamEvent} from a {@link StateEvent}
+ */
 public class AddingStreamEventExtractor {
     private int matchingStreamEventPosition;
 

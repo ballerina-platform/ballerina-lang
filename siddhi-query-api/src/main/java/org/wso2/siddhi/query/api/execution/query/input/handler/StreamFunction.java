@@ -22,8 +22,12 @@ import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.Arrays;
 
+/**
+ * Siddhi stream function
+ */
 public class StreamFunction implements StreamHandler, Extension {
 
+    private static final long serialVersionUID = 1L;
     private String namespace = "";
     private String function;
     private Expression[] parameters;
@@ -32,6 +36,7 @@ public class StreamFunction implements StreamHandler, Extension {
         this.namespace = namespace;
         this.function = function;
         this.parameters = parameters;
+
     }
 
     public StreamFunction(String namespace, String function) {
@@ -72,13 +77,21 @@ public class StreamFunction implements StreamHandler, Extension {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         StreamFunction that = (StreamFunction) o;
 
-        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) return false;
-        if (function != null ? !function.equals(that.function) : that.function != null) return false;
+        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) {
+            return false;
+        }
+        if (function != null ? !function.equals(that.function) : that.function != null) {
+            return false;
+        }
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         return Arrays.equals(parameters, that.parameters);
     }

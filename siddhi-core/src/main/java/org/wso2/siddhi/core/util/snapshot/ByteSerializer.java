@@ -20,16 +20,22 @@ package org.wso2.siddhi.core.util.snapshot;
 
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
-
+/**
+ * Serializer used by {@link SnapshotService} to do Object to Byte[] conversion and vise-versa
+ */
 public class ByteSerializer {
     private static final Logger log = Logger.getLogger(ByteSerializer.class);
 
     private ByteSerializer() {
     }
 
-    public static byte[] OToB(Object obj) {
+    public static byte[] objectToByte(Object obj) {
         long start = System.currentTimeMillis();
         byte[] out = null;
         if (obj != null) {
@@ -50,7 +56,7 @@ public class ByteSerializer {
         return out;
     }
 
-    public static Object BToO(byte[] bytes) {
+    public static Object byteToObject(byte[] bytes) {
         long start = System.currentTimeMillis();
         Object out = null;
         if (bytes != null) {

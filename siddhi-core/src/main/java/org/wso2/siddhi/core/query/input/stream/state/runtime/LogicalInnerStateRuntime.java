@@ -33,7 +33,8 @@ public class LogicalInnerStateRuntime extends StreamInnerStateRuntime {
     private final InnerStateRuntime innerStateRuntime1;
     private final InnerStateRuntime innerStateRuntime2;
 
-    public LogicalInnerStateRuntime(InnerStateRuntime innerStateRuntime1, InnerStateRuntime innerStateRuntime2, StateInputStream.Type stateType) {
+    public LogicalInnerStateRuntime(InnerStateRuntime innerStateRuntime1, InnerStateRuntime innerStateRuntime2,
+                                    StateInputStream.Type stateType) {
         super(stateType);
         this.innerStateRuntime1 = innerStateRuntime1;
         this.innerStateRuntime2 = innerStateRuntime2;
@@ -72,10 +73,14 @@ public class LogicalInnerStateRuntime extends StreamInnerStateRuntime {
         InnerStateRuntime clonedInnerStateRuntime1 = innerStateRuntime1.clone(key);
         InnerStateRuntime clonedInnerStateRuntime2 = innerStateRuntime2.clone(key);
 
-        LogicalPreStateProcessor logicalPreStateProcessor1 = (LogicalPreStateProcessor) clonedInnerStateRuntime1.getFirstProcessor();
-        LogicalPostStateProcessor logicalPostStateProcessor1 = (LogicalPostStateProcessor) clonedInnerStateRuntime1.getLastProcessor();
-        LogicalPreStateProcessor logicalPreStateProcessor2 = (LogicalPreStateProcessor) clonedInnerStateRuntime2.getFirstProcessor();
-        LogicalPostStateProcessor logicalPostStateProcessor2 = (LogicalPostStateProcessor) clonedInnerStateRuntime2.getLastProcessor();
+        LogicalPreStateProcessor logicalPreStateProcessor1 = (LogicalPreStateProcessor)
+                clonedInnerStateRuntime1.getFirstProcessor();
+        LogicalPostStateProcessor logicalPostStateProcessor1 = (LogicalPostStateProcessor)
+                clonedInnerStateRuntime1.getLastProcessor();
+        LogicalPreStateProcessor logicalPreStateProcessor2 = (LogicalPreStateProcessor)
+                clonedInnerStateRuntime2.getFirstProcessor();
+        LogicalPostStateProcessor logicalPostStateProcessor2 = (LogicalPostStateProcessor)
+                clonedInnerStateRuntime2.getLastProcessor();
 
         logicalPostStateProcessor1.setPartnerPreStateProcessor(logicalPreStateProcessor2);
         logicalPostStateProcessor2.setPartnerPreStateProcessor(logicalPreStateProcessor1);
@@ -84,11 +89,14 @@ public class LogicalInnerStateRuntime extends StreamInnerStateRuntime {
         logicalPreStateProcessor1.setPartnerStatePreProcessor(logicalPreStateProcessor2);
         logicalPreStateProcessor2.setPartnerStatePreProcessor(logicalPreStateProcessor1);
 
-        LogicalInnerStateRuntime logicalInnerStateRuntime = new LogicalInnerStateRuntime(clonedInnerStateRuntime1, clonedInnerStateRuntime2, stateType);
+        LogicalInnerStateRuntime logicalInnerStateRuntime = new LogicalInnerStateRuntime(clonedInnerStateRuntime1,
+                clonedInnerStateRuntime2, stateType);
         logicalInnerStateRuntime.firstProcessor = clonedInnerStateRuntime1.getFirstProcessor();
         logicalInnerStateRuntime.lastProcessor = clonedInnerStateRuntime2.getLastProcessor();
-        logicalInnerStateRuntime.getSingleStreamRuntimeList().addAll(clonedInnerStateRuntime2.getSingleStreamRuntimeList());
-        logicalInnerStateRuntime.getSingleStreamRuntimeList().addAll(clonedInnerStateRuntime1.getSingleStreamRuntimeList());
+        logicalInnerStateRuntime.getSingleStreamRuntimeList().addAll
+                (clonedInnerStateRuntime2.getSingleStreamRuntimeList());
+        logicalInnerStateRuntime.getSingleStreamRuntimeList().addAll
+                (clonedInnerStateRuntime1.getSingleStreamRuntimeList());
 
 
         List<SingleStreamRuntime> runtimeList = logicalInnerStateRuntime.getSingleStreamRuntimeList();

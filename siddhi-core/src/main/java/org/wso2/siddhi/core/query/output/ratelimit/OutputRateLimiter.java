@@ -31,7 +31,10 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Abstract parent implementation of Output Rate Limiting. Output Rate Limiting is used to throttle the output of
+ * Siddhi queries based on various criteria.
+ */
 public abstract class OutputRateLimiter implements EternalReferencedHolder, Snapshotable {
 
     protected List<QueryCallback> queryCallbacks = new ArrayList<QueryCallback>();

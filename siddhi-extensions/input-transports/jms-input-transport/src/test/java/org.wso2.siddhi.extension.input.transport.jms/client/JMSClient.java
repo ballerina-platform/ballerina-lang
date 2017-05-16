@@ -20,6 +20,9 @@ package org.wso2.siddhi.extension.input.transport.jms.client;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -31,10 +34,6 @@ import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * JMS client reads a text file or a csv file with multiple messages and publish to a Map or Text message to a broker
@@ -53,7 +52,8 @@ public class JMSClient {
         }
         Session session = null;
         Properties properties = new Properties();
-        if (!"activemq".equalsIgnoreCase(broker) && !"mb".equalsIgnoreCase(broker) && !"qpid".equalsIgnoreCase(broker)) {
+        if (!"activemq".equalsIgnoreCase(broker) && !"mb".equalsIgnoreCase(broker) && !"qpid".equalsIgnoreCase
+                (broker)) {
             log.error("Please enter a valid JMS message broker. (ex: activemq, mb, qpid");
             return;
         }

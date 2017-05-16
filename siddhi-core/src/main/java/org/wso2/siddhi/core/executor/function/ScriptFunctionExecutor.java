@@ -27,13 +27,15 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.Map;
 
+/**
+ * Executor class for Script function. Function execution logic is implemented in execute here.
+ */
 public class ScriptFunctionExecutor extends FunctionExecutor {
 
-    static final Logger log = Logger.getLogger(ScriptFunctionExecutor.class);
-
-    private String functionId;
+    static final Logger LOG = Logger.getLogger(ScriptFunctionExecutor.class);
     Attribute.Type returnType;
     Script script;
+    private String functionId;
 
     public ScriptFunctionExecutor(String name) {
         this.functionId = name;
@@ -45,7 +47,8 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         returnType = executionPlanContext.getScript(functionId).getReturnType();
         script = executionPlanContext.getScript(functionId);
     }

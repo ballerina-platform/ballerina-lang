@@ -24,11 +24,18 @@ import org.wso2.siddhi.query.api.expression.Variable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Selector selecting query output stream attributes
+ */
 public class Selector {
 
     private List<OutputAttribute> selectionList = new ArrayList<OutputAttribute>();
     private List<Variable> groupByList = new ArrayList<Variable>();
     private Expression havingExpression;
+
+    public static Selector selector() {
+        return new Selector();
+    }
 
     public Selector select(String rename, Expression expression) {
         OutputAttribute outputAttribute = new OutputAttribute(rename, expression);
@@ -44,14 +51,11 @@ public class Selector {
         return this;
     }
 
-    public static Selector selector() {
-        return new Selector();
-    }
-
     private void checkSelection(OutputAttribute newAttribute) {
         for (OutputAttribute attribute : selectionList) {
             if (attribute.getRename().equals(newAttribute.getRename())) {
-                throw new DuplicateAttributeException(attribute.getRename() + " is already defined as an output attribute ");
+                throw new DuplicateAttributeException(attribute.getRename() + " is already defined as an output " +
+                        "attribute ");
             }
         }
     }
@@ -104,17 +108,25 @@ public class Selector {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Selector)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Selector)) {
+            return false;
+        }
 
         Selector selector = (Selector) o;
 
-        if (groupByList != null ? !groupByList.equals(selector.groupByList) : selector.groupByList != null)
+        if (groupByList != null ? !groupByList.equals(selector.groupByList) : selector.groupByList != null) {
             return false;
-        if (havingExpression != null ? !havingExpression.equals(selector.havingExpression) : selector.havingExpression != null)
+        }
+        if (havingExpression != null ? !havingExpression.equals(selector.havingExpression) : selector
+                .havingExpression != null) {
             return false;
-        if (selectionList != null ? !selectionList.equals(selector.selectionList) : selector.selectionList != null)
+        }
+        if (selectionList != null ? !selectionList.equals(selector.selectionList) : selector.selectionList != null) {
             return false;
+        }
 
         return true;
     }

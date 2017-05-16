@@ -24,7 +24,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.*;
+import static org.wso2.siddhi.core.util.SiddhiConstants.BEFORE_WINDOW_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.ON_AFTER_WINDOW_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_INDEX_IN_TYPE;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_TYPE_INDEX;
 
 /**
  * Standard processing event inside Siddhi. StreamEvent will be created
@@ -33,11 +37,11 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 public class StreamEvent implements ComplexEvent {
 
     protected long timestamp = -1;
-    private Object[] beforeWindowData;          //Attributes before window execution
-    private Object[] onAfterWindowData;         //Attributes on and after window execution
     protected Object[] outputData;              //Attributes to sent as output
     //    protected boolean isExpired = false;
     protected Type type = Type.CURRENT;
+    private Object[] beforeWindowData;          //Attributes before window execution
+    private Object[] onAfterWindowData;         //Attributes on and after window execution
     private StreamEvent next;
 
     public StreamEvent(int beforeWindowDataSize, int onAfterWindowDataSize, int outputDataSize) {
@@ -166,17 +170,29 @@ public class StreamEvent implements ComplexEvent {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof StreamEvent)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof StreamEvent)) {
+            return false;
+        }
 
         StreamEvent event = (StreamEvent) o;
 
-        if (type != event.type) return false;
-        if (timestamp != event.timestamp) return false;
+        if (type != event.type) {
+            return false;
+        }
+        if (timestamp != event.timestamp) {
+            return false;
+        }
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(beforeWindowData, event.beforeWindowData)) return false;
+        if (!Arrays.equals(beforeWindowData, event.beforeWindowData)) {
+            return false;
+        }
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(onAfterWindowData, event.onAfterWindowData)) return false;
+        if (!Arrays.equals(onAfterWindowData, event.onAfterWindowData)) {
+            return false;
+        }
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         return Arrays.equals(outputData, event.outputData);
 
@@ -196,8 +212,10 @@ public class StreamEvent implements ComplexEvent {
     public String toString() {
         final StringBuilder sb = new StringBuilder("StreamEvent{");
         sb.append("timestamp=").append(timestamp);
-        sb.append(", beforeWindowData=").append(beforeWindowData == null ? "null" : Arrays.asList(beforeWindowData).toString());
-        sb.append(", onAfterWindowData=").append(onAfterWindowData == null ? "null" : Arrays.asList(onAfterWindowData).toString());
+        sb.append(", beforeWindowData=").append(beforeWindowData == null ? "null" : Arrays.asList(beforeWindowData)
+                .toString());
+        sb.append(", onAfterWindowData=").append(onAfterWindowData == null ? "null" : Arrays.asList
+                (onAfterWindowData).toString());
         sb.append(", outputData=").append(outputData == null ? "null" : Arrays.asList(outputData).toString());
         sb.append(", type=").append(type);
         sb.append(", next=").append(next);

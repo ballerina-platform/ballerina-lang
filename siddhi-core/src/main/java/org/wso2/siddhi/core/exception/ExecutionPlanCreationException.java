@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.core.exception;
 
+/**
+ * Exception class to be used when an error occurs while creating {@link org.wso2.siddhi.query.api.ExecutionPlan}
+ */
 public class ExecutionPlanCreationException extends RuntimeException {
     boolean classLoadingIssue = false;
 

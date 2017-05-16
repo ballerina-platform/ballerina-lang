@@ -66,7 +66,8 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner) {
         // Pass the event  to the post JoinProcessor
         nextProcessor.process(streamEventChunk);
     }
@@ -78,8 +79,12 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap, String queryName) {
-        return window.compileCondition(expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, tableMap, queryName);
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                              ExecutionPlanContext executionPlanContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
+        return window.compileCondition(expression, matchingMetaInfoHolder, executionPlanContext,
+                variableExpressionExecutors, tableMap, queryName);
     }
 
     @Override
@@ -106,7 +111,8 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
             streamProcessor.attributeExpressionLength = attributeExpressionLength;
             streamProcessor.additionalAttributes = additionalAttributes;
             streamProcessor.complexEventPopulater = complexEventPopulater;
-            streamProcessor.init(inputDefinition, attributeExpressionExecutors, configReader, executionPlanContext, outputExpectsExpiredEvents);
+            streamProcessor.init(inputDefinition, attributeExpressionExecutors, configReader, executionPlanContext,
+                    outputExpectsExpiredEvents);
             streamProcessor.start();
             return streamProcessor;
 

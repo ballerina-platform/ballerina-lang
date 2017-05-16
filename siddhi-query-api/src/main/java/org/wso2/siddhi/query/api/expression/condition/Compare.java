@@ -19,11 +19,12 @@ package org.wso2.siddhi.query.api.expression.condition;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Compare condition {@link Expression}
+ */
 public class Compare extends Expression {
 
-    public enum Operator {
-        LESS_THAN, GREATER_THAN, LESS_THAN_EQUAL, GREATER_THAN_EQUAL, EQUAL, NOT_EQUAL
-    }
+    private static final long serialVersionUID = 1L;
 
     private Expression rightExpression;
     private Operator operator;
@@ -74,7 +75,8 @@ public class Compare extends Expression {
         if (operator != compare.operator) {
             return false;
         }
-        if (rightExpression != null ? !rightExpression.equals(compare.rightExpression) : compare.rightExpression != null) {
+        if (rightExpression != null ? !rightExpression.equals(compare.rightExpression) : compare.rightExpression !=
+                null) {
             return false;
         }
 
@@ -87,6 +89,18 @@ public class Compare extends Expression {
         result = 31 * result + (operator != null ? operator.hashCode() : 0);
         result = 31 * result + (leftExpression != null ? leftExpression.hashCode() : 0);
         return result;
+    }
+
+    /**
+     * Different types of compare operators
+     */
+    public enum Operator {
+        LESS_THAN,
+        GREATER_THAN,
+        LESS_THAN_EQUAL,
+        GREATER_THAN_EQUAL,
+        EQUAL,
+        NOT_EQUAL
     }
 
 }

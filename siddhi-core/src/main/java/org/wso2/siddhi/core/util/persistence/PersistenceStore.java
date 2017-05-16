@@ -19,6 +19,10 @@ package org.wso2.siddhi.core.util.persistence;
 
 import java.util.Map;
 
+/**
+ * Interface class for Persistence Stores. Persistence Stores are used to store the current state of Siddhi Engine so
+ * that it can be restored in-case of an issue.
+ */
 public interface PersistenceStore {
 
     void save(String executionPlanId, String revision, byte[] snapshot);

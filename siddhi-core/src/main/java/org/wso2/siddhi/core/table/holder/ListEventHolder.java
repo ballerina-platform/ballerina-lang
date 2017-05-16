@@ -26,6 +26,10 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 
 import java.util.LinkedList;
 
+/**
+ * Holder object to contain a list of {@link StreamEvent}. Users can add {@link ComplexEventChunk}s to the
+ * {@link ListEventHolder} where events in chunk will be added to the {@link StreamEvent} list.
+ */
 public class ListEventHolder extends LinkedList<StreamEvent> implements EventHolder {
 
     private StreamEventPool tableStreamEventPool;

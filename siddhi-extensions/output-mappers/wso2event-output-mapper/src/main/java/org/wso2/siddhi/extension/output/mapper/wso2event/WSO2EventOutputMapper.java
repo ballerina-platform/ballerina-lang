@@ -11,7 +11,6 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Extension(
         name = "wso2event",
@@ -19,11 +18,11 @@ import java.util.Map;
         description = "Event to WSO2Event output mapper."
 )
 public class WSO2EventSinkmapper extends Sinkmapper {
-    private StreamDefinition streamDefinition;
-    private OptionHolder optionHolder;
     private static final String PROPERTY_META_PREFIX = "meta_";
     private static final String PROPERTY_CORRELATION_PREFIX = "correlation_";
     private static final String STREAM_ID = "streamID";
+    private StreamDefinition streamDefinition;
+    private OptionHolder optionHolder;
 
     /**
      * Initialize the mapper and the mapping configurations.
@@ -33,7 +32,8 @@ public class WSO2EventSinkmapper extends Sinkmapper {
      * @param payloadTemplateBuilder Unmapped payload for reference
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder
+            payloadTemplateBuilder) {
         this.streamDefinition = streamDefinition;
         this.optionHolder = optionHolder;
     }

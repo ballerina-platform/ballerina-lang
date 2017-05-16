@@ -21,10 +21,16 @@ package org.wso2.siddhi.extension.input.transport.kafka;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class ConsumerKafkaGroup {
+    private static final Logger log = Logger.getLogger(ConsumerKafkaGroup.class);
     private final String topics[];
     private final String partitions[];
     private final Properties props;
@@ -32,7 +38,6 @@ public class ConsumerKafkaGroup {
     private Map<String, Map<Integer, Long>> topicOffsetMap = new HashMap<>();
     private ScheduledExecutorService executorService;
     private String threadingOption;
-    private static final Logger log = Logger.getLogger(ConsumerKafkaGroup.class);
 
     public ConsumerKafkaGroup(String topics[], String partitions[], Properties props, Map<String, Map<Integer, Long>>
             topicOffsetMap, String threadingOption, ScheduledExecutorService executorService) {
@@ -62,7 +67,7 @@ public class ConsumerKafkaGroup {
 
     public void run(SourceEventListener sourceEventListener) {
         try {
-            if(KafkaSource.SINGLE_THREADED.equals(threadingOption)) {
+            if (KafkaSource.SINGLE_THREADED.equals(threadingOption)) {
                 KafkaConsumerThread kafkaConsumerThread =
                         new KafkaConsumerThread(sourceEventListener, topics, partitions, props, topicOffsetMap);
                 kafkaConsumerThreadList.add(kafkaConsumerThread);
@@ -73,7 +78,7 @@ public class ConsumerKafkaGroup {
                 for (String topic : topics) {
                     KafkaConsumerThread kafkaConsumerThread =
                             new KafkaConsumerThread(sourceEventListener, new String[]{topic}, partitions, props,
-                                                    topicOffsetMap);
+                                    topicOffsetMap);
                     kafkaConsumerThreadList.add(kafkaConsumerThread);
                     executorService.submit(kafkaConsumerThread);
                     log.info("Kafka Consumer thread starting to listen on topic: " + topic +
@@ -84,7 +89,7 @@ public class ConsumerKafkaGroup {
                     for (String partition : partitions) {
                         KafkaConsumerThread kafkaConsumerThread =
                                 new KafkaConsumerThread(sourceEventListener, new String[]{topic},
-                                                        new String[]{partition}, props, topicOffsetMap);
+                                        new String[]{partition}, props, topicOffsetMap);
                         kafkaConsumerThreadList.add(kafkaConsumerThread);
                         executorService.submit(kafkaConsumerThread);
                         log.info("Kafka Consumer thread starting to listen on topic: " + topic +

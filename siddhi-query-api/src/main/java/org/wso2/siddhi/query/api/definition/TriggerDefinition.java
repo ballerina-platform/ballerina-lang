@@ -20,11 +20,25 @@ package org.wso2.siddhi.query.api.definition;
 
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
+/**
+ * Siddhi Trigger Definition
+ */
 public class TriggerDefinition {
 
     private String id;
     private Long atEvery;
     private String at;
+
+    public TriggerDefinition() {
+    }
+
+    protected TriggerDefinition(String id) {
+        this.id = id;
+    }
+
+    public static TriggerDefinition id(String id) {
+        return new TriggerDefinition(id);
+    }
 
     public String getId() {
         return id;
@@ -36,17 +50,6 @@ public class TriggerDefinition {
 
     public String getAt() {
         return at;
-    }
-
-    public TriggerDefinition() {
-    }
-
-    protected TriggerDefinition(String id) {
-        this.id = id;
-    }
-
-    public static TriggerDefinition id(String id) {
-        return new TriggerDefinition(id);
     }
 
     public TriggerDefinition atEvery(long timeInMilliSeconds) {

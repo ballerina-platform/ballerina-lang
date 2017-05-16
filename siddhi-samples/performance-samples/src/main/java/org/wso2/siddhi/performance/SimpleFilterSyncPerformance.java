@@ -31,13 +31,16 @@ public class SimpleFilterSyncPerformance {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = " " +
-                "define stream RequestStream (messageID string, app_key string, api_key string, app_tier string, api_tier string, user_id string, properties string, timeNow long); " +
-                "define stream EligibilityStream (rule string, messageID string, isEligible bool, isLocallyThrottled bool, throttle_key string , timeNow long); ";
+                "define stream RequestStream (messageID string, app_key string, api_key string, app_tier string, " +
+                "api_tier string, user_id string, properties string, timeNow long); " +
+                "define stream EligibilityStream (rule string, messageID string, isEligible bool, isLocallyThrottled " +
+                "bool, throttle_key string , timeNow long); ";
 
         String query = "" +
                 "@info(name = 'query1') " +
                 "FROM RequestStream " +
-                "SELECT 'sub_gold' AS rule, messageID, ( api_tier == 'Gold') AS isEligible,false as isLocallyThrottled,  'sub_gold_TEST1TEST1Test1_key' AS throttle_key , timeNow \n" +
+                "SELECT 'sub_gold' AS rule, messageID, ( api_tier == 'Gold') AS isEligible,false as " +
+                "isLocallyThrottled,  'sub_gold_TEST1TEST1Test1_key' AS throttle_key , timeNow \n" +
                 "INSERT INTO EligibilityStream; " +
                 "@info(name = 'query2') " +
                 "FROM EligibilityStream[isEligible==false]\n" +
@@ -67,7 +70,8 @@ public class SimpleFilterSyncPerformance {
                             eventCount++;
                             timeSpent += (System.currentTimeMillis() - (Long) event.getData(3));
                             if (eventCount % 1000000 == 0) {
-                                System.out.println("Throughput : " + (eventCount * 1000) / ((System.currentTimeMillis()) - startTime));
+                                System.out.println("Throughput : " + (eventCount * 1000) / ((System.currentTimeMillis
+                                        ()) - startTime));
                                 System.out.println("Time spent :  " + (timeSpent * 1.0 / eventCount));
                                 startTime = System.currentTimeMillis();
                                 eventCount = 0;
@@ -101,10 +105,14 @@ public class SimpleFilterSyncPerformance {
         public void run() {
             while (true) {
                 try {
-                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System.currentTimeMillis()});
-                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System.currentTimeMillis()});
-                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System.currentTimeMillis()});
-                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System.currentTimeMillis()});
+                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System
+                            .currentTimeMillis()});
+                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System
+                            .currentTimeMillis()});
+                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System
+                            .currentTimeMillis()});
+                    inputHandler.send(new Object[]{"IBM", "TEST1", "TEST1", "TEST1", "Gold", "Test1", null, System
+                            .currentTimeMillis()});
                 } catch (InterruptedException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }

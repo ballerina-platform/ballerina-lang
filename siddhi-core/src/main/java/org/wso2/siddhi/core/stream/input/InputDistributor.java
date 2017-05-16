@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created on 11/28/14.
+ * Implementation of {@link InputProcessor} which inject the event to a set of Input Processors.
  */
 public class InputDistributor implements InputProcessor {
 

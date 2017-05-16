@@ -26,22 +26,27 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 
 public class KafkaConsumerThread implements Runnable {
 
-    private final KafkaConsumer<byte[], byte[]> consumer;
-    private SourceEventListener sourceEventListener;
     private static final Logger log = Logger.getLogger(KafkaConsumerThread.class);
+    private final KafkaConsumer<byte[], byte[]> consumer;
+    // KafkaConsumer is not thread safe, hence we need a lock
+    private final Lock consumerLock = new ReentrantLock();
+    private SourceEventListener sourceEventListener;
     private String topics[];
     private Map<String, Map<Integer, Long>> topicOffsetMap = new HashMap<>();
     private volatile boolean paused;
     private volatile boolean inactive;
-    // KafkaConsumer is not thread safe, hence we need a lock
-    private final Lock consumerLock = new ReentrantLock();
     private List<TopicPartition> partitionsList = new ArrayList<>();
 
     public KafkaConsumerThread(SourceEventListener sourceEventListener, String topics[], String partitions[],
@@ -50,9 +55,9 @@ public class KafkaConsumerThread implements Runnable {
         this.sourceEventListener = sourceEventListener;
         this.topicOffsetMap = topicOffsetMap;
         this.topics = topics;
-        if(null != partitions) {
+        if (null != partitions) {
             for (String topic : topics) {
-                if(null == topicOffsetMap.get(topic)) {
+                if (null == topicOffsetMap.get(topic)) {
                     this.topicOffsetMap.put(topic, new HashMap<>());
                 }
                 for (String partition1 : partitions) {
@@ -92,7 +97,8 @@ public class KafkaConsumerThread implements Runnable {
                     for (Map.Entry<Integer, Long> entry : offsetMap.entrySet()) {
                         TopicPartition partition = new TopicPartition(topic, entry.getKey());
                         if (partitionsList.contains(partition)) {
-                            log.info("Seeking partition: " + partition + " for topic: " + topic);
+                            log.info("Seeking partition: " + partition + " for topic: " + topic + " offset: " + (entry
+                                    .getValue() + 1));
                             try {
                                 consumerLock.lock();
                                 consumer.seek(partition, entry.getValue() + 1);

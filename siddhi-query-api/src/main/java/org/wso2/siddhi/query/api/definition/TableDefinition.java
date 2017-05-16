@@ -19,7 +19,11 @@ package org.wso2.siddhi.query.api.definition;
 
 import org.wso2.siddhi.query.api.annotation.Annotation;
 
+/**
+ * Siddhi Table Definition
+ */
 public class TableDefinition extends AbstractDefinition {
+    private static final long serialVersionUID = 1L;
 
     protected TableDefinition(String id) {
         super(id);

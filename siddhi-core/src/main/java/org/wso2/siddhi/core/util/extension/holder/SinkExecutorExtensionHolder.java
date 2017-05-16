@@ -22,6 +22,9 @@ import org.wso2.siddhi.core.stream.output.sink.Sink;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link Sink} Extensions.
+ */
 public class SinkExecutorExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = Sink.class;
 
@@ -30,7 +33,8 @@ public class SinkExecutorExtensionHolder extends AbstractExtensionHolder {
     }
 
     public static SinkExecutorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext
+                ().getExtensionHolderMap();
         AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
             abstractExtensionHolder = new SinkExecutorExtensionHolder(executionPlanContext);

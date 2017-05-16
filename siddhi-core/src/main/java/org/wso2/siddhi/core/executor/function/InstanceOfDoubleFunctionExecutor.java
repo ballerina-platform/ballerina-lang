@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -30,6 +31,9 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
+/**
+ * Executor class for instanceOf Double function. Function execution logic is implemented in execute here.
+ */
 @Extension(
         name = "instanceOfDouble",
         namespace = "",
@@ -43,14 +47,30 @@ import java.util.Map;
         returnAttributes = @ReturnAttribute(
                 description = "Returned type will be boolean and true if and only if the input " +
                         "is a instance of Double.",
-                type = {DataType.BOOL})
+                type = {DataType.BOOL}),
+        examples = {
+                @Example(
+                        syntax = "from fooStream\n" +
+                                "select instanceOfDouble(value) as state\n" +
+                                "insert into barStream;",
+                        description = "This will return true if the value field format is double ex : 56.45."
+                ),
+                @Example(
+                        syntax = "from fooStream\n" +
+                                "select instanceOfDouble(switchState) as state\n" +
+                                "insert into barStream;",
+                        description = "if the switchState = true then this will returns false as the value is not an" +
+                                " instance of the double."
+                )
+        }
 )
 public class InstanceOfDoubleFunctionExecutor extends FunctionExecutor {
 
     Attribute.Type returnType = Attribute.Type.BOOL;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfDouble() " +
                     "function, required only 1, but found " + attributeExpressionExecutors.length);
@@ -59,7 +79,7 @@ public class InstanceOfDoubleFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        return null;//Since the instanceOfDouble function takes in 1 parameter, this method does not get called.
+        return null; //Since the instanceOfDouble function takes in 1 parameter, this method does not get called.
         // Hence, not implemented.
     }
 

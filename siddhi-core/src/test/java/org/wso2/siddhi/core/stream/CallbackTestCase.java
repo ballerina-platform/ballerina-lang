@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.stream;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -37,7 +37,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
  */
 public class CallbackTestCase {
 
-    static final Logger log = Logger.getLogger(CallbackTestCase.class);
+    private static final Logger log = Logger.getLogger(CallbackTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 
@@ -89,8 +89,8 @@ public class CallbackTestCase {
 
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        inputHandler.send(new Object[]{"IBM", 700f, 100L});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);

@@ -35,6 +35,9 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation of {@link WindowProcessor} which represent a Window operating based on {@link Table}.
+ */
 public class TableWindowProcessor extends WindowProcessor implements FindableProcessor {
 
     private Table table;

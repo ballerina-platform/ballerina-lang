@@ -21,6 +21,9 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Executor class for Integer Add function. Function execution logic is implemented in execute here.
+ */
 public class AddExpressionExecutorInt implements ExpressionExecutor {
     private ExpressionExecutor leftExpressionExecutor;
     private ExpressionExecutor rightExpressionExecutor;
@@ -48,7 +51,8 @@ public class AddExpressionExecutorInt implements ExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new AddExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new AddExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor
+                .cloneExecutor(key));
     }
 
 }

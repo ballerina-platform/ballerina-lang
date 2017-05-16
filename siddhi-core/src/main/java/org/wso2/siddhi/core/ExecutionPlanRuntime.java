@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -124,7 +125,7 @@ public class ExecutionPlanRuntime {
         for (Map.Entry<String, List<Source>> sourceEntries : eventSourceMap.entrySet()) {
             InputHandler inputHandler = getInputHandler(sourceEntries.getKey());
             for (Source source : sourceEntries.getValue()) {
-                source.getMapper().setInputHandler(inputHandler);
+                source.getMapper().setInputEventHandler(new InputEventHandler(inputHandler, executionPlanContext));
             }
         }
     }

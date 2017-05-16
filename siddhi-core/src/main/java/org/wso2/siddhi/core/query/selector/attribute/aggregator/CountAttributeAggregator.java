@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
@@ -28,6 +29,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate count.
+ */
 @Extension(
         name = "count",
         namespace = "",
@@ -35,12 +39,18 @@ import java.util.Map;
         parameters = {},
         returnAttributes = @ReturnAttribute(
                 description = "Returns the event count as a long.",
-                type = {DataType.LONG})
+                type = {DataType.LONG}),
+        examples = @Example(
+                syntax = "from fooStream#window.timeBatch(10 sec)\n" +
+                        "select count() as count\n" +
+                        "insert into barStream;",
+                description = "This will return the count of all the events for time batch in 10 seconds."
+        )
 )
 public class CountAttributeAggregator extends AttributeAggregator {
 
     private static Attribute.Type type = Attribute.Type.LONG;
-    private long count = 0l;
+    private long count = 0L;
 
     /**
      * The initialization method for FunctionExecutor
@@ -49,7 +59,8 @@ public class CountAttributeAggregator extends AttributeAggregator {
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
 
     }
 
@@ -83,7 +94,7 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object reset() {
-        count = 0l;
+        count = 0L;
         return count;
     }
 

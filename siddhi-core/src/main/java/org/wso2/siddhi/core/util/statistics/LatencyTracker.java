@@ -31,7 +31,7 @@ public interface LatencyTracker {
 
     /**
      * This is to be called when latency calculation should be stopped
-     *  */
+     */
     void markOut();
 
     /**

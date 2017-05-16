@@ -19,9 +19,14 @@ package org.wso2.siddhi.query.api.expression.condition;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Not condition {@link Expression}
+ */
 public class Not extends Expression {
 
-    Expression expression;
+    private static final long serialVersionUID = 1L;
+
+    private Expression expression;
 
     public Not(Expression expression) {
         this.expression = expression;

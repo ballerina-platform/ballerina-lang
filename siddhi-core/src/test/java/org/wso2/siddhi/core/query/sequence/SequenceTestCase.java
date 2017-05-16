@@ -675,7 +675,8 @@ public class SequenceTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from every e1=Stream1[price>20], " +
-                "   e2=Stream1[(e2[last].price is null and price>=e1.price) or ((not (e2[last].price is null)) and price>=e2[last].price)]+, " +
+                "   e2=Stream1[(e2[last].price is null and price>=e1.price) or ((not (e2[last].price is null)) and " +
+                "price>=e2[last].price)]+, " +
                 "   e3=Stream1[price<e2[last].price] " +
                 "select e1.price as price1, e2[0].price as price2, e2[1].price as price3, e3.price as price4 " +
                 "insert into OutputStream ;";
@@ -804,7 +805,8 @@ public class SequenceTestCase {
                 "define stream TwitterStream (symbol string, count int); ";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from every e1=StockStream[ price >= 50 and volume > 100 ], e2=StockStream[price <= 40]*, e3=StockStream[volume <= 70] " +
+                "from every e1=StockStream[ price >= 50 and volume > 100 ], e2=StockStream[price <= 40]*, " +
+                "e3=StockStream[volume <= 70] " +
                 "select e1.symbol as symbol1, e2[0].symbol as symbol2, e3.symbol as symbol3 " +
                 "insert into OutputStream ;";
 
@@ -864,7 +866,8 @@ public class SequenceTestCase {
                 "define stream StockStream2 (symbol string, price float, volume int); ";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from every e1=StockStream1[ price >= 50 and volume > 100 ], e2=StockStream2[price <= 40]*, e3=StockStream2[volume <= 70] " +
+                "from every e1=StockStream1[ price >= 50 and volume > 100 ], e2=StockStream2[price <= 40]*, " +
+                "e3=StockStream2[volume <= 70] " +
                 "select e3.symbol as symbol1, e2[0].symbol as symbol2, e3.volume as volume " +
                 "insert into OutputStream ;";
 
@@ -938,7 +941,8 @@ public class SequenceTestCase {
                 "define stream StockStream2 (symbol string, price float, volume int); ";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from every e1=StockStream1[ price >= 50 and volume > 100 ], e2=StockStream2[e1.symbol != 'AMBA']*, e3=StockStream2[volume <= 70] " +
+                "from every e1=StockStream1[ price >= 50 and volume > 100 ], e2=StockStream2[e1.symbol != 'AMBA']*, " +
+                "e3=StockStream2[volume <= 70] " +
                 "select e3.symbol as symbol1, e2[0].symbol as symbol2, e3.volume as volume " +
                 "insert into OutputStream ;";
 
@@ -1081,7 +1085,8 @@ public class SequenceTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from every e1=Stream1[price>20], " +
-                "   e2=Stream1[((e2[last].price is null) and price>=e1.price) or ((not (e2[last].price is null)) and price>=e2[last].price)]+, " +
+                "   e2=Stream1[((e2[last].price is null) and price>=e1.price) or ((not (e2[last].price is null)) and " +
+                "price>=e2[last].price)]+, " +
                 "   e3=Stream1[price<e2[last].price] " +
                 "select e1.price as price1, e2[0].price as price2, e2[1].price as price3, e3.price as price4 " +
                 "insert into OutputStream ;";
@@ -1148,7 +1153,8 @@ public class SequenceTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from every e1=Stream1[price>20], " +
-                "   e2=Stream1[((e2[last].price is null) and price>=e1.price) or ((not (e2[last].price is null)) and price>=e2[last].price)]+, " +
+                "   e2=Stream1[((e2[last].price is null) and price>=e1.price) or ((not (e2[last].price is null)) and " +
+                "price>=e2[last].price)]+, " +
                 "   e3=Stream1[price<e2[last].price] " +
                 "select e1.price as price1, e2[0].price as price2, e2[1].price as price3, e3.price as price4 " +
                 "insert into OutputStream ;";
@@ -1211,7 +1217,8 @@ public class SequenceTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from every e1=Stream1[price>20], " +
-                "   e2=Stream1[((e2[last].price is null) and price>=e1.price) or ((not (e2[last].price is null)) and price>=e2[last].price)]+, " +
+                "   e2=Stream1[((e2[last].price is null) and price>=e1.price) or ((not (e2[last].price is null)) and " +
+                "price>=e2[last].price)]+, " +
                 "   e3=Stream1[price<e2[last].price] " +
                 "select e1.price as price1, e2[0].price as price2, e2[1].price as price3, e3.price as price4 " +
                 "insert into OutputStream ;";
@@ -1294,9 +1301,11 @@ public class SequenceTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from every e1=Stream1[price>20], " +
-                "   e2=Stream1[((e2[last].price is null) and price>=e1.price) or ((not (e2[last].price is null)) and price>=e2[last].price)]+, " +
+                "   e2=Stream1[((e2[last].price is null) and price>=e1.price) or ((not (e2[last].price is null)) and " +
+                "price>=e2[last].price)]+, " +
                 "   e3=Stream1[price<e2[last].price] " +
-                "select e1.price as price1, e2[0].price as price2, e2[last-2].price as price3, e2[last-1].price as price4, e2[last].price as price5, e3.price as price6, e2[last-20].price as price7 " +
+                "select e1.price as price1, e2[0].price as price2, e2[last-2].price as price3, e2[last-1].price as " +
+                "price4, e2[last].price as price5, e3.price as price6, e2[last-20].price as price7 " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -1310,7 +1319,8 @@ public class SequenceTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{25.0f, 35.6f, 45.5f, 57.6f, 58.6f, 47.6f, null}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{25.0f, 35.6f, 45.5f, 57.6f, 58.6f, 47.6f,
+                                        null}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(1, inEventCount);
@@ -1367,9 +1377,11 @@ public class SequenceTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from every e1=Stream1[price>20], " +
-                "   e2=Stream1[((e2[last].price is null) and price>=e1.price) or ((not (e2[last].price is null)) and price>=e2[last].price)]+, " +
+                "   e2=Stream1[((e2[last].price is null) and price>=e1.price) or ((not (e2[last].price is null)) and " +
+                "price>=e2[last].price)]+, " +
                 "   e3=Stream1[price<e2[last].price and price>e2[last-1].price] " +
-                "select e1.price as price1, e2[0].price as price2, e2[last-2].price as price3, e2[last-1].price as price4, e2[last].price as price5, e3.price as price6, e2[last-20].price as price7 " +
+                "select e1.price as price1, e2[0].price as price2, e2[last-2].price as price3, e2[last-1].price as " +
+                "price4, e2[last].price as price5, e3.price as price6, e2[last-20].price as price7 " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -1383,7 +1395,8 @@ public class SequenceTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{25.0f, 35.6f, 45.5f, 57.6f, 58.6f, 57.7f, null}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{25.0f, 35.6f, 45.5f, 57.6f, 58.6f, 57.7f,
+                                        null}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(1, inEventCount);
@@ -1448,7 +1461,8 @@ public class SequenceTestCase {
                 "from every e1=Stream1[price>20], " +
                 "   e2=Stream1[price>=e2[last].price or price>=e1.price ]+, " +
                 "   e3=Stream1[price<e2[last].price]" +
-                "select e1.price as price1, e2[0].price as price2, e2[last-2].price as price3, e2[last-1].price as price4, e2[last].price as price5, e3.price as price6 " +
+                "select e1.price as price1, e2[0].price as price2, e2[last-2].price as price3, e2[last-1].price as " +
+                "price4, e2[last].price as price5, e3.price as price6 " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -1462,10 +1476,12 @@ public class SequenceTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{25.0f, 35.6f, null, null, 35.6f, 29.5f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{25.0f, 35.6f, null, null, 35.6f, 29.5f}, event
+                                        .getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{29.5f, 57.6f, null, 57.6f, 58.6f, 57.7f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{29.5f, 57.6f, null, 57.6f, 58.6f, 57.7f}, event
+                                        .getData());
                                 break;
                             default:
                                 Assert.assertSame(2, inEventCount);
@@ -1523,9 +1539,11 @@ public class SequenceTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from every e1=Stream1[price>20], " +
-                "   e2=Stream1[(price>=e2[last].price and (not (e2[last-1].price is null)) and price>=e2[last-1].price+5)  or ((e2[last-1].price is null) and price>=e1.price+5 )]+, " +
+                "   e2=Stream1[(price>=e2[last].price and (not (e2[last-1].price is null)) and price>=e2[last-1]" +
+                ".price+5)  or ((e2[last-1].price is null) and price>=e1.price+5 )]+, " +
                 "   e3=Stream1[price<e2[last].price]" +
-                "select e1.price as price1, e2[0].price as price2, e2[last-2].price as price3, e2[last-1].price as price4, e2[last].price as price5, e3.price as price6 " +
+                "select e1.price as price1, e2[0].price as price2, e2[last-2].price as price3, e2[last-1].price as " +
+                "price4, e2[last].price as price5, e3.price as price6 " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -1539,7 +1557,8 @@ public class SequenceTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{43.6f, 57.7f, null, 57.7f, 58.7f, 45.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{43.6f, 57.7f, null, 57.7f, 58.7f, 45.6f}, event
+                                        .getData());
                                 break;
                             default:
                                 Assert.assertSame(1, inEventCount);
@@ -1600,7 +1619,8 @@ public class SequenceTestCase {
                 "insert into reclamation_averages;" +
                 "" +
                 "@info(name = 'query2') " +
-                "from a=reclamation_averages[num > 1], b=reclamation_averages[num > a.num and product_id == a.product_id and defect_category == a.defect_category] " +
+                "from a=reclamation_averages[num > 1], b=reclamation_averages[num > a.num and product_id == a" +
+                ".product_id and defect_category == a.defect_category] " +
                 "select a.product_id, a.defect_category, a.num as oldNum, b.num as newNum " +
                 "insert into increased_reclamations;";
 

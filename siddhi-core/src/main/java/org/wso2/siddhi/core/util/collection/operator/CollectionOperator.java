@@ -83,7 +83,8 @@ public class CollectionOperator implements Operator {
             while (deletingEventChunk.hasNext()) {
                 StateEvent deletingEvent = deletingEventChunk.next();
                 try {
-                    for (Iterator<StreamEvent> iterator = ((Collection<StreamEvent>) storeEvents).iterator(); iterator.hasNext(); ) {
+                    for (Iterator<StreamEvent> iterator = ((Collection<StreamEvent>) storeEvents).iterator();
+                         iterator.hasNext(); ) {
                         StreamEvent storeEvent = iterator.next();
                         deletingEvent.setEvent(storeEventPosition, storeEvent);
                         if ((Boolean) expressionExecutor.execute(deletingEvent)) {
@@ -99,7 +100,8 @@ public class CollectionOperator implements Operator {
 
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[]
+            updateAttributeMappers) {
         if (((Collection<StreamEvent>) storeEvents).size() > 0) {
             updatingEventChunk.reset();
             while (updatingEventChunk.hasNext()) {
@@ -121,11 +123,14 @@ public class CollectionOperator implements Operator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object storeEvents,
-                                                    UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
+    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object
+            storeEvents,
+                                                    UpdateAttributeMapper[] updateAttributeMappers,
+                                                    AddingStreamEventExtractor addingStreamEventExtractor) {
 
         updatingOrAddingEventChunk.reset();
-        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(updatingOrAddingEventChunk.isBatch());
+        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>
+                (updatingOrAddingEventChunk.isBatch());
         while (updatingOrAddingEventChunk.hasNext()) {
             StateEvent updateOrAddingEvent = updatingOrAddingEventChunk.next();
             try {

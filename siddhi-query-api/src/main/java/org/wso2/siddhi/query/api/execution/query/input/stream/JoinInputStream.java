@@ -23,6 +23,9 @@ import org.wso2.siddhi.query.api.expression.constant.Constant;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Joining input streams in a query
+ */
 public class JoinInputStream extends InputStream {
 
     private InputStream leftInputStream;
@@ -31,12 +34,6 @@ public class JoinInputStream extends InputStream {
     private Expression onCompare;
     private EventTrigger trigger;
     private Constant within;
-
-    public enum Type {JOIN, INNER_JOIN, LEFT_OUTER_JOIN, RIGHT_OUTER_JOIN, FULL_OUTER_JOIN}
-
-    public enum EventTrigger {
-        LEFT, RIGHT, ALL
-    }
 
     public JoinInputStream(SingleInputStream leftInputStream, Type type,
                            SingleInputStream rightInputStream, Expression onCompare, Constant within,
@@ -103,6 +100,26 @@ public class JoinInputStream extends InputStream {
             }
         }
         return list;
+    }
+
+    /**
+     * Different join types
+     */
+    public enum Type {
+        JOIN,
+        INNER_JOIN,
+        LEFT_OUTER_JOIN,
+        RIGHT_OUTER_JOIN,
+        FULL_OUTER_JOIN
+    }
+
+    /**
+     * Different triggers to start joining process
+     */
+    public enum EventTrigger {
+        LEFT,
+        RIGHT,
+        ALL
     }
 
 

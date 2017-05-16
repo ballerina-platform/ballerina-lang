@@ -26,6 +26,11 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 
+/**
+ * Implementation of {@link OutputCallback} to receive processed Siddhi events from
+ * Siddhi queries and delete data in a {@link Table} based on received events
+ * and condition.
+ */
 public class DeleteTableCallback extends OutputCallback {
     private final int matchingStreamIndex;
     private Table table;
@@ -51,8 +56,10 @@ public class DeleteTableCallback extends OutputCallback {
     public synchronized void send(ComplexEventChunk deletingEventChunk) {
         deletingEventChunk.reset();
         if (deletingEventChunk.hasNext()) {
-            ComplexEventChunk<StateEvent> deletingStateEventChunk = constructMatchingStateEventChunk(deletingEventChunk,
-                    convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
+            ComplexEventChunk<StateEvent> deletingStateEventChunk = constructMatchingStateEventChunk(
+                    deletingEventChunk, convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool,
+                    streamEventConvertor);
+
             table.delete(deletingStateEventChunk, compiledCondition);
         }
     }

@@ -19,27 +19,39 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 
+/**
+ * Implementation of {@link Sink} which represents in-memory transport. This implementation can send incoming objects
+ * to in-memory transport within JVM.
+ */
 @Extension(
         name = "inMemory",
         namespace = "sink",
-        description = "In-memory sink that can communicate with other in-memory sources within the same JVM, it" +
+        description = "In-memory transport that can communicate with other in-memory transports within the same JVM, " +
+                "it" +
                 "is assumed that the publisher and subscriber of a topic uses same event schema (stream definition).",
         parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Event will be delivered to all" +
-                "the subscribers of the same topic")
+                "the subscribers of the same topic"),
+        examples = @Example(
+                syntax = "@sink(type='inMemory', @map(type='passThrough'),\n" +
+                        "define stream BarStream (symbol string, price float, volume long)",
+                description = "In this example BarStream uses inMemory transport which emit the Siddhi " +
+                        "events internally without using external transport and transformation."
+        )
 )
 public class InMemorySink extends Sink {
     private static final Logger log = Logger.getLogger(InMemorySink.class);
@@ -52,7 +64,9 @@ public class InMemorySink extends Sink {
     }
 
     @Override
-    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
+                        ConfigReader sinkConfigReader, ExecutionPlanContext
+            executionPlanContext) {
         topicOption = optionHolder.validateAndGetOption(TOPIC_KEY);
     }
 

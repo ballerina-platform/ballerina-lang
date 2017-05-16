@@ -26,6 +26,9 @@ import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
+/**
+ * Sequence query test case
+ */
 public class SequenceQueryTestCase {
 
 //    from e1=Stream1[price >= 20] , e2=Stream2[ price >= e1.price]

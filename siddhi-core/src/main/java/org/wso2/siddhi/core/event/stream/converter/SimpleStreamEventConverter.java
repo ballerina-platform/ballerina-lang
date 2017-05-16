@@ -42,7 +42,8 @@ public class SimpleStreamEventConverter implements StreamEventConverter {
     }
 
     public void convertEvent(Event event, StreamEvent borrowedEvent) {
-        convertData(event.getTimestamp(), event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent.Type.CURRENT,
+        convertData(event.getTimestamp(), event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent
+                        .Type.CURRENT,
                 borrowedEvent);
     }
 

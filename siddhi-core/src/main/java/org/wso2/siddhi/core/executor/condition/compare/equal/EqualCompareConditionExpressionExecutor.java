@@ -20,6 +20,9 @@ package org.wso2.siddhi.core.executor.condition.compare.equal;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.compare.CompareConditionExpressionExecutor;
 
+/**
+ * Parent Executor class for Equal condition. Data type specific sub classes will extend this.
+ */
 public abstract class EqualCompareConditionExpressionExecutor extends CompareConditionExpressionExecutor {
 
     public EqualCompareConditionExpressionExecutor(ExpressionExecutor leftExpressionExecutor,

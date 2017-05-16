@@ -55,6 +55,14 @@
             <artifactId>json-path</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -86,4 +94,8 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <mavan.findbugsplugin.exclude.file>../../../../findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+    </properties>
 </project>
