@@ -31,8 +31,11 @@ import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlighter;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
+import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
@@ -141,6 +144,25 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
         }
     }
 
+    public static class Resource extends BallerinaCodeContextType {
+
+        protected Resource() {
+            super("BALLERINA_RESOURCE", "Resource", BallerinaEverywhereContextType.class);
+        }
+
+        @Override
+        protected boolean isInContext(@NotNull PsiElement element) {
+            ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                    ResourceDefinitionNode.class);
+            CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getParentOfType(element,
+                    CallableUnitBodyNode.class);
+            if (resourceDefinitionNode == null || callableUnitBodyNode == null) {
+                return false;
+            }
+            return true;
+        }
+    }
+
     public static class Connector extends BallerinaCodeContextType {
 
         protected Connector() {
@@ -173,6 +195,61 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
             }
 
             return false;
+        }
+    }
+
+    public static class Action extends BallerinaCodeContextType {
+
+        protected Action() {
+            super("BALLERINA_ACTION", "Action", BallerinaEverywhereContextType.class);
+        }
+
+        @Override
+        protected boolean isInContext(@NotNull PsiElement element) {
+            ActionDefinitionNode actionDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                    ActionDefinitionNode.class);
+            CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getParentOfType(element,
+                    CallableUnitBodyNode.class);
+            if (actionDefinitionNode == null || callableUnitBodyNode == null) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    public static class Function extends BallerinaCodeContextType {
+
+        protected Function() {
+            super("BALLERINA_FUNCTION", "Function", BallerinaEverywhereContextType.class);
+        }
+
+        @Override
+        protected boolean isInContext(@NotNull PsiElement element) {
+            FunctionDefinitionNode functionDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                    FunctionDefinitionNode.class);
+            CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getParentOfType(element,
+                    CallableUnitBodyNode.class);
+            if (functionDefinitionNode == null || callableUnitBodyNode == null) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    public static class ForkJoin extends BallerinaCodeContextType {
+
+        protected ForkJoin() {
+            super("BALLERINA_FORK_JOIN", "Fork Join", BallerinaEverywhereContextType.class);
+        }
+
+        @Override
+        protected boolean isInContext(@NotNull PsiElement element) {
+            ForkJoinStatementNode forkJoinStatementNode = PsiTreeUtil.getParentOfType(element,
+                    ForkJoinStatementNode.class);
+            if (forkJoinStatementNode == null) {
+                return false;
+            }
+            return true;
         }
     }
 }

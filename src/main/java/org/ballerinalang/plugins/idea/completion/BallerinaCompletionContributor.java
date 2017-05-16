@@ -49,10 +49,10 @@ import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
@@ -436,7 +436,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         return true;
                     }
                 } else if (elementType == BallerinaTypes.ASSIGN) {
-                    addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
+                    addCreateKeyword(resultSet);
                     addLookups(resultSet, originalFile, true, true, true, true);
                     return true;
                 } else if (elementType == BallerinaTypes.CREATE) {
@@ -446,8 +446,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     return true;
                 }
             }
-        } else {
-            //            addKeywordAsLookup(resultSet, ACTION, KEYWORDS_PRIORITY);
         }
         return false;
     }
@@ -465,7 +463,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     IElementType elementType = ((LeafPsiElement) token).getElementType();
                     if (elementType == BallerinaTypes.ASSIGN) {
                         // Eg: function test(){ string s = <caret> + " world"; }
-                        addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
+                        addCreateKeyword(resultSet);
                         addLookups(resultSet, originalFile, true, true, true, true);
                         addVariableTypesAsLookups(resultSet, originalFile, element);
                     } else if (elementType == BallerinaTypes.COLON) {
@@ -513,6 +511,19 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         addLookups(resultSet, originalFile, true, true, true, false);
                         addVariableTypesAsLookups(resultSet, originalFile, element);
                     } else {
+                        ForkJoinStatementNode node = PsiTreeUtil.getParentOfType(element, ForkJoinStatementNode.class);
+                        if (node != null) {
+                            PsiElement previousNonEmptyElement = getPreviousNonEmptyElement(originalFile,
+                                    element.getTextOffset() - 1);
+                            if (previousNonEmptyElement instanceof LeafPsiElement) {
+                                IElementType prevTokenElementType = ((LeafPsiElement) previousNonEmptyElement)
+                                        .getElementType();
+                                if (prevTokenElementType == BallerinaTypes.JOIN) {
+                                    addJoinConditionKeywords(resultSet);
+                                    return;
+                                }
+                            }
+                        }
                         // Eg: function test(){t<caret>}
                         addTypeNamesAsLookups(resultSet);
                         addLookups(resultSet, originalFile, true, true, true, true);
@@ -535,7 +546,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         // Cannot use a switch statement since the types are not constants and declaring them final does not fix
         // the issue as well.
         if (elementType == BallerinaTypes.ASSIGN) {
-            addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
+            addCreateKeyword(resultSet);
             addLookups(resultSet, originalFile, true, true, true, true);
             addVariableTypesAsLookups(resultSet, originalFile, element);
         } else if (elementType == BallerinaTypes.COLON) {
@@ -584,6 +595,18 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             addLookups(resultSet, originalFile, true, true, true, false);
             addVariableTypesAsLookups(resultSet, originalFile, element);
         } else {
+            ForkJoinStatementNode node = PsiTreeUtil.getParentOfType(element, ForkJoinStatementNode.class);
+            if (node != null) {
+                PsiElement previousNonEmptyElement = getPreviousNonEmptyElement(originalFile,
+                        element.getTextOffset() - 1);
+                if (previousNonEmptyElement instanceof LeafPsiElement) {
+                    IElementType prevTokenElementType = ((LeafPsiElement) previousNonEmptyElement).getElementType();
+                    if (prevTokenElementType == BallerinaTypes.JOIN) {
+                        addJoinConditionKeywords(resultSet);
+                        return;
+                    }
+                }
+            }
             // Eg: function test(){ <caret> \n OTHER_CODES }
             addTypeNamesAsLookups(resultSet);
             addLookups(resultSet, originalFile, true, true, true, true);
@@ -770,7 +793,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                              @NotNull CompletionResultSet resultSet, @NotNull PsiElement prevElement) {
         PsiFile originalFile = parameters.getOriginalFile();
 
-        addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
+        addCreateKeyword(resultSet);
         addTypeNamesAsLookups(resultSet);
         addCommonKeywords(resultSet);
         addFunctionSpecificKeywords(parameters, resultSet);
@@ -949,7 +972,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
                 addLookups(resultSet, originalFile, true, true, false, true);
                 addVariableTypesAsLookups(resultSet, originalFile, currentElement);
-                addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
+                addCreateKeyword(resultSet);
             } else {
                 PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
                 addLookups(resultSet, originalFile, true, true, true, true);
@@ -984,7 +1007,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             addLookups(resultSet, originalFile, true, true, false, false);
             addVariableTypesAsLookups(resultSet, originalFile, element);
             if (elementType == BallerinaTypes.ASSIGN) {
-                addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
+                addCreateKeyword(resultSet);
             }
         } else if (elementType == BallerinaTypes.DOT) {
             element = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
@@ -1028,7 +1051,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         addResourceSpecificKeywords(parameters, resultSet);
         addActionSpecificKeywords(parameters, resultSet);
         addCommonKeywords(resultSet);
-        addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
+        addCreateKeyword(resultSet);
     }
 
     /**
@@ -1301,6 +1324,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         } else if (superParent instanceof VariableReferenceNode) {
             // Eg: int a = 10; int b = a <caret>+ a;
             handleVariableReferenceNode(parameters, resultSet);
+        } else if (superParent instanceof ForkJoinStatementNode) {
+            handleStatementNode(parameters, resultSet);
         } else {
             // Handle all other situations.
             if (parentPrevSibling == null) {

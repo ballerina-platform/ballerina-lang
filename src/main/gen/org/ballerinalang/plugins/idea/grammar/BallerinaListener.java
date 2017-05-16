@@ -1,4 +1,4 @@
-// Generated from plugin-intellij/src/main/java/org/ballerinalang/plugins/idea/grammar/Ballerina.g4 by ANTLR 4.6
+// Generated from /home/shan/Documents/WSO2/Highlighters/plugin-intellij/src/main/java/org/ballerinalang/plugins/idea/grammar/Ballerina.g4 by ANTLR 4.6
 package org.ballerinalang.plugins.idea.grammar;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -508,16 +508,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#joinClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterJoinClause(BallerinaParser.JoinClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#joinClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitJoinClause(BallerinaParser.JoinClauseContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code anyJoinCondition}
 	 * labeled alternative in {@link BallerinaParser#joinConditions}.
 	 * @param ctx the parse tree
@@ -541,16 +531,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#timeoutClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#timeoutClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#tryCatchStatement}.
 	 * @param ctx the parse tree

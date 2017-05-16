@@ -103,7 +103,14 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder RETURN;
     private static final LookupElementBuilder IF;
     private static final LookupElementBuilder ELSE;
-    static final LookupElementBuilder CREATE;
+    private static final LookupElementBuilder CREATE;
+    private static final LookupElementBuilder FORK;
+    private static final LookupElementBuilder JOIN;
+    private static final LookupElementBuilder ALL;
+    private static final LookupElementBuilder SOME;
+    private static final LookupElementBuilder TIMEOUT;
+    private static final LookupElementBuilder WORKER;
+
 
     static {
         PACKAGE = createKeywordLookupElement("package", AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
@@ -139,6 +146,12 @@ public class BallerinaCompletionUtils {
         IF = createKeywordLookupElement("if", ParenthesisInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         ELSE = createKeywordLookupElement("else", AddSpaceInsertHandler.INSTANCE);
         CREATE = createKeywordLookupElement("create", AddSpaceInsertHandler.INSTANCE);
+        FORK = createKeywordLookupElement("fork", ParenthesisInsertHandler.INSTANCE);
+        JOIN = createKeywordLookupElement("join", AddSpaceInsertHandler.INSTANCE);
+        ALL = createKeywordLookupElement("all", null);
+        SOME = createKeywordLookupElement("some", AddSpaceInsertHandler.INSTANCE);
+        TIMEOUT = createKeywordLookupElement("timeout", ParenthesisInsertHandler.INSTANCE);
+        WORKER = createKeywordLookupElement("worker", AddSpaceInsertHandler.INSTANCE);
     }
 
     private BallerinaCompletionUtils() {
@@ -293,7 +306,24 @@ public class BallerinaCompletionUtils {
     static void addCommonKeywords(@NotNull CompletionResultSet resultSet) {
         addKeywordAsLookup(resultSet, IF, KEYWORDS_PRIORITY);
         addKeywordAsLookup(resultSet, ELSE, KEYWORDS_PRIORITY);
-        // todo - add fork/join, while, etc
+        addKeywordAsLookup(resultSet, FORK, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, JOIN, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, TIMEOUT, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, WORKER, KEYWORDS_PRIORITY);
+    }
+
+    /**
+     * Adds keywords related to join conditions.
+     *
+     * @param resultSet result list which is used to add lookups
+     */
+    static void addJoinConditionKeywords(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, ALL, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, SOME, KEYWORDS_PRIORITY);
+    }
+
+    static void addCreateKeyword(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
     }
 
     /**

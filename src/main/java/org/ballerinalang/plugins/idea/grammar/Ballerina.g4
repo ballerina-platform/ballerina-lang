@@ -256,24 +256,16 @@ breakStatement
     :   'break' ';'
     ;
 
-// typeName is only message
-forkJoinStatement
-    :   'fork' '(' variableReference ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
-    ;
-
 // below typeName is only 'message[]'
-joinClause
-    :   'join' ('(' joinConditions ')')? '(' typeName Identifier ')' '{' statement* '}'
+forkJoinStatement
+    :   'fork' '(' variableReference ')' '{' workerDeclaration* '}'
+        ('join' ('(' joinConditions ')')? '(' typeName Identifier ')' '{' statement* '}')?
+        ('timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement* '}')?
     ;
 
 joinConditions
     :   'some' IntegerLiteral (Identifier (',' Identifier)*)? 	# anyJoinCondition
     |   'all' (Identifier (',' Identifier)*)? 		            # allJoinCondition
-    ;
-
-// below typeName is only 'message[]'
-timeoutClause
-    :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement* '}'
     ;
 
 tryCatchStatement
