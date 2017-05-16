@@ -354,7 +354,7 @@ transactionStatement
     ;
 
 rollbackClause
-    :   'onRollback' '{' statement* '}'
+    :   'onrollback' '{' statement* '}'
     ;
 
 abortStatement
