@@ -65,7 +65,7 @@ public class BuiltinPackageRepository extends PackageRepository {
 
         if (internalPkgRepo != null) {
             PackageSource pkgSource = internalPkgRepo.loadPackage(packageDirPath);
-            if (pkgSource != null) {
+            if (pkgSource != null && !pkgSource.getSourceFileStreamMap().isEmpty()) {
                 return pkgSource;
             }
         }
