@@ -32,6 +32,7 @@ import java.util.Map;
 public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol, StructuredUnit {
     private Identifier identifier;
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
     private String[] attachmentPoints;
     private SymbolName symbolName;
     private AnnotationAttributeDef[] attributes;
@@ -56,6 +57,15 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 
     /**
@@ -204,6 +214,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
      */
     public static class AnnotationDefBuilder {
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private Identifier identifier;
         private String pkgPath;
         private String pkgName;
@@ -280,7 +291,15 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
         public void addAnnotation(AnnotationAttachment annotation) {
             this.annotationList.add(annotation);
         }
-        
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
         /**
          * Build the annotation definition.
          *
@@ -288,6 +307,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
          */
         public AnnotationDef build() {
             annotationDef.location = location;
+            annotationDef.whiteSpaceDescriptor = whiteSpaceDescriptor;
             annotationDef.identifier = identifier;
             annotationDef.attachmentPoints = attachmentPoints.toArray(new String[attachmentPoints.size()]);
             annotationDef.symbolName = new SymbolName(identifier.getName(), pkgPath);

@@ -35,13 +35,13 @@ public class GlobalVariableDef extends VariableDef implements CompilationUnit {
 
 
     public GlobalVariableDef(NodeLocation location,
+                             WhiteSpaceDescriptor whiteSpaceDescriptor,
                              Identifier identifier,
                              SimpleTypeName typeName,
                              String pkgPath,
                              SymbolName symbolName,
                              SymbolScope symbolScope) {
-
-        super(location, identifier, typeName, symbolName, symbolScope);
+        super(location, whiteSpaceDescriptor, identifier, typeName, symbolName, symbolScope);
         this.pkgPath = pkgPath;
         this.annotations = new ArrayList<>();
     }

@@ -34,7 +34,7 @@ public class ResourceInvocationExpr extends AbstractExpression implements Execut
     private Expression[] exprs;
 
     public ResourceInvocationExpr(Resource resource, Expression[] exprs) {
-        super(null);
+        super(null, null);
         this.resource = resource;
         this.exprs = exprs;
     }

@@ -46,6 +46,7 @@ import java.util.Map;
  */
 public class BallerinaAction implements Action, SymbolScope, Node {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
     protected Identifier identifier;
@@ -187,6 +188,15 @@ public class BallerinaAction implements Action, SymbolScope, Node {
         return location;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
     // Methods in BLangSymbol interface
 
     @Override
@@ -275,6 +285,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
         public BallerinaAction buildAction() {
             bAction.location = this.location;
+            bAction.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             bAction.identifier = this.identifier;
             bAction.pkgPath = this.pkgPath;
             bAction.symbolName = new SymbolName(identifier.getName(), pkgPath);

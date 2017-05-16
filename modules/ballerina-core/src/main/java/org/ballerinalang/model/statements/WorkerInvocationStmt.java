@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.CallableUnitInvocationExpr;
 import org.ballerinalang.model.expressions.Expression;
@@ -43,8 +44,10 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     private int retuningBranchID;
     private boolean hasReturningBranch;
 
-    public WorkerInvocationStmt(String workerName, NodeLocation nodeLocation) {
+    public WorkerInvocationStmt(String workerName, NodeLocation nodeLocation,
+                                WhiteSpaceDescriptor whiteSpaceDescriptor) {
         super(nodeLocation);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.workerName = workerName;
     }
 
