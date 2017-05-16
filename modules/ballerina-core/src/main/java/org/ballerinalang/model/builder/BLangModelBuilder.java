@@ -72,6 +72,7 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -84,6 +85,8 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -151,6 +154,9 @@ public class BLangModelBuilder {
     protected Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
 
     protected Stack<TryCatchStmt.TryCatchStmtBuilder> tryCatchStmtBuilderStack = new Stack<>();
+
+    protected Stack<TransactionRollbackStmt.TransactionRollbackStmtBuilder> transactionRollbackStmtBuilderStack =
+            new Stack<>();
 
     protected Stack<ForkJoinStmt.ForkJoinStmtBuilder> forkJoinStmtBuilderStack = new Stack<>();
     protected Stack<List<Worker>> workerStack = new Stack<>();
@@ -580,6 +586,7 @@ public class BLangModelBuilder {
             if (i == dimensions) {
                 parent = new VariableRefExpr(location, whiteSpaceDescriptor, nameReference.name, nameReference.pkgName,
                         nameReference.pkgPath);
+                ((VariableRefExpr) parent).setIsArrayIndexExpr(true);
             } else {
                 parent = exprStack.pop();
             }
@@ -1133,6 +1140,39 @@ public class BLangModelBuilder {
         addToBlockStmt(breakStmt);
     }
 
+    public void startTransformStmt(NodeLocation location) {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(blockStmtBuilder);
+        currentScope = blockStmtBuilder.getCurrentScope();
+    }
+
+    public void createTransformStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        // Create a transform statement builder
+        TransformStmt.TransformStmtBuilder transformStmtBuilder = new TransformStmt.TransformStmtBuilder();
+        transformStmtBuilder.setNodeLocation(location);
+        transformStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+
+        // Get the statement block at the top of the block statement stack and set as the transform body.
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        BlockStmt blockStmt = blockStmtBuilder.build();
+        transformStmtBuilder.setTransformBody(blockStmt);
+
+        Map<String, Expression> inputs = new HashMap<>(); // right hand expressions by variable
+        Map<String, Expression> outputs = new HashMap<>(); //left hand expressions by variable
+
+        validateTransformStatementBody(blockStmt, inputs, outputs);
+
+        transformStmtBuilder.setInputExprs((inputs.values()).toArray(new Expression[inputs.values().size()]));
+        transformStmtBuilder.setOutputExprs((outputs.values()).toArray(new Expression[outputs.values().size()]));
+
+        // Close the current scope and open the enclosing scope
+        currentScope = blockStmt.getEnclosingScope();
+
+        // Add the transform statement to the statement block which is at the top of the stack.
+        TransformStmt transformStmt = transformStmtBuilder.build();
+        blockStmtBuilderStack.peek().addStmt(transformStmt);
+    }
+
     public void startIfElseStmt(NodeLocation location) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = new IfElseStmt.IfElseStmtBuilder();
         ifElseStmtBuilder.setNodeLocation(location);
@@ -1449,6 +1489,52 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
     }
 
+    public void startTransactionhStmt(NodeLocation location) {
+        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder
+                = new TransactionRollbackStmt.TransactionRollbackStmtBuilder();
+        transactionRollbackStmtBuilder.setLocation(location);
+        transactionRollbackStmtBuilderStack.push(transactionRollbackStmtBuilder);
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(blockStmtBuilder);
+        currentScope = blockStmtBuilder.getCurrentScope();
+    }
+
+    public void startRollbackClause(NodeLocation location) {
+        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder =
+                transactionRollbackStmtBuilderStack.peek();
+        // Creating Transaction clause.
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        BlockStmt transactionBlock = blockStmtBuilder.build();
+        transactionRollbackStmtBuilder.setTransactionBlock(transactionBlock);
+        currentScope = transactionBlock.getEnclosingScope();
+        // Staring parsing rollback clause.
+        TransactionRollbackStmt.RollbackBlock rollbackBlock = new TransactionRollbackStmt.RollbackBlock(currentScope);
+        transactionRollbackStmtBuilder.setRollbackBlock(rollbackBlock);
+        currentScope = rollbackBlock;
+        BlockStmt.BlockStmtBuilder rollbackBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(rollbackBlockBuilder);
+        currentScope = rollbackBlockBuilder.getCurrentScope();
+    }
+
+    public void addRollbackClause() {
+        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder =
+                transactionRollbackStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder rollbackBlockBuilder = blockStmtBuilderStack.pop();
+        BlockStmt rollbackBlock = rollbackBlockBuilder.build();
+        currentScope = rollbackBlock.getEnclosingScope();
+        transactionRollbackStmtBuilder.setRollbackBlockStmt(rollbackBlock);
+    }
+
+    public void addTransactionStmt() {
+        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder
+                = transactionRollbackStmtBuilderStack.pop();
+        TransactionRollbackStmt transactionRollbackStmt = transactionRollbackStmtBuilder.build();
+        addToBlockStmt(transactionRollbackStmt);
+    }
+
+    public void createAbortStmt(NodeLocation location) {
+        addToBlockStmt(new AbortStmt(location));
+    }
 
     // Literal Values
 
@@ -1663,6 +1749,57 @@ public class BLangModelBuilder {
         }
     }
 
+    /**
+     * Validates the statements in the transform statement body as explained below :
+     *  - Left expression of Assignment Statement becomes output of transform statement
+     *  - Right expressions of Assignment Statement becomes input of transform statement
+     *  - Variables in each of left and right expressions of all statements are extracted as input and output
+     *  - A variable that is used as an input cannot be used as an output in another statement
+     *  - If inputs and outputs are used interchangeably, a semantic error is thrown
+     * @param blockStmt transform statement block statement
+     * @param inputs input variable reference expressions map
+     * @param outputs output variable reference expressions map
+     */
+    private void validateTransformStatementBody(BlockStmt blockStmt, Map<String, Expression> inputs,
+                                                Map<String, Expression> outputs) {
+        for (Statement statement : blockStmt.getStatements()) {
+            if (statement instanceof AssignStmt) {
+                for (Expression lExpr : ((AssignStmt) statement).getLExprs()) {
+                    if (lExpr instanceof FieldAccessExpr) {
+                        String varName = ((FieldAccessExpr) lExpr).getVarName();
+                        if (inputs.get(varName) == null) {
+                            //if variable has not been used as an input before
+                            if (outputs.get(varName) == null) {
+                                List<Statement> stmtList = new ArrayList<>();
+                                stmtList.add(statement);
+                                outputs.put(varName, ((FieldAccessExpr) lExpr).getVarRef());
+                            }
+                        } else {
+                            String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
+                                                  SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                            errorMsgs.add(errMsg);
+                        }
+                    }
+                }
+                Expression rExpr =  ((AssignStmt) statement).getRExpr();
+                if (rExpr instanceof FieldAccessExpr) {
+                    String varName = ((FieldAccessExpr) rExpr).getVarName();
+                    if (outputs.get(varName) == null) {
+                        //if variable has not been used as an output before
+                        if (inputs.get(varName) == null) {
+                            List<Statement> stmtList = new ArrayList<>();
+                            stmtList.add(statement);
+                            inputs.put(varName, ((FieldAccessExpr) rExpr).getVarRef());
+                        }
+                    } else {
+                        String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
+                                               SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                        errorMsgs.add(errMsg);
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * This class represents CallableUnitName used in function and action invocation expressions.

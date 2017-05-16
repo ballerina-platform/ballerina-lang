@@ -631,7 +631,7 @@ public class SQLDatasourceUtils {
      * @param stmt SQL statement
      * @param conn SQL connection
      */
-    public static void cleanupConnection(ResultSet rs, Statement stmt, Connection conn) {
+    public static void cleanupConnection(ResultSet rs, Statement stmt, Connection conn, boolean isInTransaction) {
         if (rs != null) {
             try {
                 rs.close();
@@ -642,7 +642,7 @@ public class SQLDatasourceUtils {
                 stmt.close();
             } catch (SQLException ignore) { /* ignore */ }
         }
-        if (conn != null) {
+        if (conn != null && !isInTransaction) {
             try {
                 conn.close();
             } catch (SQLException ignore) { /* ignore */ }

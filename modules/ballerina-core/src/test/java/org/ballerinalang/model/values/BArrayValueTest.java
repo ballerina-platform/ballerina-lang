@@ -115,6 +115,30 @@ public class BArrayValueTest {
 
         Assert.assertEquals(arrayValue.get(199).getClass(), BFloat.class, "Invalid class type returned.");
         Assert.assertEquals(arrayValue.get(199).floatValue(), new Double(6.9), DELTA, "Invalid value returned.");
+    }
+    
+    @Test(description = "test default value of an element in an integer array")
+    public void testDefaultValueOfIntArrayElement() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDefaultValueOfIntArrayElement", args);
 
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 45);
+    }
+    
+    @Test(description = "test default value of an element in an json array")
+    public void testDefaultValueOfJsonArrayElement() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDefaultValueOfJsonArrayElement", args);
+
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+        Assert.assertTrue(returns[2] instanceof BJSON);
+        Assert.assertEquals(returns[2].stringValue(), "{\"name\":\"supun\"}");
     }
 }

@@ -38,11 +38,13 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
     private String pkgPath;
     private SymbolName symbolName;
     private VariableDef variableDef;
+    private boolean isArrayIndexExpr;
 
     public VariableRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String varName) {
         super(location, whiteSpaceDescriptor);
         this.varName = varName;
         this.symbolName = new SymbolName(varName);
+        this.isArrayIndexExpr = false;
     }
 
     public VariableRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SymbolName symbolName) {
@@ -107,4 +109,11 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
         return executor.visit(this);
     }
 
+    public boolean isArrayIndexExpr() {
+        return isArrayIndexExpr;
+    }
+
+    public void setIsArrayIndexExpr(boolean isArrayIndexExpr) {
+        this.isArrayIndexExpr = isArrayIndexExpr;
+    }
 }

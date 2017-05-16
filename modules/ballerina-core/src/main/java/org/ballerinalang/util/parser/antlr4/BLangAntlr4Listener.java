@@ -774,6 +774,82 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterTransformStatement(BallerinaParser.TransformStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startTransformStmt(getCurrentLocation(ctx));
+    }
+
+    @Override
+    public void exitTransformStatement(BallerinaParser.TransformStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getTransformStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createTransformStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    }
+
+    @Override
+    public void enterTransformStatementBody(BallerinaParser.TransformStatementBodyContext ctx) {
+
+    }
+
+    @Override
+    public void exitTransformStatementBody(BallerinaParser.TransformStatementBodyContext ctx) {
+
+    }
+
+    @Override
+    public void enterExpressionAssignmentStatement(BallerinaParser.ExpressionAssignmentStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitExpressionAssignmentStatement(BallerinaParser.ExpressionAssignmentStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAssignmentStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    }
+
+    @Override
+    public void enterExpressionVariableDefinitionStatement(
+            BallerinaParser.ExpressionVariableDefinitionStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitExpressionVariableDefinitionStatement(
+            BallerinaParser.ExpressionVariableDefinitionStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        SimpleTypeName typeName = typeNameStack.pop();
+        String varName = ctx.Identifier().getText();
+        boolean exprAvailable = (ctx.expression() != null);
+
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getVariableDefWS(tokenStream, ctx, exprAvailable);
+        }
+
+        modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, varName,
+                                               exprAvailable);
+
+    }
+
+    @Override
     public void enterVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
 
     }
@@ -1348,6 +1424,47 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) {
         processingActionInvocationStmt = false;
+    }
+
+    @Override
+    public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startTransactionhStmt(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
+    public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addTransactionStmt();
+        }
+    }
+
+    @Override
+    public void enterRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startRollbackClause(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
+    public void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addRollbackClause();
+        }
+    }
+
+    @Override
+    public void enterAbortStatement(BallerinaParser.AbortStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.createAbortStmt(getCurrentLocation(ctx));
     }
 
     @Override

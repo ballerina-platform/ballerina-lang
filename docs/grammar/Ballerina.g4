@@ -205,6 +205,27 @@ statement
     |   commentStatement
     |   actionInvocationStatement
     |   functionInvocationStatement
+    |   transformStatement
+    |   transactionStatement
+    |   abortStatement
+    ;
+
+transformStatement
+    :   'transform' '{' transformStatementBody* '}'
+    ;
+
+transformStatementBody
+    :   expressionAssignmentStatement
+    |   expressionVariableDefinitionStatement
+    |   transformStatement
+    ;
+
+expressionAssignmentStatement
+    :   variableReferenceList '=' expression ';'
+    ;
+
+expressionVariableDefinitionStatement
+    :   typeName Identifier '=' expression ';'
     ;
 
 variableDefinitionStatement
@@ -345,6 +366,18 @@ functionInvocationStatement
 actionInvocationStatement
     :   actionInvocation ';'
     |   variableReferenceList '=' actionInvocation ';'
+    ;
+
+transactionStatement
+    :   'transaction' '{' statement* '}' rollbackClause
+    ;
+
+rollbackClause
+    :   'aborted' '{' statement* '}'
+    ;
+
+abortStatement
+    :   'abort' ';'
     ;
 
 actionInvocation
