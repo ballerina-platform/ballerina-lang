@@ -437,8 +437,17 @@ public class RDBMSEventTable extends AbstractRecordTable {
         String url = storeAnnotation.getElement(ANNOTATION_ELEMENT_URL);
         String username = storeAnnotation.getElement(ANNOTATION_ELEMENT_USERNAME);
         String password = storeAnnotation.getElement(ANNOTATION_ELEMENT_PASSWORD);
-        if (RDBMSTableUtils.isEmpty(url) || RDBMSTableUtils.isEmpty(username) || RDBMSTableUtils.isEmpty(password)) {
-            throw new RDBMSTableException("Required parameter(s) for DB connectivity cannot be empty.");
+        if (RDBMSTableUtils.isEmpty(url)) {
+            throw new RDBMSTableException("Required parameter '" + ANNOTATION_ELEMENT_URL + "' for DB " +
+                    "connectivity cannot be empty.");
+        }
+        if (RDBMSTableUtils.isEmpty(username)) {
+            throw new RDBMSTableException("Required parameter '" + ANNOTATION_ELEMENT_USERNAME + "' for DB " +
+                    "connectivity cannot be empty.");
+        }
+        if (RDBMSTableUtils.isEmpty(password)) {
+            throw new RDBMSTableException("Required parameter '" + ANNOTATION_ELEMENT_PASSWORD + "' for DB " +
+                    "connectivity cannot be empty.");
         }
         connectionProperties.setProperty("jdbcUrl", url);
         connectionProperties.setProperty("dataSource.user", username);
