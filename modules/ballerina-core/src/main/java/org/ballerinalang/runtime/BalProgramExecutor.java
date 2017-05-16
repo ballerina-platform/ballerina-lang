@@ -123,6 +123,7 @@ public class BalProgramExecutor {
                 debugger.execute(new ResourceInvocationExpr(resource, exprs));
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+                executor.setParentScope(resource);
                 new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
                 if (executor.isErrorThrown && executor.thrownError != null) {
                     String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
@@ -133,6 +134,7 @@ public class BalProgramExecutor {
             }
         } else {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+            executor.setParentScope(resource);
             new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
             if (executor.isErrorThrown && executor.thrownError != null) {
                 String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +

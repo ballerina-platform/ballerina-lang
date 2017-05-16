@@ -353,7 +353,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         WorkerCallback workerCallback = new WorkerCallback(workerContext);
         workerContext.setBalCallback(workerCallback);
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
-
+        workerExecutor.setParentScope(worker);
         executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
         WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
         Future<BMessage> future = executor.submit(workerRunner);
@@ -824,6 +824,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
             BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+            workerExecutor.setParentScope(worker);
             WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
             workerRunnerList.add(workerRunner);
             triggeredWorkers.put(worker.getName(), workerRunner);

@@ -166,6 +166,7 @@ public class BLangFunctions {
 
             // Invoke main function
             BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+            executor.setParentScope(function.getSymbolScope());
             function.getCallableUnitBody().execute(executor);
             if (executor.isErrorThrown && executor.thrownError != null) {
                 String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +

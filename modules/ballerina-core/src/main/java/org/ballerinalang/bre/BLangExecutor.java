@@ -23,12 +23,12 @@ import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Function;
-import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
@@ -134,12 +134,17 @@ public class BLangExecutor implements NodeExecutor {
     public boolean isErrorThrown;
     private boolean inFinalBlock;
 
-    private StructDef error;
+    private StructDef error, stackTraceItemDef, stackTraceDef;
+    private SymbolScope parentScope;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
         this.bContext = bContext;
         this.controlStack = bContext.getControlStack();
+    }
+
+    public void setParentScope(SymbolScope parentScope) {
+        this.parentScope = parentScope;
     }
 
     @Override
@@ -261,9 +266,9 @@ public class BLangExecutor implements NodeExecutor {
             tryCatchStmt.getTryBlock().execute(this);
         } catch (RuntimeException be) {
             if (error == null) {
-                error = (StructDef) GlobalScope.getInstance().resolve(new SymbolName("Error", "ballerina.lang.errors"));
+                error = (StructDef) parentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
                 if (error == null) {
-                    throw new BLangRuntimeException("Unresolved type error");
+                    throw new BLangRuntimeException("Unresolved type ballerina.lang.errors:Error");
                 }
             }
             BString msg = new BString(be.getMessage());
@@ -305,13 +310,17 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     private BStruct generateStackTrace() {
-        StructDef stackTraceItemDef = (StructDef) GlobalScope.getInstance().resolve(new SymbolName("StackTraceItem",
-                "ballerina.lang.errors"));
-        StructDef stackTraceDef = (StructDef) GlobalScope.getInstance().resolve(new SymbolName("StackTrace",
-                "ballerina.lang.errors"));
 
+        if (stackTraceItemDef == null) {
+            stackTraceItemDef = (StructDef) parentScope.resolve(new SymbolName("StackTraceItem",
+                    "ballerina.lang.errors"));
+            stackTraceDef = (StructDef) parentScope.resolve(new SymbolName("StackTrace",
+                    "ballerina.lang.errors"));
+            if (stackTraceItemDef == null) {
+                throw new BLangRuntimeException("Unresolved type ballerina.lang.errors:StackTraceItem");
+            }
+        }
         BArray<BStruct> bArray = new BArray<>(BStruct.class);
-        bArray.setType(stackTraceItemDef);
         Stack<StackFrame> stack = bContext.getControlStack().getStack();
         BStruct stackTrace = new BStruct(stackTraceDef, new BValue[]{bArray});
         for (int i = stack.size(); i > 0; i--) {
@@ -385,6 +394,7 @@ public class BLangExecutor implements NodeExecutor {
         WorkerCallback workerCallback = new WorkerCallback(workerContext);
         workerContext.setBalCallback(workerCallback);
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+        workerExecutor.setParentScope(worker);
 
         executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
         WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
@@ -496,6 +506,7 @@ public class BLangExecutor implements NodeExecutor {
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
             BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+            workerExecutor.setParentScope(worker);
             WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
             workerRunnerList.add(workerRunner);
             triggeredWorkers.put(worker.getName(), workerRunner);

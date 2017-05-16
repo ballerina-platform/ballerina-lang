@@ -119,6 +119,7 @@ public class BLangProgramRunner {
                 debugManager.holdON();
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+                executor.setParentScope(mainFunction);
                 mainFunction.getCallableUnitBody().execute(executor);
                 if (executor.isErrorThrown && executor.thrownError != null) {
                     String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
