@@ -29,11 +29,12 @@
     height: 25px;
     width: 55px;
 }
-.panel-body-rect.drop-zone.active {
+.panel .panel-body .panel-body-rect.drop-zone.active {
+    fill: green;
     fill-opacity: 0.2;
 }
 
-.panel-body-rect.drop-zone.active.block {
+.panel .panel-body .panel-body-rect.drop-zone.active.block {
     fill: red;
 }
 .headingRectTitle{
