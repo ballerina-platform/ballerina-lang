@@ -26,7 +26,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * Siddhi Manager Service which is
  *
- * @since 4.0.0-SNAPSHOT
+ * @since 4.0.0-M3-SNAPSHOT
  */
 @Component(
         immediate = true

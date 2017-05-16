@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.wso2.siddhi</groupId>
             <artifactId>siddhi-tcp-transport</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>4.0.0-M3-SNAPSHOT</version>
         </dependency>
 
         <!-- Testing purposes -->
