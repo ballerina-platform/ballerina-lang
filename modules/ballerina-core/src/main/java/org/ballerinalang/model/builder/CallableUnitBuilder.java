@@ -21,6 +21,7 @@ import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
@@ -46,7 +47,7 @@ public class CallableUnitBuilder {
     protected SymbolScope currentScope;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
@@ -66,8 +67,8 @@ public class CallableUnitBuilder {
         this.location = location;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setIdentifier(Identifier identifier) {
+        this.identifier = identifier;
     }
 
     public void setPkgPath(String pkgPath) {

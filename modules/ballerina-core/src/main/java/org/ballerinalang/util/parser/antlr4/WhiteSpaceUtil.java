@@ -320,7 +320,7 @@ public class WhiteSpaceUtil {
     }
 
     public static WhiteSpaceDescriptor getGlobalVariableDefWS(CommonTokenStream tokenStream,
-                                                      BallerinaParser.GlobalVariableDefinitionStatementContext ctx) {
+                                                      BallerinaParser.GlobalVariableDefinitionContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.GLOBAL_VAR_DEF_TYPE_NAME_TO_IDENTIFIER,
                 getWhitespaceToRight(tokenStream, ctx.typeName().stop.getTokenIndex()));

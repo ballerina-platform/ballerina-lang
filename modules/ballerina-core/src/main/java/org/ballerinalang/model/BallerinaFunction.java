@@ -50,7 +50,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
@@ -220,7 +220,12 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     @Override
     public String getName() {
-        return name;
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -300,9 +305,9 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         public BallerinaFunction buildFunction() {
             bFunc.location = this.location;
             bFunc.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
-            bFunc.name = this.name;
+            bFunc.identifier = this.identifier;
             bFunc.pkgPath = this.pkgPath;
-            bFunc.symbolName = new SymbolName(name, pkgPath);
+            bFunc.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
             bFunc.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             bFunc.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);

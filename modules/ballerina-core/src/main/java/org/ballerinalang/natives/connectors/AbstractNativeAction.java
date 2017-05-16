@@ -19,6 +19,7 @@ package org.ballerinalang.natives.connectors;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -45,7 +46,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     public static final BValue[] VOID_RETURN = new BValue[0];
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic = true;
     protected SymbolName symbolName;
@@ -222,14 +223,19 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     @Override
     public String getName() {
-        return name;
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     // Methods in BLangSymbol interface
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        this.identifier = new Identifier(name);
     }
 
     @Override

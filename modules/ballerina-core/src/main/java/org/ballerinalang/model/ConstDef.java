@@ -36,14 +36,14 @@ public class ConstDef extends VariableDef implements CompilationUnit {
 
     public ConstDef(NodeLocation location,
                     WhiteSpaceDescriptor whiteSpaceDescriptor,
-                    String name,
+                    Identifier identifier,
                     SimpleTypeName typeName,
                     String pkgPath,
                     SymbolName symbolName,
                     SymbolScope symbolScope,
                     Expression rhsExpr) {
 
-        super(location, whiteSpaceDescriptor, name, typeName, symbolName, symbolScope);
+        super(location, whiteSpaceDescriptor, identifier, typeName, symbolName, symbolScope);
         this.pkgPath = pkgPath;
         this.rhsExpr = rhsExpr;
         this.annotations = new ArrayList<>();

@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.CallableUnit;
 import org.ballerinalang.model.CompilationUnit;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -236,6 +237,11 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
      */
     @Override
     public String getName() {
+        return null;
+    }
+
+    @Override
+    public Identifier getIdentifier() {
         return null;
     }
 

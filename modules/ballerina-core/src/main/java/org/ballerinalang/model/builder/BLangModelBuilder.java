@@ -29,6 +29,7 @@ import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.GlobalVariableDef;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
@@ -246,11 +247,11 @@ public class BLangModelBuilder {
 
 
     // Add constant definition
-
     public void addConstantDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                SimpleTypeName typeName, String constName) {
-        SymbolName symbolName = new SymbolName(constName);
-        ConstDef constantDef = new ConstDef(location, whiteSpaceDescriptor, constName, typeName, currentPackagePath,
+        Identifier identifier = new Identifier(constName);
+        SymbolName symbolName = new SymbolName(identifier.getName());
+        ConstDef constantDef = new ConstDef(location, whiteSpaceDescriptor, identifier, typeName, currentPackagePath,
                 symbolName, currentScope, exprStack.pop());
 
         getAnnotationAttachments().forEach(attachment -> constantDef.addAnnotation(attachment));
@@ -261,17 +262,17 @@ public class BLangModelBuilder {
 
 
     // Add global variable definition
-
     public void addGlobalVarDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                 SimpleTypeName typeName, String varName, boolean exprAvailable) {
-        SymbolName symbolName = new SymbolName(varName);
-        GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, whiteSpaceDescriptor, varName, typeName,
-                currentPackagePath, symbolName, currentScope);
+        Identifier identifier = new Identifier(varName);
+        SymbolName symbolName = new SymbolName(identifier.getName());
+        GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, whiteSpaceDescriptor, identifier,
+                typeName, currentPackagePath, symbolName, currentScope);
 
         getAnnotationAttachments().forEach(attachment -> globalVariableDef.addAnnotation(attachment));
 
         // Create Variable definition statement for the global variable
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location, whiteSpaceDescriptor, varName);
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, whiteSpaceDescriptor, identifier.getName());
         variableRefExpr.setVariableDef(globalVariableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
@@ -303,14 +304,15 @@ public class BLangModelBuilder {
      */
     public void addFieldDefinition(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                    SimpleTypeName typeName, String fieldName, boolean defaultValueAvailable) {
-        SymbolName symbolName = new SymbolName(fieldName);
+        Identifier identifier = new Identifier(fieldName);
+        SymbolName symbolName = new SymbolName(identifier.getName());
 
         // Check whether this constant is already defined.
         StructuredUnit structScope = (StructuredUnit) currentScope;
         BLangSymbol fieldSymbol = structScope.resolveMembers(symbolName);
         if (fieldSymbol != null) {
             String errMsg = BLangExceptionHelper
-                    .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, fieldName);
+                    .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
             errorMsgs.add(errMsg);
         }
 
@@ -320,13 +322,13 @@ public class BLangModelBuilder {
         }
         
         if (currentScope instanceof StructDef) {
-            VariableDef fieldDef = new VariableDef(location, null, fieldName, typeName, symbolName, currentScope);
-            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, whiteSpaceDescriptor, fieldName);
+            VariableDef fieldDef = new VariableDef(location, null, identifier, typeName, symbolName, currentScope);
+            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, whiteSpaceDescriptor, identifier.getName());
             fieldRefExpr.setVariableDef(fieldDef);
             VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
             currentStructBuilder.addField(fieldDefStmt);
         } else if (currentScope instanceof AnnotationDef) {
-            AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, fieldName, typeName, 
+            AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, identifier, typeName,
                 (BasicLiteral) defaultValExpr, symbolName, currentScope, currentPackagePath);
             annotationField.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
             currentScope.define(symbolName, annotationField);
@@ -341,7 +343,7 @@ public class BLangModelBuilder {
      */
     public void addStructDef(WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
         currentStructBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-        currentStructBuilder.setName(name);
+        currentStructBuilder.setIdentifier(new Identifier(name));
         currentStructBuilder.setPackagePath(currentPackagePath);
         getAnnotationAttachments().forEach(attachment -> currentStructBuilder.addAnnotation(attachment));
 
@@ -409,7 +411,7 @@ public class BLangModelBuilder {
             annotationDefBuilder.getWhiteSpaceDescriptor().getWhiteSpaceRegions()
                     .putAll(whiteSpaceDescriptor.getWhiteSpaceRegions());
         }
-        annotationDefBuilder.setName(name);
+        annotationDefBuilder.setIdentifier(new Identifier(name));
         annotationDefBuilder.setPackagePath(currentPackagePath);
         
         getAnnotationAttachments().forEach(attachment -> annotationDefBuilder.addAnnotation(attachment));
@@ -494,17 +496,18 @@ public class BLangModelBuilder {
      */
     public void addParam(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
                          String paramName, int annotationCount, boolean isReturnParam) {
-        SymbolName symbolName = new SymbolName(paramName, currentPackagePath);
+        Identifier identifier = new Identifier(paramName);
+        SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
 
         // Check whether this parameter is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REDECLARED_SYMBOL, paramName);
+                    SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, whiteSpaceDescriptor, paramName, typeName, symbolName,
+        ParameterDef paramDef = new ParameterDef(location, whiteSpaceDescriptor, identifier, typeName, symbolName,
                                         currentScope);
         getAnnotationAttachments(annotationCount).forEach(attachment -> paramDef.addAnnotation(attachment));
 
@@ -736,7 +739,7 @@ public class BLangModelBuilder {
             cIExprBuilder.setExpressionList(argExprList);
         }
 
-        cIExprBuilder.setName(actionName);
+        cIExprBuilder.setName((new Identifier(actionName)).getName());
         cIExprBuilder.setPkgName(nameReference.pkgName);
         cIExprBuilder.setPkgPath(nameReference.pkgPath);
         cIExprBuilder.setConnectorName(nameReference.name);
@@ -861,7 +864,7 @@ public class BLangModelBuilder {
 
     public void addFunction(WhiteSpaceDescriptor whiteSpaceDescriptor, String name, boolean isNative) {
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-        currentCUBuilder.setName(name);
+        currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
 
@@ -882,7 +885,7 @@ public class BLangModelBuilder {
 
     public void addTypeMapper(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
                               SimpleTypeName returnTypeName, boolean isNative) {
-        currentCUBuilder.setName(name);
+        currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
@@ -909,7 +912,7 @@ public class BLangModelBuilder {
                             String name, int annotationCount) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-        currentCUBuilder.setName(name);
+        currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments(annotationCount).forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
@@ -923,13 +926,15 @@ public class BLangModelBuilder {
 
     public void createWorker(NodeLocation sourceLocation, WhiteSpaceDescriptor whiteSpaceDescriptor,
                              String name, String paramName) {
-        currentCUBuilder.setName(name);
+        Identifier workerIdentifier = new Identifier(name);
+        currentCUBuilder.setIdentifier(workerIdentifier);
         currentCUBuilder.setNodeLocation(sourceLocation);
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
 
         // define worker parameter
-        SymbolName paramSymbolName = new SymbolName(paramName, currentPackagePath);
-        ParameterDef paramDef = new ParameterDef(sourceLocation, null, paramName,
+        Identifier paramIdentifier = new Identifier(paramName);
+        SymbolName paramSymbolName = new SymbolName(paramIdentifier.getName(), currentPackagePath);
+        ParameterDef paramDef = new ParameterDef(sourceLocation, null, paramIdentifier,
             new SimpleTypeName(BTypes.typeMessage.getName()), paramSymbolName, currentScope);
         currentScope.define(paramSymbolName, paramDef);
         currentCUBuilder.addParameter(paramDef);
@@ -963,7 +968,7 @@ public class BLangModelBuilder {
     public void addAction(WhiteSpaceDescriptor whiteSpaceDescriptor, String name, boolean isNative,
                           int annotationCount) {
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-        currentCUBuilder.setName(name);
+        currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
 
@@ -993,7 +998,7 @@ public class BLangModelBuilder {
 
     public void createService(WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-        currentCUGroupBuilder.setName(name);
+        currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
@@ -1007,7 +1012,7 @@ public class BLangModelBuilder {
 
     public void createConnector(WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-        currentCUGroupBuilder.setName(name);
+        currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
@@ -1021,15 +1026,14 @@ public class BLangModelBuilder {
 
 
     // Statements
-
     public void addVariableDefinitionStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                          SimpleTypeName typeName, String varName, boolean exprAvailable) {
+                                            SimpleTypeName typeName, String varName, boolean exprAvailable) {
+        Identifier identifier = new Identifier(varName);
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location,  whiteSpaceDescriptor, identifier.getName());
+        SymbolName symbolName = new SymbolName(identifier.getName());
 
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location, whiteSpaceDescriptor, varName);
-        SymbolName symbolName = new SymbolName(varName);
-
-        VariableDef variableDef = new VariableDef(location, whiteSpaceDescriptor, varName, typeName, symbolName,
-                                                    currentScope);
+        VariableDef variableDef = new VariableDef(location, whiteSpaceDescriptor, identifier, typeName, symbolName,
+                currentScope);
         variableRefExpr.setVariableDef(variableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
@@ -1247,7 +1251,8 @@ public class BLangModelBuilder {
     }
 
     public void addCatchClause(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                               SimpleTypeName exceptionType, String argName) {
+                SimpleTypeName exceptionType, String argName) {
+        Identifier identifier = new Identifier(argName);
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         if (whiteSpaceDescriptor != null) {
@@ -1269,9 +1274,9 @@ public class BLangModelBuilder {
         BlockStmt catchBlock = catchBlockBuilder.build();
         currentScope = catchBlock.getEnclosingScope();
 
-        SymbolName symbolName = new SymbolName(argName, currentPackagePath);
-        ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), null, argName, exceptionType, symbolName,
-                currentScope);
+        SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
+        ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), null, identifier, exceptionType,
+                symbolName, currentScope);
         currentScope.resolve(symbolName);
         currentScope.define(symbolName, paramDef);
         tryCatchStmtBuilder.getCatchBlock().setParameterDef(paramDef);
@@ -1319,20 +1324,21 @@ public class BLangModelBuilder {
     }
 
     public void endJoinClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+        Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt forkJoinStmt = blockStmtBuilder.build();
-        SymbolName symbolName = new SymbolName(paramName, currentPackagePath);
+        SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
 
         // Check whether this constant is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REDECLARED_SYMBOL, paramName);
+                    SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, null, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, null, identifier, typeName, symbolName, currentScope);
         forkJoinStmtBuilder.setJoinBlock(forkJoinStmt);
         forkJoinStmtBuilder.setJoinResult(paramDef);
         currentScope = forkJoinStmtBuilder.getJoin().getEnclosingScope();
@@ -1366,22 +1372,24 @@ public class BLangModelBuilder {
     }
 
     public void endTimeoutClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+        Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt timeoutStmt = blockStmtBuilder.build();
         forkJoinStmtBuilder.setTimeoutBlock(timeoutStmt);
         forkJoinStmtBuilder.setTimeoutExpression(exprStack.pop());
-        SymbolName symbolName = new SymbolName(paramName);
+        SymbolName symbolName = new SymbolName(identifier.getName());
 
         // Check whether this constant is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REDECLARED_SYMBOL, paramName);
+                    SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, null, paramName, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, null, identifier, typeName, symbolName, currentScope);
+
         forkJoinStmtBuilder.setTimeoutResult(paramDef);
         currentScope = forkJoinStmtBuilder.getTimeout().getEnclosingScope();
     }
@@ -1666,7 +1674,8 @@ public class BLangModelBuilder {
         private String pkgPath;
 
         public NameReference(String pkgName, String name) {
-            this.name = name;
+            Identifier identifier = new Identifier(name);
+            this.name = identifier.getName();
             this.pkgName = pkgName;
         }
 
