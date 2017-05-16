@@ -23,6 +23,7 @@ import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.natives.NativeConstructLoader;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.NativeException;
@@ -107,14 +108,8 @@ public class BuiltinPackageValidator {
      * Load the native constructs to the provided symbol scope.
      */
     public static BuiltinPackageRepository[] loadPackageRepositories() {
-        Iterator<BuiltinPackageRepository> ballerinaBuiltinPackageRepositories =
-                ServiceLoader.load(BuiltinPackageRepository.class).iterator();
-        List<BuiltinPackageRepository> pkgRepositories = new ArrayList<>();
-        while (ballerinaBuiltinPackageRepositories.hasNext()) {
-            BuiltinPackageRepository constructLoader = ballerinaBuiltinPackageRepositories.next();
-            pkgRepositories.add(constructLoader);
-        }
-        return pkgRepositories.toArray(new BuiltinPackageRepository[0]);
+
+        return BuiltInNativeConstructLoader.loadPackageRepositories();
     }
 
     private static List<String> getBuiltInBalPackages(String targetDir) {

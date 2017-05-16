@@ -62,6 +62,20 @@ public class BuiltInNativeConstructLoader {
             BuiltinPackageRepository constructLoader = ballerinaBuiltinPackageRepositories.next();
             pkgRepositories.add(constructLoader);
         }
+        if (!pkgRepositories.isEmpty()) {
+            BuiltinPackageRepository internalRepo = null;
+            for (BuiltinPackageRepository balRepo : pkgRepositories) {
+                if (balRepo instanceof BallerinaInternalPkgRepo) {
+                    internalRepo = balRepo;
+                    break;
+                }
+            }
+            for (BuiltinPackageRepository balRepo : pkgRepositories) {
+                if (!(balRepo instanceof BallerinaInternalPkgRepo)) {
+                    balRepo.setInternalPkgRepo(internalRepo);
+                }
+            }
+        }
         return pkgRepositories.toArray(new BuiltinPackageRepository[0]);
     }
 

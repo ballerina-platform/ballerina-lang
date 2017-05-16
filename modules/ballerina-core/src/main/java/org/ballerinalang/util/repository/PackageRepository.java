@@ -37,10 +37,20 @@ import java.util.stream.Collectors;
  */
 public abstract class PackageRepository {
     protected BuiltinPackageRepository[] builtinPackageRepositories;
+    private PackageRepository internalPkgRepo;
 
     public abstract PackageSource loadPackage(Path packageDirPath);
 
     public abstract PackageSource loadFile(Path filePath);
+
+    //TODO implement proper fix to expose ballerina only native repo
+    public PackageRepository getInternalPkgRepo() {
+        return internalPkgRepo;
+    }
+
+    public void setInternalPkgRepo(PackageRepository internalPkgRepo) {
+        this.internalPkgRepo = internalPkgRepo;
+    }
 
     protected PackageSource loadPackageFromDirectory(Path packageDirPath, Path baseDirPath) {
         Map<String, InputStream> fileStreamMap;
