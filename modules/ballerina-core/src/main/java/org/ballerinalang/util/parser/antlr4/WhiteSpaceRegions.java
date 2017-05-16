@@ -319,4 +319,9 @@ public class WhiteSpaceRegions {
     public static final int FILED_DEF_EQUAL_OPERATOR_TO_LITERAL = 3;
     public static final int FILED_DEF_FOLLOWING_WHITESPACE = 4;
 
+    // whitespace regions in a transform statement
+    public static final int TRANSFORM_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int TRANSFORM_STMT_TO_BODY_START = 2;
+    public static final int TRANSFORM_STMT_END_TO_NEXT_TOKEN = 3;
+
 }

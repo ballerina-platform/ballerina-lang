@@ -209,6 +209,25 @@ statement
     |   commentStatement
     |   actionInvocationStatement
     |   functionInvocationStatement
+    |   transformStatement
+    ;
+
+transformStatement
+    :   'transform' '{' transformStatementBody* '}'
+    ;
+
+transformStatementBody
+    :   expressionAssignmentStatement
+    |   expressionVariableDefinitionStatement
+    |   transformStatement
+    ;
+
+expressionAssignmentStatement
+    :   variableReferenceList '=' expression ';'
+    ;
+
+expressionVariableDefinitionStatement
+    :   typeName Identifier '=' expression ';'
     ;
 
 variableDefinitionStatement
