@@ -393,10 +393,11 @@ public class TCPSourceTestCase {
         TCPNettyClient.connect("localhost", 9892);
         ArrayList<Event> arrayList = new ArrayList<Event>(3);
 
-        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
-        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test1", 361, 31.0f, 3801l, 231.0, false}));
-        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test2", 362, 32.0f, 3802l, 232.0, true}));
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380L, 23.0, true}));
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test1", 361, 31.0f, 3801L, 231.0, false}));
+        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test2", 362, 32.0f, 3802L, 232.0, true}));
         TCPNettyClient.send("bar", arrayList.toArray(new Event[3]));
+        TCPNettyClient.send("bar1", arrayList.toArray(new Event[3]));
 
         TCPNettyClient.disconnect();
         TCPNettyClient.shutdown();
