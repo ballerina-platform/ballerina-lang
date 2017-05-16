@@ -55,14 +55,15 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         });
 
         _.forEach(annotations, function (annotation) {
-            annotationHeight = annotationHeight+ 25;
+            annotationHeight = annotationHeight + 25;
         });
 
         components['annotation'] = new SimpleBBox();
 
-        if(node.viewState.annotationViewCollapsed){
+
+        if (node.viewState.annotationViewCollapsed) {
             components['annotation'].h = 25;
-        }else{
+        } else {
             components['annotation'].h = annotationHeight;
         }
 
@@ -75,19 +76,19 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         let statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
         let statementHeight = 0;
 
-        _.forEach(statementChildren, function(child) {
+        _.forEach(statementChildren, function (child) {
             statementHeight += child.viewState.bBox.h;
-            if((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth){
+            if ((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth) {
                 statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }
         });
 
         /* Lets add an extra gap to the bottom of the lifeline.
-           This will prevent last statement touching bottom box of the life line.*/
+         This will prevent last statement touching bottom box of the life line.*/
         statementHeight += DesignerDefaults.lifeLine.gutter.v;
 
         // If the statement container is two short we will set a minimum height.
-        if(statementHeight < DesignerDefaults.statementContainer.height){
+        if (statementHeight < DesignerDefaults.statementContainer.height) {
             statementHeight = DesignerDefaults.statementContainer.height;
         }
 
@@ -108,7 +109,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         const highestLifeLineHeight = highestStatementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;
 
         let lifeLineWidth = 0;
-        _.forEach(workerChildren.concat(connectorChildren), function(child) {
+        _.forEach(workerChildren.concat(connectorChildren), function (child) {
             lifeLineWidth += child.viewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
             child.getViewState().bBox.h = _.max([components['statementContainer'].h, highestStatementContainerHeight]) +
                 DesignerDefaults.lifeLine.head.height * 2;
@@ -117,11 +118,11 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         });
 
         //following is to handle node collapsed for panels.
-        if(node.viewState.collapsed) {
+        if (node.viewState.collapsed) {
             components['body'].h = 0;
         } else {
             components['body'].h = _.max([workerLifeLineHeight, highestLifeLineHeight])
-                                   + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
+                + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         }
         /**
          * If the current default worker's statement container height is less than the highest worker's
@@ -136,7 +137,6 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         components['annotation'].w = components['body'].w;
 
         viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
-        viewState.bBox.w = components['heading'].w + components['body'].w;
 
         viewState.components = components;
 
@@ -166,6 +166,48 @@ class FunctionDefinitionDimensionCalculatorVisitor {
         viewState.components.closingReturnType = {};
         viewState.components.closingReturnType.w = util.getTextWidth(')', 0).w;
 
+        let componentWidth = components['heading'].w > components['body'].w
+            ? components['heading'].w : components['body'].w;
+
+        // Calculate function definition full width
+        viewState.bBox.w = componentWidth
+            + this.parameterTypeWidth(node) + this.returnTypeWidth(node)
+            + viewState.titleWidth + 14
+            + viewState.components.returnTypesIcon.w + viewState.components.closingReturnType.w
+            + viewState.components.openingReturnType.w + viewState.components.closingParameter.w
+            + viewState.components.openingParameter.w
+            + (DesignerDefaults.panel.wrapper.gutter.h * 2) + 200;
+    }
+
+    /**
+     * Calculate Parameters' text width for function definition.
+     * @param {FunctionDefinition} node - Function Definition Node.
+     * @return {number} width - return sum of widths of parameter texts.
+     * */
+    parameterTypeWidth(node) {
+        let width = 0;
+        if (node.getArguments().length > 0) {
+            for (let i = 0; i < node.getArguments().length; i++) {
+                width += util.getTextWidth(node.getArguments()[i].getParameterDefinitionAsString(), 0).w;
+            }
+        }
+
+        return width;
+    }
+
+    /**
+     * Calculate Return Parameters' text width for function definition.
+     * @param {FunctionDefinition} node - Function Definition Node.
+     * @return {number} width - return sum of widths of parameter texts.
+     * */
+    returnTypeWidth(node) {
+        let width = 0;
+        if (node.getReturnTypes().length > 0) {
+            for (let i = 0; i < node.getReturnTypes().length; i++) {
+                width += util.getTextWidth(node.getReturnTypes()[i].getParameterDefinitionAsString(), 0).w;
+            }
+        }
+        return width;
     }
 }
 

@@ -63,10 +63,15 @@ class ConnectorDeclaration extends React.Component {
 
         return (<g>
                 <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model}/>
-                <LifeLine title={connectorName} bBox={connectorBBox} editorOptions={this.editorOptions} />
+                <LifeLine title={connectorName} bBox={connectorBBox} editorOptions={this.editorOptions}
+                          onDelete={this.onDelete.bind(this)}/>
                 {children}
             </g>
         );
+    }
+
+    onDelete() {
+        this.props.model.remove();
     }
 }
 

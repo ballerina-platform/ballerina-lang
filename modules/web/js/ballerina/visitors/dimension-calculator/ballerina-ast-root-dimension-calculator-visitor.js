@@ -47,17 +47,17 @@ class BallerinaASTRootDimensionCalculatorVisitor {
         // have same level items in the future )
         // width = maximum with of the containing children. 
         //@todo filter out children
-        children.forEach(function(element, index) {
+        children.forEach(function (element, index) {
             let childViewState = element.getViewState();
             viewState.bBox.h = viewState.bBox.h + childViewState.bBox.h;
 
             // add an extra gutter if there are more than one child. 
-            if(index != 0){
+            if (index !== 0) {
                 viewState.bBox.h = viewState.bBox.h + panel.wrapper.gutter.h;
             }
 
             // if we find a child with a wider width we will assign that as the canvas width.
-            if(viewState.bBox.w < childViewState.bBox.w){
+            if (viewState.bBox.w < childViewState.bBox.w) {
                 viewState.bBox.w = childViewState.bBox.w;
             }
         }, this);
