@@ -587,6 +587,11 @@ text-anchor: start;
     padding: 13px;
 }
 
+.parameter-space{
+    fill: #dcdcdc;
+    shape-rendering: crispEdges;
+}
+
 .parameter-delete-icon {
     opacity: 0.4;
     cursor: pointer;

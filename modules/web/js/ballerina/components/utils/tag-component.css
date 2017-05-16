@@ -1,0 +1,17 @@
+.text-placeholder{
+    fill: #d8d8d8;
+    shape-rendering: crispEdges;
+    height: 23px;
+    stroke: #9e9c9c;
+    stroke-width: 1;
+    stroke-dasharray: 3,3;
+}
+
+.panel-label{
+    left: 10px;
+    fill: #999
+}
+
+.tag-component-attachment-text{
+    fill: #999
+}
