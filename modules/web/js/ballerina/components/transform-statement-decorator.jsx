@@ -181,6 +181,7 @@ class TransformStatementDecorator extends React.Component {
                    self.setSource(currentSelection, self.predefinedStructs);
                    var inputDef = BallerinaASTFactory.createVariableReferenceExpression({variableName: currentSelection});
                    self.props.model.setInput([inputDef]);
+                   self.props.model.children = [];
                } else {
                    return false;
                }
@@ -196,6 +197,7 @@ class TransformStatementDecorator extends React.Component {
                     self.setTarget(currentSelection, self.predefinedStructs);
                     var outDef = BallerinaASTFactory.createVariableReferenceExpression({variableName: currentSelection});
                     self.props.model.setOutput([outDef]);
+                    self.props.model.children = [];
                } else {
                    return false;
                }
@@ -221,9 +223,9 @@ class TransformStatementDecorator extends React.Component {
            var onConnectionCallback = function(connection) {
                var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
                var leftOperand = BallerinaASTFactory.createLeftOperandExpression();
-               leftOperand.addChild(self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty[0]));
+               leftOperand.addChild(self.getStructAccessNode(connection.targetStruct, connection.targetProperty[0]));
                var rightOperand = BallerinaASTFactory.createRightOperandExpression();
-               rightOperand.addChild(self.getStructAccessNode(connection.targetStruct, connection.targetProperty[0]));
+               rightOperand.addChild(self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty[0]));
                assignmentStmt.addChild(leftOperand);
                assignmentStmt.addChild(rightOperand);
                self.props.model.addChild(assignmentStmt);
@@ -255,12 +257,12 @@ class TransformStatementDecorator extends React.Component {
             _.forEach(this.props.model.getChildren(), assignments => {
                 var con = {};
                 con.id = assignments.id;
-                con.sourceStruct = assignments.getChildren()[1].getChildren()[0].getChildren()[0].getExpression();
+                con.sourceStruct = assignments.getChildren()[1].getChildren()[0].getChildren()[0].getVariableName();
                 con.sourceProperty = [assignments.getChildren()[1].getChildren()[0].getChildren()[1].getExpression()];
                 var sourceStruct = _.find(self.predefinedStructs, { name:con.sourceStruct});
                 var sourceProp = _.find(sourceStruct.properties, { name:con.sourceProperty[0]});
                 con.sourceType = sourceProp.type;
-                con.targetStruct = assignments.getChildren()[0].getChildren()[0].getChildren()[0].getExpression();
+                con.targetStruct = assignments.getChildren()[0].getChildren()[0].getChildren()[0].getVariableName();
                 con.targetProperty = [assignments.getChildren()[0].getChildren()[0].getChildren()[1].getExpression()];
                 var targetStruct = _.find(self.predefinedStructs, { name:con.targetStruct});
                 var targetProp = _.find(targetStruct.properties, { name:con.targetProperty[0]});
@@ -493,6 +495,10 @@ class TransformStatementDecorator extends React.Component {
     	var structName =  BallerinaASTFactory.createVariableReferenceExpression();
     	var structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
     	var structProperty = BallerinaASTFactory.createVariableReferenceExpression();
+
+    	structName.setVariableName(name);
+    	structProperty.setVariableName(property);
+
     	structPropertyHolder.addChild(structProperty);
     	structExpression.addChild(structName);
     	structExpression.addChild(structPropertyHolder);
