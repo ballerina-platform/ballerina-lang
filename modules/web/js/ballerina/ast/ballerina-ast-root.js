@@ -35,54 +35,61 @@ class BallerinaASTRoot extends ASTNode {
     constructor(args) {
         super("BallerinaASTRoot");
         this.packageDefinition = _.get(args, 'packageDefinition');
-        var self = this;
-        // Listener to tree modified event.
-        this.on('tree-modified', function (e) {
-            // Add new imports on new child added to the canvas.
-            // Ignore if already added or if it is a current package
-            var addImportOnTreeChange = function (fullPackageName) {
-                if (!self.isExistingPackage(fullPackageName)
-                    && !_.isEqual(fullPackageName, "Current Package")) {
-                    var importDeclaration = self.getFactory().createImportDeclaration();
-                    importDeclaration.setPackageName(fullPackageName);
-                    importDeclaration.setParent(self);
-                    self.addImport(importDeclaration);
-                }
-            };
+        const self = this;
+        const factory = self.getFactory();
+        // Add new imports on new child added to the canvas.
+        // Ignore if already added or if it is a current package
+        const addImport = function (fullPackageName) {
+            if (!self.isExistingPackage(fullPackageName)
+                && !_.isEqual(fullPackageName, "Current Package")) {
+                let importDeclaration = factory.createImportDeclaration();
+                importDeclaration.setPackageName(fullPackageName);
+                importDeclaration.setParent(self);
+                self.addImport(importDeclaration);
+            }
+        };
 
+        const addImportsForTopLevel = function (child) {
+            if (factory.isAssignmentStatement(child)) {
+                if (child._fullPackageName) {
+                    addImport(child.getFullPackageName());
+                }
+            } else if (factory.isConnectorDeclaration(child)) {
+                if (child._fullPackageName) {
+                    addImport(child.getFullPackageName());
+                }
+            } else if (factory.isServiceDefinition(child)) {
+                const annotations = child.getChildrenOfType(factory.isAnnotation);
+                const resources = child.getChildrenOfType(factory.isResourceDefinition);
+                _.forEach(annotations, annotation => {
+                    addImport(annotation.getFullPackageName());
+                });
+                _.forEach(resources, resource => {
+                    addImportsForTopLevel(resource);
+                });
+            } else if (factory.isResourceDefinition(child)) {
+                let annotations = child.getChildrenOfType(factory.isAnnotation);
+                _.forEach(annotations, annotation => {
+                    addImport(annotation.getFullPackageName());
+                });
+            } else if (factory.isActionInvocationExpression(child)) {
+                if (child._fullPackageName) {
+                    addImport(child.getFullPackageName());
+                }
+            } else if (factory.isFunctionInvocationStatement(child)) {
+                const functionInvocationExpression = _.find(child.children, function (child) {
+                    return factory.isFunctionInvocationExpression(child);
+                });
+                if (functionInvocationExpression &&
+                    functionInvocationExpression._fullPackageName) {
+                    addImport(functionInvocationExpression.getFullPackageName());
+                }
+            }
+        };
+        this.on('tree-modified', function (e) {
             if (e.type === "child-added") {
                 //to add the imports based on the function/action drag and drop to editor
-                if (self.getFactory().isAssignmentStatement(e.data.child)) {
-                    if (e.data.child._fullPackageName) {
-                        addImportOnTreeChange(e.data.child.getFullPackageName());
-                    }
-                } else if (self.getFactory().isConnectorDeclaration(e.data.child)) {
-                    if (e.data.child._fullPackageName) {
-                        addImportOnTreeChange(e.data.child.getFullPackageName());
-                    }
-                } else if (self.getFactory().isServiceDefinition(e.data.child)) {
-                    let annotations = e.data.child.getChildrenOfType(e.data.child.getFactory().isAnnotation);
-                    _.forEach(annotations, annotation => {
-                        addImportOnTreeChange(annotation.getFullPackageName());
-                    });
-                } else if (self.getFactory().isResourceDefinition(e.data.child)) {
-                    let annotations = e.data.child.getChildrenOfType(e.data.child.getFactory().isAnnotation);
-                    _.forEach(annotations, annotation => {
-                        addImportOnTreeChange(annotation.getFullPackageName());
-                    });
-                } else if (self.getFactory().isActionInvocationExpression(e.data.child)) {
-                    if (e.data.child._fullPackageName) {
-                        addImportOnTreeChange(e.data.child.getFullPackageName());
-                    }
-                } else if (self.getFactory().isFunctionInvocationStatement(e.data.child)) {
-                    var functionInvocationExpression = _.find(e.data.child.children, function (child) {
-                        return self.getFactory().isFunctionInvocationExpression(child);
-                    });
-                    if (functionInvocationExpression &&
-                        functionInvocationExpression._fullPackageName) {
-                        addImportOnTreeChange(functionInvocationExpression.getFullPackageName());
-                    }
-                }
+                addImportsForTopLevel(e.data.child);
             }
         });
         this.setWhiteSpaceDescriptor({
