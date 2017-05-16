@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -208,7 +209,7 @@ class ResourceDefinition extends ASTNode {
         let argParamDefHolder = this.findChild(this.getFactory().isArgumentParameterDefinitionHolder);
         if (_.isUndefined(argParamDefHolder)) {
             argParamDefHolder = this.getFactory().createArgumentParameterDefinitionHolder();
-            this.addChild(argParamDefHolder);
+            this.addChild(argParamDefHolder, undefined, true);
         }
         return argParamDefHolder;
     }
@@ -258,9 +259,9 @@ class ResourceDefinition extends ASTNode {
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
-    addChild(child, index) {
+    addChild(child, index, ignoreTreeModifiedEvent) {
         if (BallerinaASTFactory.isWorkerDeclaration(child)) {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child);
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index, ignoreTreeModifiedEvent);
         } else {
             const firstWorkerIndex = _.findIndex(this.getChildren(), function (child) {
                 return BallerinaASTFactory.isWorkerDeclaration(child);
@@ -269,7 +270,7 @@ class ResourceDefinition extends ASTNode {
             if (firstWorkerIndex > -1 && _.isNil(index)) {
                 index = firstWorkerIndex;
             }
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index, ignoreTreeModifiedEvent);
         }
     }
 
