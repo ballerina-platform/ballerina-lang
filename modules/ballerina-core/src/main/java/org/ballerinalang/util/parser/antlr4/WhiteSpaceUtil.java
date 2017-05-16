@@ -207,12 +207,6 @@ public class WhiteSpaceUtil {
                             ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
         }
         Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
-        if (throwsToken != null) {
-            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD,
-                    getWhitespaceToLeft(tokenStream, throwsToken.getTokenIndex()));
-            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_THROWS_KEYWORD_TO_EXCEPTION_KEYWORD,
-                    getWhitespaceToRight(tokenStream, throwsToken.getTokenIndex()));
-        }
         if (!isNative) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN,
                     getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
@@ -412,12 +406,6 @@ public class WhiteSpaceUtil {
         }
 
         Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
-        if (throwsToken != null) {
-            ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD,
-                    getWhitespaceToLeft(tokenStream, throwsToken.getTokenIndex()));
-            ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_THROWS_KEYWORD_TO_EXCEPTION_KEYWORD,
-                    getWhitespaceToRight(tokenStream, throwsToken.getTokenIndex()));
-        }
         if (!isNative) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_BODY_START_TO_LAST_TOKEN,
                     getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));

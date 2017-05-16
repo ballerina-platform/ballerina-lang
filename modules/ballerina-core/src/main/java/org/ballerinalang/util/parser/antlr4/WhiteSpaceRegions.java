@@ -69,10 +69,8 @@ public class WhiteSpaceRegions {
     public static final int FUNCTION_DEF_FUNCTION_KEYWORD_TO_IDENTIFIER_START = 1;
     public static final int FUNCTION_DEF_IDENTIFIER_TO_PARAM_LIST_START = 2;
     public static final int FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START = 3;
-    public static final int FUNCTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD = 4;
-    public static final int FUNCTION_DEF_THROWS_KEYWORD_TO_EXCEPTION_KEYWORD = 5;
-    public static final int FUNCTION_DEF_BODY_START_TO_LAST_TOKEN = 6;
-    public static final int FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN = 7;
+    public static final int FUNCTION_DEF_BODY_START_TO_LAST_TOKEN = 4;
+    public static final int FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN = 5;
 
     // whitespace regions in a connector definition
     public static final int CONNECTOR_DEF_CONNECTOR_KEYWORD_TO_IDENTIFIER = 0;
@@ -85,10 +83,8 @@ public class WhiteSpaceRegions {
     public static final int ACTION_DEF_ACTION_KEYWORD_TO_IDENTIFIER_START = 1;
     public static final int ACTION_DEF_IDENTIFIER_TO_PARAM_LIST_START = 2;
     public static final int ACTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START = 3;
-    public static final int ACTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD = 4;
-    public static final int ACTION_DEF_THROWS_KEYWORD_TO_EXCEPTION_KEYWORD = 5;
-    public static final int ACTION_DEF_BODY_START_TO_LAST_TOKEN = 6;
-    public static final int ACTION_DEF_BODY_END_TO_NEXT_TOKEN = 7;
+    public static final int ACTION_DEF_BODY_START_TO_LAST_TOKEN = 4;
+    public static final int ACTION_DEF_BODY_END_TO_NEXT_TOKEN = 5;
 
     // whitespace regions in a struct definition
     public static final int STRUCT_DEF_STRUCT_KEYWORD_TO_IDENTIFIER = 0;
