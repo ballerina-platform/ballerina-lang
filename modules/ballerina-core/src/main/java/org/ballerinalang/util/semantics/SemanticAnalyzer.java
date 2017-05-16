@@ -3311,7 +3311,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (workerInteraction.getSourceWorker() == null || workerInteraction.getWorkerReplyStmt() == null) {
                 // Invalid worker reply statement
                 // TODO: Need to have a specific error message
-                BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerReplyStmt(),
+                BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerInvocationStmt(),
                         SemanticErrors.WORKER_INTERACTION_NOT_VALID);
             }
 

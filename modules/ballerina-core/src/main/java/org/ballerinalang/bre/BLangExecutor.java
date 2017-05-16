@@ -1583,69 +1583,20 @@ public class BLangExecutor implements NodeExecutor {
 //        }
 //    }
 
-    public void executeWorker(Worker worker) {
-        int sizeOfValueArray = worker.getStackFrameSize();
-        BValue[] localVals = new BValue[sizeOfValueArray];
-
-        // Get values for all the worker arguments
-        int valueCounter = 0;
-
-        for (ParameterDef returnParam : worker.getReturnParameters()) {
-            // Check whether these are unnamed set of return types.
-            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (returnParam.getName() == null) {
-                break;
-            }
-
-            localVals[valueCounter] = returnParam.getType().getEmptyValue();
-            valueCounter++;
-        }
-
-
-        // Create an arrays in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[1];
-
-        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
-        // return values and worker invocation location;
-        CallableUnitInfo functionInfo = new CallableUnitInfo(worker.getName(), worker.getPackagePath(),
-                worker.getNodeLocation());
-
-        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
-        Context workerContext = new Context();
-        workerContext.getControlStack().pushFrame(stackFrame);
-        WorkerCallback workerCallback = new WorkerCallback(workerContext);
-        workerContext.setBalCallback(workerCallback);
-        BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
-
-        ExecutorService executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
-        WorkerExecutor workerRunner = new WorkerExecutor(workerExecutor, workerContext, worker);
-        executor.submit(workerRunner);
-//        Future<BMessage> future = executor.submit(workerRunner);
-//        worker.setResultFuture(future);
-
-        // Start workers within the worker
-        for (Worker worker1 : worker.getWorkers()) {
-            executeWorker(worker1);
-        }
-    }
-
     public void executeWorker(Worker worker, Expression[] parentParameters) {
         int sizeOfValueArray = worker.getStackFrameSize();
         BValue[] localVals = new BValue[sizeOfValueArray];
 
-        // Get values for all the worker arguments
-        //int valueCounter = 0;
-
-        // Get values for all the function arguments
-        //int valueCounter = populateArgumentValues(parentParameters, localVals);
-
         int valueCounter = 0;
-        for (Expression arg : parentParameters) {
-            // Evaluate the argument expression
-            BValue argValue = arg.execute(this);
-            // Setting argument value in the stack frame
-            localVals[valueCounter] = argValue;
-            valueCounter++;
+
+        if (parentParameters != null) {
+            for (Expression arg : parentParameters) {
+                // Evaluate the argument expression
+                BValue argValue = arg.execute(this);
+                // Setting argument value in the stack frame
+                localVals[valueCounter] = argValue;
+                valueCounter++;
+            }
         }
 
         for (ParameterDef returnParam : worker.getReturnParameters()) {
@@ -1683,7 +1634,7 @@ public class BLangExecutor implements NodeExecutor {
 
         // Start workers within the worker
         for (Worker worker1 : worker.getWorkers()) {
-            executeWorker(worker1);
+            executeWorker(worker1, null);
         }
     }
 

@@ -128,20 +128,22 @@ public class BLangProgramRunner {
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
 
-                // TODO: Fix this properly.
-                Expression[] exprs = new Expression[args.length];
-                for (int i = 0; i < args.length; i++) {
-                    VariableRefExpr variableRefExpr = new VariableRefExpr(mainFunction.getNodeLocation(), null,
-                            new SymbolName("arg" + i));
+                if (mainFunction.getWorkers().length > 0) {
+                    // TODO: Fix this properly.
+                    Expression[] exprs = new Expression[args.length];
+                    for (int i = 0; i < args.length; i++) {
+                        VariableRefExpr variableRefExpr = new VariableRefExpr(mainFunction.getNodeLocation(), null,
+                                new SymbolName("arg" + i));
 
-                    variableRefExpr.setVariableDef(mainFunction.getParameterDefs()[i]);
-                    StackVarLocation location = new StackVarLocation(i);
-                    variableRefExpr.setMemoryLocation(location);
-                    exprs[i] = variableRefExpr;
-                }
-                // Start the workers defined within the function
-                for (Worker worker : mainFunction.getWorkers()) {
-                    executor.executeWorker(worker, exprs);
+                        variableRefExpr.setVariableDef(mainFunction.getParameterDefs()[i]);
+                        StackVarLocation location = new StackVarLocation(i);
+                        variableRefExpr.setMemoryLocation(location);
+                        exprs[i] = variableRefExpr;
+                    }
+                    // Start the workers defined within the function
+                    for (Worker worker : mainFunction.getWorkers()) {
+                        executor.executeWorker(worker, exprs);
+                    }
                 }
                 mainFunction.getCallableUnitBody().execute(executor);
             }
