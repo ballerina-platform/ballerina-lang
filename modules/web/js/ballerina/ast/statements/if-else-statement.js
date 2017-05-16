@@ -36,6 +36,8 @@ class IfElseStatement extends Statement {
         this._ifStatement = ifStatement;
 
         this._elseStatement = undefined;
+        this._elseStatement = new ElseStatement();
+        this.addChild(this._elseStatement);
 
         this._elseIfStatements = [];
         this.type = "IfElseStatement";
@@ -132,10 +134,6 @@ class IfElseStatement extends Statement {
             });
         });
 
-        if (jsonNode.else_statement) {
-            this._elseStatement = new ElseStatement();
-            this.addChild(this._elseStatement);
-        }
         _.each(jsonNode.else_statement, function (childNode) {
             var child = undefined;
             var childNodeTemp = undefined;

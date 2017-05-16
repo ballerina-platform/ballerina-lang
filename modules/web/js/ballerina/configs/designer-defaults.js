@@ -117,7 +117,7 @@ export const statement = {
 };
 
 export const blockStatement = {
-    width: statement.width,
+    width: 140,
     heading: {
         width: 50,
         height: statement.height
