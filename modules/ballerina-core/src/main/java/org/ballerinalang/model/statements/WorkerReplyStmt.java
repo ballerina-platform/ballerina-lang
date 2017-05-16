@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
@@ -40,8 +41,10 @@ public class WorkerReplyStmt extends AbstractStatement {
     private Worker worker;
     private WorkerDataChannel workerDataChannel;
 
-    public WorkerReplyStmt(String workerName, List<Expression> expressionList, NodeLocation nodeLocation) {
+    public WorkerReplyStmt(String workerName, List<Expression> expressionList, NodeLocation nodeLocation,
+                           WhiteSpaceDescriptor whiteSpaceDescriptor) {
         super(nodeLocation);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.workerName = workerName;
         this.expressionList = expressionList;
     }

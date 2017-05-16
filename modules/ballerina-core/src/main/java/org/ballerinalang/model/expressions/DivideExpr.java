@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.Operator;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValueType;
@@ -54,8 +55,9 @@ public class DivideExpr extends BinaryArithmeticExpression {
                 return new BFloat(lVal.floatValue() / rVal.floatValue());
             };
 
-    public DivideExpr(NodeLocation location, Expression lExpr, Expression rExpr) {
-        super(location, lExpr, Operator.DIV, rExpr);
+    public DivideExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
+                      Expression rExpr) {
+        super(location, whiteSpaceDescriptor, lExpr, Operator.DIV, rExpr);
     }
 
     @Override

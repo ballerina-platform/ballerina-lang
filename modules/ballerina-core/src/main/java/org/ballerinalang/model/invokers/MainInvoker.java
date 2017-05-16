@@ -22,6 +22,7 @@ import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Node;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * {@code MainInvoker} is responsible for invoking the Main function.
@@ -45,6 +46,11 @@ public class MainInvoker implements Node {
 
     @Override
     public NodeLocation getNodeLocation() {
+        return null;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
         return null;
     }
 }

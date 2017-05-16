@@ -44,13 +44,15 @@ public class BallerinaFile implements Node {
 
     private ImportPackage[] importPkgs;
     private CompilationUnit[] compilationUnits;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     private BallerinaFile(
+            WhiteSpaceDescriptor whiteSpaceDescriptor,
             String pkgName,
             String bFileName,
             ImportPackage[] importPkgs,
             CompilationUnit[] compilationUnits) {
-
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.pkgName = pkgName;
         this.bFileName = bFileName;
         this.importPkgs = importPkgs;
@@ -154,12 +156,22 @@ public class BallerinaFile implements Node {
         return null;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
     /**
      * Builds a BFile node which represents physical ballerina source file.
      *
      * @since 0.8.0
      */
     public static class BFileBuilder {
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private String pkgName = ".";
         private String bFileName;
 
@@ -170,6 +182,14 @@ public class BallerinaFile implements Node {
         public BFileBuilder(String bFileName, BLangPackage.PackageBuilder packageBuilder) {
             this.bFileName = bFileName;
             this.packageBuilder = packageBuilder;
+        }
+
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         }
 
         public void setPackageLocation(NodeLocation pkgLocation) {
@@ -241,6 +261,7 @@ public class BallerinaFile implements Node {
 
         public BallerinaFile build() {
             return new BallerinaFile(
+                    whiteSpaceDescriptor,
                     pkgName,
                     bFileName,
                     importPkgList.toArray(new ImportPackage[importPkgList.size()]),

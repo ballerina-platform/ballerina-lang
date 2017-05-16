@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * Represents a single line comment. //-style
@@ -27,8 +28,9 @@ import org.ballerinalang.model.NodeVisitor;
 public class CommentStmt extends AbstractStatement {
     private String comment;
 
-    public CommentStmt(NodeLocation location, String comment) {
+    public CommentStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String comment) {
         super(location);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.comment = comment;
     }
 

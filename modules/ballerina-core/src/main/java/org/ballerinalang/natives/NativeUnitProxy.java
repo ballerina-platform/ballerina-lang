@@ -23,6 +23,7 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.function.Supplier;
@@ -89,6 +90,11 @@ public class NativeUnitProxy implements BLangSymbol, CompilationUnit {
 
     @Override
     public NodeLocation getNodeLocation() {
+        return null;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
         return null;
     }
 }
