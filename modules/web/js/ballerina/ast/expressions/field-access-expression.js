@@ -35,7 +35,6 @@ class FieldAccessExpression extends Expression {
      * @return {string}
      */
     generateExpression(isFromArray) {
-        debugger;
         if (_.isEqual(_.size(this.getChildren()), 2)) {
             var firstVar = this.getChildren()[0];
             var secondVar = this.getChildren()[1];
