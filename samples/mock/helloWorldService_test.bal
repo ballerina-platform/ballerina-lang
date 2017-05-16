@@ -1,6 +1,6 @@
 package mock;
 
-import ballerina.lang.messages as message;
+import ballerina.lang.messages;
 import ballerina.mock;
 import ballerina.test;
 import ballerina.net.http;
@@ -17,9 +17,9 @@ function testMain () {
     mock:setValue("helloWorld.testConnector.terminalCon.param1", mockURL);
 
     http:ClientConnector varEP = create http:ClientConnector(myURL);
-    message:setStringPayload(request, mockURL);
+    messages:setStringPayload(request, mockURL);
     response = http:ClientConnector.get(varEP, "/", request);
-    responseString = message:getStringPayload(response);
+    responseString = messages:getStringPayload(response);
     system:println("hello response: " + responseString);
     test:assertEquals(responseString, "You invoked mockService!");
 }

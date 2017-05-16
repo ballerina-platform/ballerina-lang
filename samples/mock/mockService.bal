@@ -1,14 +1,15 @@
 package mock;
 
-import ballerina.lang.messages as message;
+import ballerina.lang.messages;
+import ballerina.net.http;
 
-@http:BasePath ("/mock")
+@http:BasePath {value: "/mock"}
 service mockService {
 
-    @http:GET
+    @http:GET{}
     resource mockResource(message m) {
         message resp = {};
-        message:setStringPayload(resp, "You invoked mockService!");
+        messages:setStringPayload(resp, "You invoked mockService!");
         reply resp;
     }
 }
