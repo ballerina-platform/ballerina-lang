@@ -136,7 +136,7 @@ under the License.
 
     <!-- WebSocket Test Cases -->
     <test name="websocket-test-cases" parallel="false">
-        <parameter name="enableNonBlocking" value="true" />
+        <parameter name="enableNonBlocking" value="false" />
         <classes>
             <class name="org.ballerinalang.nativeimpl.functions.ws.WebSocketEndpointTest"/>
             <class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionGroupTest"/>
