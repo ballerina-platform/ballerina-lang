@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.receiver.JMSServerConnector;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
@@ -38,7 +39,8 @@ import java.util.Map;
 @Extension(
         name = "jms",
         namespace = "source",
-        description = "JMS Source"
+        description = "JMS Source",
+        examples = @Example(description = "TBD", syntax = "TBD")
 )
 /**
  * JMS Source implementation.

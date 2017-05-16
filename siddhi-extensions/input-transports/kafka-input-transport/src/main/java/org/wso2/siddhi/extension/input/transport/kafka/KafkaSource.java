@@ -19,6 +19,7 @@
 package org.wso2.siddhi.extension.input.transport.kafka;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
@@ -35,7 +36,8 @@ import java.util.concurrent.ScheduledExecutorService;
 @Extension(
         name = "kafka",
         namespace = "source",
-        description = ""
+        description = "TBD",
+        examples = @Example(description = "TBD", syntax = "TBD")
 )
 public class KafkaSource extends Source{
 

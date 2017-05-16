@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.extension.input.transport.tcp;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
@@ -34,7 +35,8 @@ import java.util.Map;
 @Extension(
         name = "tcp",
         namespace = "source",
-        description = ""
+        description = "TBD",
+        examples = @Example(description = "TBD", syntax = "TBD")
 )
 public class TCPSource extends Source {
     static String CONTEXT = "context";

@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.extension.output.mapper.text;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
@@ -33,7 +34,8 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 @Extension(
         name = "text",
         namespace = "sinkMapper",
-        description = "Event to Text output mapper."
+        description = "Event to Text output mapper.",
+        examples = @Example(description = "TBD", syntax = "TBD")
 )
 public class TextSinkMapper extends SinkMapper {
     private StreamDefinition streamDefinition;

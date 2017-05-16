@@ -18,6 +18,7 @@
 package org.wso2.siddhi.extension.input.mapper.text;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
@@ -44,7 +45,8 @@ import java.util.regex.Pattern;
 @Extension(
         name = "text",
         namespace = "sourceMapper",
-        description = ""
+        description = "TBD",
+        examples = @Example(description = "TBD", syntax = "TBD")
 )
 public class TextSourceMapper extends SourceMapper {
 

@@ -22,6 +22,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
@@ -39,7 +40,8 @@ import java.util.concurrent.ScheduledExecutorService;
 @Extension(
         name = "kafka",
         namespace = "sink",
-        description = ""
+        description = "TBD",
+        examples = @Example(description = "TBD", syntax = "TBD")
 )
 public class KafkaSink extends Sink {
 
