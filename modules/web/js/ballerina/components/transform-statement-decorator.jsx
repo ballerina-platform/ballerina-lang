@@ -493,14 +493,9 @@ class TransformStatementDecorator extends React.Component {
     	var structName =  BallerinaASTFactory.createVariableReferenceExpression();
     	var structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
     	var structProperty = BallerinaASTFactory.createVariableReferenceExpression();
-
-    	structName.setVariableName("aaaa");
-    	structProperty.setVariableName("bbbbb");
-
     	structPropertyHolder.addChild(structProperty);
     	structExpression.addChild(structName);
     	structExpression.addChild(structPropertyHolder);
-
     	return structExpression;
     }
 
