@@ -54,7 +54,7 @@ import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
-import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionStatementNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.MapStructLiteralNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -213,6 +213,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     }
 
     /**
+     * Adds package suggestions in the import declaration nodes.
+     *
      * @param resultSet      result list which is used to add lookups
      * @param identifierNode node which contains the package name
      */
@@ -332,8 +334,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         PsiFile originalFile = parameters.getOriginalFile();
         PsiElement element = parameters.getPosition();
 
-        GlobalVariableDefinitionStatementNode globalVariableNode = PsiTreeUtil.getParentOfType(element,
-                GlobalVariableDefinitionStatementNode.class);
+        GlobalVariableDefinitionNode globalVariableNode = PsiTreeUtil.getParentOfType(element,
+                GlobalVariableDefinitionNode.class);
         if (globalVariableNode != null) {
             PsiElement e = parameters.getPosition();
             checkPrevNodeAndHandle(parameters, resultSet, e.getTextOffset(),
