@@ -80,6 +80,7 @@ public class BallerinaPsiImplUtil {
             "/compilationUnit/importDeclaration/packagePath/packageName/Identifier";
     private static final String ANNOTATION_DEFINITION = "//annotationDefinition/Identifier";
     private static final String CONSTANT_DEFINITION = "//constantDefinition/Identifier";
+    private static final String GLOBAL_VARIABLE_DEFINITION = "//globalVariableDefinitionStatement/Identifier";
     private static final String FUNCTION_DEFINITION = "//functionDefinition/Identifier";
     private static final String CONNECTOR_DEFINITION = "//connectorDefinition/Identifier";
     private static final String ACTION_DEFINITION = "//actionDefinition/Identifier";
@@ -402,6 +403,11 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
+    public static List<PsiElement> getAllGlobalVariablesFromPackage(PsiDirectory directory) {
+        return getAllMatchingElementsFromPackage(directory, GLOBAL_VARIABLE_DEFINITION);
+    }
+
+    @NotNull
     public static List<PsiElement> getAllImportedPackagesInCurrentFile(@NotNull PsiElement element) {
 
         PsiFile file = element.getContainingFile();
@@ -628,6 +634,9 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<PsiElement> getAllVariablesInResolvableScope(PsiElement element, PsiElement context) {
         List<PsiElement> results = new ArrayList<>();
+        if (context instanceof BallerinaFile) {
+            return results;
+        }
         // Get all variables from the context.
         Collection<? extends PsiElement> variableDefinitions =
                 XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement/Identifier");
@@ -664,6 +673,9 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<PsiElement> getAllParametersInResolvableScope(PsiElement element, PsiElement context) {
         List<PsiElement> results = new ArrayList<>();
+        if (context instanceof BallerinaFile) {
+            return results;
+        }
         // Get all parameters from the context.
         Collection<? extends PsiElement> parameterDefinitions =
                 XPath.findAll(BallerinaLanguage.INSTANCE, context, PARAMETER_DEFINITION);
@@ -780,6 +792,9 @@ public class BallerinaPsiImplUtil {
         if (resolved == null) {
             // Get the parent directory which is the package.
             PsiDirectory parentDirectory = element.getContainingFile().getParent();
+            if(parentDirectory==null){
+                return null;
+            }
             // Iterate through all xpaths.
             for (String xpath : xpaths) {
                 // Get all matching elements from a package (functions, etc).

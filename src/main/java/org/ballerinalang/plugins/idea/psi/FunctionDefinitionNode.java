@@ -44,8 +44,8 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
         // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
         // cause issues when using find usage, etc.
         if (element.getParent() instanceof NameReferenceNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//functionDefinition/Identifier");
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
+                    "//parameter/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
         } else if (element.getParent() instanceof TypeNameNode) {

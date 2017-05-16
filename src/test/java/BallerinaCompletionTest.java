@@ -29,6 +29,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     private static final List<String> FILE_LEVEL_KEYWORDS = Arrays.asList("package", "import", "const", "service",
             "function", "connector", "struct", "typemapper", "annotation");
+    private static final List<String> ANY_TYPE = Collections.singletonList("any");
     private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string");
     private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "xml", "json", "exception", "map",
             "datatable");
@@ -47,44 +48,106 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
      * Test file level lookups.
      */
     public void testEmptyFile() {
-        doTest("<caret>", FILE_LEVEL_KEYWORDS.toArray(new String[FILE_LEVEL_KEYWORDS.size()]));
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("<caret>", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testEmptyFileWithSpaceBeforeCaret() {
-        doTest("\n<caret>", FILE_LEVEL_KEYWORDS.toArray(new String[FILE_LEVEL_KEYWORDS.size()]));
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("\n<caret>", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testEmptyFileWithSpaceAfterCaret() {
-        doTest("<caret>\n", FILE_LEVEL_KEYWORDS.toArray(new String[FILE_LEVEL_KEYWORDS.size()]));
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testEmptyFileWithSpaces() {
-        doTest("\n<caret>\n", FILE_LEVEL_KEYWORDS.toArray(new String[FILE_LEVEL_KEYWORDS.size()]));
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("\n<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testImportAfterPackage() {
-        doTest("package test; \n<caret>\n", "import", "const", "service", "function", "connector", "struct",
-                "typemapper", "annotation");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("import");
+        expectedLookups.add("const");
+        expectedLookups.add("service");
+        expectedLookups.add("function");
+        expectedLookups.add("connector");
+        expectedLookups.add("struct");
+        expectedLookups.add("typemapper");
+        expectedLookups.add("annotation");
+        doTest("package test; \n<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testImportAfterPackageBeforeFunction() {
-        doTest("package test; \n<caret>\nfunction A(){}", "import", "const", "service", "function", "connector",
-                "struct", "typemapper", "annotation");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("import");
+        expectedLookups.add("const");
+        expectedLookups.add("service");
+        expectedLookups.add("function");
+        expectedLookups.add("connector");
+        expectedLookups.add("struct");
+        expectedLookups.add("typemapper");
+        expectedLookups.add("annotation");
+        doTest("package test; \n<caret>\nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testPackageBeforeImport() {
-        doTest("<caret>\nimport test; \nfunction A(){}", "package", "import", "const", "service", "function",
-                "connector", "struct", "typemapper", "annotation");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("<caret>\nimport test; \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testImportBeforeImport() {
-        doTest("<caret>\nimport test; \nfunction A(){}", "package", "import", "const", "service", "function",
-                "connector", "struct", "typemapper", "annotation");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        doTest("<caret>\nimport test; \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testImportAfterImport() {
-        doTest("import test; \n<caret> \nfunction A(){}", "import", "const", "service", "function",
-                "connector", "struct", "typemapper", "annotation");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("import");
+        expectedLookups.add("const");
+        expectedLookups.add("service");
+        expectedLookups.add("function");
+        expectedLookups.add("connector");
+        expectedLookups.add("struct");
+        expectedLookups.add("typemapper");
+        expectedLookups.add("annotation");
+        expectedLookups.add("test");
+        doTest("import test; \n<caret> \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     /**
@@ -227,6 +290,43 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     public void testMultipleAnnotationAttachmentPoints() {
         doTest("annotation A attach service, <caret>", "service", "connector", "action", "function", "typemapper",
                 "struct", "const", "parameter", "annotation", "resource");
+    }
+
+    /**
+     * Test global variables.
+     */
+    public void testGlobalVariableIdentifier() {
+        doTest("string <caret>");
+    }
+
+    public void testGlobalVariableInSamePackageSameFile() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("any");
+        expectedLookups.add("S");
+        expectedLookups.add("F");
+        doTest("string S=\"\"; function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testGlobalVariableInSamePackageDifferentFile() {
+        myFixture.addFileToProject("file.bal", "string S=\"\";");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("any");
+        expectedLookups.add("S");
+        expectedLookups.add("F");
+        doTest("function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testGlobalVariableInDifferentPackage() {
+        myFixture.addFileToProject("org/test/file.bal", "string S=\"\";");
+        doTest("import org.test; function F(){ test:<caret> }", "S");
     }
 
     /**
@@ -603,7 +703,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     public void testVarDefinitionWithLeadingCode() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = <caret> + \"TEST\" }",
-                "args", "main", "test");
+                "args", "main", "test", "create");
     }
 
     public void testConnectorInit() {
@@ -673,7 +773,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     public void testVariablesWhenMultipleVariablesAvailableBeforeLeafElement() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = <caret> + s2; }",
-                "s1", "s2", "A");
+                "s1", "s2", "A", "create");
     }
 
     public void testVariablesInNewLineWhenMultipleVariablesAvailable() {
@@ -1201,13 +1301,13 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     public void testActionAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
         myFixture.addFileToProject("file.bal", "annotation TEST attach action {}");
-        doCheckResult("test.bal", "connector C(){ <caret> action A()(message) {} } service R{}", null, '@',
+        doCheckResult("test.bal", "connector C(){ @<caret> action A()(message) {} } service R{}", null, null,
                 "TEST");
     }
 
     public void testActionAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
-        doCheckResult("test.bal", "annotation TEST attach action {} connector C(){ <caret> action A()(message) {} }" +
-                " service R{}", null, '@', "TEST");
+        doCheckResult("test.bal", "annotation TEST attach action {} connector C(){ @<caret> action A()(message) {} " +
+                "}" + " service R{}", null, null, "TEST");
     }
 
     /**

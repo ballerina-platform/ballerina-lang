@@ -46,6 +46,7 @@ import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -189,7 +190,7 @@ public class BallerinaCompletionUtils {
      *
      * @param resultSet result list which is used to add lookups
      */
-    static void addTypeNames(@NotNull CompletionResultSet resultSet) {
+    static void addTypeNamesAsLookups(@NotNull CompletionResultSet resultSet) {
         addAnyTypeAsLookup(resultSet);
         addValueTypesAsLookups(resultSet);
         addReferenceTypesAsLookups(resultSet);
@@ -442,9 +443,11 @@ public class BallerinaCompletionUtils {
                 .collect(Collectors.toList());
         List<PsiDirectory> packages = BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(file.getProject());
         for (PsiDirectory pack : packages) {
+            String suggestedPackage = BallerinaUtil.suggestPackageNameForDirectory(pack);
             if (!importedPackageNames.contains(pack.getName())) {
                 LookupElementBuilder builder = LookupElementBuilder.create(pack)
                         .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
+                        .withTailText("(" + suggestedPackage + ")", true)
                         .withInsertHandler(BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
                 resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
             }
@@ -609,7 +612,32 @@ public class BallerinaCompletionUtils {
     }
 
     /**
-     * Adds variables, parameters, constants as lookups.
+     * Helper method to add global variables as lookup elements.
+     *
+     * @param resultSet result list which is used to add lookups
+     * @param file      original file which we are editing
+     */
+    private static void addGlobalVariablesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+        List<PsiElement> constants = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(file.getParent());
+        addGlobalVariablesAsLookups(resultSet, constants);
+    }
+
+    /**
+     * Helper method to add global variables as lookup elements.
+     *
+     * @param resultSet result list which is used to add lookups
+     * @param constants list of constants which needs to be added
+     */
+    static void addGlobalVariablesAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> constants) {
+        for (PsiElement constant : constants) {
+            LookupElementBuilder builder = LookupElementBuilder.create(constant.getText())
+                    .withTypeText("Variable").withIcon(BallerinaIcons.GLOBAL_VARIABLE);
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+        }
+    }
+
+    /**
+     * Adds variables, parameters, constants, global variables as lookups.
      *
      * @param resultSet result list which is used to add lookups
      * @param file      file which is currently being edited
@@ -620,6 +648,7 @@ public class BallerinaCompletionUtils {
         addVariablesAsLookups(resultSet, element);
         addParametersAsLookups(resultSet, element);
         addConstantsAsLookups(resultSet, file);
+        addGlobalVariablesAsLookups(resultSet, file);
     }
 
     static void addLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file, boolean withPackages,
@@ -735,7 +764,7 @@ public class BallerinaCompletionUtils {
     public static PsiElement getPreviousNonEmptyElement(PsiFile originalFile, int offset) {
         int count = 1;
         PsiElement prevElement = originalFile.findElementAt(offset - count++);
-        while (prevElement instanceof PsiWhiteSpace) {
+        while (prevElement instanceof PsiWhiteSpace && prevElement.getTextOffset() > 0) {
             prevElement = originalFile.findElementAt(offset - count++);
         }
         return prevElement;

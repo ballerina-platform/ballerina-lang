@@ -30,6 +30,7 @@ import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlightingCol
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
@@ -117,6 +118,22 @@ public class BallerinaAnnotator implements Annotator {
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.INVALID_STRING_ESCAPE);
                 }
             }
+        } else if (element instanceof IdentifierPSINode) {
+            PsiElement nameIdentifier = ((IdentifierPSINode) element).getNameIdentifier();
+            if (nameIdentifier == null) {
+                return;
+            }
+            PsiReference[] references = nameIdentifier.getReferences();
+            for (PsiReference reference : references) {
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement == null) {
+                    return;
+                }
+                if (resolvedElement.getParent() instanceof ConstantDefinitionNode) {
+                    Annotation annotation = holder.createInfoAnnotation(element, null);
+                    annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
+                }
+            }
         }
     }
 
@@ -133,8 +150,8 @@ public class BallerinaAnnotator implements Annotator {
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
     }
 
-    private void annotateVariableReferenceNodes(@NotNull VariableReferenceNode element, @NotNull AnnotationHolder
-            holder) {
+    private void annotateVariableReferenceNodes(@NotNull VariableReferenceNode element,
+                                                @NotNull AnnotationHolder holder) {
         PsiElement nameIdentifier = element.getNameIdentifier();
         if (nameIdentifier == null) {
             return;
@@ -152,8 +169,8 @@ public class BallerinaAnnotator implements Annotator {
         }
     }
 
-    private void annotateAnnotationDefinitionNodes(@NotNull AnnotationDefinitionNode element, @NotNull
-            AnnotationHolder holder) {
+    private void annotateAnnotationDefinitionNodes(@NotNull AnnotationDefinitionNode element,
+                                                   @NotNull AnnotationHolder holder) {
         PsiElement nameIdentifier = element.getNameIdentifier();
         if (nameIdentifier == null) {
             return;
