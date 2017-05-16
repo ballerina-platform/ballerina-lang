@@ -120,17 +120,17 @@ class AnnotationAttributeDefinition extends React.Component {
         return (
             <g className="attribute-content-operations-wrapper">
                 <g onClick={() => this.renderEditAttribute()}>
-                    <rect x={this.bBox.x} y={this.bBox.y} width={this.bBox.w} height={this.bBox.h}
-                          className="attribute-content-operations-wrapper"/>
-                    <text x={this.bBox.x + 10} y={this.bBox.y + 20} width={this.bBox.w} height={this.bBox.h}>
+                    <rect x={this.bBox.x} y={this.bBox.y} width={this.bBox.w + 30} height={this.bBox.h}
+                          className="annotation-attribute-wrapper "/>
+                    <text x={this.bBox.x + 10} y={this.bBox.y + 20} width={this.bBox.w + 30} height={this.bBox.h} className="annotation-attribute-wrapper-text">
                         {this.props.model.viewState.textLength.text}
                         <title>{this.props.model.getAttributeStatementString()}</title>
                     </text>
                 </g>
                 <g onClick={() => this.deleteAttribute()}>
-                    <rect x={this.bBox.x + this.bBox.w + 10} y={this.bBox.y} width={30} height={30} className=""/>
-                    <image x={this.bBox.x + this.bBox.w + 15} y={this.bBox.y + 5} width={20} height={20}
-                           className="delete-button-icon" xlinkHref={ImageUtil.getSVGIconString('delete-red')}>
+                    <rect x={this.bBox.x + this.bBox.w} y={this.bBox.y} width={30} height={30} className="annotation-delete-wrapper"/>
+                    <image x={this.bBox.x + this.bBox.w + 5} y={this.bBox.y + 5} width={20} height={20}
+                           className="delete-button-icon" xlinkHref={ImageUtil.getSVGIconString('delete-dark')}>
                         <title>Remove</title>
                     </image>
                 </g>
