@@ -80,7 +80,9 @@ class CompoundStatementDecorator extends React.Component {
                    onMouseOut={ this.setActionVisibility.bind(this, false) }
                    onMouseOver={ this.setActionVisibility.bind(this, true)}>
 			<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
-                  className={dropZoneClassName} {...fill}/>
+                  className={dropZoneClassName} {...fill}
+                  onMouseOver={(e) => this.onDropZoneActivate(e)}
+  								onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
             {this.props.children}
 			<ActionBox
                 bBox={ actionBbox }
