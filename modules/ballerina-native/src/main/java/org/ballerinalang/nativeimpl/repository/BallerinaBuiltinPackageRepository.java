@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.repository;
 
-import org.ballerinalang.natives.BallerinaInternalPkgRepo;
+import org.ballerinalang.natives.SystemPackageRepository;
 import org.ballerinalang.util.repository.BuiltinExtendedPackageRepository;
 
 
@@ -27,7 +27,7 @@ import org.ballerinalang.util.repository.BuiltinExtendedPackageRepository;
  * @since 0.87
  */
 public class BallerinaBuiltinPackageRepository extends BuiltinExtendedPackageRepository
-        implements BallerinaInternalPkgRepo {
+        implements SystemPackageRepository {
     //TODO to be generated from ANNOTATION Processor
     //TODO remove interface BallerinaInternalPkgRepo with proper way
     public BallerinaBuiltinPackageRepository() {

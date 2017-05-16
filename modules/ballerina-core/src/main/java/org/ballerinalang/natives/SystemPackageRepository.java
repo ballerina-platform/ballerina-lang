@@ -21,8 +21,8 @@ package org.ballerinalang.natives;
 /**
  * Marker interface to identify ballerina native package repository.
  *
- * @since 0.8.7
+ * @since 0.87
  */
-public interface BallerinaInternalPkgRepo {
+public interface SystemPackageRepository {
     //TODO remove interface BallerinaInternalPkgRepo with proper way
 }

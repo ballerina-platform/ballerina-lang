@@ -65,13 +65,13 @@ public class BuiltInNativeConstructLoader {
         if (!pkgRepositories.isEmpty()) {
             BuiltinPackageRepository internalRepo = null;
             for (BuiltinPackageRepository balRepo : pkgRepositories) {
-                if (balRepo instanceof BallerinaInternalPkgRepo) {
+                if (balRepo instanceof SystemPackageRepository) {
                     internalRepo = balRepo;
                     break;
                 }
             }
             for (BuiltinPackageRepository balRepo : pkgRepositories) {
-                if (!(balRepo instanceof BallerinaInternalPkgRepo)) {
+                if (!(balRepo instanceof SystemPackageRepository)) {
                     balRepo.setInternalPkgRepo(internalRepo);
                 }
             }
