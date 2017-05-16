@@ -52,6 +52,7 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
@@ -1510,6 +1511,31 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             jsonObj.addProperty(BLangJSONModelConstants.LINE_NUMBER, String.valueOf(nodeLocation.getLineNumber()));
         }
     }
+
+    private void addWhitespaceDescriptor(JsonObject jsonObj, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        if (whiteSpaceDescriptor != null) {
+            JsonObject wsDescriptor = whiteSpaceDescriptorToJson(whiteSpaceDescriptor);
+            jsonObj.add(BLangJSONModelConstants.WHITESPACE_DESCRIPTOR, wsDescriptor);
+        }
+    }
+
+    private JsonObject whiteSpaceDescriptorToJson(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        JsonObject wsDescriptor = new JsonObject();
+        JsonObject regions = new JsonObject();
+        whiteSpaceDescriptor.getWhiteSpaceRegions().forEach(((regionID, whitespace) -> {
+            regions.addProperty(regionID.toString(), whitespace);
+        }));
+        wsDescriptor.add(BLangJSONModelConstants.WHITESPACE_REGIONS, regions);
+        if (whiteSpaceDescriptor.getChildDescriptors().size() > 0) {
+            JsonObject children = new JsonObject();
+            whiteSpaceDescriptor.getChildDescriptors().forEach((childID, child) -> {
+                children.add(childID, whiteSpaceDescriptorToJson(child));
+            });
+            wsDescriptor.add(BLangJSONModelConstants.CHILD_DESCRIPTORS, children);
+        }
+        return wsDescriptor;
+    }
+
 
     @Override
     public void visit(JSONFieldAccessExpr jsonFieldAccessExpr) {
