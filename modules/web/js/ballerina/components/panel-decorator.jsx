@@ -49,6 +49,10 @@ class PanelDecorator extends React.Component {
     }
 
     onTitleClick() {
+        if(this.props.model.getType() === 'FunctionDefinition' && this.props.model.getFunctionName() === 'main') {
+            // should not edit main function name
+            return;
+        }
         this.setState({titleEditing: true})
     }
 
