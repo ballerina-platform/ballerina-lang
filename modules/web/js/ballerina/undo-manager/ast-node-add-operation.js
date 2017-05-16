@@ -36,16 +36,18 @@ class ASTNodeAddOperation extends ASTManipulationOperation {
     redo() {
         if(this.canUndo()) {
             this._originNode.addChild(this._data.child, this._data.index, true);
+            this.getEditor().trigger('content-modified');
+            this.getEditor().trigger('update-diagram');
         }
     }
 
     undo() {
         if(this.canRedo()) {
             this._data.child.remove({ignoreTreeModifiedEvent: true});
+            this.getEditor().trigger('content-modified');
+            this.getEditor().trigger('update-diagram');
         }
     }
 }
 
 export default ASTNodeAddOperation;
-    
-
