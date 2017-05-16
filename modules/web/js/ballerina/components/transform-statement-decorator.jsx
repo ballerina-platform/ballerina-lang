@@ -176,6 +176,7 @@ class TransformStatementDecorator extends React.Component {
                var previousSelection = $("#" + sourceId).val();
                if (currentSelection == -1) {
                    self.mapper.removeType(previousSelection);
+                   self.props.model.children = [];
                } else if (currentSelection != $("#" + targetId).val()) {
                    self.mapper.removeType(previousSelection);
                    self.setSource(currentSelection, self.predefinedStructs);
@@ -192,6 +193,7 @@ class TransformStatementDecorator extends React.Component {
                var previousSelection = $("#" + targetId).val();
                if (currentSelection == -1) {
                    self.mapper.removeType(previousSelection);
+                   self.props.model.children = [];
                } else if (currentSelection != $("#" + sourceId).val()) {
                     self.mapper.removeType(previousSelection);
                     self.setTarget(currentSelection, self.predefinedStructs);
