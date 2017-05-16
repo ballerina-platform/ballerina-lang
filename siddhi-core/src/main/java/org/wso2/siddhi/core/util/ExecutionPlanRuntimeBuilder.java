@@ -39,7 +39,10 @@ import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.definition.*;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -47,12 +50,18 @@ import java.util.concurrent.ConcurrentMap;
  * For building ExecutionPlanRuntime
  */
 public class ExecutionPlanRuntimeBuilder {
-    private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
-    private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains table definition
-    private ConcurrentMap<String, AbstractDefinition> windowDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains window definition
-    private ConcurrentMap<String, TriggerDefinition> triggerDefinitionMap = new ConcurrentHashMap<String, TriggerDefinition>(); //contains trigger definition
-    private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
-    private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
+    private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap =
+            new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
+    private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap =
+            new ConcurrentHashMap<String, AbstractDefinition>(); //contains table definition
+    private ConcurrentMap<String, AbstractDefinition> windowDefinitionMap =
+            new ConcurrentHashMap<String, AbstractDefinition>(); //contains window definition
+    private ConcurrentMap<String, TriggerDefinition> triggerDefinitionMap =
+            new ConcurrentHashMap<String, TriggerDefinition>(); //contains trigger definition
+    private Map<String, QueryRuntime> queryProcessorMap =
+            Collections.synchronizedMap(new LinkedHashMap<String, QueryRuntime>());
+    private ConcurrentMap<String, StreamJunction> streamJunctionMap =
+            new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
     private ConcurrentMap<String, List<Source>> eventSourceMap = new ConcurrentHashMap<String, List<Source>>(); //contains event sources
     private ConcurrentMap<String, List<Sink>> eventSinkMap = new ConcurrentHashMap<String, List<Sink>>(); //contains event sinks
     private ConcurrentMap<String, Table> tableMap = new ConcurrentHashMap<String, Table>(); //contains event tables
