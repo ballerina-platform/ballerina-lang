@@ -18,6 +18,7 @@
 package org.wso2.siddhi.extension.input.mapper.json;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -170,15 +171,13 @@ public class JsonSourceMapper extends SourceMapper {
 
     @Override
     protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
-        synchronized (this) {
-            Object convertedEvent;
-            convertedEvent = convertToEvent(eventObject);
-            if (convertedEvent != null) {
-                if (convertedEvent instanceof Event[]) {
-                    inputEventHandler.sendEvents((Event[]) convertedEvent);
-                } else {
-                    inputEventHandler.sendEvent((Event) convertedEvent);
-                }
+        Object convertedEvent;
+        convertedEvent = convertToEvent(eventObject);
+        if (convertedEvent != null) {
+            if (convertedEvent instanceof Event[]) {
+                inputEventHandler.sendEvents((Event[]) convertedEvent);
+            } else {
+                inputEventHandler.sendEvent((Event) convertedEvent);
             }
         }
     }
@@ -190,15 +189,11 @@ public class JsonSourceMapper extends SourceMapper {
      * @return the constructed Event object
      */
     private Object convertToEvent(Object eventObject) {
-        // Validate the event
-        if (eventObject == null) {
-            throw new ExecutionPlanRuntimeException("Null object received from the InputTransport to JsonSourceMapper");
-        }
-
         if (!(eventObject instanceof String)) {
-            throw new ExecutionPlanRuntimeException("Invalid JSON object received. Expected String, but found " +
+            log.error("Invalid JSON object received. Expected String, but found " +
                     eventObject.getClass()
                             .getCanonicalName());
+            return null;
         }
 
         if (!isJsonValid(eventObject.toString())) {
@@ -219,15 +214,12 @@ public class JsonSourceMapper extends SourceMapper {
                 JSONArray jsonArray = (JSONArray) jsonObj;
                 List<Event> eventList = new ArrayList<Event>();
                 for (Object eventObj : jsonArray) {
-                    try {
-                        Event event = processCustomEvent(JsonPath.parse(eventObj));
+                    Event event = processCustomEvent(JsonPath.parse(eventObj));
+                    if (event != null) {
                         eventList.add(event);
-                    } catch (ExecutionPlanRuntimeException e) {
-                        log.error(e.getMessage());
                     }
                 }
-                Event[] eventArray = new Event[eventList.size()];
-                eventArray = eventList.toArray(eventArray);
+                Event[] eventArray = eventList.toArray(new Event[0]);
                 return eventArray;
             } else {
                 try {
@@ -244,17 +236,9 @@ public class JsonSourceMapper extends SourceMapper {
                 return convertToEventArrayForDefaultMapping(eventObject);
             } else {
                 try {
-                    Event event = convertToSingleEventForDefaultMapping(eventObject);
-                    if (event == null) {
-                        log.error("Event" + eventObject + " contains incompatible attribute types and values.");
-                        return null;
-                    }
-                    return event;
+                    return convertToSingleEventForDefaultMapping(eventObject);
                 } catch (IOException e) {
-                    log.error("Invalid JSON string :" + eventObject.toString() + ". Cannot be converted to an event.");
-                    return null;
-                } catch (ExecutionPlanRuntimeException e) {
-                    log.error(e.getMessage());
+                    log.error("Json string " + eventObject + " cannot be parsed to json object.");
                     return null;
                 }
             }
@@ -264,7 +248,7 @@ public class JsonSourceMapper extends SourceMapper {
     private Event convertToSingleEventForDefaultMapping(Object eventObject) throws IOException {
         Event event = new Event(attributesSize);
         Object[] data = event.getData();
-        com.fasterxml.jackson.core.JsonParser parser;
+        JsonParser parser;
         int numberOfProvidedAttributes = 0;
         try {
             parser = factory.createParser(eventObject.toString());
@@ -280,18 +264,21 @@ public class JsonSourceMapper extends SourceMapper {
                 if (DEFAULT_JSON_EVENT_IDENTIFIER.equalsIgnoreCase(parser.getText())) {
                     parser.nextToken();
                 } else {
-                    throw new ExecutionPlanRuntimeException("Default json event " + eventObject
+                    log.error("Default json message " + eventObject
                             + " contains an invalid event identifier. Required \"event\", " +
-                            "but found \"" + parser.getText() + "\".");
+                            "but found \"" + parser.getText() + "\". Hence dropping the message.");
+                    return null;
                 }
             } else if (JsonToken.FIELD_NAME.equals(jsonToken)) {
                 String key = parser.getCurrentName();
                 numberOfProvidedAttributes++;
                 position = findDefaultMappingPosition(key);
                 if (position == -1) {
-                    throw new ExecutionPlanRuntimeException("Stream \"" + streamDefinition.getId() +
+                    log.error("Stream \"" + streamDefinition.getId() +
                             "\" does not have an attribute named \"" + key +
-                            "\", but the received event " + eventObject.toString() + " does.");
+                            "\", but the received event " + eventObject.toString() +
+                            " does. Hence dropping the message.");
+                    return null;
                 }
                 jsonToken = parser.nextToken();
                 Attribute.Type type = streamAttributes.get(position).getType();
@@ -303,58 +290,71 @@ public class JsonSourceMapper extends SourceMapper {
                         case BOOL:
                             if (JsonToken.VALUE_TRUE.equals(jsonToken) || JsonToken.VALUE_FALSE.equals(jsonToken)) {
                                 data[position] = parser.getValueAsBoolean();
-                                break;
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
+                                log.error("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
-                                        parser.getText() + " is not compatible with type BOOL");
+                                        parser.getText() + " is not compatible with type BOOL. " +
+                                        "Hence dropping the message.");
+                                return null;
                             }
+                            break;
                         case INT:
-                            if (JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken)) {
+                            if (JsonToken.VALUE_NUMBER_INT.equals(jsonToken)) {
                                 data[position] = parser.getValueAsInt();
-                                break;
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
+                                log.error("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
-                                        parser.getText() + " is not compatible with type INT");
+                                        parser.getText() + " is not compatible with type INT. " +
+                                        "Hence dropping the message.");
+                                return null;
                             }
+                            break;
                         case DOUBLE:
                             if (JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken)) {
                                 data[position] = parser.getValueAsDouble();
-                                break;
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
+                                log.error("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
-                                        parser.getText() + " is not compatible with type DOUBLE");
+                                        parser.getText() + " is not compatible with type DOUBLE. " +
+                                        "Hence dropping the message.");
+                                return null;
                             }
+                            break;
                         case STRING:
                             if (JsonToken.VALUE_STRING.equals(jsonToken)) {
                                 data[position] = parser.getValueAsString();
-                                break;
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
+                                log.error("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
-                                        parser.getText() + " is not compatible with type STRING");
+                                        parser.getText() + " is not compatible with type STRING. " +
+                                        "Hence dropping the message.");
+                                return null;
                             }
+                            break;
                         case FLOAT:
                             if (JsonToken.VALUE_NUMBER_FLOAT.equals(jsonToken) ||
                                     JsonToken.VALUE_NUMBER_INT.equals(jsonToken)) {
-                                data[position] = convertAttribute(parser.getValueAsString(), Attribute.Type.FLOAT);
-                                break;
+                                data[position] = attributeConverter.getPropertyValue(parser.getValueAsString(),
+                                        Attribute.Type.FLOAT);
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
+                                log.error("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
-                                        parser.getText() + " is not compatible with type FLOAT");
+                                        parser.getText() + " is not compatible with type FLOAT. " +
+                                        "Hence dropping the message.");
+                                return null;
                             }
+                            break;
                         case LONG:
                             if (JsonToken.VALUE_NUMBER_INT.equals(jsonToken)) {
                                 data[position] = parser.getValueAsLong();
-                                break;
                             } else {
-                                throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
+                                log.error("Json message " + eventObject.toString() +
                                         " contains incompatible attribute types and values. Value " +
-                                        parser.getText() + " is not compatible with type LONG");
+                                        parser.getText() + " is not compatible with type LONG. " +
+                                        "Hence dropping the message.");
+                                return null;
                             }
+                            break;
                         default:
                             return null;
                     }
@@ -363,8 +363,9 @@ public class JsonSourceMapper extends SourceMapper {
         }
 
         if (failOnMissingAttribute && (numberOfProvidedAttributes != attributesSize)) {
-            throw new ExecutionPlanRuntimeException("Json message " + eventObject.toString() +
+            log.error("Json message " + eventObject.toString() +
                     " contains missing attributes. Hence dropping the message.");
+            return null;
         }
         return event;
     }
@@ -429,8 +430,9 @@ public class JsonSourceMapper extends SourceMapper {
                 }
             } catch (PathNotFoundException e) {
                 if (failOnMissingAttribute) {
-                    throw new ExecutionPlanRuntimeException("Json message " + childObject.toString() +
+                    log.error("Json message " + childObject.toString() +
                             " contains missing attributes. Hence dropping the message.");
+                    return null;
                 }
                 data[position] = null;
             }
@@ -446,25 +448,6 @@ public class JsonSourceMapper extends SourceMapper {
             }
         }
         return -1;
-    }
-
-    private Object convertAttribute(Object attribute, Attribute.Type type) {
-        String value;
-        switch (type) {
-            case INT:
-                value = attribute.toString();
-                return (int) Double.parseDouble(value);
-            case LONG:
-                value = attribute.toString();
-                return (long) Double.parseDouble(value);
-            case DOUBLE:
-                return Double.parseDouble(attribute.toString());
-            case FLOAT:
-                return Float.parseFloat(attribute.toString());
-            case BOOL:
-                return Boolean.parseBoolean(attribute.toString());
-        }
-        return attribute;
     }
 
     private boolean isJsonValid(String jsonInString) {
