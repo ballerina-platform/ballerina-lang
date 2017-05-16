@@ -18,6 +18,8 @@
 
 package org.wso2.siddhi.core;
 
+import com.lmax.disruptor.ExceptionHandler;
+
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.debugger.SiddhiDebugger;
@@ -59,8 +61,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-import com.lmax.disruptor.ExceptionHandler;
-
 /**
  * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an executionPlan
  * and streamJunctions and inputHandlers used
@@ -81,7 +81,8 @@ public class ExecutionPlanRuntime {
     private Map<String, StreamJunction> streamJunctionMap =
             new ConcurrentHashMap<String, StreamJunction>(); // Contains stream junctions.
     private Map<String, Table> tableMap = new ConcurrentHashMap<String, Table>(); // Contains event tables.
-    private Map<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); // Contains partitions.
+    private Map<String, PartitionRuntime> partitionMap =
+            new ConcurrentHashMap<String, PartitionRuntime>(); // Contains partitions.
     private ExecutionPlanContext executionPlanContext;
     private Map<String, ExecutionPlanRuntime> executionPlanRuntimeMap;
     private MemoryUsageTracker memoryUsageTracker;
