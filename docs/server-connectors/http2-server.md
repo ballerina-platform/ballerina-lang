@@ -1,12 +1,12 @@
-#HTTP/2 Server Connector
+# HTTP/2 Server Connector
 
-##About HTTP/2
+## About HTTP/2
 
 The Hypertext Transfer Protocol (HTTP) is a wildly successful protocol,  but still has some weaknesses with HTTP 1.0 and 1.1 versions.
 
 HTTP/2 was introduced to address those drawbacks with features of Binary information exchange, compressed headers, multiplexing, and Server Push.
 
-##HTTP/2 Server Connector
+## HTTP/2 Server Connector
 
 The HTTP/2 server connector allows Ballerina programmers to expose their APIs to HTTP/2 clients. So when you send an HTTP request using an HTTP/2 client, the server will upgrade the protocol to HTTP/2 and send the response as below.
 
@@ -20,7 +20,7 @@ Http-to-http2-upgrade true
 
 Then server will send a response to the user request through the HTTP/2 protocol.
 
-##How to define an HTTP/2 service
+## How to define an HTTP/2 service
 
 You can design the service the same as an HTTP service and deploy it in the Ballerina server. The service will be served with both HTTP/1 and HTTP/2 clients after enabling HTTP/2 Support.
 

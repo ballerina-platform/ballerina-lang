@@ -1,6 +1,6 @@
 # Samples
 
-The best way to start writing your Ballerina program is to use the samples as templates. Each sample includes a walk-through of the code so you can see how it's done. 
+The best way to start writing your Ballerina program is to use the samples as templates. The samples are located in your `<BALLERINA_HOME>/samples` directory, and you can also find them on [Github](https://github.com/ballerinalang/ballerina/tree/master/samples/getting_started). Each sample includes a walk-through of the code so you can see how it's done. 
 
 * **helloWorld**: A simple executable program that prints "Hello World" to the command line.
 * **helloWorldService**: A service that prints "Hello World" to the command line.
