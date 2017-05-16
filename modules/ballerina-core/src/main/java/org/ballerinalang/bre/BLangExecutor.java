@@ -143,7 +143,7 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(BlockStmt blockStmt) {
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
-            if (!inFinalBlock && (returnedOrReplied || isBreakCalled || isErrorThrown)) {
+            if (!inFinalBlock && (returnedOrReplied || isErrorThrown) || isBreakCalled) {
                 break;
             }
             stmt.execute(this);
@@ -237,7 +237,7 @@ public class BLangExecutor implements NodeExecutor {
         while (condition.booleanValue()) {
             // Interpret the statements in the while body.
             whileStmt.getBody().execute(this);
-            if (!inFinalBlock && (returnedOrReplied || isBreakCalled || isErrorThrown)) {
+            if (!inFinalBlock && (returnedOrReplied  || isErrorThrown) || isBreakCalled) {
                 break;
             }
             // Now evaluate the condition again to decide whether to continue the loop or not.

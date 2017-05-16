@@ -164,6 +164,7 @@ under the License.
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
             <class name="org.ballerinalang.core.lang.error.TestErrorReturn"/>
             <class name="org.ballerinalang.core.lang.error.TryCatchThrowStmtTest"/>
+            <class name="org.ballerinalang.core.lang.error.TestFinallyBlock"/>
         </classes>
     </test>
 </suite>
