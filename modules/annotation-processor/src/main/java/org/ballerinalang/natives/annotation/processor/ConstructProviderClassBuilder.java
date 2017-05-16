@@ -70,15 +70,10 @@ public class ConstructProviderClassBuilder {
     private static final String PACKAGE_SCOPE = "nativePackage";
     private static final String DEFINE_METHOD = "define";
     private static final String EMPTY = "";
-    private static final String BALLERINA_BUILTIN_REPO_CLASSNAME
-            = "org.ballerinalang.nativeimpl.repository.BallerinaBuiltinPackageRepository";
-    private static final String BALLERINA_CONNECTOR_REPO_CLASSNAME
-            = "org.ballerinalang.connector.service.BuiltinConnectorPackageRepository";
-    private static final String BALLERINA_NATIVE_PKG_NAME =  "org.ballerinalang.nativeimpl";
-    private static final String BALLERINA_CONNECTOR_PKG_NAME =  "org.wso2.ballerina.connectors";
 
     
     private Writer sourceFileWriter;
+    private String pkgRepositoryClass;
     private String className;
     private String packageName;
     private String balSourceDir;
@@ -112,10 +107,13 @@ public class ConstructProviderClassBuilder {
      * @param className Class name of the generated construct provider class
      * @param srcDir  source directory of ballerina files
      */
-    public ConstructProviderClassBuilder(Filer filer, String packageName, String className, String srcDir) {
+    public ConstructProviderClassBuilder(Filer filer, String packageName, String className, String srcDir,
+                                         String pkgRepositoryClass) {
         this.packageName = packageName;
         this.className = className;
         this.balSourceDir = srcDir;
+        this.pkgRepositoryClass = pkgRepositoryClass;
+
         
         // Initialize the class writer. 
         initClassWriter(filer);
@@ -190,20 +188,16 @@ public class ConstructProviderClassBuilder {
      * @param
      */
     private void createBuiltinPackageRepositoryServiceMetaFile(Filer filer) {
+        if (pkgRepositoryClass == null || pkgRepositoryClass.isEmpty()) {
+            return;
+        }
         Writer configWriter = null;
         try {
             //Find the location of the resource/META-INF directory.
-            if (packageName.equals(BALLERINA_NATIVE_PKG_NAME)) {
-                FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", META_INF + SERVICES +
-                        BuiltinPackageRepository.class.getCanonicalName());
-                configWriter = metaFile.openWriter();
-                configWriter.write(BALLERINA_BUILTIN_REPO_CLASSNAME + "\n");
-            } else if (packageName.equals(BALLERINA_CONNECTOR_PKG_NAME)) {
-                FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", META_INF + SERVICES +
-                        BuiltinPackageRepository.class.getCanonicalName());
-                configWriter = metaFile.openWriter();
-                configWriter.write(BALLERINA_CONNECTOR_REPO_CLASSNAME);
-            }
+            FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", META_INF + SERVICES +
+                    BuiltinPackageRepository.class.getCanonicalName());
+            configWriter = metaFile.openWriter();
+            configWriter.write(pkgRepositoryClass);
         } catch (IOException e) {
             throw new BallerinaException("error while generating config file: " + e.getMessage());
         } finally {
