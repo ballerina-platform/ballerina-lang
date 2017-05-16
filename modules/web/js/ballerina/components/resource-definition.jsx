@@ -38,6 +38,12 @@ class ResourceDefinition extends React.Component {
         resource_worker_bBox.w = lifeLine.width;
         resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
+        let classes = {
+            lineClass: "default-worker-life-line",
+            polygonClass: "default-worker-life-line-polygon"
+        };
+
+
         let children = getComponentForNodeArray(this.props.model.getChildren());
 
         let titleComponentData = [{
@@ -51,7 +57,7 @@ class ResourceDefinition extends React.Component {
                                 dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
                                 titleComponentData={titleComponentData}>
             <g>
-                <LifeLineDecorator title="default" bBox={resource_worker_bBox}/>
+                <LifeLineDecorator title="default" bBox={resource_worker_bBox} classes={classes}/>
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
                     {children}
                 </StatementContainer>
