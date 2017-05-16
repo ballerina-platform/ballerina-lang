@@ -24,6 +24,8 @@ import './package-definition.css';
 import {getCanvasOverlay} from '../configs/app-context';
 import ImportDeclaration from './import-declaration';
 import ImportDeclarationExpanded from './import-declaration-expanded';
+import GlobalDefinitions from './global-definitions';
+import GlobalExpanded from './globals-expanded';
 import BallerinaASTFactory from '../ast/ballerina-ast-factory';
 import ImageUtil from './image-util';
 import EditableText from './editable-text';
@@ -37,14 +39,24 @@ class PackageDefinition extends React.Component {
             packageDefValue: this.props.model.getPackageName(),
             packageNameEditing: false
         }
-        this.handleImportsHeaderClick = this.handleImportsHeaderClick.bind(this);
+
+        this.globalDecRegex = /const\s+(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g // This is not 100% accurate
+
+        this.handleImportsBadgeClick = this.handleImportsBadgeClick.bind(this);
+        this.handleGlobalsBadgeClick = this.handleGlobalsBadgeClick.bind(this);
         this.handleAddImport = this.handleAddImport.bind(this);
         this.handleDeleteImport = this.handleDeleteImport.bind(this);
+        this.handleAddGlobal = this.handleAddGlobal.bind(this);
+        this.handleDeleteGlobal = this.handleDeleteGlobal.bind(this);
         this.handlePackageIconClick = this.handlePackageIconClick.bind(this);
     }
 
-    handleImportsHeaderClick() {
-        this.props.model.setAttribute('viewState.expanded', !this.props.model.viewState.expanded);
+    handleImportsBadgeClick() {
+        this.props.model.setAttribute('viewState.importsExpanded', !this.props.model.viewState.importsExpanded);
+    }
+
+    handleGlobalsBadgeClick() {
+        this.props.model.setAttribute('viewState.globalsExpanded', !this.props.model.viewState.globalsExpanded);
     }
 
     handlePackageIconClick() {
@@ -63,6 +75,18 @@ class PackageDefinition extends React.Component {
 
     handleDeleteImport(value) {
         this.props.model.parent.deleteImport(value);
+    }
+
+    handleAddGlobal(value) {
+        const match = this.globalDecRegex.exec(value);
+
+        if(match && match[1] && match[2] && match[3]){
+            this.props.model.parent.addConstantDefinition(match[1], match[2], match[3])
+        }
+    }
+
+    handleDeleteGlobal(deletedGlobal) {
+        this.props.model.parent.removeConstantDefinition(deletedGlobal.getID());
     }
 
     onPackageClick() {
@@ -92,7 +116,8 @@ class PackageDefinition extends React.Component {
         const packageName = model.getPackageName();
         const headerHeight = packageDefinition.header.height;
         const headerPadding = packageDefinition.header.padding;
-        const expanded = this.props.model.viewState.expanded;
+        const importsExpanded = this.props.model.viewState.importsExpanded;
+        const globalsExpanded = this.props.model.viewState.globalsExpanded;
         const packageDefTextWidth = 275;
         const iconSize = 20;
 
@@ -101,18 +126,36 @@ class PackageDefinition extends React.Component {
             y: bBox.y
         }
 
+        const globalsBbox = {
+            x: bBox.x + headerHeight + 150,
+            y: bBox.y
+        }
+
         const expandedImportsBbox = {
             x: bBox.x,
             y: bBox.y + headerHeight
         }
 
-        const packageDefExpanded = this.state.packageDefExpanded || !!this.state.packageDefValue
-        if(packageDefExpanded) {
-            importsBbox.x += packageDefTextWidth
+        const expandedGlobalsBbox = {
+            x: bBox.x,
+            y: bBox.y + headerHeight
         }
 
         const astRoot = this.props.model.parent;
         const imports = astRoot.children.filter(c => {return c.constructor.name === 'ImportDeclaration'});
+        const globals = astRoot.children.filter(c => {return c.constructor.name === 'ConstantDefinition'});
+
+        const packageDefExpanded = this.state.packageDefExpanded || !!this.state.packageDefValue
+
+        if(packageDefExpanded) {
+            importsBbox.x += packageDefTextWidth
+            globalsBbox.x += packageDefTextWidth
+        }
+
+        if(importsExpanded) {
+            expandedGlobalsBbox.y += imports.length * 30 + 77;
+            globalsBbox.x -= 135;
+        }
 
         return (
             <g>
@@ -130,14 +173,25 @@ class PackageDefinition extends React.Component {
                             </EditableText>
                         </g>
                     )
-               }
+               }(
                <image width={ iconSize } height={ iconSize } xlinkHref={ ImageUtil.getSVGIconString('package') }
                       onClick={this.handlePackageIconClick} x={bBox.x + (headerHeight-iconSize)/2 }
                       y={bBox.y + (headerHeight-iconSize)/2}/>
-               { expanded ? <ImportDeclarationExpanded
-                            bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsHeaderClick}
+               {
+                    importsExpanded ?
+                         <ImportDeclarationExpanded
+                            bBox={expandedImportsBbox} imports={imports} onCollapse={this.handleImportsBadgeClick}
                             onAddImport={this.handleAddImport} onDeleteImport={this.handleDeleteImport}/> :
-                         <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsHeaderClick} /> }
+                         <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsBadgeClick} />
+               }
+               {
+                    globalsExpanded ?
+                         <GlobalExpanded
+                            bBox={expandedGlobalsBbox} globals={globals} onCollapse={this.handleGlobalsBadgeClick}
+                            title="Globals" onAddNewValue={this.handleAddGlobal} onDeleteClick={this.handleDeleteGlobal}
+                            getValue={ g => (g.getConstantDefinitionAsString())}/> :
+                         <GlobalDefinitions bBox={globalsBbox} globals={globals} onClick={this.handleGlobalsBadgeClick} />
+               }
             </g>
         );
     }

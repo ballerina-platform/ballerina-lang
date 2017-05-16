@@ -30,7 +30,8 @@ class EditableText extends React.Component {
     }
 
     renderTextBox() {
-        const {x, y, width, height = 25, onChange, onBlur, children, className = 'text-input', placeHolder} = this.props;
+        const {x, y, width, height = 25, onChange, onBlur, onKeyDown, children,
+            className = 'text-input', placeHolder} = this.props;
         const inputStyle = {
             position: 'absolute',
             top: y - height / 2,
@@ -53,6 +54,7 @@ class EditableText extends React.Component {
                 }}
                 style={inputStyle}
                 onChange={onChange}
+                onKeyDown={onKeyDown}
                 onBlur={onBlur}
                 value={children}
                 placeholder={placeHolder}
