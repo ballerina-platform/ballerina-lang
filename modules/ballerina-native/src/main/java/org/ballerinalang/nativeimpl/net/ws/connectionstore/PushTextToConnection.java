@@ -14,10 +14,9 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
-package org.ballerinalang.nativeimpl.net.ws;
+package org.ballerinalang.nativeimpl.net.ws.connectionstore;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -27,40 +26,44 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.io.IOException;
 import javax.websocket.Session;
 
 /**
- * Send text to the same client who sent the message to the given WebSocket Upgrade Path.
+ * Push text to the connection chose by the user from the connection store.
  */
-
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "pushText",
+        functionName = "pushTextToConnection",
         args = {
+                @Argument(name = "connectionName", type = TypeEnum.STRING),
                 @Argument(name = "text", type = TypeEnum.STRING)
         },
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "This pushes text from server to the the same " +
-                             "client who sent the message.") })
+                     attributes = { @Attribute(name = "value", value = "TPush text to the connection chose by " +
+                             "the user from the connection store.") })
+@BallerinaAnnotation(annotationName = "Param",
+                     attributes = { @Attribute(name = "connectionName", value = "name of the stored connection") })
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "text", value = "Text which should be sent") })
-public class PushText extends AbstractNativeFunction {
-
+public class PushTextToConnection extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
+        String connectionName = getArgument(context, 0).stringValue();
+        String text = getArgument(context, 1).stringValue();
+        Session session = WebSocketConnectionManager.getInstance().getStoredConnection(connectionName);
+        if (session == null) {
+            throw new BallerinaException("Cannot find a connection for the connection name: " + connectionName);
+        }
         try {
-            CarbonMessage carbonMessage = context.getCarbonMessage();
-            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
-            String text = getArgument(context, 0).stringValue();
             session.getBasicRemote().sendText(text);
-        } catch (Throwable e) {
-            throw new BallerinaException("Cannot send the message. Error occurred.");
+        } catch (IOException e) {
+            throw new BallerinaException("IO exception occurred during pushing text to client", e, context);
         }
         return VOID_RETURN;
     }

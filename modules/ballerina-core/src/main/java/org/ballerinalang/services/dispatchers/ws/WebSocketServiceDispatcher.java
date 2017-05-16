@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.services.dispatchers.websocket;
+package org.ballerinalang.services.dispatchers.ws;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.AnnotationAttachment;
@@ -27,25 +27,18 @@ import org.ballerinalang.services.dispatchers.http.HTTPServiceDispatcher;
 import org.ballerinalang.services.dispatchers.http.HTTPServicesRegistry;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 
 /**
  * Service Dispatcher for WebSocket Endpoint.
- *
- * @since 0.8.0
  */
 public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
-
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketServiceDispatcher.class);
 
     @Override
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
         String interfaceId = getInterface(cMsg);
-
         String serviceUri = (String) cMsg.getProperty(Constants.TO);
         serviceUri = refactorUri(serviceUri);
         if (serviceUri == null) {
@@ -54,21 +47,16 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         String basePath = URIUtil.getFirstPathSegment(serviceUri);
         Service service = HTTPServicesRegistry.getInstance().
                 getService(interfaceId, Constants.DEFAULT_BASE_PATH + basePath);
-
         if (service == null) {
             throw new BallerinaException("No service found to handle message for " + serviceUri);
         }
-
-
         String webSocketUpgradePath = findWebSocketUpgradePath(service);
         if (webSocketUpgradePath == null) {
             throw new BallerinaException("No service found to handle message for " + serviceUri);
         }
-
         if (webSocketUpgradePath.equals(serviceUri)) {
             return service;
         }
-
         throw new BallerinaException("No service found to handle message for " + serviceUri);
     }
 
@@ -91,26 +79,23 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         AnnotationAttachment[] annotations = service.getAnnotations();
         for (AnnotationAttachment annotation: annotations) {
             if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
-                annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+                    annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
                 basePathAnnotation = annotation;
-            } else if (annotation.getName().equals(
-                    Constants.PROTOCOL_WEBSOCKET + ":" + Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH)) {
+            } else if (annotation.getPkgName().equals(Constants.PROTOCOL_WEBSOCKET) &&
+                    annotation.getName().equals(Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH)) {
                 websocketUpgradePathAnnotation = annotation;
             }
         }
         if (websocketUpgradePathAnnotation != null && websocketUpgradePathAnnotation.getValue() != null && 
                 !websocketUpgradePathAnnotation.getValue().trim().isEmpty()) {
-            if (basePathAnnotation == null || basePathAnnotation.getValue() == null || 
+            if (basePathAnnotation == null || basePathAnnotation.getValue() == null ||
                     basePathAnnotation.getValue().trim().isEmpty()) {
                 throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
             }
-
             String basePath = refactorUri(basePathAnnotation.getValue());
             String websocketUpgradePath = refactorUri(websocketUpgradePathAnnotation.getValue());
-
             return refactorUri(basePath.concat(websocketUpgradePath));
         }
-
         return null;
     }
 
@@ -118,11 +103,9 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         if (uri.startsWith("\"")) {
             uri = uri.substring(1, uri.length() - 1);
         }
-
         if (!uri.startsWith("/")) {
             uri = "/".concat(uri);
         }
-
         if (uri.endsWith("/")) {
             uri = uri.substring(0, uri.length() - 1);
         }
