@@ -103,7 +103,7 @@ public class TesterinaFunction {
         // 2) Create variable reference expressions for each argument value;
         Expression[] exprs = new Expression[args.length];
         for (int i = 0; i < args.length; i++) {
-            VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(),
+            VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(), null, 
                     new SymbolName("arg" + i));
 
             variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
@@ -115,7 +115,7 @@ public class TesterinaFunction {
         }
 
         // 3) Create a function invocation expression
-        FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(function.getNodeLocation(), name, null,
+        FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(function.getNodeLocation(), null, name, null,
                 bFunction.getPackagePath(), exprs);
         funcIExpr.setOffset(args.length);
         funcIExpr.setCallableUnit(function);

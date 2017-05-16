@@ -18,7 +18,6 @@
 package org.ballerinalang.testerina.natives.mock;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaConnectorDef;
@@ -37,14 +36,12 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.core.TesterinaUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -144,40 +141,11 @@ public class SetValue extends AbstractNativeFunction {
                 }
             }
         }
-
-        if (!isMockValueSet && variableDefStmt.getVariableDef().getType() instanceof AbstractNativeConnector) {
-            try {
-                // TODO Temporary fix until we have a ballerina release with the fix at
-                // https://github.com/ballerinalang/ballerina/pull/1962.
-                String[] argumentNames = TesterinaUtils
-                        .invokeMethod(variableDefStmt.getVariableDef().getType(), "getArgumentNames", String[].class);
-                //String[] argumentNames = ((AbstractNativeConnector) variableDefStmt.getVariableDef().getType())
-                //        .getArgumentNames();
-                int index = 0;
-                for (; index < argumentNames.length; index++) {
-                    if (mockCnctrPath.terminalVarName.equalsIgnoreCase(argumentNames[index])) {
-                        validateArgsExprsArray(index, argExprs, variableDefStmt);
-                        setProperty(argExprs[index], mockCnctrPath.terminalVarName, mockCnctrPath.mockValue);
-                        isMockValueSet = true;
-                        break;
-                    }
-                }
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                //ignore - we are safe
-            }
-        }
-
         //fall back to index based argument update based on the variable name.
         if (!isMockValueSet) {
             validateArgsExprsArray(mockCnctrPath.indexOfMockField, argExprs, variableDefStmt);
             setProperty(argExprs[mockCnctrPath.indexOfMockField], mockCnctrPath.terminalVarName,
                     mockCnctrPath.mockValue);
-        }
-
-        if (variableDefStmt.getVariableDef().getType() instanceof AbstractNativeConnector) {
-            BLangProgram bLangProgram = service.getBLangProgram();
-            RuntimeEnvironment reinitRuntimeEnvironment = RuntimeEnvironment.get(bLangProgram);
-            bLangProgram.setRuntimeEnvironment(reinitRuntimeEnvironment);
         }
 
         return VOID_RETURN;

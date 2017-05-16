@@ -102,6 +102,7 @@
                         <className>${native.constructs.provider.class}</className>
                         <srcDir>${testerina.source.directory}</srcDir>
                         <targetDir>${generated.testerina.source.directory}</targetDir>
+                        <pkgRepositoryClass>${package.repository.provider.class}</pkgRepositoryClass>
                     </options>
                 </configuration>
                 <executions>
@@ -127,7 +128,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>org.ballerinalang.natives.annotation.processor.NativeValidator</mainClass>
+                            <mainClass>org.ballerinalang.natives.annotation.processor.BuiltinPackageValidator</mainClass>
                             <arguments>
                                 <argument>${generated.testerina.source.directory}</argument>
                             </arguments>
@@ -163,5 +164,6 @@
         <checkstyle.skip>true</checkstyle.skip>
         <native.constructs.provider.package>org.ballerinalang.testerina.natives</native.constructs.provider.package>
         <native.constructs.provider.class>TesterinaNativeConstructsProvider</native.constructs.provider.class>
+        <package.repository.provider.class>org.ballerinalang.testerina.core.TesterinaPackageRepository</package.repository.provider.class>
     </properties>
 </project>
