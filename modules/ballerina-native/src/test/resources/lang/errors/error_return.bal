@@ -1,8 +1,8 @@
-import ballerina.lang.error;
+import ballerina.lang.errors;
 
 struct InvalidNameError {
     string msg;
-    error:error cause;
+    errors:Error cause;
     string companyName;
 }
 
@@ -59,7 +59,7 @@ function testReturnError()(string, string, string, string) {
 function testReturnAndThrowError()(string){
     try{
         checkAndThrow();
-    }catch(error:error e){
+    }catch(errors:Error e){
         return e.msg;
     }
     return "OK";

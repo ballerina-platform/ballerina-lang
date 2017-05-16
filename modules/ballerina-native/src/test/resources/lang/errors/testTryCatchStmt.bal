@@ -1,20 +1,20 @@
-import ballerina.lang.error;
+import ballerina.lang.errors;
 
 struct testError {
     string msg;
-    error:error cause;
+    errors:Error cause;
     string code;
 }
 
 struct testDataError {
     string msg;
-    error:error cause;
+    errors:Error cause;
     string data;
 }
 
 struct testInputError {
     string msg;
-    error:error cause;
+    errors:Error cause;
     string input;
 }
 
@@ -45,7 +45,7 @@ function testTryCatch(int value)(string){
             path = path + "innerFinally ";
         }
         path = path + "endInsideTry ";
-    } catch (error:error e){
+    } catch (errors:Error e){
         path = path + "ErrorCatch ";
     } catch (testError ex){
         path = path + "TestErrorCatch ";
@@ -62,7 +62,7 @@ function testFunctionThrow (int arg)(boolean, string){
         a = a + "1";
         int b = testThrow(arg);
         a = a + "2";
-    } catch (error:error b){
+    } catch (errors:Error b){
         a = a + "3";
         return true, a;
     }
@@ -76,7 +76,7 @@ function testThrow(int a)(int) {
 }
 
 function testNestedThrow(int a)(int){
-    error:error e  = {msg : "test message"};
+    errors:Error e  = {msg : "test message"};
     throw e;
 }
 
@@ -84,12 +84,12 @@ function testUncaughtException(){
     testNestedThrow(1);
 }
 
-function testStackTrace()(error:stackTrace){
-    error:stackTrace trace;
+function testStackTrace()(errors:StackTrace){
+    errors:StackTrace trace;
     try{
         testUncaughtException();
-    } catch (error:error e) {
-        trace = error:getStackTrace(e);
+    } catch (errors:Error e) {
+        trace = errors:getStackTrace(e);
     }
     return trace;
 }

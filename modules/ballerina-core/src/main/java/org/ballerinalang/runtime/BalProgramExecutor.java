@@ -24,7 +24,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.model.AnnotationAttachment;
@@ -122,32 +121,21 @@ public class BalProgramExecutor {
                 balContext.setExecutor(debugger);
                 debugger.execute(new ResourceInvocationExpr(resource, exprs));
             } else {
-                // repeated code to make sure debugger have no impact in none debug mode.
-                if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                    BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-                    balContext.setExecutor(executor);
-                    executor.execute(new ResourceInvocationExpr(resource, exprs));
-                } else {
-                    BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
-                    new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
-                    if (executor.isErrorThrown && executor.thrownError != null) {
-                        String errorMsg = "uncaught error " + executor.thrownError.getType().getName() + ":" +
-                                executor.thrownError.getValue(0).stringValue();
-                        throw new BallerinaException(errorMsg);
-                    }
-                    balContext.getControlStack().popFrame();
+                BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+                new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+                if (executor.isErrorThrown && executor.thrownError != null) {
+                    String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                            executor.thrownError.getValue(0).stringValue() + "}";
+                    throw new BallerinaException(errorMsg);
                 }
+                balContext.getControlStack().popFrame();
             }
-        } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
-            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-            balContext.setExecutor(executor);
-            executor.execute(new ResourceInvocationExpr(resource, exprs));
         } else {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
             new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
             if (executor.isErrorThrown && executor.thrownError != null) {
-                String errorMsg = "uncaught error " + executor.thrownError.getType().getName() + ":" +
-                        executor.thrownError.getValue(0).stringValue();
+                String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                        executor.thrownError.getValue(0).stringValue() + "}";
                 throw new BallerinaException(errorMsg);
             }
             balContext.getControlStack().popFrame();

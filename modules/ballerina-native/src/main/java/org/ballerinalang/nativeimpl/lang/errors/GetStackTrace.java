@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.lang.error;
+package org.ballerinalang.nativeimpl.lang.errors;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -32,12 +32,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * Native functions for ballerina.model.exceptions to Set the message and the category.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.error",
+        packageName = "ballerina.lang.errors",
         functionName = "getStackTrace",
-        args = {@Argument(name = "err", type = TypeEnum.STRUCT, structType = "error",
-                structPackage = "ballerina.lang.error")},
-        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "stackTrace",
-                structPackage = "ballerina.lang.error")},
+        args = {@Argument(name = "err", type = TypeEnum.STRUCT, structType = "Error",
+                structPackage = "ballerina.lang.errors")},
+        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "StackTrace",
+                structPackage = "ballerina.lang.errors")},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

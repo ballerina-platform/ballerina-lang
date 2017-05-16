@@ -22,7 +22,6 @@ import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
-import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.model.BLangPackage;
@@ -38,6 +37,7 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.AbstractMap;
 
@@ -117,15 +117,15 @@ public class BLangProgramRunner {
                 bContext.setExecutor(debugger);
                 debugger.continueExecution(mainFunction.getCallableUnitBody());
                 debugManager.holdON();
-            } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
-                bContext.setExecutor(executor);
-                executor.continueExecution(mainFunction.getCallableUnitBody());
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
                 mainFunction.getCallableUnitBody().execute(executor);
+                if (executor.isErrorThrown && executor.thrownError != null) {
+                    String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                            executor.thrownError.getValue(0).stringValue() + "}";
+                    throw new BallerinaException(errorMsg);
+                }
             }
-
             bContext.getControlStack().popFrame();
         } catch (Throwable ex) {
             String errorMsg = ErrorHandlerUtils.getErrorMessage(ex);

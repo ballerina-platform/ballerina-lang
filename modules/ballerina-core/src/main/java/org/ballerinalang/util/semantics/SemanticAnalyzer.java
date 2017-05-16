@@ -1122,12 +1122,12 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(TryCatchStmt tryCatchStmt) {
         tryCatchStmt.getTryBlock().accept(this);
 
-        BLangSymbol error = currentScope.resolve(new SymbolName("error", "ballerina.lang.error"));
+        BLangSymbol error = currentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
         Set<BType> definedTypes = new HashSet<>();
         if (tryCatchStmt.getCatchBlocks().length != 0) {
-            // Assumption : To use CatchClause, ballerina.lang.error should be resolved before.
+            // Assumption : To use CatchClause, ballerina.lang.errors should be resolved before.
             if (error == null || !(error instanceof StructDef)) {
-                throw new SemanticException("could not resolve ballerina.lang.error:error struct");
+                throw new SemanticException("could not resolve ballerina.lang.errors:Error struct");
             }
         }
         for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
@@ -1170,11 +1170,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         }
         if (expressionType != null) {
-            BLangSymbol error = currentScope.resolve(new SymbolName("error", "ballerina.lang.error"));
+            BLangSymbol error = currentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
             // TODO : Fix this.
-            // Assumption : To use CatchClause, ballerina.lang.error should be resolved before.
+            // Assumption : To use CatchClause, ballerina.lang.errors should be resolved before.
             if (error == null) {
-                throw new SemanticException("could not resolve ballerina.lang.error:error struct");
+                throw new SemanticException("could not resolve ballerina.lang.errors:Error struct");
             }
             if (error.equals(expressionType) || TypeLattice.getImplicitCastLattice().getEdgeFromTypes
                     (expressionType, error, null) != null) {

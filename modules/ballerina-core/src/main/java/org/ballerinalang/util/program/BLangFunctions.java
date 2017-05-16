@@ -168,8 +168,8 @@ public class BLangFunctions {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
             function.getCallableUnitBody().execute(executor);
             if (executor.isErrorThrown && executor.thrownError != null) {
-                String errorMsg = "uncaught error " + executor.thrownError.getType().getName() + ":" +
-                        executor.thrownError.getValue(0).stringValue();
+                String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                        executor.thrownError.getValue(0).stringValue() + "}";
                 throw new BallerinaException(errorMsg);
             }
             return returnValues;

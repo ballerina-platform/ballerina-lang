@@ -91,8 +91,8 @@ public class TryCatchThrowStmtTest {
         Assert.assertEquals(returns[1].stringValue(), "013", "Unexpected execution order.");
     }
 
-    @Test(description = "Test uncaught error in a function.", expectedExceptionsMessageRegExp = ".*uncaught error" +
-            " error:test message", expectedExceptions = BallerinaException.class)
+    @Test(description = "Test uncaught error in a function.", expectedExceptionsMessageRegExp = ".*uncaught error: " +
+            "Error\\{ msg : test message\\}", expectedExceptions = BallerinaException.class)
     public void testUncaughtException() {
         BValue[] args = {};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testUncaughtException", args);
@@ -122,18 +122,18 @@ public class TryCatchThrowStmtTest {
     }
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*only a struct type " +
-            "structurally equivalent to ballerina.lang.error:error is allowed here")
+            "structurally equivalent to ballerina.lang.errors:Error is allowed here")
     public void testInvalidThrow() {
         BTestUtils.parseBalFile("lang/errors/invalid-throw.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*only a struct type " +
-            "structurally equivalent to ballerina.lang.error:error is allowed here")
+            "structurally equivalent to ballerina.lang.errors:Error is allowed here")
     public void testInvalidFunctionThrow() {
         BTestUtils.parseBalFile("lang/errors/invalid-function-throw.bal");
     }
 
-    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*error 'testError' " +
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*error 'TestError' " +
             "already caught in try catch block")
     public void testDuplicateCatchBlock() {
         BTestUtils.parseBalFile("lang/errors/duplicate-catch-block.bal");

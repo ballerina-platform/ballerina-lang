@@ -1,24 +1,24 @@
-package ballerina.lang.error;
+package ballerina.lang.errors;
 
-struct error {
+struct Error {
     string msg;
-    error cause;
+    Error cause;
 }
 
-struct stackTrace {
-    stackTraceItem[] trace;
+struct StackTrace {
+    StackTraceItem[] items;
 }
 
-struct stackTraceItem {
+struct StackTraceItem {
     string caller;
     string packageName;
     string fileName;
     int lineNumber;
 }
 
-native function getStackTrace(error err)(stackTrace);
+native function getStackTrace(Error err)(StackTrace);
 
-function toString(stackTraceItem item)(string){
+function toString(StackTraceItem item)(string){
     // native function printStackTrace(error err);
     return item.packageName + ":" + item.caller + "(" + item.fileName + ":" + item.lineNumber + ")";
 }

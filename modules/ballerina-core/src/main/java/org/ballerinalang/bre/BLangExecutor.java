@@ -257,7 +257,7 @@ public class BLangExecutor implements NodeExecutor {
             tryCatchStmt.getTryBlock().execute(this);
         } catch (RuntimeException be) {
             if (error == null) {
-                error = (StructDef) GlobalScope.getInstance().resolve(new SymbolName("error", "ballerina.lang.error"));
+                error = (StructDef) GlobalScope.getInstance().resolve(new SymbolName("Error", "ballerina.lang.errors"));
                 if (error == null) {
                     throw new BLangRuntimeException("Unresolved type error");
                 }
@@ -301,10 +301,10 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     private BStruct generateStackTrace() {
-        StructDef stackTraceItemDef = (StructDef) GlobalScope.getInstance().resolve(new SymbolName("stackTraceItem",
-                "ballerina.lang.error"));
-        StructDef stackTraceDef = (StructDef) GlobalScope.getInstance().resolve(new SymbolName("stackTrace",
-                "ballerina.lang.error"));
+        StructDef stackTraceItemDef = (StructDef) GlobalScope.getInstance().resolve(new SymbolName("StackTraceItem",
+                "ballerina.lang.errors"));
+        StructDef stackTraceDef = (StructDef) GlobalScope.getInstance().resolve(new SymbolName("StackTrace",
+                "ballerina.lang.errors"));
 
         BArray<BStruct> bArray = new BArray<>(BStruct.class);
         bArray.setType(stackTraceItemDef);
