@@ -68,6 +68,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BallerinaPsiImplUtil {
 
@@ -914,6 +915,14 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
+    /**
+     * Adds an import declaration node to the file.
+     *
+     * @param file       file which is to be used to insert the import declaration node
+     * @param importPath import path to be used in the import declaration node
+     * @param alias      alias if needed. If this is {@code null}, it will be ignored
+     * @return import declaration node which is added
+     */
     @NotNull
     public static ImportDeclarationNode addImport(@NotNull PsiFile file, @NotNull String importPath,
                                                   @Nullable String alias) {
@@ -952,21 +961,45 @@ public class BallerinaPsiImplUtil {
         return ((ImportDeclarationNode) addedNode);
     }
 
-    public static Map<String, String> getImportMap(@NotNull PsiFile file) {
+    /**
+     * Returns all imports as a map. Key is the last Package Name node or Alias node. Value is the import path.
+     *
+     * @param file file to get imports
+     * @return map of imports
+     */
+    public static Map<String, String> getAllImportsInAFile(@NotNull PsiFile file) {
         Map<String, String> results = new HashMap<>();
-        Collection<PackagePathNode> packagePathNodes = PsiTreeUtil.findChildrenOfType(file, PackagePathNode.class);
-        for (PackagePathNode packagePathNode : packagePathNodes) {
-            AliasNode aliasNode = PsiTreeUtil.findChildOfType(packagePathNode, AliasNode.class);
+        Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
+                ImportDeclarationNode.class);
+        for (ImportDeclarationNode importDeclarationNode : importDeclarationNodes) {
+            // There can be two possible values for the imported package name. If there is no alias node in the
+            // import declaration, the imported package name is the last package name in the import path node.
+            // Otherwise the package name is the alias node.
+            PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(importDeclarationNode, PackagePathNode.class);
+            AliasNode aliasNode = PsiTreeUtil.findChildOfType(importDeclarationNode, AliasNode.class);
             if (aliasNode != null) {
-
-            } else {
-                PackageNameNode[] packageNameNodes = PsiTreeUtil.getChildrenOfType(packagePathNode,
-                        PackageNameNode.class);
-                if (packageNameNodes == null || packageNameNodes.length == 0) {
-                    return results;
+                if (packagePathNode != null) {
+                    // Key is the alias name node text. Value is the package path node text.
+                    // Eg:  import ballerina.utils as builtin;
+                    // Map: builtin -> ballerina.utils
+                    results.put(aliasNode.getText(), packagePathNode.getText());
                 }
-                PackageNameNode lastNode = packageNameNodes[packageNameNodes.length - 1];
-                results.put(lastNode.getText(), packagePathNode.getText());
+            } else {
+                if (packagePathNode != null) {
+                    // We need to get all package name nodes from the package path node.
+                    List<PackageNameNode> packageNameNodes =
+                            new ArrayList<>(PsiTreeUtil.findChildrenOfType(importDeclarationNode,
+                                    PackageNameNode.class));
+                    // If there is no package path node, return empty map.
+                    if (packageNameNodes.isEmpty()) {
+                        return results;
+                    }
+                    // The package node is the last package name in the package path.
+                    // Eg:  import ballerina.utils;
+                    // Map: utils -> ballerina.utils
+                    PackageNameNode lastNode = packageNameNodes.get(packageNameNodes.size() - 1);
+                    results.put(lastNode.getText(), packagePathNode.getText());
+                }
             }
         }
         return results;

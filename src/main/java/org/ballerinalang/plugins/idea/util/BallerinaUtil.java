@@ -86,44 +86,35 @@ public class BallerinaUtil {
         return false;
     }
 
+    /**
+     * Suggest the package name for a directory.
+     *
+     * @param directory directory which needs to be processed
+     * @return suggested package name or empty string if package name cannot be determined.
+     */
     @NotNull
     public static String suggestPackageNameForDirectory(@Nullable PsiDirectory directory) {
         // If the directory is not null, get the package name
         if (directory != null) {
             VirtualFile virtualFile = directory.getVirtualFile();
-            Project project = ProjectUtil.guessProjectForContentFile(virtualFile);
-            if (project != null && project.getBasePath() != null) {
-                // Get the relative path of the file in the project
-                String trimmedPath = virtualFile.getPath().replace(project.getBasePath(), "");
-                // Node: In virtual file paths, separators will always be "/" regardless of the OS.
-                // Remove the separator at the beginning of the string
-                trimmedPath = trimmedPath.replaceFirst("/", "");
-                // Replace all other separators with . to get the package path
-                trimmedPath = trimmedPath.replaceAll("/", ".");
-                return trimmedPath;
-            } else if (project == null) {
-                project = directory.getProject();
-                if (project == null) {
-                    return "";
+            Project project = directory.getProject();
+            // Check directories in content roots.
+            VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
+            for (VirtualFile contentRoot : contentRoots) {
+                if (!directory.getVirtualFile().getPath().startsWith(contentRoot.getPath())) {
+                    continue;
                 }
-                // Check directories in content roots.
-                VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
-                for (VirtualFile contentRoot : contentRoots) {
-                    if (!directory.getVirtualFile().getPath().startsWith(contentRoot.getPath())) {
+                return getImportPath(virtualFile, contentRoot);
+            }
+            // Check directories in project source roots
+            Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+            if (projectSdk != null) {
+                VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
+                for (VirtualFile root : roots) {
+                    if (!directory.getVirtualFile().getPath().startsWith(root.getPath())) {
                         continue;
                     }
-                    return getImportPath(virtualFile, contentRoot);
-                }
-                // Check directories in project source roots
-                Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-                if (projectSdk != null) {
-                    VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
-                    for (VirtualFile root : roots) {
-                        if (!directory.getVirtualFile().getPath().startsWith(root.getPath())) {
-                            continue;
-                        }
-                        return getImportPath(virtualFile, root);
-                    }
+                    return getImportPath(virtualFile, root);
                 }
             }
             // If the package name cannot be constructed, return empty string

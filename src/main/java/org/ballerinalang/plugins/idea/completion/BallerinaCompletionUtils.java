@@ -34,12 +34,15 @@ import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
@@ -50,6 +53,9 @@ import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -458,42 +464,105 @@ public class BallerinaCompletionUtils {
      * @param file      file which will be used to get imported packages
      */
     static void addAllImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
-        List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(file);
-        for (PsiElement pack : packages) {
-            LookupElementBuilder builder = LookupElementBuilder.create(pack.getText())
-                    .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
-                    .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+        Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
+                ImportDeclarationNode.class);
+        for (ImportDeclarationNode importDeclarationNode : importDeclarationNodes) {
+            PsiElement packageNameNode;
+            String packagePath;
+            PackagePathNode packagePathNode = PsiTreeUtil.getChildOfType(importDeclarationNode, PackagePathNode.class);
+            if (packagePathNode == null) {
+                continue;
+            }
+            packagePath = packagePathNode.getText();
+
+            // We need to get all package name nodes from the package path node.
+            List<PackageNameNode> packageNameNodes = new ArrayList<>(
+                    PsiTreeUtil.findChildrenOfType(packagePathNode, PackageNameNode.class)
+            );
+            if (packageNameNodes.isEmpty()) {
+                continue;
+            }
+            packageNameNode = packageNameNodes.get(packageNameNodes.size() - 1);
+
+            AliasNode aliasNode = PsiTreeUtil.findChildOfType(importDeclarationNode, AliasNode.class);
+            if (aliasNode != null) {
+                LookupElementBuilder builder = LookupElementBuilder.create(aliasNode.getText())
+                        .withTailText("(" + packagePath + ")", true)
+                        .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
+                        .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+            } else {
+                LookupElementBuilder builder = LookupElementBuilder.create(packageNameNode.getText())
+                        .withTailText("(" + packagePath + ")", true)
+                        .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
+                        .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+            }
         }
     }
 
     static void addAllUnImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
-        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(file);
-        List<String> importedPackageNames = importedPackages.stream()
-                .map(PsiElement::getText)
-                .collect(Collectors.toList());
-        Map<String, String> importMap = BallerinaPsiImplUtil.getImportMap(file);
-        List<PsiDirectory> packages = BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(file.getProject());
-        for (PsiDirectory pack : packages) {
-
+        // Get all imported packages in the current file.
+        Map<String, String> importsMap = BallerinaPsiImplUtil.getAllImportsInAFile(file);
+        // Get all packages in the resolvable scopes (project and libraries).
+        List<PsiDirectory> directories = BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(file.getProject());
+        // Iterate through all available  packages.
+        for (PsiDirectory directory : directories) {
+            // Set the default insert handler to auto popup insert handler.
             InsertHandler<LookupElement> insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            // Suggest a package name for the directory.
+            // Eg: ballerina/lang/system -> ballerina.lang.system
+            String suggestedImportPath = BallerinaUtil.suggestPackageNameForDirectory(directory);
+            // There are two possibilities.
+            //
+            // 1) The package is already imported.
+            //
+            //    import ballerina.lang.system;
+            //    In this case, map will contain "system -> ballerina.lang.system". So we need to check whether the
+            //    directory name (as an example "system") is a key in the map.
+            //
+            // 2) The package is already imported using an alias.
+            //
+            //    import ballerina.lang.system as builtin;
+            //    In this case, map will contain "builtin -> ballerina.lang.system". So we need to check whether the
+            //    suggested import path (as an example "ballerina.lang.system") is already in the map as a value.
 
-            String lookup = pack.getName() + "2";
-
-            String suggestedPackage = BallerinaUtil.suggestPackageNameForDirectory(pack);
-            if (importedPackageNames.contains(pack.getName())) {
-                String packageName = importMap.get(pack.getName());
-                if (packageName != null && packageName.equals(suggestedPackage)) {
+            // Check whether the package is already in the imports.
+            if (importsMap.containsKey(directory.getName())) {
+                // Even though the package name is in imports, the name might be an alias.
+                // Eg: import org.tools as system;
+                //     In this case, map will contain "system -> org.tools". So when we type "sys", matching package
+                //     will be "ballerina.lang.system". Directory name is "system" which matches the "system" in
+                //     imports, but the paths are different.
+                //
+                // If the paths are same, we will not add it as a lookup since the {@code
+                // addAllImportedPackagesAsLookups} will add it as a lookup.
+                String packagePath = importsMap.get(directory.getName());
+                if (packagePath.equals(suggestedImportPath) || importsMap.containsValue(suggestedImportPath)) {
+                    // Condition importsMap.containsValue(suggestedImportPath) can happen when both package and
+                    // alias is available.
+                    // Eg: import ballerina.lang.system;
+                    //     import org.system as mySystem;
+                    // Now when we type "system", both above imports will be lookups if we don't continue here.
                     continue;
                 }
+                // If the paths does not match, that means the package is already imported as a alias, so we need to
+                // get an alias for the package which we are trying to import.
+                //
+                // Eg: import org.tools as system;
+                //     import ballerina.lang.system as builtin;
                 insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_ALIAS_WITH_POPUP;
+            } else if (importsMap.containsValue(suggestedImportPath)) {
+                // This means we have already imported this package. This will be suggested by {@code
+                // addAllImportedPackagesAsLookups}. So no need to add it as a lookup element.
+                continue;
             }
-
-            LookupElementBuilder builder = LookupElementBuilder.create(pack)
+            // Add the package as a lookup.
+            LookupElementBuilder builder = LookupElementBuilder.create(directory)
+                    .withTailText("(" + suggestedImportPath + ")", true)
                     .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
-                    .withTailText("(" + suggestedPackage + ")", true).withInsertHandler(insertHandler);
+                    .withInsertHandler(insertHandler);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
-
         }
     }
 

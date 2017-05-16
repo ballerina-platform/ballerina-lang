@@ -213,6 +213,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     }
 
     /**
+     * Adds package suggestions in the import declaration nodes.
+     *
      * @param resultSet      result list which is used to add lookups
      * @param identifierNode node which contains the package name
      */

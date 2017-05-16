@@ -52,8 +52,7 @@ public class BallerinaAutoImportInsertHandler implements InsertHandler<LookupEle
     private final boolean myTriggerAutoPopup;
 
     private BallerinaAutoImportInsertHandler(boolean triggerAutoPopup) {
-        suggestAlias = false;
-        myTriggerAutoPopup = triggerAutoPopup;
+        this(false, triggerAutoPopup);
     }
 
     private BallerinaAutoImportInsertHandler(boolean triggerAutoPopup, boolean suggestAlias) {
@@ -79,7 +78,6 @@ public class BallerinaAutoImportInsertHandler implements InsertHandler<LookupEle
             // Import the package.
             autoImport(context, element, alias);
             if (project != null) {
-                PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument());
                 if (!isCompletionCharAtSpace(editor)) {
                     if (suggestAlias) {
                         // InsertHandler inserts the old package name. So we need to change it to the new alias.
@@ -96,6 +94,8 @@ public class BallerinaAutoImportInsertHandler implements InsertHandler<LookupEle
                             currentPackageName.delete();
                         }
                     }
+                    PsiDocumentManager.getInstance(project)
+                            .doPostponedOperationsAndUnblockDocument(editor.getDocument());
                     EditorModificationUtil.insertStringAtCaret(editor, ":");
                     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
                 } else {
@@ -103,6 +103,7 @@ public class BallerinaAutoImportInsertHandler implements InsertHandler<LookupEle
                 }
                 // Invoke the popup.
                 if (myTriggerAutoPopup) {
+                    // We need to invoke the popup with a delay. Otherwise it might not show.
                     ApplicationManager.getApplication().invokeLater(
                             () -> AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null)
                     );
