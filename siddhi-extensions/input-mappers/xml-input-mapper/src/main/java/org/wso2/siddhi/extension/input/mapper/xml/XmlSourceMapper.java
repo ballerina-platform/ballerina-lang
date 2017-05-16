@@ -229,7 +229,8 @@ public class XmlSourceMapper extends SourceMapper {
 
     /**
      * Receives an event as an XML string from {@link org.wso2.siddhi.core.stream.input.source.Source}, converts it to
-     * a {@link ComplexEventChunk} and send to the {@link org.wso2.siddhi.core.query.output.callback.OutputCallback}.
+     * a {@link org.wso2.siddhi.core.event.ComplexEventChunk} and send to the
+     * {@link org.wso2.siddhi.core.query.output.callback.OutputCallback}.
      *
      * @param eventObject  the input event, given as an XML string
      * @param inputEventHandler input handler
