@@ -68,8 +68,9 @@ class BlockStatementDecorator extends React.Component {
 
 	openExpressionEditor(e){
 		let options = this.props.editorOptions;
+		let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;        
 		if(this.props.expression && options){
-			new ExpressionEditor( this.conditionBox , this.context.container , (text) => this.onUpdate(text), options );
+			new ExpressionEditor( this.conditionBox , this.context.container , (text) => this.onUpdate(text), options ,packageScope);
 		}
 	}
 
@@ -89,6 +90,7 @@ BlockStatementDecorator.propTypes = {
 
 BlockStatementDecorator.contextTypes = {
 	 container: PropTypes.instanceOf(Object).isRequired,
+	 renderingContext: PropTypes.instanceOf(Object).isRequired,     
 };
 
 

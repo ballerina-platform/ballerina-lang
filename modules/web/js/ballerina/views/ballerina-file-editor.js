@@ -846,6 +846,11 @@ class BallerinaFileEditor extends BallerinaView {
      * @returns [int]
     */
     getBreakpoints() {
+        // handle if failed to build model
+        if(!this._model) {
+            return;
+        }
+
         const findBreakpointsVisitor = new FindBreakpointLinesVisitor(this._model);
         this._model.accept(findBreakpointsVisitor);
         const breakpoints = findBreakpointsVisitor.getBreakpoints();
@@ -857,7 +862,7 @@ class BallerinaFileEditor extends BallerinaView {
     }
 
     /**
-     * This function will rerender the diagram and tool palette. 
+     * This function will rerender the diagram and tool palette.
      * Will be used to re adjest diagram when browser window resized.
      */
     reRender(){

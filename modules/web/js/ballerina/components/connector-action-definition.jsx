@@ -57,7 +57,7 @@ class ConnectorAction extends React.Component {
                                 dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
                                 titleComponentData={titleComponentData}>
             <g>
-                <LifeLineDecorator title="ResourceWorker" bBox={resource_worker_bBox}/>
+                <LifeLineDecorator title="default" bBox={resource_worker_bBox}/>
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
                     {children}
                 </StatementContainer>

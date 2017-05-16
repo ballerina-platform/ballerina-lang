@@ -22,6 +22,7 @@ import CanvasDecorator from './canvas-decorator';
 import FunctionDefinition from './function-definition';
 import PositionCalcVisitor from '../visitors/position-calculator-visitor';
 import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor';
+import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
 import {getComponentForNodeArray} from './utils';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
@@ -87,12 +88,21 @@ class Diagram extends React.Component {
             }
         });
         others = getComponentForNodeArray(otherNodes);
+        // 3.1 lets filter out annotations so we can overlay html on top of svg.
+        let annotationRenderer = new AnnotationRenderingVisitor();
+        this.model.accept(annotationRenderer);
+        let annotations = [];
+        if(annotationRenderer.getAnnotations()){
+            annotations = getComponentForNodeArray(annotationRenderer.getAnnotations());
+        }
+        
         // 4. Ok we are all set, now lets render the diagram with React. We will create
         //    s CsnvasDecorator and pass child components for that.
         let viewState = this.model.getViewState();
-        return <CanvasDecorator dropTarget={this.model} title="StatementContainer" bBox={viewState.bBox}>
-            {others}
-        </CanvasDecorator>
+
+        return <CanvasDecorator dropTarget={this.model} title="StatementContainer" bBox={viewState.bBox} annotations={annotations}>
+                   {others}
+               </CanvasDecorator>
     }
 
     getChildContext() {

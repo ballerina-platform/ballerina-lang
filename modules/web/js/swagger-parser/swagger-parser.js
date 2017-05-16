@@ -83,23 +83,43 @@ class SwaggerParser {
         }
 
         // Updating/Creating resources using path annotation
-        _.forEach(this._swaggerJson.paths, (httpMethodObject, pathString) => {
-            _.forEach(Object.keys(httpMethodObject), httpMethodAsString => {
-                let existingResource = _.find(serviceDefinition.getResourceDefinitions(), resourceDefinition => {
-                    let httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-                    let pathAnnotation = resourceDefinition.getPathAnnotation();
-                    return !_.isUndefined(httpMethodAnnotation) && !_.isUndefined(pathAnnotation) &&
-                        _.isEqual(pathString, pathAnnotation.getChildren()[0].getRightValue().toLowerCase().replace(/"/g, '')) &&
-                        _.isEqual(httpMethodAsString, httpMethodAnnotation.getIdentifier().toLowerCase());
+        _.forEach(this._swaggerJson.paths, (httpMethodObjects, pathString) => {
+            _.forEach(httpMethodObjects , (operation, httpMethodAsString) => {
+                let existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
+                    let resourceName = resourceDefinition.getResourceName();
+                    let operationId = operation.operationId;
+                    if(resourceName == operationId){
+                        return true;
+                    }
+                    return false;
                 });
 
+                //if the operation id does not match we will check if a resource exist with matching path and methos
+                if(_.isUndefined(existingResource)){
+                    existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
+                        let httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
+                        let pathAnnotation = resourceDefinition.getPathAnnotation();
+                        return !_.isUndefined(httpMethodAnnotation) && !_.isUndefined(pathAnnotation) &&
+                            _.isEqual(pathString, pathAnnotation.getChildren()[0].getRightValue().toLowerCase().replace(/"/g, '')) &&
+                            _.isEqual(httpMethodAsString, httpMethodAnnotation.getIdentifier().toLowerCase());                       
+                    });
+                    //if operationId exists set it as resource name.
+                    if(operation.operationId){
+                        existingResource.setResourceName(operation.operationId);
+                    }
+                }
+
                 if (!_.isUndefined(existingResource)) {
-                    this._mergeToResource(existingResource, pathString, httpMethodAsString, httpMethodObject[httpMethodAsString]);
+                    this._mergeToResource(existingResource, pathString, httpMethodAsString, operation);
                 } else {
-                    this._createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodObject[httpMethodAsString]);
+                    this._createNewResource(serviceDefinition, pathString, httpMethodAsString, operation);
                 }
             });
         });
+
+        // if resources with un matching operations we will check if a body exits if not we will remove 
+
+        // otherwise prompt the user to remove
     }
 
     /**
@@ -235,14 +255,12 @@ class SwaggerParser {
      * @private
      */
     _mergeToResource(resourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
-        // Create path annotation
-        // This is not needed to be done as the path value is kept mapped from the swagger editor to the composer AST.
-
-        // Creating http method annotation
-        // This is not needed to be done as the http method value is kept mapped from the swagger editor to the composer
-        // AST.
 
         // this._createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject);
+        let pathAnnotation = resourceDefinition.getPathAnnotation();
+        pathAnnotation.getChildren()[0].setRightValue(JSON.stringify(pathString), {doSilently: true});
+        let methodAnnotation = resourceDefinition.getHttpMethodAnnotation();
+        methodAnnotation.setIdentifier(httpMethodAsString.toUpperCase(), {doSilently: true});
 
         let resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
 
@@ -431,6 +449,11 @@ class SwaggerParser {
      */
     _createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
         let newResourceDefinition = DefaultBallerinaASTFactory.createResourceDefinition();
+
+        //if an operation id is defined set it as resource name.
+        if(httpMethodJsonObject.operationId){
+            newResourceDefinition.setResourceName(httpMethodJsonObject.operationId);
+        }
 
         newResourceDefinition.getPathAnnotation().getChildren()[0].setRightValue(JSON.stringify(pathString));
         newResourceDefinition.getHttpMethodAnnotation().setIdentifier(httpMethodAsString.toUpperCase());

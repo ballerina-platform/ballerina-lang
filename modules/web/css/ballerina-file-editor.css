@@ -868,3 +868,35 @@ input#package-name-input {
 .panel > .panel-header > .panel-header-controls > .control:hover {
     opacity: 1;
 }
+
+.annotation-container {
+    background: #EFEFEF;
+    overflow: auto;
+    padding-left: 5px;
+}
+
+.annotation-container table{
+
+}
+
+.annotation-container table td:last-child {
+    width: 100%;
+}
+
+.annotation-line{
+
+}
+
+.annotation-key{
+    white-space: nowrap;
+    padding-right: 10px;
+}
+
+.annotation-table td{
+    height: 20px;
+    line-height: 25px;
+}
+
+.annotation-close {
+    padding-left: 5px;
+}
