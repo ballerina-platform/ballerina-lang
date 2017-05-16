@@ -55,6 +55,7 @@ class PackageDefinitionDimensionCalculatorVisitor {
         }
 
         viewState.bBox.h = height;
+        viewState.bBox.w = 0;
     }
 }
 

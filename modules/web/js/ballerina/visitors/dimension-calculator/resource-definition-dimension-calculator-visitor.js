@@ -55,6 +55,27 @@ class ResourceDefinitionDimensionCalculatorVisitor {
         viewState.components.closingParameter = {};
         viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
 
+        // Calculate function definition full width
+        viewState.bBox.w = viewState.components['body'].w
+            + this.parameterTypeWidth(node) + viewState.components.closingParameter.w
+            + viewState.components.openingParameter.w + viewState.titleWidth
+            + 14 + (DesignerDefaults.panel.wrapper.gutter.h * 2) + 100;
+    }
+
+    /**
+     * Calculate Parameters' text width for Resource Definition.
+     * @param {ResourceDefinition} node - Resource Definition Node.
+     * @return {number} width - return sum of widths of parameter texts.
+     * */
+    parameterTypeWidth(node) {
+        let width = 0;
+        if (node.getParameters().length > 0) {
+            for (let i = 0; i < node.getParameters().length; i++) {
+                width += util.getTextWidth(node.getParameters()[i].getParameterDefinitionAsString(), 0).w;
+            }
+        }
+
+        return width;
     }
 }
 

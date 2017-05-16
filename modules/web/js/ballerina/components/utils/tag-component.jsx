@@ -71,7 +71,8 @@ class TagController extends React.Component {
         if (componentData.components.typesIcon) {
             return (
                 <g key={componentData.title}>
-                    <text x={componentData.components.typesIcon.x} y={componentData.components.typesIcon.y}>returns</text>
+                    <text x={componentData.components.typesIcon.x} y={componentData.components.typesIcon.y}>returns
+                    </text>
                     <text x={componentData.components.openingBracket.x}
                           y={componentData.components.openingBracket.y + 3}
                           className={componentData.openingBracketClassName}>(
@@ -88,6 +89,7 @@ class TagController extends React.Component {
                                       height={20}
                                       className="tag-component-editable-text-box"
                                       placeHolder={this.state.editValue}
+                                      canUpdate={false}
                                       onBlur={e => {
                                           this.onInputBlur(e)
                                       }}
