@@ -674,7 +674,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         // Visit Rollback Block.
         rollbackBlock.setParent(transactionRollbackStmt);
         rollbackBlock.accept(this);
-
     }
 
     @Override

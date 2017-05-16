@@ -259,7 +259,7 @@ public class SQLDatasource implements BValue {
                 return false;
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in get distributed data source: " + e.getCause().getMessage());
+            throw new BallerinaException("error in check distributed data source: " + e.getCause().getMessage());
         }
     }
 }

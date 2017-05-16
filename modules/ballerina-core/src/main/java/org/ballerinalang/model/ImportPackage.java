@@ -36,6 +36,7 @@ package org.ballerinalang.model;
  */
 public class ImportPackage implements Node {
     protected NodeLocation location;
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     private String path;
     private String name;
     private String asName;
@@ -55,13 +56,15 @@ public class ImportPackage implements Node {
         this.symbolName = new SymbolName(this.path);
     }
 
-    public ImportPackage(NodeLocation location, String path) {
+    public ImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor, String path) {
         this(path);
         this.location = location;
+        this.whiteSpaceDescriptor = wsDescriptor;
     }
 
-    public ImportPackage(NodeLocation location, String path, String asName) {
+    public ImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor, String path, String asName) {
         this.location = location;
+        this.whiteSpaceDescriptor = wsDescriptor;
         this.path = path;
         this.name = asName;
         this.asName = asName;
@@ -120,5 +123,14 @@ public class ImportPackage implements Node {
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 }

@@ -22,7 +22,7 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 
 /**
- * {@code AbortStmt} represents a abort statement within a transaction block.
+ * {@code AbortStmt} represents an abort action within a transaction block.
  *
  * @since 0.8.7
  */
@@ -30,8 +30,8 @@ public class AbortStmt extends AbstractStatement {
 
     public AbortStmt(NodeLocation location) {
         super(location);
-
     }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);

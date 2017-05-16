@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -29,8 +30,8 @@ import org.ballerinalang.model.values.BValue;
  */
 public class NullLiteral extends AbstractExpression {
 
-    public NullLiteral(NodeLocation location) {
-        super(location);
+    public NullLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        super(location, whiteSpaceDescriptor);
     }
 
     public BValue getBValue() {

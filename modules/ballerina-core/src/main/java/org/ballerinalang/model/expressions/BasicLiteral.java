@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
@@ -35,13 +36,14 @@ public class BasicLiteral extends AbstractExpression {
     private SimpleTypeName typeName;
     private BValueType bValue;
 
-    public BasicLiteral(NodeLocation location, BValueType bValueType) {
-        super(location);
+    public BasicLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, BValueType bValueType) {
+        super(location, whiteSpaceDescriptor);
         this.bValue = bValueType;
     }
 
-    public BasicLiteral(NodeLocation location, SimpleTypeName typeName, BValueType bValue) {
-        super(location);
+    public BasicLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
+                        BValueType bValue) {
+        super(location, whiteSpaceDescriptor);
         this.bValue = bValue;
         this.typeName = typeName;
     }

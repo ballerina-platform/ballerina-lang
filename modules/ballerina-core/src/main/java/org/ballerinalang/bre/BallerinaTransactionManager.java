@@ -33,8 +33,8 @@ import javax.transaction.TransactionManager;
 public class BallerinaTransactionManager {
     private Map<String, BallerinaTransactionContext> transactionContextStore;
     private TransactionManager transactionManager;
-    private int transactionLevel;
-    private boolean transactionError; //tracks the status of nested transactions.
+    private int transactionLevel; //level of the nested transaction
+    private boolean transactionError; //status of nested transactions
 
     public BallerinaTransactionManager() {
         this.transactionContextStore = new HashMap<>();

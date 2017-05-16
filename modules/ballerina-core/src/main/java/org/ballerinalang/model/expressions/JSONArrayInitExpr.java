@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BValue;
 
 
@@ -31,8 +32,8 @@ import org.ballerinalang.model.values.BValue;
  */
 public class JSONArrayInitExpr extends RefTypeInitExpr {
 
-    public JSONArrayInitExpr(NodeLocation location, Expression[] argExprs) {
-        super(location, argExprs);
+    public JSONArrayInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] argExprs) {
+        super(location, whiteSpaceDescriptor, argExprs);
     }
 
     @Override

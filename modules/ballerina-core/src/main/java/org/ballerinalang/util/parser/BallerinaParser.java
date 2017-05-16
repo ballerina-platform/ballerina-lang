@@ -29,14 +29,14 @@ public class BallerinaParser extends Parser {
 		T__66=67, T__67=68, T__68=69, T__69=70, T__70=71, T__71=72, T__72=73, 
 		T__73=74, T__74=75, T__75=76, T__76=77, T__77=78, IntegerLiteral=79, FloatingPointLiteral=80, 
 		BooleanLiteral=81, QuotedStringLiteral=82, BacktickStringLiteral=83, NullLiteral=84, 
-		Identifier=85, WS=86, LINE_COMMENT=87;
+		Identifier=85, WS=86, NEW_LINE=87, LINE_COMMENT=88;
 	public static final int
 		RULE_compilationUnit = 0, RULE_packageDeclaration = 1, RULE_packageName = 2, 
 		RULE_importDeclaration = 3, RULE_definition = 4, RULE_serviceDefinition = 5, 
 		RULE_serviceBody = 6, RULE_resourceDefinition = 7, RULE_callableUnitBody = 8, 
 		RULE_functionDefinition = 9, RULE_callableUnitSignature = 10, RULE_connectorDefinition = 11, 
 		RULE_connectorBody = 12, RULE_actionDefinition = 13, RULE_structDefinition = 14, 
-		RULE_structBody = 15, RULE_annotationDefinition = 16, RULE_globalVariableDefinitionStatement = 17, 
+		RULE_structBody = 15, RULE_annotationDefinition = 16, RULE_globalVariableDefinition = 17, 
 		RULE_attachmentPoint = 18, RULE_annotationBody = 19, RULE_typeMapperDefinition = 20, 
 		RULE_typeMapperSignature = 21, RULE_typeMapperBody = 22, RULE_constantDefinition = 23, 
 		RULE_workerDeclaration = 24, RULE_typeName = 25, RULE_referenceTypeName = 26, 
@@ -64,7 +64,7 @@ public class BallerinaParser extends Parser {
 		"definition", "serviceDefinition", "serviceBody", "resourceDefinition", 
 		"callableUnitBody", "functionDefinition", "callableUnitSignature", "connectorDefinition", 
 		"connectorBody", "actionDefinition", "structDefinition", "structBody", 
-		"annotationDefinition", "globalVariableDefinitionStatement", "attachmentPoint", 
+		"annotationDefinition", "globalVariableDefinition", "attachmentPoint", 
 		"annotationBody", "typeMapperDefinition", "typeMapperSignature", "typeMapperBody", 
 		"constantDefinition", "workerDeclaration", "typeName", "referenceTypeName", 
 		"valueTypeName", "builtInReferenceTypeName", "xmlNamespaceName", "xmlLocalName", 
@@ -106,7 +106,7 @@ public class BallerinaParser extends Parser {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
 		null, null, null, null, null, null, null, "IntegerLiteral", "FloatingPointLiteral", 
 		"BooleanLiteral", "QuotedStringLiteral", "BacktickStringLiteral", "NullLiteral", 
-		"Identifier", "WS", "LINE_COMMENT"
+		"Identifier", "WS", "NEW_LINE", "LINE_COMMENT"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -445,8 +445,8 @@ public class BallerinaParser extends Parser {
 		public AnnotationDefinitionContext annotationDefinition() {
 			return getRuleContext(AnnotationDefinitionContext.class,0);
 		}
-		public GlobalVariableDefinitionStatementContext globalVariableDefinitionStatement() {
-			return getRuleContext(GlobalVariableDefinitionStatementContext.class,0);
+		public GlobalVariableDefinitionContext globalVariableDefinition() {
+			return getRuleContext(GlobalVariableDefinitionContext.class,0);
 		}
 		public DefinitionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -522,7 +522,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 8);
 				{
 				setState(214);
-				globalVariableDefinitionStatement();
+				globalVariableDefinition();
 				}
 				break;
 			}
@@ -1378,7 +1378,7 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class GlobalVariableDefinitionStatementContext extends ParserRuleContext {
+	public static class GlobalVariableDefinitionContext extends ParserRuleContext {
 		public TypeNameContext typeName() {
 			return getRuleContext(TypeNameContext.class,0);
 		}
@@ -1386,23 +1386,23 @@ public class BallerinaParser extends Parser {
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public GlobalVariableDefinitionStatementContext(ParserRuleContext parent, int invokingState) {
+		public GlobalVariableDefinitionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_globalVariableDefinitionStatement; }
+		@Override public int getRuleIndex() { return RULE_globalVariableDefinition; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterGlobalVariableDefinitionStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterGlobalVariableDefinition(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitGlobalVariableDefinitionStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitGlobalVariableDefinition(this);
 		}
 	}
 
-	public final GlobalVariableDefinitionStatementContext globalVariableDefinitionStatement() throws RecognitionException {
-		GlobalVariableDefinitionStatementContext _localctx = new GlobalVariableDefinitionStatementContext(_ctx, getState());
-		enterRule(_localctx, 34, RULE_globalVariableDefinitionStatement);
+	public final GlobalVariableDefinitionContext globalVariableDefinition() throws RecognitionException {
+		GlobalVariableDefinitionContext _localctx = new GlobalVariableDefinitionContext(_ctx, getState());
+		enterRule(_localctx, 34, RULE_globalVariableDefinition);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -6307,7 +6307,7 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3Y\u040d\4\2\t\2\4"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3Z\u040d\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -6619,7 +6619,7 @@ public class BallerinaParser extends Parser {
 		"\u033d\5\u0080A\2\u033c\u033a\3\2\2\2\u033c\u033b\3\2\2\2\u033d}\3\2\2"+
 		"\2\u033e\u033f\7W\2\2\u033f\u0340\7?\2\2\u0340\u0341\7W\2\2\u0341\u0342"+
 		"\7\4\2\2\u0342\177\3\2\2\2\u0343\u0344\7W\2\2\u0344\u0345\7@\2\2\u0345"+
-		"\u0346\7W\2\2\u0346\u0347\7\4\2\2\u0347\u0081\3\2\2\2\u0348\u0349\7Y\2"+
+		"\u0346\7W\2\2\u0346\u0347\7\4\2\2\u0347\u0081\3\2\2\2\u0348\u0349\7Z\2"+
 		"\2\u0349\u0083\3\2\2\2\u034a\u034b\bC\1\2\u034b\u0356\5\u0098M\2\u034c"+
 		"\u0351\5\u0098M\2\u034d\u034e\7\37\2\2\u034e\u034f\5\u0096L\2\u034f\u0350"+
 		"\7 \2\2\u0350\u0352\3\2\2\2\u0351\u034d\3\2\2\2\u0352\u0353\3\2\2\2\u0353"+

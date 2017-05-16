@@ -17,9 +17,8 @@
 */
 package org.ballerinalang.bre;
 
-
 /**
- * {@code BallerinaTransactionContext} transaction context for ballerina local transactions.
+ * {@code BallerinaTransactionContext} represent the connection context associated with a transaction.
  *
  * @since 0.8.7
  */

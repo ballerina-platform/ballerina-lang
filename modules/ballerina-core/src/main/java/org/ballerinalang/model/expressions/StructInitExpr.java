@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -32,8 +33,8 @@ import org.ballerinalang.model.values.BValue;
  */
 public class StructInitExpr extends RefTypeInitExpr {
 
-    public StructInitExpr(NodeLocation location, Expression[] argExprs) {
-        super(location, argExprs);
+    public StructInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] argExprs) {
+        super(location, whiteSpaceDescriptor, argExprs);
     }
 
     @Override

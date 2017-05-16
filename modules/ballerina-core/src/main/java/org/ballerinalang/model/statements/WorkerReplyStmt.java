@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 
@@ -35,8 +36,10 @@ public class WorkerReplyStmt extends AbstractStatement {
     private VariableRefExpr receiveExpr;
     Worker worker;
 
-    public WorkerReplyStmt(VariableRefExpr receiveExpr, String workerName, NodeLocation nodeLocation) {
+    public WorkerReplyStmt(VariableRefExpr receiveExpr, String workerName, NodeLocation nodeLocation,
+                           WhiteSpaceDescriptor whiteSpaceDescriptor) {
         super(nodeLocation);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.receiveExpr = receiveExpr;
         this.workerName = workerName;
     }

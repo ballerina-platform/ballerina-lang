@@ -112,7 +112,7 @@ public class TransactionRollbackStmt extends AbstractStatement {
     /**
      * Builds a {@code {@link TransactionRollbackStmt}} statement.
      *
-     * @since 0.8.6
+     * @since 0.8.7
      */
     public static class TransactionRollbackStmtBuilder {
         private Statement transactionBlock;
