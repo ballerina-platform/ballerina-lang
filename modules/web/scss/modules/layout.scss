@@ -42,10 +42,11 @@
 
         & a{
           padding: 0;
+          font-weight: 400;
 
           &:hover, &:focus {
             background-color: #fff;
-            color: #0a6aa1;
+            color: #f17b31;
           }
         }
       }
