@@ -44,7 +44,6 @@ function testCalculateExp2(int x) (string) {
     } else {
         return "small";
     }
-    return "Unknown";
 }
 service EchoService{
   resource echoResource (message m) {

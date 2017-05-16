@@ -49,4 +49,8 @@ public class ThrowStmt extends AbstractStatement {
         executor.visit(this);
     }
 
+    @Override
+    public boolean isAlwaysReturns() {
+        return true;
+    }
 }

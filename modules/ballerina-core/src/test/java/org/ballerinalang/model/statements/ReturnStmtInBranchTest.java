@@ -40,17 +40,17 @@ public class ReturnStmtInBranchTest {
         bLangProgram = BTestUtils.parseBalFile("lang/statements/returnstmt/return-stmt-in-branches.bal");
     }
 
-    @Test(description = "Test Return statements in branches")
-    public void testReturnStmtInBranches1() {
-        BValue[] args = {new BInteger(12), new BInteger(13)};
-
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "returnStmtBranch1", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
-    }
+//    @Test(description = "Test Return statements in branches")
+//    public void testReturnStmtInBranches1() {
+//        BValue[] args = {new BInteger(12), new BInteger(13)};
+//
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "returnStmtBranch1", args);
+//
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertSame(returns[0].getClass(), BInteger.class);
+//
+//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+//    }
 
     @Test(description = "Test Return statements in branches")
     public void testReturnStmtInBranches2() {

@@ -17,13 +17,6 @@ function returnStmtBranch1(int value, int b) (int) {
 
         return 500;
     }
+
+    return 1;
 }
-
-function returnStmtBranch2(int value, int b) (int) {
-    int a = value + b;
-    int c = returnStmtBranch1(9, 10);
-    c = c + c + a;
-
-    return c;
-}
-
