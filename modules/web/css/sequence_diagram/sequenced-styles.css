@@ -133,7 +133,7 @@ svg use svg {
     fill-opacity: 0;
     stroke-width: 1;
     stroke: #000000;
-    shape-rendering: crispEdges; 
+    shape-rendering: crispEdges;
 }
 
 .client rect {
@@ -291,7 +291,7 @@ text-anchor: start;
 }
 
 .property-pane-action-button-delete {
-    opacity: 0.3;
+    opacity: 0.8;
     fill: url(/#statementDeleteIcon);
 }
 
@@ -302,7 +302,7 @@ text-anchor: start;
 }
 
 .property-pane-action-button-breakpoint {
-    opacity: 0.3;
+    opacity: 0.8;
     fill: url(/#addBreakpointIcon);
 }
 
@@ -318,7 +318,7 @@ text-anchor: start;
 }
 
 .property-pane-action-button-jump {
-    opacity: 0.3;
+    opacity: 0.8;
     fill: url(/#statementJumpIcon);
 }
 
