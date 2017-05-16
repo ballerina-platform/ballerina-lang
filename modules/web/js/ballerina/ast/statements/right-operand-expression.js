@@ -29,6 +29,14 @@ class RightOperandExpression extends Statement {
         this._right_operand_expression_string = undefined;
     }
 
+    generateExpression() {
+        var expression = '';
+        _.forEach(this.getChildren(), child => {
+            expression += child.generateExpression();
+        });
+        return expression;
+    }
+
     /**
      * Get Right Operand Expression String
      * @returns {string} - The expression
